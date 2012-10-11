@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLWrapper", "DGLWrapper\DGLWrapper.vcxproj", "{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLGUI", "DGLGui\DGLGui.vcxproj", "{28B3A2F3-8E6F-4D4C-B29F-BF6180067E26}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}.Debug|Win32.Build.0 = Debug|Win32
+		{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}.Release|Win32.ActiveCfg = Release|Win32
+		{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}.Release|Win32.Build.0 = Release|Win32
+		{28B3A2F3-8E6F-4D4C-B29F-BF6180067E26}.Debug|Win32.ActiveCfg = Debug|Win32
+		{28B3A2F3-8E6F-4D4C-B29F-BF6180067E26}.Debug|Win32.Build.0 = Debug|Win32
+		{28B3A2F3-8E6F-4D4C-B29F-BF6180067E26}.Release|Win32.ActiveCfg = Release|Win32
+		{28B3A2F3-8E6F-4D4C-B29F-BF6180067E26}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
