@@ -2,6 +2,8 @@
 import os
 import re
 
+if not os.path.exists("output"):
+    os.makedirs("output")
 
 
 nonExtTypedefs = open("output/nonExtTypedefs.inl", "w")
@@ -10,6 +12,9 @@ pointersFile = open("output/pointers.inl", "w")
 pointersLoadFile = open("output/pointers_load.inl", "w")
 functionListFile = open("output/functionList.inl", "w")
 defFile = open("output/OpenGL32.def", "w")
+
+
+
 
 
 def parse(file, genNonExtTypedefs = False):
@@ -76,8 +81,6 @@ def parse(file, genNonExtTypedefs = False):
 				print >> nonExtTypedefs, "typedef " + functionRetType + " (APIENTRYP PFN" + functionName.upper() + ")(" + functionAttrList + ");"
 			
 			print >> defFile, "  " + functionName
-
-
 
 print >> defFile, "LIBRARY opengl32.dll"
 print >> defFile, "EXPORTS"
