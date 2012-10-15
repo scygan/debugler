@@ -11,34 +11,28 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pointers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="api-loader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DGLWrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="transport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="client.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="api-loader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gl-wrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="wgl-wrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClInclude Include="message.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="transport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
