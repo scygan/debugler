@@ -6,6 +6,8 @@
 
 #include "ui_dglmainwindow.h"
 
+#include "dglcontroller.h"
+
 class DGLMainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -17,6 +19,8 @@ public:
 
 private slots:
     void about();
+    void attach();
+
 
 private:
     void createActions();
@@ -34,7 +38,13 @@ private:
     QAction *aboutQtAct;
     QAction *quitAct;
 
-    Ui::DGLMainWindowClass ui;
+    QAction *attachAct;
+
+    Ui::DGLMainWindowClass m_ui;
+
+    DglController m_controller;
+
+
 };
 
 #endif // DGLMAINWINDOW_H

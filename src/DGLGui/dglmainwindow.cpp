@@ -2,11 +2,11 @@
 #include <QMessageBox>
 
 #include "dglmainwindow.h"
-
+#include "dglconnectdialog.h"
 
 DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags) {
-    ui.setupUi(this);
+    m_ui.setupUi(this);
     createActions();
     createMenus();
     createToolBars();
@@ -37,9 +37,7 @@ void DGLMainWindow::createDockWindows() {
 
 void DGLMainWindow::createMenus() {
      fileMenu = menuBar()->addMenu(tr("&File"));
-     //fileMenu->addAction(newLetterAct);
-     //fileMenu->addAction(saveAct);
-     //fileMenu->addAction(printAct);
+     fileMenu->addAction(attachAct);
      fileMenu->addSeparator();
      fileMenu->addAction(quitAct);
 
@@ -79,6 +77,11 @@ void DGLMainWindow::createToolBars() {
      aboutAct = new QAction(tr("&About"), this);
      aboutAct->setStatusTip(tr("Show the application's About box"));
      connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
+
+     attachAct = new QAction(tr("&Attach to"), this);
+     attachAct->setStatusTip(tr("Attach to IP target"));
+     connect(attachAct, SIGNAL(triggered()), this, SLOT(attach()));
+
  }
 
   void DGLMainWindow::about() {
@@ -88,3 +91,11 @@ void DGLMainWindow::createToolBars() {
                 "Faculty of Electronics, Telecommunications and Informatics<br>"
                 "Department of Computer Architecture, 2012."));
  }
+
+  void DGLMainWindow::attach() {
+      DGLConnectDialog dialog;
+      if (dialog.exec() == QDialog::Accepted) {
+          m_controller.connect(dialog.getAddress(), dialog.getPort());
+      }
+
+  }
