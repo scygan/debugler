@@ -2,6 +2,7 @@
 
 
 namespace dglnet {
-    Transport::Transport() {}
+
+    Transport::Transport():m_socket(m_io_service), m_connected(false) {}
 
 }

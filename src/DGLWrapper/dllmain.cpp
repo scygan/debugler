@@ -1,9 +1,11 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
-#include<windows.h>
+
 #include "api-loader.h"
 #include "debugger.h"
 
 #include <boost/make_shared.hpp>
+
+#include<windows.h>
 
 void Initialize() {
     LoadOpenGLLibrary();
