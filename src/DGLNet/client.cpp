@@ -19,10 +19,6 @@ namespace dglnet {
         return m_socket.native_handle();
     }
 
-    void Client::poll() {
-        m_io_service.poll();
-    }
-
     void Client::onResolve(const boost::system::error_code& err,
         boost::asio::ip::tcp::resolver::iterator endpoint_iterator) {
         

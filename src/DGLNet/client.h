@@ -17,8 +17,6 @@ class Client: public Transport {
 public: 
     Client(std::string host, std::string port, IController* controller);
     int getSocketFD();
-    
-    void poll();
 
 private:
     void onResolve(const boost::system::error_code& err,
