@@ -13,7 +13,7 @@ namespace dglnet {
         m_mutex.lock();
     }    
     void Server::unlock() {
-        m_mutex.lock();
+        m_mutex.unlock();
     }  
 }
 

@@ -20,6 +20,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLNet", "DGLNet\DGLNet.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLCommon", "DGLCommon\DGLCommon.vcxproj", "{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "codegen", "codegen\codegen.vcxproj", "{F16EFBD2-E47A-4E5B-B091-7D400430745A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -42,6 +44,9 @@ Global
 		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}.Debug|Win32.Build.0 = Debug|Win32
 		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}.Release|Win32.ActiveCfg = Release|Win32
 		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}.Release|Win32.Build.0 = Release|Win32
+		{F16EFBD2-E47A-4E5B-B091-7D400430745A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F16EFBD2-E47A-4E5B-B091-7D400430745A}.Release|Win32.ActiveCfg = Release|Win32
+		{F16EFBD2-E47A-4E5B-B091-7D400430745A}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
