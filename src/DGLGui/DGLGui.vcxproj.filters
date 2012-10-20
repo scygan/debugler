@@ -41,32 +41,32 @@
     <ClCompile Include="dglmainwindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_dglmainwindow.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_dglmainwindow.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_dglmainwindow.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_dglconnectdialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_dglconnectdialog.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="dglconnectdialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dglcontoller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_dglcontroller.cpp">
+    <ClCompile Include="..\..\dump\($ProjectName)\Debug\GeneratedFiles\moc_dglmainwindow.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_dglcontroller.cpp">
+    <ClCompile Include="..\..\dump\($ProjectName)\Release\GeneratedFiles\moc_dglmainwindow.cpp">
       <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\($ProjectName)\Debug\GeneratedFiles\moc_dglcontroller.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\($ProjectName)\Release\GeneratedFiles\moc_dglcontroller.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\($ProjectName)\Debug\GeneratedFiles\moc_dglconnectdialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\($ProjectName)\Release\GeneratedFiles\moc_dglconnectdialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\($ProjectName)\$(ConfigurationName)\GeneratedFiles\qrc_dglmainwindow.cpp">
+      <Filter>Generated Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -90,10 +90,10 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GeneratedFiles\ui_dglmainwindow.h">
+    <ClInclude Include="..\..\dump\($ProjectName)\$(ConfigurationName)\GeneratedFiles\ui_dglconnectdialog.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_dglconnectdialog.h">
+    <ClInclude Include="..\..\dump\($ProjectName)\$(ConfigurationName)\GeneratedFiles\ui_dglmainwindow.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
