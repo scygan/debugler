@@ -86,6 +86,6 @@ typedef struct _GLYPHMETRICSFLOAT {
 #include<cstdio>
 
 extern "C" {
-#include "../codegen/output/wrappers.inl"
+#include "../../dump/codegen/wrappers.inl"
 }
 

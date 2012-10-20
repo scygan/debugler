@@ -33,10 +33,10 @@ typedef BOOL (WINAPI *PFNWGLUSEFONTBITMAPSW) (HDC a, DWORD b, DWORD c, DWORD d);
 typedef BOOL (WINAPI *PFNWGLUSEFONTOUTLINESA) (HDC a, DWORD b, DWORD c, DWORD d, FLOAT e, FLOAT f, int g, LPGLYPHMETRICSFLOAT h);
 typedef BOOL (WINAPI *PFNWGLUSEFONTOUTLINESW) (HDC a, DWORD b, DWORD c, DWORD d, FLOAT e, FLOAT f, int g, LPGLYPHMETRICSFLOAT h);
 
-#include "../codegen/output/nonExtTypedefs.inl"
+#include "../../dump/codegen/nonExtTypedefs.inl"
 
 #define POINTER(X) X##_Ptr
 #define DIRECT_CALL(X) (*POINTER(X))
 #define PTR_PREFIX extern
-#include "../codegen/output/pointers.inl"
+#include "../../dump/codegen/pointers.inl"
 #undef PTR_PREFIX

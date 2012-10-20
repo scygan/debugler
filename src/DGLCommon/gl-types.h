@@ -8,7 +8,7 @@
 #include <GL/gl.h>
 
 enum Entrypoints {
-    #include "codegen/output/functionList.inl"
+    #include "../../dump/codegen/functionList.inl"
     LAST_Call
 };
 

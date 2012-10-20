@@ -2,19 +2,17 @@
 import os
 import re
 
-if not os.path.exists("output"):
-    os.makedirs("output")
+outputDir = "../../../dump/codegen/"
 
+if not os.path.exists(outputDir):
+    os.makedirs(outputDir)
 
-nonExtTypedefs = open("output/nonExtTypedefs.inl", "w")
-wrappersFile = open("output/wrappers.inl", "w")
-pointersFile = open("output/pointers.inl", "w")
-pointersLoadFile = open("output/pointers_load.inl", "w")
-functionListFile = open("output/functionList.inl", "w")
-defFile = open("output/OpenGL32.def", "w")
-
-
-
+nonExtTypedefs = open(outputDir + "nonExtTypedefs.inl", "w")
+wrappersFile = open(outputDir + "wrappers.inl", "w")
+pointersFile = open(outputDir + "pointers.inl", "w")
+pointersLoadFile = open(outputDir + "pointers_load.inl", "w")
+functionListFile = open(outputDir + "functionList.inl", "w")
+defFile = open(outputDir + "OpenGL32.def", "w")
 
 
 def parse(file, genNonExtTypedefs = False):

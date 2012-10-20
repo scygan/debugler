@@ -6,7 +6,7 @@
 
 
 #define PTR_PREFIX
-#include "../codegen/output/pointers.inl"
+#include "../../dump/codegen/pointers.inl"
 
 
 HINSTANCE  openGLLibraryHandle; 
@@ -17,7 +17,7 @@ void * LoadOpenGLPointer(char* name) {
 
 #define PTR_LOAD(X) LoadOpenGLPointer(#X)
 void LoadOpenGLPointers () {
-    #include "../codegen/output/pointers_load.inl"
+    #include "../../dump/codegen/pointers_load.inl"
 }
 
 void LoadOpenGLLibrary() {
