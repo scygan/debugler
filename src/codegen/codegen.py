@@ -2,7 +2,7 @@
 import os
 import re
 
-outputDir = "../../../dump/codegen/"
+outputDir = "../../dump/codegen/"
 
 if not os.path.exists(outputDir):
     os.makedirs(outputDir)

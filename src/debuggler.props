@@ -8,6 +8,10 @@
   <PropertyGroup>
     <IntDir>$(SolutionDir)\..\dump\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
-  <ItemDefinitionGroup />
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Configuration)\DGLNet;$(SolutionDir)\..\build\$(Configuration)\DGLCommon;$(SolutionDir)\boost\stage\lib</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup />
 </Project>
