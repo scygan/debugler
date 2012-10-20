@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLGUI", "DGLGui\DGLGui.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLNet", "DGLNet\DGLNet.vcxproj", "{5C2A907E-02DA-4D13-B84B-B48500DBEFA3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLCommon", "DGLCommon\DGLCommon.vcxproj", "{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -31,6 +33,10 @@ Global
 		{5C2A907E-02DA-4D13-B84B-B48500DBEFA3}.Debug|Win32.Build.0 = Debug|Win32
 		{5C2A907E-02DA-4D13-B84B-B48500DBEFA3}.Release|Win32.ActiveCfg = Release|Win32
 		{5C2A907E-02DA-4D13-B84B-B48500DBEFA3}.Release|Win32.Build.0 = Release|Win32
+		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}.Debug|Win32.Build.0 = Debug|Win32
+		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}.Release|Win32.ActiveCfg = Release|Win32
+		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

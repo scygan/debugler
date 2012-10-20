@@ -1,0 +1,6 @@
+/src/ipch
+/src/debugler.suo
+/src/debugler.sdf
+/src/debugler.opensdf
+/src/DGLCommon/*.user
+/src/DGLGui/*.user

@@ -81,6 +81,7 @@ typedef struct _GLYPHMETRICSFLOAT {
 } GLYPHMETRICSFLOAT, *PGLYPHMETRICSFLOAT, FAR *LPGLYPHMETRICSFLOAT;
 
 #include "pointers.h"
+#include "tracer.h"
 
 #include<cstdio>
 

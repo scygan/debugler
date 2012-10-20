@@ -2,6 +2,7 @@
 
 #include "api-loader.h"
 #include "debugger.h"
+#include "tracer.h"
 
 #include <boost/make_shared.hpp>
 
@@ -9,6 +10,7 @@
 
 void Initialize() {
     LoadOpenGLLibrary();
+    SetAllTracers<DefaultTracer>();
     g_Server = boost::make_shared<dglnet::Server>(5555);
 }
 

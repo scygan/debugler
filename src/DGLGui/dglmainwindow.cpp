@@ -12,6 +12,7 @@ DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
     createToolBars();
     createStatusBar();
     createDockWindows();
+    createInteractions();
 }
 
 DGLMainWindow::~DGLMainWindow() {
@@ -72,17 +73,22 @@ void DGLMainWindow::createToolBars() {
      quitAct = new QAction(tr("&Quit"), this);
      quitAct->setShortcuts(QKeySequence::Quit);
      quitAct->setStatusTip(tr("Quit the application"));
-     connect(quitAct, SIGNAL(triggered()), this, SLOT(close()));
+     assert(connect(quitAct, SIGNAL(triggered()), this, SLOT(close())));
 
      aboutAct = new QAction(tr("&About"), this);
      aboutAct->setStatusTip(tr("Show the application's About box"));
-     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
+     assert(connect(aboutAct, SIGNAL(triggered()), this, SLOT(about())));
 
      attachAct = new QAction(tr("&Attach to"), this);
      attachAct->setStatusTip(tr("Attach to IP target"));
-     connect(attachAct, SIGNAL(triggered()), this, SLOT(attach()));
+     assert(connect(attachAct, SIGNAL(triggered()), this, SLOT(attach())));
 
  }
+
+  void DGLMainWindow::createInteractions() {
+      assert(connect(&m_controller, SIGNAL(newStatus(const QString&)), m_ui.statusBar, SLOT(showMessage(const QString&))));
+      assert(connect(&m_controller, SIGNAL(error(const QString&, const QString&)), this, SLOT(errorMessage(const QString&, const QString&))));
+  }
 
   void DGLMainWindow::about() {
     QMessageBox::about(this, tr("About Debuggler"),
@@ -95,7 +101,12 @@ void DGLMainWindow::createToolBars() {
   void DGLMainWindow::attach() {
       DGLConnectDialog dialog;
       if (dialog.exec() == QDialog::Accepted) {
-          m_controller.connect(dialog.getAddress(), dialog.getPort());
+          m_controller.connectClient(dialog.getAddress(), dialog.getPort());
       }
 
   }
+
+
+void DGLMainWindow::errorMessage(const QString& title, const QString& msg) {
+    QMessageBox::critical(this, title, msg);
+}

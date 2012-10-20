@@ -9,5 +9,11 @@ namespace dglnet {
         m_acceptor.accept(m_socket, err);
     }
 
+    void Server::lock() {
+        m_mutex.lock();
+    }    
+    void Server::unlock() {
+        m_mutex.lock();
+    }  
 }
 

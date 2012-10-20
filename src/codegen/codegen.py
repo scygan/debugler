@@ -63,20 +63,22 @@ def parse(file, genNonExtTypedefs = False):
 			print >> pointersFile, "PTR_PREFIX PFN" + functionName.upper() + " POINTER(" + functionName  + ");"
 			print >> pointersLoadFile, "POINTER(" + functionName  + ") = (PFN"+ functionName.upper() + ") PTR_LOAD(" + functionName + ") ;"
 			
+
 			print >> wrappersFile, "extern \"C\" DGLWRAPPER_API " + functionRetType + " APIENTRY " + functionName + "(" + functionNamedAttrList + ") {"
-			if functionRetType != "void":
-				print >> wrappersFile, "    " + functionRetType + " retVal;"
 			print >> wrappersFile, "    assert(POINTER(" + functionName + "));"
-			print >> wrappersFile, "    printf(\"Calling " + functionName + "\\n\");"
-						
+			print >> wrappersFile, "    RetValue retVal = g_Tracers[" + functionName + "_Call]->Pre(" + functionName + "_Call);"
+			print >> wrappersFile, "    if (!retVal.isSet()) {"
 			if functionRetType != "void":
-				print >> wrappersFile, "    retVal = DIRECT_CALL(" + functionName + ")(" + functionAttrNames + ");"
+				print >> wrappersFile, "    	retVal = DIRECT_CALL(" + functionName + ")(" + functionAttrNames + ");"
 			else:
-				print >> wrappersFile, "    DIRECT_CALL(" + functionName + ")(" + functionAttrNames + ");"			
+				print >> wrappersFile, "    	DIRECT_CALL(" + functionName + ")(" + functionAttrNames + ");"			
+			print >> wrappersFile, "    }"
+			print >> wrappersFile, "    g_Tracers[" + functionName + "_Call]->Post(" + functionName + "_Call);"
 			if functionRetType != "void":
-				print >> wrappersFile, "    return retVal;"
+				print >> wrappersFile, "    return (" + functionRetType + ")retVal;"
 			print >> wrappersFile, "}"
 			
+
 			if genNonExtTypedefs:
 				print >> nonExtTypedefs, "typedef " + functionRetType + " (APIENTRYP PFN" + functionName.upper() + ")(" + functionAttrList + ");"
 			

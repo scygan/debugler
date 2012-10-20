@@ -20,6 +20,7 @@ public:
 private slots:
     void about();
     void attach();
+    void errorMessage(const QString&, const QString&);
 
 
 private:
@@ -28,6 +29,7 @@ private:
     void createToolBars();
     void createStatusBar();
     void createDockWindows();
+    void createInteractions();
     
     QListWidget *customerList;
     QMenu *fileMenu;
