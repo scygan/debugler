@@ -3,10 +3,10 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <OutDir>$(SolutionDir)\..\build\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir>$(SolutionDir)..\build\$(Configuration)\$(ProjectName)\</OutDir>
   </PropertyGroup>
   <PropertyGroup>
-    <IntDir>$(SolutionDir)\..\dump\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir>$(SolutionDir)..\dump\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
