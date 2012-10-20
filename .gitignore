@@ -2,7 +2,6 @@
 /src/*.suo
 /src/*.sdf
 /src/*.opensdf
-/src/*.user
-/src/*.user
 /dump/*
 /build/*
+*.user
