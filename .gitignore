@@ -4,3 +4,5 @@
 /src/*.opensdf
 /src/*.user
 /src/*.user
+/dump/*
+/build/*
