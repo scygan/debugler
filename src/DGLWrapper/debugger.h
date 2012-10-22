@@ -14,19 +14,35 @@ class GLContext {
 };
 
 
-extern boost::shared_ptr<dglnet::Server> g_Server;
-
-extern std::map<NativeContextID, boost::shared_ptr<GLContext> > g_Contexts;
-
-extern boost::thread_specific_ptr<GLContext> g_Context;
-
-
 class BreakState {
 public:
     BreakState();
     bool isBreaked();
+    void continueStep();
+    void endStep();
 private:
     bool m_break;
+    bool m_isStep;
 };
 
-extern BreakState g_BreakState;
+class DebugController: public dglnet::MessageHandler {
+public:
+    void connect(boost::shared_ptr<dglnet::Server>);
+    BreakState m_BreakState;
+
+    dglnet::Server& getServer();
+    BreakState& getBreakState();
+
+    //Message handlers
+    void doHandle(const dglnet::DebugStepMessage&);
+
+private:
+    boost::shared_ptr<dglnet::Server> m_Server;
+};
+
+
+extern boost::shared_ptr<DebugController> g_Controller;
+
+extern std::map<NativeContextID, boost::shared_ptr<GLContext> > g_Contexts;
+
+extern boost::thread_specific_ptr<GLContext> g_Context;

@@ -9,13 +9,13 @@ class IController {
 public:
     virtual void onSetStatus(std::string) = 0;
     virtual void onInternalError(std::string) = 0;
-
+    virtual ~IController() {}
 };
 
 
 class Client: public Transport {
 public: 
-    Client(std::string host, std::string port, IController* controller);
+    Client(std::string host, std::string port, IController* controller, MessageHandler* messageHandler);
     int getSocketFD();
 
 private:

@@ -10,7 +10,7 @@ namespace dglnet {
 
 class Server: public Transport {
 public: 
-    Server(int port);
+    Server(int port, MessageHandler*);
     void lock();
     void unlock();
 

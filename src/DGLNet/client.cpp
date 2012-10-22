@@ -6,7 +6,7 @@
 
 namespace dglnet {
 
-    Client::Client(std::string host, std::string port, IController* controller):m_controller(controller) {
+    Client::Client(std::string host, std::string port, IController* controller, MessageHandler* handler):Transport(handler),m_controller(controller) {
         boost::asio::ip::tcp::resolver resolver(m_io_service); 
         boost::asio::ip::tcp::resolver::query query(host, port);
         resolver.async_resolve(query, boost::bind(&Client::onResolve, this,
@@ -33,11 +33,11 @@ namespace dglnet {
 
     void Client::onConnect(const boost::system::error_code &err) {
         if (!err) {
+            m_controller->onSetStatus("Connected.");
             read();
         } else {
             m_controller->onInternalError(err.message());
         }
     }
-
 }
 

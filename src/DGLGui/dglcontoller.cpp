@@ -10,21 +10,22 @@ void DglController::connectClient(const std::string& host, const std::string& po
     if (m_DglClient) {
         disconnected();
     }
-    m_DglClient = boost::make_shared<dglnet::Client>(host, port, this);
+    m_DglClient = boost::make_shared<dglnet::Client>(host, port, this, this);
 
-    
-
+    connected();
     //m_NotifierRead = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Read); 
     //m_NotifierWrite = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Read); 
-
-
-
-
 }
 
 void DglController::poll() {
     if (m_DglClient)
         m_DglClient->poll();
+}
+
+void DglController::debugStep() {
+    assert(m_DglClient);
+    dglnet::DebugStepMessage message;
+    m_DglClient->sendMessage(&message);
 }
 
 void DglController::onSetStatus(std::string str) {
@@ -34,4 +35,8 @@ void DglController::onSetStatus(std::string str) {
 
 void DglController::onInternalError(std::string str) {
     error(tr("Connection error"), str.c_str());
+}
+
+void DglController::doHandle(const dglnet::BreakedCallMessage & msg) {
+    breaked(msg.getEntrypoint());
 }

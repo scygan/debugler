@@ -13,13 +13,14 @@ private:
     int32_t m_size;
 };
 
+
 class Transport: public boost::enable_shared_from_this<Transport> {
 public: 
-    Transport();
+    Transport(MessageHandler* messageHandler);
     virtual ~Transport() {}
     void sendMessage(const Message* msg);
     void poll();
-
+    void run_one();
 protected:
     boost::asio::io_service m_io_service;
     boost::asio::ip::tcp::socket m_socket;
@@ -35,8 +36,10 @@ private:
     void onWrite(const boost::system::error_code &ec, std::size_t bytes_transferred);
 
     
+    virtual void onMessage(const Message& msg);
 
-    
+    MessageHandler* m_messageHandler;
+
 };
 
 

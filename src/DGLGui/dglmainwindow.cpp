@@ -1,8 +1,8 @@
-#include <QDockWidget>
 #include <QMessageBox>
 
 #include "dglmainwindow.h"
 #include "dglconnectdialog.h"
+#include "dgltraceview.h"
 
 DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags) {
@@ -21,12 +21,7 @@ DGLMainWindow::~DGLMainWindow() {
 
 
 void DGLMainWindow::createDockWindows() {
-     QDockWidget *dock = new QDockWidget(tr("Call trace"), this);
-     dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-     customerList = new QListWidget(dock);
-     customerList->addItems(QStringList()
-             << "wutuf");
-     dock->setWidget(customerList);
+     QDockWidget *dock = new DGLTraceView(this, &m_controller);
      addDockWidget(Qt::RightDockWidgetArea, dock);
      viewMenu->addAction(dock->toggleViewAction());
 
@@ -44,6 +39,10 @@ void DGLMainWindow::createMenus() {
 
      //editMenu = menuBar()->addMenu(tr("&Edit"));
      //editMenu->addAction(undoAct);*/
+
+     debugMenu = menuBar()->addMenu(tr("&Debug"));
+     debugMenu->addAction(debugStepAct);
+
 
      viewMenu = menuBar()->addMenu(tr("&View"));
 
@@ -83,6 +82,10 @@ void DGLMainWindow::createToolBars() {
      attachAct->setStatusTip(tr("Attach to IP target"));
      assert(connect(attachAct, SIGNAL(triggered()), this, SLOT(attach())));
 
+     debugStepAct = new QAction(tr("&Step call"), this);
+     debugStepAct->setStatusTip(tr("Step one GL call"));
+     assert(connect(debugStepAct, SIGNAL(triggered()), &m_controller, SLOT(debugStep())));
+
  }
 
   void DGLMainWindow::createInteractions() {
@@ -103,7 +106,6 @@ void DGLMainWindow::createToolBars() {
       if (dialog.exec() == QDialog::Accepted) {
           m_controller.connectClient(dialog.getAddress(), dialog.getPort());
       }
-
   }
 
 

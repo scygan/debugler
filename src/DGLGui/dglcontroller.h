@@ -1,3 +1,6 @@
+#ifndef DGLCONTROLLER_H
+#define DGLCONTROLLER_H
+
 #include <QObject>
 #include <QTimer>
 #include <QSocketNotifier>
@@ -5,7 +8,7 @@
 #include "DGLNet/client.h"
 #include <boost/make_shared.hpp>
 
-class DglController: public QObject, public dglnet::IController {
+class DglController: public QObject, public dglnet::IController, public dglnet::MessageHandler {
     Q_OBJECT
 
 public:
@@ -16,12 +19,15 @@ public:
     virtual void onSetStatus(std::string);
     virtual void onInternalError(std::string);
 
+    //IMessageHandler methods:
+    virtual void doHandle(const dglnet::BreakedCallMessage&);
+
     //GUI interactions:
 signals:
     void disconnected();
     void connected();
 
-    //void breaked();
+    void breaked(Entrypoint);
     //void running();
 
     void newStatus(const QString&);
@@ -29,9 +35,12 @@ signals:
     
 public slots:
     void poll();
+    void debugStep();   
 
 private:
     boost::shared_ptr<dglnet::Client> m_DglClient;
     boost::shared_ptr<QSocketNotifier> m_NotifierRead, m_NotifierWrite;
     QTimer m_Timer;
 };
+
+#endif

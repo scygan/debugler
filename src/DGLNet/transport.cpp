@@ -1,5 +1,4 @@
 #include "transport.h"
-#include "message.h"
 
 
 #include <sstream>
@@ -8,7 +7,8 @@
 
 //TODO: this one is horrible. very.
 BOOST_CLASS_EXPORT(dglnet::Message)
-BOOST_CLASS_EXPORT_GUID(dglnet::CurrentCallStateMessage, "dglnet::CurrentCallStateMessage");
+BOOST_CLASS_EXPORT_GUID(dglnet::BreakedCallMessage, "dglnet::CurrentCallStateMessage");
+BOOST_CLASS_EXPORT_GUID(dglnet::DebugStepMessage, "dglnet::DebugStepMessage");
 
 
 namespace dglnet {
@@ -17,10 +17,14 @@ namespace dglnet {
 
     int TransportHeader::getSize() { return m_size; }
 
-    Transport::Transport():m_socket(m_io_service) {}
+    Transport::Transport(MessageHandler* handler):m_socket(m_io_service),m_messageHandler(handler) {}
     
     void Transport::poll() {
         while (m_io_service.poll());
+    }
+
+    void Transport::run_one() {
+        m_io_service.run_one();
     }
 
     void Transport::read() {
@@ -40,9 +44,15 @@ namespace dglnet {
         std::string iArchiveString(&m_pendingArchiveBuffer[0], m_pendingHeader.getSize());
         std::istringstream iArchiveStream(iArchiveString, std::ios_base::binary);
         assert(iArchiveStream.good());
+        
         Message* msg;
-        boost::archive::binary_iarchive archive(iArchiveStream);
-        archive >> msg;
+        {
+            boost::archive::binary_iarchive archive(iArchiveStream);
+            archive >> msg;
+        }
+
+        onMessage(*msg);
+
         read();
     }
 
@@ -68,5 +78,10 @@ namespace dglnet {
     void Transport::onWrite(const boost::system::error_code &ec, std::size_t bytes_transferred) {
         assert(!ec);
     }
+
+    void Transport::onMessage(const Message& msg) {
+        msg.handle(m_messageHandler);
+    }
+
 
 }

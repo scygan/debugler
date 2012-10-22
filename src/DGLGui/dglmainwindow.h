@@ -19,8 +19,10 @@ public:
 
 private slots:
     void about();
-    void attach();
     void errorMessage(const QString&, const QString&);
+
+    void attach();
+
 
 
 private:
@@ -31,8 +33,8 @@ private:
     void createDockWindows();
     void createInteractions();
     
-    QListWidget *customerList;
     QMenu *fileMenu;
+    QMenu *debugMenu;
     QMenu *viewMenu;
     QMenu *helpMenu;
 
@@ -41,6 +43,7 @@ private:
     QAction *quitAct;
 
     QAction *attachAct;
+    QAction *debugStepAct;
 
     Ui::DGLMainWindowClass m_ui;
 
