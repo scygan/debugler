@@ -17,6 +17,7 @@ RetValue DefaultTracer::Pre(Entrypoint entrp) {
         dglnet::CurrentCallStateMessage callStateMessage(entrp);
         g_Server->sendMessage(&callStateMessage);
 
+        
 
         g_Server->poll();
     } while (g_BreakState.isBreaked());

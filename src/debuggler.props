@@ -12,6 +12,10 @@
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Configuration)\DGLNet;$(SolutionDir)\..\build\$(Configuration)\DGLCommon;$(SolutionDir)\boost\stage\lib</AdditionalLibraryDirectories>
     </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>../boost/;..</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0501</PreprocessorDefinitions>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

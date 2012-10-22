@@ -33,7 +33,7 @@ namespace dglnet {
 
     void Client::onConnect(const boost::system::error_code &err) {
         if (!err) {
-            m_connected = true;
+            read();
         } else {
             m_controller->onInternalError(err.message());
         }

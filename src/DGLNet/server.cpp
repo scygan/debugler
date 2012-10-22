@@ -7,6 +7,7 @@ namespace dglnet {
         m_acceptor.listen();
         boost::system::error_code err;
         m_acceptor.accept(m_socket, err);
+        read();
     }
 
     void Server::lock() {
