@@ -24,4 +24,4 @@ void DGLTraceView::clear() {
 
 void DGLTraceView::breaked(Entrypoint entrp) {
     m_traceList->addItems(QStringList() << QString("Breaked on: ") + GetEntryPointName(entrp));
-}Q
+}
