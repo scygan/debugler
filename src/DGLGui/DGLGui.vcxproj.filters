@@ -50,24 +50,6 @@
     <ClCompile Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\qrc_dglmainwindow.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglconnectdialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglcontroller.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglmainwindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglconnectdialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglcontroller.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglmainwindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dgltraceview.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -76,6 +58,24 @@
     </ClCompile>
     <ClCompile Include="dgltraceview.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglconnectdialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglcontroller.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglmainwindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglconnectdialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglmainwindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglcontroller.cpp">
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

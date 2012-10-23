@@ -20,4 +20,9 @@ enum Entrypoints {
 
 typedef int Entrypoint;
 
+
+extern char* GetEntryPointName(Entrypoint entrp);
+
 #endif
+
+
