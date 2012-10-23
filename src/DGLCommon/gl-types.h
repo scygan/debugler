@@ -7,10 +7,14 @@
 
 #include <GL/gl.h>
 
+
+#define FUNCTION_LIST_ELEMENT(name, type) name##_Call,
 enum Entrypoints {
     #include "../../dump/codegen/functionList.inl"
     LAST_Call
+
 };
+#undef FUNCTION_LIST_ELEMENT
 
 #define NUM_ENTRYPOINTS LAST_Call
 

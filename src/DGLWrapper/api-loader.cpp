@@ -5,8 +5,9 @@
 #include "pointers.h"
 
 
-#define PTR_PREFIX
-#include "../../dump/codegen/pointers.inl"
+#define FUNCTION_LIST_ELEMENT(name, type) type POINTER(name);
+#include "../../dump/codegen/functionList.inl"
+#undef FUNCTION_LIST_ELEMENT
 
 
 HINSTANCE  openGLLibraryHandle; 
@@ -15,10 +16,11 @@ void * LoadOpenGLPointer(char* name) {
     return GetProcAddress(openGLLibraryHandle, name);
 }
 
-#define PTR_LOAD(X) LoadOpenGLPointer(#X)
+#define FUNCTION_LIST_ELEMENT(name, type) POINTER(name) = (type) LoadOpenGLPointer(#name);
 void LoadOpenGLPointers () {
-    #include "../../dump/codegen/pointers_load.inl"
+    #include "../../dump/codegen/functionList.inl"
 }
+#undef FUNCTION_LIST_ELEMENT
 
 void LoadOpenGLLibrary() {
     openGLLibraryHandle = LoadLibrary("C:\\Windows\\SysWOW64\\opengl32.dll");

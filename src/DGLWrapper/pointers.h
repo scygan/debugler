@@ -37,6 +37,7 @@ typedef BOOL (WINAPI *PFNWGLUSEFONTOUTLINESW) (HDC a, DWORD b, DWORD c, DWORD d,
 
 #define POINTER(X) X##_Ptr
 #define DIRECT_CALL(X) (*POINTER(X))
-#define PTR_PREFIX extern
-#include "../../dump/codegen/pointers.inl"
-#undef PTR_PREFIX
+
+#define FUNCTION_LIST_ELEMENT(name, type) extern type POINTER(name);
+#include "../../dump/codegen/functionList.inl"
+#undef FUNCTION_LIST_ELEMENT

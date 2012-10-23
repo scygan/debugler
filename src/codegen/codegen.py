@@ -10,7 +10,6 @@ if not os.path.exists(outputDir):
 nonExtTypedefs = open(outputDir + "nonExtTypedefs.inl", "w")
 wrappersFile = open(outputDir + "wrappers.inl", "w")
 pointersFile = open(outputDir + "pointers.inl", "w")
-pointersLoadFile = open(outputDir + "pointers_load.inl", "w")
 functionListFile = open(outputDir + "functionList.inl", "w")
 defFile = open(outputDir + "OpenGL32.def", "w")
 
@@ -56,11 +55,9 @@ def parse(file, genNonExtTypedefs = False):
 						functionNamedAttrList += attributeMatch.group(4)
 					functionNamedAttrList += attributeName
 
-				
-			print >> functionListFile, functionName + "_Call,"
-			print >> pointersFile, "PTR_PREFIX PFN" + functionName.upper() + " POINTER(" + functionName  + ");"
-			print >> pointersLoadFile, "POINTER(" + functionName  + ") = (PFN"+ functionName.upper() + ") PTR_LOAD(" + functionName + ") ;"
-			
+			functionPFNType = "PFN" + functionName.upper()						
+			print >> functionListFile, "FUNCTION_LIST_ELEMENT(" + functionName + ", " + functionPFNType + ")"
+			print >> pointersFile, "PTR_PREFIX " + functionPFNType + " POINTER(" + functionName  + ");"
 
 			print >> wrappersFile, "extern \"C\" DGLWRAPPER_API " + functionRetType + " APIENTRY " + functionName + "(" + functionNamedAttrList + ") {"
 			print >> wrappersFile, "    assert(POINTER(" + functionName + "));"
