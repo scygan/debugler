@@ -35,6 +35,8 @@ signals:
     
 public slots:
     void poll();
+    void debugContinue();   
+    void debugInterrupt();   
     void debugStep();   
 
 private:

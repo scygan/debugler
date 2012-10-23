@@ -43,6 +43,8 @@ private:
     QAction *quitAct;
 
     QAction *attachAct;
+    QAction *debugInterruptAct;
+    QAction *debugContinueAct;
     QAction *debugStepAct;
 
     Ui::DGLMainWindowClass m_ui;

@@ -22,9 +22,21 @@ void DglController::poll() {
         m_DglClient->poll();
 }
 
+void DglController::debugContinue() {
+    assert(m_DglClient);
+    dglnet::ContinueBreakMessage message(false);
+    m_DglClient->sendMessage(&message);
+}
+
+void DglController::debugInterrupt() {
+    assert(m_DglClient);
+    dglnet::ContinueBreakMessage message(true);
+    m_DglClient->sendMessage(&message);
+}
+
 void DglController::debugStep() {
     assert(m_DglClient);
-    dglnet::DebugStepMessage message;
+    dglnet::ContinueBreakMessage message(false, true);
     m_DglClient->sendMessage(&message);
 }
 

@@ -8,7 +8,7 @@
 //TODO: this one is horrible. very.
 BOOST_CLASS_EXPORT(dglnet::Message)
 BOOST_CLASS_EXPORT_GUID(dglnet::BreakedCallMessage, "dglnet::CurrentCallStateMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::DebugStepMessage, "dglnet::DebugStepMessage");
+BOOST_CLASS_EXPORT_GUID(dglnet::ContinueBreakMessage, "dglnet::ContinueBreakMessage");
 
 
 namespace dglnet {

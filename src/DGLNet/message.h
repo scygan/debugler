@@ -13,12 +13,12 @@
 namespace dglnet {
 
 class BreakedCallMessage;
-class DebugStepMessage;
+class ContinueBreakMessage;
 
 class MessageHandler {
 public:
     virtual void doHandle(const BreakedCallMessage&);
-    virtual void doHandle(const DebugStepMessage&);
+    virtual void doHandle(const ContinueBreakMessage&);
     virtual ~MessageHandler() {}
 private:
     void unsupported();
@@ -58,18 +58,27 @@ private:
 };
 
 
-class DebugStepMessage: public Message {
+class ContinueBreakMessage: public Message {
     friend class boost::serialization::access;
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
         ar & boost::serialization::base_object<Message>(*this);
+        ar & m_Breaked;
+        ar & m_JustOneStep;
     }
 
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
 
 public:
-   DebugStepMessage(){}
+   ContinueBreakMessage(){}
+   ContinueBreakMessage(bool breaked, bool justOneStep = false):m_Breaked(breaked),m_JustOneStep(justOneStep) {}
+   bool isBreaked() const;
+   bool isJustOneStep() const;
+
+private:
+    bool m_Breaked;
+    bool m_JustOneStep;
 };
 
 };

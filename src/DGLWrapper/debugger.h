@@ -17,12 +17,12 @@ class GLContext {
 class BreakState {
 public:
     BreakState();
+    void handle(const dglnet::ContinueBreakMessage&);
     bool isBreaked();
-    void continueStep();
     void endStep();
 private:
     bool m_break;
-    bool m_isStep;
+    bool m_isJustOneStep;
 };
 
 class DebugController: public dglnet::MessageHandler {
@@ -34,7 +34,7 @@ public:
     BreakState& getBreakState();
 
     //Message handlers
-    void doHandle(const dglnet::DebugStepMessage&);
+    void doHandle(const dglnet::ContinueBreakMessage&);
 
 private:
     boost::shared_ptr<dglnet::Server> m_Server;

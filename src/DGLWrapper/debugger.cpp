@@ -8,19 +8,24 @@ std::map<NativeContextID, boost::shared_ptr<GLContext> > g_contexts;
 boost::thread_specific_ptr<GLContext> g_context;
 
 
-BreakState::BreakState():m_break(true),m_isStep(false) {}
+BreakState::BreakState():m_break(true),m_isJustOneStep(false) {}
 
 bool BreakState::isBreaked() {
     return m_break;
 }
 
-void BreakState::continueStep() {
-    m_break = false; m_isStep = true;
+void BreakState::handle(const dglnet::ContinueBreakMessage& msg) {
+    m_break = msg.isBreaked();
+    if (!m_break) {
+        m_isJustOneStep = msg.isJustOneStep();
+    } else {
+        m_isJustOneStep = false;
+    }
 }
 
 void BreakState::endStep() {
-    if (m_isStep) {
-        m_break = true; m_isStep = false;
+    if (m_isJustOneStep) {
+        m_break = true; m_isJustOneStep = false;
     }
 }
 
@@ -39,6 +44,6 @@ BreakState& DebugController::getBreakState() {
 }
 
 
-void DebugController::doHandle(const dglnet::DebugStepMessage&) {
-    getBreakState().continueStep();
+void DebugController::doHandle(const dglnet::ContinueBreakMessage& msg) {
+    m_BreakState.handle(msg);
 }

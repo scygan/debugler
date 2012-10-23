@@ -41,6 +41,8 @@ void DGLMainWindow::createMenus() {
      //editMenu->addAction(undoAct);*/
 
      debugMenu = menuBar()->addMenu(tr("&Debug"));
+     debugMenu->addAction(debugContinueAct);
+     debugMenu->addAction(debugInterruptAct);
      debugMenu->addAction(debugStepAct);
 
 
@@ -81,6 +83,14 @@ void DGLMainWindow::createToolBars() {
      attachAct = new QAction(tr("&Attach to"), this);
      attachAct->setStatusTip(tr("Attach to IP target"));
      assert(connect(attachAct, SIGNAL(triggered()), this, SLOT(attach())));
+
+     debugContinueAct = new QAction(tr("&Continue"), this);
+     debugContinueAct->setStatusTip(tr("Continue program execution"));
+     assert(connect(debugContinueAct, SIGNAL(triggered()), &m_controller, SLOT(debugContinue())));
+
+     debugInterruptAct = new QAction(tr("&Interrupt (on GL)"), this);
+     debugInterruptAct->setStatusTip(tr("Interrupt program execution on GL call"));
+     assert(connect(debugInterruptAct, SIGNAL(triggered()), &m_controller, SLOT(debugInterrupt())));
 
      debugStepAct = new QAction(tr("&Step call"), this);
      debugStepAct->setStatusTip(tr("Step one GL call"));
