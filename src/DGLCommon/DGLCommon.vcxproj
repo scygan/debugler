@@ -62,6 +62,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="gl-headers.h" />
     <ClInclude Include="gl-types.h" />
   </ItemGroup>
   <ItemGroup>

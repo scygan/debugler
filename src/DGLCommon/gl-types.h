@@ -1,11 +1,7 @@
 #ifndef _GL_TYPES_H
 #define _GL_TYPES_H
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#undef WIN32_LEAN_AND_MEAN
-
-#include <GL/gl.h>
+#include <DGLcommon/gl-headers.h>
 
 
 #define FUNCTION_LIST_ELEMENT(name, type) name##_Call,

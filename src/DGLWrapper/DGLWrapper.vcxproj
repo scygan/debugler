@@ -84,6 +84,7 @@
     <ClInclude Include="api-loader.h" />
     <ClInclude Include="debugger.h" />
     <ClInclude Include="DGLWrapper.h" />
+    <ClInclude Include="gl-headers-inside.h" />
     <ClInclude Include="pointers.h" />
     <ClInclude Include="tracer.h" />
   </ItemGroup>

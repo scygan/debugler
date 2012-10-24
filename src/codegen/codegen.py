@@ -21,6 +21,7 @@ def parse(file, genNonExtTypedefs = False):
 			print coarseFunctionMatch.groups()
 			functionRetType = coarseFunctionMatch.group(2)
 			functionName = coarseFunctionMatch.group(4)
+			print functionName
 			functionAttrList = coarseFunctionMatch.group(5)
 			functionAttrs = functionAttrList.split(",")
 			functionAttrNames = ""
@@ -31,9 +32,9 @@ def parse(file, genNonExtTypedefs = False):
 				functionNamedAttrList = functionAttrList
 			else:
 				for attribute in functionAttrs:
-					attributeMatch = re.match("^[ ]*(const|CONST)?[ ]*([a-zA-Z0-9]*)[ ]*(\*?)[ ]*(\*?)[ ]*([a-zA-Z0-9]*)$", attribute)
+					attributeMatch = re.match("^[ ]*(const|CONST|)[ ]*(struct|)[ ]*([a-zA-Z0-9_]*)[ ]*(\*?)[ ]*(const|CONST|)[ ]*(\*?)[ ]*([a-zA-Z0-9_]*)$", attribute)
 					print attributeMatch.groups()
-					attributeName = attributeMatch.group(5)
+					attributeName = attributeMatch.group(7)
 					
 					if attributeName == "":
 						attributeName = "unnamed" + str(implicitAttributeNameCount)
@@ -48,14 +49,18 @@ def parse(file, genNonExtTypedefs = False):
 					
 					if attributeMatch.group(1):
 						functionNamedAttrList += attributeMatch.group(1) + " "
-					functionNamedAttrList += attributeMatch.group(2) + " "
-					if attributeMatch.group(3):
-						functionNamedAttrList += attributeMatch.group(3) + " "
+					if attributeMatch.group(2):
+						functionNamedAttrList += attributeMatch.group(2) + " "
+					functionNamedAttrList += attributeMatch.group(3) + " "
 					if attributeMatch.group(4):
-						functionNamedAttrList += attributeMatch.group(4)
+						functionNamedAttrList += attributeMatch.group(4) + " "
+					if attributeMatch.group(5):
+						functionNamedAttrList += attributeMatch.group(5)
+					if attributeMatch.group(6):
+						functionNamedAttrList += attributeMatch.group(6)
 					functionNamedAttrList += attributeName
 
-			functionPFNType = "PFN" + functionName.upper()						
+			functionPFNType = "PFN" + functionName.upper() + "PROC"						
 			print >> functionListFile, "FUNCTION_LIST_ELEMENT(" + functionName + ", " + functionPFNType + ")"
 			print >> pointersFile, "PTR_PREFIX " + functionPFNType + " POINTER(" + functionName  + ");"
 
@@ -75,7 +80,7 @@ def parse(file, genNonExtTypedefs = False):
 			
 
 			if genNonExtTypedefs:
-				print >> nonExtTypedefs, "typedef " + functionRetType + " (APIENTRYP PFN" + functionName.upper() + ")(" + functionAttrList + ");"
+				print >> nonExtTypedefs, "typedef " + functionRetType + " (APIENTRYP " + functionPFNType + ")(" + functionAttrList + ");"
 			
 			print >> defFile, "  " + functionName
 
@@ -89,6 +94,8 @@ parse(wglFile)
 glFile = open("input/GL.h", "r").readlines()
 parse(glFile, True)
 
+glFile = open("input/glext.h", "r").readlines()
+parse(glFile)
 
-#wglFile = open("input/temp.h", "r").readlines()
-#parse(wglFile)
+#tempFile = open("input/temp.h", "r").readlines()
+#parse(tempFile)

@@ -10,7 +10,10 @@
 
 void Initialize() {
     LoadOpenGLLibrary();
+
     SetAllTracers<DefaultTracer>();
+    SetTracer<GetProcAddressTracer>(wglGetProcAddress_Call);
+
     g_Controller = boost::make_shared<DebugController>();
     g_Controller->connect(boost::make_shared<dglnet::Server>(5555, g_Controller.get()));
 }

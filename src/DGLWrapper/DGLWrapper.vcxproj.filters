@@ -26,6 +26,9 @@
     <ClInclude Include="tracer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gl-headers-inside.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

@@ -23,7 +23,8 @@ private:
 
     typedef int (WINAPI *NativeEntrpType)(void);
 
-    boost::variant<GLboolean, GLuint, GLint, const GLubyte*, NativeEntrpType, HDC, HGLRC> m_value;
+    boost::variant<GLboolean, GLuint, GLint, const GLubyte*,
+        NativeEntrpType, HDC, HGLRC, GLsync, GLuint64, GLfloat, GLvoid*> m_value;
 };
 
 
@@ -39,6 +40,11 @@ class DefaultTracer: public ITracer {
     virtual void Post(Entrypoint call);
 };
 
+class GetProcAddressTracer: public DefaultTracer {
+    virtual RetValue Pre(Entrypoint); 
+    virtual void Post(Entrypoint call);
+};
+
 
 
 extern boost::shared_ptr<ITracer> g_Tracers[NUM_ENTRYPOINTS];
@@ -48,6 +54,11 @@ void SetAllTracers() {
     for (int i = 0; i < NUM_ENTRYPOINTS; i++) {
         g_Tracers[i] = boost::shared_ptr<ITracer>(new Tracer());
     }
+}
+
+template<typename Tracer>
+void SetTracer(Entrypoint entrp) {
+    g_Tracers[entrp] = boost::shared_ptr<ITracer>(new Tracer());
 }
 
 
