@@ -36,6 +36,7 @@ public:
 
 
 class DefaultTracer: public ITracer {
+protected:
     virtual RetValue Pre(Entrypoint); 
     virtual void Post(Entrypoint call);
 };

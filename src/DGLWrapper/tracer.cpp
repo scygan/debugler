@@ -34,10 +34,10 @@ RetValue DefaultTracer::Pre(Entrypoint entrp) {
 
 void DefaultTracer::Post(Entrypoint call) {}
 
-void GetProcAddressTracer()::Pre(Entrypoint call) {
+RetValue GetProcAddressTracer::Pre(Entrypoint call) {
     return DefaultTracer::Pre(call);
 }
 
-void GetProcAddressTracer()::Pre(Entrypoint call) {
+void GetProcAddressTracer::Post(Entrypoint call) {
     DefaultTracer::Post(call);
 }
