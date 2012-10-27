@@ -4,11 +4,9 @@
 #include "api-loader.h"
 #include "pointers.h"
 
-
-#define FUNCTION_LIST_ELEMENT(name, type) type POINTER(name);
-#include "../../dump/codegen/functionList.inl"
-#undef FUNCTION_LIST_ELEMENT
-
+//here direct pointers are kept (pointers to entrypoints exposed by underlying OpenGL32 implementation
+//use DIRECT_CALL(name) to call one of these pointers
+void* g_DirectPointers[Entrypoints_NUM];
 
 HINSTANCE  openGLLibraryHandle; 
 
@@ -16,7 +14,13 @@ void * LoadOpenGLPointer(char* name) {
     return GetProcAddress(openGLLibraryHandle, name);
 }
 
-#define FUNCTION_LIST_ELEMENT(name, type) POINTER(name) = (type) LoadOpenGLPointer(#name);
+void LoadOpenGLExtPointer(Entrypoint entrp) {
+    //this is where we store the direct ptr
+    if (!g_DirectPointers[entrp])
+        g_DirectPointers[entrp] = DIRECT_CALL(wglGetProcAddress)(GetEntryPointName(entrp));
+}
+
+#define FUNCTION_LIST_ELEMENT(name, type) POINTER(name) = LoadOpenGLPointer(#name);
 void LoadOpenGLPointers () {
     #include "../../dump/codegen/functionList.inl"
 }

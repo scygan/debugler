@@ -1,4 +1,5 @@
 #include <DGLcommon/gl-headers.h>
+#include <DGLcommon/gl-types.h>
 
 typedef BOOL (WINAPI *PFNWGLCOPYCONTEXTPROC)(HGLRC, HGLRC, UINT);
 typedef HGLRC (WINAPI *PFNWGLCREATECONTEXTPROC)(HDC);
@@ -28,9 +29,13 @@ typedef BOOL (WINAPI *PFNWGLUSEFONTOUTLINESWPROC) (HDC a, DWORD b, DWORD c, DWOR
 
 #include "../../dump/codegen/nonExtTypedefs.inl"
 
-#define POINTER(X) X##_Ptr
-#define DIRECT_CALL(X) (*POINTER(X))
-
-#define FUNCTION_LIST_ELEMENT(name, type) extern type POINTER(name);
+#define POINTER_TYPE(X) X##_Type
+#define FUNCTION_LIST_ELEMENT(name, type) typedef type POINTER_TYPE(name);
 #include "../../dump/codegen/functionList.inl"
 #undef FUNCTION_LIST_ELEMENT
+
+
+#define POINTER(X) g_DirectPointers[X##_Call]
+#define DIRECT_CALL(X) (*(POINTER_TYPE(X))POINTER(X))
+
+extern void* g_DirectPointers[Entrypoints_NUM];

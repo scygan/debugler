@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import re
+from sets import Set
 
 outputDir = "../../dump/codegen/"
 
@@ -14,6 +15,18 @@ functionListFile = open(outputDir + "functionList.inl", "w")
 defFile = open(outputDir + "OpenGL32.def", "w")
 
 
+#allTypes = Set([])
+
+def isPointer(type):
+	if "*" in type  or "PROC" in type or "LPCSTR" in type:
+		return True
+	return False
+	
+def doBareCastIfPointer(type): 
+	if isPointer(type): 
+		return "(void* )"
+	return ""
+	
 def parse(file, genNonExtTypedefs = False):
 	for line in file:
 		coarseFunctionMatch = re.match("^([a-zA-Z0-9]*) (.*) (WINAPI|APIENTRY) ([a-zA-Z0-9]*) \((.*)\)(.*)$", line)
@@ -24,12 +37,12 @@ def parse(file, genNonExtTypedefs = False):
 			print functionName
 			functionAttrList = coarseFunctionMatch.group(5)
 			functionAttrs = functionAttrList.split(",")
-			functionAttrNames = ""
-			functionNamedAttrList = "";
-			
+			functionAttrNamesList = []			
+			functionAttrDeclList = []
+					
 			implicitAttributeNameCount = 0
 			if functionAttrList == "VOID" or functionAttrList == "void":
-				functionNamedAttrList = functionAttrList
+				functionAttrDeclList = [ functionAttrList ]
 			else:
 				for attribute in functionAttrs:
 					attributeMatch = re.match("^[ ]*(const|CONST|)[ ]*(struct|)[ ]*([a-zA-Z0-9_]*)[ ]*(\*?)[ ]*(const|CONST|)[ ]*(\*?)[ ]*([a-zA-Z0-9_]*)$", attribute)
@@ -40,45 +53,64 @@ def parse(file, genNonExtTypedefs = False):
 						attributeName = "unnamed" + str(implicitAttributeNameCount)
 						implicitAttributeNameCount += 1
 					
-					if functionAttrNames != "":
-						functionAttrNames = functionAttrNames + ", "
-					functionAttrNames = functionAttrNames + attributeName
+					functionAttrNamesList.append(attributeName)
 					
-					if functionNamedAttrList != "":
-						functionNamedAttrList += ", "
-					
+					functionAttrDecl = ""
 					if attributeMatch.group(1):
-						functionNamedAttrList += attributeMatch.group(1) + " "
+						functionAttrDecl += attributeMatch.group(1) + " "
 					if attributeMatch.group(2):
-						functionNamedAttrList += attributeMatch.group(2) + " "
-					functionNamedAttrList += attributeMatch.group(3) + " "
+						functionAttrDecl += attributeMatch.group(2) + " "
+					functionAttrDecl += attributeMatch.group(3) + " "
 					if attributeMatch.group(4):
-						functionNamedAttrList += attributeMatch.group(4) + " "
+						functionAttrDecl += attributeMatch.group(4) + " "
 					if attributeMatch.group(5):
-						functionNamedAttrList += attributeMatch.group(5)
+						functionAttrDecl += attributeMatch.group(5)
 					if attributeMatch.group(6):
-						functionNamedAttrList += attributeMatch.group(6)
-					functionNamedAttrList += attributeName
+						functionAttrDecl += attributeMatch.group(6)
+					functionAttrDecl += attributeName
+					functionAttrDeclList.append(functionAttrDecl)
+					
+					#allTypes.add(attributeMatch.group(3))
 
+			functionAttrDecls = "";
+			for attr in functionAttrDeclList:
+				if functionAttrDecls != "":
+					functionAttrDecls += ", "
+				functionAttrDecls += attr
+				
+			functionAttrNames = ""
+			for attr in functionAttrNamesList:
+				if functionAttrNames != "":
+					functionAttrNames = functionAttrNames + ", "
+				functionAttrNames += attr
+			
+			
 			functionPFNType = "PFN" + functionName.upper() + "PROC"						
 			print >> functionListFile, "FUNCTION_LIST_ELEMENT(" + functionName + ", " + functionPFNType + ")"
 			print >> pointersFile, "PTR_PREFIX " + functionPFNType + " POINTER(" + functionName  + ");"
 
-			print >> wrappersFile, "extern \"C\" DGLWRAPPER_API " + functionRetType + " APIENTRY " + functionName + "(" + functionNamedAttrList + ") {"
+			print >> wrappersFile, "extern \"C\" DGLWRAPPER_API " + functionRetType + " APIENTRY " + functionName + "(" + functionAttrDecls + ") {"
 			print >> wrappersFile, "    assert(POINTER(" + functionName + "));"
-			print >> wrappersFile, "    RetValue retVal = g_Tracers[" + functionName + "_Call]->Pre(" + functionName + "_Call);"
+			print >> wrappersFile, "	std::vector<AnyValue> args(" + str(len(functionAttrNamesList)) + ");"
+			#store called function arguments. All ptrs are cast to bare void *
+			i = 0;
+			for attrName in functionAttrNamesList:
+				print >> wrappersFile, "	args[" + str(i) + "]  = " + doBareCastIfPointer(functionAttrDeclList[i]) + attrName + ";"
+				i += 1
+			
+			print >> wrappersFile, "    RetValue retVal = g_Tracers[" + functionName + "_Call]->Pre(" + functionName + "_Call, args);"
 			print >> wrappersFile, "    if (!retVal.isSet()) {"
 			if functionRetType != "void":
-				print >> wrappersFile, "    	retVal = DIRECT_CALL(" + functionName + ")(" + functionAttrNames + ");"
+				print >> wrappersFile, "    	retVal = " + doBareCastIfPointer(functionRetType) + "DIRECT_CALL(" + functionName + ")(" + functionAttrNames + ");"
 			else:
 				print >> wrappersFile, "    	DIRECT_CALL(" + functionName + ")(" + functionAttrNames + ");"			
 			print >> wrappersFile, "    }"
 			print >> wrappersFile, "    g_Tracers[" + functionName + "_Call]->Post(" + functionName + "_Call);"
+			
 			if functionRetType != "void":
-				print >> wrappersFile, "    return (" + functionRetType + ")retVal;"
+				print >> wrappersFile, "    return (" + functionRetType + ")" + doBareCastIfPointer(functionRetType) + "retVal;"
 			print >> wrappersFile, "}"
 			
-
 			if genNonExtTypedefs:
 				print >> nonExtTypedefs, "typedef " + functionRetType + " (APIENTRYP " + functionPFNType + ")(" + functionAttrList + ");"
 			
@@ -96,6 +128,10 @@ parse(glFile, True)
 
 glFile = open("input/glext.h", "r").readlines()
 parse(glFile)
+
+#typeFile  = open(outputDir + "types.inl", "w")
+#for type in allTypes:
+#	print >> typeFile, "TYPE_LIST_ELEMENT(" + type  + ")"
 
 #tempFile = open("input/temp.h", "r").readlines()
 #parse(tempFile)

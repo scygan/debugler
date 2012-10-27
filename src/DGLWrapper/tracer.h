@@ -4,45 +4,64 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/variant.hpp>
 #include <boost/variant/get.hpp>
+#include <vector>
 
+class AnyValue {
+public:
+    AnyValue() {};
+    template<typename T>
+    AnyValue(T v):m_value(v) {}
 
+    //template<typename T>
+    //AnyValue(const AnyValue& v):m_value(v.get<T>()) {}
 
-class RetValue {
-public: 
-   RetValue():m_isSet(false) {}
-   template<typename T>
-   RetValue(T v):m_isSet(true), m_value(v) {}
+    template<typename T>
+    operator T() const { return get<T>(); }
 
-   template<typename T>
-   operator T() { return boost::get<T>(m_value); }
+protected:
+    template<typename T>
+    T get() const { return boost::get<T>(m_value); }
 
-   bool isSet() { return m_isSet; }   
-
-private: 
-    bool m_isSet;
-
+private:
     typedef int (WINAPI *NativeEntrpType)(void);
 
-    boost::variant<GLboolean, GLuint, GLint, const GLubyte*,
-        NativeEntrpType, HDC, HGLRC, GLsync, GLuint64, GLfloat, GLvoid*> m_value;
+    boost::variant<signed long long, unsigned long long, signed long, unsigned long, unsigned int, signed int, unsigned short, signed short, unsigned char, signed char, float, double, void*, const void*, NativeEntrpType, HGLRC> m_value;
 };
+
+class RetValue: public AnyValue {
+public: 
+   RetValue():m_isSet(false) {}
+
+   RetValue(const RetValue& v):AnyValue(*static_cast<const AnyValue*>(&v)),m_isSet(v.isSet()) {}
+
+   template<typename T>
+   RetValue(T v):AnyValue(v),m_isSet(true) {}
+
+   template<typename T>
+   operator T() const { return get<T>(); }
+
+   bool isSet() const { return m_isSet; }   
+private: 
+    bool m_isSet;
+};
+
 
 
 class ITracer {
 public: 
-    virtual RetValue Pre(Entrypoint) = 0; 
+    virtual RetValue Pre(Entrypoint, const std::vector<AnyValue>&) = 0; 
     virtual void Post(Entrypoint) = 0; 
 };
 
 
 class DefaultTracer: public ITracer {
 protected:
-    virtual RetValue Pre(Entrypoint); 
+    virtual RetValue Pre(Entrypoint, const std::vector<AnyValue>& ); 
     virtual void Post(Entrypoint call);
 };
 
 class GetProcAddressTracer: public DefaultTracer {
-    virtual RetValue Pre(Entrypoint); 
+    virtual RetValue Pre(Entrypoint, const std::vector<AnyValue>& ); 
     virtual void Post(Entrypoint call);
 };
 
