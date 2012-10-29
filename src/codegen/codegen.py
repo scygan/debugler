@@ -18,14 +18,10 @@ defFile = open(outputDir + "OpenGL32.def", "w")
 #allTypes = Set([])
 
 def isPointer(type):
-	if "*" in type  or "PROC" in type or "LPCSTR" in type:
+	pointers = [ "*", "PROC", "LPCSTR", "HGLRC", "HDC", "LPPIXELFORMATDESCRIPTOR", "LPLAYERPLANEDESCRIPTOR", "LPGLYPHMETRICSFLOAT", "GLsync" ]
+	if any(pointer in type for pointer in pointers):
 		return True
 	return False
-	
-def doBareCastIfPointer(type): 
-	if isPointer(type): 
-		return "(void* )"
-	return ""
 	
 def parse(file, genNonExtTypedefs = False):
 	for line in file:
@@ -91,24 +87,22 @@ def parse(file, genNonExtTypedefs = False):
 
 			print >> wrappersFile, "extern \"C\" DGLWRAPPER_API " + functionRetType + " APIENTRY " + functionName + "(" + functionAttrDecls + ") {"
 			print >> wrappersFile, "    assert(POINTER(" + functionName + "));"
-			print >> wrappersFile, "	std::vector<AnyValue> args(" + str(len(functionAttrNamesList)) + ");"
-			#store called function arguments. All ptrs are cast to bare void *
-			i = 0;
+			print >> wrappersFile, "	CalledEntryPoint call( " + functionName + "_Call, " + str(len(functionAttrNamesList)) + ");"
+
 			for attrName in functionAttrNamesList:
-				print >> wrappersFile, "	args[" + str(i) + "]  = " + doBareCastIfPointer(functionAttrDeclList[i]) + attrName + ";"
-				i += 1
+				print >> wrappersFile, "	call << " + attrName + ";"
 			
-			print >> wrappersFile, "    RetValue retVal = g_Tracers[" + functionName + "_Call]->Pre(" + functionName + "_Call, args);"
+			print >> wrappersFile, "    RetValue retVal = g_Tracers[" + functionName + "_Call]->Pre(call);"
 			print >> wrappersFile, "    if (!retVal.isSet()) {"
 			if functionRetType != "void":
-				print >> wrappersFile, "    	retVal = " + doBareCastIfPointer(functionRetType) + "DIRECT_CALL(" + functionName + ")(" + functionAttrNames + ");"
+				print >> wrappersFile, "    	retVal = DIRECT_CALL(" + functionName + ")(" + functionAttrNames + ");"
 			else:
 				print >> wrappersFile, "    	DIRECT_CALL(" + functionName + ")(" + functionAttrNames + ");"			
 			print >> wrappersFile, "    }"
-			print >> wrappersFile, "    g_Tracers[" + functionName + "_Call]->Post(" + functionName + "_Call);"
+			print >> wrappersFile, "    g_Tracers[" + functionName + "_Call]->Post(call);"
 			
 			if functionRetType != "void":
-				print >> wrappersFile, "    return (" + functionRetType + ")" + doBareCastIfPointer(functionRetType) + "retVal;"
+				print >> wrappersFile, "    " + functionRetType + " tmp;  retVal.get(tmp); return tmp;"
 			print >> wrappersFile, "}"
 			
 			if genNonExtTypedefs:

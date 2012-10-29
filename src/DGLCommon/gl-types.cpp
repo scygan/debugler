@@ -22,10 +22,8 @@ namespace {
     }
 }
 
-
-
-char* GetEntryPointName(Entrypoint entrp) {
-    return g_EntrypointNames[entrp];
+char* GetEntryPointName(Entrypoint entryp) {
+    return g_EntrypointNames[entryp];
 }
 
 Entrypoint GetEntryPointEnum(const char* name) {

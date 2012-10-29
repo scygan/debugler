@@ -9,6 +9,8 @@
 BOOST_CLASS_EXPORT(dglnet::Message)
 BOOST_CLASS_EXPORT_GUID(dglnet::BreakedCallMessage, "dglnet::CurrentCallStateMessage");
 BOOST_CLASS_EXPORT_GUID(dglnet::ContinueBreakMessage, "dglnet::ContinueBreakMessage");
+BOOST_CLASS_EXPORT_GUID(dglnet::QueryCallTraceMessage, "dglnet::QueryCallTraceMessage");
+BOOST_CLASS_EXPORT_GUID(dglnet::CallTraceMessage, "dglnet::CallTraceMessage");
 
 
 namespace dglnet {

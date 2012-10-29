@@ -104,9 +104,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="tracer.cpp" />
     <ClCompile Include="api-loader.cpp" />
     <ClCompile Include="gl-wrappers.cpp" />
+    <ClCompile Include="tracer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

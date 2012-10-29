@@ -14,10 +14,10 @@ void * LoadOpenGLPointer(char* name) {
     return GetProcAddress(openGLLibraryHandle, name);
 }
 
-void LoadOpenGLExtPointer(Entrypoint entrp) {
+void LoadOpenGLExtPointer(Entrypoint entryp) {
     //this is where we store the direct ptr
-    if (!g_DirectPointers[entrp])
-        g_DirectPointers[entrp] = DIRECT_CALL(wglGetProcAddress)(GetEntryPointName(entrp));
+    if (!g_DirectPointers[entryp])
+        g_DirectPointers[entryp] = DIRECT_CALL(wglGetProcAddress)(GetEntryPointName(entryp));
 }
 
 #define FUNCTION_LIST_ELEMENT(name, type) POINTER(name) = LoadOpenGLPointer(#name);

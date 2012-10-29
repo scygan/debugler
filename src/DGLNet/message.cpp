@@ -10,6 +10,14 @@ namespace dglnet {
         unsupported();
     }
 
+    void MessageHandler::doHandle(const QueryCallTraceMessage&) {
+        unsupported();
+    }
+
+    void MessageHandler::doHandle(const CallTraceMessage&) {
+        unsupported();
+    }
+
     void MessageHandler::unsupported() {
         throw std::runtime_error("Message cannot be handled by current messge handler object.");
     }

@@ -10,7 +10,7 @@
 boost::shared_ptr<ITracer> g_Tracers[NUM_ENTRYPOINTS];
 
 
-RetValue DefaultTracer::Pre(Entrypoint entrp, const std::vector<AnyValue>&) {
+RetValue DefaultTracer::Pre(const CalledEntryPoint& call) {
     g_Controller->getServer().lock();
 
     //do a fast non-blocking poll to get "interrupt" message, etc.."
@@ -18,7 +18,7 @@ RetValue DefaultTracer::Pre(Entrypoint entrp, const std::vector<AnyValue>&) {
 
     if (g_Controller->getBreakState().isBreaked()) {
         //we just hit a break;
-        dglnet::BreakedCallMessage callStateMessage(entrp);
+        dglnet::BreakedCallMessage callStateMessage(call, g_Controller->getCallHistory().size());
         g_Controller->getServer().sendMessage(&callStateMessage);
     }
     
@@ -27,32 +27,35 @@ RetValue DefaultTracer::Pre(Entrypoint entrp, const std::vector<AnyValue>&) {
         g_Controller->getServer().run_one();
     }
 
+    g_Controller->getCallHistory().add(call);
+
     g_Controller->getBreakState().endStep();
     g_Controller->getServer().unlock();
     return RetValue();
 }
 
-void DefaultTracer::Post(Entrypoint call) {}
+void DefaultTracer::Post(const CalledEntryPoint& call) {}
 
-RetValue GetProcAddressTracer::Pre(Entrypoint call, const std::vector<AnyValue>& args) {
-    RetValue ret = DefaultTracer::Pre(call, args);
+RetValue GetProcAddressTracer::Pre(const CalledEntryPoint& call) {
+    RetValue ret = DefaultTracer::Pre(call);
 
     if (ret.isSet()) return ret;
 
-    Entrypoint entrp;
+    Entrypoint entryp;
+    const char* entrpName; call.getArgs()[0].get(entrpName);
     try {
-        entrp = GetEntryPointEnum((char*)(void*)args[0]);
+        entryp = GetEntryPointEnum(entrpName);
     } catch(const std::runtime_error&) {
         //we do not support this entrypoint
         //TODO: add partial support for unknown entrypoints
         return ret;  
     }
     //we recognize this entrypoint, load if nessesary and return address to  wrapper
-    LoadOpenGLExtPointer(entrp);
-    ret = getWrapperPointer(entrp);
+    LoadOpenGLExtPointer(entryp);
+    ret = getWrapperPointer(entryp);
     return ret;
 }
 
-void GetProcAddressTracer::Post(Entrypoint call) {
+void GetProcAddressTracer::Post(const CalledEntryPoint& call) {
     DefaultTracer::Post(call);
 }

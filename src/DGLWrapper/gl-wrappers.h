@@ -1,0 +1,1 @@
+const void* getWrapperPointer(Entrypoint entryp);

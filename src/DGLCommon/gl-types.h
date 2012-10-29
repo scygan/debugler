@@ -17,7 +17,7 @@ enum Entrypoints {
 typedef int Entrypoint;
 
 
-char* GetEntryPointName(Entrypoint entrp);
+char* GetEntryPointName(Entrypoint entryp);
 Entrypoint GetEntryPointEnum(const char* name);
 
 #endif

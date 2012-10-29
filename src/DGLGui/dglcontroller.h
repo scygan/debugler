@@ -21,14 +21,16 @@ public:
 
     //IMessageHandler methods:
     virtual void doHandle(const dglnet::BreakedCallMessage&);
+    virtual void doHandle(const dglnet::CallTraceMessage&);
 
     //GUI interactions:
 signals:
     void disconnected();
     void connected();
 
-    void breaked(Entrypoint);
-    //void running();
+    void breaked(CalledEntryPoint, uint);
+
+    void gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&);
 
     void newStatus(const QString&);
     void error(const QString&, const QString&);
@@ -37,7 +39,9 @@ public slots:
     void poll();
     void debugContinue();   
     void debugInterrupt();   
-    void debugStep();   
+    void debugStep();
+
+    void queryCallTrace(uint, uint);
 
 private:
     boost::shared_ptr<dglnet::Client> m_DglClient;

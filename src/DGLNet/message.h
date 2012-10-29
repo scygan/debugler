@@ -5,6 +5,7 @@
 #pragma warning(disable:4244 4308)
 
 #include "DGLCommon/gl-types.h"
+#include "DGLCommon/gl-serialized.h"
 
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
@@ -14,11 +15,16 @@ namespace dglnet {
 
 class BreakedCallMessage;
 class ContinueBreakMessage;
+class QueryCallTraceMessage;
+class CallTraceMessage;
+
 
 class MessageHandler {
 public:
     virtual void doHandle(const BreakedCallMessage&);
     virtual void doHandle(const ContinueBreakMessage&);
+    virtual void doHandle(const QueryCallTraceMessage&);
+    virtual void doHandle(const CallTraceMessage&);
     virtual ~MessageHandler() {}
 private:
     void unsupported();
@@ -42,19 +48,19 @@ class BreakedCallMessage: public Message {
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
         ar & boost::serialization::base_object<Message>(*this);
-        ar & m_entrp;
+        ar & m_entryp;
+        ar & m_TraceSize;
     }
 
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
 
 public:
-    BreakedCallMessage(Entrypoint entrp):m_entrp(entrp) {}
+    BreakedCallMessage(CalledEntryPoint entryp, uint32_t traceSize):m_entryp(entryp), m_TraceSize(traceSize)  {}
     BreakedCallMessage() {}
 
-    Entrypoint getEntrypoint() const { return m_entrp; }
+    CalledEntryPoint m_entryp;
+    uint32_t m_TraceSize;
 
-private:
-    Entrypoint m_entrp;
 };
 
 
@@ -79,6 +85,46 @@ public:
 private:
     bool m_Breaked;
     bool m_JustOneStep;
+};
+
+class QueryCallTraceMessage: public Message {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_StartOffset;
+        ar & m_EndOffset;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    QueryCallTraceMessage(){}
+    QueryCallTraceMessage(int32_t startOffset, int32_t endOffset):m_StartOffset(startOffset), m_EndOffset(endOffset) {}
+
+    uint32_t m_StartOffset;
+    uint32_t m_EndOffset;
+};
+
+class CallTraceMessage: public Message {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_StartOffset;
+        ar & m_Trace;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    CallTraceMessage(){}
+    CallTraceMessage(const std::vector<CalledEntryPoint>& trace, int start):m_Trace(trace), m_StartOffset(start) {}
+
+    uint32_t m_StartOffset;
+    std::vector<CalledEntryPoint> m_Trace;
 };
 
 };
