@@ -15,7 +15,14 @@ void Initialize() {
     SetTracer<GetProcAddressTracer>(wglGetProcAddress_Call);
 
     g_Controller = boost::make_shared<DebugController>();
-    g_Controller->connect(boost::make_shared<dglnet::Server>(5555, g_Controller.get()));
+    boost::shared_ptr<dglnet::Server> srv = boost::make_shared<dglnet::Server>(5555, g_Controller.get());
+    srv->accept();
+    g_Controller->connect(srv);
+}
+
+void TearDown() {
+    g_Controller->getServer()->disconnect();
+    g_Controller->getServer().reset();
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule,
@@ -24,10 +31,11 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 					 ) {
 	switch (ul_reason_for_call) {
 	    case DLL_PROCESS_ATTACH:
-            Initialize();
+            Initialize(); break;
 	    case DLL_THREAD_ATTACH:
 	    case DLL_THREAD_DETACH:
 	    case DLL_PROCESS_DETACH:
+            TearDown();
 		    break;
 	}
 	return TRUE;

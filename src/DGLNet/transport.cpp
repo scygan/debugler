@@ -20,6 +20,15 @@ namespace dglnet {
     int TransportHeader::getSize() { return m_size; }
 
     Transport::Transport(MessageHandler* handler):m_socket(m_io_service),m_messageHandler(handler) {}
+
+    void Transport::disconnect() {
+        try {
+            m_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+        } catch( ... ) {}
+        m_socket.close();
+        m_io_service.stop();
+        m_io_service.run();
+    }
     
     void Transport::poll() {
         while (m_io_service.poll());
@@ -30,32 +39,38 @@ namespace dglnet {
     }
 
     void Transport::read() {
-        boost::asio::async_read(m_socket, boost::asio::buffer(&m_pendingHeader, sizeof(m_pendingHeader)), boost::bind(&Transport::onReadHeader, this,
+        boost::asio::async_read(m_socket, boost::asio::buffer(&m_pendingHeader, sizeof(m_pendingHeader)), boost::bind(&Transport::onReadHeader, shared_from_this(),
             boost::asio::placeholders::error));
     }
 
     void Transport::onReadHeader(const boost::system::error_code &ec) {
-        assert(!ec);
-        m_pendingArchiveBuffer.resize(m_pendingHeader.getSize());
-        boost::asio::async_read(m_socket, boost::asio::buffer(m_pendingArchiveBuffer), boost::bind(&Transport::onReadArchive, this,
-            boost::asio::placeholders::error));
+        if (ec) {
+            notifyDisconnect(ec.message());
+        } else {
+            m_pendingArchiveBuffer.resize(m_pendingHeader.getSize());
+            boost::asio::async_read(m_socket, boost::asio::buffer(m_pendingArchiveBuffer), boost::bind(&Transport::onReadArchive, shared_from_this(),
+                boost::asio::placeholders::error));
+        }
     }
 
     void Transport::onReadArchive(const boost::system::error_code &ec) {
-        assert(!ec);
-        std::string iArchiveString(&m_pendingArchiveBuffer[0], m_pendingHeader.getSize());
-        std::istringstream iArchiveStream(iArchiveString, std::ios_base::binary);
-        assert(iArchiveStream.good());
-        
-        Message* msg;
-        {
-            boost::archive::binary_iarchive archive(iArchiveStream);
-            archive >> msg;
+        if (ec) {
+            notifyDisconnect(ec.message());
+        } else {
+            std::string iArchiveString(&m_pendingArchiveBuffer[0], m_pendingHeader.getSize());
+            std::istringstream iArchiveStream(iArchiveString, std::ios_base::binary);
+            assert(iArchiveStream.good());
+
+            Message* msg;
+            {
+                boost::archive::binary_iarchive archive(iArchiveStream);
+                archive >> msg;
+            }
+
+            onMessage(*msg);
+
+            read();
         }
-
-        onMessage(*msg);
-
-        read();
     }
 
     void Transport::sendMessage(const Message* msg) {
@@ -73,16 +88,27 @@ namespace dglnet {
         buffersToSend.push_back(boost::asio::buffer(header));
         buffersToSend.push_back(buffArchive.data());
 
-        boost::asio::async_write(m_socket, buffersToSend, boost::bind(&Transport::onWrite, this,
+        boost::asio::async_write(m_socket, buffersToSend, boost::bind(&Transport::onWrite, shared_from_this(),
                 boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
     }
 
     void Transport::onWrite(const boost::system::error_code &ec, std::size_t bytes_transferred) {
-        assert(!ec);
+        if (ec) {
+            notifyDisconnect(ec.message());
+        }
     }
 
     void Transport::onMessage(const Message& msg) {
         msg.handle(m_messageHandler);
+    }
+
+    void Transport::notifyDisconnect(const std::string& why) {
+        try {
+            m_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+        } catch (...) {}
+        m_socket.close();
+        m_io_service.stop();
+        m_messageHandler->doHandleDisconnect(why);
     }
 
 

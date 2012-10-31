@@ -1,4 +1,5 @@
 #include "message.h"
+//#define BOOST_ASIO_DISABLE_IOCP
 #include <boost/asio.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
@@ -21,11 +22,17 @@ public:
     void sendMessage(const Message* msg);
     void poll();
     void run_one();
+    void disconnect();
 protected:
     boost::asio::io_service m_io_service;
     boost::asio::ip::tcp::socket m_socket;
     
     void read();
+    void notifyDisconnect(const std::string& why = "");
+
+    boost::shared_ptr<Transport> get_shared_from_base() {
+        return shared_from_this();
+    }
 
 private:
     TransportHeader m_pendingHeader;    
@@ -36,7 +43,7 @@ private:
     void onWrite(const boost::system::error_code &ec, std::size_t bytes_transferred);
 
     
-    virtual void onMessage(const Message& msg);
+    void onMessage(const Message& msg);
 
     MessageHandler* m_messageHandler;
 

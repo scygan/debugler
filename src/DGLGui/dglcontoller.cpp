@@ -1,29 +1,43 @@
 #include "dglcontroller.h"
 
-DglController::DglController() {
+DglController::DglController():m_DglClientDead(false) {
     m_Timer.setInterval(10);
     assert(connect(&m_Timer, SIGNAL(timeout()), this, SLOT(poll())));
     m_Timer.start();
 }
 
-void DglController::connectClient(const std::string& host, const std::string& port) {
+void DglController::connectServer(const std::string& host, const std::string& port) {
     if (m_DglClient) {
-        disconnected();
+        disconnectServer();
     }
-    m_DglClient = boost::make_shared<dglnet::Client>(host, port, this, this);
+    m_DglClient = boost::make_shared<dglnet::Client>(this, this);
+    m_DglClient->connectServer(host, port);
 
-    m_Timer.stop();
+    //m_Timer.stop();
 
     connected();
-    m_NotifierRead = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Read); 
-    m_NotifierWrite = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Write); 
-    assert(connect(&*m_NotifierRead, SIGNAL(activated(int)), this, SLOT(poll())));
-    assert(connect(&*m_NotifierWrite, SIGNAL(activated(int)), this, SLOT(poll())));
+    //m_NotifierRead = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Read); 
+    //m_NotifierWrite = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Write); 
+    //assert(connect(&*m_NotifierRead, SIGNAL(activated(int)), this, SLOT(poll())));
+    //assert(connect(&*m_NotifierWrite, SIGNAL(activated(int)), this, SLOT(poll())));
+}
+
+void DglController::disconnectServer() {
+    if (m_DglClient) {
+        m_DglClient->disconnect();
+        m_DglClient.reset();
+        disconnected();
+    }
 }
 
 void DglController::poll() {
-    if (m_DglClient)
+    if (m_DglClient) {
         m_DglClient->poll();
+        if (m_DglClientDead)  {
+            m_DglClientDead = true;
+            disconnectServer();
+        }
+    }
 }
 
 void DglController::debugContinue() {
@@ -53,15 +67,15 @@ void DglController::queryCallTrace(uint startOffset, uint endOffset) {
     m_DglClient->sendMessage(&message);
 }
 
-
-void DglController::onInternalError(std::string str) {
-    error(tr("Connection error"), str.c_str());
-}
-
 void DglController::doHandle(const dglnet::BreakedCallMessage & msg) {
     breaked(msg.m_entryp, msg.m_TraceSize);
 }
 
 void DglController::doHandle(const dglnet::CallTraceMessage& msg) {
     gotCallTraceChunkChunk(msg.m_StartOffset, msg.m_Trace);
+}
+
+void DglController::doHandleDisconnect(const std::string& msg) {
+    error(tr("Connection error"), msg.c_str());
+    m_DglClientDead = true; 
 }

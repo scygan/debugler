@@ -25,6 +25,7 @@ public:
     virtual void doHandle(const ContinueBreakMessage&);
     virtual void doHandle(const QueryCallTraceMessage&);
     virtual void doHandle(const CallTraceMessage&);
+    virtual void doHandleDisconnect(const std::string& why) = 0;
     virtual ~MessageHandler() {}
 private:
     void unsupported();

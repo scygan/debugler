@@ -22,8 +22,7 @@ private slots:
     void errorMessage(const QString&, const QString&);
 
     void attach();
-
-
+    void disconnect();
 
 private:
     void createActions();
@@ -43,6 +42,7 @@ private:
     QAction *quitAct;
 
     QAction *attachAct;
+    QAction *disconnectAct;
     QAction *debugInterruptAct;
     QAction *debugContinueAct;
     QAction *debugStepAct;

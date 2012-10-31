@@ -13,15 +13,16 @@ class DglController: public QObject, public dglnet::IController, public dglnet::
 
 public:
     DglController();
-    void connectClient(const std::string& host, const std::string& port);
+    void connectServer(const std::string& host, const std::string& port);
+    void disconnectServer();
 
     //IController methods:
     virtual void onSetStatus(std::string);
-    virtual void onInternalError(std::string);
 
     //IMessageHandler methods:
     virtual void doHandle(const dglnet::BreakedCallMessage&);
     virtual void doHandle(const dglnet::CallTraceMessage&);
+    virtual void doHandleDisconnect(const std::string&);
 
     //GUI interactions:
 signals:
@@ -47,6 +48,7 @@ private:
     boost::shared_ptr<dglnet::Client> m_DglClient;
     boost::shared_ptr<QSocketNotifier> m_NotifierRead, m_NotifierWrite;
     QTimer m_Timer;
+    bool m_DglClientDead;
 };
 
 #endif

@@ -34,6 +34,7 @@ void DGLMainWindow::createDockWindows() {
 void DGLMainWindow::createMenus() {
      fileMenu = menuBar()->addMenu(tr("&File"));
      fileMenu->addAction(attachAct);
+     fileMenu->addAction(disconnectAct);
      fileMenu->addSeparator();
      fileMenu->addAction(quitAct);
 
@@ -84,6 +85,10 @@ void DGLMainWindow::createToolBars() {
      attachAct->setStatusTip(tr("Attach to IP target"));
      assert(connect(attachAct, SIGNAL(triggered()), this, SLOT(attach())));
 
+     disconnectAct = new QAction(tr("&Disconnect"), this);
+     disconnectAct->setStatusTip(tr("Disconnect an terminate application"));
+     assert(connect(disconnectAct, SIGNAL(triggered()), this, SLOT(disconnect())));
+
      debugContinueAct = new QAction(tr("&Continue"), this);
      debugContinueAct->setStatusTip(tr("Continue program execution"));
      assert(connect(debugContinueAct, SIGNAL(triggered()), &m_controller, SLOT(debugContinue())));
@@ -114,8 +119,12 @@ void DGLMainWindow::createToolBars() {
   void DGLMainWindow::attach() {
       DGLConnectDialog dialog;
       if (dialog.exec() == QDialog::Accepted) {
-          m_controller.connectClient(dialog.getAddress(), dialog.getPort());
+          m_controller.connectServer(dialog.getAddress(), dialog.getPort());
       }
+  }
+
+  void DGLMainWindow::disconnect() {
+      m_controller.disconnectServer();
   }
 
 

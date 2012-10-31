@@ -41,6 +41,8 @@ private:
 class DebugController: public dglnet::MessageHandler {
 public:
     void connect(boost::shared_ptr<dglnet::Server>);
+    virtual void doHandleDisconnect(const std::string&);
+
     BreakState m_BreakState;
 
     dglnet::Server& getServer();

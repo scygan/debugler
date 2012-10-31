@@ -64,6 +64,12 @@ void DebugController::connect(boost::shared_ptr<dglnet::Server> srv) {
     m_Server = srv;
 }
 
+void DebugController::doHandleDisconnect(const std::string&) {
+    //we have got disconnected from the client
+    //it is better to die here, than allow app to run uncontrolled.
+    exit(1);
+}
+
 dglnet::Server& DebugController::getServer() {
     return *m_Server;
 }

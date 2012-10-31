@@ -6,10 +6,12 @@
 
 namespace dglnet {
 
-    Client::Client(std::string host, std::string port, IController* controller, MessageHandler* handler):Transport(handler),m_controller(controller) {
+    Client::Client(IController* controller, MessageHandler* handler):Transport(handler),m_controller(controller) {}
+
+    void Client::connectServer(std::string host, std::string port) {
         boost::asio::ip::tcp::resolver resolver(m_io_service); 
         boost::asio::ip::tcp::resolver::query query(host, port);
-        resolver.async_resolve(query, boost::bind(&Client::onResolve, this,
+        resolver.async_resolve(query, boost::bind(&Client::onResolve, shared_from_this(),
             boost::asio::placeholders::error,
             boost::asio::placeholders::iterator));
         m_controller->onSetStatus("Looking up server...");
@@ -23,11 +25,11 @@ namespace dglnet {
         boost::asio::ip::tcp::resolver::iterator endpoint_iterator) {
         
         if (!err) {
-            m_socket.async_connect(*endpoint_iterator, boost::bind(&Client::onConnect, this,
+            m_socket.async_connect(*endpoint_iterator, boost::bind(&Client::onConnect, shared_from_this(),
                 boost::asio::placeholders::error));
             m_controller->onSetStatus("Connecting...");
         } else {
-            m_controller->onInternalError(err.message());
+            notifyDisconnect(err.message());
         }
     }
 
@@ -36,8 +38,12 @@ namespace dglnet {
             m_controller->onSetStatus("Connected.");
             read();
         } else {
-            m_controller->onInternalError(err.message());
+            notifyDisconnect(err.message());
         }
+    }
+
+    boost::shared_ptr<Client> Client::shared_from_this() {
+        return boost::static_pointer_cast<Client>(get_shared_from_base());
     }
 }
 
