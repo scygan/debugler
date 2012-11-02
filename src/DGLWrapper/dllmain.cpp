@@ -21,8 +21,8 @@ void Initialize() {
 }
 
 void TearDown() {
-    g_Controller->getServer()->disconnect();
-    g_Controller->getServer().reset();
+    g_Controller->getServer().disconnect();
+    g_Controller.reset();
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule,
@@ -34,6 +34,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
             Initialize(); break;
 	    case DLL_THREAD_ATTACH:
 	    case DLL_THREAD_DETACH:
+            break;
 	    case DLL_PROCESS_DETACH:
             TearDown();
 		    break;

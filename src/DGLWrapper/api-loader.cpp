@@ -28,6 +28,10 @@ void LoadOpenGLPointers () {
 
 void LoadOpenGLLibrary() {
     openGLLibraryHandle = LoadLibrary("C:\\Windows\\SysWOW64\\opengl32.dll");
+    if (!openGLLibraryHandle) {
+        openGLLibraryHandle = LoadLibrary("C:\\Windows\\System32\\opengl32.dll");
+    }
+
     assert(openGLLibraryHandle);
     if (!openGLLibraryHandle) {
         MessageBox(0, "Cannot load library", "Cannot Load library OpenGL32.dll", MB_OK | MB_ICONSTOP);
