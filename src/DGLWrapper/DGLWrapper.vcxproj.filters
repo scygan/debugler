@@ -29,10 +29,10 @@
     <ClInclude Include="gl-wrappers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tracer.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="gl-state.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tracer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

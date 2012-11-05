@@ -21,58 +21,57 @@ private:
     bool m_isSet;
 };
 
+class TracerBase {
+public:
+    virtual ~TracerBase() {}
+    virtual RetValue Pre(const CalledEntryPoint&);
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret = RetValue());
 
-
-class ITracer {
-public: 
-    virtual RetValue Pre(const CalledEntryPoint&) = 0; 
-    virtual void Post(const CalledEntryPoint&, const RetValue& ret = RetValue()) = 0; 
-};
-
-class DefaultTracer: public ITracer {
+    template<typename SpecificTracerType> 
+    static void SetNext(Entrypoint entryp) {
+        boost::shared_ptr<TracerBase> prev = g_Tracers[entryp];
+        g_Tracers[entryp] = boost::shared_ptr<TracerBase>(new SpecificTracerType());
+        g_Tracers[entryp]->SetPrev(prev);
+    }
 protected:
+    RetValue PrevPre(const CalledEntryPoint&);
+    void PrevPost(const CalledEntryPoint&, const RetValue& ret);
+private:
+    void SetPrev(const boost::shared_ptr<TracerBase>& prev);
+    boost::shared_ptr<TracerBase> m_PrevTracer;
+};
+
+class DefaultTracer: public TracerBase {
+    virtual RetValue Pre(const CalledEntryPoint&); 
+};
+
+class GetProcAddressTracer: public TracerBase {
+    virtual RetValue Pre(const CalledEntryPoint&); 
+};
+
+class ContextTracer: public TracerBase {
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+};
+
+class TextureTracer: public TracerBase {
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+};
+
+class BufferTracer: public TracerBase {
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+};
+
+class ProgramTracer: public TracerBase {
     virtual RetValue Pre(const CalledEntryPoint&); 
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
-class GetProcAddressTracer: public DefaultTracer {
-    virtual RetValue Pre(const CalledEntryPoint&); 
-    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
-};
 
-class ContextTracer: public DefaultTracer {
-    virtual RetValue Pre(const CalledEntryPoint&); 
-    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
-};
-
-class TextureTracer: public DefaultTracer {
-    virtual RetValue Pre(const CalledEntryPoint&); 
-    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
-};
-
-class BufferTracer: public DefaultTracer {
-    virtual RetValue Pre(const CalledEntryPoint&); 
-    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
-};
-
-class ProgramTracer: public DefaultTracer {
-    virtual RetValue Pre(const CalledEntryPoint&); 
-    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
-};
-
-
-extern boost::shared_ptr<ITracer> g_Tracers[NUM_ENTRYPOINTS];
+extern boost::shared_ptr<TracerBase> g_Tracers[NUM_ENTRYPOINTS];
 
 template<typename Tracer>
 void SetAllTracers() {
     for (int i = 0; i < NUM_ENTRYPOINTS; i++) {
-        g_Tracers[i] = boost::shared_ptr<ITracer>(new Tracer());
+        g_Tracers[i] = boost::shared_ptr<TracerBase>(new Tracer());
     }
 }
-
-template<typename Tracer>
-void SetTracer(Entrypoint entryp) {
-    g_Tracers[entryp] = boost::shared_ptr<ITracer>(new Tracer());
-}
-
-

@@ -47,6 +47,7 @@ class ContextReport {
         ar & m_Id;
         ar & m_TextureSpace;
         ar & m_BufferSpace;
+        ar & m_ProgramSpace;
     }
 public:
     ContextReport() {}
@@ -54,6 +55,7 @@ public:
     int32_t m_Id;
     std::set<uint32_t> m_TextureSpace;
     std::set<uint32_t> m_BufferSpace;
+    std::set<uint32_t> m_ProgramSpace;
 };
 
 class BreakedCallMessage: public Message {

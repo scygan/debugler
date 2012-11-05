@@ -40,6 +40,10 @@ dglnet::ContextReport GLContext::describe() {
         i != m_Buffers.end(); i++) {
             ret.m_BufferSpace.insert(i->second.getName());
     }
+    for (std::map<GLuint, GLProgramObj>::iterator i = m_Programs.begin(); 
+        i != m_Programs.end(); i++) {
+            ret.m_ProgramSpace.insert(i->second.getName());
+    }
     return ret;
 }
 

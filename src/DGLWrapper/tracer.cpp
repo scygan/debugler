@@ -9,10 +9,35 @@
 #include "api-loader.h"
 
 
-boost::shared_ptr<ITracer> g_Tracers[NUM_ENTRYPOINTS];
+boost::shared_ptr<TracerBase> g_Tracers[NUM_ENTRYPOINTS];
 
+void TracerBase::SetPrev(const boost::shared_ptr<TracerBase>& prev) {
+    m_PrevTracer = prev;
+}
+
+RetValue TracerBase::Pre(const CalledEntryPoint& call) {
+    return PrevPre(call);
+}
+
+void TracerBase::Post(const CalledEntryPoint& call, const RetValue& ret) {
+    return PrevPost(call, ret);
+}
+
+
+RetValue TracerBase::PrevPre(const CalledEntryPoint& call) {
+    if (m_PrevTracer)
+        return m_PrevTracer->Pre(call);
+    return RetValue();
+}
+
+void TracerBase::PrevPost(const CalledEntryPoint& call, const RetValue& ret) {
+    if (m_PrevTracer)
+        m_PrevTracer->Post(call, ret);
+}
 
 RetValue DefaultTracer::Pre(const CalledEntryPoint& call) {
+    RetValue ret = PrevPre(call);
+
     g_Controller->getServer().lock();
 
     //do a fast non-blocking poll to get "interrupt" message, etc.."
@@ -34,13 +59,11 @@ RetValue DefaultTracer::Pre(const CalledEntryPoint& call) {
 
     g_Controller->getBreakState().endStep();
     g_Controller->getServer().unlock();
-    return RetValue();
+    return ret;
 }
 
-void DefaultTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {}
-
 RetValue GetProcAddressTracer::Pre(const CalledEntryPoint& call) {
-    RetValue ret = DefaultTracer::Pre(call);
+    RetValue ret = PrevPre(call);
 
     if (ret.isSet()) return ret;
 
@@ -56,15 +79,6 @@ RetValue GetProcAddressTracer::Pre(const CalledEntryPoint& call) {
     //we recognize this entrypoint, load if nessesary and return address to  wrapper
     LoadOpenGLExtPointer(entryp);
     ret = getWrapperPointer(entryp);
-    return ret;
-}
-
-void GetProcAddressTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
-    DefaultTracer::Post(call, ret);
-}
-
-RetValue ContextTracer::Pre(const CalledEntryPoint& call) {
-    RetValue ret = DefaultTracer::Pre(call);
     return ret;
 }
 
@@ -94,12 +108,7 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             }
             break;
     }
-    DefaultTracer::Post(call, ret);
-}
-
-RetValue TextureTracer::Pre(const CalledEntryPoint& call) {
-    RetValue ret = DefaultTracer::Pre(call);
-    return ret;
+    PrevPost(call, ret);
 }
 
 void TextureTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
@@ -132,12 +141,7 @@ void TextureTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             g_GLState.getCurrent()->ensureTexture(name);
         }
     }
-    DefaultTracer::Post(call, ret);
-}
-
-RetValue BufferTracer::Pre(const CalledEntryPoint& call) {
-    RetValue ret = DefaultTracer::Pre(call);
-    return ret;
+    PrevPost(call, ret);
 }
 
 void BufferTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
@@ -170,11 +174,11 @@ void BufferTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             g_GLState.getCurrent()->ensureBuffer(name);
         }
     }
-    DefaultTracer::Post(call, ret);
+    PrevPost(call, ret);
 }
 
 RetValue ProgramTracer::Pre(const CalledEntryPoint& call) {
-    RetValue ret = DefaultTracer::Pre(call);
+    RetValue ret = PrevPre(call);
     
     if (call.getEntrypoint() == glUseProgram_Call) {
 
@@ -220,5 +224,5 @@ void ProgramTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
         }
     }
-    DefaultTracer::Post(call, ret);
+    PrevPost(call, ret);
 }

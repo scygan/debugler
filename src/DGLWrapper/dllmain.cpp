@@ -12,18 +12,22 @@ void Initialize() {
     LoadOpenGLLibrary();
 
     SetAllTracers<DefaultTracer>();
-    SetTracer<GetProcAddressTracer>(wglGetProcAddress_Call);
-    SetTracer<ContextTracer>(wglCreateContext_Call);
-    SetTracer<ContextTracer>(wglMakeCurrent_Call);
-    SetTracer<ContextTracer>(wglDeleteContext_Call);
+    TracerBase::SetNext<GetProcAddressTracer>(wglGetProcAddress_Call);
+    TracerBase::SetNext<ContextTracer>(wglCreateContext_Call);
+    TracerBase::SetNext<ContextTracer>(wglMakeCurrent_Call);
+    TracerBase::SetNext<ContextTracer>(wglDeleteContext_Call);
 
-    SetTracer<TextureTracer>(glGenTextures_Call);
-    SetTracer<TextureTracer>(glDeleteTextures_Call);
-    SetTracer<TextureTracer>(glBindTexture_Call);
+    TracerBase::SetNext<TextureTracer>(glGenTextures_Call);
+    TracerBase::SetNext<TextureTracer>(glDeleteTextures_Call);
+    TracerBase::SetNext<TextureTracer>(glBindTexture_Call);
 
-    SetTracer<BufferTracer>(glGenBuffers_Call);
-    SetTracer<BufferTracer>(glDeleteBuffers_Call);
-    SetTracer<BufferTracer>(glBindBuffer_Call);
+    TracerBase::SetNext<BufferTracer>(glGenBuffers_Call);
+    TracerBase::SetNext<BufferTracer>(glDeleteBuffers_Call);
+    TracerBase::SetNext<BufferTracer>(glBindBuffer_Call);
+
+    TracerBase::SetNext<ProgramTracer>(glCreateProgram_Call);
+    TracerBase::SetNext<ProgramTracer>(glDeleteProgram_Call);
+    TracerBase::SetNext<ProgramTracer>(glUseProgram_Call);
 
     g_Controller = boost::make_shared<DebugController>();
     boost::shared_ptr<dglnet::Server> srv = boost::make_shared<dglnet::Server>(5555, g_Controller.get());
@@ -39,17 +43,17 @@ void TearDown() {
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
                        LPVOID lpReserved
-					 ) {
-	switch (ul_reason_for_call) {
-	    case DLL_PROCESS_ATTACH:
+                     ) {
+    switch (ul_reason_for_call) {
+        case DLL_PROCESS_ATTACH:
             Initialize(); break;
-	    case DLL_THREAD_ATTACH:
-	    case DLL_THREAD_DETACH:
+        case DLL_THREAD_ATTACH:
+        case DLL_THREAD_DETACH:
             break;
-	    case DLL_PROCESS_DETACH:
+        case DLL_PROCESS_DETACH:
             TearDown();
-		    break;
-	}
-	return TRUE;
+            break;
+    }
+    return TRUE;
 }
 

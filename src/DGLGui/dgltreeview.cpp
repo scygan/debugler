@@ -48,10 +48,18 @@ public:
     }
 };
 
-template<class ObjType>
-class DGLObjectSpaceWidget: public QTreeWidgetItem {
+class DGLProgramWidget: public QTreeWidgetItem {
 public:
-    DGLObjectSpaceWidget(QString header) {
+    DGLProgramWidget() {}
+    DGLProgramWidget(uint name) {
+        setText(0, QString("Program ") + QString::number(name));
+    }
+};
+
+template<class ObjType>
+class DGLObjectNodeWidget: public QTreeWidgetItem {
+public:
+    DGLObjectNodeWidget(QString header) {
         setText(0, header);
     }
     void update(const std::set<uint32_t>& names) {
@@ -74,23 +82,26 @@ private:
 
 class DGLCtxTreeWidget: public QTreeWidgetItem  {
 public:
-    DGLCtxTreeWidget():m_TextureSpace("Textures"),m_BufferSpace("Buffers")  {
-        addChild(&m_TextureSpace);
-        addChild(&m_BufferSpace);
+    DGLCtxTreeWidget():m_TextureNode("Textures"), m_BufferNode("Buffers"), m_ProgramNode("Programs")  {
+        addChild(&m_TextureNode);
+        addChild(&m_BufferNode);
+        addChild(&m_ProgramNode);
     }
     uint getId() { return m_Id; }
 
     void update(const dglnet::ContextReport& report) {
         m_Id = report.m_Id;
         setText(0, QString("Context ") + QString::number(report.m_Id, 16));
-        m_TextureSpace.update(report.m_TextureSpace);
-        m_BufferSpace.update(report.m_BufferSpace);
+        m_TextureNode.update(report.m_TextureSpace);
+        m_BufferNode.update(report.m_BufferSpace);
+        m_ProgramNode.update(report.m_ProgramSpace);
     }
 
 private:
     uint m_Id; 
-    DGLObjectSpaceWidget<DGLTextureWidget> m_TextureSpace;
-    DGLObjectSpaceWidget<DGLBufferWidget> m_BufferSpace;
+    DGLObjectNodeWidget<DGLTextureWidget> m_TextureNode;
+    DGLObjectNodeWidget<DGLBufferWidget> m_BufferNode;
+    DGLObjectNodeWidget<DGLProgramWidget> m_ProgramNode;
 };
 
 
