@@ -2,14 +2,12 @@
 #define GL_SERIALIZED_H
 
 #include <DGLCommon/gl-types.h>
+#include <DGLNet/serializer-fwd.h>
 
 #include <boost/variant.hpp>
 #include <boost/variant/get.hpp>
-#include <boost/serialization/variant.hpp>
-
 
 #include <vector>
-#include <boost/serialization/vector.hpp>
 
 //Pointers that are serialized by value must be wrapped with this class
 template <typename T>

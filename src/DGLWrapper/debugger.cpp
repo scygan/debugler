@@ -3,66 +3,11 @@
 
 #include"debugger.h"
 
+
 boost::shared_ptr<DebugController> g_Controller;
 GLState g_GLState;
 
-GLContext::GLContext(uint32_t id):m_Id(id), m_InUse(false), m_Deleted(false) {}
-
-dglnet::ContextReport GLContext::describe() {
-    dglnet::ContextReport ret(m_Id);
-    for (std::map<GLuint, GLTextureObj>::iterator i = m_Textures.begin(); 
-        i != m_Textures.end(); i++) {
-            ret.m_TextureSpace.insert(i->second.getName());
-    }
-    for (std::map<GLuint, GLBufferObj>::iterator i = m_Buffers.begin(); 
-        i != m_Buffers.end(); i++) {
-            ret.m_BufferSpace.insert(i->second.getName());
-    }
-    return ret;
-}
-
-void GLContext::use(bool inUse) {
-    m_InUse = inUse;
-}
-
-bool GLContext::lazyDelete() {
-    m_Deleted = true;
-    return !m_InUse;
-}
-
-bool GLContext::isDeleted() {
-    return m_Deleted;
-}
-
-void GLContext::ensureTexture(GLuint name) {
-    if (m_Textures.find(name) == m_Textures.end())
-        m_Textures[name] = GLTextureObj(name);
-}
-
-void GLContext::deleteTexture(GLuint name) {
-    std::map<GLuint, GLTextureObj>::iterator i = m_Textures.find(name); 
-    if (i !=  m_Textures.end()) {
-        m_Textures.erase(i);
-    }
-}
-
-void GLContext::ensureBuffer(GLuint name) {
-    if (m_Buffers.find(name) == m_Buffers.end())
-        m_Buffers[name] = GLBufferObj(name);
-}
-
-void GLContext::deleteBuffer(GLuint name) {
-    std::map<GLuint, GLBufferObj>::iterator i = m_Buffers.find(name); 
-    if (i !=  m_Buffers.end()) {
-        m_Buffers.erase(i);
-    }
-}
-
-int32_t GLContext::getId() {
-    return m_Id;
-}
-
-void nop(GLContext*) {}
+void nop(dglstate::GLContext*) {}
 
 GLState::GLState():m_Current(&nop) {};
 
@@ -73,8 +18,8 @@ GLState::ContextListIter GLState::ensureContext(uint32_t id, bool lock) {
     ContextListIter i = m_ContextList.find(id);
     if (i == m_ContextList.end()) {
         i = m_ContextList.insert(
-                std::pair<uint32_t, boost::shared_ptr<GLContext>> (
-                    id, boost::make_shared<GLContext>(id)
+                std::pair<uint32_t, boost::shared_ptr<dglstate::GLContext>> (
+                    id, boost::make_shared<dglstate::GLContext>(id)
                     )
             ).first;
     }
@@ -84,12 +29,12 @@ GLState::ContextListIter GLState::ensureContext(uint32_t id, bool lock) {
     return i;
 }
 
-GLContext* GLState::getCurrent() {
+dglstate::GLContext* GLState::getCurrent() {
     return m_Current.get();
 }
 
 void GLState::bindContext(uint32_t id) {
-    GLContext* current = getCurrent();
+    dglstate::GLContext* current = getCurrent();
 
     if (current && id == current->getId())
         return;

@@ -19,6 +19,7 @@
   <ItemGroup>
     <ClInclude Include="client.h" />
     <ClInclude Include="message.h" />
+    <ClInclude Include="serializer-fwd.h" />
     <ClInclude Include="server.h" />
     <ClInclude Include="transport.h" />
   </ItemGroup>

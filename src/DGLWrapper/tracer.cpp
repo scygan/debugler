@@ -5,6 +5,7 @@
 #include "gl-wrappers.h"
 #include "debugger.h"
 #include "tracer.h"
+#include "pointers.h"
 #include "api-loader.h"
 
 
@@ -19,7 +20,7 @@ RetValue DefaultTracer::Pre(const CalledEntryPoint& call) {
 
     if (g_Controller->getBreakState().isBreaked()) {
         //we just hit a break;
-        GLContext* ctx = g_GLState.getCurrent();
+        dglstate::GLContext* ctx = g_GLState.getCurrent();
         dglnet::BreakedCallMessage callStateMessage(call, g_Controller->getCallHistory().size(), ctx?ctx->getId():0, g_GLState.describe());
         g_Controller->getServer().sendMessage(&callStateMessage);
     }
@@ -177,14 +178,14 @@ RetValue ProgramTracer::Pre(const CalledEntryPoint& call) {
     
     if (call.getEntrypoint() == glUseProgram_Call) {
 
-        GLuint currentProgramName;
+        GLint currentProgramName;
         DIRECT_CALL(glGetIntegerv)(GL_CURRENT_PROGRAM, &currentProgramName);
 
-        GLBufferObj* currentProgram = g_GLState->getCurrent()->ensureBuffer(currentProgramName);
+        dglstate::GLProgramObj* currentProgram = g_GLState.getCurrent()->ensureProgram(currentProgramName);
 
         currentProgram->use(false);
         if (currentProgram->mayDelete()) {
-            g_GLState.getCurrent()->deleteProgram(name);
+            g_GLState.getCurrent()->deleteProgram(currentProgramName);
         }
     }
     return ret;
@@ -205,8 +206,9 @@ void ProgramTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
             call.getArgs()[0].get(name);
 
-            g_GLState.getCurrent()->ensureProgram(name)->tryDelete();
-            if (currentProgram->mayDelete()) {
+            dglstate::GLProgramObj* program = g_GLState.getCurrent()->ensureProgram(name);
+            program->markDeleted();
+            if (program->mayDelete()) {
                 g_GLState.getCurrent()->deleteProgram(name);
             }
 

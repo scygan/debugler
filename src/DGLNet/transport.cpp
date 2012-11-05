@@ -1,4 +1,15 @@
+
 #include "transport.h"
+
+//for boost serialization
+#pragma warning(disable:4244 4308)
+
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/export.hpp> 
+#include <boost/serialization/set.hpp>
+#include <boost/serialization/variant.hpp>
+#include <boost/serialization/vector.hpp>
 
 
 #include <sstream>

@@ -37,5 +37,8 @@
     <ClInclude Include="transport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="serializer-fwd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -91,6 +91,7 @@
     <ClInclude Include="debugger.h" />
     <ClInclude Include="DGLWrapper.h" />
     <ClInclude Include="gl-headers-inside.h" />
+    <ClInclude Include="gl-state.h" />
     <ClInclude Include="gl-wrappers.h" />
     <ClInclude Include="pointers.h" />
     <ClInclude Include="tracer.h" />
@@ -107,6 +108,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="api-loader.cpp" />
+    <ClCompile Include="gl-state.cpp" />
     <ClCompile Include="gl-wrappers.cpp" />
     <ClCompile Include="tracer.cpp" />
   </ItemGroup>

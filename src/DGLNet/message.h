@@ -1,18 +1,11 @@
 #ifndef _MESSAGE_H
 #define _MESSAGE_H
 
-//for boost serialization
-#pragma warning(disable:4244 4308)
+#include <DGLCommon/gl-types.h>
+#include <DGLCommon/gl-serialized.h>
 
-#include "DGLCommon/gl-types.h"
-#include "DGLCommon/gl-serialized.h"
-
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/serialization/export.hpp> 
-#include <boost/serialization/set.hpp>
-
-#include <map>
+#include <DGLNet/serializer-fwd.h>
+#include <set>
 
 namespace dglnet {
 
