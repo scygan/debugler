@@ -8,17 +8,37 @@
 
 #define CALL_HISTORY_LEN 1000
 
+class GLObj {
+public:
+    GLObj():m_Name(0) {}
+    GLObj(GLuint name):m_Name(name) {}
+    GLuint getName() { return m_Name; }
+private:
+    GLuint m_Name;
+};
 
-class GLObj {};
+class GLTextureObj: public GLObj {
+public:
+    GLTextureObj(GLuint name):GLObj(name) {}
+    GLTextureObj() {}
+};
 
-class GLBufferObj: public GLObj {};
+class GLBufferObj: public GLObj {
+public:
+    GLBufferObj(GLuint name):GLObj(name) {}
+    GLBufferObj() {}
+};
 
-class GLTextureObj: public GLObj {};
+class GLProgramObj: public GLObj {
+public:
+    GLProgramObj(GLuint name):GLObj(name), m_InUse(false) {}
+    GLProgramObj() {}
+    void inUse(); 
+    bool isInUse(); 
 
-class GLProgramObj: public GLObj {};
-
-class GLShaderObj: public GLObj {};
-
+private:
+    int m_InUse;
+};
 
 class GLContext {
 public:
@@ -26,12 +46,20 @@ public:
     bool m_deleted;
     std::map<GLuint, GLTextureObj> m_Textures;
     std::map<GLuint, GLBufferObj> m_Buffers;
-    
+
     dglnet::ContextReport describe();
 
     void use(bool);
     bool lazyDelete();
     bool isDeleted();
+
+    void ensureTexture(GLuint name);
+    void deleteTexture(GLuint name);
+    void ensureBuffer(GLuint name);
+    void deleteBuffer(GLuint name);
+
+    GLBufferObj* ensureProgram(GLuint name);
+    void deleteProgram(GLuint name);
     
     int32_t getId();
 
@@ -44,6 +72,7 @@ private:
 class GLState {
     typedef std::map<uint32_t, boost::shared_ptr<GLContext> >::iterator ContextListIter;
 public:
+    GLState();
     GLContext* getCurrent();
     ContextListIter ensureContext(uint32_t id, bool lock = true);
     void bindContext(uint32_t id);
@@ -54,6 +83,7 @@ public:
 private:
     std::map<uint32_t, boost::shared_ptr<GLContext> > m_ContextList;
     boost::thread_specific_ptr<GLContext> m_Current;
+
     boost::mutex m_ContextListMutex;
 };
 

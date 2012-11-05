@@ -45,6 +45,22 @@ class ContextTracer: public DefaultTracer {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
+class TextureTracer: public DefaultTracer {
+    virtual RetValue Pre(const CalledEntryPoint&); 
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+};
+
+class BufferTracer: public DefaultTracer {
+    virtual RetValue Pre(const CalledEntryPoint&); 
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+};
+
+class ProgramTracer: public DefaultTracer {
+    virtual RetValue Pre(const CalledEntryPoint&); 
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+};
+
+
 extern boost::shared_ptr<ITracer> g_Tracers[NUM_ENTRYPOINTS];
 
 template<typename Tracer>

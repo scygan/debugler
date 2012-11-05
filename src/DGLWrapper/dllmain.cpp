@@ -17,6 +17,14 @@ void Initialize() {
     SetTracer<ContextTracer>(wglMakeCurrent_Call);
     SetTracer<ContextTracer>(wglDeleteContext_Call);
 
+    SetTracer<TextureTracer>(glGenTextures_Call);
+    SetTracer<TextureTracer>(glDeleteTextures_Call);
+    SetTracer<TextureTracer>(glBindTexture_Call);
+
+    SetTracer<BufferTracer>(glGenBuffers_Call);
+    SetTracer<BufferTracer>(glDeleteBuffers_Call);
+    SetTracer<BufferTracer>(glBindBuffer_Call);
+
     g_Controller = boost::make_shared<DebugController>();
     boost::shared_ptr<dglnet::Server> srv = boost::make_shared<dglnet::Server>(5555, g_Controller.get());
     srv->accept();

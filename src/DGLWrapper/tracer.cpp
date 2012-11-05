@@ -95,3 +95,128 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     }
     DefaultTracer::Post(call, ret);
 }
+
+RetValue TextureTracer::Pre(const CalledEntryPoint& call) {
+    RetValue ret = DefaultTracer::Pre(call);
+    return ret;
+}
+
+void TextureTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
+    Entrypoint entrp = call.getEntrypoint();
+    if (g_GLState.getCurrent()) {
+
+        if (entrp == glGenTextures_Call) {
+            GLsizei n = 0;
+            call.getArgs()[0].get(n);
+
+            GLuint* names;
+            call.getArgs()[1].get(names);
+
+            for (GLsizei i = 0; i < n; i++) {
+                g_GLState.getCurrent()->ensureTexture(names[i]);
+            }
+        } else if (entrp == glDeleteTextures_Call) {
+            GLsizei n = 0;
+            call.getArgs()[0].get(n);
+
+            const GLuint* names;
+            call.getArgs()[1].get(names);
+
+            for (GLsizei i = 0; i < n; i++) {
+                g_GLState.getCurrent()->deleteTexture(names[i]);
+            }
+        } else if (entrp == glBindTexture_Call) {
+            GLuint name;
+            call.getArgs()[1].get(name);
+            g_GLState.getCurrent()->ensureTexture(name);
+        }
+    }
+    DefaultTracer::Post(call, ret);
+}
+
+RetValue BufferTracer::Pre(const CalledEntryPoint& call) {
+    RetValue ret = DefaultTracer::Pre(call);
+    return ret;
+}
+
+void BufferTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
+    Entrypoint entrp = call.getEntrypoint();
+    if (g_GLState.getCurrent()) {
+
+        if (entrp == glGenBuffers_Call) {
+            GLsizei n = 0;
+            call.getArgs()[0].get(n);
+
+            GLuint* names;
+            call.getArgs()[1].get(names);
+
+            for (GLsizei i = 0; i < n; i++) {
+                g_GLState.getCurrent()->ensureBuffer(names[i]);
+            }
+        } else if (entrp == glDeleteBuffers_Call) {
+            GLsizei n = 0;
+            call.getArgs()[0].get(n);
+
+            const GLuint* names;
+            call.getArgs()[1].get(names);
+
+            for (GLsizei i = 0; i < n; i++) {
+                g_GLState.getCurrent()->deleteBuffer(names[i]);
+            }
+        } else if (entrp == glBindBuffer_Call) {
+            GLuint name;
+            call.getArgs()[1].get(name);
+            g_GLState.getCurrent()->ensureBuffer(name);
+        }
+    }
+    DefaultTracer::Post(call, ret);
+}
+
+RetValue ProgramTracer::Pre(const CalledEntryPoint& call) {
+    RetValue ret = DefaultTracer::Pre(call);
+    
+    if (call.getEntrypoint() == glUseProgram_Call) {
+
+        GLuint currentProgramName;
+        DIRECT_CALL(glGetIntegerv)(GL_CURRENT_PROGRAM, &currentProgramName);
+
+        GLBufferObj* currentProgram = g_GLState->getCurrent()->ensureBuffer(currentProgramName);
+
+        currentProgram->use(false);
+        if (currentProgram->mayDelete()) {
+            g_GLState.getCurrent()->deleteProgram(name);
+        }
+    }
+    return ret;
+}
+
+void ProgramTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
+    Entrypoint entrp = call.getEntrypoint();
+
+    if (g_GLState.getCurrent()) {
+        GLuint name;
+        if (entrp == glCreateProgram_Call) {
+
+            ret.get(name);
+
+            g_GLState.getCurrent()->ensureProgram(name);
+
+        } else if (entrp == glDeleteProgram_Call) {
+
+            call.getArgs()[0].get(name);
+
+            g_GLState.getCurrent()->ensureProgram(name)->tryDelete();
+            if (currentProgram->mayDelete()) {
+                g_GLState.getCurrent()->deleteProgram(name);
+            }
+
+        } else if (entrp == glUseProgram_Call) {
+
+            call.getArgs()[0].get(name);
+
+            g_GLState.getCurrent()->ensureProgram(name)->use(true);
+
+        }
+    }
+    DefaultTracer::Post(call, ret);
+}

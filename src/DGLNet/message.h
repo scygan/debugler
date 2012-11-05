@@ -10,6 +10,9 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/export.hpp> 
+#include <boost/serialization/set.hpp>
+
+#include <map>
 
 namespace dglnet {
 
@@ -49,10 +52,15 @@ class ContextReport {
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
         ar & m_Id;
+        ar & m_TextureSpace;
+        ar & m_BufferSpace;
     }
 public:
     ContextReport() {}
+    ContextReport(int32_t id) {}
     int32_t m_Id;
+    std::set<uint32_t> m_TextureSpace;
+    std::set<uint32_t> m_BufferSpace;
 };
 
 class BreakedCallMessage: public Message {

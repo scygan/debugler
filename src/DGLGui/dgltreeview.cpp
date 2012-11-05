@@ -1,150 +1,19 @@
 #include "dgltreeview.h"
 
+#include <set>
+#include <climits>
 
-DGLTreeItem::DGLTreeItem(DGLTreeItem *parent) {
-    m_ParentItem = parent;
-    //m_ItemData = data;
-}
-
-DGLTreeItem::~DGLTreeItem() {
-    qDeleteAll(m_ChildItems);
-}
-
-void DGLTreeItem::appendChild(DGLTreeItem *item) {
-    m_ChildItems.append(item);
-}
-
-DGLTreeItem *DGLTreeItem::child(int row) {
-    return m_ChildItems.value(row);
-}
-
-int DGLTreeItem::childCount() const {
-    return m_ChildItems.count();
-}
-
-int DGLTreeItem::columnCount() const {
-    return m_ItemData.count();
-}
-
-QVariant DGLTreeItem::data(int column) const {
-    return m_ItemData.value(column);
-}
-
-DGLTreeItem *DGLTreeItem::parent()
-{
-    return m_ParentItem;
-}
-
-int DGLTreeItem::row() const {
-    if (m_ParentItem)
-        return m_ParentItem->m_ChildItems.indexOf(const_cast<DGLTreeItem*>(this));
-    return 0;
-}
-
-
-DGLTreeModel::DGLTreeModel(QObject *parent):QAbstractItemModel(parent) {
-    QList<QVariant> rootData;
-    m_RootItem = new DGLAppTreeItem(tr("unknown.exe"));
-    m_RootItem->appendChild(new DGLCtxTreeItem(m_RootItem));
-    m_RootItem->appendChild(new DGLCtxTreeItem(m_RootItem));
-}
-
-DGLTreeModel::~DGLTreeModel() {
-    delete m_RootItem;
-}
-
-int DGLTreeModel::columnCount(const QModelIndex &parent) const {
-    if (parent.isValid())
-        return static_cast<DGLTreeItem*>(parent.internalPointer())->columnCount();
-    else
-        return m_RootItem->columnCount();
-}
-
-QVariant DGLTreeModel::data(const QModelIndex &index, int role) const {
-    if (!index.isValid())
-        return QVariant();
-
-    if (role != Qt::DisplayRole)
-        return QVariant();
-
-    DGLTreeItem *item = static_cast<DGLTreeItem*>(index.internalPointer());
-
-    return item->data(index.column());
-}
-
-Qt::ItemFlags DGLTreeModel::flags(const QModelIndex &index) const {
-    if (!index.isValid())
-        return 0;
-
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-}
-
-QVariant DGLTreeModel::headerData(int section, Qt::Orientation orientation,
-    int role) const {
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return m_RootItem->data(section);
-
-    return QVariant();
-}
-
-QModelIndex DGLTreeModel::index(int row, int column, const QModelIndex &parent) const {
-    if (!hasIndex(row, column, parent))
-        return QModelIndex();
-
-    DGLTreeItem *parentItem;
-
-    if (!parent.isValid())
-        parentItem = m_RootItem;
-    else
-        parentItem = static_cast<DGLTreeItem*>(parent.internalPointer());
-
-    DGLTreeItem *childItem = parentItem->child(row);
-    if (childItem)
-        return createIndex(row, column, childItem);
-    else
-        return QModelIndex();
-}
-
-QModelIndex DGLTreeModel::parent(const QModelIndex &index) const {
-    if (!index.isValid())
-        return QModelIndex();
-
-    DGLTreeItem *childItem = static_cast<DGLTreeItem*>(index.internalPointer());
-    DGLTreeItem *parentItem = childItem->parent();
-
-    if (parentItem == m_RootItem)
-        return QModelIndex();
-
-    return createIndex(parentItem->row(), 0, parentItem);
-}
-
-int DGLTreeModel::rowCount(const QModelIndex &parent) const {
-    DGLTreeItem *parentItem;
-    if (parent.column() > 0)
-        return 0;
-
-    if (!parent.isValid())
-        parentItem = m_RootItem;
-    else
-        parentItem = static_cast<DGLTreeItem*>(parent.internalPointer());
-
-    return parentItem->childCount();
-}
-
-DGLTreeView::DGLTreeView(QWidget* parrent, DglController* controller):QDockWidget(tr("State Tree"), parrent), m_TreeModel(this) {
+DGLTreeView::DGLTreeView(QWidget* parrent, DglController* controller):QDockWidget(tr("State Tree"), parrent), m_TreeWidget(this) {
     setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
     disable();
     
-    m_TreeView.setModel(&m_TreeModel);
-
-    setWidget(&m_TreeView);
+    setWidget(&m_TreeWidget);
     //inbound
     assert(connect(controller, SIGNAL(connected()), this, SLOT(enable())));
     assert(connect(controller, SIGNAL(disconnected()), this, SLOT(disable())));
-    assert(connect(controller, SIGNAL(breaked(CalledEntryPoint, uint)), this, SLOT(breaked(CalledEntryPoint, uint))));
-
-    //outbound
+    assert(connect(controller, SIGNAL(breakedWithStateReports(uint, const std::vector<dglnet::ContextReport>&)),
+        this, SLOT(breakedWithStateReports(uint, const std::vector<dglnet::ContextReport>&))));
     
 }
 
@@ -157,9 +26,100 @@ void DGLTreeView::enable() {
 
 void DGLTreeView::disable() {
     m_Enabled = false;
+    while (m_TreeWidget.topLevelItemCount()) {
+        delete m_TreeWidget.takeTopLevelItem(0);
+    }
 }
 
 
-void DGLTreeView::breaked(CalledEntryPoint entryp, uint) {
+class DGLTextureWidget: public QTreeWidgetItem {
+public:
+    DGLTextureWidget() {}
+    DGLTextureWidget(uint name) {
+        setText(0, QString("Texture ") + QString::number(name));
+    }
+};
 
+class DGLBufferWidget: public QTreeWidgetItem {
+public:
+    DGLBufferWidget() {}
+    DGLBufferWidget(uint name) {
+        setText(0, QString("Buffer ") + QString::number(name));
+    }
+};
+
+template<class ObjType>
+class DGLObjectSpaceWidget: public QTreeWidgetItem {
+public:
+    DGLObjectSpaceWidget(QString header) {
+        setText(0, header);
+    }
+    void update(const std::set<uint32_t>& names) {
+        for (std::set<uint32_t>::iterator i = names.begin(); i != names.end(); i++) {
+            if (m_Childs.find(*i) == m_Childs.end()) {
+                m_Childs[*i] = ObjType(*i);
+                addChild(&m_Childs[*i]);
+            }
+        }
+        for (std::map<uint, ObjType>::iterator i = m_Childs.begin(); i != m_Childs.end(); i++) {
+            if (names.find(i->first) == names.end()) {
+                removeChild(&(i->second));
+                m_Childs.erase(i);
+            }
+        }
+    }
+private:
+    std::map<uint, ObjType> m_Childs;
+};
+
+class DGLCtxTreeWidget: public QTreeWidgetItem  {
+public:
+    DGLCtxTreeWidget():m_TextureSpace("Textures"),m_BufferSpace("Buffers")  {
+        addChild(&m_TextureSpace);
+        addChild(&m_BufferSpace);
+    }
+    uint getId() { return m_Id; }
+
+    void update(const dglnet::ContextReport& report) {
+        m_Id = report.m_Id;
+        setText(0, QString("Context ") + QString::number(report.m_Id, 16));
+        m_TextureSpace.update(report.m_TextureSpace);
+        m_BufferSpace.update(report.m_BufferSpace);
+    }
+
+private:
+    uint m_Id; 
+    DGLObjectSpaceWidget<DGLTextureWidget> m_TextureSpace;
+    DGLObjectSpaceWidget<DGLBufferWidget> m_BufferSpace;
+};
+
+
+void DGLTreeView::breakedWithStateReports(uint ctxID, const std::vector<dglnet::ContextReport>& report) {
+    for(size_t i = 0; i < report.size(); i++) {
+        DGLCtxTreeWidget*  widget = 0; 
+        for (uint j = 0; j < m_TreeWidget.topLevelItemCount(); j++) {
+            DGLCtxTreeWidget*  thisWidget = dynamic_cast<DGLCtxTreeWidget*>(m_TreeWidget.topLevelItem(j)); 
+            if ( thisWidget && thisWidget->getId() == report[i].m_Id) {
+                widget = thisWidget; break;
+            }
+        }
+        if (!widget) {
+            widget = new DGLCtxTreeWidget(); 
+            m_TreeWidget.addTopLevelItem(widget);
+        }
+        widget->update(report[i]);
+    }    
+    
+    for (uint j = 0; j < m_TreeWidget.topLevelItemCount(); j++) {
+        DGLCtxTreeWidget* thisWidget = dynamic_cast<DGLCtxTreeWidget*>(m_TreeWidget.topLevelItem(j)); 
+        bool found = false;
+        for(size_t i = 0; i < report.size(); i++) {
+            if ( thisWidget && thisWidget->getId() == report[i].m_Id) {
+                found = true; break;
+            }
+        }
+        if (!found) {
+            delete m_TreeWidget.takeTopLevelItem(j--);
+        }
+    }
 }
