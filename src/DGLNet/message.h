@@ -43,6 +43,18 @@ public:
     virtual ~Message() {}
 };
 
+class ContextReport {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & m_Id;
+    }
+public:
+    ContextReport() {}
+    int32_t m_Id;
+};
+
 class BreakedCallMessage: public Message {
     friend class boost::serialization::access;
     
@@ -51,17 +63,20 @@ class BreakedCallMessage: public Message {
         ar & boost::serialization::base_object<Message>(*this);
         ar & m_entryp;
         ar & m_TraceSize;
+        ar & m_CtxReports;
+        ar & m_CurrentCtx;
     }
 
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
 
 public:
-    BreakedCallMessage(CalledEntryPoint entryp, uint32_t traceSize):m_entryp(entryp), m_TraceSize(traceSize)  {}
+    BreakedCallMessage(CalledEntryPoint entryp, uint32_t traceSize, uint32_t currentCtx, std::vector<ContextReport> ctxReports):m_entryp(entryp), m_TraceSize(traceSize), m_CurrentCtx(currentCtx), m_CtxReports(ctxReports) {}
     BreakedCallMessage() {}
 
     CalledEntryPoint m_entryp;
     uint32_t m_TraceSize;
-
+    std::vector<ContextReport> m_CtxReports;
+    uint32_t m_CurrentCtx;
 };
 
 

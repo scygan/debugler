@@ -69,6 +69,7 @@ void DglController::queryCallTrace(uint startOffset, uint endOffset) {
 
 void DglController::doHandle(const dglnet::BreakedCallMessage & msg) {
     breaked(msg.m_entryp, msg.m_TraceSize);
+    breakedWithStateReports(msg.m_CurrentCtx, msg.m_CtxReports);
 }
 
 void DglController::doHandle(const dglnet::CallTraceMessage& msg) {

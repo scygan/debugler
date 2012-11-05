@@ -1,9 +1,9 @@
-#include "DGLCommon/gl-types.h"
-#include "DGLNet/message.h"
+#include <DGLCommon/gl-serialized.h>
 #include <utility>
 
 #include <boost/shared_ptr.hpp>
 #include <vector>
+
 
 
 
@@ -26,21 +26,24 @@ private:
 class ITracer {
 public: 
     virtual RetValue Pre(const CalledEntryPoint&) = 0; 
-    virtual void Post(const CalledEntryPoint&) = 0; 
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret = RetValue()) = 0; 
 };
 
 class DefaultTracer: public ITracer {
 protected:
     virtual RetValue Pre(const CalledEntryPoint&); 
-    virtual void Post(const CalledEntryPoint&);
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
 class GetProcAddressTracer: public DefaultTracer {
     virtual RetValue Pre(const CalledEntryPoint&); 
-    virtual void Post(const CalledEntryPoint&);
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
-
+class ContextTracer: public DefaultTracer {
+    virtual RetValue Pre(const CalledEntryPoint&); 
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+};
 
 extern boost::shared_ptr<ITracer> g_Tracers[NUM_ENTRYPOINTS];
 

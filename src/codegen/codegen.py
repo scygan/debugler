@@ -99,10 +99,13 @@ def parse(file, genNonExtTypedefs = False):
 			else:
 				print >> wrappersFile, "    	DIRECT_CALL(" + functionName + ")(" + functionAttrNames + ");"			
 			print >> wrappersFile, "    }"
-			print >> wrappersFile, "    g_Tracers[" + functionName + "_Call]->Post(call);"
+			
 			
 			if functionRetType != "void":
+				print >> wrappersFile, "    g_Tracers[" + functionName + "_Call]->Post(call, retVal);"
 				print >> wrappersFile, "    " + functionRetType + " tmp;  retVal.get(tmp); return tmp;"
+			else:
+				print >> wrappersFile, "    g_Tracers[" + functionName + "_Call]->Post(call);"
 			print >> wrappersFile, "}"
 			
 			if genNonExtTypedefs:

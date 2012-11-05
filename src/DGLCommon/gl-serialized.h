@@ -1,3 +1,6 @@
+#ifndef GL_SERIALIZED_H
+#define GL_SERIALIZED_H
+
 #include <DGLCommon/gl-types.h>
 
 #include <boost/variant.hpp>
@@ -80,9 +83,11 @@ public:
     template<typename T>
     void operator << (const T& arg) {
         m_args[m_SavedArgsCount] = arg;
+        m_SavedArgsCount++;
     }
 private: 
     std::vector<AnyValue> m_args;
     Entrypoint m_entryp;
     int m_SavedArgsCount;
 };
+#endif

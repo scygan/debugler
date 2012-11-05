@@ -1,5 +1,6 @@
 #include <DGLNet/server.h>
-#include <DGLNet/message.h>
+
+#include <boost/make_shared.hpp>
 
 #include "gl-wrappers.h"
 #include "debugger.h"
@@ -18,7 +19,8 @@ RetValue DefaultTracer::Pre(const CalledEntryPoint& call) {
 
     if (g_Controller->getBreakState().isBreaked()) {
         //we just hit a break;
-        dglnet::BreakedCallMessage callStateMessage(call, g_Controller->getCallHistory().size());
+        GLContext* ctx = g_GLState.getCurrent();
+        dglnet::BreakedCallMessage callStateMessage(call, g_Controller->getCallHistory().size(), ctx?ctx->getId():0, g_GLState.describe());
         g_Controller->getServer().sendMessage(&callStateMessage);
     }
     
@@ -34,7 +36,7 @@ RetValue DefaultTracer::Pre(const CalledEntryPoint& call) {
     return RetValue();
 }
 
-void DefaultTracer::Post(const CalledEntryPoint& call) {}
+void DefaultTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {}
 
 RetValue GetProcAddressTracer::Pre(const CalledEntryPoint& call) {
     RetValue ret = DefaultTracer::Pre(call);
@@ -56,6 +58,40 @@ RetValue GetProcAddressTracer::Pre(const CalledEntryPoint& call) {
     return ret;
 }
 
-void GetProcAddressTracer::Post(const CalledEntryPoint& call) {
-    DefaultTracer::Post(call);
+void GetProcAddressTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
+    DefaultTracer::Post(call, ret);
+}
+
+RetValue ContextTracer::Pre(const CalledEntryPoint& call) {
+    RetValue ret = DefaultTracer::Pre(call);
+    return ret;
+}
+
+void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
+    HGLRC ctx;; 
+    BOOL retBool;
+   
+    switch (call.getEntrypoint()) {
+        case wglCreateContext_Call:
+            ret.get(ctx);
+            if (NULL != ctx) {
+                g_GLState.ensureContext(reinterpret_cast<int32_t>(ctx));
+            }
+            break;
+        case wglMakeCurrent_Call:
+            ret.get(retBool);
+            if (retBool) {
+                call.getArgs()[1].get(ctx);
+                g_GLState.bindContext(reinterpret_cast<int32_t>(ctx));
+            }
+            break;
+        case wglDeleteContext_Call:
+            ret.get(retBool);
+            if (retBool) {
+                call.getArgs()[0].get(ctx);
+                g_GLState.deleteContext(reinterpret_cast<int32_t>(ctx));
+            }
+            break;
+    }
+    DefaultTracer::Post(call, ret);
 }

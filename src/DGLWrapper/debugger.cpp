@@ -1,13 +1,93 @@
 #include <boost/thread.hpp>
+#include <boost/make_shared.hpp>
 
 #include"debugger.h"
 
 boost::shared_ptr<DebugController> g_Controller;
+GLState g_GLState;
 
-std::map<NativeContextID, boost::shared_ptr<GLContext> > g_contexts;
+GLContext::GLContext(uint32_t id):m_Id(id), m_InUse(false), m_Deleted(false) {}
 
-boost::thread_specific_ptr<GLContext> g_context;
+dglnet::ContextReport GLContext::describe() {
+    return dglnet::ContextReport();
+}
 
+void GLContext::use(bool inUse) {
+    m_InUse = inUse;
+}
+
+bool GLContext::lazyDelete() {
+    m_Deleted = true;
+    return !m_InUse;
+}
+
+bool GLContext::isDeleted() {
+    return m_Deleted;
+}
+
+int32_t GLContext::getId() {
+    return m_Id;
+}
+
+GLState::ContextListIter GLState::ensureContext(uint32_t id, bool lock) {
+    if (lock) {
+        m_ContextListMutex.lock();
+    }
+    ContextListIter i = m_ContextList.find(id);
+    if (i == m_ContextList.end()) {
+        i = m_ContextList.insert(
+                std::pair<uint32_t, boost::shared_ptr<GLContext>> (
+                    id, boost::make_shared<GLContext>(id)
+                    )
+            ).first;
+    }
+    if (lock) {
+        m_ContextListMutex.unlock();
+    }
+    return i;
+}
+
+GLContext* GLState::getCurrent() {
+    return m_Current.get();
+}
+
+void GLState::bindContext(uint32_t id) {
+    GLContext* current = getCurrent();
+
+    if (current && id == current->getId())
+        return;
+    
+    if (current) {
+        current->use(false);
+        if (current->isDeleted()) {
+            deleteContext(current->getId());
+        }
+    }
+    if (id) {
+        m_Current.reset(&(*(ensureContext(id)->second)));
+        getCurrent()->use(true);
+    } else {
+        m_Current.release();
+    }
+}
+
+void GLState::deleteContext(uint32_t id) {
+    boost::lock_guard<boost::mutex> quard(m_ContextListMutex);
+    ContextListIter i = ensureContext(id, false);
+    if (i->second->lazyDelete()) {
+        m_ContextList.erase(i);
+    }
+}
+
+std::vector<dglnet::ContextReport> GLState::describe() {
+    boost::lock_guard<boost::mutex> quard(m_ContextListMutex);
+    std::vector<dglnet::ContextReport> ret(m_ContextList.size());
+    int j = 0;
+    for (ContextListIter i = m_ContextList.begin(); i != m_ContextList.end(); i++) {
+        ret[j++] = i->second->describe();
+    }
+    return ret;
+}
 
 BreakState::BreakState():m_break(true),m_isJustOneStep(false) {}
 

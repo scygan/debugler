@@ -13,6 +13,9 @@ void Initialize() {
 
     SetAllTracers<DefaultTracer>();
     SetTracer<GetProcAddressTracer>(wglGetProcAddress_Call);
+    SetTracer<ContextTracer>(wglCreateContext_Call);
+    SetTracer<ContextTracer>(wglMakeCurrent_Call);
+    SetTracer<ContextTracer>(wglDeleteContext_Call);
 
     g_Controller = boost::make_shared<DebugController>();
     boost::shared_ptr<dglnet::Server> srv = boost::make_shared<dglnet::Server>(5555, g_Controller.get());

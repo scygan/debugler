@@ -3,6 +3,7 @@
 #include "dglmainwindow.h"
 #include "dglconnectdialog.h"
 #include "dgltraceview.h"
+#include "dgltreeview.h"
 
 DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags) {
@@ -21,9 +22,15 @@ DGLMainWindow::~DGLMainWindow() {
 
 
 void DGLMainWindow::createDockWindows() {
-     QDockWidget *dock = new DGLTraceView(this, &m_controller);
-     addDockWidget(Qt::RightDockWidgetArea, dock);
-     viewMenu->addAction(dock->toggleViewAction());
+    {
+        QDockWidget *dock = new DGLTraceView(this, &m_controller);
+        addDockWidget(Qt::RightDockWidgetArea, dock);
+        viewMenu->addAction(dock->toggleViewAction());
+    } {
+        QDockWidget *dock = new DGLTreeView(this, &m_controller);
+        addDockWidget(Qt::RightDockWidgetArea, dock);
+        viewMenu->addAction(dock->toggleViewAction());
+    }
 
      /*connect(customerList, SIGNAL(currentTextChanged(QString)),
              this, SLOT(insertCustomer(QString)));
