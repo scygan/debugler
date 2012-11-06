@@ -1,10 +1,11 @@
 #include "dgltraceview.h"
+#include "dglgui.h"
 
 #include <QScrollBar>
 
 DGLTraceViewList::DGLTraceViewList(QWidget* parrent):QListWidget(parrent) {
-    assert(connect(this, SIGNAL(resized()), parrent, SLOT(mayNeedNewElements())));
-    assert(connect(this->verticalScrollBar(), SIGNAL(valueChanged(int)), parrent, SLOT(mayNeedNewElements())));
+    CONNASSERT(connect(this, SIGNAL(resized()), parrent, SLOT(mayNeedNewElements())));
+    CONNASSERT(connect(this->verticalScrollBar(), SIGNAL(valueChanged(int)), parrent, SLOT(mayNeedNewElements())));
 }
 
 uint DGLTraceViewList::getVisibleRowCount() {
@@ -33,12 +34,12 @@ DGLTraceView::DGLTraceView(QWidget* parrent, DglController* controller):QDockWid
 
     setWidget(m_traceList);
     //inbound
-    assert(connect(controller, SIGNAL(connected()), this, SLOT(enable())));
-    assert(connect(controller, SIGNAL(disconnected()), this, SLOT(disable())));
-    assert(connect(controller, SIGNAL(breaked(CalledEntryPoint, uint)), this, SLOT(breaked(CalledEntryPoint, uint))));
-    assert(connect(controller, SIGNAL(gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&)), this, SLOT(gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&))));
+    CONNASSERT(connect(controller, SIGNAL(connected()), this, SLOT(enable())));
+    CONNASSERT(connect(controller, SIGNAL(disconnected()), this, SLOT(disable())));
+    CONNASSERT(connect(controller, SIGNAL(breaked(CalledEntryPoint, uint)), this, SLOT(breaked(CalledEntryPoint, uint))));
+    CONNASSERT(connect(controller, SIGNAL(gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&)), this, SLOT(gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&))));
     //outbound
-    assert(connect(this, SIGNAL(queryCallTrace(uint, uint)), controller, SLOT(queryCallTrace(uint, uint))));
+    CONNASSERT(connect(this, SIGNAL(queryCallTrace(uint, uint)), controller, SLOT(queryCallTrace(uint, uint))));
 }
 
 

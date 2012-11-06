@@ -4,6 +4,7 @@
 #include "dglconnectdialog.h"
 #include "dgltraceview.h"
 #include "dgltreeview.h"
+#include "dglgui.h"
 
 DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags) {
@@ -82,37 +83,37 @@ void DGLMainWindow::createToolBars() {
      quitAct = new QAction(tr("&Quit"), this);
      quitAct->setShortcuts(QKeySequence::Quit);
      quitAct->setStatusTip(tr("Quit the application"));
-     assert(connect(quitAct, SIGNAL(triggered()), this, SLOT(close())));
+     CONNASSERT(connect(quitAct, SIGNAL(triggered()), this, SLOT(close())));
 
      aboutAct = new QAction(tr("&About"), this);
      aboutAct->setStatusTip(tr("Show the application's About box"));
-     assert(connect(aboutAct, SIGNAL(triggered()), this, SLOT(about())));
+     CONNASSERT(connect(aboutAct, SIGNAL(triggered()), this, SLOT(about())));
 
      attachAct = new QAction(tr("&Attach to"), this);
      attachAct->setStatusTip(tr("Attach to IP target"));
-     assert(connect(attachAct, SIGNAL(triggered()), this, SLOT(attach())));
+     CONNASSERT(connect(attachAct, SIGNAL(triggered()), this, SLOT(attach())));
 
      disconnectAct = new QAction(tr("&Disconnect"), this);
      disconnectAct->setStatusTip(tr("Disconnect an terminate application"));
-     assert(connect(disconnectAct, SIGNAL(triggered()), this, SLOT(disconnect())));
+     CONNASSERT(connect(disconnectAct, SIGNAL(triggered()), this, SLOT(disconnect())));
 
      debugContinueAct = new QAction(tr("&Continue"), this);
      debugContinueAct->setStatusTip(tr("Continue program execution"));
-     assert(connect(debugContinueAct, SIGNAL(triggered()), &m_controller, SLOT(debugContinue())));
+     CONNASSERT(connect(debugContinueAct, SIGNAL(triggered()), &m_controller, SLOT(debugContinue())));
 
      debugInterruptAct = new QAction(tr("&Interrupt (on GL)"), this);
      debugInterruptAct->setStatusTip(tr("Interrupt program execution on GL call"));
-     assert(connect(debugInterruptAct, SIGNAL(triggered()), &m_controller, SLOT(debugInterrupt())));
+     CONNASSERT(connect(debugInterruptAct, SIGNAL(triggered()), &m_controller, SLOT(debugInterrupt())));
 
      debugStepAct = new QAction(tr("&Step call"), this);
      debugStepAct->setStatusTip(tr("Step one GL call"));
-     assert(connect(debugStepAct, SIGNAL(triggered()), &m_controller, SLOT(debugStep())));
+     CONNASSERT(connect(debugStepAct, SIGNAL(triggered()), &m_controller, SLOT(debugStep())));
 
  }
 
   void DGLMainWindow::createInteractions() {
-      assert(connect(&m_controller, SIGNAL(newStatus(const QString&)), m_ui.statusBar, SLOT(showMessage(const QString&))));
-      assert(connect(&m_controller, SIGNAL(error(const QString&, const QString&)), this, SLOT(errorMessage(const QString&, const QString&))));
+      CONNASSERT(connect(&m_controller, SIGNAL(newStatus(const QString&)), m_ui.statusBar, SLOT(showMessage(const QString&))));
+      CONNASSERT(connect(&m_controller, SIGNAL(error(const QString&, const QString&)), this, SLOT(errorMessage(const QString&, const QString&))));
   }
 
   void DGLMainWindow::about() {

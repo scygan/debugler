@@ -1,4 +1,5 @@
 #include "dgltreeview.h"
+#include "dglgui.h"
 
 #include <set>
 #include <climits>
@@ -10,9 +11,9 @@ DGLTreeView::DGLTreeView(QWidget* parrent, DglController* controller):QDockWidge
     
     setWidget(&m_TreeWidget);
     //inbound
-    assert(connect(controller, SIGNAL(connected()), this, SLOT(enable())));
-    assert(connect(controller, SIGNAL(disconnected()), this, SLOT(disable())));
-    assert(connect(controller, SIGNAL(breakedWithStateReports(uint, const std::vector<dglnet::ContextReport>&)),
+    CONNASSERT(connect(controller, SIGNAL(connected()), this, SLOT(enable())));
+    CONNASSERT(connect(controller, SIGNAL(disconnected()), this, SLOT(disable())));
+    CONNASSERT(connect(controller, SIGNAL(breakedWithStateReports(uint, const std::vector<dglnet::ContextReport>&)),
         this, SLOT(breakedWithStateReports(uint, const std::vector<dglnet::ContextReport>&))));
     
 }

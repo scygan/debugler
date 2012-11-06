@@ -120,5 +120,8 @@
     <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglmainwindow.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
+    <ClInclude Include="dglgui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,8 +1,9 @@
 #include "dglcontroller.h"
+#include "dglgui.h"
 
 DglController::DglController():m_DglClientDead(false) {
     m_Timer.setInterval(10);
-    assert(connect(&m_Timer, SIGNAL(timeout()), this, SLOT(poll())));
+    CONNASSERT(connect(&m_Timer, SIGNAL(timeout()), this, SLOT(poll())));
     m_Timer.start();
 }
 
@@ -18,8 +19,8 @@ void DglController::connectServer(const std::string& host, const std::string& po
     connected();
     //m_NotifierRead = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Read); 
     //m_NotifierWrite = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Write); 
-    //assert(connect(&*m_NotifierRead, SIGNAL(activated(int)), this, SLOT(poll())));
-    //assert(connect(&*m_NotifierWrite, SIGNAL(activated(int)), this, SLOT(poll())));
+    //CONNASSERT(connect(&*m_NotifierRead, SIGNAL(activated(int)), this, SLOT(poll())));
+    //CONNASSERT(connect(&*m_NotifierWrite, SIGNAL(activated(int)), this, SLOT(poll())));
 }
 
 void DglController::disconnectServer() {
