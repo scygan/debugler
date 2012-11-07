@@ -32,16 +32,32 @@ void DGLTreeView::disable() {
     }
 }
 
+class QControllingTreeWidgetItem: public QTreeWidgetItem {
+    QControllingTreeWidgetItem(DglController* controller):m_Controller(controller) {}
+public: 
+    DglController* m_Controller;
+};
 
-class DGLTextureWidget: public QTreeWidgetItem {
+class DGLTextureWidget: public QControllingTreeWidgetItem {
+    Q_OBJECT
 public:
-    DGLTextureWidget() {}
+    DGLTextureWidget() {
+        this->setEditTriggers(QAbstractItemView::selectedIndexes);
+        CONNASSERT(connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
+            this, SLOT(onDoubleClicked(QTreeWidgetItem*, int))));
+    }
     DGLTextureWidget(uint name) {
         setText(0, QString("Texture ") + QString::number(name));
     }
+
+private slots:
+    onDoubleClicked(QTreeWidgetItem*, int) {
+
+    }
+
 };
 
-class DGLBufferWidget: public QTreeWidgetItem {
+class DGLBufferWidget: public QControllingTreeWidgetItem {
 public:
     DGLBufferWidget() {}
     DGLBufferWidget(uint name) {
@@ -49,7 +65,7 @@ public:
     }
 };
 
-class DGLProgramWidget: public QTreeWidgetItem {
+class DGLProgramWidget: public QControllingTreeWidgetItem {
 public:
     DGLProgramWidget() {}
     DGLProgramWidget(uint name) {
@@ -58,7 +74,7 @@ public:
 };
 
 template<class ObjType>
-class DGLObjectNodeWidget: public QTreeWidgetItem {
+class DGLObjectNodeWidget: public QControllingTreeWidgetItem {
 public:
     DGLObjectNodeWidget(QString header) {
         setText(0, header);
@@ -81,9 +97,9 @@ private:
     std::map<uint, ObjType> m_Childs;
 };
 
-class DGLCtxTreeWidget: public QTreeWidgetItem  {
+class DGLCtxTreeWidget: public QControllingTreeWidgetItem  {
 public:
-    DGLCtxTreeWidget():m_TextureNode("Textures"), m_BufferNode("Buffers"), m_ProgramNode("Programs")  {
+    DGLCtxTreeWidget(const DglController* controller):m_TextureNode("Textures"), m_BufferNode("Buffers"), m_ProgramNode("Programs")  {
         addChild(&m_TextureNode);
         addChild(&m_BufferNode);
         addChild(&m_ProgramNode);
@@ -103,6 +119,7 @@ private:
     DGLObjectNodeWidget<DGLTextureWidget> m_TextureNode;
     DGLObjectNodeWidget<DGLBufferWidget> m_BufferNode;
     DGLObjectNodeWidget<DGLProgramWidget> m_ProgramNode;
+    DglController* m_Controller;
 };
 
 
