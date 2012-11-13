@@ -2,6 +2,8 @@
 
 #include <boost/make_shared.hpp>
 
+#include "pointers.h"
+
 namespace dglstate {
 
 GLObj::GLObj():m_Name(0) {}
@@ -11,7 +13,16 @@ GLObj::GLObj(GLuint name):m_Name(name) {}
 GLuint GLObj::getName() { return m_Name; }
 
 
-GLTextureObj::GLTextureObj(GLuint name):GLObj(name) {}
+GLTextureObj::GLTextureObj(GLuint name):GLObj(name),m_Target(0) {}
+
+void GLTextureObj::setTarget(GLenum target) {
+    if (!m_Target)
+        m_Target = target;
+}
+
+GLenum GLTextureObj::getTarget() {
+    return m_Target;
+}
 
 
 GLProgramObj::GLProgramObj(GLuint name):GLObj(name), m_InUse(false) {}
@@ -60,9 +71,12 @@ bool GLContext::isDeleted() {
     return m_Deleted;
 }
 
-void GLContext::ensureTexture(GLuint name) {
-    if (m_Textures.find(name) == m_Textures.end())
-        m_Textures[name] = GLTextureObj(name);
+GLTextureObj* GLContext::ensureTexture(GLuint name) {
+    std::map<GLuint, GLTextureObj>::iterator i = m_Textures.find(name);
+    if (i == m_Textures.end()) {
+        i = m_Textures.insert(std::pair<GLuint, GLTextureObj>(name, GLTextureObj(name))).first;
+    }
+    return &(*i).second;
 }
 
 void GLContext::deleteTexture(GLuint name) {
@@ -81,6 +95,68 @@ void GLContext::deleteBuffer(GLuint name) {
     std::map<GLuint, GLBufferObj>::iterator i = m_Buffers.find(name); 
     if (i !=  m_Buffers.end()) {
         m_Buffers.erase(i);
+    }
+}
+
+void GLContext::queryTexture(GLuint name, dglnet::TextureMessage& ret) {
+    
+    ret.m_TextureName = name;
+
+    //check if GL knows about a texture
+    if (DIRECT_CALL(glIsTexture)(name) != GL_TRUE) {
+        ret.error("Texture does not exist");
+        return;
+    }
+
+    //check if we know about a texture target
+    GLTextureObj* tex = ensureTexture(name);
+    if (tex->getTarget() == 0) {
+        ret.error("Texture target is unknown");
+        return;
+    } else if (tex->getTarget() != GL_TEXTURE_2D) {
+        ret.error("Texture target is unsupported");
+        return;
+    }
+
+    //disconnect PBO if it exists
+    GLint pbo = 0;
+    DIRECT_CALL(glGetIntegerv)(GL_PIXEL_PACK_BUFFER_BINDING, &pbo);
+    if (pbo) {
+        DIRECT_CALL(glBindBuffer)(GL_PIXEL_PACK_BUFFER, 0);
+    }
+
+    //rebind texture, so we can access it
+    GLint lastTexture = 0;
+    switch (tex->getTarget()) {
+        case GL_TEXTURE_2D:
+            DIRECT_CALL(glGetIntegerv)(GL_TEXTURE_BINDING_2D, &lastTexture);
+            break;
+        default:
+            assert(0);
+    }
+    if (lastTexture != tex->getName()) {
+        DIRECT_CALL(glBindTexture)(tex->getTarget(), tex->getName());
+    }
+
+
+    {
+        int level = 0;
+        dglnet::TextureLevel texLevel;
+        DIRECT_CALL(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &texLevel.m_Width);
+        DIRECT_CALL(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_HEIGHT, &texLevel.m_Height);
+        texLevel.m_Channels = 4;
+        texLevel.m_Pixels.resize(texLevel.m_Width * texLevel.m_Height * texLevel.m_Channels, 0.25f);
+
+        //DIRECT_CALL(glGetTexImage)(tex->getTarget(), level, GL_RGBA, GL_FLOAT, &texLevel.m_Pixels[0]);
+        ret.m_Levels.push_back(texLevel);
+    }
+
+    //restore state
+    if (pbo) {
+        DIRECT_CALL(glBindBuffer)(GL_PIXEL_PACK_BUFFER, pbo);
+    }
+    if (lastTexture != tex->getName()) {
+        DIRECT_CALL(glBindTexture)(tex->getTarget(), lastTexture);
     }
 }
 

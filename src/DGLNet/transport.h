@@ -5,15 +5,7 @@
 
 namespace dglnet {
 
-struct TransportHeader {
-public:
-    TransportHeader() {}
-    TransportHeader(int size);
-    int getSize();
-private:
-    int32_t m_size;
-};
-
+class  TransportHeader;
 
 class Transport: public boost::enable_shared_from_this<Transport> {
 public: 
@@ -35,12 +27,9 @@ protected:
     }
 
 private:
-    TransportHeader m_pendingHeader;    
-    std::vector<char> m_pendingArchiveBuffer;
-
-    void onReadHeader(const boost::system::error_code &ec);
-    void onReadArchive(const boost::system::error_code &ec);
-    void onWrite(const boost::system::error_code &ec, std::size_t bytes_transferred);
+    void onReadHeader(TransportHeader* header, const boost::system::error_code &ec);
+    void onReadArchive(boost::asio::streambuf* stream, const boost::system::error_code &ec);
+    void onWrite(TransportHeader* header, boost::asio::streambuf* stream, const boost::system::error_code &ec, std::size_t bytes_transferred);
 
     
     void onMessage(const Message& msg);

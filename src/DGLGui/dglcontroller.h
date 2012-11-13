@@ -23,11 +23,11 @@ public:
     //IMessageHandler methods:
     virtual void doHandle(const dglnet::BreakedCallMessage&);
     virtual void doHandle(const dglnet::CallTraceMessage&);
+    virtual void doHandle(const dglnet::TextureMessage&);
     virtual void doHandleDisconnect(const std::string&);
 
-    //GUI interactions:
-
-    void showTexture(uint name);
+    //GUI interactions
+    void doShowTexture(uint name);
 
 signals:
     void disconnected();
@@ -37,15 +37,21 @@ signals:
     void breakedWithStateReports(uint, const std::vector<dglnet::ContextReport>&);
 
     void gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&);
+    void gotTexture(uint, dglnet::TextureMessage);
 
     void newStatus(const QString&);
     void error(const QString&, const QString&);
+
+    void showTexture(uint name);
+    
     
 public slots:
     void poll();
     void debugContinue();   
     void debugInterrupt();   
     void debugStep();
+
+    void debugQueryTexture(uint);
 
     void queryCallTrace(uint, uint);
 

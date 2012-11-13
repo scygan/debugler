@@ -18,8 +18,16 @@ namespace dglnet {
         unsupported();
     }
 
+    void MessageHandler::doHandle(const QueryTextureMessage&) {
+        unsupported();
+    }
+
+    void MessageHandler::doHandle(const TextureMessage&) {
+        unsupported();
+    }
+
     void MessageHandler::unsupported() {
-        throw std::runtime_error("Message cannot be handled by current messge handler object.");
+        throw std::runtime_error("Message cannot be handled by current message handler object.");
     }
 
     bool ContinueBreakMessage::isBreaked() const  {
@@ -28,6 +36,18 @@ namespace dglnet {
 
     bool ContinueBreakMessage::isJustOneStep() const  {
         return !m_Breaked && m_JustOneStep;
+    }
+
+    TextureMessage::TextureMessage():m_Ok(true), m_TextureName(0) {}
+
+    void TextureMessage::error(std::string msg) {
+        m_Ok = false;
+        m_ErrorMsg = msg;
+    }
+
+    bool TextureMessage::isOk(std::string& msg) {
+        msg = m_ErrorMsg;
+        return m_Ok;
     }
 
 };

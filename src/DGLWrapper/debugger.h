@@ -65,6 +65,7 @@ public:
     //Message handlers
     void doHandle(const dglnet::ContinueBreakMessage&);
     void doHandle(const dglnet::QueryCallTraceMessage&);
+    void doHandle(const dglnet::QueryTextureMessage&);
 
 private:
     boost::shared_ptr<dglnet::Server> m_Server;

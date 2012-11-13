@@ -135,9 +135,11 @@ void TextureTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 g_GLState.getCurrent()->deleteTexture(names[i]);
             }
         } else if (entrp == glBindTexture_Call) {
+            GLenum target;
+            call.getArgs()[0].get(target);
             GLuint name;
             call.getArgs()[1].get(name);
-            g_GLState.getCurrent()->ensureTexture(name);
+            g_GLState.getCurrent()->ensureTexture(name)->setTarget(target);
         }
     }
     PrevPost(call, ret);

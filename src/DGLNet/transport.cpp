@@ -22,13 +22,22 @@ BOOST_CLASS_EXPORT_GUID(dglnet::BreakedCallMessage, "dglnet::CurrentCallStateMes
 BOOST_CLASS_EXPORT_GUID(dglnet::ContinueBreakMessage, "dglnet::ContinueBreakMessage");
 BOOST_CLASS_EXPORT_GUID(dglnet::QueryCallTraceMessage, "dglnet::QueryCallTraceMessage");
 BOOST_CLASS_EXPORT_GUID(dglnet::CallTraceMessage, "dglnet::CallTraceMessage");
+BOOST_CLASS_EXPORT_GUID(dglnet::QueryTextureMessage, "dglnet::QueryTextureMessage");
+BOOST_CLASS_EXPORT_GUID(dglnet::TextureMessage, "dglnet::TextureMessage");
 
 
 namespace dglnet {
 
-    TransportHeader::TransportHeader(int size):m_size(size) {}
-
-    int TransportHeader::getSize() { return m_size; }
+    class TransportHeader {
+    public:
+        TransportHeader() {}
+        TransportHeader(int size):m_size(size) {}
+        int getSize() {
+            return m_size;
+        };
+    private:
+        int32_t m_size;
+    };
 
     Transport::Transport(MessageHandler* handler):m_socket(m_io_service),m_messageHandler(handler) {}
 
@@ -50,26 +59,28 @@ namespace dglnet {
     }
 
     void Transport::read() {
-        boost::asio::async_read(m_socket, boost::asio::buffer(&m_pendingHeader, sizeof(m_pendingHeader)), boost::bind(&Transport::onReadHeader, shared_from_this(),
+        TransportHeader* header = new TransportHeader();
+        boost::asio::async_read(m_socket, boost::asio::buffer(header, sizeof(TransportHeader)), boost::bind(&Transport::onReadHeader, shared_from_this(), header,
             boost::asio::placeholders::error));
     }
 
-    void Transport::onReadHeader(const boost::system::error_code &ec) {
+    void Transport::onReadHeader(TransportHeader* header, const boost::system::error_code &ec) {
         if (ec) {
             notifyDisconnect(ec.message());
         } else {
-            m_pendingArchiveBuffer.resize(m_pendingHeader.getSize());
-            boost::asio::async_read(m_socket, boost::asio::buffer(m_pendingArchiveBuffer), boost::bind(&Transport::onReadArchive, shared_from_this(),
-                boost::asio::placeholders::error));
+            boost::asio::streambuf*  stream = new boost::asio::streambuf;
+            stream->prepare(header->getSize());
+            boost::asio::async_read(m_socket, *stream, boost::asio::transfer_exactly(header->getSize()), boost::bind(&Transport::onReadArchive, shared_from_this(),
+                stream, boost::asio::placeholders::error));
         }
+        delete header;
     }
 
-    void Transport::onReadArchive(const boost::system::error_code &ec) {
+    void Transport::onReadArchive(boost::asio::streambuf* stream, const boost::system::error_code &ec) {
         if (ec) {
             notifyDisconnect(ec.message());
         } else {
-            std::string iArchiveString(&m_pendingArchiveBuffer[0], m_pendingHeader.getSize());
-            std::istringstream iArchiveStream(iArchiveString, std::ios_base::binary);
+            std::istream iArchiveStream(stream);
             assert(iArchiveStream.good());
 
             Message* msg;
@@ -82,28 +93,32 @@ namespace dglnet {
 
             read();
         }
+        delete stream;
     }
 
     void Transport::sendMessage(const Message* msg) {
-        boost::asio::streambuf buffArchive;
+        boost::asio::streambuf* stream = new boost::asio::streambuf();
         
         {
-            std::ostream oArchiveStream(&buffArchive);
+            std::ostream oArchiveStream(stream);
             boost::archive::binary_oarchive archive(oArchiveStream);
             archive << msg; 
         }
 
-        TransportHeader header[1] = { TransportHeader(buffArchive.size()) };
+        TransportHeader* header = new TransportHeader(stream->size());
 
-        std::vector<boost::asio::const_buffer> buffersToSend;
-        buffersToSend.push_back(boost::asio::buffer(header));
-        buffersToSend.push_back(buffArchive.data());
+        std::vector<boost::asio::const_buffer> buffers;
+        buffers.push_back(boost::asio::const_buffer(header, sizeof(TransportHeader)));
+        buffers.push_back(stream->data());
 
-        boost::asio::async_write(m_socket, buffersToSend, boost::bind(&Transport::onWrite, shared_from_this(),
-                boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+
+        boost::asio::async_write(m_socket, buffers, boost::bind(&Transport::onWrite, shared_from_this(),
+                header, stream, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
     }
 
-    void Transport::onWrite(const boost::system::error_code &ec, std::size_t bytes_transferred) {
+    void Transport::onWrite(TransportHeader* header, boost::asio::streambuf* stream, const boost::system::error_code &ec, std::size_t bytes_transferred) {
+        delete header;
+        delete stream;
         if (ec) {
             notifyDisconnect(ec.message());
         }

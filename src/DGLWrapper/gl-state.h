@@ -21,6 +21,10 @@ class GLTextureObj: public GLObj {
 public:
     GLTextureObj(GLuint name);
     GLTextureObj() {}
+    void setTarget(GLenum);
+    GLenum getTarget();
+private:
+    GLenum m_Target;
 };
 
 class GLBufferObj: public GLObj {
@@ -56,10 +60,12 @@ public:
     bool lazyDelete();
     bool isDeleted();
 
-    void ensureTexture(GLuint name);
+    GLTextureObj* ensureTexture(GLuint name);
     void deleteTexture(GLuint name);
     void ensureBuffer(GLuint name);
     void deleteBuffer(GLuint name);
+
+    void queryTexture(GLuint name, dglnet::TextureMessage& ret);
 
     GLProgramObj* ensureProgram(GLuint name);
     void deleteProgram(GLuint name);

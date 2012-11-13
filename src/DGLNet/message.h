@@ -13,6 +13,8 @@ class BreakedCallMessage;
 class ContinueBreakMessage;
 class QueryCallTraceMessage;
 class CallTraceMessage;
+class QueryTextureMessage;
+class TextureMessage;
 
 
 class MessageHandler {
@@ -21,6 +23,8 @@ public:
     virtual void doHandle(const ContinueBreakMessage&);
     virtual void doHandle(const QueryCallTraceMessage&);
     virtual void doHandle(const CallTraceMessage&);
+    virtual void doHandle(const QueryTextureMessage&);
+    virtual void doHandle(const TextureMessage&);
     virtual void doHandleDisconnect(const std::string& why) = 0;
     virtual ~MessageHandler() {}
 private:
@@ -144,6 +148,68 @@ public:
 
     uint32_t m_StartOffset;
     std::vector<CalledEntryPoint> m_Trace;
+};
+
+class QueryTextureMessage: public Message {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_TextureName;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    QueryTextureMessage(){}
+    QueryTextureMessage(int32_t name):m_TextureName(name) {}
+
+    uint32_t m_TextureName;
+};
+
+class TextureLevel {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & m_Width;
+        ar & m_Height;
+        ar & m_Channels;
+        ar & m_Pixels;
+    }
+public:
+    int32_t m_Width, m_Height, m_Channels;
+    std::vector<GLfloat> m_Pixels;
+};
+
+class TextureMessage: public Message {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_TextureName;
+        ar & m_Ok;
+        ar & m_ErrorMsg;
+        ar & m_Levels;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    TextureMessage();
+
+    void error(std::string msg);
+    bool isOk(std::string& error);
+
+    uint32_t m_TextureName;
+    std::vector<TextureLevel> m_Levels;
+
+private:
+    bool m_Ok;
+    std::string m_ErrorMsg;
+    
 };
 
 };

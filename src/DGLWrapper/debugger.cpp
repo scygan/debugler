@@ -154,3 +154,13 @@ void DebugController::doHandle(const dglnet::QueryCallTraceMessage& msg) {
     m_CallHistory.query(msg, reply);
     m_Server->sendMessage(&reply);
 }
+
+void DebugController::doHandle(const dglnet::QueryTextureMessage& msg) {
+    dglnet::TextureMessage reply;
+    dglstate::GLContext* ctx = g_GLState.getCurrent();
+    if (ctx) {
+        ctx->queryTexture(msg.m_TextureName, reply);
+    }
+    
+    m_Server->sendMessage(&reply);
+}

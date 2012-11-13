@@ -45,7 +45,7 @@ DGLTextureWidget::DGLTextureWidget(uint name):m_name(name) {
 }
 
 void DGLTextureWidget::handleDoubleClick(DglController* controller) {
-    controller->showTexture(m_name);
+    controller->doShowTexture(m_name);
 }
 
 class DGLBufferWidget: public QClickableTreeWidgetItem {

@@ -19,10 +19,13 @@ public:
 public slots:
     void enable();
     void disable();
+    void showTexture(uint);
+    void gotTexture(uint, dglnet::TextureMessage);
 
 private: 
     QTabWidget *m_TabWidget;
     bool m_Enabled;
+    DglController* m_Controller;
 };
 
 #endif // DGLTRACEVIEW_H

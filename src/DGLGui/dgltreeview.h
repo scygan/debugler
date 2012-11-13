@@ -19,7 +19,7 @@ public:
 
 class DGLTextureWidget: public QClickableTreeWidgetItem {
 public:
-    DGLTextureWidget() {}
+    DGLTextureWidget();
     DGLTextureWidget(uint name);
     virtual void handleDoubleClick(DglController*);
 private:
