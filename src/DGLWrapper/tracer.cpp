@@ -69,12 +69,11 @@ RetValue GetProcAddressTracer::Pre(const CalledEntryPoint& call) {
 
     Entrypoint entryp;
     const char* entrpName; call.getArgs()[0].get(entrpName);
-    try {
-        entryp = GetEntryPointEnum(entrpName);
-    } catch(const std::runtime_error&) {
+    entryp = GetEntryPointEnum(entrpName);
+    if (entryp == NO_ENTRYPOINT) {
         //we do not support this entrypoint
         //TODO: add partial support for unknown entrypoints
-        return ret;  
+        return ret; 
     }
     //we recognize this entrypoint, load if nessesary and return address to  wrapper
     LoadOpenGLExtPointer(entryp);

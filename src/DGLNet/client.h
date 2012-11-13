@@ -8,7 +8,7 @@ namespace dglnet {
 class IController {
 public:
     virtual void onSetStatus(std::string) = 0;
-    //virtual void onConnect(std::string) = 0;
+    virtual void onSocket() = 0;
 
     virtual ~IController() {}
 };

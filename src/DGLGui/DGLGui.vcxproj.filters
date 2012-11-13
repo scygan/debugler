@@ -142,12 +142,6 @@
     <CustomBuild Include="dgltextureviewwidget.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\dump\Debug\GeneratedFiles\dgltreeview.moc">
-      <Filter>Generated Files\Debug</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\dump\Release\GeneratedFiles\dgltreeview.moc">
-      <Filter>Generated Files\Release</Filter>
-    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglconnectdialog.h">

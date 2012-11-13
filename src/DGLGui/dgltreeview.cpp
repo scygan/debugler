@@ -4,7 +4,7 @@
 #include <set>
 #include <climits>
 
-DGLTreeView::DGLTreeView(QWidget* parrent, DglController* controller):QDockWidget(tr("State Tree"), parrent), m_TreeWidget(this) {
+DGLTreeView::DGLTreeView(QWidget* parrent, DglController* controller):QDockWidget(tr("State Tree"), parrent), m_TreeWidget(this),m_controller(controller) {
     setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
     disable();
@@ -16,6 +16,9 @@ DGLTreeView::DGLTreeView(QWidget* parrent, DglController* controller):QDockWidge
     CONNASSERT(connect(controller, SIGNAL(breakedWithStateReports(uint, const std::vector<dglnet::ContextReport>&)),
         this, SLOT(breakedWithStateReports(uint, const std::vector<dglnet::ContextReport>&))));
     
+    //internal
+    CONNASSERT(QObject::connect(&m_TreeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
+        this, SLOT(onDoubleClicked(QTreeWidgetItem*, int))));
 }
 
 
@@ -32,32 +35,20 @@ void DGLTreeView::disable() {
     }
 }
 
-class QControllingTreeWidgetItem: public QTreeWidgetItem {
-    QControllingTreeWidgetItem(DglController* controller):m_Controller(controller) {}
-public: 
-    DglController* m_Controller;
-};
 
-class DGLTextureWidget: public QControllingTreeWidgetItem {
-    Q_OBJECT
-public:
-    DGLTextureWidget() {
-        this->setEditTriggers(QAbstractItemView::selectedIndexes);
-        CONNASSERT(connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
-            this, SLOT(onDoubleClicked(QTreeWidgetItem*, int))));
-    }
-    DGLTextureWidget(uint name) {
-        setText(0, QString("Texture ") + QString::number(name));
-    }
+void QClickableTreeWidgetItem::handleDoubleClick(DglController*) {}
 
-private slots:
-    onDoubleClicked(QTreeWidgetItem*, int) {
+DGLTextureWidget::DGLTextureWidget():m_name(0) {}
 
-    }
+DGLTextureWidget::DGLTextureWidget(uint name):m_name(name) {
+    setText(0, QString("Texture ") + QString::number(name));
+}
 
-};
+void DGLTextureWidget::handleDoubleClick(DglController* controller) {
+    controller->showTexture(m_name);
+}
 
-class DGLBufferWidget: public QControllingTreeWidgetItem {
+class DGLBufferWidget: public QClickableTreeWidgetItem {
 public:
     DGLBufferWidget() {}
     DGLBufferWidget(uint name) {
@@ -65,7 +56,7 @@ public:
     }
 };
 
-class DGLProgramWidget: public QControllingTreeWidgetItem {
+class DGLProgramWidget: public QClickableTreeWidgetItem {
 public:
     DGLProgramWidget() {}
     DGLProgramWidget(uint name) {
@@ -74,7 +65,7 @@ public:
 };
 
 template<class ObjType>
-class DGLObjectNodeWidget: public QControllingTreeWidgetItem {
+class DGLObjectNodeWidget: public QClickableTreeWidgetItem {
 public:
     DGLObjectNodeWidget(QString header) {
         setText(0, header);
@@ -97,9 +88,9 @@ private:
     std::map<uint, ObjType> m_Childs;
 };
 
-class DGLCtxTreeWidget: public QControllingTreeWidgetItem  {
+class DGLCtxTreeWidget: public QClickableTreeWidgetItem  {
 public:
-    DGLCtxTreeWidget(const DglController* controller):m_TextureNode("Textures"), m_BufferNode("Buffers"), m_ProgramNode("Programs")  {
+    DGLCtxTreeWidget():m_TextureNode("Textures"), m_BufferNode("Buffers"), m_ProgramNode("Programs")  {
         addChild(&m_TextureNode);
         addChild(&m_BufferNode);
         addChild(&m_ProgramNode);
@@ -119,7 +110,6 @@ private:
     DGLObjectNodeWidget<DGLTextureWidget> m_TextureNode;
     DGLObjectNodeWidget<DGLBufferWidget> m_BufferNode;
     DGLObjectNodeWidget<DGLProgramWidget> m_ProgramNode;
-    DglController* m_Controller;
 };
 
 
@@ -151,4 +141,12 @@ void DGLTreeView::breakedWithStateReports(uint ctxID, const std::vector<dglnet::
             delete m_TreeWidget.takeTopLevelItem(j--);
         }
     }
+}
+
+
+void DGLTreeView::onDoubleClicked(QTreeWidgetItem* item, int) {
+    QClickableTreeWidgetItem* clickableItem = dynamic_cast<QClickableTreeWidgetItem*>(item);
+    if (clickableItem) {
+        clickableItem->handleDoubleClick(m_controller);
+    }    
 }

@@ -13,6 +13,7 @@ enum Entrypoints {
 #undef FUNCTION_LIST_ELEMENT
 
 #define NUM_ENTRYPOINTS Entrypoints_NUM
+#define NO_ENTRYPOINT Entrypoints_NUM
 
 typedef int Entrypoint;
 

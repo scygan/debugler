@@ -4,23 +4,25 @@
 DglController::DglController():m_DglClientDead(false) {
     m_Timer.setInterval(10);
     CONNASSERT(connect(&m_Timer, SIGNAL(timeout()), this, SLOT(poll())));
-    m_Timer.start();
 }
 
 void DglController::connectServer(const std::string& host, const std::string& port) {
     if (m_DglClient) {
         disconnectServer();
     }
+
     m_DglClient = boost::make_shared<dglnet::Client>(this, this);
     m_DglClient->connectServer(host, port);
-
-    //m_Timer.stop();
-
+    m_Timer.start();
     connected();
-    //m_NotifierRead = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Read); 
-    //m_NotifierWrite = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Write); 
-    //CONNASSERT(connect(&*m_NotifierRead, SIGNAL(activated(int)), this, SLOT(poll())));
-    //CONNASSERT(connect(&*m_NotifierWrite, SIGNAL(activated(int)), this, SLOT(poll())));
+}
+
+void DglController::onSocket() {
+    m_Timer.stop();
+    m_NotifierRead = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Read); 
+    m_NotifierWrite = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Write); 
+    CONNASSERT(connect(&*m_NotifierRead, SIGNAL(activated(int)), this, SLOT(poll())));
+    CONNASSERT(connect(&*m_NotifierWrite, SIGNAL(activated(int)), this, SLOT(poll())));
 }
 
 void DglController::disconnectServer() {
@@ -29,6 +31,8 @@ void DglController::disconnectServer() {
         m_DglClient.reset();
         disconnected();
     }
+    m_NotifierRead.reset();
+    m_NotifierWrite.reset();
 }
 
 void DglController::poll() {

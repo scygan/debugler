@@ -18,6 +18,7 @@ public:
 
     //IController methods:
     virtual void onSetStatus(std::string);
+    virtual void onSocket();
 
     //IMessageHandler methods:
     virtual void doHandle(const dglnet::BreakedCallMessage&);
@@ -25,6 +26,9 @@ public:
     virtual void doHandleDisconnect(const std::string&);
 
     //GUI interactions:
+
+    void showTexture(uint name);
+
 signals:
     void disconnected();
     void connected();

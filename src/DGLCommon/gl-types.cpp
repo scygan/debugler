@@ -30,6 +30,6 @@ Entrypoint GetEntryPointEnum(const char* name) {
     ensureEnumMapIntialized();
     std::map<std::string, Entrypoint>::iterator ret = g_EntryPointNameToEnum.find(name);
     if (ret == g_EntryPointNameToEnum.end())
-        throw std::runtime_error("Not found");
+        return NO_ENTRYPOINT;
     return ret->second;
 }

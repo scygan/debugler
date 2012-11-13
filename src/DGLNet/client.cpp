@@ -28,6 +28,7 @@ namespace dglnet {
             m_socket.async_connect(*endpoint_iterator, boost::bind(&Client::onConnect, shared_from_this(),
                 boost::asio::placeholders::error));
             m_controller->onSetStatus("Connecting...");
+            m_controller->onSocket();
         } else {
             notifyDisconnect(err.message());
         }
