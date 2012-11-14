@@ -26,13 +26,12 @@ void DGLTraceViewList::resizeEvent (QResizeEvent* e) {
     resized();
 }
 
-DGLTraceView::DGLTraceView(QWidget* parrent, DglController* controller):QDockWidget(tr("Call trace"), parrent) {
-    setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    m_traceList = new DGLTraceViewList(this);
+DGLTraceView::DGLTraceView(QWidget* parrent, DglController* controller):QDockWidget(tr("Call trace"), parrent),m_traceList(this) {
+    setObjectName("DGLTraceView");
 
     disable();
 
-    setWidget(m_traceList);
+    setWidget(&m_traceList);
     //inbound
     CONNASSERT(connect(controller, SIGNAL(connected()), this, SLOT(enable())));
     CONNASSERT(connect(controller, SIGNAL(disconnected()), this, SLOT(disable())));
@@ -42,29 +41,24 @@ DGLTraceView::DGLTraceView(QWidget* parrent, DglController* controller):QDockWid
     CONNASSERT(connect(this, SIGNAL(queryCallTrace(uint, uint)), controller, SLOT(queryCallTrace(uint, uint))));
 }
 
-
-DGLTraceView::~DGLTraceView() {
-    delete m_traceList;
-}
-
 void DGLTraceView::enable() {
-    m_traceList->clear();
+    m_traceList.clear();
     m_Enabled = true;
     m_QueryUpperBound = 0;
 }
 
 void DGLTraceView::disable() {
-    m_traceList->clear();
+    m_traceList.clear();
     m_Enabled = false;
     m_QueryUpperBound = 0;
 }
 
 void DGLTraceView::mayNeedNewElements() {
     if (m_Enabled) {
-        int visibleRows = m_traceList->getVisibleRowCount();
-        if (m_traceList->getFirstVisibleElementIdx() < m_traceList->count() - m_QueryUpperBound - 1) {
+        int visibleRows = m_traceList.getVisibleRowCount();
+        if (m_traceList.getFirstVisibleElementIdx() < m_traceList.count() - m_QueryUpperBound - 1) {
             //we are starving of entrypoints to display, try to query new entrypoints up to this bound
-            int nextUpperBound = m_QueryUpperBound + 2 * m_traceList->getVisibleRowCount();
+            int nextUpperBound = m_QueryUpperBound + 2 * m_traceList.getVisibleRowCount();
             queryCallTrace(m_QueryUpperBound, nextUpperBound);
             m_QueryUpperBound = nextUpperBound;
         }
@@ -72,21 +66,21 @@ void DGLTraceView::mayNeedNewElements() {
 }
 
 void DGLTraceView::breaked(CalledEntryPoint entryp, uint traceSize) {
-    m_traceList->clear();
+    m_traceList.clear();
     for (uint i = 0; i < traceSize; i++) {
-        m_traceList->addItem(QString("<unknown>"));
+        m_traceList.addItem(QString("<unknown>"));
     }
-    m_traceList->addItems(QStringList() << QString("Breaked on: ") + GetEntryPointName(entryp.getEntrypoint()));
-    m_traceList->setCurrentRow(m_traceList->count() - 1);
-    m_traceList->scrollToBottom();
+    m_traceList.addItems(QStringList() << QString("Breaked on: ") + entryp.toString().c_str());
+    m_traceList.setCurrentRow(m_traceList.count() - 1);
+    m_traceList.scrollToBottom();
     m_QueryUpperBound = 0;
     mayNeedNewElements();
 }
 
 void DGLTraceView::gotCallTraceChunkChunk(uint offset, const std::vector<CalledEntryPoint>& trace) {
     for (uint i = offset; i < offset + trace.size(); i++) {
-        int row = m_traceList->count() - i - 2;
-        delete m_traceList->takeItem(row);
-        m_traceList->insertItem(row, QString("Older: ") + GetEntryPointName(trace[trace.size() - 1 - i + offset].getEntrypoint()));
+        int row = m_traceList.count() - i - 2;
+        delete m_traceList.takeItem(row);
+        m_traceList.insertItem(row, QString(trace[trace.size() - 1 - i + offset].toString().c_str()));
     }
 }

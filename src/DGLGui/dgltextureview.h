@@ -14,7 +14,6 @@ class DGLTextureView : public QDockWidget {
 
 public:
     DGLTextureView(QWidget* parrent, DglController* controller);
-    ~DGLTextureView();
 
 public slots:
     void enable();
@@ -22,8 +21,11 @@ public slots:
     void showTexture(uint);
     void gotTexture(uint, dglnet::TextureMessage);
 
+private slots:
+    void closeTab(int);
+
 private: 
-    QTabWidget *m_TabWidget;
+    QTabWidget m_TabWidget;
     bool m_Enabled;
     DglController* m_Controller;
 };

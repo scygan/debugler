@@ -27,7 +27,6 @@ class DGLTraceView : public QDockWidget {
 
 public:
     DGLTraceView(QWidget* parrent, DglController* controller);
-    ~DGLTraceView();
 
 signals: 
     void queryCallTrace(uint startOffset, uint endOffset);
@@ -42,7 +41,7 @@ public slots:
     void mayNeedNewElements();
 
 private: 
-    DGLTraceViewList *m_traceList;
+    DGLTraceViewList m_traceList;
     bool m_Enabled;
     int m_QueryUpperBound;
 };

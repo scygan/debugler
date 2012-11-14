@@ -138,20 +138,42 @@ void GLContext::queryTexture(GLuint name, dglnet::TextureMessage& ret) {
         DIRECT_CALL(glBindTexture)(tex->getTarget(), tex->getName());
     }
 
+    //dump and set pixel store state
+    GLenum pixelStoreTargets[] = {GL_PACK_SWAP_BYTES, GL_PACK_LSB_FIRST, GL_PACK_ROW_LENGTH, GL_PACK_IMAGE_HEIGHT, GL_PACK_SKIP_ROWS,
+        GL_PACK_SKIP_PIXELS, GL_PACK_SKIP_IMAGES, GL_PACK_ALIGNMENT};
+    GLint dglPixelStoreStare[sizeof(pixelStoreTargets)/sizeof(pixelStoreTargets[1])] =
+        {GL_FALSE, GL_FALSE, 0, 0, 0, 0, 0, 1 };
+    GLint pixelStoreState[sizeof(pixelStoreTargets)/sizeof(pixelStoreTargets[1])];
+    for (int i = 0; i < sizeof(pixelStoreTargets)/sizeof(pixelStoreTargets[1]); i++) {
+        DIRECT_CALL(glGetIntegerv)(pixelStoreTargets[i], &pixelStoreState[i]);
+        DIRECT_CALL(glPixelStorei)(pixelStoreTargets[i], dglPixelStoreStare[i]);
+    }
 
     {
         int level = 0;
         dglnet::TextureLevel texLevel;
         DIRECT_CALL(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &texLevel.m_Width);
         DIRECT_CALL(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_HEIGHT, &texLevel.m_Height);
-        texLevel.m_Channels = 4;
-        texLevel.m_Pixels.resize(texLevel.m_Width * texLevel.m_Height * texLevel.m_Channels, 0.25f);
-
-        //DIRECT_CALL(glGetTexImage)(tex->getTarget(), level, GL_RGBA, GL_FLOAT, &texLevel.m_Pixels[0]);
+        GLint alpha;
+        GLenum format;
+        DIRECT_CALL(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_ALPHA_SIZE, &alpha);
+        if (alpha) {
+            texLevel.m_Channels = 4;
+            format = GL_RGBA;
+        } else {
+            texLevel.m_Channels = 3;
+            format = GL_RGB;
+        }
+         
+        texLevel.m_Pixels.resize(texLevel.m_Width * texLevel.m_Height * texLevel.m_Channels);
+        DIRECT_CALL(glGetTexImage)(tex->getTarget(), level, format, GL_FLOAT, &texLevel.m_Pixels[0]);
         ret.m_Levels.push_back(texLevel);
     }
 
     //restore state
+    for (int i = 0; i < sizeof(pixelStoreTargets)/sizeof(pixelStoreTargets[1]); i++) {
+        DIRECT_CALL(glPixelStorei)(pixelStoreTargets[i], pixelStoreState[i]);
+    }
     if (pbo) {
         DIRECT_CALL(glBindBuffer)(GL_PIXEL_PACK_BUFFER, pbo);
     }

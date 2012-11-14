@@ -39,7 +39,7 @@ namespace dglnet {
         int32_t m_size;
     };
 
-    Transport::Transport(MessageHandler* handler):m_socket(m_io_service),m_messageHandler(handler) {}
+    Transport::Transport(MessageHandler* handler):m_socket(m_io_service),m_messageHandler(handler),m_WriteReady(true) {}
 
     void Transport::disconnect() {
         try {
@@ -97,8 +97,8 @@ namespace dglnet {
     }
 
     void Transport::sendMessage(const Message* msg) {
-        boost::asio::streambuf* stream = new boost::asio::streambuf();
-        
+        //create and push new stream to queue
+        boost::asio::streambuf* stream = new boost::asio::streambuf;        
         {
             std::ostream oArchiveStream(stream);
             boost::archive::binary_oarchive archive(oArchiveStream);
@@ -107,18 +107,41 @@ namespace dglnet {
 
         TransportHeader* header = new TransportHeader(stream->size());
 
-        std::vector<boost::asio::const_buffer> buffers;
-        buffers.push_back(boost::asio::const_buffer(header, sizeof(TransportHeader)));
-        buffers.push_back(stream->data());
+        m_WriteQueue.push_back(std::pair<TransportHeader*, boost::asio::streambuf*>(header, stream));
 
+        if (m_WriteReady) {
+            writeQueue();
+        }
+    }
+    
+    void Transport::writeQueue() {
+        m_WriteReady = false;
+        
+        std::vector<boost::asio::const_buffer> buffers(m_WriteQueue.size() * 2);
 
+        for (size_t i =0; i < m_WriteQueue.size(); i++) {
+            buffers[2 * i] = boost::asio::const_buffer(m_WriteQueue[i].first, sizeof(TransportHeader));
+            buffers[2 * i + 1] = m_WriteQueue[i].second->data();
+        }
+
+        std::vector<std::pair<TransportHeader*, boost::asio::streambuf*>> sentData;
+        std::swap(m_WriteQueue, sentData);
         boost::asio::async_write(m_socket, buffers, boost::bind(&Transport::onWrite, shared_from_this(),
-                header, stream, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+                sentData, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
     }
 
-    void Transport::onWrite(TransportHeader* header, boost::asio::streambuf* stream, const boost::system::error_code &ec, std::size_t bytes_transferred) {
-        delete header;
-        delete stream;
+    void Transport::onWrite(std::vector<std::pair<TransportHeader*, boost::asio::streambuf*>> sentData, const boost::system::error_code &ec, std::size_t bytes_transferred) {
+        for (size_t i = 0; i < sentData.size(); i++) {
+            delete sentData[i].first;
+            delete sentData[i].second;
+        }
+
+        if (m_WriteQueue.size()) {
+            writeQueue();
+        } else {
+            m_WriteReady = true;
+        }
+        
         if (ec) {
             notifyDisconnect(ec.message());
         }

@@ -8,8 +8,7 @@
 
 #include "dglcontroller.h"
 
-class DGLMainWindow : public QMainWindow
-{
+class DGLMainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
@@ -31,7 +30,10 @@ private:
     void createStatusBar();
     void createDockWindows();
     void createInteractions();
-    
+    void readSettings();
+
+    void closeEvent(QCloseEvent *event);
+
     QMenu *fileMenu;
     QMenu *debugMenu;
     QMenu *viewMenu;

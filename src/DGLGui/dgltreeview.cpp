@@ -5,7 +5,7 @@
 #include <climits>
 
 DGLTreeView::DGLTreeView(QWidget* parrent, DglController* controller):QDockWidget(tr("State Tree"), parrent), m_TreeWidget(this),m_controller(controller) {
-    setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    setObjectName("DGLTreeView");
 
     disable();
     
@@ -77,10 +77,13 @@ public:
                 addChild(&m_Childs[*i]);
             }
         }
-        for (std::map<uint, ObjType>::iterator i = m_Childs.begin(); i != m_Childs.end(); i++) {
+        std::map<uint, ObjType>::iterator i = m_Childs.begin();
+        while (i != m_Childs.end()) {
             if (names.find(i->first) == names.end()) {
                 removeChild(&(i->second));
-                m_Childs.erase(i);
+                i = m_Childs.erase(i);
+            } else {
+                i++;
             }
         }
     }

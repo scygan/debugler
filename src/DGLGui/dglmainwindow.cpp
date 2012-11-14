@@ -1,4 +1,5 @@
 #include <QMessageBox>
+#include <QSettings>
 
 #include "dglmainwindow.h"
 #include "dglconnectdialog.h"
@@ -7,6 +8,9 @@
 #include "dgltextureview.h"
 #include "dglbreakpointview.h"
 #include "dglgui.h"
+
+#define DGL_COMPANY "sacygan"
+#define DGL_PRODUCT "debuggler"
 
 DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags) {
@@ -17,29 +21,37 @@ DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
     createStatusBar();
     createDockWindows();
     createInteractions();
+    readSettings();
 }
 
 DGLMainWindow::~DGLMainWindow() {
 
 }
 
+void DGLMainWindow::closeEvent(QCloseEvent *event) {
+    QSettings settings(DGL_COMPANY, DGL_PRODUCT);
+    settings.setValue("widgets/geometry", saveGeometry());
+    settings.setValue("widgets/windowState", saveState());
+    QMainWindow::closeEvent(event);
+}
+
 
 void DGLMainWindow::createDockWindows() {
     {
         QDockWidget *dock = new DGLTraceView(this, &m_controller);
-        addDockWidget(Qt::RightDockWidgetArea, dock);
+        addDockWidget(Qt::AllDockWidgetAreas, dock);
         viewMenu->addAction(dock->toggleViewAction());
     } {
         QDockWidget *dock = new DGLTreeView(this, &m_controller);
-        addDockWidget(Qt::LeftDockWidgetArea, dock);
+        addDockWidget(Qt::AllDockWidgetAreas, dock);
         viewMenu->addAction(dock->toggleViewAction());
     } {
         QDockWidget *dock = new DGLTextureView(this, &m_controller);
-        addDockWidget(Qt::TopDockWidgetArea, dock);
+        addDockWidget(Qt::AllDockWidgetAreas, dock);
         viewMenu->addAction(dock->toggleViewAction());
     } {
         QDockWidget *dock = new DGLBreakPointView(this, &m_controller);
-        addDockWidget(Qt::BottomDockWidgetArea, dock);
+        addDockWidget(Qt::AllDockWidgetAreas, dock);
         viewMenu->addAction(dock->toggleViewAction());
     }
 
@@ -47,7 +59,7 @@ void DGLMainWindow::createDockWindows() {
              this, SLOT(insertCustomer(QString)));
      connect(paragraphsList, SIGNAL(currentTextChanged(QString)),
              this, SLOT(addParagraph(QString)));*/
- }
+}
 
 void DGLMainWindow::createMenus() {
      fileMenu = menuBar()->addMenu(tr("&File"));
@@ -124,6 +136,12 @@ void DGLMainWindow::createToolBars() {
   void DGLMainWindow::createInteractions() {
       CONNASSERT(connect(&m_controller, SIGNAL(newStatus(const QString&)), m_ui.statusBar, SLOT(showMessage(const QString&))));
       CONNASSERT(connect(&m_controller, SIGNAL(error(const QString&, const QString&)), this, SLOT(errorMessage(const QString&, const QString&))));
+  }
+
+  void DGLMainWindow::readSettings() {
+      QSettings settings(DGL_COMPANY, DGL_PRODUCT);
+      restoreGeometry(settings.value("widgets/geometry").toByteArray());
+      restoreState(settings.value("widgets/windowState").toByteArray());
   }
 
   void DGLMainWindow::about() {

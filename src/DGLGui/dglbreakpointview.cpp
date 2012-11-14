@@ -3,7 +3,7 @@
 
 
 DGLBreakPointView::DGLBreakPointView(QWidget* parrent, DglController* controller):QDockWidget(tr("Break Points"), parrent) {
-    setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    setObjectName("DGLBreakPointView");
     m_ListWidget = new QListWidget(this);
 
     disable();

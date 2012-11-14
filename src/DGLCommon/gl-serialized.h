@@ -59,6 +59,8 @@ public:
     //for function pointers const qualifier is meaningless, so we need specific overload to resolve ambiguity
     void get(PROC& v) const { v = (PROC)boost::get<PtrWrap<const void*>>(m_value); }
 
+    std::string toString() const;
+
 private:
     boost::variant<signed long long, unsigned long long, signed long, unsigned long, unsigned int, signed int, unsigned short, signed short, unsigned char, signed char, float, double,
         PtrWrap<void*>, PtrWrap<const void*> > m_value;
@@ -83,6 +85,7 @@ public:
         m_args[m_SavedArgsCount] = arg;
         m_SavedArgsCount++;
     }
+    std::string toString() const;
 private: 
     std::vector<AnyValue> m_args;
     Entrypoint m_entryp;
