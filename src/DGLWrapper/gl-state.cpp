@@ -24,6 +24,16 @@ GLenum GLTextureObj::getTarget() {
     return m_Target;
 }
 
+GLBufferObj::GLBufferObj(GLuint name):GLObj(name),m_Target(0) {}
+
+void GLBufferObj::setTarget(GLenum target) {
+    if (!m_Target)
+        m_Target = target;
+}
+
+GLenum GLBufferObj::getTarget() {
+    return m_Target;
+}
 
 GLProgramObj::GLProgramObj(GLuint name):GLObj(name), m_InUse(false) {}
 
@@ -86,9 +96,13 @@ void GLContext::deleteTexture(GLuint name) {
     }
 }
 
-void GLContext::ensureBuffer(GLuint name) {
-    if (m_Buffers.find(name) == m_Buffers.end())
-        m_Buffers[name] = GLBufferObj(name);
+
+GLBufferObj* GLContext::ensureBuffer(GLuint name) {
+    std::map<GLuint, GLBufferObj>::iterator i = m_Buffers.find(name);
+    if (i == m_Buffers.end()) {
+        i = m_Buffers.insert(std::pair<GLuint, GLBufferObj>(name, GLBufferObj(name))).first;
+    }
+    return &(*i).second;
 }
 
 void GLContext::deleteBuffer(GLuint name) {
@@ -179,6 +193,94 @@ void GLContext::queryTexture(GLuint name, dglnet::TextureMessage& ret) {
     }
     if (lastTexture != tex->getName()) {
         DIRECT_CALL(glBindTexture)(tex->getTarget(), lastTexture);
+    }
+}
+
+void GLContext::queryBuffer(GLuint name, dglnet::BufferMessage& ret) {
+
+    ret.m_BufferName = name;
+
+    //check if GL knows about a texture
+    if (DIRECT_CALL(glIsBuffer)(name) != GL_TRUE) {
+        ret.error("Buffer does not exist");
+        return;
+    }
+
+    //check if we know about a texture target
+    GLBufferObj* buff = ensureBuffer(name);
+    if (buff->getTarget() == 0) {
+        ret.error("Buffer target is unknown");
+        return;
+    }
+
+    //rebind buffer, so we can access it
+    GLint lastBuffer = 0;
+    switch (buff->getTarget()) {
+        case GL_ARRAY_BUFFER:
+            DIRECT_CALL(glGetIntegerv)(GL_ARRAY_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_ATOMIC_COUNTER_BUFFER:
+            DIRECT_CALL(glGetIntegerv)(GL_ATOMIC_COUNTER_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_COPY_READ_BUFFER:
+            DIRECT_CALL(glGetIntegerv)(GL_COPY_READ_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_COPY_WRITE_BUFFER:
+            DIRECT_CALL(glGetIntegerv)(GL_COPY_WRITE_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_DRAW_INDIRECT_BUFFER:
+            DIRECT_CALL(glGetIntegerv)(GL_DRAW_INDIRECT_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_DISPATCH_INDIRECT_BUFFER:
+            DIRECT_CALL(glGetIntegerv)(GL_DISPATCH_INDIRECT_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_ELEMENT_ARRAY_BUFFER:
+            DIRECT_CALL(glGetIntegerv)(GL_ELEMENT_ARRAY_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_PIXEL_PACK_BUFFER:
+            DIRECT_CALL(glGetIntegerv)(GL_PIXEL_PACK_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_PIXEL_UNPACK_BUFFER:
+            DIRECT_CALL(glGetIntegerv)( GL_PIXEL_UNPACK_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_SHADER_STORAGE_BUFFER:
+            DIRECT_CALL(glGetIntegerv)(GL_SHADER_STORAGE_BUFFER_BINDING, &lastBuffer);
+            break;
+        /*case GL_TEXTURE_BUFFER:
+            DIRECT_CALL(glGetIntegerv)(GL_NO_IDEA_WHAT_SHOULD_BE_HERE, &lastBuffer);
+            break;*/
+        case GL_TRANSFORM_FEEDBACK_BUFFER:
+            DIRECT_CALL(glGetIntegerv)(GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_UNIFORM_BUFFER:
+            DIRECT_CALL(glGetIntegerv)(GL_UNIFORM_BUFFER_BINDING, &lastBuffer);
+            break;       
+    default:
+        ret.error("Buffer target is not supported");
+        return;
+    }
+    if (lastBuffer != buff->getName()) {
+        DIRECT_CALL(glBindBuffer)(buff->getTarget(), buff->getName());
+    }
+
+    GLint mapped; 
+    DIRECT_CALL(glGetBufferParameteriv)(buff->getTarget(), GL_BUFFER_MAPPED, &mapped);
+    if (mapped == GL_TRUE) {
+        ret.error("Buffer is currently mapped, cannot access data.");
+    } else {
+        GLint size = 0; 
+        DIRECT_CALL(glGetBufferParameteriv)(buff->getTarget(), GL_BUFFER_SIZE, &size);
+        if (!size) {
+            ret.error("Buffer empty (GL_BUFFER_SIZE is 0)");
+        } else {
+            ret.m_Data.resize(size);
+            DIRECT_CALL(glGetBufferSubData)(buff->getTarget(), 0, size, &ret.m_Data[0]);
+        }
+    }
+
+    //restore state
+    if (lastBuffer != buff->getName()) {
+        DIRECT_CALL(glBindBuffer)(buff->getTarget(), lastBuffer);
     }
 }
 

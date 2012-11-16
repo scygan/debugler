@@ -51,9 +51,14 @@ void DGLTextureWidget::handleDoubleClick(DglController* controller) {
 class DGLBufferWidget: public QClickableTreeWidgetItem {
 public:
     DGLBufferWidget() {}
-    DGLBufferWidget(uint name) {
+    DGLBufferWidget(uint name):m_name(name) {
         setText(0, QString("Buffer ") + QString::number(name));
     }
+    void handleDoubleClick(DglController* controller) {
+        controller->doShowBuffer(m_name);
+    }
+private:
+    uint m_name;
 };
 
 class DGLProgramWidget: public QClickableTreeWidgetItem {

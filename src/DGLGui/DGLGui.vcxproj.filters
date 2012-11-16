@@ -33,6 +33,9 @@
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
+    <Filter Include="QHexEdit">
+      <UniqueIdentifier>{a7a6b899-218f-4348-998d-77392b50cc58}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -113,6 +116,39 @@
     <ClCompile Include="dglbreakpointdialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="QHexEdit\commands.cpp">
+      <Filter>QHexEdit</Filter>
+    </ClCompile>
+    <ClCompile Include="QHexEdit\qhexedit.cpp">
+      <Filter>QHexEdit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_qhexedit.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_qhexedit.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="QHexEdit\qhexedit_p.cpp">
+      <Filter>QHexEdit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_qhexedit_p.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_qhexedit_p.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="QHexEdit\xbytearray.cpp">
+      <Filter>QHexEdit</Filter>
+    </ClCompile>
+    <ClCompile Include="dglbufferview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglbufferview.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglbufferview.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">
@@ -154,6 +190,15 @@
     <CustomBuild Include="dglbreakpointdialog.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="QHexEdit\qhexedit.h">
+      <Filter>QHexEdit</Filter>
+    </CustomBuild>
+    <CustomBuild Include="QHexEdit\qhexedit_p.h">
+      <Filter>QHexEdit</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dglbufferview.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglconnectdialog.h">
@@ -170,6 +215,12 @@
     </ClInclude>
     <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglbreakpointdialog.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="QHexEdit\commands.h">
+      <Filter>QHexEdit</Filter>
+    </ClInclude>
+    <ClInclude Include="QHexEdit\xbytearray.h">
+      <Filter>QHexEdit</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

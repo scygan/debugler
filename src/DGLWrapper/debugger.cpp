@@ -176,6 +176,16 @@ void DebugController::doHandle(const dglnet::QueryTextureMessage& msg) {
     m_Server->sendMessage(&reply);
 }
 
+void DebugController::doHandle(const dglnet::QueryBufferMessage& msg) {
+    dglnet::BufferMessage reply;
+    dglstate::GLContext* ctx = g_GLState.getCurrent();
+    if (ctx) {
+        ctx->queryBuffer(msg.m_BufferName, reply);
+    }
+
+    m_Server->sendMessage(&reply);
+}
+
 void DebugController::doHandle(const dglnet::SetBreakPointsMessage& msg) {
     getBreakState().handle(msg);
 }

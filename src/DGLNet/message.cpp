@@ -26,6 +26,14 @@ namespace dglnet {
         unsupported();
     }
 
+    void MessageHandler::doHandle(const QueryBufferMessage&) {
+        unsupported();
+    }
+
+    void MessageHandler::doHandle(const BufferMessage&) {
+        unsupported();
+    }
+
     void MessageHandler::doHandle(const SetBreakPointsMessage&) {
         unsupported();
     }
@@ -50,6 +58,18 @@ namespace dglnet {
     }
 
     bool TextureMessage::isOk(std::string& msg) {
+        msg = m_ErrorMsg;
+        return m_Ok;
+    }
+
+    BufferMessage::BufferMessage():m_Ok(true), m_BufferName(0) {}
+
+    void BufferMessage::error(std::string msg) {
+        m_Ok = false;
+        m_ErrorMsg = msg;
+    }
+
+    bool BufferMessage::isOk(std::string& msg) {
         msg = m_ErrorMsg;
         return m_Ok;
     }

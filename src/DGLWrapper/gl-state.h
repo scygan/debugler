@@ -29,8 +29,12 @@ private:
 
 class GLBufferObj: public GLObj {
 public:
-    GLBufferObj(GLuint name):GLObj(name) {}
+    GLBufferObj(GLuint name);
+    void setTarget(GLenum);
+    GLenum getTarget();
     GLBufferObj() {}
+private:
+    GLenum m_Target;
 };
 
 class GLProgramObj: public GLObj {
@@ -62,10 +66,12 @@ public:
 
     GLTextureObj* ensureTexture(GLuint name);
     void deleteTexture(GLuint name);
-    void ensureBuffer(GLuint name);
+    GLBufferObj* ensureBuffer(GLuint name);
     void deleteBuffer(GLuint name);
 
     void queryTexture(GLuint name, dglnet::TextureMessage& ret);
+    void queryBuffer(GLuint name, dglnet::BufferMessage& ret);
+
 
     GLProgramObj* ensureProgram(GLuint name);
     void deleteProgram(GLuint name);

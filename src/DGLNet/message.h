@@ -15,6 +15,8 @@ class QueryCallTraceMessage;
 class CallTraceMessage;
 class QueryTextureMessage;
 class TextureMessage;
+class QueryBufferMessage;
+class BufferMessage;
 class SetBreakPointsMessage;
 
 
@@ -26,6 +28,8 @@ public:
     virtual void doHandle(const CallTraceMessage&);
     virtual void doHandle(const QueryTextureMessage&);
     virtual void doHandle(const TextureMessage&);
+    virtual void doHandle(const QueryBufferMessage&);
+    virtual void doHandle(const BufferMessage&);
     virtual void doHandle(const SetBreakPointsMessage&);
     virtual void doHandleDisconnect(const std::string& why) = 0;
     virtual ~MessageHandler() {}
@@ -212,6 +216,53 @@ private:
     bool m_Ok;
     std::string m_ErrorMsg;
     
+};
+
+class QueryBufferMessage: public Message {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_BufferName;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    QueryBufferMessage(){}
+    QueryBufferMessage(int32_t name):m_BufferName(name) {}
+
+    uint32_t m_BufferName;
+};
+
+
+class BufferMessage: public Message {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_BufferName;
+        ar & m_Ok;
+        ar & m_ErrorMsg;
+        ar & m_Data;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    BufferMessage();
+
+    void error(std::string msg);
+    bool isOk(std::string& error);
+
+    uint32_t m_BufferName;
+    std::vector<char> m_Data;
+
+private:
+    bool m_Ok;
+    std::string m_ErrorMsg;
 };
 
 class SetBreakPointsMessage: public Message {

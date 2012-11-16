@@ -7,6 +7,7 @@
 #include "dgltraceview.h"
 #include "dgltreeview.h"
 #include "dgltextureview.h"
+#include "dglbufferview.h"
 #include "dglbreakpointview.h"
 #include "dglgui.h"
 
@@ -48,6 +49,10 @@ void DGLMainWindow::createDockWindows() {
         viewMenu->addAction(dock->toggleViewAction());
     } {
         QDockWidget *dock = new DGLTextureView(this, &m_controller);
+        addDockWidget(Qt::AllDockWidgetAreas, dock);
+        viewMenu->addAction(dock->toggleViewAction());
+    } {
+        QDockWidget *dock = new DGLBufferView(this, &m_controller);
         addDockWidget(Qt::AllDockWidgetAreas, dock);
         viewMenu->addAction(dock->toggleViewAction());
     } {

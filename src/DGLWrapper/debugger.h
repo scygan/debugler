@@ -70,6 +70,7 @@ public:
     void doHandle(const dglnet::ContinueBreakMessage&);
     void doHandle(const dglnet::QueryCallTraceMessage&);
     void doHandle(const dglnet::QueryTextureMessage&);
+    void doHandle(const dglnet::QueryBufferMessage&);
     void doHandle(const dglnet::SetBreakPointsMessage&);
 
 private:

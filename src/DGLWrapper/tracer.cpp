@@ -170,9 +170,11 @@ void BufferTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 g_GLState.getCurrent()->deleteBuffer(names[i]);
             }
         } else if (entrp == glBindBuffer_Call) {
+            GLenum target;
+            call.getArgs()[0].get(target);
             GLuint name;
             call.getArgs()[1].get(name);
-            g_GLState.getCurrent()->ensureBuffer(name);
+            g_GLState.getCurrent()->ensureBuffer(name)->setTarget(target);
         }
     }
     PrevPost(call, ret);

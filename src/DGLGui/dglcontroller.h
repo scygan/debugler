@@ -38,10 +38,12 @@ public:
     virtual void doHandle(const dglnet::BreakedCallMessage&);
     virtual void doHandle(const dglnet::CallTraceMessage&);
     virtual void doHandle(const dglnet::TextureMessage&);
+    virtual void doHandle(const dglnet::BufferMessage&);
     virtual void doHandleDisconnect(const std::string&);
 
     //GUI interactions
     void doShowTexture(uint name);
+    void doShowBuffer(uint name);
     DGLBreakPointController* getBreakPoints();
 
 signals:
@@ -53,11 +55,13 @@ signals:
 
     void gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&);
     void gotTexture(uint, dglnet::TextureMessage);
+    void gotBuffer(uint, dglnet::BufferMessage);
 
     void newStatus(const QString&);
     void error(const QString&, const QString&);
 
     void showTexture(uint name);
+    void showBuffer(uint name);
     
     
 public slots:
@@ -67,6 +71,7 @@ public slots:
     void debugStep();
 
     void debugQueryTexture(uint);
+    void debugQueryBuffer(uint);
 
     void queryCallTrace(uint, uint);
 

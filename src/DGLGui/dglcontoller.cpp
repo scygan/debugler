@@ -69,6 +69,12 @@ void DglController::debugQueryTexture(uint name) {
     m_DglClient->sendMessage(&message);
 }
 
+void DglController::debugQueryBuffer(uint name) {
+    assert(m_DglClient);
+    dglnet::QueryBufferMessage message(name);
+    m_DglClient->sendMessage(&message);
+}
+
 void DglController::onSetStatus(std::string str) {
     newStatus(str.c_str());
 }
@@ -91,6 +97,10 @@ void DglController::doHandle(const dglnet::TextureMessage& msg) {
     gotTexture(msg.m_TextureName, msg);
 }
 
+void DglController::doHandle(const dglnet::BufferMessage& msg) {
+    gotBuffer(msg.m_BufferName, msg);
+}
+
 void DglController::doHandleDisconnect(const std::string& msg) {
     error(tr("Connection error"), msg.c_str());
     m_DglClientDead = true; 
@@ -100,6 +110,11 @@ void DglController::doShowTexture(uint name) {
     //just emit signal. If any capable viewer is present it wil respond to this
     showTexture(name);
 }
+
+void DglController::doShowBuffer(uint name) {
+    //just emit signal. If any capable viewer is present it wil respond to this
+    showBuffer(name);
+}   
 
 void DglController::sendMessage(dglnet::Message* msg) {
     assert(m_DglClient);
