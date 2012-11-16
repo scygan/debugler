@@ -8,8 +8,22 @@
 #include "DGLNet/client.h"
 #include <boost/make_shared.hpp>
 
+class DglController;
+
+class DGLBreakPointController {
+public:
+    DGLBreakPointController(DglController* controller);
+    std::set<Entrypoint> getCurrent();
+    void setCurrent(const std::set<Entrypoint>&);
+private:
+    std::set<Entrypoint> m_Current;
+    DglController* m_Controller;
+};
+
 class DglController: public QObject, public dglnet::IController, public dglnet::MessageHandler {
     Q_OBJECT
+
+friend class DGLBreakPointController;
 
 public:
     DglController();
@@ -28,6 +42,7 @@ public:
 
     //GUI interactions
     void doShowTexture(uint name);
+    DGLBreakPointController* getBreakPoints();
 
 signals:
     void disconnected();
@@ -56,10 +71,13 @@ public slots:
     void queryCallTrace(uint, uint);
 
 private:
+    void sendMessage(dglnet::Message*);
+
     boost::shared_ptr<dglnet::Client> m_DglClient;
     boost::shared_ptr<QSocketNotifier> m_NotifierRead, m_NotifierWrite;
     QTimer m_Timer;
     bool m_DglClientDead;
+    DGLBreakPointController m_BreakPointController;
 };
 
 #endif

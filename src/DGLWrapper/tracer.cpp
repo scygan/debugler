@@ -43,7 +43,7 @@ RetValue DefaultTracer::Pre(const CalledEntryPoint& call) {
     //do a fast non-blocking poll to get "interrupt" message, etc.."
     g_Controller->getServer().poll();
 
-    if (g_Controller->getBreakState().isBreaked()) {
+    if (g_Controller->getBreakState().breakAt(call.getEntrypoint())) {
         //we just hit a break;
         dglstate::GLContext* ctx = g_GLState.getCurrent();
         dglnet::BreakedCallMessage callStateMessage(call, g_Controller->getCallHistory().size(), ctx?ctx->getId():0, g_GLState.describe());

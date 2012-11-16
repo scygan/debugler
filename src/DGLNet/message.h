@@ -15,6 +15,7 @@ class QueryCallTraceMessage;
 class CallTraceMessage;
 class QueryTextureMessage;
 class TextureMessage;
+class SetBreakPointsMessage;
 
 
 class MessageHandler {
@@ -25,6 +26,7 @@ public:
     virtual void doHandle(const CallTraceMessage&);
     virtual void doHandle(const QueryTextureMessage&);
     virtual void doHandle(const TextureMessage&);
+    virtual void doHandle(const SetBreakPointsMessage&);
     virtual void doHandleDisconnect(const std::string& why) = 0;
     virtual ~MessageHandler() {}
 private:
@@ -210,6 +212,27 @@ private:
     bool m_Ok;
     std::string m_ErrorMsg;
     
+};
+
+class SetBreakPointsMessage: public Message {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_BreakPoints;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    SetBreakPointsMessage() {}
+    SetBreakPointsMessage(const std::set<Entrypoint>&);
+    std::set<Entrypoint> get() const;
+
+private:
+    std::set<Entrypoint> m_BreakPoints;
+
 };
 
 };

@@ -26,6 +26,10 @@ namespace dglnet {
         unsupported();
     }
 
+    void MessageHandler::doHandle(const SetBreakPointsMessage&) {
+        unsupported();
+    }
+
     void MessageHandler::unsupported() {
         throw std::runtime_error("Message cannot be handled by current message handler object.");
     }
@@ -48,6 +52,12 @@ namespace dglnet {
     bool TextureMessage::isOk(std::string& msg) {
         msg = m_ErrorMsg;
         return m_Ok;
+    }
+
+    SetBreakPointsMessage::SetBreakPointsMessage(const std::set<Entrypoint>& breakpoints):m_BreakPoints(breakpoints) {}
+
+    std::set<Entrypoint> SetBreakPointsMessage::get() const {
+        return m_BreakPoints;
     }
 
 };

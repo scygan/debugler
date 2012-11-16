@@ -3,6 +3,7 @@
 
 #include "dglmainwindow.h"
 #include "dglconnectdialog.h"
+#include "dglbreakpointdialog.h"
 #include "dgltraceview.h"
 #include "dgltreeview.h"
 #include "dgltextureview.h"
@@ -75,6 +76,7 @@ void DGLMainWindow::createMenus() {
      debugMenu->addAction(debugContinueAct);
      debugMenu->addAction(debugInterruptAct);
      debugMenu->addAction(debugStepAct);
+     debugMenu->addAction(addDeleteBreakPointsAct);
 
 
      viewMenu = menuBar()->addMenu(tr("&View"));
@@ -131,6 +133,10 @@ void DGLMainWindow::createToolBars() {
      debugStepAct->setStatusTip(tr("Step one GL call"));
      CONNASSERT(connect(debugStepAct, SIGNAL(triggered()), &m_controller, SLOT(debugStep())));
 
+     addDeleteBreakPointsAct = new QAction(tr("&Breakpoints..."), this);
+     addDeleteBreakPointsAct->setStatusTip(tr("Add or remove breakpoints"));
+     CONNASSERT(connect(addDeleteBreakPointsAct, SIGNAL(triggered()), this, SLOT(addDeleteBreakPoints())));
+
  }
 
   void DGLMainWindow::createInteractions() {
@@ -152,17 +158,23 @@ void DGLMainWindow::createToolBars() {
                 "Department of Computer Architecture, 2012."));
  }
 
-  void DGLMainWindow::attach() {
-      DGLConnectDialog dialog;
+ void DGLMainWindow::attach() {
+     DGLConnectDialog dialog;
+     if (dialog.exec() == QDialog::Accepted) {
+         m_controller.connectServer(dialog.getAddress(), dialog.getPort());
+     }
+ }
+
+ void DGLMainWindow::disconnect() {
+     m_controller.disconnectServer();
+ }
+
+ void DGLMainWindow::addDeleteBreakPoints() {
+      DGLBreakPointDialog dialog(&m_controller);
       if (dialog.exec() == QDialog::Accepted) {
-          m_controller.connectServer(dialog.getAddress(), dialog.getPort());
+          m_controller.getBreakPoints()->setCurrent(dialog.getBreakPoints());
       }
-  }
-
-  void DGLMainWindow::disconnect() {
-      m_controller.disconnectServer();
-  }
-
+ }
 
 void DGLMainWindow::errorMessage(const QString& title, const QString& msg) {
     QMessageBox::critical(this, title, msg);

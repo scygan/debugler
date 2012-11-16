@@ -32,12 +32,16 @@ private:
 class BreakState {
 public:
     BreakState();
-    void handle(const dglnet::ContinueBreakMessage&);
+    bool breakAt(const Entrypoint&);
     bool isBreaked();
     void endStep();
+    //handlers for remote commands
+    void handle(const dglnet::ContinueBreakMessage&);
+    void handle(const dglnet::SetBreakPointsMessage&);
 private:
     bool m_break;
     bool m_isJustOneStep;
+    std::set<Entrypoint> m_BreakPoints;
 };
 
 class CallHistory {
@@ -66,6 +70,7 @@ public:
     void doHandle(const dglnet::ContinueBreakMessage&);
     void doHandle(const dglnet::QueryCallTraceMessage&);
     void doHandle(const dglnet::QueryTextureMessage&);
+    void doHandle(const dglnet::SetBreakPointsMessage&);
 
 private:
     boost::shared_ptr<dglnet::Server> m_Server;

@@ -10,12 +10,11 @@ if not os.path.exists(outputDir):
 
 nonExtTypedefs = open(outputDir + "nonExtTypedefs.inl", "w")
 wrappersFile = open(outputDir + "wrappers.inl", "w")
-pointersFile = open(outputDir + "pointers.inl", "w")
 functionListFile = open(outputDir + "functionList.inl", "w")
 defFile = open(outputDir + "OpenGL32.def", "w")
 
 
-#allTypes = Set([])
+functionList = []
 
 def isPointer(type):
 	pointers = [ "*", "PROC", "LPCSTR", "HGLRC", "HDC", "LPPIXELFORMATDESCRIPTOR", "LPLAYERPLANEDESCRIPTOR", "LPGLYPHMETRICSFLOAT", "GLsync" ]
@@ -66,7 +65,6 @@ def parse(file, genNonExtTypedefs = False):
 					functionAttrDecl += attributeName
 					functionAttrDeclList.append(functionAttrDecl)
 					
-					#allTypes.add(attributeMatch.group(3))
 
 			functionAttrDecls = "";
 			for attr in functionAttrDeclList:
@@ -80,11 +78,11 @@ def parse(file, genNonExtTypedefs = False):
 					functionAttrNames = functionAttrNames + ", "
 				functionAttrNames += attr
 			
-			
-			functionPFNType = "PFN" + functionName.upper() + "PROC"						
-			print >> functionListFile, "FUNCTION_LIST_ELEMENT(" + functionName + ", " + functionPFNType + ")"
-			print >> pointersFile, "PTR_PREFIX " + functionPFNType + " POINTER(" + functionName  + ");"
 
+			functionList.append(functionName)
+
+			functionPFNType = "PFN" + functionName.upper() + "PROC"
+			
 			print >> wrappersFile, "extern \"C\" DGLWRAPPER_API " + functionRetType + " APIENTRY " + functionName + "(" + functionAttrDecls + ") {"
 			print >> wrappersFile, "    assert(POINTER(" + functionName + "));"
 			print >> wrappersFile, "	CalledEntryPoint call( " + functionName + "_Call, " + str(len(functionAttrNamesList)) + ");"
@@ -126,9 +124,7 @@ parse(glFile, True)
 glFile = open("input/glext.h", "r").readlines()
 parse(glFile)
 
-#typeFile  = open(outputDir + "types.inl", "w")
-#for type in allTypes:
-#	print >> typeFile, "TYPE_LIST_ELEMENT(" + type  + ")"
+for functionName in sorted(functionList):
+	functionPFNType = "PFN" + functionName.upper() + "PROC"						
+	print >> functionListFile, "FUNCTION_LIST_ELEMENT(" + functionName + ", " + functionPFNType + ")"
 
-#tempFile = open("input/temp.h", "r").readlines()
-#parse(tempFile)

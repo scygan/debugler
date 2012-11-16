@@ -73,6 +73,13 @@ std::vector<dglnet::ContextReport> GLState::describe() {
 
 BreakState::BreakState():m_break(true),m_isJustOneStep(false) {}
 
+bool BreakState::breakAt(const Entrypoint& e) {
+    if (m_BreakPoints.find(e) != m_BreakPoints.end()) {
+        m_break = true;
+    }
+    return isBreaked();
+}
+
 bool BreakState::isBreaked() {
     return m_break;
 }
@@ -84,6 +91,10 @@ void BreakState::handle(const dglnet::ContinueBreakMessage& msg) {
     } else {
         m_isJustOneStep = false;
     }
+}
+
+void BreakState::handle(const dglnet::SetBreakPointsMessage& msg) {
+    m_BreakPoints = msg.get();
 }
 
 void BreakState::endStep() {
@@ -163,4 +174,8 @@ void DebugController::doHandle(const dglnet::QueryTextureMessage& msg) {
     }
     
     m_Server->sendMessage(&reply);
+}
+
+void DebugController::doHandle(const dglnet::SetBreakPointsMessage& msg) {
+    getBreakState().handle(msg);
 }

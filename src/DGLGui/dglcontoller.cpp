@@ -1,7 +1,7 @@
 #include "dglcontroller.h"
 #include "dglgui.h"
 
-DglController::DglController():m_DglClientDead(false) {
+DglController::DglController():m_DglClientDead(false),m_BreakPointController(this) {
     m_Timer.setInterval(10);
     CONNASSERT(connect(&m_Timer, SIGNAL(timeout()), this, SLOT(poll())));
 }
@@ -99,4 +99,27 @@ void DglController::doHandleDisconnect(const std::string& msg) {
 void DglController::doShowTexture(uint name) {
     //just emit signal. If any capable viewer is present it wil respond to this
     showTexture(name);
+}
+
+void DglController::sendMessage(dglnet::Message* msg) {
+    assert(m_DglClient);
+    m_DglClient->sendMessage(msg);
+}
+
+DGLBreakPointController* DglController::getBreakPoints() {
+    return &m_BreakPointController;
+}
+
+DGLBreakPointController::DGLBreakPointController(DglController* controller):m_Controller(controller) {}
+
+std::set<Entrypoint> DGLBreakPointController::getCurrent() {
+    return m_Current;
+}
+
+void DGLBreakPointController::setCurrent(const std::set<Entrypoint>& newCurrent) {
+    if (m_Current != newCurrent) {
+        m_Current = newCurrent;
+        dglnet::SetBreakPointsMessage msg(m_Current);
+        m_Controller->sendMessage(&msg);
+    }
 }

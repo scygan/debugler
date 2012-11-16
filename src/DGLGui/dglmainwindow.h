@@ -22,6 +22,7 @@ private slots:
 
     void attach();
     void disconnect();
+    void addDeleteBreakPoints();
 
 private:
     void createActions();
@@ -48,6 +49,7 @@ private:
     QAction *debugInterruptAct;
     QAction *debugContinueAct;
     QAction *debugStepAct;
+    QAction *addDeleteBreakPointsAct;
 
     Ui::DGLMainWindowClass m_ui;
 

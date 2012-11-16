@@ -104,6 +104,15 @@
     <ClCompile Include="dglbreakpointview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglbreakpointdialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglbreakpointdialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="dglbreakpointdialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">
@@ -136,10 +145,13 @@
     <CustomBuild Include="dglbreakpointview.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="dglnewbreakpointwindow.ui">
+    <CustomBuild Include="dgltextureviewwidget.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="dgltextureviewwidget.ui">
+    <CustomBuild Include="dglbreakpointdialog.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dglbreakpointdialog.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -153,10 +165,10 @@
     <ClInclude Include="dglgui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglnewbreakpointwindow.h">
+    <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dgltextureviewwidget.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dgltextureviewwidget.h">
+    <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglbreakpointdialog.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
