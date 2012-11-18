@@ -26,6 +26,8 @@ BOOST_CLASS_EXPORT_GUID(dglnet::QueryTextureMessage, "dglnet::QueryTextureMessag
 BOOST_CLASS_EXPORT_GUID(dglnet::TextureMessage, "dglnet::TextureMessage");
 BOOST_CLASS_EXPORT_GUID(dglnet::QueryBufferMessage, "dglnet::QueryBufferMessage");
 BOOST_CLASS_EXPORT_GUID(dglnet::BufferMessage, "dglnet::BufferMessage");
+BOOST_CLASS_EXPORT_GUID(dglnet::QueryFramebufferMessage, "dglnet::QueryFramebufferMessage");
+BOOST_CLASS_EXPORT_GUID(dglnet::FramebufferMessage, "dglnet::FramebufferMessage");
 BOOST_CLASS_EXPORT_GUID(dglnet::SetBreakPointsMessage, "dglnet::SetBreakPointsMessage");
 
 
@@ -93,6 +95,8 @@ namespace dglnet {
             }
 
             onMessage(*msg);
+
+            delete msg;
 
             read();
         }

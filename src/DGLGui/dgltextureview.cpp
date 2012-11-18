@@ -1,13 +1,13 @@
 #include "dgltextureview.h"
 #include "dglgui.h"
 
-#include "ui_dgltextureviewwidget.h"
+#include "ui_dgltextureviewitem.h"
 
 #include <QGraphicsTextItem>
 
-class DGLTextureViewWidget: public QWidget {
+class DGLTextureViewItem: public DGLTabbedViewItem {
 public:
-    DGLTextureViewWidget(uint name, QWidget* parrent):QWidget(parrent),m_TextureName(name) {
+    DGLTextureViewItem(uint name, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
         m_Ui.setupUi(this);
         m_Scene = boost::make_shared<QGraphicsScene>(this);
         m_Scene->setSceneRect(0, 0, 400, 320);
@@ -15,94 +15,65 @@ public:
         m_Ui.graphicsView->show();
         
     }
-    uint getTextureName() {return m_TextureName; }
 
-    void update(dglnet::TextureMessage msg) {
+    void update(const dglnet::TextureMessage& msg) {
         std::string errorMsg;
-        QGraphicsTextItem* item;
         m_Scene->clear();
         if (!msg.isOk(errorMsg)) {
-            item = m_Scene->addText(errorMsg.c_str());
+            m_Scene->addText(errorMsg.c_str());
         } else {
-            std::vector<uchar> data(msg.m_Levels[0].m_Height * msg.m_Levels[0].m_Width * 4); 
-            for (size_t i = 0; i < msg.m_Levels[0].m_Height * msg.m_Levels[0].m_Width; i++) {
-                int srcIdx = i * msg.m_Levels[0].m_Channels;
-                data[4 * i + 0] = (msg.m_Levels[0].m_Channels >= 3)?msg.m_Levels[0].m_Pixels[srcIdx + 2] * 255.f + .5f:0;
-                data[4 * i + 1] = (msg.m_Levels[0].m_Channels >= 2)?msg.m_Levels[0].m_Pixels[srcIdx + 1] * 255.f + .5f:0;
-                data[4 * i + 2] = (msg.m_Levels[0].m_Channels >= 1)?msg.m_Levels[0].m_Pixels[srcIdx + 0] * 255.f + .5f:0;
-                data[4 * i + 3] = (msg.m_Levels[0].m_Channels >= 4)?msg.m_Levels[0].m_Pixels[srcIdx + 3] * 255.f + .5f:0;
+            m_PixelData = std::vector<uchar>(msg.m_Levels[0].m_Pixels.begin(), msg.m_Levels[0].m_Pixels.end());
+
+            uint realHeight = m_PixelData.size() / msg.m_Levels[0].m_Channels / msg.m_Levels[0].m_Width;
+
+            assert(realHeight == msg.m_Levels[0].m_Height);
+
+            QImage::Format format = QImage::Format_Invalid;            
+            switch (msg.m_Levels[0].m_Channels) {
+                case 4:
+                    format = QImage::Format_ARGB32;
+                    break;
+                case 3:
+                    format = QImage::Format_RGB888;
+                    break;
+                default:
+                    assert(0);
             }
-            QImage image(&data[0], msg.m_Levels[0].m_Height, msg.m_Levels[0].m_Width, QImage::Format_ARGB32);
-            m_Scene->addPixmap(QPixmap::fromImage(image));
-        }
+            m_Scene->addPixmap(QPixmap::fromImage(QImage(&m_PixelData[0], msg.m_Levels[0].m_Width, realHeight, format)));
+        }   
     }
 
 private: 
-    uint m_TextureName;
-    Ui_DGLTextureViewWidget m_Ui;
+    Ui_DGLTextureViewItem m_Ui;
     boost::shared_ptr<QGraphicsScene> m_Scene;
+    std::vector<uchar> m_PixelData;
 };
 
-DGLTextureView::DGLTextureView(QWidget* parrent, DglController* controller):QDockWidget(tr("Textures"), parrent),m_Controller(controller),m_TabWidget(this) {
-    setObjectName("DGLTextureView");
-
-    m_TabWidget.setTabsClosable(true);
-
-    disable();
-    setWidget(&m_TabWidget);
-    	
+DGLTextureView::DGLTextureView(QWidget* parrent, DglController* controller):DGLTabbedView(parrent, controller) {
+    setupNames("Textures", "DGLTextureView");
+   	
     //inbound
-    CONNASSERT(connect(controller, SIGNAL(connected()), this, SLOT(enable())));
-    CONNASSERT(connect(controller, SIGNAL(disconnected()), this, SLOT(disable())));
     CONNASSERT(connect(controller, SIGNAL(showTexture(uint)), this, SLOT(showTexture(uint))));
-    CONNASSERT(connect(controller, SIGNAL(gotTexture(uint, dglnet::TextureMessage)), this, SLOT(gotTexture(uint, dglnet::TextureMessage))));
-    
-    //internal
-    CONNASSERT(connect(&m_TabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(closeTab(int))));
-}
-
-void DGLTextureView::enable() {
-    m_Enabled = true;
-}
-
-void DGLTextureView::disable() {
-    m_Enabled = false;
-    while (m_TabWidget.count()) {
-        delete m_TabWidget.widget(0);
-    }
+    CONNASSERT(connect(controller, SIGNAL(gotTexture(uint, const dglnet::TextureMessage&)), this, SLOT(gotTexture(uint, const dglnet::TextureMessage&))));
+        
 }
 
 void DGLTextureView::showTexture(uint name) {
-    bool found = false; 
-    for (int i = 0; i < m_TabWidget.count(); i++) {
-        DGLTextureViewWidget* widget = dynamic_cast<DGLTextureViewWidget*>(m_TabWidget.widget(i));
-        if (widget && widget->getTextureName() == name) {
-            found = true;
-            m_TabWidget.setCurrentIndex(m_TabWidget.indexOf(widget));
-        }
-    }
-    if (!found) {
-        m_TabWidget.addTab(new DGLTextureViewWidget(name, this), QString("Texture ") + QString::number(name));
-        m_TabWidget.setCurrentIndex(m_TabWidget.count() - 1);
-        
-    }
+    update(name);
     m_Controller->debugQueryTexture(name);
 }
 
-void DGLTextureView::gotTexture(uint name, dglnet::TextureMessage msg) {
-    int i; 
-    DGLTextureViewWidget* widget;
-    for (i = 0; i < m_TabWidget.count(); i++) {
-        widget = dynamic_cast<DGLTextureViewWidget*>(m_TabWidget.widget(i));
-        if (widget && widget->getTextureName() == name) {
-            break;
-        }
-    }
-    if (i != m_TabWidget.count()) {
-        widget->update(msg);
+void DGLTextureView::gotTexture(uint name, const dglnet::TextureMessage& msg) {
+    DGLTabbedViewItem* widget = getTab(name);
+    if (widget) {
+        dynamic_cast<DGLTextureViewItem*>(widget)->update(msg);
     }
 }
 
-void DGLTextureView::closeTab(int idx) {
-    delete m_TabWidget.widget(idx);
+DGLTabbedViewItem* DGLTextureView::createTab(uint id) {
+    return new DGLTextureViewItem(id, this);
+}
+
+QString DGLTextureView::getTabName(uint id) {
+    return QString("Texture ") + QString::number(id);
 }

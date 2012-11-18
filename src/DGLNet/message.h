@@ -17,6 +17,8 @@ class QueryTextureMessage;
 class TextureMessage;
 class QueryBufferMessage;
 class BufferMessage;
+class QueryFramebufferMessage;
+class FramebufferMessage;
 class SetBreakPointsMessage;
 
 
@@ -30,6 +32,8 @@ public:
     virtual void doHandle(const TextureMessage&);
     virtual void doHandle(const QueryBufferMessage&);
     virtual void doHandle(const BufferMessage&);
+    virtual void doHandle(const QueryFramebufferMessage&);
+    virtual void doHandle(const FramebufferMessage&);
     virtual void doHandle(const SetBreakPointsMessage&);
     virtual void doHandleDisconnect(const std::string& why) = 0;
     virtual ~MessageHandler() {}
@@ -58,6 +62,7 @@ class ContextReport {
         ar & m_TextureSpace;
         ar & m_BufferSpace;
         ar & m_ProgramSpace;
+        ar & m_FramebufferSpace;
     }
 public:
     ContextReport() {}
@@ -66,6 +71,7 @@ public:
     std::set<uint32_t> m_TextureSpace;
     std::set<uint32_t> m_BufferSpace;
     std::set<uint32_t> m_ProgramSpace;
+    std::set<GLenum> m_FramebufferSpace;
 };
 
 class BreakedCallMessage: public Message {
@@ -186,7 +192,7 @@ class TextureLevel {
     }
 public:
     int32_t m_Width, m_Height, m_Channels;
-    std::vector<GLfloat> m_Pixels;
+    std::vector<int8_t> m_Pixels;
 };
 
 class TextureMessage: public Message {
@@ -207,7 +213,7 @@ public:
     TextureMessage();
 
     void error(std::string msg);
-    bool isOk(std::string& error);
+    bool isOk(std::string& error) const;
 
     uint32_t m_TextureName;
     std::vector<TextureLevel> m_Levels;
@@ -215,7 +221,6 @@ public:
 private:
     bool m_Ok;
     std::string m_ErrorMsg;
-    
 };
 
 class QueryBufferMessage: public Message {
@@ -255,10 +260,60 @@ public:
     BufferMessage();
 
     void error(std::string msg);
-    bool isOk(std::string& error);
+    bool isOk(std::string& error) const;
 
     uint32_t m_BufferName;
     std::vector<char> m_Data;
+
+private:
+    bool m_Ok;
+    std::string m_ErrorMsg;
+};
+
+class QueryFramebufferMessage: public Message {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_BufferEnum;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    QueryFramebufferMessage(){}
+    QueryFramebufferMessage(int32_t bufferEnum):m_BufferEnum(bufferEnum) {}
+
+    uint32_t m_BufferEnum;
+};
+
+class FramebufferMessage: public Message {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_BufferEnum;
+        ar & m_Ok;
+        ar & m_ErrorMsg;
+        ar & m_Width;
+        ar & m_Height;
+        ar & m_Channels;
+        ar & m_Pixels;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    FramebufferMessage();
+
+    void error(std::string msg);
+    bool isOk(std::string& error) const;
+
+    uint32_t m_BufferEnum;
+    int32_t m_Width, m_Height, m_Channels;
+    std::vector<int8_t> m_Pixels;
 
 private:
     bool m_Ok;

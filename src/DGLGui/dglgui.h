@@ -7,6 +7,9 @@
 #define CONNASSERT(x) x
 #else
 #define CONNASSERT(x) assert(x)
+
+#include <vld.h>
+
 #endif
 
 #endif

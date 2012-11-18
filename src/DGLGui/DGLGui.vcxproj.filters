@@ -149,6 +149,24 @@
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglbufferview.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dgltabbedview.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dgltabbedview.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="dgltabbedview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglframebufferview.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglframebufferview.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="dglframebufferview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">
@@ -181,9 +199,6 @@
     <CustomBuild Include="dglbreakpointview.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="dgltextureviewwidget.ui">
-      <Filter>Form Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="dglbreakpointdialog.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
@@ -199,6 +214,18 @@
     <CustomBuild Include="dglbufferview.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="dgltabbedview.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dglframebufferview.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dgltextureviewitem.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dglframebufferviewitem.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglconnectdialog.h">
@@ -210,9 +237,6 @@
     <ClInclude Include="dglgui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dgltextureviewwidget.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglbreakpointdialog.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
@@ -221,6 +245,12 @@
     </ClInclude>
     <ClInclude Include="QHexEdit\xbytearray.h">
       <Filter>QHexEdit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dgltextureviewitem.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglframebufferviewitem.h">
+      <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

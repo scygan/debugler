@@ -36,6 +36,8 @@ typedef BOOL (WINAPI *PFNWGLUSEFONTOUTLINESWPROC) (HDC a, DWORD b, DWORD c, DWOR
 
 
 #define POINTER(X) g_DirectPointers[X##_Call]
+#define POINTER_CHECKED(X) EnsurePointer(X##_Call)
 #define DIRECT_CALL(X) (*(POINTER_TYPE(X))POINTER(X))
+#define DIRECT_CALL_CHK(X) (*(POINTER_TYPE(X))POINTER_CHECKED(X))
 
 extern void* g_DirectPointers[Entrypoints_NUM];

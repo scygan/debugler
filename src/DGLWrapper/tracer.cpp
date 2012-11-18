@@ -82,7 +82,8 @@ RetValue GetProcAddressTracer::Pre(const CalledEntryPoint& call) {
 }
 
 void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
-    HGLRC ctx;; 
+    HGLRC ctx;
+    HDC device;
     BOOL retBool;
    
     switch (call.getEntrypoint()) {
@@ -95,8 +96,9 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
         case wglMakeCurrent_Call:
             ret.get(retBool);
             if (retBool) {
+                call.getArgs()[0].get(device);
                 call.getArgs()[1].get(ctx);
-                g_GLState.bindContext(reinterpret_cast<int32_t>(ctx));
+                g_GLState.bindContext(reinterpret_cast<uint32_t>(ctx), reinterpret_cast<uint32_t>(device));
             }
             break;
         case wglDeleteContext_Call:

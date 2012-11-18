@@ -1,33 +1,21 @@
 #ifndef DGLTEXTUREVIEW_H
 #define DGLTEXTUREVIEW_H
 
-#include <QDockWidget>
-#include <QTabWidget>
+#include "dgltabbedview.h"
 
-#include "DGLCommon//gl-types.h"
-
-#include "dglcontroller.h"
-
-
-class DGLTextureView : public QDockWidget {
+class DGLTextureView : public DGLTabbedView {
     Q_OBJECT
 
 public:
     DGLTextureView(QWidget* parrent, DglController* controller);
 
 public slots:
-    void enable();
-    void disable();
     void showTexture(uint);
-    void gotTexture(uint, dglnet::TextureMessage);
+    void gotTexture(uint, const dglnet::TextureMessage&);
 
-private slots:
-    void closeTab(int);
-
-private: 
-    QTabWidget m_TabWidget;
-    bool m_Enabled;
-    DglController* m_Controller;
+private:
+    virtual DGLTabbedViewItem* createTab(uint id);
+    virtual QString getTabName(uint id);
 };
 
-#endif // DGLTRACEVIEW_H
+#endif // DGLTEXTUREVIEW_H

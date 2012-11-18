@@ -8,6 +8,7 @@
 #include "dgltreeview.h"
 #include "dgltextureview.h"
 #include "dglbufferview.h"
+#include "dglframebufferview.h"
 #include "dglbreakpointview.h"
 #include "dglgui.h"
 
@@ -57,6 +58,10 @@ void DGLMainWindow::createDockWindows() {
         viewMenu->addAction(dock->toggleViewAction());
     } {
         QDockWidget *dock = new DGLBreakPointView(this, &m_controller);
+        addDockWidget(Qt::AllDockWidgetAreas, dock);
+        viewMenu->addAction(dock->toggleViewAction());
+    } {
+        QDockWidget *dock = new DGLFramebufferView(this, &m_controller);
         addDockWidget(Qt::AllDockWidgetAreas, dock);
         viewMenu->addAction(dock->toggleViewAction());
     }

@@ -13,20 +13,25 @@
 
 class GLState {
     typedef std::map<uint32_t, boost::shared_ptr<dglstate::GLContext> >::iterator ContextListIter;
+    typedef std::map<uint32_t, boost::shared_ptr<dglstate::NPISurface> >::iterator SurfaceListIter;
 public:
     GLState();
     dglstate::GLContext* getCurrent();
     ContextListIter ensureContext(uint32_t id, bool lock = true);
-    void bindContext(uint32_t id);
+    SurfaceListIter ensureSurface(uint32_t id, bool lock = true);
+    void bindContext(uint32_t id, uint32_t hdc);
     void deleteContext(uint32_t id);
 
     std::vector<dglnet::ContextReport> describe();
 
 private:
     std::map<uint32_t, boost::shared_ptr<dglstate::GLContext> > m_ContextList;
+    std::map<uint32_t, boost::shared_ptr<dglstate::NPISurface> > m_SurfaceList;
     boost::thread_specific_ptr<dglstate::GLContext> m_Current;
+    boost::thread_specific_ptr<dglstate::NPISurface> m_CurrentSurface;
 
     boost::mutex m_ContextListMutex;
+    boost::mutex m_SurfaceListMutex;
 };
 
 class BreakState {
@@ -71,6 +76,7 @@ public:
     void doHandle(const dglnet::QueryCallTraceMessage&);
     void doHandle(const dglnet::QueryTextureMessage&);
     void doHandle(const dglnet::QueryBufferMessage&);
+    void doHandle(const dglnet::QueryFramebufferMessage&);
     void doHandle(const dglnet::SetBreakPointsMessage&);
 
 private:

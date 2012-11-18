@@ -34,6 +34,14 @@ namespace dglnet {
         unsupported();
     }
 
+    void MessageHandler::doHandle(const QueryFramebufferMessage&) {
+        unsupported();
+    }
+
+    void MessageHandler::doHandle(const FramebufferMessage&) {
+        unsupported();
+    }
+
     void MessageHandler::doHandle(const SetBreakPointsMessage&) {
         unsupported();
     }
@@ -57,7 +65,7 @@ namespace dglnet {
         m_ErrorMsg = msg;
     }
 
-    bool TextureMessage::isOk(std::string& msg) {
+    bool TextureMessage::isOk(std::string& msg) const {
         msg = m_ErrorMsg;
         return m_Ok;
     }
@@ -69,7 +77,19 @@ namespace dglnet {
         m_ErrorMsg = msg;
     }
 
-    bool BufferMessage::isOk(std::string& msg) {
+    bool BufferMessage::isOk(std::string& msg) const {
+        msg = m_ErrorMsg;
+        return m_Ok;
+    }
+
+    FramebufferMessage::FramebufferMessage():m_Ok(true), m_BufferEnum(0) {}
+
+    void FramebufferMessage::error(std::string msg) {
+        m_Ok = false;
+        m_ErrorMsg = msg;
+    }
+
+    bool FramebufferMessage::isOk(std::string& msg) const {
         msg = m_ErrorMsg;
         return m_Ok;
     }

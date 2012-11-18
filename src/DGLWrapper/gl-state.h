@@ -50,6 +50,22 @@ private:
     bool m_Deleted;
 };
 
+//Native platform interface surface. HDC on windows
+class NPISurface {
+public:
+    NPISurface(uint32_t);
+    uint32_t getId();
+    bool isDoubleBuffered();
+    bool isStereo();
+    bool isAlpha();
+    int getWidth(); 
+    int getHeight(); 
+private:
+    uint32_t m_Id;
+    int m_Width, m_Height;
+    bool m_Stereo, m_DoubleBuffered, m_Alpha;
+};
+
 class GLContext {
 public:
     GLContext(uint32_t id);
@@ -64,6 +80,9 @@ public:
     bool lazyDelete();
     bool isDeleted();
 
+    NPISurface* getNpiSurface();
+    void setNpiSurface(NPISurface*);
+
     GLTextureObj* ensureTexture(GLuint name);
     void deleteTexture(GLuint name);
     GLBufferObj* ensureBuffer(GLuint name);
@@ -71,6 +90,7 @@ public:
 
     void queryTexture(GLuint name, dglnet::TextureMessage& ret);
     void queryBuffer(GLuint name, dglnet::BufferMessage& ret);
+    void queryFramebuffer(GLuint bufferEnum, dglnet::FramebufferMessage& ret);
 
 
     GLProgramObj* ensureProgram(GLuint name);
@@ -81,6 +101,7 @@ public:
 private:
     int32_t m_Id;
     bool m_InUse, m_Deleted;
+    NPISurface* m_NPISurface;
 };
 
 } //namespace

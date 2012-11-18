@@ -69,6 +69,29 @@ public:
     }
 };
 
+class DGLFramebufferWidget: public QClickableTreeWidgetItem {
+public:
+    DGLFramebufferWidget() {}
+    DGLFramebufferWidget(GLenum type):m_type(type) {
+        std::string name = "unknown";
+        switch (type) {
+            case GL_FRONT_RIGHT:
+                name = "Front right buffer"; break;
+            case GL_BACK_RIGHT:
+                name = "Back right buffer"; break;
+            case GL_FRONT:
+                name = "Front buffer"; break;
+            case GL_BACK:
+                name = "Back buffer"; break;
+        }
+        setText(0, QString(name.c_str()));
+    }
+    void handleDoubleClick(DglController* controller) {
+        controller->doShowFramebuffer(m_type);
+    }
+    GLenum m_type;
+};
+
 template<class ObjType>
 class DGLObjectNodeWidget: public QClickableTreeWidgetItem {
 public:
@@ -98,10 +121,11 @@ private:
 
 class DGLCtxTreeWidget: public QClickableTreeWidgetItem  {
 public:
-    DGLCtxTreeWidget():m_TextureNode("Textures"), m_BufferNode("Buffers"), m_ProgramNode("Programs")  {
+    DGLCtxTreeWidget():m_TextureNode("Textures"), m_BufferNode("Vertex Buffers"), m_ProgramNode("Programs"),m_FramebufferNode("Frame Buffers")  {
         addChild(&m_TextureNode);
         addChild(&m_BufferNode);
         addChild(&m_ProgramNode);
+        addChild(&m_FramebufferNode);
     }
     uint getId() { return m_Id; }
 
@@ -111,6 +135,7 @@ public:
         m_TextureNode.update(report.m_TextureSpace);
         m_BufferNode.update(report.m_BufferSpace);
         m_ProgramNode.update(report.m_ProgramSpace);
+        m_FramebufferNode.update(report.m_FramebufferSpace);
     }
 
 private:
@@ -118,6 +143,7 @@ private:
     DGLObjectNodeWidget<DGLTextureWidget> m_TextureNode;
     DGLObjectNodeWidget<DGLBufferWidget> m_BufferNode;
     DGLObjectNodeWidget<DGLProgramWidget> m_ProgramNode;
+    DGLObjectNodeWidget<DGLFramebufferWidget> m_FramebufferNode;
 };
 
 

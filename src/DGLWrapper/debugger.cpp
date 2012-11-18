@@ -7,9 +7,10 @@
 boost::shared_ptr<DebugController> g_Controller;
 GLState g_GLState;
 
-void nop(dglstate::GLContext*) {}
+template<typename T>
+void nop(T*) {}
 
-GLState::GLState():m_Current(&nop) {};
+GLState::GLState():m_Current(&nop<dglstate::GLContext>), m_CurrentSurface(&nop<dglstate::NPISurface>) {};
 
 GLState::ContextListIter GLState::ensureContext(uint32_t id, bool lock) {
     if (lock) {
@@ -29,14 +30,32 @@ GLState::ContextListIter GLState::ensureContext(uint32_t id, bool lock) {
     return i;
 }
 
+GLState::SurfaceListIter GLState::ensureSurface(uint32_t id, bool lock) {
+    if (lock) {
+        m_SurfaceListMutex.lock();
+    }
+    SurfaceListIter i = m_SurfaceList.find(id);
+    if (i == m_SurfaceList.end()) {
+        i = m_SurfaceList.insert(
+            std::pair<uint32_t, boost::shared_ptr<dglstate::NPISurface>> (
+            id, boost::make_shared<dglstate::NPISurface>(id)
+            )
+            ).first;
+    }
+    if (lock) {
+        m_SurfaceListMutex.unlock();
+    }
+    return i;
+}
+
 dglstate::GLContext* GLState::getCurrent() {
     return m_Current.get();
 }
 
-void GLState::bindContext(uint32_t id) {
+void GLState::bindContext(uint32_t ctxId, uint32_t npiSurfaceId) {
     dglstate::GLContext* current = getCurrent();
 
-    if (current && id == current->getId())
+    if (current && ctxId == current->getId())
         return;
     
     if (current) {
@@ -45,9 +64,15 @@ void GLState::bindContext(uint32_t id) {
             deleteContext(current->getId());
         }
     }
-    if (id) {
-        m_Current.reset(&(*(ensureContext(id)->second)));
+    if (ctxId) {
+        m_Current.reset(&(*(ensureContext(ctxId)->second)));
         getCurrent()->use(true);
+        
+        dglstate::NPISurface* npiSurface = getCurrent()->getNpiSurface();
+        if (!npiSurface || npiSurface->getId() != npiSurfaceId) {
+            getCurrent()->setNpiSurface(&(*(ensureSurface(npiSurfaceId)->second)));
+        }
+
     } else {
         m_Current.release();
     }
@@ -181,6 +206,16 @@ void DebugController::doHandle(const dglnet::QueryBufferMessage& msg) {
     dglstate::GLContext* ctx = g_GLState.getCurrent();
     if (ctx) {
         ctx->queryBuffer(msg.m_BufferName, reply);
+    }
+
+    m_Server->sendMessage(&reply);
+}
+
+void DebugController::doHandle(const dglnet::QueryFramebufferMessage& msg) {
+    dglnet::FramebufferMessage reply;
+    dglstate::GLContext* ctx = g_GLState.getCurrent();
+    if (ctx) {
+        ctx->queryFramebuffer(msg.m_BufferEnum, reply);
     }
 
     m_Server->sendMessage(&reply);
