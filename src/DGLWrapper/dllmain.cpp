@@ -36,7 +36,6 @@ void Initialize() {
 }
 
 void TearDown() {
-    g_Controller->getServer().disconnect();
     g_Controller.reset();
 }
 

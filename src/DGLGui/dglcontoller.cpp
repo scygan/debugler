@@ -10,7 +10,7 @@ void DglController::connectServer(const std::string& host, const std::string& po
     if (m_DglClient) {
         disconnectServer();
     }
-
+    m_DglClientDead = false;
     m_DglClient = boost::make_shared<dglnet::Client>(this, this);
     m_DglClient->connectServer(host, port);
     m_Timer.start();
@@ -27,7 +27,7 @@ void DglController::onSocket() {
 
 void DglController::disconnectServer() {
     if (m_DglClient) {
-        m_DglClient->disconnect();
+        m_DglClient->abort();
         m_DglClient.reset();
         disconnected();
     }
@@ -39,8 +39,8 @@ void DglController::poll() {
     if (m_DglClient) {
         m_DglClient->poll();
         if (m_DglClientDead)  {
-            m_DglClientDead = true;
             disconnectServer();
+            error(tr("Connection error"), m_DglClientDeadInfo.c_str());
         }
     }
 }
@@ -112,7 +112,7 @@ void DglController::doHandle(const dglnet::FramebufferMessage& msg) {
 }
 
 void DglController::doHandleDisconnect(const std::string& msg) {
-    error(tr("Connection error"), msg.c_str());
+    m_DglClientDeadInfo = msg;
     m_DglClientDead = true; 
 }
 

@@ -44,9 +44,14 @@ namespace dglnet {
         int32_t m_size;
     };
 
-    Transport::Transport(MessageHandler* handler):m_socket(m_io_service),m_messageHandler(handler),m_WriteReady(true) {}
+    Transport::Transport(MessageHandler* handler):m_socket(m_io_service),m_messageHandler(handler),m_WriteReady(true),m_Abort(false) {}
 
-    void Transport::disconnect() {
+    Transport::~Transport() {
+        if (!m_Abort) abort();
+    }
+
+    void Transport::abort() {
+        m_Abort = true;
         try {
             m_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
         } catch( ... ) {}
@@ -159,11 +164,7 @@ namespace dglnet {
     }
 
     void Transport::notifyDisconnect(const std::string& why) {
-        try {
-            m_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-        } catch (...) {}
-        m_socket.close();
-        m_io_service.stop();
+        if (m_Abort) return;
         m_messageHandler->doHandleDisconnect(why);
     }
 

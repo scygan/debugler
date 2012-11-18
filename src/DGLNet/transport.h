@@ -10,11 +10,11 @@ class  TransportHeader;
 class Transport: public boost::enable_shared_from_this<Transport> {
 public: 
     Transport(MessageHandler* messageHandler);
-    virtual ~Transport() {}
+    virtual ~Transport();
     void sendMessage(const Message* msg);
     void poll();
     void run_one();
-    void disconnect();
+    void abort();
 protected:
     boost::asio::io_service m_io_service;
     boost::asio::ip::tcp::socket m_socket;
@@ -40,6 +40,7 @@ private:
 
     std::vector<std::pair<TransportHeader*, boost::asio::streambuf*>> m_WriteQueue;
     bool m_WriteReady;
+    bool m_Abort;
 
 };
 

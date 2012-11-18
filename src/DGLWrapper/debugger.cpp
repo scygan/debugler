@@ -158,6 +158,13 @@ size_t CallHistory::size() {
     return m_cb.size();
 }
 
+DebugController::~DebugController() {
+    if (m_Server) {
+        m_Server->abort();
+        m_Server.reset();
+    }
+}
+
 void DebugController::connect(boost::shared_ptr<dglnet::Server> srv) {
     m_Server = srv;
 }
@@ -165,7 +172,10 @@ void DebugController::connect(boost::shared_ptr<dglnet::Server> srv) {
 void DebugController::doHandleDisconnect(const std::string&) {
     //we have got disconnected from the client
     //it is better to die here, than allow app to run uncontrolled.
-    exit(1);
+
+    //this destroys "this"!
+    g_Controller.reset();
+    TerminateProcess(GetCurrentProcess(), 0);
 }
 
 dglnet::Server& DebugController::getServer() {

@@ -87,6 +87,7 @@ private:
     boost::shared_ptr<QSocketNotifier> m_NotifierRead, m_NotifierWrite;
     QTimer m_Timer;
     bool m_DglClientDead;
+    std::string m_DglClientDeadInfo;
     DGLBreakPointController m_BreakPointController;
 };
 
