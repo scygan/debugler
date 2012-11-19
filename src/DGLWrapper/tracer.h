@@ -66,6 +66,11 @@ class ProgramTracer: public TracerBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
+class FBOTracer: public TracerBase {
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+};
+
+
 
 extern boost::shared_ptr<TracerBase> g_Tracers[NUM_ENTRYPOINTS];
 

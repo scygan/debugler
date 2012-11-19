@@ -61,6 +61,19 @@ private:
     uint m_name;
 };
 
+class DGLFBOWidget: public QClickableTreeWidgetItem {
+public:
+    DGLFBOWidget() {}
+    DGLFBOWidget(uint name):m_name(name) {
+        setText(0, QString("FBO ") + QString::number(name));
+    }
+    void handleDoubleClick(DglController* controller) {
+        //controller->doShowFBO(m_name);
+    }
+private:
+    uint m_name;
+};
+
 class DGLProgramWidget: public QClickableTreeWidgetItem {
 public:
     DGLProgramWidget() {}
@@ -121,9 +134,10 @@ private:
 
 class DGLCtxTreeWidget: public QClickableTreeWidgetItem  {
 public:
-    DGLCtxTreeWidget():m_TextureNode("Textures"), m_BufferNode("Vertex Buffers"), m_ProgramNode("Programs"),m_FramebufferNode("Frame Buffers")  {
+    DGLCtxTreeWidget():m_TextureNode("Textures"), m_BufferNode("Vertex Buffers"), m_FBONode("Framebuffer objects"), m_ProgramNode("Programs"),m_FramebufferNode("Frame Buffers")  {
         addChild(&m_TextureNode);
         addChild(&m_BufferNode);
+        addChild(&m_FBONode);
         addChild(&m_ProgramNode);
         addChild(&m_FramebufferNode);
     }
@@ -134,6 +148,7 @@ public:
         setText(0, QString("Context ") + QString::number(report.m_Id, 16));
         m_TextureNode.update(report.m_TextureSpace);
         m_BufferNode.update(report.m_BufferSpace);
+        m_FBONode.update(report.m_FBOSpace);
         m_ProgramNode.update(report.m_ProgramSpace);
         m_FramebufferNode.update(report.m_FramebufferSpace);
     }
@@ -142,6 +157,7 @@ private:
     uint m_Id; 
     DGLObjectNodeWidget<DGLTextureWidget> m_TextureNode;
     DGLObjectNodeWidget<DGLBufferWidget> m_BufferNode;
+    DGLObjectNodeWidget<DGLFBOWidget> m_FBONode;
     DGLObjectNodeWidget<DGLProgramWidget> m_ProgramNode;
     DGLObjectNodeWidget<DGLFramebufferWidget> m_FramebufferNode;
 };

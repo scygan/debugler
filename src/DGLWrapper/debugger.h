@@ -78,6 +78,7 @@ public:
     void doHandle(const dglnet::QueryTextureMessage&);
     void doHandle(const dglnet::QueryBufferMessage&);
     void doHandle(const dglnet::QueryFramebufferMessage&);
+    void doHandle(const dglnet::QueryFBOMessage&);
     void doHandle(const dglnet::SetBreakPointsMessage&);
 
 private:

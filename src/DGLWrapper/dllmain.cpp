@@ -25,6 +25,10 @@ void Initialize() {
     TracerBase::SetNext<BufferTracer>(glDeleteBuffers_Call);
     TracerBase::SetNext<BufferTracer>(glBindBuffer_Call);
 
+    TracerBase::SetNext<FBOTracer>(glGenFramebuffers_Call);
+    TracerBase::SetNext<FBOTracer>(glDeleteFramebuffers_Call);
+    TracerBase::SetNext<FBOTracer>(glBindFramebuffer_Call);
+
     TracerBase::SetNext<ProgramTracer>(glCreateProgram_Call);
     TracerBase::SetNext<ProgramTracer>(glDeleteProgram_Call);
     TracerBase::SetNext<ProgramTracer>(glUseProgram_Call);

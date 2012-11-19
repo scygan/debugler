@@ -19,6 +19,8 @@ class QueryBufferMessage;
 class BufferMessage;
 class QueryFramebufferMessage;
 class FramebufferMessage;
+class QueryFBOMessage;
+class FBOMessage;
 class SetBreakPointsMessage;
 
 
@@ -34,6 +36,8 @@ public:
     virtual void doHandle(const BufferMessage&);
     virtual void doHandle(const QueryFramebufferMessage&);
     virtual void doHandle(const FramebufferMessage&);
+    virtual void doHandle(const QueryFBOMessage&);
+    virtual void doHandle(const FBOMessage&);
     virtual void doHandle(const SetBreakPointsMessage&);
     virtual void doHandleDisconnect(const std::string& why) = 0;
     virtual ~MessageHandler() {}
@@ -62,6 +66,7 @@ class ContextReport {
         ar & m_TextureSpace;
         ar & m_BufferSpace;
         ar & m_ProgramSpace;
+        ar & m_FBOSpace;
         ar & m_FramebufferSpace;
     }
 public:
@@ -71,6 +76,7 @@ public:
     std::set<uint32_t> m_TextureSpace;
     std::set<uint32_t> m_BufferSpace;
     std::set<uint32_t> m_ProgramSpace;
+    std::set<uint32_t> m_FBOSpace;
     std::set<GLenum> m_FramebufferSpace;
 };
 
@@ -312,6 +318,56 @@ public:
     bool isOk(std::string& error) const;
 
     uint32_t m_BufferEnum;
+    int32_t m_Width, m_Height, m_Channels;
+    std::vector<int8_t> m_Pixels;
+
+private:
+    bool m_Ok;
+    std::string m_ErrorMsg;
+};
+
+class QueryFBOMessage: public Message {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_Name;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    QueryFBOMessage(){}
+    QueryFBOMessage(int32_t m_Name):m_Name(m_Name) {}
+
+    uint32_t m_Name;
+};
+
+class FBOMessage: public Message {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_Name;
+        ar & m_Ok;
+        ar & m_ErrorMsg;
+        ar & m_Width;
+        ar & m_Height;
+        ar & m_Channels;
+        ar & m_Pixels;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    FBOMessage();
+
+    void error(std::string msg);
+    bool isOk(std::string& error) const;
+
+    uint32_t m_Name;
     int32_t m_Width, m_Height, m_Channels;
     std::vector<int8_t> m_Pixels;
 

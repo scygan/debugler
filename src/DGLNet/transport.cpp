@@ -28,6 +28,8 @@ BOOST_CLASS_EXPORT_GUID(dglnet::QueryBufferMessage, "dglnet::QueryBufferMessage"
 BOOST_CLASS_EXPORT_GUID(dglnet::BufferMessage, "dglnet::BufferMessage");
 BOOST_CLASS_EXPORT_GUID(dglnet::QueryFramebufferMessage, "dglnet::QueryFramebufferMessage");
 BOOST_CLASS_EXPORT_GUID(dglnet::FramebufferMessage, "dglnet::FramebufferMessage");
+BOOST_CLASS_EXPORT_GUID(dglnet::QueryFBOMessage, "dglnet::QueryFBOMessage");
+BOOST_CLASS_EXPORT_GUID(dglnet::FBOMessage, "dglnet::FBOMessage");
 BOOST_CLASS_EXPORT_GUID(dglnet::SetBreakPointsMessage, "dglnet::SetBreakPointsMessage");
 
 

@@ -63,24 +63,6 @@ void DglController::debugStep() {
     m_DglClient->sendMessage(&message);
 }
 
-void DglController::debugQueryTexture(uint name) {
-    assert(m_DglClient);
-    dglnet::QueryTextureMessage message(name);
-    m_DglClient->sendMessage(&message);
-}
-
-void DglController::debugQueryBuffer(uint name) {
-    assert(m_DglClient);
-    dglnet::QueryBufferMessage message(name);
-    m_DglClient->sendMessage(&message);
-}
-
-void DglController::debugQueryFramebuffer(uint id) {
-    assert(m_DglClient);
-    dglnet::QueryFramebufferMessage message(id);
-    m_DglClient->sendMessage(&message);
-}
-
 void DglController::onSetStatus(std::string str) {
     newStatus(str.c_str());
 }
@@ -111,24 +93,44 @@ void DglController::doHandle(const dglnet::FramebufferMessage& msg) {
     gotFramebuffer(msg.m_BufferEnum, msg);
 }
 
+void DglController::doHandle(const dglnet::FBOMessage& msg) {
+    gotFBO(msg.m_Name, msg);
+}
+
 void DglController::doHandleDisconnect(const std::string& msg) {
     m_DglClientDeadInfo = msg;
     m_DglClientDead = true; 
 }
 
 void DglController::doShowTexture(uint name) {
-    //just emit signal. If any capable viewer is present it wil respond to this
+    assert(m_DglClient);
+    dglnet::QueryTextureMessage message(name);
+    m_DglClient->sendMessage(&message);
     showTexture(name);
 }
 
 void DglController::doShowBuffer(uint name) {
-    //just emit signal. If any capable viewer is present it wil respond to this
+    assert(m_DglClient);
+    dglnet::QueryBufferMessage message(name);
+    m_DglClient->sendMessage(&message);
+
     showBuffer(name);
 }
 
 void DglController::doShowFramebuffer(GLenum type) {
-    //just emit signal. If any capable viewer is present it wil respond to this
+    assert(m_DglClient);
+    dglnet::QueryFramebufferMessage message(type);
+    m_DglClient->sendMessage(&message);
+
     showFramebuffer(type);
+}
+
+void DglController::doShowFBO(uint name) {
+    assert(m_DglClient);
+    dglnet::QueryFBOMessage message(name);
+    m_DglClient->sendMessage(&message);
+
+    showFBO(name);
 } 
 
 void DglController::sendMessage(dglnet::Message* msg) {

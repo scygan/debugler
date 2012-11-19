@@ -56,7 +56,6 @@ DGLFramebufferView::DGLFramebufferView(QWidget* parrent, DglController* controll
 
 void DGLFramebufferView::showFramebuffer(uint bufferEnum) {
     update(bufferEnum);
-    m_Controller->debugQueryFramebuffer(bufferEnum);
 }
 
 void DGLFramebufferView::gotFramebuffer(uint bufferEnum, const dglnet::FramebufferMessage& msg) {

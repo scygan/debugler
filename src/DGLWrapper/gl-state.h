@@ -50,6 +50,16 @@ private:
     bool m_Deleted;
 };
 
+class GLFBObj: public GLObj {
+public:
+    GLFBObj(GLuint name);
+    GLFBObj() {}
+    void setTarget(GLenum);
+    GLenum getTarget();
+private:
+    GLenum m_Target;
+};
+
 //Native platform interface surface. HDC on windows
 class NPISurface {
 public:
@@ -73,6 +83,7 @@ public:
     std::map<GLuint, GLTextureObj> m_Textures;
     std::map<GLuint, GLBufferObj> m_Buffers;
     std::map<GLuint, GLProgramObj> m_Programs;
+    std::map<GLuint, GLFBObj> m_FBOs;
 
     dglnet::ContextReport describe();
 
@@ -87,11 +98,13 @@ public:
     void deleteTexture(GLuint name);
     GLBufferObj* ensureBuffer(GLuint name);
     void deleteBuffer(GLuint name);
+    GLFBObj* ensureFBO(GLuint name);
+    void deleteFBO(GLuint name);
 
     void queryTexture(GLuint name, dglnet::TextureMessage& ret);
     void queryBuffer(GLuint name, dglnet::BufferMessage& ret);
     void queryFramebuffer(GLuint bufferEnum, dglnet::FramebufferMessage& ret);
-
+    void queryFBO(GLuint name, dglnet::FBOMessage& ret);
 
     GLProgramObj* ensureProgram(GLuint name);
     void deleteProgram(GLuint name);

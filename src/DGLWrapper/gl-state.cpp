@@ -25,6 +25,23 @@ namespace state_setters {
         GLint m_PBO;
     };
 
+    class DefaultReadBuffer {
+    public:
+        DefaultReadBuffer(GLuint name = 0) {
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_FRAMEBUFFER_BINDING, &m_FBO);
+            if (m_FBO) {
+                DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, name);
+            }
+        }
+        ~DefaultReadBuffer() {
+            if (m_FBO) {
+               DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, m_FBO);
+            }
+        }
+    private:
+        GLint m_FBO;
+    };
+
     class PixelStoreAlignment {
         static const int StateSize = 8;
     public:
@@ -97,6 +114,17 @@ void GLProgramObj::markDeleted() {
     m_Deleted = true;
 }
 
+GLFBObj::GLFBObj(GLuint name):GLObj(name),m_Target(0) {}
+
+void GLFBObj::setTarget(GLenum target) {
+    if (!m_Target)
+        m_Target = target;
+}
+
+GLenum GLFBObj::getTarget() {
+    return m_Target;
+}
+
 GLContext::GLContext(uint32_t id):m_Id(id), m_InUse(false), m_Deleted(false), m_NPISurface(NULL) {}
 
 dglnet::ContextReport GLContext::describe() {
@@ -112,6 +140,10 @@ dglnet::ContextReport GLContext::describe() {
     for (std::map<GLuint, GLProgramObj>::iterator i = m_Programs.begin(); 
         i != m_Programs.end(); i++) {
             ret.m_ProgramSpace.insert(i->second.getName());
+    }
+    for (std::map<GLuint, GLFBObj>::iterator i = m_FBOs.begin(); 
+        i != m_FBOs.end(); i++) {
+            ret.m_FBOSpace.insert(i->second.getName());
     }
     if (m_NPISurface) {
         if (m_NPISurface->isStereo()) {
@@ -177,6 +209,21 @@ void GLContext::deleteBuffer(GLuint name) {
     std::map<GLuint, GLBufferObj>::iterator i = m_Buffers.find(name); 
     if (i !=  m_Buffers.end()) {
         m_Buffers.erase(i);
+    }
+}
+
+GLFBObj* GLContext::ensureFBO(GLuint name) {
+    std::map<GLuint, GLFBObj>::iterator i = m_FBOs.find(name);
+    if (i == m_FBOs.end()) {
+        i = m_FBOs.insert(std::pair<GLuint, GLFBObj>(name, GLFBObj(name))).first;
+    }
+    return &(*i).second;
+}
+
+void GLContext::deleteFBO(GLuint name) {
+    std::map<GLuint, GLFBObj>::iterator i = m_FBOs.find(name); 
+    if (i !=  m_FBOs.end()) {
+        m_FBOs.erase(i);
     }
 }
 
@@ -351,6 +398,7 @@ void GLContext::queryFramebuffer(GLuint bufferEnum, dglnet::FramebufferMessage& 
         GLint currentBuffer; 
         DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &currentBuffer);
         state_setters::DefaultPBO defPBO;
+        state_setters::DefaultReadBuffer defReadFBO;
         state_setters::PixelStoreAlignment defAlignment;
 
         //read the buffer
@@ -358,8 +406,6 @@ void GLContext::queryFramebuffer(GLuint bufferEnum, dglnet::FramebufferMessage& 
 
         ret.m_Width = m_NPISurface->getWidth();
         ret.m_Height = m_NPISurface->getHeight();
-        //DIRECT_CALL_CHK(glGetFramebufferParameteriv)(GL_READ_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_WIDTH, &ret.m_Width);
-        //DIRECT_CALL_CHK(glGetFramebufferParameteriv)(GL_READ_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_HEIGHT, &ret.m_Height);
         GLenum format = GL_RGB;
         ret.m_Channels = 3;
         if (m_NPISurface->isAlpha()) {
@@ -373,6 +419,40 @@ void GLContext::queryFramebuffer(GLuint bufferEnum, dglnet::FramebufferMessage& 
     } catch (const std::runtime_error& err) {
         ret.error(err.what());
     }
+}
+
+void GLContext::queryFBO(GLuint name, dglnet::FBOMessage& ret) {
+
+    ret.m_Name = name;
+    ret.error("unimplemented");
+    /*
+    try {
+ 
+        //save state
+        GLint currentBuffer; 
+        DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &currentBuffer);
+        state_setters::DefaultPBO defPBO;
+        state_setters::DefaultReadBuffer defReadFBO(name);
+        state_setters::PixelStoreAlignment defAlignment;
+
+        //read the buffer
+        DIRECT_CALL_CHK(glReadBuffer)(GL_FRONT);
+
+        ret.m_Width = m_NPISurface->getWidth();
+        ret.m_Height = m_NPISurface->getHeight();
+        GLenum format = GL_RGB;
+        ret.m_Channels = 3;
+        if (m_NPISurface->isAlpha()) {
+            ret.m_Channels = 4;
+            format = GL_BGRA;
+        }    
+        ret.m_Pixels.resize(ret.m_Width * ret.m_Height * ret.m_Channels);
+        DIRECT_CALL_CHK(glReadPixels)(0, 0, ret.m_Width, ret.m_Height, format, GL_UNSIGNED_BYTE, &ret.m_Pixels[0]);
+        //restore state
+        DIRECT_CALL_CHK(glReadBuffer)(currentBuffer);
+    } catch (const std::runtime_error& err) {
+        ret.error(err.what());
+    }*/
 }
 
 GLProgramObj* GLContext::ensureProgram(GLuint name) {

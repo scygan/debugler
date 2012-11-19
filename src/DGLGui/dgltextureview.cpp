@@ -60,7 +60,6 @@ DGLTextureView::DGLTextureView(QWidget* parrent, DglController* controller):DGLT
 
 void DGLTextureView::showTexture(uint name) {
     update(name);
-    m_Controller->debugQueryTexture(name);
 }
 
 void DGLTextureView::gotTexture(uint name, const dglnet::TextureMessage& msg) {

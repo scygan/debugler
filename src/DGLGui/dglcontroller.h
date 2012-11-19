@@ -40,12 +40,14 @@ public:
     virtual void doHandle(const dglnet::TextureMessage&);
     virtual void doHandle(const dglnet::BufferMessage&);
     virtual void doHandle(const dglnet::FramebufferMessage&);
+    virtual void doHandle(const dglnet::FBOMessage&);
     virtual void doHandleDisconnect(const std::string&);
 
     //GUI interactions
     void doShowTexture(uint name);
     void doShowBuffer(uint name);
     void doShowFramebuffer(uint bufferEnum);
+    void doShowFBO(uint name);
     DGLBreakPointController* getBreakPoints();
 
 signals:
@@ -59,6 +61,7 @@ signals:
     void gotTexture(uint, const dglnet::TextureMessage&);
     void gotBuffer(uint, const dglnet::BufferMessage&);
     void gotFramebuffer(uint, const dglnet::FramebufferMessage&);
+    void gotFBO(uint, const dglnet::FBOMessage&);
 
     void newStatus(const QString&);
     void error(const QString&, const QString&);
@@ -66,18 +69,13 @@ signals:
     void showTexture(uint name);
     void showBuffer(uint name);
     void showFramebuffer(uint bufferEnum);
-    
+    void showFBO(uint name);
     
 public slots:
     void poll();
     void debugContinue();   
     void debugInterrupt();   
     void debugStep();
-
-    void debugQueryTexture(uint);
-    void debugQueryBuffer(uint);
-    void debugQueryFramebuffer(uint);
-
     void queryCallTrace(uint, uint);
 
 private:

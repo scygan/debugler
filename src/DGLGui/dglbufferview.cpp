@@ -35,7 +35,6 @@ DGLBufferView::DGLBufferView(QWidget* parrent, DglController* controller):DGLTab
 
 void DGLBufferView::showBuffer(uint name) {
     update(name);
-    m_Controller->debugQueryBuffer(name);
 }
 
 void DGLBufferView::gotBuffer(uint name, const dglnet::BufferMessage& msg) {

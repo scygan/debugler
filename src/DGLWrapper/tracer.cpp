@@ -231,3 +231,39 @@ void ProgramTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     }
     PrevPost(call, ret);
 }
+
+
+void FBOTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
+    Entrypoint entrp = call.getEntrypoint();
+    if (g_GLState.getCurrent()) {
+
+        if (entrp == glGenFramebuffers_Call) {
+            GLsizei n = 0;
+            call.getArgs()[0].get(n);
+
+            GLuint* names;
+            call.getArgs()[1].get(names);
+
+            for (GLsizei i = 0; i < n; i++) {
+                g_GLState.getCurrent()->ensureFBO(names[i]);
+            }
+        } else if (entrp == glDeleteFramebuffers_Call) {
+            GLsizei n = 0;
+            call.getArgs()[0].get(n);
+
+            const GLuint* names;
+            call.getArgs()[1].get(names);
+
+            for (GLsizei i = 0; i < n; i++) {
+                g_GLState.getCurrent()->deleteFBO(names[i]);
+            }
+        } else if (entrp == glBindFramebuffer_Call) {
+            GLenum target;
+            call.getArgs()[0].get(target);
+            GLuint name;
+            call.getArgs()[1].get(name);
+            g_GLState.getCurrent()->ensureFBO(name)->setTarget(target);
+        }
+    }
+    PrevPost(call, ret);
+}

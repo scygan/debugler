@@ -42,6 +42,14 @@ namespace dglnet {
         unsupported();
     }
 
+    void MessageHandler::doHandle(const QueryFBOMessage&) {
+        unsupported();
+    }
+
+    void MessageHandler::doHandle(const FBOMessage&) {
+        unsupported();
+    }
+
     void MessageHandler::doHandle(const SetBreakPointsMessage&) {
         unsupported();
     }
@@ -90,6 +98,18 @@ namespace dglnet {
     }
 
     bool FramebufferMessage::isOk(std::string& msg) const {
+        msg = m_ErrorMsg;
+        return m_Ok;
+    }
+
+    FBOMessage::FBOMessage():m_Ok(true), m_Name(0) {}
+
+    void FBOMessage::error(std::string msg) {
+        m_Ok = false;
+        m_ErrorMsg = msg;
+    }
+
+    bool FBOMessage::isOk(std::string& msg) const {
         msg = m_ErrorMsg;
         return m_Ok;
     }
