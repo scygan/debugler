@@ -20,6 +20,10 @@ typedef int Entrypoint;
 
 char* GetEntryPointName(Entrypoint entryp);
 Entrypoint GetEntryPointEnum(const char* name);
+const char* GetGLEnumName(uint64_t glEnum);
+
+bool IsDrawCall(Entrypoint);
+bool IsFrameDelimiter(Entrypoint);
 
 #endif
 

@@ -48,6 +48,7 @@ void DGLTabbedView::update(uint id) {
         m_TabWidget.addTab(createTab(id), getTabName(id));
         m_TabWidget.setCurrentIndex(m_TabWidget.count() - 1);
     }
+    raise();
 }
 
 DGLTabbedViewItem* DGLTabbedView::getTab(uint id) {

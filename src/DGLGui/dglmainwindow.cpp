@@ -1,5 +1,6 @@
 #include <QMessageBox>
 #include <QSettings>
+#include <QFile>
 
 #include "dglmainwindow.h"
 #include "dglconnectdialog.h"
@@ -14,6 +15,21 @@
 
 #define DGL_COMPANY "sacygan"
 #define DGL_PRODUCT "debuggler"
+
+#define STRINGIFY(X) #X
+#define DGL_SETTINGS(X) STRINGIFY(widgets/##X)
+#define DGL_GEOMETRY_SETTINGS DGL_SETTINGS(geometry)
+#define DGL_WINDOW_STATE_SETTINGS DGL_SETTINGS(windowState)
+#define DGL_ColorScheme_SETTINGS DGL_SETTINGS(ColorScheme)
+
+
+struct DGLColorScheme {
+    char* name;
+    char* file;
+} dglColorSchemes[DGLNUM_COLOR_SCHEMES] = {
+    { "Default",     ":/res/default.stylesheet"   },
+    { "Dark Orange", ":/res/darkorange.stylesheet"},
+};
 
 DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags) {
@@ -33,8 +49,9 @@ DGLMainWindow::~DGLMainWindow() {
 
 void DGLMainWindow::closeEvent(QCloseEvent *event) {
     QSettings settings(DGL_COMPANY, DGL_PRODUCT);
-    settings.setValue("widgets/geometry", saveGeometry());
-    settings.setValue("widgets/windowState", saveState());
+    settings.setValue(DGL_GEOMETRY_SETTINGS, saveGeometry());
+    settings.setValue(DGL_WINDOW_STATE_SETTINGS, saveState());
+    settings.setValue(DGL_ColorScheme_SETTINGS, m_ColorScheme);
     QMainWindow::closeEvent(event);
 }
 
@@ -50,10 +67,12 @@ void DGLMainWindow::createDockWindows() {
         viewMenu->addAction(dock->toggleViewAction());
     } {
         QDockWidget *dock = new DGLTextureView(this, &m_controller);
+        dock->setMinimumSize(QSize(600, 0));
         addDockWidget(Qt::AllDockWidgetAreas, dock);
         viewMenu->addAction(dock->toggleViewAction());
     } {
         QDockWidget *dock = new DGLBufferView(this, &m_controller);
+        dock->setMinimumSize(QSize(600, 0));
         addDockWidget(Qt::AllDockWidgetAreas, dock);
         viewMenu->addAction(dock->toggleViewAction());
     } {
@@ -62,6 +81,7 @@ void DGLMainWindow::createDockWindows() {
         viewMenu->addAction(dock->toggleViewAction());
     } {
         QDockWidget *dock = new DGLFramebufferView(this, &m_controller);
+        dock->setMinimumSize(QSize(600, 0));
         addDockWidget(Qt::AllDockWidgetAreas, dock);
         viewMenu->addAction(dock->toggleViewAction());
     }
@@ -86,10 +106,17 @@ void DGLMainWindow::createMenus() {
      debugMenu->addAction(debugContinueAct);
      debugMenu->addAction(debugInterruptAct);
      debugMenu->addAction(debugStepAct);
+     debugMenu->addAction(debugStepDrawCallAct);
+     debugMenu->addAction(debugStepFrameAct);
      debugMenu->addAction(addDeleteBreakPointsAct);
 
 
      viewMenu = menuBar()->addMenu(tr("&View"));
+     viewMenu->addSeparator();
+     ColorSchemeMenu = viewMenu->addMenu(tr("Color Schemes"));
+     for (uint i = 0; i < DGLNUM_COLOR_SCHEMES; i++) {
+         ColorSchemeMenu->addAction(setColorSchemeActs[i]);
+     }
 
      menuBar()->addSeparator();
 
@@ -100,13 +127,13 @@ void DGLMainWindow::createMenus() {
 
 
 void DGLMainWindow::createToolBars() {
-     /*fileToolBar = addToolBar(tr("File"));
-     fileToolBar->addAction(newLetterAct);
-     fileToolBar->addAction(saveAct);
-     fileToolBar->addAction(printAct);
-
-     editToolBar = addToolBar(tr("Edit"));
-     editToolBar->addAction(undoAct);*/
+     debugToolBar = addToolBar(tr("Debug"));
+     debugToolBar->addAction(debugContinueAct);
+     debugToolBar->addAction(debugInterruptAct);
+     debugToolBar->addAction(debugStepAct);
+     debugToolBar->addAction(debugStepDrawCallAct);
+     debugToolBar->addAction(debugStepFrameAct);
+     debugToolBar->addAction(addDeleteBreakPointsAct);
  }
 
  void DGLMainWindow::createStatusBar() {
@@ -139,13 +166,29 @@ void DGLMainWindow::createToolBars() {
      debugInterruptAct->setStatusTip(tr("Interrupt program execution on GL call"));
      CONNASSERT(connect(debugInterruptAct, SIGNAL(triggered()), &m_controller, SLOT(debugInterrupt())));
 
-     debugStepAct = new QAction(tr("&Step call"), this);
+     debugStepAct = new QAction(tr("&Step into"), this);
      debugStepAct->setStatusTip(tr("Step one GL call"));
      CONNASSERT(connect(debugStepAct, SIGNAL(triggered()), &m_controller, SLOT(debugStep())));
+
+     debugStepDrawCallAct = new QAction(tr("&Drawcall step"), this);
+     debugStepDrawCallAct->setStatusTip(tr("Step one GL drawing call"));
+     CONNASSERT(connect(debugStepDrawCallAct, SIGNAL(triggered()), &m_controller, SLOT(debugStepDrawCall())));
+
+     debugStepFrameAct = new QAction(tr("&Frame step"), this);
+     debugStepFrameAct->setStatusTip(tr("Step one GL frame"));
+     CONNASSERT(connect(debugStepFrameAct, SIGNAL(triggered()), &m_controller, SLOT(debugStepFrame())));
 
      addDeleteBreakPointsAct = new QAction(tr("&Breakpoints..."), this);
      addDeleteBreakPointsAct->setStatusTip(tr("Add or remove breakpoints"));
      CONNASSERT(connect(addDeleteBreakPointsAct, SIGNAL(triggered()), this, SLOT(addDeleteBreakPoints())));
+
+     for (uint i = 0; i < DGLNUM_COLOR_SCHEMES; i++) {
+         setColorSchemeActs[i] = new QAction(tr(dglColorSchemes[i].name), this);
+         setColorSchemeActs[i]->setStatusTip(tr("Set this ColorScheme"));
+         m_SetColorSchemeSignalMapper.setMapping(setColorSchemeActs[i], i);
+         CONNASSERT(connect(setColorSchemeActs[i], SIGNAL(triggered()), &m_SetColorSchemeSignalMapper, SLOT(map())));
+     }
+     CONNASSERT(connect(&m_SetColorSchemeSignalMapper, SIGNAL(mapped(int)), this, SLOT(setColorScheme(int))));
 
  }
 
@@ -156,8 +199,22 @@ void DGLMainWindow::createToolBars() {
 
   void DGLMainWindow::readSettings() {
       QSettings settings(DGL_COMPANY, DGL_PRODUCT);
-      restoreGeometry(settings.value("widgets/geometry").toByteArray());
-      restoreState(settings.value("widgets/windowState").toByteArray());
+      restoreGeometry(settings.value(DGL_GEOMETRY_SETTINGS).toByteArray());
+      restoreState(settings.value(DGL_WINDOW_STATE_SETTINGS).toByteArray());
+      uint ColorScheme = settings.value(DGL_ColorScheme_SETTINGS).toUInt();
+      setColorScheme(ColorScheme);
+  }
+
+  void DGLMainWindow::setColorScheme(int colorScheme) {
+      if (colorScheme >= 0 && colorScheme < DGLNUM_COLOR_SCHEMES) {
+          m_ColorScheme = colorScheme;
+          QString fileName(dglColorSchemes[colorScheme].file);
+          QFile file(fileName);
+          if(file.open(QFile::ReadOnly)) {
+              QString colorSchemeSheet = QLatin1String(file.readAll());
+              qApp->setStyleSheet(colorSchemeSheet);
+          }
+      }
   }
 
   void DGLMainWindow::about() {

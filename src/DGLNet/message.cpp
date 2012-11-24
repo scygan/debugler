@@ -62,8 +62,8 @@ namespace dglnet {
         return m_Breaked;
     }
 
-    bool ContinueBreakMessage::isJustOneStep() const  {
-        return !m_Breaked && m_JustOneStep;
+     std::pair<bool, ContinueBreakMessage::StepMode> ContinueBreakMessage::getStep() const  {
+        return std::pair<bool, StepMode>(m_InStepMode, m_StepMode);
     }
 
     TextureMessage::TextureMessage():m_Ok(true), m_TextureName(0) {}

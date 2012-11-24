@@ -253,4 +253,21 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="res\checkbox.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\darkorange.stylesheet">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\down_arrow.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\handle.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\default.stylesheet">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

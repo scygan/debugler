@@ -43,6 +43,7 @@ RetValue DefaultTracer::Pre(const CalledEntryPoint& call) {
     //do a fast non-blocking poll to get "interrupt" message, etc.."
     g_Controller->getServer().poll();
 
+    //check if any break is pending
     if (g_Controller->getBreakState().breakAt(call.getEntrypoint())) {
         //we just hit a break;
         dglstate::GLContext* ctx = g_GLState.getCurrent();
@@ -51,13 +52,15 @@ RetValue DefaultTracer::Pre(const CalledEntryPoint& call) {
     }
     
     while (g_Controller->getBreakState().isBreaked()) {
-        //block & loop until someone unbreaks us
+        //iterate block & loop until someone unbreaks us
         g_Controller->getServer().run_one();
     }
 
+    //now there should be no breaks
+
+    //add call to history ring
     g_Controller->getCallHistory().add(call);
 
-    g_Controller->getBreakState().endStep();
     g_Controller->getServer().unlock();
     return ret;
 }
@@ -137,7 +140,7 @@ void TextureTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 g_GLState.getCurrent()->deleteTexture(names[i]);
             }
         } else if (entrp == glBindTexture_Call) {
-            GLenum target;
+            GLenumWrap target;
             call.getArgs()[0].get(target);
             GLuint name;
             call.getArgs()[1].get(name);
@@ -172,7 +175,7 @@ void BufferTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 g_GLState.getCurrent()->deleteBuffer(names[i]);
             }
         } else if (entrp == glBindBuffer_Call) {
-            GLenum target;
+            GLenumWrap target;
             call.getArgs()[0].get(target);
             GLuint name;
             call.getArgs()[1].get(name);
@@ -258,7 +261,7 @@ void FBOTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 g_GLState.getCurrent()->deleteFBO(names[i]);
             }
         } else if (entrp == glBindFramebuffer_Call) {
-            GLenum target;
+            GLenumWrap target;
             call.getArgs()[0].get(target);
             GLuint name;
             call.getArgs()[1].get(name);

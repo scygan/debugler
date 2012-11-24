@@ -3,10 +3,13 @@
 
 #include <QtGui/QMainWindow>
 #include <QtGui/QListWIdget>
+#include <QSignalMapper>
 
 #include "ui_dglmainwindow.h"
 
 #include "dglcontroller.h"
+
+#define DGLNUM_COLOR_SCHEMES 2
 
 class DGLMainWindow : public QMainWindow {
     Q_OBJECT
@@ -24,6 +27,8 @@ private slots:
     void disconnect();
     void addDeleteBreakPoints();
 
+    void setColorScheme(int ColorScheme);
+
 private:
     void createActions();
     void createMenus();
@@ -38,7 +43,10 @@ private:
     QMenu *fileMenu;
     QMenu *debugMenu;
     QMenu *viewMenu;
+    QMenu *ColorSchemeMenu;
     QMenu *helpMenu;
+
+    QToolBar* debugToolBar;
 
     QAction *aboutAct;
     QAction *aboutQtAct;
@@ -49,9 +57,14 @@ private:
     QAction *debugInterruptAct;
     QAction *debugContinueAct;
     QAction *debugStepAct;
+    QAction *debugStepFrameAct;
+    QAction *debugStepDrawCallAct;
     QAction *addDeleteBreakPointsAct;
+    QAction *setColorSchemeActs[DGLNUM_COLOR_SCHEMES];
+    QSignalMapper m_SetColorSchemeSignalMapper;
 
     Ui::DGLMainWindowClass m_ui;
+    int m_ColorScheme;
 
     DglController m_controller;
 

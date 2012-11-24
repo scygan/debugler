@@ -39,13 +39,13 @@ public:
     BreakState();
     bool breakAt(const Entrypoint&);
     bool isBreaked();
-    void endStep();
     //handlers for remote commands
     void handle(const dglnet::ContinueBreakMessage&);
     void handle(const dglnet::SetBreakPointsMessage&);
 private:
     bool m_break;
-    bool m_isJustOneStep;
+    bool m_StepModeEnabled;
+    dglnet::ContinueBreakMessage::StepMode m_StepMode;
     std::set<Entrypoint> m_BreakPoints;
 };
 

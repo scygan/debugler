@@ -104,7 +104,6 @@ public:
     uint32_t m_CurrentCtx;
 };
 
-
 class ContinueBreakMessage: public Message {
     friend class boost::serialization::access;
 
@@ -112,20 +111,30 @@ class ContinueBreakMessage: public Message {
     void serialize(Archive & ar, const unsigned int version) {
         ar & boost::serialization::base_object<Message>(*this);
         ar & m_Breaked;
-        ar & m_JustOneStep;
+        ar & m_InStepMode;
+        ar & m_StepMode;
     }
 
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
 
 public:
+
+   enum StepMode {
+       STEP_CALL,
+       STEP_DRAW_CALL,
+       STEP_FRAME
+   };
+
    ContinueBreakMessage(){}
-   ContinueBreakMessage(bool breaked, bool justOneStep = false):m_Breaked(breaked),m_JustOneStep(justOneStep) {}
+   ContinueBreakMessage(StepMode stepMode):m_Breaked(false),m_InStepMode(true), m_StepMode(stepMode) {}
+   ContinueBreakMessage(bool breaked):m_Breaked(breaked),m_InStepMode(false) {}
    bool isBreaked() const;
-   bool isJustOneStep() const;
+   std::pair<bool, StepMode> getStep() const;
 
 private:
     bool m_Breaked;
-    bool m_JustOneStep;
+    bool m_InStepMode;
+    StepMode m_StepMode;
 };
 
 class QueryCallTraceMessage: public Message {

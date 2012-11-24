@@ -59,7 +59,19 @@ void DglController::debugInterrupt() {
 
 void DglController::debugStep() {
     assert(m_DglClient);
-    dglnet::ContinueBreakMessage message(false, true);
+    dglnet::ContinueBreakMessage message(dglnet::ContinueBreakMessage::STEP_CALL);
+    m_DglClient->sendMessage(&message);
+}
+
+void DglController::debugStepDrawCall() {
+    assert(m_DglClient);
+    dglnet::ContinueBreakMessage message(dglnet::ContinueBreakMessage::STEP_DRAW_CALL);
+    m_DglClient->sendMessage(&message);
+}
+
+void DglController::debugStepFrame() {
+    assert(m_DglClient);
+    dglnet::ContinueBreakMessage message(dglnet::ContinueBreakMessage::STEP_FRAME);
     m_DglClient->sendMessage(&message);
 }
 

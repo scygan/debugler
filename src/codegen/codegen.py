@@ -12,6 +12,7 @@ nonExtTypedefs = open(outputDir + "nonExtTypedefs.inl", "w")
 wrappersFile = open(outputDir + "wrappers.inl", "w")
 functionListFile = open(outputDir + "functionList.inl", "w")
 defFile = open(outputDir + "OpenGL32.def", "w")
+enumFile = open(outputDir + "enum.inl", "w")
 
 
 functionList = []
@@ -24,6 +25,11 @@ def isPointer(type):
 	
 def parse(file, genNonExtTypedefs = False):
 	for line in file:
+		enumMatch = re.match("^#define GL([a-zA-Z0-9_]*) (.*)0x(.*)$", line)
+		if enumMatch:
+			print >> enumFile, "#ifdef GL" + enumMatch.group(1)
+			print >> enumFile, "	ENUM_LIST_ELEMENT(GL" + enumMatch.group(1) + ")"
+			print >> enumFile, "#endif"
 		coarseFunctionMatch = re.match("^([a-zA-Z0-9]*) (.*) (WINAPI|APIENTRY) ([a-zA-Z0-9]*) \((.*)\)(.*)$", line)
 		if coarseFunctionMatch: 
 			print coarseFunctionMatch.groups()
@@ -87,8 +93,13 @@ def parse(file, genNonExtTypedefs = False):
 			print >> wrappersFile, "    assert(POINTER(" + functionName + "));"
 			print >> wrappersFile, "	CalledEntryPoint call( " + functionName + "_Call, " + str(len(functionAttrNamesList)) + ");"
 
-			for attrName in functionAttrNamesList:
-				print >> wrappersFile, "	call << " + attrName + ";"
+			i = 0
+			while i < len(functionAttrNamesList):
+				if "GLenum" in functionAttrDeclList[i] and not "*" in functionAttrDeclList[i]:
+					print >> wrappersFile, "	call << GLenumWrap(" + functionAttrNamesList[i] + ");"
+				else:
+					print >> wrappersFile, "	call << " + functionAttrNamesList[i] + ";"
+				i+=1
 			
 			print >> wrappersFile, "    RetValue retVal = g_Tracers[" + functionName + "_Call]->Pre(call);"
 			print >> wrappersFile, "    if (!retVal.isSet()) {"

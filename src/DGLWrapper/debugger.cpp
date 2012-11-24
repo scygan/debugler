@@ -96,9 +96,23 @@ std::vector<dglnet::ContextReport> GLState::describe() {
     return ret;
 }
 
-BreakState::BreakState():m_break(true),m_isJustOneStep(false) {}
+BreakState::BreakState():m_break(true),m_StepModeEnabled(false) {}
 
 bool BreakState::breakAt(const Entrypoint& e) {
+    if (m_StepModeEnabled) {
+        switch (m_StepMode) {
+            case dglnet::ContinueBreakMessage::STEP_CALL:  
+                m_break = true;
+                break;
+            case dglnet::ContinueBreakMessage::STEP_DRAW_CALL:
+                if (IsDrawCall(e)) m_break = true;
+                break;
+            case dglnet::ContinueBreakMessage::STEP_FRAME:  
+                if (IsFrameDelimiter(e)) m_break = true;
+                break;
+        }
+    }
+
     if (m_BreakPoints.find(e) != m_BreakPoints.end()) {
         m_break = true;
     }
@@ -112,20 +126,14 @@ bool BreakState::isBreaked() {
 void BreakState::handle(const dglnet::ContinueBreakMessage& msg) {
     m_break = msg.isBreaked();
     if (!m_break) {
-        m_isJustOneStep = msg.isJustOneStep();
-    } else {
-        m_isJustOneStep = false;
+        if (m_StepModeEnabled = msg.getStep().first) {
+            m_StepMode = msg.getStep().second;
+        }
     }
 }
 
 void BreakState::handle(const dglnet::SetBreakPointsMessage& msg) {
     m_BreakPoints = msg.get();
-}
-
-void BreakState::endStep() {
-    if (m_isJustOneStep) {
-        m_break = true; m_isJustOneStep = false;
-    }
 }
 
 CallHistory::CallHistory() {

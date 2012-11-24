@@ -70,5 +70,15 @@ DGLTabbedViewItem* DGLFramebufferView::createTab(uint id) {
 }
 
 QString DGLFramebufferView::getTabName(uint id) {
+    switch (id) {
+        case GL_FRONT_RIGHT:
+            return "Front right buffer"; 
+        case GL_BACK_RIGHT:
+            return "Back right buffer";
+        case GL_FRONT:
+            return "Front buffer";
+        case GL_BACK:
+            return "Back buffer";
+    }
     return QString("Frame Buffer ") + QString::number(id);
 }

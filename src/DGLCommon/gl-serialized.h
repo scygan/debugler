@@ -32,6 +32,26 @@ private:
     T m_value;
 };
 
+class GLenumWrap {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & m_value;
+    }
+
+public:
+    GLenumWrap():m_value(NULL) {}
+
+    GLenumWrap(uint64_t v):m_value(v) {}
+
+    uint64_t get() { return m_value; }
+    operator GLenum() const { return static_cast<GLenum>(m_value); }
+private:
+    uint64_t m_value;
+};
+
+
 class AnyValue {
     friend class boost::serialization::access;
 
@@ -63,7 +83,7 @@ public:
 
 private:
     boost::variant<signed long long, unsigned long long, signed long, unsigned long, unsigned int, signed int, unsigned short, signed short, unsigned char, signed char, float, double,
-        PtrWrap<void*>, PtrWrap<const void*> > m_value;
+        PtrWrap<void*>, PtrWrap<const void*>, GLenumWrap> m_value;
 };
 
 class CalledEntryPoint {

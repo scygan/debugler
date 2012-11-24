@@ -76,6 +76,8 @@ public slots:
     void debugContinue();   
     void debugInterrupt();   
     void debugStep();
+    void debugStepDrawCall();
+    void debugStepFrame();
     void queryCallTrace(uint, uint);
 
 private:

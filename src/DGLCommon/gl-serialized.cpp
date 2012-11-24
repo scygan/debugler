@@ -30,10 +30,13 @@ public:
     void operator()(float f) const { (*m_Stream) << f; }
     void operator()(double d) const { (*m_Stream) << d; }
     void operator()(PtrWrap<void*> i) const {
-        (*m_Stream) << reinterpret_cast<int>((const void*)i);
+        (*m_Stream) << std::hex << "0x" << reinterpret_cast<int>((const void*)i) << std::dec;
     }
     void operator()(PtrWrap<const void*> i) const {
-        (*m_Stream) << reinterpret_cast<int>((const void*)i);
+        (*m_Stream) << std::hex << "0x" << reinterpret_cast<int>((const void*)i) << std::dec;
+    }
+    void operator()(GLenumWrap i) const {
+        (*m_Stream) << GetGLEnumName(i.get());
     }
 
     std::stringstream * m_Stream;
