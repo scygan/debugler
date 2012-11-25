@@ -75,6 +75,8 @@ void DefaultTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     }
     
     g_Controller->getServer().unlock();
+    
+    PrevPre(call);
 }
 
 RetValue GetProcAddressTracer::Pre(const CalledEntryPoint& call) {
