@@ -93,12 +93,15 @@ class CalledEntryPoint {
     void serialize(Archive & ar, const unsigned int version) {
         ar & m_args;
         ar & m_entryp;
+        ar & m_glError;
     }
 
 public:
     CalledEntryPoint() {}
     CalledEntryPoint(Entrypoint, int numArgs);
     Entrypoint getEntrypoint() const;
+    void setError(uint32_t error);
+
     const std::vector<AnyValue>& getArgs() const;
     template<typename T>
     void operator << (const T& arg) {
@@ -109,6 +112,7 @@ public:
 private: 
     std::vector<AnyValue> m_args;
     Entrypoint m_entryp;
+    int32_t m_glError;
     int m_SavedArgsCount;
 };
 #endif

@@ -2,11 +2,15 @@
 
 #include <sstream>
 
-CalledEntryPoint::CalledEntryPoint(Entrypoint entryp, int numArgs):m_entryp(entryp), m_SavedArgsCount(0) {
+CalledEntryPoint::CalledEntryPoint(Entrypoint entryp, int numArgs):m_entryp(entryp), m_SavedArgsCount(0), m_glError(GL_NO_ERROR) {
     m_args.resize(numArgs);
 }
 
 Entrypoint CalledEntryPoint::getEntrypoint() const { return m_entryp; }
+
+void CalledEntryPoint::setError(uint32_t error) {
+    m_glError = error;
+}
 
 const std::vector<AnyValue>& CalledEntryPoint::getArgs() const{
     return m_args;
@@ -60,5 +64,8 @@ std::string CalledEntryPoint::toString() const {
     }
 
     ret << ")";
+    if (m_glError != GL_NO_ERROR) {
+        ret << " -> " << GetGLEnumName(m_glError);
+    }
     return ret.str();;
 }

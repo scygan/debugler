@@ -43,6 +43,7 @@ private:
 
 class DefaultTracer: public TracerBase {
     virtual RetValue Pre(const CalledEntryPoint&); 
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
 class GetProcAddressTracer: public TracerBase {

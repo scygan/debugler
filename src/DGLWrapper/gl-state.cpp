@@ -1,6 +1,7 @@
 #include "gl-state.h"
 
 #include <boost/make_shared.hpp>
+#include <string>
 
 #include "pointers.h"
 #include "api-loader.h"
@@ -8,6 +9,7 @@
 namespace dglstate {
 
 namespace state_setters {
+
     class DefaultPBO {
     public:
         DefaultPBO() {
@@ -227,8 +229,48 @@ void GLContext::deleteFBO(GLuint name) {
     }
 }
 
+GLenum GLContext::getError() {
+    GLenum ret;
+    if (m_PokedErrorQueue.size()) {
+        ret = m_PokedErrorQueue.front();
+        m_PokedErrorQueue.pop();
+    } else {
+        ret = DIRECT_CALL_CHK(glGetError)();
+    }
+    return ret;
+}
+
+GLenum GLContext::peekError() {
+    GLenum ret = DIRECT_CALL_CHK(glGetError)();
+    if (ret != GL_NO_ERROR) {
+        GLenum error = ret;
+        do {
+            m_PokedErrorQueue.push(error);
+            error = DIRECT_CALL_CHK(glGetError)();
+        } while (error != GL_NO_ERROR);
+    }
+    return ret;
+}
+
+void GLContext::startQuery() {
+    peekError();
+}
+
+bool GLContext::endQuery(std::string& message) {
+    bool ret = true;
+    GLenum error;
+    if  ((error = DIRECT_CALL_CHK(glGetError)()) != GL_NO_ERROR ) {
+        message = std::string("Query failed: got OpenGL error (") + GetGLEnumName(error) + ")";
+        ret = false;
+    }
+    while (DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR);
+    return ret;
+}
+
 void GLContext::queryTexture(GLuint name, dglnet::TextureMessage& ret) {
-    
+
+    startQuery();
+
     ret.m_TextureName = name;
     
     try {
@@ -293,9 +335,16 @@ void GLContext::queryTexture(GLuint name, dglnet::TextureMessage& ret) {
     } catch (const std::runtime_error& err) {
         ret.error(err.what());
     }
+    std::string message;
+    if (!endQuery(message)) {
+        ret.error(message);
+    }
 }
 
 void GLContext::queryBuffer(GLuint name, dglnet::BufferMessage& ret) {
+
+    startQuery();
+
     ret.m_BufferName = name;
     try {
         //check if GL knows about a texture
@@ -383,9 +432,15 @@ void GLContext::queryBuffer(GLuint name, dglnet::BufferMessage& ret) {
     } catch (const std::runtime_error& err) {
         ret.error(err.what());
     }
+    std::string message;
+    if (!endQuery(message)) {
+        ret.error(message);
+    }
 }
 
 void GLContext::queryFramebuffer(GLuint bufferEnum, dglnet::FramebufferMessage& ret) {
+
+    startQuery();
 
     ret.m_BufferEnum = bufferEnum;
 
@@ -419,9 +474,14 @@ void GLContext::queryFramebuffer(GLuint bufferEnum, dglnet::FramebufferMessage& 
     } catch (const std::runtime_error& err) {
         ret.error(err.what());
     }
+    std::string message;
+    if (!endQuery(message)) {
+        ret.error(message);
+    }
 }
 
 void GLContext::queryFBO(GLuint name, dglnet::FBOMessage& ret) {
+    startQuery();
 
     ret.m_Name = name;
     ret.error("unimplemented");
@@ -453,6 +513,11 @@ void GLContext::queryFBO(GLuint name, dglnet::FBOMessage& ret) {
     } catch (const std::runtime_error& err) {
         ret.error(err.what());
     }*/
+
+    std::string message;
+    if (!endQuery(message)) {
+        ret.error(message);
+    }
 }
 
 GLProgramObj* GLContext::ensureProgram(GLuint name) {

@@ -98,7 +98,7 @@ std::vector<dglnet::ContextReport> GLState::describe() {
 
 BreakState::BreakState():m_break(true),m_StepModeEnabled(false) {}
 
-bool BreakState::breakAt(const Entrypoint& e) {
+bool BreakState::breakAt(const Entrypoint& e, GLenum error) {
     if (m_StepModeEnabled) {
         switch (m_StepMode) {
             case dglnet::ContinueBreakMessage::STEP_CALL:  
@@ -116,6 +116,10 @@ bool BreakState::breakAt(const Entrypoint& e) {
     if (m_BreakPoints.find(e) != m_BreakPoints.end()) {
         m_break = true;
     }
+    if (error != GL_NO_ERROR) {
+        m_break = true;
+    }
+
     return isBreaked();
 }
 
@@ -164,6 +168,11 @@ void CallHistory::query(const dglnet::QueryCallTraceMessage& query, dglnet::Call
 
 size_t CallHistory::size() {
     return m_cb.size();
+}
+
+void CallHistory::setError( GLenum error ) {
+    boost::lock_guard<boost::mutex> lock(m_mutex);
+    m_cb.back().setError(error);
 }
 
 DebugController::~DebugController() {

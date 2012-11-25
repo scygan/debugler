@@ -65,6 +65,18 @@ RetValue DefaultTracer::Pre(const CalledEntryPoint& call) {
     return ret;
 }
 
+void DefaultTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
+    g_Controller->getServer().lock();
+
+    GLenum error;
+    if (g_GLState.getCurrent() && (error = g_GLState.getCurrent()->peekError()) != GL_NO_ERROR) {
+        g_Controller->getCallHistory().setError(error);
+        g_Controller->getBreakState().breakAt(call.getEntrypoint(), error);
+    }
+    
+    g_Controller->getServer().unlock();
+}
+
 RetValue GetProcAddressTracer::Pre(const CalledEntryPoint& call) {
     RetValue ret = PrevPre(call);
 

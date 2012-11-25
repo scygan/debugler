@@ -5,6 +5,7 @@
 #include <DGLNet/message.h>
 
 #include <map>
+#include <queue>
 
 namespace dglstate {
 
@@ -100,21 +101,30 @@ public:
     void deleteBuffer(GLuint name);
     GLFBObj* ensureFBO(GLuint name);
     void deleteFBO(GLuint name);
+    GLProgramObj* ensureProgram(GLuint name);
+    void deleteProgram(GLuint name);
 
     void queryTexture(GLuint name, dglnet::TextureMessage& ret);
     void queryBuffer(GLuint name, dglnet::BufferMessage& ret);
     void queryFramebuffer(GLuint bufferEnum, dglnet::FramebufferMessage& ret);
     void queryFBO(GLuint name, dglnet::FBOMessage& ret);
 
-    GLProgramObj* ensureProgram(GLuint name);
-    void deleteProgram(GLuint name);
-
     int32_t getId();
 
+    GLenum getError();
+    GLenum peekError();
+
 private:
+    
+    void startQuery();
+    bool endQuery(std::string& message);
+        
+
     int32_t m_Id;
     bool m_InUse, m_Deleted;
     NPISurface* m_NPISurface;
+
+    std::queue<GLenum> m_PokedErrorQueue;
 };
 
 } //namespace
