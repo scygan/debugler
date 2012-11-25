@@ -100,6 +100,9 @@
     <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglcontroller.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglfboview.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglframebufferview.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -139,6 +142,9 @@
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglcontroller.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglfboview.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglframebufferview.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -168,6 +174,7 @@
     <ClCompile Include="dglbufferview.cpp" />
     <ClCompile Include="dglconnectdialog.cpp" />
     <ClCompile Include="dglcontoller.cpp" />
+    <ClCompile Include="dglfboview.cpp" />
     <ClCompile Include="dglframebufferview.cpp" />
     <ClCompile Include="dglmainwindow.cpp" />
     <ClCompile Include="dgltabbedview.cpp" />
@@ -259,6 +266,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglbreakpointdialog.h" />
     <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglconnectdialog.h" />
+    <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglfboviewitem.h" />
     <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglframebufferviewitem.h" />
     <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglmainwindow.h" />
     <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dgltextureviewitem.h" />
@@ -289,6 +297,16 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB "-D\"$(INHERIT)\"" -D_WIN32_WINNT=0x0501 "-D$(NOINHERIT)\." "-I." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(INHERIT)\." "-I.\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I.\..\boost" "-I.\.." "-I$(NOINHERIT)\."</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing dglframebufferview.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -D_WIN32_WINNT=0x0501 "-D$(NOINHERIT)\." "-I." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I.\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I.\..\boost" "-I.\.." "-I$(NOINHERIT)\."</Command>
+    </CustomBuild>
+    <CustomBuild Include="dglfboview.h">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing dglfboview.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB "-D\"$(INHERIT)\"" -D_WIN32_WINNT=0x0501 "-D$(NOINHERIT)\." "-I." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(INHERIT)\." "-I.\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I.\..\boost" "-I.\.." "-I$(NOINHERIT)\."</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing dglfboview.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -D_WIN32_WINNT=0x0501 "-D$(NOINHERIT)\." "-I." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I.\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I.\..\boost" "-I.\.." "-I$(NOINHERIT)\."</Command>
     </CustomBuild>
@@ -406,6 +424,17 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="dglfboviewitem.ui">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Uic%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\uic.exe" -o ".\..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Uic%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\uic.exe" -o ".\..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+    </CustomBuild>
     <None Include="res\checkbox.png" />
     <None Include="res\darkorange.stylesheet" />
     <None Include="res\default.stylesheet" />

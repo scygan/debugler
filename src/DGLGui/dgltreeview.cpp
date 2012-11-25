@@ -70,7 +70,7 @@ public:
         setText(0, QString("FBO ") + QString::number(name));
     }
     void handleDoubleClick(DglController* controller) {
-        //controller->doShowFBO(m_name);
+        controller->doShowFBO(m_name);
     }
 private:
     uint m_name;
@@ -147,7 +147,7 @@ public:
 
     void update(const dglnet::ContextReport& report) {
         m_Id = report.m_Id;
-        setText(0, QString("Context ") + QString::number(report.m_Id, 16));
+        setText(0, QString("Context 0x") + QString::number(report.m_Id, 16));
         m_TextureNode.update(report.m_TextureSpace);
         m_BufferNode.update(report.m_BufferSpace);
         m_FBONode.update(report.m_FBOSpace);

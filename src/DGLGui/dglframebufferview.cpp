@@ -1,6 +1,5 @@
 #include "dglframebufferview.h"
 #include "dglgui.h"
-#include "QHexEdit/qhexedit.h"
 
 #include "ui_dglframebufferviewitem.h"
 

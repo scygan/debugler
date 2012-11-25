@@ -104,6 +104,18 @@ namespace dglnet {
 
     FBOMessage::FBOMessage():m_Ok(true), m_Name(0) {}
 
+    FBOAttachment::FBOAttachment(uint32_t id):m_Ok(true),m_Id(id) {}
+
+    void FBOAttachment::error(std::string msg) {
+        m_Ok = false;
+        m_ErrorMsg = msg;
+    }
+
+    bool FBOAttachment::isOk(std::string& msg) const {
+        msg = m_ErrorMsg;
+        return m_Ok;
+    }
+
     void FBOMessage::error(std::string msg) {
         m_Ok = false;
         m_ErrorMsg = msg;

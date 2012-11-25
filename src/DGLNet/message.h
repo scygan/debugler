@@ -71,7 +71,7 @@ class ContextReport {
     }
 public:
     ContextReport() {}
-    ContextReport(int32_t id) {}
+    ContextReport(int32_t id):m_Id(id) {}
     int32_t m_Id;
     std::set<uint32_t> m_TextureSpace;
     std::set<uint32_t> m_BufferSpace;
@@ -353,6 +353,35 @@ public:
     uint32_t m_Name;
 };
 
+class FBOAttachment {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & m_Ok;
+        ar & m_ErrorMsg;
+        ar & m_Width;
+        ar & m_Height;
+        ar & m_Channels;
+        ar & m_Pixels;
+        ar & m_Id;
+    }
+public:
+    FBOAttachment() {}
+    FBOAttachment(uint32_t id);
+
+    void error(std::string msg);
+    bool isOk(std::string& error) const;
+
+
+    int32_t m_Width, m_Height, m_Channels;
+    std::vector<int8_t> m_Pixels;
+    uint32_t m_Id;
+private:
+    bool m_Ok;
+    std::string m_ErrorMsg;
+};
+
 class FBOMessage: public Message {
     friend class boost::serialization::access;
 
@@ -362,10 +391,7 @@ class FBOMessage: public Message {
         ar & m_Name;
         ar & m_Ok;
         ar & m_ErrorMsg;
-        ar & m_Width;
-        ar & m_Height;
-        ar & m_Channels;
-        ar & m_Pixels;
+        ar & m_Attachments;
     }
 
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
@@ -377,8 +403,7 @@ public:
     bool isOk(std::string& error) const;
 
     uint32_t m_Name;
-    int32_t m_Width, m_Height, m_Channels;
-    std::vector<int8_t> m_Pixels;
+    std::vector<FBOAttachment> m_Attachments;
 
 private:
     bool m_Ok;

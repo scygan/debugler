@@ -484,8 +484,7 @@ void GLContext::queryFBO(GLuint name, dglnet::FBOMessage& ret) {
     startQuery();
 
     ret.m_Name = name;
-    ret.error("unimplemented");
-    /*
+   
     try {
  
         //save state
@@ -495,24 +494,88 @@ void GLContext::queryFBO(GLuint name, dglnet::FBOMessage& ret) {
         state_setters::DefaultReadBuffer defReadFBO(name);
         state_setters::PixelStoreAlignment defAlignment;
 
-        //read the buffer
-        DIRECT_CALL_CHK(glReadBuffer)(GL_FRONT);
+        GLint maxColorAttachments; 
+        DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
 
-        ret.m_Width = m_NPISurface->getWidth();
-        ret.m_Height = m_NPISurface->getHeight();
-        GLenum format = GL_RGB;
-        ret.m_Channels = 3;
-        if (m_NPISurface->isAlpha()) {
-            ret.m_Channels = 4;
-            format = GL_BGRA;
-        }    
-        ret.m_Pixels.resize(ret.m_Width * ret.m_Height * ret.m_Channels);
-        DIRECT_CALL_CHK(glReadPixels)(0, 0, ret.m_Width, ret.m_Height, format, GL_UNSIGNED_BYTE, &ret.m_Pixels[0]);
+        for (int i = 0; i < maxColorAttachments; i++) {
+            GLint type, name, alphaSize;
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+                GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
+            if (type != GL_TEXTURE && type != GL_RENDERBUFFER)
+                continue;
+
+            ret.m_Attachments.push_back(dglnet::FBOAttachment(GL_COLOR_ATTACHMENT0 + i));
+            
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+                GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
+                GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &alphaSize);
+            
+            GLint width, height;
+            if (type == GL_TEXTURE) {
+                if (!DIRECT_CALL_CHK(glIsTexture)(name)) {
+                    ret.m_Attachments.back().error("Attached texture object does not exist");
+                    continue;
+                }
+
+                GLTextureObj* tex = ensureTexture(name);
+                if (tex->getTarget() != GL_TEXTURE_2D) {
+                    ret.m_Attachments.back().error("Attached texture target is not supported");
+                }
+
+                GLint level;
+                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
+                    GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, &level);
+
+                GLint lastTexture;
+                DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D, &lastTexture);
+                DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), tex->getName());
+
+                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &width);
+                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &height);
+                DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), lastTexture);
+
+            } else if (type == GL_RENDERBUFFER) {
+                if (!DIRECT_CALL_CHK(glIsRenderbuffer)(name)) {
+                    ret.m_Attachments.back().error("Attached renderbuffer object does not exist");
+                    continue;
+                }
+                GLint lastRenderBuffer;
+                DIRECT_CALL_CHK(glGetIntegerv)(GL_RENDERBUFFER_BINDING, &lastRenderBuffer);
+                DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, name);
+                DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &width);
+                DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
+                DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, lastRenderBuffer);
+            }
+
+            GLenum format;
+            if (alphaSize) {
+                ret.m_Attachments.back().m_Channels = 4;
+                format = GL_BGRA;
+            } else {
+                ret.m_Attachments.back().m_Channels = 3;
+                format = GL_RGB;
+            }
+            
+            ret.m_Attachments.back().m_Width = width;
+            ret.m_Attachments.back().m_Height = height;
+            
+            ret.m_Attachments.back().m_Pixels.resize(
+                ret.m_Attachments.back().m_Width * 
+                ret.m_Attachments.back().m_Height * 
+                ret.m_Attachments.back().m_Channels
+                );
+
+            DIRECT_CALL_CHK(glReadBuffer)(GL_COLOR_ATTACHMENT0 + i);
+            DIRECT_CALL_CHK(glReadPixels)(0, 0, ret.m_Attachments.back().m_Width,
+                ret.m_Attachments.back().m_Height,
+                format, GL_UNSIGNED_BYTE, &ret.m_Attachments.back().m_Pixels[0]);
+        }
         //restore state
         DIRECT_CALL_CHK(glReadBuffer)(currentBuffer);
     } catch (const std::runtime_error& err) {
         ret.error(err.what());
-    }*/
+    }
 
     std::string message;
     if (!endQuery(message)) {
