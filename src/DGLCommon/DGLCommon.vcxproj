@@ -64,6 +64,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="dglconfiguration.h" />
     <ClInclude Include="gl-serialized.h" />
     <ClInclude Include="gl-headers.h" />
     <ClInclude Include="gl-types.h" />

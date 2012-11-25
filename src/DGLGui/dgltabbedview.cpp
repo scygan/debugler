@@ -7,24 +7,35 @@ uint DGLTabbedViewItem::getObjId() {return m_ObjId; }
 
 DGLTabbedView::DGLTabbedView(QWidget* parrent, DglController* controller):QDockWidget(parrent),m_Controller(controller),m_TabWidget(this) {
 
-    disable();
     m_TabWidget.setTabsClosable(true);
     setWidget(&m_TabWidget);
 
+    enable();
+
     //inbound
-    CONNASSERT(connect(controller, SIGNAL(connected()), this, SLOT(enable())));
-    CONNASSERT(connect(controller, SIGNAL(disconnected()), this, SLOT(disable())));
+    CONNASSERT(connect(controller, SIGNAL(disconnected()), this, SLOT(clear())));
+    CONNASSERT(connect(controller, SIGNAL(breaked(CalledEntryPoint, uint)), this, SLOT(enable())));
+    CONNASSERT(connect(controller, SIGNAL(running()), this, SLOT(disable())));
 
     //internal
     CONNASSERT(connect(&m_TabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(closeTab(int))));
 }
 
-void DGLTabbedView::enable() {
-    m_Enabled = true;
-}
 
 void DGLTabbedView::disable() {
-    m_Enabled = false;
+    m_TabWidget.setDisabled(true);
+}
+
+void DGLTabbedView::enable() {
+    m_TabWidget.setDisabled(false);
+    for (int i = 0; i < m_TabWidget.count(); i++) {
+        DGLTabbedViewItem* widget = dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));
+        widget->requestUpdate(m_Controller);
+    }
+}
+
+void DGLTabbedView::clear() {
+    disable();
     while (m_TabWidget.count()) {
         delete m_TabWidget.widget(0);
     }

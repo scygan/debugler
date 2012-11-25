@@ -8,7 +8,6 @@
 #include "pointers.h"
 #include "api-loader.h"
 
-
 boost::shared_ptr<TracerBase> g_Tracers[NUM_ENTRYPOINTS];
 
 void TracerBase::SetPrev(const boost::shared_ptr<TracerBase>& prev) {
@@ -69,7 +68,7 @@ void DefaultTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     g_Controller->getServer().lock();
 
     GLenum error;
-    if (g_GLState.getCurrent() && (error = g_GLState.getCurrent()->peekError()) != GL_NO_ERROR) {
+    if (g_GLState.getCurrent() && (error = g_GLState.getCurrent()->peekError()) != GL_NO_ERROR && g_Config.m_BreakOnGLError) {
         g_Controller->getCallHistory().setError(error);
         g_Controller->getBreakState().breakAt(call.getEntrypoint(), error);
     }
@@ -279,7 +278,9 @@ void FBOTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[0].get(target);
             GLuint name;
             call.getArgs()[1].get(name);
-            g_GLState.getCurrent()->ensureFBO(name)->setTarget(target);
+            if (name) {
+                g_GLState.getCurrent()->ensureFBO(name)->setTarget(target);
+            }
         }
     }
     PrevPost(call, ret);

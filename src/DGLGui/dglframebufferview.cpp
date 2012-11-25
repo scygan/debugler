@@ -39,6 +39,11 @@ public:
             m_Scene->addPixmap(QPixmap::fromImage(QImage(&m_PixelData[0], msg.m_Width, realHeight, format)));
         }
     }
+
+    virtual void requestUpdate(DglController* controller) {
+        controller->requestFramebuffer(getObjId(), false);
+    }
+
 private: 
     Ui_DGLFramebufferViewItem m_Ui;
     boost::shared_ptr<QGraphicsScene> m_Scene;
@@ -49,7 +54,7 @@ DGLFramebufferView::DGLFramebufferView(QWidget* parrent, DglController* controll
     setupNames("Frame Buffers", "DGLFramebufferView");
 
     //inbound
-    CONNASSERT(connect(controller, SIGNAL(showFramebuffer(uint)), this, SLOT(showFramebuffer(uint))));
+    CONNASSERT(connect(controller, SIGNAL(focusFramebuffer(uint)), this, SLOT(showFramebuffer(uint))));
     CONNASSERT(connect(controller, SIGNAL(gotFramebuffer(uint, const dglnet::FramebufferMessage&)), this, SLOT(gotFramebuffer(uint, const dglnet::FramebufferMessage&))));
 }
 

@@ -47,7 +47,7 @@ DGLTextureWidget::DGLTextureWidget(uint name):m_name(name) {
 }
 
 void DGLTextureWidget::handleDoubleClick(DglController* controller) {
-    controller->doShowTexture(m_name);
+    controller->requestTexture(m_name);
 }
 
 class DGLBufferWidget: public QClickableTreeWidgetItem {
@@ -57,7 +57,7 @@ public:
         setText(0, QString("Buffer ") + QString::number(name));
     }
     void handleDoubleClick(DglController* controller) {
-        controller->doShowBuffer(m_name);
+        controller->requestBuffer(m_name);
     }
 private:
     uint m_name;
@@ -70,7 +70,7 @@ public:
         setText(0, QString("FBO ") + QString::number(name));
     }
     void handleDoubleClick(DglController* controller) {
-        controller->doShowFBO(m_name);
+        controller->requestFBO(m_name);
     }
 private:
     uint m_name;
@@ -102,7 +102,7 @@ public:
         setText(0, QString(name.c_str()));
     }
     void handleDoubleClick(DglController* controller) {
-        controller->doShowFramebuffer(m_type);
+        controller->requestFramebuffer(m_type);
     }
     GLenum m_type;
 };

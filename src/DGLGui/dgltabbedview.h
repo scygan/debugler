@@ -14,6 +14,8 @@ public:
 
     uint getObjId();
 
+    virtual void requestUpdate(DglController* controller) = 0;
+
 private: 
     uint m_ObjId;
 };
@@ -26,6 +28,7 @@ public:
     virtual ~DGLTabbedView() {}
 
     public slots:
+        void clear();
         void enable();
         void disable();
       
@@ -37,7 +40,6 @@ protected:
     DGLTabbedViewItem* getTab(uint id);
     void setupNames(char* title, char* objName);
 
-    bool m_Enabled;
     DglController* m_Controller;
 private: 
     virtual DGLTabbedViewItem* createTab(uint id) = 0;

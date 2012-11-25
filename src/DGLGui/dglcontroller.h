@@ -6,6 +6,7 @@
 #include <QSocketNotifier>
 
 #include "DGLNet/client.h"
+#include "DGLCommon/dglconfiguration.h"
 #include <boost/make_shared.hpp>
 
 class DglController;
@@ -44,17 +45,20 @@ public:
     virtual void doHandleDisconnect(const std::string&);
 
     //GUI interactions
-    void doShowTexture(uint name);
-    void doShowBuffer(uint name);
-    void doShowFramebuffer(uint bufferEnum);
-    void doShowFBO(uint name);
+    void requestTexture(uint name, bool focus = true);
+    void requestBuffer(uint name, bool focus = true);
+    void requestFramebuffer(uint bufferEnum, bool focus = true);
+    void requestFBO(uint name, bool focus = true);
     DGLBreakPointController* getBreakPoints();
+    void configure(bool breakOnGLError);
+    const DGLConfiguration& getConfig();
 
 signals:
     void disconnected();
     void connected();
 
     void breaked(CalledEntryPoint, uint);
+    void running();
     void breakedWithStateReports(uint, const std::vector<dglnet::ContextReport>&);
 
     void gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&);
@@ -66,10 +70,10 @@ signals:
     void newStatus(const QString&);
     void error(const QString&, const QString&);
 
-    void showTexture(uint name);
-    void showBuffer(uint name);
-    void showFramebuffer(uint bufferEnum);
-    void showFBO(uint name);
+    void focusTexture(uint name);
+    void focusBuffer(uint name);
+    void focusFramebuffer(uint bufferEnum);
+    void focusFBO(uint name);
     
 public slots:
     void poll();
@@ -89,6 +93,7 @@ private:
     bool m_DglClientDead;
     std::string m_DglClientDeadInfo;
     DGLBreakPointController m_BreakPointController;
+    DGLConfiguration m_Config;
 };
 
 #endif

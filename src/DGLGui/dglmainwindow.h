@@ -26,6 +26,7 @@ private slots:
     void attach();
     void disconnect();
     void addDeleteBreakPoints();
+    void setBreakOnGLError(bool);
 
     void setColorScheme(int ColorScheme);
 
@@ -60,7 +61,9 @@ private:
     QAction *debugStepFrameAct;
     QAction *debugStepDrawCallAct;
     QAction *addDeleteBreakPointsAct;
+    QAction *setBreakOnGLErrorAct;
     QAction *setColorSchemeActs[DGLNUM_COLOR_SCHEMES];
+    QActionGroup * setColorSchemeActGroup;
     QSignalMapper m_SetColorSchemeSignalMapper;
 
     Ui::DGLMainWindowClass m_ui;

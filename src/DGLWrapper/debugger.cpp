@@ -3,9 +3,9 @@
 
 #include"debugger.h"
 
-
 boost::shared_ptr<DebugController> g_Controller;
 GLState g_GLState;
+DGLConfiguration g_Config;
 
 template<typename T>
 void nop(T*) {}
@@ -207,6 +207,9 @@ CallHistory& DebugController::getCallHistory() {
     return m_CallHistory;
 }
 
+void DebugController::doHandle(const dglnet::ConfigurationMessage& msg) {
+    g_Config.m_BreakOnGLError = msg.m_BreakOnGLError;
+}
 
 void DebugController::doHandle(const dglnet::ContinueBreakMessage& msg) {
     m_BreakState.handle(msg);

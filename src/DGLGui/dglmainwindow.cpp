@@ -115,6 +115,8 @@ void DGLMainWindow::createMenus() {
      debugMenu->addAction(debugStepDrawCallAct);
      debugMenu->addAction(debugStepFrameAct);
      debugMenu->addAction(addDeleteBreakPointsAct);
+     debugMenu->addSeparator();
+     debugMenu->addAction(setBreakOnGLErrorAct);
 
 
      viewMenu = menuBar()->addMenu(tr("&View"));
@@ -140,6 +142,8 @@ void DGLMainWindow::createToolBars() {
      debugToolBar->addAction(debugStepDrawCallAct);
      debugToolBar->addAction(debugStepFrameAct);
      debugToolBar->addAction(addDeleteBreakPointsAct);
+     debugToolBar->addSeparator();
+     debugToolBar->addAction(setBreakOnGLErrorAct);
  }
 
  void DGLMainWindow::createStatusBar() {
@@ -188,9 +192,20 @@ void DGLMainWindow::createToolBars() {
      addDeleteBreakPointsAct->setStatusTip(tr("Add or remove breakpoints"));
      CONNASSERT(connect(addDeleteBreakPointsAct, SIGNAL(triggered()), this, SLOT(addDeleteBreakPoints())));
 
+     setBreakOnGLErrorAct = new QAction(tr("Break on GL error"), this);
+     setBreakOnGLErrorAct->setStatusTip(tr("Break execution on GL error (glGetError() != GL_NO_ERROR)"));
+     setBreakOnGLErrorAct->setCheckable(true);
+     setBreakOnGLErrorAct->setChecked(m_controller.getConfig().m_BreakOnGLError);
+     CONNASSERT(connect(setBreakOnGLErrorAct, SIGNAL(toggled(bool)), this, SLOT(setBreakOnGLError(bool))));
+     
+
+     setColorSchemeActGroup = new QActionGroup(this);
+
      for (uint i = 0; i < DGLNUM_COLOR_SCHEMES; i++) {
          setColorSchemeActs[i] = new QAction(tr(dglColorSchemes[i].name), this);
-         setColorSchemeActs[i]->setStatusTip(tr("Set this ColorScheme"));
+         setColorSchemeActs[i]->setCheckable(true);
+         setColorSchemeActs[i]->setActionGroup(setColorSchemeActGroup);
+         setColorSchemeActs[i]->setStatusTip(tr("Set this color scheme"));
          m_SetColorSchemeSignalMapper.setMapping(setColorSchemeActs[i], i);
          CONNASSERT(connect(setColorSchemeActs[i], SIGNAL(triggered()), &m_SetColorSchemeSignalMapper, SLOT(map())));
      }
@@ -213,6 +228,8 @@ void DGLMainWindow::createToolBars() {
 
   void DGLMainWindow::setColorScheme(int colorScheme) {
       if (colorScheme >= 0 && colorScheme < DGLNUM_COLOR_SCHEMES) {
+          if (!setColorSchemeActs[colorScheme]->isChecked())
+              setColorSchemeActs[colorScheme]->setChecked(true);
           m_ColorScheme = colorScheme;
           QString fileName(dglColorSchemes[colorScheme].file);
           QFile file(fileName);
@@ -247,6 +264,10 @@ void DGLMainWindow::createToolBars() {
       if (dialog.exec() == QDialog::Accepted) {
           m_controller.getBreakPoints()->setCurrent(dialog.getBreakPoints());
       }
+ }
+
+ void DGLMainWindow::setBreakOnGLError(bool breakOnGLError) {
+     m_controller.configure(breakOnGLError);
  }
 
 void DGLMainWindow::errorMessage(const QString& title, const QString& msg) {

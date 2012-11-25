@@ -3,12 +3,14 @@
 
 #include <DGLCommon/gl-types.h>
 #include <DGLCommon/gl-serialized.h>
+#include <DGLCommon/dglconfiguration.h>
 
 #include <DGLNet/serializer-fwd.h>
 #include <set>
 
 namespace dglnet {
 
+class ConfigurationMessage;
 class BreakedCallMessage;
 class ContinueBreakMessage;
 class QueryCallTraceMessage;
@@ -26,6 +28,7 @@ class SetBreakPointsMessage;
 
 class MessageHandler {
 public:
+    virtual void doHandle(const ConfigurationMessage&);
     virtual void doHandle(const BreakedCallMessage&);
     virtual void doHandle(const ContinueBreakMessage&);
     virtual void doHandle(const QueryCallTraceMessage&);
@@ -78,6 +81,22 @@ public:
     std::set<uint32_t> m_ProgramSpace;
     std::set<uint32_t> m_FBOSpace;
     std::set<GLenum> m_FramebufferSpace;
+};
+
+class ConfigurationMessage: public Message, public DGLConfiguration {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_BreakOnGLError;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    ConfigurationMessage() {}
+    ConfigurationMessage(const DGLConfiguration& conf):DGLConfiguration(conf) {}
 };
 
 class BreakedCallMessage: public Message {

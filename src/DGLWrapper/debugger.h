@@ -5,6 +5,7 @@
 #include <boost/thread/tss.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/circular_buffer.hpp>
+#include <DGLCommon/dglconfiguration.h>
 
 #include "gl-state.h"
 
@@ -40,6 +41,7 @@ public:
     bool breakAt(const Entrypoint&, GLenum glError = GL_NO_ERROR);
     bool isBreaked();
     //handlers for remote commands
+    void handle(const dglnet::ConfigurationMessage&);
     void handle(const dglnet::ContinueBreakMessage&);
     void handle(const dglnet::SetBreakPointsMessage&);
 private:
@@ -74,6 +76,7 @@ public:
     CallHistory& getCallHistory();
 
     //Message handlers
+    void doHandle(const dglnet::ConfigurationMessage&);
     void doHandle(const dglnet::ContinueBreakMessage&);
     void doHandle(const dglnet::QueryCallTraceMessage&);
     void doHandle(const dglnet::QueryTextureMessage&);
@@ -89,3 +92,4 @@ private:
 
 extern boost::shared_ptr<DebugController> g_Controller;
 extern GLState g_GLState; 
+extern DGLConfiguration g_Config;

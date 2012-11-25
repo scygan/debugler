@@ -19,6 +19,10 @@ public:
             editor->setData(array);
         }
     }
+    
+    virtual void requestUpdate(DglController* controller) {
+        controller->requestBuffer(getObjId(), false);
+    }
 
 private: 
     QHexEdit* editor;
@@ -29,7 +33,7 @@ DGLBufferView::DGLBufferView(QWidget* parrent, DglController* controller):DGLTab
     setupNames("Vertex Buffers", "DGLBufferView");
 
     //inbound
-    CONNASSERT(connect(controller, SIGNAL(showBuffer(uint)), this, SLOT(showBuffer(uint))));
+    CONNASSERT(connect(controller, SIGNAL(focusBuffer(uint)), this, SLOT(showBuffer(uint))));
     CONNASSERT(connect(controller, SIGNAL(gotBuffer(uint, const dglnet::BufferMessage&)), this, SLOT(gotBuffer(uint, const dglnet::BufferMessage&))));
 }
 

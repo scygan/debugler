@@ -43,6 +43,10 @@ public:
         }   
     }
 
+    virtual void requestUpdate(DglController* controller) {
+        controller->requestTexture(getObjId(), false);
+    }
+
 private: 
     Ui_DGLTextureViewItem m_Ui;
     boost::shared_ptr<QGraphicsScene> m_Scene;
@@ -53,7 +57,7 @@ DGLTextureView::DGLTextureView(QWidget* parrent, DglController* controller):DGLT
     setupNames("Textures", "DGLTextureView");
    	
     //inbound
-    CONNASSERT(connect(controller, SIGNAL(showTexture(uint)), this, SLOT(showTexture(uint))));
+    CONNASSERT(connect(controller, SIGNAL(focusTexture(uint)), this, SLOT(showTexture(uint))));
     CONNASSERT(connect(controller, SIGNAL(gotTexture(uint, const dglnet::TextureMessage&)), this, SLOT(gotTexture(uint, const dglnet::TextureMessage&))));
         
 }

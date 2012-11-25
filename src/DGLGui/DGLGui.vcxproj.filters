@@ -243,17 +243,8 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglconnectdialog.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglmainwindow.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
     <ClInclude Include="dglgui.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglbreakpointdialog.h">
-      <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="QHexEdit\commands.h">
       <Filter>QHexEdit</Filter>
@@ -261,13 +252,22 @@
     <ClInclude Include="QHexEdit\xbytearray.h">
       <Filter>QHexEdit</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dgltextureviewitem.h">
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglconnectdialog.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglframebufferviewitem.h">
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglmainwindow.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\ui_dglfboviewitem.h">
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglbreakpointdialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dgltextureviewitem.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglframebufferviewitem.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglfboviewitem.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
