@@ -74,7 +74,7 @@
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>qtmain.lib;QtCore.lib;QtGui.lib;Winmm.lib;Imm32.lib;%(AdditionalDependencies);DGLNet.lib;DGLCommon.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
