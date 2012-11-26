@@ -29,8 +29,8 @@ public:
     void operator()(signed int i) const { (*m_Stream) << i; }
     void operator()(unsigned short i) const { (*m_Stream) << i; }
     void operator()(signed short i) const { (*m_Stream) << i; }
-    void operator()(unsigned char i) const { (*m_Stream) << i; }
-    void operator()(signed char i) const { (*m_Stream) << i; }
+    void operator()(unsigned char i) const { (*m_Stream) << (unsigned int)i; }
+    void operator()(signed char i) const { (*m_Stream) << (int) i; }
     void operator()(float f) const { (*m_Stream) << f; }
     void operator()(double d) const { (*m_Stream) << d; }
     void operator()(PtrWrap<void*> i) const {
