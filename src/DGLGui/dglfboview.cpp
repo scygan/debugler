@@ -24,6 +24,7 @@ void DGLFBOViewItem::update(const dglnet::FBOMessage& msg) {
         m_Scene->addText(errorMsg.c_str());
         m_Error = true;
     } else {
+        m_Error = false;
         m_Attachments = msg.m_Attachments;
         for (int i = 0; i < msg.m_Attachments.size(); i++) {
             m_Ui.m_AttListWidget->addItem(QString(GetGLEnumName(msg.m_Attachments[i].m_Id)));
@@ -38,6 +39,8 @@ void DGLFBOViewItem::requestUpdate(DglController* controller) {
 
 void DGLFBOViewItem::showAttachment(int id) {
     if (m_Error || id >= m_Attachments.size() || id < 0) return;
+
+    m_Scene->clear();
 
     std::string errorMsg;
 

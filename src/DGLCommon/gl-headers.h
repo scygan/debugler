@@ -5,5 +5,6 @@
 #include <windows.h>
 #include <GL/gl.h>
 #include <codegen/input/glext.h>
+#include <codegen/input/wglext.h>
 
 #endif

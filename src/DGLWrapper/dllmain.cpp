@@ -17,6 +17,9 @@ void Initialize() {
     TracerBase::SetNext<ContextTracer>(wglMakeCurrent_Call);
     TracerBase::SetNext<ContextTracer>(wglDeleteContext_Call);
 
+    TracerBase::SetNext<DebugContextTracer>(wglCreateContext_Call);
+    TracerBase::SetNext<DebugContextTracer>(wglCreateContextAttribsARB_Call);
+
     TracerBase::SetNext<TextureTracer>(glGenTextures_Call);
     TracerBase::SetNext<TextureTracer>(glDeleteTextures_Call);
     TracerBase::SetNext<TextureTracer>(glBindTexture_Call);

@@ -54,6 +54,11 @@ class ContextTracer: public TracerBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
+class DebugContextTracer: public TracerBase {
+    virtual RetValue Pre(const CalledEntryPoint&); 
+    static bool anyContextPresent;
+};
+
 class TextureTracer: public TracerBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };

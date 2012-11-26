@@ -60,7 +60,6 @@ namespace state_setters {
             }
         }
     private:
-        GLint m_PBO;
         static const GLenum m_Targets[StateSize]; 
         static GLint m_SavedState[StateSize];
         static const GLint m_State[StateSize];
@@ -127,7 +126,7 @@ GLenum GLFBObj::getTarget() {
     return m_Target;
 }
 
-GLContext::GLContext(uint32_t id):m_Id(id), m_InUse(false), m_Deleted(false), m_NPISurface(NULL) {}
+GLContext::GLContext(uint32_t id):m_Id(id), m_InUse(false), m_Deleted(false), m_NPISurface(NULL), m_EverUsed(false) {}
 
 dglnet::ContextReport GLContext::describe() {
     dglnet::ContextReport ret(m_Id);
@@ -164,6 +163,10 @@ dglnet::ContextReport GLContext::describe() {
 
 void GLContext::use(bool inUse) {
     m_InUse = inUse;
+    if (!m_EverUsed) {
+        firstUse();
+        m_EverUsed = true;
+    }
 }
 
 bool GLContext::lazyDelete() {
@@ -451,26 +454,30 @@ void GLContext::queryFramebuffer(GLuint bufferEnum, dglnet::FramebufferMessage& 
         }
         //save state
         GLint currentBuffer; 
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &currentBuffer);
-        state_setters::DefaultPBO defPBO;
-        state_setters::DefaultReadBuffer defReadFBO;
-        state_setters::PixelStoreAlignment defAlignment;
+        {
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &currentBuffer);
+            state_setters::DefaultPBO defPBO;
+            state_setters::DefaultReadBuffer defReadFBO;
+            state_setters::PixelStoreAlignment defAlignment;
 
-        //read the buffer
-        DIRECT_CALL_CHK(glReadBuffer)(bufferEnum);
+            //read the buffer
+            DIRECT_CALL_CHK(glReadBuffer)(bufferEnum);
 
-        ret.m_Width = m_NPISurface->getWidth();
-        ret.m_Height = m_NPISurface->getHeight();
-        GLenum format = GL_RGB;
-        ret.m_Channels = 3;
-        if (m_NPISurface->isAlpha()) {
-            ret.m_Channels = 4;
-            format = GL_BGRA;
-        }    
-        ret.m_Pixels.resize(ret.m_Width * ret.m_Height * ret.m_Channels);
-        DIRECT_CALL_CHK(glReadPixels)(0, 0, ret.m_Width, ret.m_Height, format, GL_UNSIGNED_BYTE, &ret.m_Pixels[0]);
+            ret.m_Width = m_NPISurface->getWidth();
+            ret.m_Height = m_NPISurface->getHeight();
+            GLenum format = GL_RGB;
+            ret.m_Channels = 3;
+            if (m_NPISurface->isAlpha()) {
+                ret.m_Channels = 4;
+                format = GL_BGRA;
+            }    
+            ret.m_Pixels.resize(ret.m_Width * ret.m_Height * ret.m_Channels);
+            DIRECT_CALL_CHK(glReadPixels)(0, 0, ret.m_Width, ret.m_Height, format, GL_UNSIGNED_BYTE, &ret.m_Pixels[0]);
+        }
+        
         //restore state
         DIRECT_CALL_CHK(glReadBuffer)(currentBuffer);
+
     } catch (const std::runtime_error& err) {
         ret.error(err.what());
     }
@@ -490,86 +497,88 @@ void GLContext::queryFBO(GLuint name, dglnet::FBOMessage& ret) {
         //save state
         GLint currentBuffer; 
         DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &currentBuffer);
-        state_setters::DefaultPBO defPBO;
-        state_setters::DefaultReadBuffer defReadFBO(name);
-        state_setters::PixelStoreAlignment defAlignment;
+        {
+            state_setters::DefaultPBO defPBO;
+            state_setters::DefaultReadBuffer defReadFBO(name);
+            state_setters::PixelStoreAlignment defAlignment;
 
-        GLint maxColorAttachments; 
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
+            GLint maxColorAttachments; 
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
 
-        for (int i = 0; i < maxColorAttachments; i++) {
-            GLint type, name, alphaSize;
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
-                GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
-            if (type != GL_TEXTURE && type != GL_RENDERBUFFER)
-                continue;
-
-            ret.m_Attachments.push_back(dglnet::FBOAttachment(GL_COLOR_ATTACHMENT0 + i));
-            
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
-                GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
-                GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &alphaSize);
-            
-            GLint width, height;
-            if (type == GL_TEXTURE) {
-                if (!DIRECT_CALL_CHK(glIsTexture)(name)) {
-                    ret.m_Attachments.back().error("Attached texture object does not exist");
+            for (int i = 0; i < maxColorAttachments; i++) {
+                GLint type, name, alphaSize;
+                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+                    GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
+                if (type != GL_TEXTURE && type != GL_RENDERBUFFER)
                     continue;
-                }
 
-                GLTextureObj* tex = ensureTexture(name);
-                if (tex->getTarget() != GL_TEXTURE_2D) {
-                    ret.m_Attachments.back().error("Attached texture target is not supported");
-                }
+                ret.m_Attachments.push_back(dglnet::FBOAttachment(GL_COLOR_ATTACHMENT0 + i));
 
-                GLint level;
+                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+                    GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
                 DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
-                    GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, &level);
+                    GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &alphaSize);
 
-                GLint lastTexture;
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D, &lastTexture);
-                DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), tex->getName());
+                GLint width, height;
+                if (type == GL_TEXTURE) {
+                    if (!DIRECT_CALL_CHK(glIsTexture)(name)) {
+                        ret.m_Attachments.back().error("Attached texture object does not exist");
+                        continue;
+                    }
 
-                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &width);
-                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &height);
-                DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), lastTexture);
+                    GLTextureObj* tex = ensureTexture(name);
+                    if (tex->getTarget() != GL_TEXTURE_2D) {
+                        ret.m_Attachments.back().error("Attached texture target is not supported");
+                    }
 
-            } else if (type == GL_RENDERBUFFER) {
-                if (!DIRECT_CALL_CHK(glIsRenderbuffer)(name)) {
-                    ret.m_Attachments.back().error("Attached renderbuffer object does not exist");
-                    continue;
+                    GLint level;
+                    DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
+                        GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, &level);
+
+                    GLint lastTexture;
+                    DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D, &lastTexture);
+                    DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), tex->getName());
+
+                    DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &width);
+                    DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &height);
+                    DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), lastTexture);
+
+                } else if (type == GL_RENDERBUFFER) {
+                    if (!DIRECT_CALL_CHK(glIsRenderbuffer)(name)) {
+                        ret.m_Attachments.back().error("Attached renderbuffer object does not exist");
+                        continue;
+                    }
+                    GLint lastRenderBuffer;
+                    DIRECT_CALL_CHK(glGetIntegerv)(GL_RENDERBUFFER_BINDING, &lastRenderBuffer);
+                    DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, name);
+                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &width);
+                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
+                    DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, lastRenderBuffer);
                 }
-                GLint lastRenderBuffer;
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_RENDERBUFFER_BINDING, &lastRenderBuffer);
-                DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, name);
-                DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &width);
-                DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
-                DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, lastRenderBuffer);
-            }
 
-            GLenum format;
-            if (alphaSize) {
-                ret.m_Attachments.back().m_Channels = 4;
-                format = GL_BGRA;
-            } else {
-                ret.m_Attachments.back().m_Channels = 3;
-                format = GL_RGB;
-            }
-            
-            ret.m_Attachments.back().m_Width = width;
-            ret.m_Attachments.back().m_Height = height;
-            
-            ret.m_Attachments.back().m_Pixels.resize(
-                ret.m_Attachments.back().m_Width * 
-                ret.m_Attachments.back().m_Height * 
-                ret.m_Attachments.back().m_Channels
-                );
+                GLenum format;
+                if (alphaSize) {
+                    ret.m_Attachments.back().m_Channels = 4;
+                    format = GL_BGRA;
+                } else {
+                    ret.m_Attachments.back().m_Channels = 3;
+                    format = GL_RGB;
+                }
 
-            DIRECT_CALL_CHK(glReadBuffer)(GL_COLOR_ATTACHMENT0 + i);
-            DIRECT_CALL_CHK(glReadPixels)(0, 0, ret.m_Attachments.back().m_Width,
-                ret.m_Attachments.back().m_Height,
-                format, GL_UNSIGNED_BYTE, &ret.m_Attachments.back().m_Pixels[0]);
+                ret.m_Attachments.back().m_Width = width;
+                ret.m_Attachments.back().m_Height = height;
+
+                ret.m_Attachments.back().m_Pixels.resize(
+                    ret.m_Attachments.back().m_Width * 
+                    ret.m_Attachments.back().m_Height * 
+                    ret.m_Attachments.back().m_Channels
+                    );
+
+                DIRECT_CALL_CHK(glReadBuffer)(GL_COLOR_ATTACHMENT0 + i);
+                DIRECT_CALL_CHK(glReadPixels)(0, 0, ret.m_Attachments.back().m_Width,
+                    ret.m_Attachments.back().m_Height,
+                    format, GL_UNSIGNED_BYTE, &ret.m_Attachments.back().m_Pixels[0]);
+            }
         }
         //restore state
         DIRECT_CALL_CHK(glReadBuffer)(currentBuffer);
@@ -600,6 +609,28 @@ void GLContext::deleteProgram(GLuint name) {
 
 int32_t GLContext::getId() {
     return m_Id;
+}
+
+void APIENTRY debugOutputCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,  const GLchar* message, GLvoid* userParam) {
+    reinterpret_cast<GLContext*>(userParam);
+};
+
+
+void GLContext::firstUse() {
+    GLint maxExtensions; 
+    DIRECT_CALL_CHK(glGetIntegerv)(GL_NUM_EXTENSIONS, &maxExtensions);
+    
+    bool debugOutputSupported = false;
+
+    for (int i = 0; i < maxExtensions; i++) {
+        const char* ext = (char*)DIRECT_CALL_CHK(glGetStringi)(GL_EXTENSIONS, i);
+        if (strcmp("GL_ARB_debug_output", ext) == 0)
+            debugOutputSupported = true;
+    }
+    if (debugOutputSupported) {
+        DIRECT_CALL_CHK(glEnable)(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+        DIRECT_CALL_CHK(glDebugMessageCallbackARB)(debugOutputCallback, this);
+    }
 }
 
 NPISurface::NPISurface(uint32_t id):m_Id(id) {

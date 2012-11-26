@@ -118,10 +118,11 @@ private:
     
     void startQuery();
     bool endQuery(std::string& message);
-        
+
+    void firstUse();       
 
     int32_t m_Id;
-    bool m_InUse, m_Deleted;
+    bool m_InUse, m_Deleted, m_EverUsed;
     NPISurface* m_NPISurface;
 
     std::queue<GLenum> m_PokedErrorQueue;

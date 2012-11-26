@@ -128,6 +128,73 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     PrevPost(call, ret);
 }
 
+bool DebugContextTracer::anyContextPresent = false;
+
+RetValue DebugContextTracer::Pre(const CalledEntryPoint& call) {
+    RetValue ret = PrevPre(call);
+
+    if (ret.isSet()) return ret;
+
+    HDC hdc;
+    HGLRC sharedCtx = NULL;
+    const int *attribList = NULL;
+    switch (call.getEntrypoint()) {
+        case wglCreateContext_Call:
+            call.getArgs()[0].get(hdc);
+            break;
+        case wglCreateContextAttribsARB_Call:
+            call.getArgs()[0].get(hdc);
+            call.getArgs()[1].get(sharedCtx);
+            call.getArgs()[2].get(attribList);
+            break;
+    }
+
+    std::vector<int> newAttribList; 
+    bool done = false;
+    if (attribList != NULL) {
+        int i = 0; 
+        while (attribList[i]) {
+            int attrib = attribList[i++], value = attribList[i++]; 
+            if (attrib == WGL_CONTEXT_FLAGS_ARB) {
+                value |= WGL_CONTEXT_DEBUG_BIT_ARB;
+                done = true;
+            }
+            newAttribList.push_back(attrib);
+            newAttribList.push_back(value);
+            i++;
+        }
+    }
+    newAttribList.push_back(0);
+    if (!done) {
+        newAttribList[newAttribList.size() - 1] = WGL_CONTEXT_FLAGS_ARB;
+        newAttribList.push_back(WGL_CONTEXT_DEBUG_BIT_ARB);
+        newAttribList.push_back(0);
+    }
+
+    HGLRC tmpCtx;
+
+    if (!anyContextPresent) {
+        //we must create one dummy ctx, to force ICD loading on Windows
+        //otherwise wglCreateContextAttribsARB, which is an extension, will not be availiable
+        tmpCtx = DIRECT_CALL_CHK(wglCreateContext)(hdc);
+        DIRECT_CALL_CHK(wglMakeCurrent)(hdc, tmpCtx);
+    }
+
+    try {
+        ret = DIRECT_CALL_CHK(wglCreateContextAttribsARB)(hdc, sharedCtx, &newAttribList[0]);
+    } catch (const std::runtime_error&) {
+        //exception was thrown - wglCreateContextAttribsARB is not avaliable. 
+        //do nothing - ret value is still not set, it will be set in standard wrapper function
+    }    
+
+    if (!anyContextPresent) {
+        DIRECT_CALL_CHK(wglMakeCurrent)(NULL, NULL);
+        DIRECT_CALL_CHK(wglDeleteContext)(tmpCtx);
+        anyContextPresent = true;
+    }
+    return ret;
+}
+
 void TextureTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
     if (g_GLState.getCurrent()) {

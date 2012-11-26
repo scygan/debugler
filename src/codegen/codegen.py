@@ -127,13 +127,16 @@ print >> defFile, "EXPORTS"
 
 			
 wglFile = open("input/wgl.h", "r").readlines()
-parse(wglFile)
-
+wglextFile = open("input/wglext-partial.h", "r").readlines()
 glFile = open("input/GL.h", "r").readlines()
-parse(glFile, True)
+glextFile = open("input/glext.h", "r").readlines()
 
-glFile = open("input/glext.h", "r").readlines()
-parse(glFile)
+parse(wglFile)
+parse(wglextFile)
+parse(glFile, True)
+parse(glextFile)
+
+
 
 for functionName in sorted(functionList):
 	functionPFNType = "PFN" + functionName.upper() + "PROC"						
