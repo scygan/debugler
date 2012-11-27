@@ -2,6 +2,7 @@
 #include <utility>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/tss.hpp>
 #include <vector>
 
 
@@ -57,6 +58,7 @@ class ContextTracer: public TracerBase {
 class DebugContextTracer: public TracerBase {
     virtual RetValue Pre(const CalledEntryPoint&); 
     static bool anyContextPresent;
+    static boost::thread_specific_ptr<bool> m_ThreadedInfiniteRecursionGuard;
 };
 
 class TextureTracer: public TracerBase {
