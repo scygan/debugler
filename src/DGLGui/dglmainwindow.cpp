@@ -14,9 +14,16 @@
 #include "dglbreakpointview.h"
 #include "dglgui.h"
 
+
+/**
+ * Macros indentyfying entity, that stores & loads QSettings
+ */
 #define DGL_COMPANY "sacygan"
 #define DGL_PRODUCT "debuggler"
 
+/** 
+ * Macros for QSettings variable names
+ */
 #define STRINGIFY(X) #X
 #define DGL_SETTINGS(X) STRINGIFY(widgets/##X)
 #define DGL_GEOMETRY_SETTINGS DGL_SETTINGS(geometry)
@@ -24,9 +31,12 @@
 #define DGL_ColorScheme_SETTINGS DGL_SETTINGS(ColorScheme)
 
 
+/**
+ * Array of available main window color settings
+ */
 struct DGLColorScheme {
-    char* name;
-    char* file;
+    char* name; /**< Display name */
+    char* file; /**< Resource file name wyth styleshet */
 } dglColorSchemes[DGLNUM_COLOR_SCHEMES] = {
     { "Default",     ":/res/default.stylesheet"   },
     { "Dark Orange", ":/res/darkorange.stylesheet"},
@@ -34,13 +44,22 @@ struct DGLColorScheme {
 
 DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags) {
+
+    //load designer UI 
+    
     m_ui.setupUi(this);
+
+    // create all widgets, actions iteractions etc...
+    
     createActions();
     createMenus();
     createToolBars();
     createStatusBar();
     createDockWindows();
     createInteractions();
+
+    // read QSettings
+    
     readSettings();
 }
 
@@ -49,15 +68,24 @@ DGLMainWindow::~DGLMainWindow() {
 }
 
 void DGLMainWindow::closeEvent(QCloseEvent *event) {
+
+    //store QSettings
+    
     QSettings settings(DGL_COMPANY, DGL_PRODUCT);
     settings.setValue(DGL_GEOMETRY_SETTINGS, saveGeometry());
     settings.setValue(DGL_WINDOW_STATE_SETTINGS, saveState());
     settings.setValue(DGL_ColorScheme_SETTINGS, m_ColorScheme);
+
+    //Send even to parrent class
+    
     QMainWindow::closeEvent(event);
 }
 
 
 void DGLMainWindow::createDockWindows() {
+    
+    //Create all dock windows.
+    
     {
         QDockWidget *dock = new DGLTraceView(this, &m_controller);
         addDockWidget(Qt::AllDockWidgetAreas, dock);
@@ -91,11 +119,6 @@ void DGLMainWindow::createDockWindows() {
         addDockWidget(Qt::AllDockWidgetAreas, dock);
         viewMenu->addAction(dock->toggleViewAction());
     }
-
-     /*connect(customerList, SIGNAL(currentTextChanged(QString)),
-             this, SLOT(insertCustomer(QString)));
-     connect(paragraphsList, SIGNAL(currentTextChanged(QString)),
-             this, SLOT(addParagraph(QString)));*/
 }
 
 void DGLMainWindow::createMenus() {
@@ -104,9 +127,6 @@ void DGLMainWindow::createMenus() {
      fileMenu->addAction(disconnectAct);
      fileMenu->addSeparator();
      fileMenu->addAction(quitAct);
-
-     //editMenu = menuBar()->addMenu(tr("&Edit"));
-     //editMenu->addAction(undoAct);*/
 
      debugMenu = menuBar()->addMenu(tr("&Debug"));
      debugMenu->addAction(debugContinueAct);
@@ -147,10 +167,16 @@ void DGLMainWindow::createToolBars() {
  }
 
  void DGLMainWindow::createStatusBar() {
+     
+     //set initial status
+     
      statusBar()->showMessage(tr("Ready"));
  }
 
  void DGLMainWindow::createActions() {
+
+     //create "QActions" - bindings between mainwindow clickable widgets, and local slots
+
      quitAct = new QAction(tr("&Quit"), this);
      quitAct->setShortcuts(QKeySequence::Quit);
      quitAct->setStatusTip(tr("Quit the application"));
@@ -194,46 +220,82 @@ void DGLMainWindow::createToolBars() {
 
      setBreakOnGLErrorAct = new QAction(tr("Break on GL error"), this);
      setBreakOnGLErrorAct->setStatusTip(tr("Break execution on GL error (glGetError() != GL_NO_ERROR)"));
+
+     //this action has a state - it is checbox-like checkable
+
      setBreakOnGLErrorAct->setCheckable(true);
      setBreakOnGLErrorAct->setChecked(m_controller.getConfig().m_BreakOnGLError);
      CONNASSERT(connect(setBreakOnGLErrorAct, SIGNAL(toggled(bool)), this, SLOT(setBreakOnGLError(bool))));
      
+    
+     //Only one color scheme can be choosed - put all related actions to action group
 
      setColorSchemeActGroup = new QActionGroup(this);
+
+     //iterate through all color schemes. for each one create one action
 
      for (uint i = 0; i < DGLNUM_COLOR_SCHEMES; i++) {
          setColorSchemeActs[i] = new QAction(tr(dglColorSchemes[i].name), this);
          setColorSchemeActs[i]->setCheckable(true);
          setColorSchemeActs[i]->setActionGroup(setColorSchemeActGroup);
          setColorSchemeActs[i]->setStatusTip(tr("Set this color scheme"));
+
+         //connect all color scheme actions to one mapper, so we can connect it later to only one signal
+
          m_SetColorSchemeSignalMapper.setMapping(setColorSchemeActs[i], i);
          CONNASSERT(connect(setColorSchemeActs[i], SIGNAL(triggered()), &m_SetColorSchemeSignalMapper, SLOT(map())));
      }
-     CONNASSERT(connect(&m_SetColorSchemeSignalMapper, SIGNAL(mapped(int)), this, SLOT(setColorScheme(int))));
 
+     //mapper maps connected actions to one emitted signal by int parameter. Connect this signal to "this"
+
+     CONNASSERT(connect(&m_SetColorSchemeSignalMapper, SIGNAL(mapped(int)), this, SLOT(setColorScheme(int))));
  }
 
   void DGLMainWindow::createInteractions() {
+
+      //connect some signals from DGLcontroller to UI
+
       CONNASSERT(connect(&m_controller, SIGNAL(newStatus(const QString&)), m_ui.statusBar, SLOT(showMessage(const QString&))));
       CONNASSERT(connect(&m_controller, SIGNAL(error(const QString&, const QString&)), this, SLOT(errorMessage(const QString&, const QString&))));
   }
 
   void DGLMainWindow::readSettings() {
+
+      //read settings
+
       QSettings settings(DGL_COMPANY, DGL_PRODUCT);
       restoreGeometry(settings.value(DGL_GEOMETRY_SETTINGS).toByteArray());
       restoreState(settings.value(DGL_WINDOW_STATE_SETTINGS).toByteArray());
+      
+      //decode and set actual color scheme from settings
+
       uint ColorScheme = settings.value(DGL_ColorScheme_SETTINGS).toUInt();
       setColorScheme(ColorScheme);
   }
 
   void DGLMainWindow::setColorScheme(int colorScheme) {
+
+      //check if scheme id is valid
+
       if (colorScheme >= 0 && colorScheme < DGLNUM_COLOR_SCHEMES) {
+          
+          //check if apropriate action is already checked, if not check it
+
           if (!setColorSchemeActs[colorScheme]->isChecked())
               setColorSchemeActs[colorScheme]->setChecked(true);
+          
+          //store color scheme id
+
           m_ColorScheme = colorScheme;
+
+          //load color scheme from resource file
+
           QString fileName(dglColorSchemes[colorScheme].file);
           QFile file(fileName);
           if(file.open(QFile::ReadOnly)) {
+              
+              //if file exists, read it and set QApplication style
+
               QString colorSchemeSheet = QLatin1String(file.readAll());
               qApp->setStyleSheet(colorSchemeSheet);
           }
@@ -249,27 +311,53 @@ void DGLMainWindow::createToolBars() {
  }
 
  void DGLMainWindow::attach() {
+
+     //execute connection dialog to obtain connection parameters
+
      DGLConnectDialog dialog;
+
      if (dialog.exec() == QDialog::Accepted) {
+
+         //if dialog is successfull, initialte connection in DGLController
+
          m_controller.connectServer(dialog.getAddress(), dialog.getPort());
      }
  }
 
  void DGLMainWindow::disconnect() {
+
+     // call DGLcontroller to terminate it's connection
+
      m_controller.disconnectServer();
  }
 
  void DGLMainWindow::addDeleteBreakPoints() {
-      DGLBreakPointDialog dialog(&m_controller);
-      if (dialog.exec() == QDialog::Accepted) {
-          m_controller.getBreakPoints()->setCurrent(dialog.getBreakPoints());
-      }
+
+     //execute break point dialog. Already set breakpoint are
+     //sourced from provided DGLController object
+
+     DGLBreakPointDialog dialog(&m_controller);
+     if (dialog.exec() == QDialog::Accepted) {
+
+         //if dialog was successfull retrieve list bkpoints and feed them
+         //to breakpoint controller in DGLcontroller
+
+         m_controller.getBreakPoints()->setCurrent(dialog.getBreakPoints());
+     }
  }
 
  void DGLMainWindow::setBreakOnGLError(bool breakOnGLError) {
+     
+     //This action enables breaking on GL error
+     //tell DGLController to configure it's debugee
+
      m_controller.configure(breakOnGLError);
+
  }
 
 void DGLMainWindow::errorMessage(const QString& title, const QString& msg) {
+
+    //all fatals should eventually end here
+
     QMessageBox::critical(this, title, msg);
 }
