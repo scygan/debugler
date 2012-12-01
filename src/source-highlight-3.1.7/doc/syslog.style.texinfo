@@ -1,0 +1,23 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@t{@i{date}}, @t{@i{keyword}} @b{yellow} @b{b} ;
+@t{@i{time}} @t{"#9999FF"} ;
+@t{@i{ip}} @t{"lightblue"} @b{b} ;
+
+@t{@i{type}} @b{cyan} @b{b} ;
+@t{@i{string}} @t{"brown"} @b{b} ;
+@t{@i{comment}} @b{teal} ;
+@t{@i{number}} @b{red} ;
+@t{@i{preproc}} @b{cyan} ;
+@t{@i{symbol}} @b{green} ;
+@t{@i{function}} @t{"#CC66CC"} @b{b} ;
+@t{@i{cbracket}} @b{green} @b{b} ;
+@t{@i{twonumbers}} @b{green} @b{b} ;
+@t{@i{port}} @b{green} @b{b} ;
+@t{@i{webmethod}} @b{teal} ;
+
+@r{@i{// foo option}}
+@t{@i{foo}} @b{red} @b{b} ; @r{@i{// foo entry}}
+
+
+@end example

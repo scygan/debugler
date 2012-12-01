@@ -1,0 +1,15 @@
+docbook = docbook.outlang
+esc = esc.outlang
+esc256 = esc256.outlang
+html = html.outlang
+html-css = htmlcss.outlang
+htmltable = htmltable.outlang
+javadoc = javadoc.outlang
+latex = latex.outlang
+latexcolor = latexcolor.outlang
+mediawiki = mediawiki.outlang
+odf = odf.outlang
+texinfo = texinfo.outlang
+xhtml = xhtml.outlang
+xhtml-css = xhtmlcss.outlang
+xhtmltable = xhtmltable.outlang

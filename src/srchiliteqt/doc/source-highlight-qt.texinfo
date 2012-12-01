@@ -1,0 +1,676 @@
+\input texinfo @c -*-texinfo-*-
+@c This file uses the @command command introduced in Texinfo 4.0.
+@c %**start of header
+@setfilename source-highlight-qt.info
+@include version.texi
+@settitle Source-highlight Qt Library @value{VERSION}
+@finalout
+@c @setchapternewpage odd
+@c %**end of header
+
+@set myhomepage @uref{http://www.lorenzobettini.it}
+@set srchiliteurl @uref{http://www.gnu.org/software/src-highlite/}
+@set srchiliteqturl @uref{http://srchiliteqt.sourceforge.net}
+@set langfilesurl @uref{http://www.gnu.org/software/src-highlite/lang_files/}
+@set outlangfilesurl @uref{http://www.gnu.org/software/src-highlite/outlang_files/}
+@set srchilitelib GNU Source-highlight library
+@set srchilite GNU Source-highlight
+@set srchiliteqtlib Source-highlight-qt library
+
+@macro cind {n}
+@cindex \n\
+\n\
+@end macro
+
+@macro classname {n}
+@cindex @code{\n\} class
+@code{\n\} class
+@end macro
+
+@macro methodname {n}
+@cindex @code{\n\} method
+@code{\n\} method
+@end macro
+
+@macro fieldname {n}
+@cindex @code{\n\} field
+@code{\n\} field
+@end macro
+
+@macro enumname {n}
+@cindex @code{\n\} enum
+@code{\n\} enum
+@end macro
+
+@macro examplename {n}
+@cindex @code{\n\} example
+@code{\n\} example
+@end macro
+
+@macro sourcehighlightclass 
+@classname{SourceHighlight}
+@end macro
+
+@macro sourcehighlight
+@cindex @code{source-highlight}
+@code{source-highlight}
+@end macro
+
+@macro sourcehighlightsettings
+@cindex @code{source-highlight-settings}
+@code{source-highlight-settings}
+@end macro
+
+
+@copying
+This manual is for Source-highlight Qt Library 
+(version @value{VERSION}, @value{UPDATED}),
+which given a source file, produces a document with syntax highlighting.
+
+Copyright @copyright{} 2009 Lorenzo Bettini, @value{myhomepage}.
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with the Front-Cover Texts being ``A GNU Manual,''
+and with the Back-Cover Texts as in (a) below.  A copy of the
+license is included in the section entitled ``GNU Free Documentation
+License.''
+
+(a) The FSF's Back-Cover Text is: ``You have freedom to copy and modify
+this GNU Manual, like GNU software.  Copies published by the Free
+Software Foundation raise funds for GNU development.''
+@end quotation
+@end copying
+
+@dircategory Libraries
+@direntry
+* Source-highlight-lib: (source-highlight-lib).  Highlights contents in Qt
+@end direntry
+
+@titlepage
+@title Source-highlight Qt Library
+@subtitle A library for syntax highlighting for Qt,
+@subtitle using GNU Source-highlight
+@subtitle Version @value{VERSION}
+@subtitle updated on @value{UPDATED-MONTH}
+@subtitle @url{http://srchiliteqt.sourceforge.net}
+
+@author by Lorenzo Bettini, @value{myhomepage}
+
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top, Introduction, (dir), (dir)
+@top Source-highlight Qt Library
+Source-highlight Qt, 
+a library for syntax highlighting for Qt,
+using GNU Source-highlight.
+
+This is Edition @value{EDITION} of the Source-highlight Qt Library manual.
+
+This file documents Source-highlight Qt Library version @value{VERSION}.
+
+@insertcopying
+@end ifnottex
+
+@c All the nodes can be updated using the EMACS command
+@c texinfo-every-node-update, which is normally bound to C-c C-u C-e.
+@c @node Top, Introduction, (dir), (dir)
+
+@c All the menus can be updated with the EMACS command
+@c texinfo-all-menus-update, which is normally bound to C-c C-u C-a.
+@menu
+* Introduction::                What's it for?
+* Installation::                
+* Use of Source-highlight Qt Library::  
+* Main Classes::                
+* Problems::                    Reporting bugs.
+* Concept Index::               Index of concepts.
+@end menu
+
+@node Introduction, Installation, Top, Top
+@chapter Introduction
+
+@cindex features
+Source-highlight-qt is a library for performing syntax highlighting in
+Qt documents by relying on GNU Source-Highlight library,
+@value{srchiliteurl}.
+
+Although the use of @value{srchilitelib} is pretty hidden by
+this library, so the programmer must not need the details of
+@value{srchilitelib}, yet, some general notions of 
+GNU Source-highlight might be useful (especially how language
+definition files are defined, where the configuration files are
+stored, etc.).
+
+This library provides an implementation of the qt abstract class
+@classname{QSyntaxHighlighter}, and it deals both with Qt3 and Qt4,
+although you will need to build a separate version of the library for
+the two different qt frameworks (see @xref{Installation}).
+
+Please note, the Qt3 version has less features and it is there only for
+old qt applications; furthermore, @classname{QSyntaxHighlighter} in Qt3
+has some design problems which make it quite inefficient to use.
+
+Thus, in this manual, we basically describe the Qt4 classes; the
+corresponding Qt3 classes (if any) have a similar name but with Qt3,
+and their usage is similar to the corresponding Qt4 ones.
+
+@menu
+* Related Software and Links::  
+@end menu
+
+@node Related Software and Links,  , Introduction, Introduction
+@section Related Software and Links
+
+Here we list some software related to @value{srchiliteqtlib} in the sense that
+it uses it as a backend (i.e., provides an interface to
+source-highlight) or it uses some of its features (e.g., definition
+files):
+
+@itemize
+
+@item
+@cindex QSource-Highlight
+@cindex Qt
+QSource-Highlight is a Qt4 front-end for GNU Source-Highlight (it relies
+on the library Source-Highlight-Qt).  You can highlight your code on the
+fly, and have the highlighted output in all the formats supported by
+source-highlight (e.g., HTML, LaTeX, Texinfo, etc.). You can then copy
+the formatted output and paste it (e.g., in your blog), or save it to a
+file.  A preview of the highlighted output is available for some output
+formats (e.g., HTML, XHTML, etc.).
+
+@uref{http://qsrchilite.sourceforge.net}.
+
+@item
+@cindex SIP
+@cindex Python
+@cindex PyQt
+Roberto Alsina made a partial python binding using SIP so
+that you can use it in PyQt programs.
+
+@uref{http://marave.googlecode.com/svn/trunk/marave/highlight/}
+
+@end itemize
+
+
+@node Installation, Use of Source-highlight Qt Library, Introduction, Top
+@chapter Installation
+
+You can build and install @value{srchiliteqtlib} either using
+the @code{configure} script (suggested way) or using @code{qmake}.
+
+@menu
+* Building with the configure script::  
+* Building with qmake::         
+@end menu
+
+@node Building with the configure script, Building with qmake, Installation, Installation
+@section Building with the configure script
+
+@cindex configure
+If you're used to compiling Linux software that
+comes with sources you may simply follow the usual procedure, i.e., untar
+the file you downloaded in a directory and then:
+
+@example
+cd <source code main directory>
+./configure
+make
+make install
+@end example
+
+Note: unless you specify a different install directory by 
+@code{--prefix} option of
+configure (e.g. @code{./configure --prefix=<your home>}), 
+you must be root to run @code{make install}.
+
+@value{srchiliteqtlib} requires @value{srchilitelib}, which is part of
+@value{srchilite}, @value{srchiliteurl}, thus you need to install that
+first.  If you install @value{srchilite} in a system path, e.g.,
+@code{/usr}, then the @code{configure} should be able to find it,
+@cindex pkg-config
+by relying on
+@code{pkg-config}@footnote{@url{http://pkg-config.freedesktop.org}.} 
+configuration file (metadata file), @file{source-highlight.pc}.  On the
+contrary, you must specify the path where the
+@file{source-highlight.pc} is installed using the environment variable
+@cindex @code{PKG_CONFIG_PATH}
+@code{PKG_CONFIG_PATH}.
+For instance, if you install @value{srchilite} into
+@code{/usr/local/}, the @file{.pc} file will be installed into
+@code{/usr/local/lib/pkgconfig}, and then you'll need to 
+set @code{PKG_CONFIG_PATH} accordingly, or simply call the
+@code{configure} script as follows:
+
+@example
+PKG_CONFIG_PATH=/usr/local/lib/pkgconfig ./configure
+@end example
+
+In case you have both Qt3 and Qt4 installed on your system,
+and you want to make sure to build the Qt4 version of the library you
+@cindex @code{--enable-qt4}
+need use the @code{configure}'s command line option
+@code{--enable-qt4} 
+@cindex @code{--enable-qt3}
+(@code{--enable-qt3} will force the Qt3 build).
+Otherwise, the default version of Qt found in the system will be used.
+
+IMPORTANT: you cannot build the Qt4 and Qt3 version in the same
+directory: you must use a different build directory for each version.
+
+You may want to run @code{./configure --help} to see all the possible
+options that can be passed to the configuration script.
+
+@cindex directories
+Files will be installed in the following directories:
+
+@table @code
+@item header files
+        @code{prefix/include/srchiliteqt}
+@item library files
+        @code{prefix/lib}
+@item documentation
+        @code{prefix/share/doc/source-highlight-qt}
+@item library examples
+        @code{prefix/share/doc/source-highlight-qt/examples}
+@item library API documentation
+        @code{prefix/share/doc/source-highlight-qt/api}
+@end table
+
+Default value for prefix is @code{/usr/local} 
+but you may change it with @code{--prefix}
+option to configure.  For further @code{configure} options, you
+can run @code{configure --help}.
+
+@cindex @code{--with-doxygen}
+@cindex doxygen
+If you want to build and install the API documentation of
+@value{srchiliteqtlib}, you need to run @code{configure} with the
+option @code{--with-doxygen}, but you need the program @emph{Doxygen},
+@url{http://www.doxygen.org}, to build the documentation.
+The documentation will be installed in the following directory:
+
+@table @code
+@item Library API documentation
+        @code{prefix/share/doc/source-highlight-qt/api}
+@end table
+
+@node Building with qmake,  , Building with the configure script, Installation
+@section Building with qmake
+
+@cindex qmake
+Since version 0.2.1, @value{srchiliteqtlib} can be
+built also using @code{qmake}, the build tool from Qt libraries
+(@uref{http://qt.nokia.com}).  This was made available to build
+@value{srchiliteqtlib} on Windows based systems without using a Unix
+shell, and in particular to build @value{srchiliteqtlib}
+@cindex MSVC
+with Microsoft MSVC compiler.  You should use this method only if you
+don't have a Unix shell or if you really need to use the MSVC compiler
+(e.g., if you want to build @value{srchiliteqtlib} to be used in MSVC
+based programs.
+
+Building with qmake is only supported for the Qt4 version of
+the library.
+
+Note that if you want to build @value{srchiliteqtlib} this way,
+you should build also @value{srchilitelib} with qmake.
+@cindex boost
+In particular, you still need the boost regex library, and if you
+use MSVC, you can find installation packages for this library at
+@url{http://www.boostpro.com}.
+
+This build mechanism is still experimental, and, when using MSVC, only
+a static version of @value{srchilitelib} can be built (not a .dll),
+thus the same holds also for @value{srchiliteqtlib}.
+@cindex MinGW
+You can also use this method if you have the MinGW compiler,
+@uref{http://www.mingw.org}, (e.g.,
+the one that comes with Qt Windows distribution) and you don't have
+@cindex msys
+Msys (@uref{http://www.mingw.org/wiki/MSYS}).  Otherwise, you should
+still use the @code{configure} based mechanims.
+
+Using @code{qmake}, only a few options can be specified during the building
+(besides the ones you usually use with qmake), and these options can
+be specified only using environment variables:
+
+@table @code
+@item BOOST_REGEX
+By default, @code{boost_regex} will be used to link the boost library
+(i.e., @code{-lboost_regex}); if your boost regex library has a different
+name you must specify this name using this environment variable; e.g.,
+if the library file is called @code{libboost_regex-mt.lib} or
+@code{boost_regex-mt.dll} you must set this variable to
+@code{boost_regex-mt}.
+@cindex @code{PKG_CONFIG_PATH}
+@item PKG_CONFIG_PATH
+Tells @code{pkg-config} where to find @code{.pc} file of @value{srchilitelib}
+(in case you rely on pkg-config, see also the next item).
+@cindex @code{NO_PKGCONFIG}
+@item NO_PKGCONFIG
+By default, @code{pkg-config} will still be used by qmake to
+find @value{srchilitelib}; if you want to avoid this, then you must
+set this variable to 1.
+@cindex @code{SOURCE_HIGHLIGHT_LIB}
+@item SOURCE_HIGHLIGHT_LIB
+You can specify the name of the library file of @value{srchilitelib}.
+@item INCPATH
+Specify the path of the boost and/or @value{srchilitelib} header files.
+@item LIBS
+Specify the path of the boost and/or @value{srchilitelib} lib files.
+@end table
+
+Please, take into consideration that specifying the boost library
+include and library paths is completely up to you, using
+@code{INCPATH} and @code{LIBS}, if they're not in the system
+path directories.
+
+Also remember to always use the option @code{-recursive} when running
+qmake.
+
+If you then want to run @code{make install}, you can use the
+variable @code{INSTALL_ROOT} to prefix the installation path, which,
+otherwise, is the root directory.
+
+Currently, only header files, lib files and a demo will be
+installed when building with qmake: documentation file, with this method,
+will neither be built nor installed.
+
+@node Use of Source-highlight Qt Library, Main Classes, Installation, Top
+@chapter Use of Source-highlight Qt Library
+
+@cindex libsource-highlight-qt4
+@cindex libsource-highlight-qt3
+You can use @value{srchiliteqtlib} in your programs, by including
+its headers and linking to the file
+@file{libsource-highlight-qt4}.ext
+or @file{libsource-highlight-qt3}.ext@footnote{The extension of course depends
+on the library being shared or static, e.g., @code{.so}, @code{.la},
+@code{.a}, and on the system}.
+
+@cindex namespace
+@cindex headers
+All the classes of the library are part of the namespace
+@code{srchiliteqt}, and all the header files are in the subdirectory
+@code{srchiliteqt}.
+
+@menu
+* Using qmake::                 
+* Using Automake and Autotools::  
+@end menu
+
+@node Using qmake, Using Automake and Autotools, Use of Source-highlight Qt Library, Use of Source-highlight Qt Library
+@section Using qmake
+
+@cindex qmake
+If you use @code{qmake} to build your programs that use
+@value{srchiliteqtlib}, you need to set the variables for
+library and header files accordingly in your project file, e.g.,
+
+@example
+LIBS += -L/usr/local/lib -lsource-highlight-qt4
+INCLUDEPATH = /usr/local/include
+@end example
+
+Otherwise you can use the pkg-config capabilities of qmake and
+add to your project file
+
+@example
+CONFIG += link_pkgconfig
+PKGCONFIG += source-highlight-qt4
+@end example
+
+@noindent
+and this will take care of setting @code{LIBS} and @code{INCLUDEPATH}
+using the meta file @code{source-highlight-qt4.pc}.  I personally prefer
+this solution, since all the correct flags for @value{srchiliteqtlib}
+and its required libraries will be used according to the path where it
+was installed.
+
+Similarly to what was said in @xref{Installation}, if @value{srchiliteqtlib}
+is installed in a non-standard location, you'll have to set the
+@cindex @code{PKG_CONFIG_PATH}
+@code{PKG_CONFIG_PATH} environment variable, before calling qmake,
+e.g.,
+
+@example
+PKG_CONFIG_PATH=/usr/local/lib/pkgconfig qmake
+@end example
+
+You can take a look at the @examplename{qeditexample} program, which
+uses qmake and pkg-config (this program is distributed separately,
+but it is available from @value{srchiliteqturl}).
+
+More details on pkg-config are illustrated in @xref{Using Automake and
+Autotools}.
+
+@node Using Automake and Autotools,  , Using qmake, Use of Source-highlight Qt Library
+@section Using Automake and Autotools
+
+@cindex autotools
+@cindex pkg-config
+Another way to use @value{srchiliteqtlib} in your program is
+to rely on autotools, i.e., @emph{Automake}, @emph{Autoconf}, etc.  In
+particular, the library is installed with a
+@code{pkg-config}@footnote{@url{http://pkg-config.freedesktop.org}.} 
+configuration file (metadata file), @file{source-highlight-qt4.pc}.
+
+pkg-config is a tool for helping compiling applications and
+libraries. It helps you insert the correct compiler options on the
+command line so an application can use @value{srchiliteqtlib} simply
+by running
+
+@example
+g++ -o test test.cpp `pkg-config --libs --cflags source-highlight-qt4`  
+@end example
+
+@noindent
+rather than hard-coding values on where to find the library.  Moreover,
+this will provide also with the correct compiler flags and libraries
+used by @value{srchilitelib} itself, e.g., Boost Regex library.
+
+@cindex @code{PKG_CONFIG_PATH}
+Note that @code{pkg-config} searches for @file{.pc} files in its
+standard directories.  If you installed the library in a non standard
+directory, you'll need to set the @code{PKG_CONFIG_PATH} environment
+variable accordingly.  
+For instance, if I install the library into
+@code{/usr/local/lib}, the @file{.pc} file will be installed into
+@code{/usr/local/lib/pkgconfig}, and then I'll need to call
+@code{pkg-config} as follows:
+
+@example
+PKG_CONFIG_PATH=/usr/local/lib/pkgconfig \
+        pkg-config --libs --cflags source-highlight-qt4
+@end example
+
+In your @file{configure.ac} you can use the autoconf macro provided
+by @code{pkg-config}; here is an example:
+
+@example
+# Checks for libraries.
+PKG_CHECK_MODULES(SRCHILITEQT, [source-highlight-qt4 >= 0.1])
+AC_SUBST(SRCHILITEQT_CFLAGS)
+AC_SUBST(SRCHILITEQT_LIBS)
+@end example
+
+Then, you can use the variables @code{SRCHILITEQT_CFLAGS} and
+@code{SRCHILITEQT_LIBS} in your makefiles accordingly.
+For instance,
+
+@example
+...
+AM_CPPFLAGS = $(SRCHILITEQT_CFLAGS)
+...
+LDADD = $(SRCHILITEQT_LIBS)
+...
+@end example
+
+@node Main Classes, Problems, Use of Source-highlight Qt Library, Top
+@chapter Main Classes
+
+Here we present the main classes of the @value{srchiliteqtlib}, together
+with some example of use.  For the documentation of all the classes (and
+methods of the classes) we refer to the generated API documentation (see
+@xref{Installation}).  Furthermore, we refer to the
+@examplename{qeditexample}, which uses basically all the functionalities
+and classes of @value{srchiliteqtlib}.
+
+We will present the Qt4 versions of the classes, since they provide
+much more functionalities than the Qt3 versions (@xref{Introduction}).
+
+@cindex namespace
+@cindex headers
+All the classes of the library are part of the namespace
+@code{srchiliteqt}, and all the header files are in the subdirectory
+@code{srchiliteqt}.  Note that the classes of @value{srchilitelib} can
+throw exceptions if errors are encountered (e.g., an input file cannot
+be opened, or a language definition file cannot be parsed); the
+exception classes can be found in the API documentation of
+@value{srchilitelib}, and all exception classes inherit from
+@classname{std::exception} (see also @ref{Exceptions}).
+
+The main class of the library is @classname{Qt4SyntaxHighlighter} which
+implements the Qt base class @classname{QSyntaxHighlighter} by using
+@value{srchilitelib}.  Thus, you can use it as you would use
+@classname{QSyntaxHighlighter} (we refer to Qt documentation for further
+details), thus, you initialize an object of
+@classname{Qt4SyntaxHighlighter} with an object of
+@classname{QTextDocument} (or @classname{QTextEdit}).  Before the
+@classname{Qt4SyntaxHighlighter} highlighter can highlight the contents
+you need to initialize it by specifying the language definition file to
+use.  Here's an example that will highlight the text editor contents
+using the Java language definition file:
+
+@include simpleusage.cpp.texinfo
+
+@noindent
+and that's all that is needed!  @value{srchilitelib} will take care
+of highlighting the contents of the editor.
+
+The next one is a slightly more involved example (you can find it in the
+source directory @file{tests} and it is installed in the @file{examples}
+directory), where we use the language definition file specified at the
+command line, or a simple language definition file
+@file{simple.lang})@footnote{you can ignore the @code{BASEDIR} constant,
+which is used by the makefile in case the tests are built in a different
+directory from the source directory.}:
+
+@include qt4_highlighter_example_main.cpp.texinfo
+
+The next example (@file{qt4_highlighter_edit_main.cpp}) opens the file
+specified at the command line, and uses the
+@classname{Qt4SyntaxHighlighter} @methodname{initFromFileName} for
+detecting the language definition file to use, by using the file name
+(e.g., it uses cpp.lang for foo.cpp, changelog.lang for ChangeLog, etc.):
+
+@include qt4_highlighter_edit_main.cpp.texinfo
+
+In case you use a text editor in read only mode (e.g., just to show file
+contents), you may want to set also the highlighter in read only mode,
+by using @methodname{setReadOnly}.  This will speed up the highlighting
+procedure (since the highlighter will not need to store for each line
+specific highlighting information).
+
+@menu
+* Gui classes::                 
+* Exceptions::                  
+@end menu
+
+@node Gui classes, Exceptions, Main Classes, Main Classes
+@section Gui classes
+
+The library also provides some gui classes (only for Qt4) that ready to
+be used.  The main one is @classname{TextEditHighlighted} which is a
+@classname{QTextEdit} already with a @classname{Qt4SyntaxHighlighter}
+object.  In particular, this specialized text editor automatically
+selects the language definition file for highlighting according to the
+file name (and if you change the file name, e.g., changing the file
+extension, it automatically changes the language for highlighting
+accordingly).
+
+Two combo boxes can be used to show the language definition files
+available in @value{srchilite} and the style files (e.g., the fonts and
+colors for highlighting language elements): @classname{LanguageComboBox}
+and @classname{StyleComboBox}, respectively.  If you connect these two
+widgets to a @classname{TextEditHighlighted} (see the methods in the
+API documentation), the highlighting automatically changes when you choose
+an element from these combo boxes.  Here's an example:
+
+@include comboboxes.cpp.texinfo
+
+@classname{ColorDialog} provides a dialog for modifying the
+formatting colors and font styles (e.g., bold, italics, etc.) for
+highlighting contents in the editor.  The dialog automatically fills the
+current properties by using the passed @classname{Qt4SyntaxHighlighter}
+object. You can use @methodname{syncFormatters} to update the formatters
+of the highlighter with the value set in the dialog; here's an example:
+
+@include colordialog.cpp.texinfo
+
+Finally, @classname{SourceHighlightSettingsDialog} provides a dialog for
+modifying (and validating) source-highlight's specific settings (in this
+version, only the data dir value of source-highlight, i.e., where
+source-highlight looks for language definition files, style files,
+etc.); here's an example:
+
+@include settingsdialog.cpp.texinfo
+
+These gui classes are used in the program @examplename{qeditexample},
+which you can use as a starting point to see how to use these gui
+classes in your program.
+
+@node Exceptions,  , Gui classes, Main Classes
+@section Exceptions
+
+The classes of @value{srchilitelib} can throw exceptions if errors are
+encountered (e.g., an input file cannot be opened, or a language
+definition file cannot be parsed); the exception classes can be found in
+the API documentation of @value{srchilitelib}, and all exception classes
+inherit from @classname{std::exception}.  Each time the classes of
+@value{srchilitelib} need to parse a language definition file, an output
+format definition file, or a style file, an exception might be thrown,
+and you should take care of catching them otherwise the GUI application
+will simply terminate abruptly, with an error printed on the console.
+
+For instance, @classname{TextEditHighlighted} takes care of catching
+these exceptions when using source-highlight classes that need to read a
+language definition file or a style file:
+
+@include textedithighlighted_exceptions.cpp.texinfo
+
+In particular, it shows a message box with the exception details by
+using the utility @classname{SourceHighlightExceptionBox} provided by
+@value{srchiliteqtlib}.
+
+@node Problems, Concept Index, Main Classes, Top
+@chapter Reporting Bugs
+@cindex bugs
+@cindex problems
+
+If you find a bug in @value{srchiliteqtlib}, please use the bug report
+interface or the forums you find at @value{srchiliteqturl}.
+Alternatively, you can send electronic mail to the main author (you find
+my email address at my home page, @value{myhomepage}).
+
+
+@node Concept Index,  , Problems, Top
+@unnumbered Concept Index
+
+@cindex tail recursion
+@printindex cp
+
+@shortcontents
+
+
+@bye

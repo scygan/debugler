@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="GNU source-highlight 
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite">
+<title>Java formatted in html</title>
+<style type="text/css">
+ body { 
+    font-family: Georgia, "Times New Roman", Times, serif; 
+    color: purple; background-color: #d8da3d 
+ } 
+ h1 { 
+   font-family: Helvetica, Geneva, Arial, SunSans-Regular, sans-serif 
+}
+.box {
+  border-width: 2px;
+  border-color: green;
+  border-style: solid;
+  font-style: normal;
+  font-weight: lighter;
+  font-family: verdana, sans-serif;
+  font-size: 0.8em;
+  margin-right:2em;
+  margin-bottom:2em;
+  margin-top:2em;
+}
+</style>
+
+<SCRIPT LANGUAGE="JAVASCRIPT" SRC="mycode.js" TYPE="TEXT/JAVASCRIPT">
+<!-- //-->
+</SCRIPT>
+
+<SCRIPT LANGUAGE="JavaScript">
+if (navigator.userAgent.indexOf("4.0") != -1)
+  jsVersion = "1.2";
+else if (navigator.userAgent.indexOf("3.0") != -1)
+  jsVersion = "1.1";
+else
+  jsVersion = "1.0";
+</SCRIPT>
+
+<script language="JavaScript"> 
+/**
+ Define a function for later use
+ <p>test html <a href="foo">bar</a></p>
+ @return nothing
+*/
+function print_todays_date( ) { 
+    var d = new Date( ); // Get today's date and time
+    document.write(d.toLocaleString( )); // Insert it into the document
+}
+</script>
+
+</head>
+<body bgcolor="white">
+
+The date and time are:<br>
+<script language="JavaScript"> 
+// Now call the function we defined above 
+print_todays_date( ); 
+</script>
+
+<pre><tt><i><font color="#9A1900">/*</font></i>
+<i><font color="#9A1900">  This is a classical Hello program</font></i>
+<i><font color="#9A1900">  to test source-highlight with Java programs.</font></i>
+<i><font color="#9A1900">  </font></i>
+<i><font color="#9A1900">  to have an html translation type</font></i>
+
+<i><font color="#9A1900">/// class</font></i>
+
+<i><font color="#9A1900">// end of file test.java</font></i></tt></pre>
+</body>
+</html>
+
+<!-- this is an
+     added HTML comment
+     at the end of the file -->

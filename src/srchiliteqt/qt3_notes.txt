@@ -1,0 +1,73 @@
+The Qt3 implementation of QSyntaxHighlighter seems to be a little bit buggy
+or at least the semantics of highlightParagraph, in particular, the semantics
+of the states of the paragraph is not completely clear.
+
+As an example consider the code below, which highlights some keywords (in blue) and handles
+two types of comments: standard /* */ comments (in red) and /** */ doxyfile comments in
+green; for simplicity we assume that comment delimiters appear on a single line.
+
+The code contains some debug statements that are helpful:
+- the state of the previous par (i.e. endStateOfLastPara)
+- the text to highlight
+- the state value that we're about to return
+
+Assume this text for the contents of QTextEdit:
+
+/*
+foo
+*/
+class
+while
+
+The documentation of highlightParagraph, concerning the returned value says:
+int QSyntaxHighlighter::highlightParagraph ( const QString & text, int endStateOfLastPara )
+
+"The value you return is up to you. 
+We recommend only returning 0 
+(to signify that this paragraph's syntax highlighting does not 
+affect the following paragraph), 
+or a positive integer (to signify that this paragraph has ended 
+in the middle of a paragraph spanning construct)."
+
+if you modify the line with "foo" (e.g., type a char), you'll see that
+the previous state is COMMENT_STATE, and that we return COMMENT_STATE (i.e., non 0),
+however, only this paragraph is highlighted, and this is correct, thus
+a non 0 returned value does not mean: highlight also the next paragraph;
+from the documentation above one might have the impression that this is what's
+expected, as a negation of "returning 0 
+(to signify that this paragraph's syntax highlighting does not 
+affect the following paragraph)".
+However, the behavior is correct (there's no need to highlight the following paragraphs),
+since the state of the paragraph did not change.
+
+Now, try to change "/*" into "/**", the comment is correctly highlighted in green
+(doxy comment), however, one would expect that only the parts containing the
+comments are highlighted, since nothing has changed for the last two lines.
+Moreover, when highlighting "*/" we return 0 (NORMAL_STATE) "to signify that 
+this paragraph's syntax highlighting does not 
+affect the following paragraph".
+
+However, this does not happen: all the lines down to the end of the document
+are highlighted again (see the debug info).  Thus, the semantics of the 0 seems not
+to be respected.
+
+Note that in a medium size document, this causes a lot of overhead.
+
+Indeed the semantics that is probably used is
+1. if the state of a paragraph did not change (w.r.t. to its own previous state)
+  then don't highlight the paragraphs that follow
+  (and this perfectly makes sense)
+2. if such state changes highlight everything else up to the end of the document
+
+the second point is completely wrong, and as said above, causes a lot
+of overhead.
+In particular, the semantics "We recommend only returning 0 
+(to signify that this paragraph's syntax highlighting does not 
+affect the following paragraph)" should be always respected.
+
+This is also made worse when you insert a new line within the comment
+environment (try to insert a new line after foo): again, from that line on,
+the whole document will be highlighted again.  This is tragic.
+
+Note that qt4 version of QSyntaxHighlighter does this right (relying on
+getCurrentBlockState and setCurrentBlockState).

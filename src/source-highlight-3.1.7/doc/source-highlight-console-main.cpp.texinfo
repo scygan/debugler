@@ -1,0 +1,46 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+
+@b{#ifdef} HAVE_CONFIG_H
+@b{#include} @t{"config.h"}
+@b{#endif}
+
+@b{#include} @t{<iostream>}
+@b{#include} @t{"srchilite/sourcehighlight.h"}
+@b{#include} @t{"srchilite/langmap.h"}
+
+@b{using} @b{namespace} std;
+
+@b{#ifndef} DATADIR
+@b{#define} DATADIR @t{""}
+@b{#endif}
+
+@b{int} main(@b{int} argc, @b{char} *argv[]) @{
+    @r{@i{// we highlight to the console, through ANSI escape sequences}}
+    srchilite::SourceHighlight sourceHighlight(@t{"esc.outlang"});
+
+    @r{@i{// make sure we find the .lang and .outlang files}}
+    sourceHighlight.setDataDir(DATADIR);
+
+    @r{@i{// by default we highlight C++ code}}
+    string inputLang = @t{"cpp.lang"};
+
+    @b{if} (argc > 1) @{
+        @r{@i{// we have a file name so we detect the input source language}}
+        srchilite::LangMap langMap(DATADIR, @t{"lang.map"});
+        string lang = langMap.getMappedFileNameFromFileName(argv[1]);
+        @b{if} (lang != @t{""}) @{
+            inputLang = lang;
+        @} @r{@i{// otherwise we default to C++}}
+
+        @r{@i{// output file name is empty => cout}}
+        sourceHighlight.highlight(argv[1], @t{""}, inputLang);
+    @} @b{else} @{
+        @r{@i{// input file name is empty => cin}}
+        sourceHighlight.highlight(@t{""}, @t{""}, inputLang);
+    @}
+
+    @b{return} 0;
+@}
+
+@end example

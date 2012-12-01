@@ -1,0 +1,10 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+diff -rP source-highlight-2.1.1/source-highlight.spec ...
+@b{9,10c9,10}
+@i{< Version:   2.1.1}
+@i{< Release:   2.1.1}
+---
+@i{> Version:   2.1.2}
+@i{> Release:   2.1.2}
+@end example

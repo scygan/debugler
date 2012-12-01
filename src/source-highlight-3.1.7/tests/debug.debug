@@ -1,0 +1,100 @@
+c_comment.lang:22
+expression: "/\*"
+formatting "/*" as comment
+entering state: 43
+formatting "  This is to demonstrate --debug-lang" as default
+formatting "  " as default
+url.lang:3
+expression: "(?:(?:<?)[[:word:]]+://[[:word:]\./\-_~]+(?:>?))"
+formatting "http://www.lorenzobettini.it" as url
+c_comment.lang:22
+expression: "\*/"
+formatting "*/" as comment
+exiting state, level: 1
+java.lang:1
+expression: "\<(?:import|package)\>"
+formatting "package" as preproc
+formatting " hello" as default
+symbols.lang:1
+expression: "(?:~|!|%|\^|\*|\(|\)|-|\+|=|\[|\]|\\|:|;|,|\.|/|\?|&|<|>|\|)"
+formatting ";" as symbol
+java.lang:14
+expression: "\<(?:native|new|null|private|protected|public|return|static|strictfp|super|switch|synchronized|throw|throws|true|this|transient|try|volatile|while)\>"
+formatting "public" as keyword
+formatting " " as default
+java.lang:9
+expression: "(\<(?:class|interface))([[:blank:]]+)([$[:alnum:]_]+)"
+formatting "class" as keyword
+formatting " " as normal
+formatting "Hello" as classname
+java.lang:9
+expression: "(\<(?:class|interface))([[:blank:]]+)([$[:alnum:]_]+)"
+formatting "class" as keyword
+formatting " " as normal
+formatting "Hello" as classname
+java.lang:9
+expression: "(\<(?:class|interface))([[:blank:]]+)([$[:alnum:]_]+)"
+formatting "class" as keyword
+formatting " " as normal
+formatting "Hello" as classname
+formatting " " as default
+java.lang:22
+expression: "(?:\{|\})"
+formatting "{" as cbracket
+formatting "	" as default
+c_comment.lang:11
+expression: "//"
+formatting "//" as comment
+entering state: 22
+formatting " just some greetings ;-)  /*" as default
+c_comment.lang:11
+expression: "\z"
+formatting "" as comment
+exiting state, level: 1
+formatting "    " as default
+java.lang:18
+expression: "\<(?:int|byte|boolean|char|long|float|double|short|void)\>"
+formatting "int" as type
+formatting " i " as default
+symbols.lang:1
+expression: "(?:~|!|%|\^|\*|\(|\)|-|\+|=|\[|\]|\\|:|;|,|\.|/|\?|&|<|>|\|)"
+formatting "=" as symbol
+formatting " " as default
+number.lang:1
+expression: "(?:\<[+-]?(?:(?:0x[[:xdigit:]]+)|(?:(?:[[:digit:]]*\.)?[[:digit:]]+(?:[eE][+-]?[[:digit:]]+)?))u?(?:(?:int(?:8|16|32|64))|L)?\>)"
+formatting "10" as number
+symbols.lang:1
+expression: "(?:~|!|%|\^|\*|\(|\)|-|\+|=|\[|\]|\\|:|;|,|\.|/|\?|&|<|>|\|)"
+formatting ";" as symbol
+formatting "    System" as default
+symbols.lang:1
+expression: "(?:~|!|%|\^|\*|\(|\)|-|\+|=|\[|\]|\\|:|;|,|\.|/|\?|&|<|>|\|)"
+formatting "." as symbol
+formatting "out" as default
+symbols.lang:1
+expression: "(?:~|!|%|\^|\*|\(|\)|-|\+|=|\[|\]|\\|:|;|,|\.|/|\?|&|<|>|\|)"
+formatting "." as symbol
+function.lang:2
+expression: "(?:(?:[[:alpha:]]|_)[[:word:]]*(?=[[:blank:]]*\())"
+formatting "println" as function
+symbols.lang:1
+expression: "(?:~|!|%|\^|\*|\(|\)|-|\+|=|\[|\]|\\|:|;|,|\.|/|\?|&|<|>|\|)"
+formatting "(" as symbol
+c_string.lang:3
+expression: "\""
+formatting """ as string
+entering state: 44
+formatting "Hello World!" as default
+c_string.lang:3
+expression: "\""
+formatting """ as string
+exiting state, level: 1
+symbols.lang:1
+expression: "(?:~|!|%|\^|\*|\(|\)|-|\+|=|\[|\]|\\|:|;|,|\.|/|\?|&|<|>|\|)"
+formatting ")" as symbol
+symbols.lang:1
+expression: "(?:~|!|%|\^|\*|\(|\)|-|\+|=|\[|\]|\\|:|;|,|\.|/|\?|&|<|>|\|)"
+formatting ";" as symbol
+java.lang:22
+expression: "(?:\{|\})"
+formatting "}" as cbracket

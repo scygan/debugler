@@ -1,0 +1,18 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@r{@i{Integer}} i = 10;
+@r{@i{Boolean}} b;
+@r{@i{String}} args[];
+@b{const} @r{@i{MyType}} args[];
+@b{const} @r{@i{My_Type}} args[];
+@r{@i{List<Integer>}} mylist;
+@r{@i{List<List<Integer> >}} mylist;
+myspace::@r{@i{InputStream}} iStream ;
+@r{@i{MyType}} *t;
+@r{@i{MyType}} **t;
+@b{const} @r{@i{MyType}} &t;
+@b{if} (argc > 0) @{ @}
+@r{@i{__mytype}} _i;
+@b{typedef} @r{@i{_mytype}} __i;
+
+@end example

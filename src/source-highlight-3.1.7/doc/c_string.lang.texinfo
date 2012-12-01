@@ -1,0 +1,13 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@b{vardef} @t{@i{SPECIALCHAR}} = @t{'\\.'}
+
+@b{environment} @t{@i{string}} @b{delim} @t{"\""} @t{"\""} @b{begin}
+  @t{@i{specialchar}} = @t{@i{$SPECIALCHAR}}
+@b{end}
+
+@b{environment} @t{@i{string}} @b{delim} @t{"'"} @t{"'"} @b{begin}
+  @t{@i{specialchar}} = @t{@i{$SPECIALCHAR}}
+@b{end}
+
+@end example

@@ -1,0 +1,13 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@t{47:}     @b{public} @b{static} @b{void} main( String args[] ) @{
+@t{48:}         @r{@i{// just some greetings ;-)  /*}}
+@t{49:}         System.out.println( @t{"Hello from java2html :-)"} ) ;
+@t{50:}         System.out.println( @t{"}\t@t{by Lorenzo Bettini"} ) ;
+@t{51:}         System.out.println( @t{"}\t@t{http://www.lorenzobettini.it"} ) ;
+@t{52:}         @b{if} (argc > 0)
+@t{53:}             String param = argc[0];
+@t{54:}         @r{@i{//System.out.println( "bye bye... :-D" ) ; // see you soon}}
+@t{55:}     @}
+
+@end example

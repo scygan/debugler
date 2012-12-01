@@ -1,0 +1,17 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+STATE 1 default: normal
+  rule (comment) "/\*\*" (exit level: 0, next: 2)
+    STATE 2 default: comment
+      rule (comment) "\*/" (exit level: 1, next: 0)
+      rule (comment) "/\*\*" (exit level: 0, next: 0, nested)
+      rule (type) "(?:\@@[[:alpha:]]+)" (exit level: 0, next: 0)
+      rule (todo) "(?:(?:TODO|FIXME)(?:[:]?))" (exit level: 0, next: 0)
+  rule (regexp) "(?:([^[:alnum:]]).*(\1))" (exit level: 0, next: 0)
+  rule (string) "<(?:[^<>])*>" (exit level: 0, next: 0)
+  rule (string2) "<<" (exit level: 0, next: 3)
+    STATE 3 default: string2
+      rule (string2) ">>" (exit level: 1, next: 0)
+  rule (paren normal paren) "(\[)(.*)(\])" (exit level: 0, next: 0)
+
+@end example

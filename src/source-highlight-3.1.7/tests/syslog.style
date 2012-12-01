@@ -1,0 +1,19 @@
+date, keyword yellow b ;
+time "#9999FF" ;
+ip "lightblue" b ;
+
+type cyan b ;
+string "brown" b ;
+comment teal ;
+number red ;
+preproc cyan ;
+symbol green ;
+function "#CC66CC" b ;
+cbracket green b ;
+twonumbers green b ;
+port green b ;
+webmethod teal ;
+
+// foo option
+foo red b ; // foo entry
+

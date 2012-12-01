@@ -1,0 +1,127 @@
+2010-02-26  bettini  <bettini@bettini-laptop>
+
+	* lib/srchiliteqt/TextFormatterFactory.h (TextFormatterFactory): Ditto
+	* lib/srchiliteqt/Qt4TextFormatterFactory.cpp (Qt4TextFormatterFactory::createFormatter): 
+	Ditto
+	* lib/srchiliteqt/Qt4SyntaxHighlighter.cpp: Ditto
+	* lib/srchiliteqt/GNUSyntaxHighlighter.h (GNUSyntaxHighlighter): 
+	corrected 'sapce' to 'space'
+
+2010-02-26  Lorenzo Bettini  <bettini@bettini-laptop>
+
+	* m4/autotroll.m4: expand QT_DEFINES in CXXFLAGS so that
+	the value stored in .pc file can be used
+
+2009-11-23  bettini  <bettini@dellbettini>
+
+	* source-highlight-qt.pro: 
+	* defines.pri: use version number for dynamically linking in mingw
+	forces CONFIG+=static in case of msvc
+
+2009-11-22  bettini  <bettini@dellbettini>
+
+	* defines.pri: fixed library linking
+	* lib\srchiliteqt\srchiliteqt.pro: Ditto.
+	create .prl file
+	* tests\tests.pro: Ditto.
+	install test program in demos directory
+
+2009-11-17  bettini  <bettini@bettini-laptop>
+
+	* tests/tests.pro: Added qmake pro file.
+	* lib/srchiliteqt/srchiliteqt.pro: Ditto.
+	* source-highlight-qt.pro: Ditto.
+	* tests/qt4_highlighter_example_main.cpp (main): added a default for
+	BASEDIR 
+	* lib/srchiliteqt/Makefile.am: generate ui_*.h instead of *.ui.h and
+	moc_*.cpp instead of *.moc.cpp
+	* lib/srchiliteqt/ColorDialog.cpp: include ui_*.h instead of *.ui.h
+	* lib/srchiliteqt/LanguageElemColorForm.cpp: Ditto
+	* lib/srchiliteqt/MainColorForm.cpp: Ditto
+	* lib/srchiliteqt/SourceHighlightSettingsDialog.cpp: Ditto
+	* lib/srchiliteqt/SourceHighlightSettingsPage.cpp: Ditto
+
+2009-09-14  bettini  <bettini@bettini-laptop>
+
+	* lib/srchiliteqt/SourceHighlightSettingsPage.ui: default button 
+
+2009-08-24  bettini  <bettini@bettini-laptop>
+
+	* lib/srchiliteqt/Qt4SyntaxHighlighter.cpp: don't use the static factory
+	for default.style anymore 
+	* lib/srchiliteqt/Qt4TextFormatter.h: don't use the shared pointer for
+	QTextCharFormat anymore 
+
+2009-08-23  bettini  <bettini@bettini-laptop>
+
+	* lib/srchiliteqt/SourceHighlightSettingsDialog.cpp: Dialog for
+	source-highlight settings.
+	* lib/srchiliteqt/SourceHighlightSettingsDialog.h: New file.
+	* lib/srchiliteqt/SourceHighlightSettingsDialog.ui: New file.
+	* lib/srchiliteqt/SourceHighlightSettingsPage.cpp: Page for
+	dialog for source-highlight's data-dir settings.
+	* lib/srchiliteqt/SourceHighlightSettingsPage.h: New file.
+	* lib/srchiliteqt/SourceHighlightSettingsPage.ui: New file.
+
+2009-08-21  bettini  <bettini@bettini-laptop>
+
+	* lib/srchiliteqt/LanguageComboBox.cpp (LanguageComboBox::LanguageComboBox): 
+	set tooltip.
+	* lib/srchiliteqt/OutputFormatComboBox.cpp (OutputFormatComboBox::reload): 
+	Ditto. 
+	* lib/srchiliteqt/StyleComboBox.cpp (StyleComboBox::StyleComboBox): 
+	Ditto. 
+	* lib/srchiliteqt/TextEditHighlighted.cpp (TextEditHighlighted::changeFileName): 
+	(TextEditHighlighted::loadFile): 
+	(TextEditHighlighted::getLangDefFileFromFileName): 
+	(TextEditHighlighted::setHighlighter): 
+	use getLangDefFileFromFileName which shows possible exceptions
+
+2009-08-17  bettini  <bettini@bettini-laptop>
+
+	* lib/srchiliteqt/LanguageComboBox.cpp (LanguageComboBox::LanguageComboBox): 
+	(LanguageComboBox::reload): can reload the contents, e.g., when changing
+	the data dir setting of source-highlight library
+	* lib/srchiliteqt/LanguageComboBox.h (LanguageComboBox): Ditto 
+	* lib/srchiliteqt/TextEditHighlighted.cpp (TextEditHighlighted::setHighlighter): 
+	fixed a bug when the language definition file contains an error: do not
+	change the highlighter in that case 
+
+2009-08-01  bettini  <bettini@bettini-laptop>
+
+	* source-highlight-qt3.pc.in: removed libdir/include
+	* source-highlight-qt4.pc.in: Ditto
+
+2009-07-16  bettini  <bettini@bettini-laptop>
+
+	* lib/srchiliteqt/TextEditHighlighted.cpp: catches exceptions from source-highlight
+	library and shows them in a message box
+	* lib/srchiliteqt/SourceHighlightExceptionBox.h (SourceHighlightExceptionBox): 
+	Added utility class file for showing a message box given a source-highlight
+	exception
+
+2009-07-14  bettini  <bettini@bettini-laptop>
+
+	* lib/srchiliteqt/Qt4SourceHighlightStyleGenerator.h (Qt4SourceHighlightStyleGenerator): 
+	generates contents for a source-highlight style file
+	* lib/srchiliteqt/Qt4TextFormatter.h (Qt4TextFormatter): generate a string
+	representation in the form of a source-highlight style file
+	* lib/srchiliteqt/QtColorMap.h (QtColorMapRGB): added class for
+	mapping rgb colors into source-highlight standard colors
+
+2009-07-05  bettini  <bettini@bettini-laptop>
+
+	* lib/srchiliteqt/GNUSyntaxHighlighter.h (GNUSyntaxHighlighter): getOutLangMap
+	returning a map for output lang files
+	* lib/srchiliteqt/TextEditHighlighted.h (TextEditHighlighted): added constructor
+	taking a QWidget parent
+	* lib/srchiliteqt/OutputFormatComboBox.h (OutputFormatComboBox): combo box
+	for choosing an output format definition file
+
+2009-06-10  bettini  <bettini@dellbettini>
+
+	* .cdtconfigure.Build\ \(MINGW\): New file.
+	* .cproject: added build configuration for mingw in winwods
+	* .settings\org.eclipse.cdt.core.prefs: 
+	* m4\autotroll.m4: default to Makefile.Debug
+	* NOTES: install to /mingw

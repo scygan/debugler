@@ -1,0 +1,20 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@r{@i{# this is the language definition for the}}
+@r{@i{# style definition syntax}}
+@t{@i{comment}} @b{start} @t{"//"}
+
+@t{@i{string}} @b{delim} @t{"\""} @t{"\""} @b{escape} @t{"\\"}
+
+@t{@i{keyword}} = @t{"bgcolor|purple|orange|brightorange|brightgreen|darkgreen"},
+          @t{"green|darkred|red|brown|pink|yellow|cyan"},
+          @t{"black|teal|gray|darkblue|blue"},
+          @t{"normal|linenum"},
+          @t{"noref|nf|f|u|i|b"}
+@t{@i{keyword}} = @t{'bg\:'}
+
+@t{@i{symbol}} = @t{",|;"}
+
+@t{@i{variable}} = @t{'[[:word:]]+'}
+
+@end example

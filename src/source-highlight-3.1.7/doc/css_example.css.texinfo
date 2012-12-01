@@ -1,0 +1,15 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+body @{ 
+  @b{background-color:} <@i{color} @i{specification}>;
+ @}
+
+@b{.selector} @{ 
+  @b{color:} <@i{color} @i{specification}>;
+  @b{background-color:} <@i{color} @i{specification}>;
+  @b{font-weight:} @i{bold}; @r{@i{/* this is a comment */}}
+  @b{font-family:} @i{monospace};
+  @b{font-style:} @i{italic};
+  @b{text-decoration:} @i{underline};
+ @}
+@end example

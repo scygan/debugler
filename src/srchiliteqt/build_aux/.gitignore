@@ -1,0 +1,8 @@
+config.sub
+config.guess
+missing
+install-sh
+ltmain.sh
+depcomp
+mdate-sh
+texinfo.tex

@@ -1,0 +1,59 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+body @{  @b{background-color:} @i{white};  @}
+
+@r{@i{/* the color for context lines (when specified with line ranges) */}}
+@b{.context} @{  @b{color:} @i{gray}; @}
+
+@b{.keyword} @{ @b{color:} @i{blue}; @b{font-weight:} @i{bold}; @}
+@b{.type} @{ @b{color:} @i{darkgreen}; @}
+@b{.usertype}, @b{.classname} @{ @b{color:} @i{teal}; @}
+@b{.string} @{ @b{color:} @i{red}; @b{font-family:} @i{monospace}; @}
+@b{.regexp} @{ @b{color:} @i{orange}; @}
+@b{.specialchar} @{ @b{color:} @i{pink}; @b{font-family:} @i{monospace}; @}
+@b{.comment} @{ @b{color:} @i{brown}; @b{font-style:} @i{italic}; @}
+@b{.number} @{ @b{color:} @i{purple}; @}
+@b{.preproc} @{ @b{color:} @i{darkblue}; @b{font-weight:} @i{bold}; @}
+@b{.symbol} @{ @b{color:} @i{darkred}; @}
+@b{.function} @{ @b{color:} @i{black}; @b{font-weight:} @i{bold}; @}
+@b{.cbracket} @{ @b{color:} @i{red}; @}
+@b{.todo} @{ @b{font-weight:} @i{bold}; @b{background-color:} @i{cyan}; @}
+
+@r{@i{/* line numbers */}}
+@b{.linenum} @{ @b{color:} @i{black}; @b{font-family:} @i{monospace}; @}
+
+@r{@i{/* Internet related */}}
+@b{.url} @{ @b{color:} @i{blue}; @b{text-decoration:} @i{underline}; @b{font-family:} @i{monospace}; @}
+
+@r{@i{/* other elements for ChangeLog and Log files */}}
+@b{.date} @{ @b{color:} @i{blue}; @b{font-weight:} @i{bold}; @}
+@b{.time}, @b{.file} @{ @b{color:} @i{darkblue}; @b{font-weight:} @i{bold}; @}
+@b{.ip}, @b{.name} @{ @b{color:} @i{darkgreen}; @}
+
+@r{@i{/* for Prolog, Perl */}}
+@b{.variable} @{ @b{color:} @i{darkgreen}; @}
+@b{.italics} @{ @b{color:} @i{darkgreen}; @b{font-style:} @i{italic}; @}
+@b{.bold} @{ @b{color:} @i{darkgreen}; @b{font-weight:} @i{bold}; @}
+
+@r{@i{/* for LaTeX */}}
+@b{.underline} @{ @b{color:} @i{darkgreen}; @b{text-decoration:} @i{underline}; @}
+@b{.fixed} @{ @b{color:} @i{green}; @b{font-family:} @i{monospace}; @}
+@b{.argument}, @b{.optionalargument} @{ @b{color:} @i{darkgreen}; @}
+@b{.math} @{ @b{color:} @i{orange}; @}
+@b{.bibtex} @{ @b{color:} @i{blue}; @}
+
+@r{@i{/* for diffs */}}
+@b{.oldfile} @{ @b{color:} @i{orange}; @}
+@b{.newfile} @{ @b{color:} @i{darkgreen}; @}
+@b{.difflines} @{ @b{color:} @i{blue}; @}
+
+@r{@i{/* for css */}}
+@b{.selector} @{ @b{color:} @i{purple}; @}
+@b{.property} @{ @b{color:} @i{blue}; @}
+@b{.value} @{ @b{color:} @i{darkgreen}; @b{font-style:} @i{italic}; @}
+
+@r{@i{/* for Oz */}}
+@b{.atom} @{ @b{color:} @i{orange}; @}
+@b{.meta} @{ @b{font-style:} @i{italic}; @}
+
+@end example

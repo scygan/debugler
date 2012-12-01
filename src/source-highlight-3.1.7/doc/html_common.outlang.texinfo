@@ -1,0 +1,40 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@b{include} @t{"html_ref.outlang"}
+
+@b{extension} @t{"html"}
+
+@b{bold} @t{"<b>$text</b>"}
+@b{italics} @t{"<i>$text</i>"}
+@b{underline} @t{"<u>$text</u>"}
+@b{color} @t{"<font color=\"$style\">$text</font>"}
+
+@b{colormap}
+@t{"green"} @t{"#33CC00"}
+@t{"red"} @t{"#FF0000"}
+@t{"darkred"} @t{"#990000"}
+@t{"blue"} @t{"#0000FF"}
+@t{"brown"} @t{"#9A1900"}
+@t{"pink"} @t{"#CC33CC"}
+@t{"yellow"} @t{"#FFCC00"}
+@t{"cyan"} @t{"#66FFFF"}
+@t{"purple"} @t{"#993399"}
+@t{"orange"} @t{"#FF6600"}
+@t{"brightorange"} @t{"#FF9900"}
+@t{"brightgreen"} @t{"#33FF33"}
+@t{"darkgreen"} @t{"#009900"}
+@t{"black"} @t{"#000000"}
+@t{"teal"} @t{"#008080"}
+@t{"gray"} @t{"#808080"}
+@t{"darkblue"} @t{"#000080"}
+@t{"white"} @t{"#FFFFFF"}
+@b{default} @t{"#000000"}
+@b{end}
+
+@b{translations}
+@t{"&"} @t{"&amp;"}
+@t{"<"} @t{"&lt;"}
+@t{">"} @t{"&gt;"}
+@b{end}
+
+@end example

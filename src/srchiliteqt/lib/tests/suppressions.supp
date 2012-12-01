@@ -1,0 +1,195 @@
+{
+   static initialization of LangDefManager
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_Z41__static_initialization_and_destruction_0ii
+   obj:/home/bettini/workspaces/sourcehighlight/source-highlight-qt/build/lib/srchiliteqt/.libs/libsource-highlight-qt-common.so.0.0.0
+   obj:/home/bettini/workspaces/sourcehighlight/source-highlight-qt/build/lib/srchiliteqt/.libs/libsource-highlight-qt-common.so.0.0.0
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN12QApplication4fontEv
+   fun:_ZN5QFontC1Ev
+   fun:_ZN11QTextFormat11setPropertyEiRK8QVariant
+   fun:_ZN11QTextFormat13setForegroundERK6QBrush
+   fun:_ZN11srchiliteqt23Qt4TextFormatterFactory15createFormatterERKSsS2_S2_N5boost10shared_ptrISt4listIN9srchilite13StyleConstantESaIS7_EEEE
+   fun:_Z13stylesc_parsev
+   fun:_ZN9srchilite11parseStylesERKSsS1_PNS_16FormatterFactoryERSs
+   fun:_ZN9srchilite11parseStylesERKSsPNS_16FormatterFactoryERSs
+   fun:_ZN9srchilite15StyleFileParser14parseStyleFileERKSsPNS_16FormatterFactoryERSs
+   fun:_ZN11srchiliteqt20GNUSyntaxHighlighter19getTextFormatterMapERNS_20TextFormatterFactoryE
+   fun:_ZN11srchiliteqt20Qt4SyntaxHighlighter4initERKSs
+   fun:main
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN11QThreadData7currentEv
+   fun:_ZN7QObjectC2ER14QObjectPrivatePS_
+   fun:_ZN18QSyntaxHighlighterC2EP13QTextDocument
+   fun:_ZN11srchiliteqt20Qt4SyntaxHighlighterC1EP13QTextDocument
+   fun:main
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_Z7qMallocj
+   fun:_ZN7QString17fromLatin1_helperEPKci
+   fun:_ZN12QApplication4fontEv
+   fun:_ZN5QFontC1Ev
+   fun:_ZN11QTextFormat11setPropertyEiRK8QVariant
+   fun:_ZN11QTextFormat13setForegroundERK6QBrush
+   fun:_ZN11srchiliteqt23Qt4TextFormatterFactory15createFormatterERKSsS2_S2_N5boost10shared_ptrISt4listIN9srchilite13StyleConstantESaIS7_EEEE
+   fun:_Z13stylesc_parsev
+   fun:_ZN9srchilite11parseStylesERKSsS1_PNS_16FormatterFactoryERSs
+   fun:_ZN9srchilite11parseStylesERKSsPNS_16FormatterFactoryERSs
+   fun:_ZN9srchilite15StyleFileParser14parseStyleFileERKSsPNS_16FormatterFactoryERSs
+   fun:_ZN11srchiliteqt20GNUSyntaxHighlighter19getTextFormatterMapERNS_20TextFormatterFactoryE
+   fun:_ZN11srchiliteqt20Qt4SyntaxHighlighter4initERKSs
+   fun:main
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN11QThreadData7currentEv
+   fun:_ZN7QObjectC2ER14QObjectPrivatePS_
+   fun:_ZN18QSyntaxHighlighterC2EP13QTextDocument
+   fun:_ZN11srchiliteqt20Qt4SyntaxHighlighterC1EP13QTextDocument
+   fun:main
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN5QFontC1ERK7QStringiib
+   fun:_ZN12QApplication4fontEv
+   fun:_ZN5QFontC1Ev
+   fun:_ZN11QTextFormat11setPropertyEiRK8QVariant
+   fun:_ZN11QTextFormat13setForegroundERK6QBrush
+   fun:_ZN11srchiliteqt23Qt4TextFormatterFactory15createFormatterERKSsS2_S2_N5boost10shared_ptrISt4listIN9srchilite13StyleConstantESaIS7_EEEE
+   fun:_Z13stylesc_parsev
+   fun:_ZN9srchilite11parseStylesERKSsS1_PNS_16FormatterFactoryERSs
+   fun:_ZN9srchilite11parseStylesERKSsPNS_16FormatterFactoryERSs
+   fun:_ZN9srchilite15StyleFileParser14parseStyleFileERKSsPNS_16FormatterFactoryERSs
+   fun:_ZN11srchiliteqt20GNUSyntaxHighlighter19getTextFormatterMapERNS_20TextFormatterFactoryE
+   fun:_ZN11srchiliteqt20Qt4SyntaxHighlighter4initERKSs
+   fun:main
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN14QWaitConditionC1Ev
+   fun:_ZN14QThreadPrivateC1EP11QThreadData
+   fun:_ZN14QAdoptedThreadC1EP11QThreadData
+   fun:_ZN11QThreadData7currentEv
+   fun:_ZN7QObjectC2ER14QObjectPrivatePS_
+   fun:_ZN18QSyntaxHighlighterC2EP13QTextDocument
+   fun:_ZN11srchiliteqt20Qt4SyntaxHighlighterC1EP13QTextDocument
+   fun:main
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN6QMutexC1ENS_13RecursionModeE
+   fun:_ZN14QThreadPrivateC1EP11QThreadData
+   fun:_ZN14QAdoptedThreadC1EP11QThreadData
+   fun:_ZN11QThreadData7currentEv
+   fun:_ZN7QObjectC2ER14QObjectPrivatePS_
+   fun:_ZN18QSyntaxHighlighterC2EP13QTextDocument
+   fun:_ZN11srchiliteqt20Qt4SyntaxHighlighterC1EP13QTextDocument
+   fun:main
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN6QMutexC1ENS_13RecursionModeE
+   fun:_ZN11QThreadDataC1Ei
+   fun:_ZN11QThreadData7currentEv
+   fun:_ZN7QObjectC2ER14QObjectPrivatePS_
+   fun:_ZN18QSyntaxHighlighterC2EP13QTextDocument
+   fun:_ZN11srchiliteqt20Qt4SyntaxHighlighterC1EP13QTextDocument
+   fun:main
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN6QMutexC1ENS_13RecursionModeE
+   fun:_ZN11QThreadDataC1Ei
+   fun:_ZN11QThreadData7currentEv
+   fun:_ZN7QObjectC2ER14QObjectPrivatePS_
+   fun:_ZN18QSyntaxHighlighterC2EP13QTextDocument
+   fun:_ZN11srchiliteqt20Qt4SyntaxHighlighterC1EP13QTextDocument
+   fun:main
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN14QAdoptedThreadC1EP11QThreadData
+   fun:_ZN11QThreadData7currentEv
+   fun:_ZN7QObjectC2ER14QObjectPrivatePS_
+   fun:_ZN18QSyntaxHighlighterC2EP13QTextDocument
+   fun:_ZN11srchiliteqt20Qt4SyntaxHighlighterC1EP13QTextDocument
+   fun:main
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN12QApplication4fontEv
+   fun:_ZN5QFontC1Ev
+   fun:_ZN11QTextFormat11setPropertyEiRK8QVariant
+   fun:_ZN15QTextCharFormat13setFontWeightEi
+   fun:_ZN11srchiliteqt23Qt4TextFormatterFactory15createFormatterERKSsS2_S2_N5boost10shared_ptrISt4listIN9srchilite13StyleConstantESaIS7_EEEE
+   fun:main
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_Z7qMallocj
+   fun:_ZN7QString17fromLatin1_helperEPKci
+   fun:_ZN12QApplication4fontEv
+   fun:_ZN5QFontC1Ev
+   fun:_ZN11QTextFormat11setPropertyEiRK8QVariant
+   fun:_ZN15QTextCharFormat13setFontWeightEi
+   fun:_ZN11srchiliteqt23Qt4TextFormatterFactory15createFormatterERKSsS2_S2_N5boost10shared_ptrISt4listIN9srchilite13StyleConstantESaIS7_EEEE
+   fun:main
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN5QFontC1ERK7QStringiib
+   fun:_ZN12QApplication4fontEv
+   fun:_ZN5QFontC1Ev
+   fun:_ZN11QTextFormat11setPropertyEiRK8QVariant
+   fun:_ZN15QTextCharFormat13setFontWeightEi
+   fun:_ZN11srchiliteqt23Qt4TextFormatterFactory15createFormatterERKSsS2_S2_N5boost10shared_ptrISt4listIN9srchilite13StyleConstantESaIS7_EEEE
+   fun:main
+}

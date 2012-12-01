@@ -1,0 +1,28 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@b{class} InfoFormatter: @b{public} srchilite::Formatter @{
+    @r{@i{/// the language element represented by this formatter}}
+    std::string elem;
+
+@b{public}:
+    InfoFormatter(@b{const} std::string &elem_ = @t{"normal"}) :
+        elem(elem_) @{
+    @}
+
+    @b{virtual} @b{void} format(@b{const} std::string &s,
+            @b{const} srchilite::FormatterParams *params = 0) @{
+        @r{@i{// do not print anything if normal or string to format is empty}}
+        @b{if} (elem != @t{"normal"} || !s.size()) @{
+            std::cout << elem << @t{": "} << s;
+            @b{if} (params)
+                std::cout << @t{", start: "} << params->start;
+            std::cout << std::endl;
+        @}
+    @}
+@};
+
+@r{@i{/// shared pointer for InfoFormatter}}
+@b{typedef} boost::shared_ptr<InfoFormatter> InfoFormatterPtr;
+
+
+@end example

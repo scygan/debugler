@@ -1,0 +1,5 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@t{@i{symbol}} = @t{"~"},@t{"!"},@t{"%"},@t{"^"},@t{"*"},@t{"("},@t{")"},@t{"-"},@t{"+"},@t{"="},@t{"["},
+        @t{"]"},@t{"\\"},@t{":"},@t{";"},@t{","},@t{"."},@t{"/"},@t{"?"},@t{"&"},@t{"<"},@t{">"},@t{"\|"}
+@end example

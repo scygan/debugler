@@ -1,0 +1,23 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@t{@i{keyword}}, @t{@i{type}} @b{b} ;
+@t{@i{variable}} @b{f}, @b{i} ;
+@t{@i{string}} @b{f} ;
+@t{@i{regexp}} @b{f} ;
+@t{@i{comment}} @b{nf}, @b{i}, @b{noref} ;
+@t{@i{preproc}} @b{b} ;
+
+@r{@i{// line numbers}}
+@b{linenum} @b{f};
+
+@r{@i{// Internet related}}
+@t{@i{url}} @b{f};
+
+@r{@i{// for diffs}}
+@t{@i{oldfile}}, @t{@i{newfile}} @b{i};
+@t{@i{difflines}} @b{b}; 
+
+@r{@i{// for css}}
+@t{@i{selector}}, @t{@i{property}} @b{b};
+@t{@i{value}} @b{i};
+@end example

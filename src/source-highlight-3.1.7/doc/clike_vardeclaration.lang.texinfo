@@ -1,0 +1,8 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+(@t{@i{usertype}},@t{@i{usertype}},@t{@i{normal}}) = 
+@t{`([[:alpha:]_](?:[^[:punct:][:space:]]|[_])*)}
+@t{((?:<.*>)?)}
+@t{(\s+(?=[*&]*[[:alpha:]_][^[:punct:][:space:]]*\s*[[:punct:]\[\]]+))`}
+
+@end example

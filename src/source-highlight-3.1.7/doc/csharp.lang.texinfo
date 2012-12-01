@@ -1,0 +1,40 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@r{@i{# definitions for C-sharp}}
+@r{@i{# by S. HEMMI, updated by L. Bettini.}}
+@t{@i{preproc}} = @t{"using"}
+
+@t{@i{number}} = 
+@t{'\<[+-]?((0x[[:xdigit:]]+)|(([[:digit:]]*\.)?}
+@t{[[:digit:]]+([eE][+-]?[[:digit:]]+)?))([FfDdMmUulL]+)?\>'}
+
+@b{include} @t{"cpp.lang"}
+
+@b{subst} @t{@i{keyword}} = @t{"abstract|event|new|struct"},
+ @t{"as|explicit|null|switch"},
+ @t{"base|extern|this"},
+ @t{"false|operator|throw"},
+ @t{"break|finally|out|true"},
+ @t{"fixed|override|try"},
+ @t{"case|params|typeof"},
+ @t{"catch|for|private"},
+ @t{"foreach|protected"},
+ @t{"checked|goto|public|unchecked"},
+ @t{"class|if|readonly|unsafe"},
+ @t{"const|implicit|ref"},
+ @t{"continue|in|return"},
+ @t{"virtual"},
+ @t{"default|interface|sealed|volatile"},
+ @t{"delegate|internal"},
+ @t{"do|is|sizeof|while"},
+ @t{"lock|stackalloc"},
+ @t{"else|static"},
+ @t{"enum|namespace"},
+ @t{"get|partial|set"},
+ @t{"value|where|yield"}
+
+@b{subst} @t{@i{type}} = @t{"bool|byte|sbyte|char|decimal|double"},
+ @t{"float|int|uint|long|ulong|object"},
+ @t{"short|ushort|string|void"}
+
+@end example

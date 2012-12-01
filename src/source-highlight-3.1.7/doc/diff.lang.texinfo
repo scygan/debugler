@@ -1,0 +1,36 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@r{@i{# language definition for files created with 'diff'}}
+
+@r{@i{# diff created with -u option}}
+@b{state} @t{@i{oldfile}} = @t{'(?=^[-]@{3@})'} @b{begin}
+  @t{@i{oldfile}} @b{start} @t{'^[-]@{3@}'}
+  @t{@i{oldfile}} @b{start} @t{'^[-]'}
+  @t{@i{newfile}} @b{start} @t{'^[+]'}
+  @t{@i{difflines}} @b{start} @t{'^@@@@'}
+@b{end}
+
+@r{@i{# diff created with -c option}}
+@b{state} @t{@i{oldfile}} = @t{'(?=^[*]@{3@})'} @b{begin}
+  @b{environment} @t{@i{oldfile}} = @t{'^[*]@{3@}[[:blank:]]+[[:digit:]]'} @b{begin}
+    @t{@i{normal}} @b{start} @t{'^[[:space:]]'}
+    @t{@i{newfile}} = @t{'(?=^[-]@{3@})'} @b{exit}
+  @b{end}
+  @t{@i{oldfile}} @b{start} @t{'^[*]@{3@}'}
+
+  @b{environment} @t{@i{newfile}} = @t{'^[-]@{3@}[[:blank:]]+[[:digit:]]'} @b{begin}
+    @t{@i{normal}} @b{start} @t{'^[[:space:]]'}
+    @t{@i{newfile}} = @t{'(?=^[*]@{3@})'} @b{exit}
+    @t{@i{normal}} @b{start} @t{'^diff'} @b{exit}
+  @b{end}
+  @t{@i{newfile}} @b{start} @t{'^[-]@{3@}'}
+@b{end}
+
+@r{@i{# otherwise, created without options}}
+@b{state} @t{@i{difflines}} = @t{'(?=^[[:digit:]])'} @b{begin}
+  @t{@i{difflines}} @b{start} @t{'^[[:digit:]]'}
+  @t{@i{oldfile}} @b{start} @t{'^[<]'}
+  @t{@i{newfile}} @b{start} @t{'^[>]'}
+@b{end}
+
+@end example
