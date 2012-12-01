@@ -58,6 +58,7 @@ private slots:
 
     /** 
      * Slot for manipulating "Break on GL error" setting"
+     */
     void setBreakOnGLError(bool);
 
     /**

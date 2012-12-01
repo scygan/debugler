@@ -220,7 +220,7 @@ void TextureTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
     if (g_GLState.getCurrent()) {
 
-        if (entrp == glGenTextures_Call) {
+        if (entrp == glGenTextures_Call || entrp == glGenTexturesEXT_Call) {
             GLsizei n = 0;
             call.getArgs()[0].get(n);
 
@@ -230,7 +230,7 @@ void TextureTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             for (GLsizei i = 0; i < n; i++) {
                 g_GLState.getCurrent()->ensureTexture(names[i]);
             }
-        } else if (entrp == glDeleteTextures_Call) {
+        } else if (entrp == glDeleteTextures_Call || entrp == glDeleteTexturesEXT_Call) {
             GLsizei n = 0;
             call.getArgs()[0].get(n);
 
@@ -240,7 +240,7 @@ void TextureTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             for (GLsizei i = 0; i < n; i++) {
                 g_GLState.getCurrent()->deleteTexture(names[i]);
             }
-        } else if (entrp == glBindTexture_Call) {
+        } else if (entrp == glBindTexture_Call || entrp == glBindTextureEXT_Call) {
             GLenumWrap target;
             call.getArgs()[0].get(target);
             GLuint name;
@@ -255,7 +255,7 @@ void BufferTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
     if (g_GLState.getCurrent()) {
 
-        if (entrp == glGenBuffers_Call) {
+        if (entrp == glGenBuffers_Call || entrp ==  glGenBuffersARB_Call) {
             GLsizei n = 0;
             call.getArgs()[0].get(n);
 
@@ -265,7 +265,7 @@ void BufferTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             for (GLsizei i = 0; i < n; i++) {
                 g_GLState.getCurrent()->ensureBuffer(names[i]);
             }
-        } else if (entrp == glDeleteBuffers_Call) {
+        } else if (entrp == glDeleteBuffers_Call || entrp == glDeleteBuffersARB_Call) {
             GLsizei n = 0;
             call.getArgs()[0].get(n);
 
@@ -275,7 +275,7 @@ void BufferTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             for (GLsizei i = 0; i < n; i++) {
                 g_GLState.getCurrent()->deleteBuffer(names[i]);
             }
-        } else if (entrp == glBindBuffer_Call) {
+        } else if (entrp == glBindBuffer_Call || entrp == glBindBufferARB_Call) {
             GLenumWrap target;
             call.getArgs()[0].get(target);
             GLuint name;
@@ -336,12 +336,79 @@ void ProgramTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     PrevPost(call, ret);
 }
 
+void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
+    Entrypoint entrp = call.getEntrypoint();
+
+    if (g_GLState.getCurrent()) {
+        GLuint name;
+        if (entrp == glCreateShader_Call || entrp == glCreateShaderObjectARB_Call) {
+
+            //we assume that GLhandleARB is the same type as GLuint
+
+            ret.get(name);
+
+            g_GLState.getCurrent()->ensureShader(name);
+
+        } else if (entrp == glDeleteShader_Call || entrp == glDeleteObjectARB_Call) {
+
+            call.getArgs()[0].get(name);
+
+            dglstate::GLProgramObj* program = g_GLState.getCurrent()->ensureProgram(name);
+            program->markDeleted();
+
+        } else if (entrp == glShaderSource_Call || entrp == glShaderSourceARB_Call) {
+
+            // we assume that GLcharARB is the same as GLchar
+
+            GLsizei  count;
+            const GLchar * const* string;
+            const GLint* length;
+            call.getArgs()[0].get(name);
+            call.getArgs()[1].get(count);
+            call.getArgs()[2].get(string);
+            call.getArgs()[3].get(length);
+
+            std::vector<std::string> sources(count);
+            for (size_t i = 0; i < sources.size(); i++) {
+                if (length && length[i] > 0) {
+                    sources[i] = std::string(string[0], length[i]);
+                } else {
+                    sources[i] = std::string(string[0]);
+                }
+            }
+
+            g_GLState.getCurrent()->ensureShader(name)->setSources(sources);
+
+
+        } else if (entrp == glCompileShader_Call || entrp == glCompileShaderARB_Call) {
+            
+            call.getArgs()[0].get(name);
+
+            GLint infoLogLength, compileStatus;
+            DIRECT_CALL_CHK(glGetShaderiv)(name, GL_INFO_LOG_LENGTH, &infoLogLength);
+            DIRECT_CALL_CHK(glGetShaderiv)(name, GL_COMPILE_STATUS, &compileStatus);
+
+            std::string infoLog; infoLog.resize(infoLogLength);
+            GLsizei actualLength;
+            DIRECT_CALL_CHK(glGetShaderInfoLog)(name, infoLog.size(), &actualLength, &infoLog[0]);
+
+            if (actualLength < infoLogLength) {
+                //highly unlikely - only on buggy drivers
+                infoLog.resize(actualLength);
+            }
+
+            g_GLState.getCurrent()->ensureShader(name)->setCompilationStatus(infoLog, compileStatus);
+        }
+    }
+    PrevPost(call, ret);
+}
+
 
 void FBOTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
     if (g_GLState.getCurrent()) {
 
-        if (entrp == glGenFramebuffers_Call) {
+        if (entrp == glGenFramebuffers_Call || entrp == glGenFramebuffersEXT_Call) {
             GLsizei n = 0;
             call.getArgs()[0].get(n);
 
@@ -351,7 +418,7 @@ void FBOTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             for (GLsizei i = 0; i < n; i++) {
                 g_GLState.getCurrent()->ensureFBO(names[i]);
             }
-        } else if (entrp == glDeleteFramebuffers_Call) {
+        } else if (entrp == glDeleteFramebuffers_Call || entrp == glDeleteFramebuffersEXT_Call) {
             GLsizei n = 0;
             call.getArgs()[0].get(n);
 
@@ -361,7 +428,7 @@ void FBOTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             for (GLsizei i = 0; i < n; i++) {
                 g_GLState.getCurrent()->deleteFBO(names[i]);
             }
-        } else if (entrp == glBindFramebuffer_Call) {
+        } else if (entrp == glBindFramebuffer_Call || entrp == glBindFramebufferEXT_Call) {
             GLenumWrap target;
             call.getArgs()[0].get(target);
             GLuint name;

@@ -76,12 +76,17 @@ private:
     uint m_name;
 };
 
-class DGLProgramWidget: public QClickableTreeWidgetItem {
+class DGLShaderWidget: public QClickableTreeWidgetItem {
 public:
-    DGLProgramWidget() {}
-    DGLProgramWidget(uint name) {
-        setText(0, QString("Program ") + QString::number(name));
+    DGLShaderWidget() {}
+    DGLShaderWidget(uint name):m_name(name) {
+        setText(0, QString("Shader ") + QString::number(name));
     }
+    void handleDoubleClick(DglController* controller) {
+        controller->requestShader(m_name);
+    }
+private:
+    uint m_name;
 };
 
 class DGLFramebufferWidget: public QClickableTreeWidgetItem {
@@ -136,11 +141,11 @@ private:
 
 class DGLCtxTreeWidget: public QClickableTreeWidgetItem  {
 public:
-    DGLCtxTreeWidget():m_TextureNode("Textures"), m_BufferNode("Vertex Buffers"), m_FBONode("Framebuffer objects"), m_ProgramNode("Programs"),m_FramebufferNode("Frame Buffers")  {
+    DGLCtxTreeWidget():m_TextureNode("Textures"), m_BufferNode("Vertex Buffers"), m_FBONode("Framebuffer objects"), m_ShaderNode("Shaders"),m_FramebufferNode("Frame Buffers")  {
         addChild(&m_TextureNode);
         addChild(&m_BufferNode);
         addChild(&m_FBONode);
-        addChild(&m_ProgramNode);
+        addChild(&m_ShaderNode);
         addChild(&m_FramebufferNode);
     }
     uint getId() { return m_Id; }
@@ -151,7 +156,7 @@ public:
         m_TextureNode.update(report.m_TextureSpace);
         m_BufferNode.update(report.m_BufferSpace);
         m_FBONode.update(report.m_FBOSpace);
-        m_ProgramNode.update(report.m_ProgramSpace);
+        m_ShaderNode.update(report.m_ShaderSpace);
         m_FramebufferNode.update(report.m_FramebufferSpace);
     }
 
@@ -160,7 +165,7 @@ private:
     DGLObjectNodeWidget<DGLTextureWidget> m_TextureNode;
     DGLObjectNodeWidget<DGLBufferWidget> m_BufferNode;
     DGLObjectNodeWidget<DGLFBOWidget> m_FBONode;
-    DGLObjectNodeWidget<DGLProgramWidget> m_ProgramNode;
+    DGLObjectNodeWidget<DGLShaderWidget> m_ShaderNode;
     DGLObjectNodeWidget<DGLFramebufferWidget> m_FramebufferNode;
 };
 

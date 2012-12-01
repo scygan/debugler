@@ -74,6 +74,10 @@ class ProgramTracer: public TracerBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
+class ShaderTracer: public TracerBase {
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+};
+
 class FBOTracer: public TracerBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };

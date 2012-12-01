@@ -176,19 +176,22 @@
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglfboview.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglshaderview.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglshaderview.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="dglshaderview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="dglmainwindow.ui">
-      <Filter>Form Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="dglmainwindow.qrc">
       <Filter>Resource Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="dglconnectdialog.ui">
-      <Filter>Source Files</Filter>
     </CustomBuild>
     <CustomBuild Include="dglconnectdialog.h">
       <Filter>Header Files</Filter>
@@ -211,9 +214,6 @@
     <CustomBuild Include="dglbreakpointdialog.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="dglbreakpointdialog.ui">
-      <Filter>Form Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="QHexEdit\qhexedit.h">
       <Filter>QHexEdit</Filter>
     </CustomBuild>
@@ -229,16 +229,31 @@
     <CustomBuild Include="dglframebufferview.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="dgltextureviewitem.ui">
-      <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="dglframebufferviewitem.ui">
-      <Filter>Form Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="dglfboview.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="dglfboviewitem.ui">
+    <CustomBuild Include="ui\dglfboviewitem.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\dglframebufferviewitem.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\dglmainwindow.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\dgltextureviewitem.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\dglbreakpointdialog.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\dglshaderview.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dglshaderview.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\dglconnectdialog.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -252,22 +267,25 @@
     <ClInclude Include="QHexEdit\xbytearray.h">
       <Filter>QHexEdit</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglconnectdialog.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglmainwindow.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglbreakpointdialog.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dgltextureviewitem.h">
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglfboviewitem.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglframebufferviewitem.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglfboviewitem.h">
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglmainwindow.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dgltextureviewitem.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglbreakpointdialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglshaderview.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglconnectdialog.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>

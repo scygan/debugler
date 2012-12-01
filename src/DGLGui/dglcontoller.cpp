@@ -109,6 +109,10 @@ void DglController::doHandle(const dglnet::FBOMessage& msg) {
     gotFBO(msg.m_Name, msg);
 }
 
+void DglController::doHandle(const dglnet::ShaderMessage& msg) {
+    gotShader(msg.m_Name, msg);
+}
+
 void DglController::doHandleDisconnect(const std::string& msg) {
     m_DglClientDeadInfo = msg;
     m_DglClientDead = true; 
@@ -144,6 +148,14 @@ void DglController::requestFBO(uint name, bool focus) {
     m_DglClient->sendMessage(&message);
     if (focus)
         focusFBO(name);
+} 
+
+void DglController::requestShader(uint name, bool focus) {
+    assert(m_DglClient);
+    dglnet::QueryShaderMessage message(name);
+    m_DglClient->sendMessage(&message);
+    if (focus)
+        focusShader(name);
 } 
 
 void DglController::sendMessage(dglnet::Message* msg) {

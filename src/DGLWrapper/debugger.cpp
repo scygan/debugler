@@ -261,6 +261,16 @@ void DebugController::doHandle(const dglnet::QueryFBOMessage& msg) {
     m_Server->sendMessage(&reply);
 }
 
+void DebugController::doHandle(const dglnet::QueryShaderMessage& msg) {
+    dglnet::ShaderMessage reply;
+    dglstate::GLContext* ctx = g_GLState.getCurrent();
+    if (ctx) {
+        ctx->queryShader(msg.m_Name, reply);
+    }
+
+    m_Server->sendMessage(&reply);
+}
+
 void DebugController::doHandle(const dglnet::SetBreakPointsMessage& msg) {
     getBreakState().handle(msg);
 }

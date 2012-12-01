@@ -23,6 +23,8 @@ class QueryFramebufferMessage;
 class FramebufferMessage;
 class QueryFBOMessage;
 class FBOMessage;
+class QueryShaderMessage;
+class ShaderMessage;
 class SetBreakPointsMessage;
 
 
@@ -41,6 +43,8 @@ public:
     virtual void doHandle(const FramebufferMessage&);
     virtual void doHandle(const QueryFBOMessage&);
     virtual void doHandle(const FBOMessage&);
+    virtual void doHandle(const QueryShaderMessage&);
+    virtual void doHandle(const ShaderMessage&);
     virtual void doHandle(const SetBreakPointsMessage&);
     virtual void doHandleDisconnect(const std::string& why) = 0;
     virtual ~MessageHandler() {}
@@ -68,7 +72,7 @@ class ContextReport {
         ar & m_Id;
         ar & m_TextureSpace;
         ar & m_BufferSpace;
-        ar & m_ProgramSpace;
+        ar & m_ShaderSpace;
         ar & m_FBOSpace;
         ar & m_FramebufferSpace;
     }
@@ -78,7 +82,7 @@ public:
     int32_t m_Id;
     std::set<uint32_t> m_TextureSpace;
     std::set<uint32_t> m_BufferSpace;
-    std::set<uint32_t> m_ProgramSpace;
+    std::set<uint32_t> m_ShaderSpace;
     std::set<uint32_t> m_FBOSpace;
     std::set<GLenum> m_FramebufferSpace;
 };
@@ -428,6 +432,56 @@ private:
     bool m_Ok;
     std::string m_ErrorMsg;
 };
+
+class QueryShaderMessage: public Message {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_Name;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    QueryShaderMessage(){}
+    QueryShaderMessage(int32_t m_Name):m_Name(m_Name) {}
+
+    uint32_t m_Name;
+};
+
+class ShaderMessage: public Message {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_Name;
+        ar & m_Ok;
+        ar & m_ErrorMsg;
+        ar & m_Sources;
+        ar & m_CompileStatus;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    ShaderMessage();
+
+    void error(std::string msg);
+    bool isOk(std::string& error) const;
+
+    uint32_t m_Name;
+    std::vector<std::string> m_Sources;
+    std::pair<std::string, GLint> m_CompileStatus;
+
+private:
+    bool m_Ok;
+    std::string m_ErrorMsg;
+};
+
+
 
 class SetBreakPointsMessage: public Message {
     friend class boost::serialization::access;

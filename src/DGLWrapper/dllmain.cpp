@@ -21,20 +21,38 @@ void Initialize() {
     TracerBase::SetNext<DebugContextTracer>(wglCreateContextAttribsARB_Call);
 
     TracerBase::SetNext<TextureTracer>(glGenTextures_Call);
+    TracerBase::SetNext<TextureTracer>(glGenTexturesEXT_Call);
     TracerBase::SetNext<TextureTracer>(glDeleteTextures_Call);
+    TracerBase::SetNext<TextureTracer>(glDeleteTexturesEXT_Call);
     TracerBase::SetNext<TextureTracer>(glBindTexture_Call);
+    TracerBase::SetNext<TextureTracer>(glBindTextureEXT_Call);
 
     TracerBase::SetNext<BufferTracer>(glGenBuffers_Call);
+    TracerBase::SetNext<BufferTracer>(glGenBuffersARB_Call);
     TracerBase::SetNext<BufferTracer>(glDeleteBuffers_Call);
+    TracerBase::SetNext<BufferTracer>(glDeleteBuffersARB_Call);
     TracerBase::SetNext<BufferTracer>(glBindBuffer_Call);
+    TracerBase::SetNext<BufferTracer>(glBindBufferARB_Call);
 
     TracerBase::SetNext<FBOTracer>(glGenFramebuffers_Call);
+    TracerBase::SetNext<FBOTracer>(glGenFramebuffersEXT_Call);
     TracerBase::SetNext<FBOTracer>(glDeleteFramebuffers_Call);
+    TracerBase::SetNext<FBOTracer>(glDeleteFramebuffersEXT_Call);
     TracerBase::SetNext<FBOTracer>(glBindFramebuffer_Call);
+    TracerBase::SetNext<FBOTracer>(glBindFramebufferEXT_Call);
 
-    TracerBase::SetNext<ProgramTracer>(glCreateProgram_Call);
-    TracerBase::SetNext<ProgramTracer>(glDeleteProgram_Call);
-    TracerBase::SetNext<ProgramTracer>(glUseProgram_Call);
+//    TracerBase::SetNext<ProgramTracer>(glCreateProgram_Call);
+//    TracerBase::SetNext<ProgramTracer>(glDeleteProgram_Call);
+//    TracerBase::SetNext<ProgramTracer>(glUseProgram_Call);
+
+    TracerBase::SetNext<ShaderTracer>(glCreateShader_Call);
+    TracerBase::SetNext<ShaderTracer>(glCreateShaderObjectARB_Call);
+    TracerBase::SetNext<ShaderTracer>(glShaderSource_Call);
+    TracerBase::SetNext<ShaderTracer>(glShaderSourceARB_Call);
+    TracerBase::SetNext<ShaderTracer>(glDeleteShader_Call);
+    TracerBase::SetNext<ShaderTracer>(glDeleteObjectARB_Call);
+    TracerBase::SetNext<ShaderTracer>(glCompileShader_Call);
+    TracerBase::SetNext<ShaderTracer>(glCompileShaderARB_Call);
 
     g_Controller = boost::make_shared<DebugController>();
     boost::shared_ptr<dglnet::Server> srv = boost::make_shared<dglnet::Server>(5555, g_Controller.get());

@@ -115,6 +115,32 @@ void GLProgramObj::markDeleted() {
     m_Deleted = true;
 }
 
+GLShaderObj::GLShaderObj(GLuint name):GLObj(name), m_Deleted(false) {
+    m_CompileStatus.second = GL_FALSE;
+}
+
+void GLShaderObj::markDeleted() {
+    m_Deleted = true;
+}
+
+void GLShaderObj::setSources(const std::vector<std::string>& sources) {
+    m_Sources = sources;
+}
+
+void GLShaderObj::setCompilationStatus(const std::string& compileLog, GLint compileStatus) {
+    m_CompileStatus.first = compileLog; 
+    m_CompileStatus.second = compileStatus;
+}
+
+const std::vector<std::string>& GLShaderObj::getSources() {
+    return m_Sources;   
+}
+
+const std::pair<std::string, GLint>& GLShaderObj::getCompileStatus() {
+    return m_CompileStatus;
+}
+
+
 GLFBObj::GLFBObj(GLuint name):GLObj(name),m_Target(0) {}
 
 void GLFBObj::setTarget(GLenum target) {
@@ -138,9 +164,9 @@ dglnet::ContextReport GLContext::describe() {
         i != m_Buffers.end(); i++) {
             ret.m_BufferSpace.insert(i->second.getName());
     }
-    for (std::map<GLuint, GLProgramObj>::iterator i = m_Programs.begin(); 
-        i != m_Programs.end(); i++) {
-            ret.m_ProgramSpace.insert(i->second.getName());
+    for (std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.begin(); 
+        i != m_Shaders.end(); i++) {
+            ret.m_ShaderSpace.insert(i->second.getName());
     }
     for (std::map<GLuint, GLFBObj>::iterator i = m_FBOs.begin(); 
         i != m_FBOs.end(); i++) {
@@ -592,6 +618,25 @@ void GLContext::queryFBO(GLuint name, dglnet::FBOMessage& ret) {
     }
 }
 
+void GLContext::queryShader(GLuint name, dglnet::ShaderMessage& ret) {
+
+    //this query is not GL intrusive, no need to call startQuery()
+
+    ret.m_Name = name;
+
+    try {
+        std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.find(name);
+        if (i == m_Shaders.end()) {
+            throw std::runtime_error("Shader does not exist");
+        }
+        ret.m_CompileStatus = i->second.getCompileStatus();
+        ret.m_Sources = i->second.getSources();
+    } catch (const std::runtime_error& err) {
+        ret.error(err.what());
+    }
+}
+
+
 GLProgramObj* GLContext::ensureProgram(GLuint name) {
     std::map<GLuint, GLProgramObj>::iterator i = m_Programs.find(name);
     if (i == m_Programs.end()) {
@@ -606,6 +651,22 @@ void GLContext::deleteProgram(GLuint name) {
         m_Programs.erase(i);
     }
 }
+
+GLShaderObj* GLContext::ensureShader(GLuint name) {
+    std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.find(name);
+    if (i == m_Shaders.end()) {
+        i = m_Shaders.insert(std::pair<GLuint, GLShaderObj>(name, GLShaderObj(name))).first;
+    }
+    return &(*i).second;
+}
+
+void GLContext::markShaderDeleted(GLuint name) {
+    std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.find(name); 
+    if (i !=  m_Shaders.end()) {
+        i->second.markDeleted();
+    }
+}
+
 
 int32_t GLContext::getId() {
     return m_Id;

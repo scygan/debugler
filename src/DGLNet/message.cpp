@@ -54,6 +54,14 @@ namespace dglnet {
         unsupported();
     }
 
+    void MessageHandler::doHandle(const QueryShaderMessage&) {
+        unsupported();
+    }
+
+    void MessageHandler::doHandle(const ShaderMessage&) {
+        unsupported();
+    }
+
     void MessageHandler::doHandle(const SetBreakPointsMessage&) {
         unsupported();
     }
@@ -126,6 +134,18 @@ namespace dglnet {
     }
 
     bool FBOMessage::isOk(std::string& msg) const {
+        msg = m_ErrorMsg;
+        return m_Ok;
+    }
+
+    ShaderMessage::ShaderMessage():m_Ok(true), m_Name(0) {}
+
+    void ShaderMessage::error(std::string msg) {
+        m_Ok = false;
+        m_ErrorMsg = msg;
+    }
+
+    bool ShaderMessage::isOk(std::string& msg) const {
         msg = m_ErrorMsg;
         return m_Ok;
     }

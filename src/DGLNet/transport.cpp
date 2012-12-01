@@ -6,10 +6,11 @@
 
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
-#include <boost/serialization/export.hpp> 
 #include <boost/serialization/set.hpp>
+#include <boost/serialization/export.hpp> 
 #include <boost/serialization/variant.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/utility.hpp>
 
 
 #include <sstream>
@@ -31,6 +32,8 @@ BOOST_CLASS_EXPORT_GUID(dglnet::QueryFramebufferMessage, "dglnet::QueryFramebuff
 BOOST_CLASS_EXPORT_GUID(dglnet::FramebufferMessage, "dglnet::FramebufferMessage");
 BOOST_CLASS_EXPORT_GUID(dglnet::QueryFBOMessage, "dglnet::QueryFBOMessage");
 BOOST_CLASS_EXPORT_GUID(dglnet::FBOMessage, "dglnet::FBOMessage");
+BOOST_CLASS_EXPORT_GUID(dglnet::QueryShaderMessage, "dglnet::QueryShaderMessage");
+BOOST_CLASS_EXPORT_GUID(dglnet::ShaderMessage, "dglnet::ShaderMessage");
 BOOST_CLASS_EXPORT_GUID(dglnet::SetBreakPointsMessage, "dglnet::SetBreakPointsMessage");
 
 

@@ -51,6 +51,25 @@ private:
     bool m_Deleted;
 };
 
+class GLShaderObj: public GLObj {
+public:
+    GLShaderObj(GLuint name);
+    GLShaderObj() {}
+    void markDeleted();
+
+    void setSources(const std::vector<std::string>&);
+    void setCompilationStatus(const std::string&, GLint compileStatus);
+    
+    const std::vector<std::string>& getSources();
+    const std::pair<std::string, GLint>& getCompileStatus();
+    
+
+private:
+    bool m_Deleted;
+    std::vector<std::string> m_Sources;
+    std::pair<std::string, GLint> m_CompileStatus;
+};
+
 class GLFBObj: public GLObj {
 public:
     GLFBObj(GLuint name);
@@ -84,6 +103,7 @@ public:
     std::map<GLuint, GLTextureObj> m_Textures;
     std::map<GLuint, GLBufferObj> m_Buffers;
     std::map<GLuint, GLProgramObj> m_Programs;
+    std::map<GLuint, GLShaderObj> m_Shaders;
     std::map<GLuint, GLFBObj> m_FBOs;
 
     dglnet::ContextReport describe();
@@ -103,11 +123,14 @@ public:
     void deleteFBO(GLuint name);
     GLProgramObj* ensureProgram(GLuint name);
     void deleteProgram(GLuint name);
+    GLShaderObj* ensureShader(GLuint name);
+    void markShaderDeleted(GLuint name);
 
     void queryTexture(GLuint name, dglnet::TextureMessage& ret);
     void queryBuffer(GLuint name, dglnet::BufferMessage& ret);
     void queryFramebuffer(GLuint bufferEnum, dglnet::FramebufferMessage& ret);
     void queryFBO(GLuint name, dglnet::FBOMessage& ret);
+    void queryShader(GLuint name, dglnet::ShaderMessage& ret);
 
     int32_t getId();
 
