@@ -11,6 +11,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLGUI", "DGLGui\DGLGui.vcx
 	ProjectSection(ProjectDependencies) = postProject
 		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF} = {B8B2B603-0DAD-4C84-B375-091A5C36D6FF}
 		{5C2A907E-02DA-4D13-B84B-B48500DBEFA3} = {5C2A907E-02DA-4D13-B84B-B48500DBEFA3}
+		{05E37BC0-6128-4EE7-B147-164774C2E485} = {05E37BC0-6128-4EE7-B147-164774C2E485}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLNet", "DGLNet\DGLNet.vcxproj", "{5C2A907E-02DA-4D13-B84B-B48500DBEFA3}"
@@ -22,7 +23,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLCommon", "DGLCommon\DGLC
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "codegen", "codegen\codegen.vcxproj", "{F16EFBD2-E47A-4E5B-B091-7D400430745A}"
 EndProject
-Project("{F088123C-0E9E-452A-89E6-6BA2F21D5CAC}") = "ModelingProject1", "ModelingProject1\ModelingProject1.modelproj", "{3406868E-1526-4684-8830-5F331027795A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "srchiliteqt", "srchiliteqt\srchiliteqt.vcxproj", "{05E37BC0-6128-4EE7-B147-164774C2E485}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5C2A907E-02DA-4D13-B84B-B48500DBEFA8} = {5C2A907E-02DA-4D13-B84B-B48500DBEFA8}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "source-highlight", "source-highlight-3.1.7\source-highlight.vcxproj", "{5C2A907E-02DA-4D13-B84B-B48500DBEFA8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -82,16 +88,26 @@ Global
 		{F16EFBD2-E47A-4E5B-B091-7D400430745A}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{F16EFBD2-E47A-4E5B-B091-7D400430745A}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{F16EFBD2-E47A-4E5B-B091-7D400430745A}.Release|Win32.ActiveCfg = Release|Win32
-		{3406868E-1526-4684-8830-5F331027795A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3406868E-1526-4684-8830-5F331027795A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3406868E-1526-4684-8830-5F331027795A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{3406868E-1526-4684-8830-5F331027795A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{3406868E-1526-4684-8830-5F331027795A}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{3406868E-1526-4684-8830-5F331027795A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3406868E-1526-4684-8830-5F331027795A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3406868E-1526-4684-8830-5F331027795A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{3406868E-1526-4684-8830-5F331027795A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{3406868E-1526-4684-8830-5F331027795A}.Release|Win32.ActiveCfg = Release|Any CPU
+		{05E37BC0-6128-4EE7-B147-164774C2E485}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{05E37BC0-6128-4EE7-B147-164774C2E485}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{05E37BC0-6128-4EE7-B147-164774C2E485}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{05E37BC0-6128-4EE7-B147-164774C2E485}.Debug|Win32.ActiveCfg = Debug|Win32
+		{05E37BC0-6128-4EE7-B147-164774C2E485}.Debug|Win32.Build.0 = Debug|Win32
+		{05E37BC0-6128-4EE7-B147-164774C2E485}.Release|Any CPU.ActiveCfg = Release|Win32
+		{05E37BC0-6128-4EE7-B147-164774C2E485}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{05E37BC0-6128-4EE7-B147-164774C2E485}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{05E37BC0-6128-4EE7-B147-164774C2E485}.Release|Win32.ActiveCfg = Release|Win32
+		{05E37BC0-6128-4EE7-B147-164774C2E485}.Release|Win32.Build.0 = Release|Win32
+		{5C2A907E-02DA-4D13-B84B-B48500DBEFA8}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{5C2A907E-02DA-4D13-B84B-B48500DBEFA8}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{5C2A907E-02DA-4D13-B84B-B48500DBEFA8}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{5C2A907E-02DA-4D13-B84B-B48500DBEFA8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5C2A907E-02DA-4D13-B84B-B48500DBEFA8}.Debug|Win32.Build.0 = Debug|Win32
+		{5C2A907E-02DA-4D13-B84B-B48500DBEFA8}.Release|Any CPU.ActiveCfg = Release|Win32
+		{5C2A907E-02DA-4D13-B84B-B48500DBEFA8}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{5C2A907E-02DA-4D13-B84B-B48500DBEFA8}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{5C2A907E-02DA-4D13-B84B-B48500DBEFA8}.Release|Win32.ActiveCfg = Release|Win32
+		{5C2A907E-02DA-4D13-B84B-B48500DBEFA8}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

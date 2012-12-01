@@ -1,5 +1,6 @@
 #include "dglshaderview.h"
 #include "dglgui.h"
+#include "srchiliteqt/lib/srchiliteqt/Qt4SyntaxHighlighter.h"
 
 #include "ui_dglshaderview.h"
 
@@ -24,6 +25,9 @@ public:
             } else {
                 m_Ui.labelLinkStatus->setText(tr("Compile status: success"));
             }
+            srchiliteqt::Qt4SyntaxHighlighter *highlighter =
+                new srchiliteqt::Qt4SyntaxHighlighter(m_Ui.textEdit->document());
+            highlighter->init("glsl.lang");
         }
     }
     
