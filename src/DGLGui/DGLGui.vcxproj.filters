@@ -98,15 +98,6 @@
     <ClCompile Include="dgltextureview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglbreakpointview.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglbreakpointview.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="dglbreakpointview.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglbreakpointdialog.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -233,9 +224,6 @@
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="dgltextureview.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="dglbreakpointview.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="dglbreakpointdialog.h">

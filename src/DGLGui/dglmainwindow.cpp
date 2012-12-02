@@ -12,7 +12,6 @@
 #include "dglbufferview.h"
 #include "dglframebufferview.h"
 #include "dglfboview.h"
-#include "dglbreakpointview.h"
 #include "dglshaderview.h"
 #include "dglprogramview.h"
 #include "dglgui.h"
@@ -107,10 +106,6 @@ void DGLMainWindow::createDockWindows() {
     } {
         QDockWidget *dock = new DGLBufferView(this, &m_controller);
         dock->setMinimumSize(QSize(600, 0));
-        addDockWidget(Qt::AllDockWidgetAreas, dock);
-        viewMenu->addAction(dock->toggleViewAction());
-    } {
-        QDockWidget *dock = new DGLBreakPointView(this, &m_controller);
         addDockWidget(Qt::AllDockWidgetAreas, dock);
         viewMenu->addAction(dock->toggleViewAction());
     } {
@@ -209,30 +204,48 @@ void DGLMainWindow::createToolBars() {
      attachAct = new QAction(tr("&Attach to"), this);
      attachAct->setStatusTip(tr("Attach to IP target"));
      CONNASSERT(connect(attachAct, SIGNAL(triggered()), this, SLOT(attach())));
+     CONNASSERT(connect(&m_controller, SIGNAL(setDisconnected(bool)), attachAct, SLOT(setEnabled(bool))));
 
      disconnectAct = new QAction(tr("&Disconnect"), this);
      disconnectAct->setStatusTip(tr("Disconnect an terminate application"));
      CONNASSERT(connect(disconnectAct, SIGNAL(triggered()), this, SLOT(disconnect())));
+     CONNASSERT(connect(&m_controller, SIGNAL(setConnected(bool)), disconnectAct, SLOT(setEnabled(bool))));
+     disconnectAct->setEnabled(false);
 
      debugContinueAct = new QAction(tr("&Continue"), this);
      debugContinueAct->setStatusTip(tr("Continue program execution"));
      CONNASSERT(connect(debugContinueAct, SIGNAL(triggered()), &m_controller, SLOT(debugContinue())));
+     CONNASSERT(connect(&m_controller, SIGNAL(setConnected(bool)), debugContinueAct, SLOT(setEnabled(bool))));
+     CONNASSERT(connect(&m_controller, SIGNAL(setBreaked(bool)), debugContinueAct, SLOT(setEnabled(bool))));
+     debugContinueAct->setEnabled(false);
 
      debugInterruptAct = new QAction(tr("&Interrupt (on GL)"), this);
      debugInterruptAct->setStatusTip(tr("Interrupt program execution on GL call"));
      CONNASSERT(connect(debugInterruptAct, SIGNAL(triggered()), &m_controller, SLOT(debugInterrupt())));
+     CONNASSERT(connect(&m_controller, SIGNAL(setConnected(bool)), debugInterruptAct, SLOT(setEnabled(bool))));
+     CONNASSERT(connect(&m_controller, SIGNAL(setRunning(bool)), debugInterruptAct, SLOT(setEnabled(bool))));
+     debugInterruptAct->setEnabled(false);
 
      debugStepAct = new QAction(tr("&Step into"), this);
      debugStepAct->setStatusTip(tr("Step one GL call"));
      CONNASSERT(connect(debugStepAct, SIGNAL(triggered()), &m_controller, SLOT(debugStep())));
+     CONNASSERT(connect(&m_controller, SIGNAL(setConnected(bool)), debugStepAct, SLOT(setEnabled(bool))));
+     CONNASSERT(connect(&m_controller, SIGNAL(setBreaked(bool)), debugStepAct, SLOT(setEnabled(bool))));
+     debugStepAct->setEnabled(false);
 
      debugStepDrawCallAct = new QAction(tr("&Drawcall step"), this);
      debugStepDrawCallAct->setStatusTip(tr("Step one GL drawing call"));
      CONNASSERT(connect(debugStepDrawCallAct, SIGNAL(triggered()), &m_controller, SLOT(debugStepDrawCall())));
+     CONNASSERT(connect(&m_controller, SIGNAL(setConnected(bool)), debugStepDrawCallAct, SLOT(setEnabled(bool))));
+     CONNASSERT(connect(&m_controller, SIGNAL(setBreaked(bool)), debugStepDrawCallAct, SLOT(setEnabled(bool))));
+     debugStepDrawCallAct->setEnabled(false);
 
      debugStepFrameAct = new QAction(tr("&Frame step"), this);
      debugStepFrameAct->setStatusTip(tr("Step one GL frame"));
      CONNASSERT(connect(debugStepFrameAct, SIGNAL(triggered()), &m_controller, SLOT(debugStepFrame())));
+     CONNASSERT(connect(&m_controller, SIGNAL(setConnected(bool)), debugStepFrameAct, SLOT(setEnabled(bool))));
+     CONNASSERT(connect(&m_controller, SIGNAL(setBreaked(bool)), debugStepFrameAct, SLOT(setEnabled(bool))));
+     debugStepFrameAct->setEnabled(false);
 
      addDeleteBreakPointsAct = new QAction(tr("&Breakpoints..."), this);
      addDeleteBreakPointsAct->setStatusTip(tr("Add or remove breakpoints"));

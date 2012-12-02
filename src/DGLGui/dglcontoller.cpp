@@ -109,7 +109,7 @@ void DGLViewRouter::show(uint name, DGLResource::ObjectType type, uint target) {
     }
 }
 
-DglController::DglController():m_DglClientDead(false),m_BreakPointController(this), m_ResourceManager(this) {
+DglController::DglController():m_DglClientDead(false),m_BreakPointController(this), m_ResourceManager(this), m_ConfiguredAndBkpointsSet(false) {
     m_Timer.setInterval(10);
     CONNASSERT(connect(&m_Timer, SIGNAL(timeout()), this, SLOT(poll())));
 }
@@ -122,7 +122,6 @@ void DglController::connectServer(const std::string& host, const std::string& po
     m_DglClient = boost::make_shared<dglnet::Client>(this, this);
     m_DglClient->connectServer(host, port);
     m_Timer.start();
-    connected();
 }
 
 void DglController::onSocket() {
@@ -131,16 +130,26 @@ void DglController::onSocket() {
     m_NotifierWrite = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Write); 
     CONNASSERT(connect(&*m_NotifierRead, SIGNAL(activated(int)), this, SLOT(poll())));
     CONNASSERT(connect(&*m_NotifierWrite, SIGNAL(activated(int)), this, SLOT(poll())));
+    setConnected(true);
+    setDisconnected(false);
+    m_Connected = true;
 }
 
 void DglController::disconnectServer() {
     if (m_DglClient) {
         m_DglClient->abort();
         m_DglClient.reset();
-        disconnected();
+        m_ConfiguredAndBkpointsSet = false;
+        setConnected(false);
+        setDisconnected(true);
     }
     m_NotifierRead.reset();
     m_NotifierWrite.reset();
+    m_Connected = false;
+}
+
+bool DglController::isConnected() {
+    return m_Connected;
 }
 
 void DglController::poll() {
@@ -154,31 +163,39 @@ void DglController::poll() {
 }
 
 void DglController::debugContinue() {
-    assert(m_DglClient);
+    setBreaked(false);
+    setRunning(true);
+    assert(isConnected());
     dglnet::ContinueBreakMessage message(false);
     m_DglClient->sendMessage(&message);
 }
 
 void DglController::debugInterrupt() {
-    assert(m_DglClient);
+    assert(isConnected());
     dglnet::ContinueBreakMessage message(true);
     m_DglClient->sendMessage(&message);
 }
 
 void DglController::debugStep() {
-    assert(m_DglClient);
+    setBreaked(false);
+    setRunning(true);
+    assert(isConnected());
     dglnet::ContinueBreakMessage message(dglnet::ContinueBreakMessage::STEP_CALL);
     m_DglClient->sendMessage(&message);
 }
 
 void DglController::debugStepDrawCall() {
-    assert(m_DglClient);
+    setBreaked(false);
+    setRunning(true);
+    assert(isConnected());
     dglnet::ContinueBreakMessage message(dglnet::ContinueBreakMessage::STEP_DRAW_CALL);
     m_DglClient->sendMessage(&message);
 }
 
 void DglController::debugStepFrame() {
-    assert(m_DglClient);
+    setBreaked(false);
+    setRunning(true);
+    assert(isConnected());
     dglnet::ContinueBreakMessage message(dglnet::ContinueBreakMessage::STEP_FRAME);
     m_DglClient->sendMessage(&message);
 }
@@ -193,6 +210,18 @@ void DglController::queryCallTrace(uint startOffset, uint endOffset) {
 }
 
 void DglController::doHandle(const dglnet::BreakedCallMessage & msg) {
+    if (!m_ConfiguredAndBkpointsSet) {
+        //this is the first time debugee was stopped, before any execution
+        //we must upload some configuration to it
+        m_ConfiguredAndBkpointsSet = true;
+
+        sendConfig();
+        getBreakPoints()->sendCurrent();
+    }
+
+    setBreaked(true);
+    setRunning(false);    
+
     breaked(msg.m_entryp, msg.m_TraceSize);
     breakedWithStateReports(msg.m_CurrentCtx, msg.m_CtxReports);
 
@@ -214,7 +243,7 @@ void DglController::doHandleDisconnect(const std::string& msg) {
 }
 
 void DglController::sendMessage(dglnet::Message* msg) {
-    assert(m_DglClient);
+    assert(isConnected());
     m_DglClient->sendMessage(msg);
 }
 
@@ -231,10 +260,15 @@ DGLViewRouter* DglController::getViewRouter() {
 }
 
 void DglController::configure(bool breakOnGLError) {
-    assert(m_DglClient);
     m_Config.m_BreakOnGLError = breakOnGLError;
-    dglnet::ConfigurationMessage message(m_Config);
-    m_DglClient->sendMessage(&message);
+    sendConfig();
+}
+
+void DglController::sendConfig() {
+    if (isConnected()) {
+        dglnet::ConfigurationMessage message(m_Config);
+        m_DglClient->sendMessage(&message);
+    }
 }
 
 const DGLConfiguration& DglController::getConfig() {
@@ -250,7 +284,13 @@ std::set<Entrypoint> DGLBreakPointController::getCurrent() {
 void DGLBreakPointController::setCurrent(const std::set<Entrypoint>& newCurrent) {
     if (m_Current != newCurrent) {
         m_Current = newCurrent;
+        sendCurrent();
+    }
+}
+
+void DGLBreakPointController::sendCurrent() {
+    if (m_Controller->isConnected()) {
         dglnet::SetBreakPointsMessage msg(m_Current);
         m_Controller->sendMessage(&msg);
-    }
+    }    
 }

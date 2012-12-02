@@ -9,12 +9,12 @@ DGLTreeView::DGLTreeView(QWidget* parrent, DglController* controller):QDockWidge
 
     m_TreeWidget.setMinimumSize(QSize(200, 0));
 
-    disable();
+    setConnected(false);
     
     setWidget(&m_TreeWidget);
     //inbound
-    CONNASSERT(connect(controller, SIGNAL(connected()), this, SLOT(enable())));
-    CONNASSERT(connect(controller, SIGNAL(disconnected()), this, SLOT(disable())));
+    CONNASSERT(connect(controller, SIGNAL(setConnected(bool)), this, SLOT(setConnected(bool))));
+    CONNASSERT(connect(controller, SIGNAL(setBreaked(bool)), &m_TreeWidget, SLOT(setEnabled(bool))));
     CONNASSERT(connect(controller, SIGNAL(breakedWithStateReports(uint, const std::vector<dglnet::ContextReport>&)),
         this, SLOT(breakedWithStateReports(uint, const std::vector<dglnet::ContextReport>&))));
     
@@ -26,17 +26,14 @@ DGLTreeView::DGLTreeView(QWidget* parrent, DglController* controller):QDockWidge
 
 DGLTreeView::~DGLTreeView() {}
 
-void DGLTreeView::enable() {
-    m_Enabled = true;
-}
-
-void DGLTreeView::disable() {
-    m_Enabled = false;
-    while (m_TreeWidget.topLevelItemCount()) {
-        delete m_TreeWidget.takeTopLevelItem(0);
+void DGLTreeView::setConnected(bool connected) {
+    m_Connected = connected;
+    if (!connected) {
+        while (m_TreeWidget.topLevelItemCount()) {
+            delete m_TreeWidget.takeTopLevelItem(0);
+        }
     }
 }
-
 
 void QClickableTreeWidgetItem::handleDoubleClick(DglController*) {}
 

@@ -32,8 +32,8 @@ signals:
     void queryCallTrace(uint startOffset, uint endOffset);
 
 public slots:
-    void enable();
-    void disable();
+    void setEnabled(bool);
+    void setRunning(bool);
     void breaked(CalledEntryPoint, uint);
     void gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&);
 

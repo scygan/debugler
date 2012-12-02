@@ -80,6 +80,11 @@ public:
      * Set current entrypoints and send them to debugee
      */
     void setCurrent(const std::set<Entrypoint>&);
+
+    /**
+     * Send breakpoints to debugee
+     */
+    void sendCurrent();
 private:
 
     /**
@@ -130,6 +135,12 @@ public:
      */
     void disconnectServer();
 
+    /** 
+     * Getter for checking if we are connected to debugee
+     */
+    bool isConnected();
+    
+
     //IController methods:
     /**
      * Method called by DGLClient on connection state change
@@ -179,11 +190,28 @@ public:
     void sendMessage(dglnet::Message*);
 
 signals:
-    void disconnected();
-    void connected();
+
+     /** 
+     * Signal for setting GUI state
+     */
+    void setConnected(bool);
+
+    /** 
+     * Signal for setting GUI state
+     */
+    void setDisconnected(bool);
+
+    /** 
+     * Signal for setting GUI state
+     */
+    void setBreaked(bool);
+
+    /** 
+     * Signal for setting GUI state
+     */
+    void setRunning(bool);
 
     void breaked(CalledEntryPoint, uint);
-    void running();
     void breakedWithStateReports(uint, const std::vector<dglnet::ContextReport>&);
 
     void gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&);
@@ -202,10 +230,12 @@ public slots:
 
 private:
 
+    void sendConfig();
+
     boost::shared_ptr<dglnet::Client> m_DglClient;
     boost::shared_ptr<QSocketNotifier> m_NotifierRead, m_NotifierWrite;
     QTimer m_Timer;
-    bool m_DglClientDead;
+    bool m_DglClientDead, m_ConfiguredAndBkpointsSet, m_Connected;
     std::string m_DglClientDeadInfo;
     DGLBreakPointController m_BreakPointController;
     DGLConfiguration m_Config;

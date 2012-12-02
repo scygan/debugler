@@ -26,9 +26,7 @@ public:
     virtual ~DGLTabbedView() {}
 
     public slots:
-        void clear();
-        void enable();
-        void disable();
+        void setConnected(bool);
       
     private slots:
         void closeTab(int);

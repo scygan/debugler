@@ -37,15 +37,14 @@ public:
     void regiSterItem(QTreeWidgetItem item);
 
 public slots:
-    void enable();
-    void disable();
+    void setConnected(bool);
     void breakedWithStateReports(uint, const std::vector<dglnet::ContextReport>&);
 
     void onDoubleClicked(QTreeWidgetItem*, int);
 
 private: 
     QTreeWidget m_TreeWidget;
-    bool m_Enabled;   
+    bool m_Connected;   
     DglController* m_controller;
 };
 

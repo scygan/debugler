@@ -29,28 +29,29 @@ void DGLTraceViewList::resizeEvent (QResizeEvent* e) {
 DGLTraceView::DGLTraceView(QWidget* parrent, DglController* controller):QDockWidget(tr("Call trace"), parrent),m_traceList(this) {
     setObjectName("DGLTraceView");
 
-    disable();
+    setEnabled(false);
 
     setWidget(&m_traceList);
     //inbound
-    CONNASSERT(connect(controller, SIGNAL(connected()), this, SLOT(enable())));
-    CONNASSERT(connect(controller, SIGNAL(disconnected()), this, SLOT(disable())));
+    CONNASSERT(connect(controller, SIGNAL(setConnected(bool)), this, SLOT(setEnabled(bool))));
+    CONNASSERT(connect(controller, SIGNAL(setRunning(bool)), this, SLOT(setRunning(bool))));
     CONNASSERT(connect(controller, SIGNAL(breaked(CalledEntryPoint, uint)), this, SLOT(breaked(CalledEntryPoint, uint))));
     CONNASSERT(connect(controller, SIGNAL(gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&)), this, SLOT(gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&))));
     //outbound
     CONNASSERT(connect(this, SIGNAL(queryCallTrace(uint, uint)), controller, SLOT(queryCallTrace(uint, uint))));
 }
 
-void DGLTraceView::enable() {
+void DGLTraceView::setEnabled(bool enabled) {
     m_traceList.clear();
-    m_Enabled = true;
+    m_Enabled = enabled;
     m_QueryUpperBound = 0;
 }
 
-void DGLTraceView::disable() {
-    m_traceList.clear();
-    m_Enabled = false;
-    m_QueryUpperBound = 0;
+void DGLTraceView::setRunning(bool running) {
+    if (running) {
+        m_traceList.clear();
+        m_QueryUpperBound = 0;
+    }
 }
 
 void DGLTraceView::mayNeedNewElements() {
@@ -67,6 +68,7 @@ void DGLTraceView::mayNeedNewElements() {
 
 void DGLTraceView::breaked(CalledEntryPoint entryp, uint traceSize) {
     m_traceList.clear();
+    m_QueryUpperBound = 0;
     for (uint i = 0; i < traceSize; i++) {
         m_traceList.addItem(QString("<unknown>"));
     }
