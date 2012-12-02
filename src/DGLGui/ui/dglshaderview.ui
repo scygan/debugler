@@ -21,7 +21,11 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QTextEdit" name="textEditLinker"/>
+       <widget class="QTextEdit" name="textEditLinker">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QLabel" name="labelLinkStatus">
