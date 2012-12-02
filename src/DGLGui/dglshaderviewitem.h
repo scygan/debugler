@@ -17,6 +17,7 @@ private slots:
     void error(const std::string&);
 private:
     Ui::DGLShaderViewItem m_Ui;
+    QLabel* m_Label;
     DGLGLSLEditor* m_GLSLEditor;
     boost::shared_ptr<srchiliteqt::Qt4SyntaxHighlighter> m_Highlighter;
     DGLResourceListener* m_Listener;

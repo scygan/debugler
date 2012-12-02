@@ -28,8 +28,9 @@ private slots:
     void update(const DGLResource& res);
 
 private: 
-    QHexEdit* editor;
-    QVBoxLayout* verticalLayout;
+    QHexEdit* m_Editor;
+    QLabel* m_Label;
+    QVBoxLayout* m_VerticalLayout;
     DGLResourceListener* m_Listener;
 };
 

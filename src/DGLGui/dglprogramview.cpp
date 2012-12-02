@@ -7,6 +7,9 @@
 DGLProgramViewItem::DGLProgramViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent), m_ResourceManager(resManager) {
     m_Ui.setupUi(this);
 
+    m_Label = new QLabel(this);
+    m_Ui.verticalLayout->addWidget(m_Label);
+
     m_Listener = resManager->createListener(name, DGLResource::ObjectTypeProgram);
     m_Listener->setParent(this);
 
@@ -15,10 +18,16 @@ DGLProgramViewItem::DGLProgramViewItem(uint name, DGLResourceManager* resManager
 }
 
 void DGLProgramViewItem::error(const std::string& message) {
-    //TODO
+    m_Ui.tabWidget->hide();
+    m_Ui.groupBox1->hide();
+    m_Label->setText(QString::fromStdString(message));
+    m_Label->show();
 }
 
 void DGLProgramViewItem::update(const DGLResource& res) {
+    m_Ui.tabWidget->show();
+    m_Ui.groupBox1->show();
+    m_Label->hide();
 
     const DGLResourceProgram* resource = dynamic_cast<const DGLResourceProgram*>(&res);
     std::string errorMsg;

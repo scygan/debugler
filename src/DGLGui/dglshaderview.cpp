@@ -118,6 +118,9 @@ DGLShaderViewItem::DGLShaderViewItem(uint name, DGLResourceManager* resManager, 
     //we may modify this in far future :)
     m_GLSLEditor->setReadOnly(true);
 
+    m_Label = new QLabel(this);
+    m_Ui.verticalLayout->addWidget(m_Label);
+
     m_Ui.verticalLayout->insertWidget(0, m_GLSLEditor);
     m_Ui.verticalLayout->setStretch(0, 4);
     m_Ui.verticalLayout->setStretch(1, 1);
@@ -134,11 +137,16 @@ DGLShaderViewItem::DGLShaderViewItem(uint name, DGLResourceManager* resManager, 
 }
 
 void DGLShaderViewItem::error(const std::string& message) {
-    //TODO
+    m_GLSLEditor->hide();
+    m_Ui.groupBox1->hide();
+    m_Label->setText(QString::fromStdString(message));
+    m_Label->show();
 }
 
 void DGLShaderViewItem::update(const DGLResource& res) {
-
+    m_GLSLEditor->show();
+    m_Ui.groupBox1->show();
+    m_Label->hide();
     const DGLResourceShader* resource = dynamic_cast<const DGLResourceShader*>(&res);
 
     m_Ui.textEditLinker->setText(QString::fromStdString(resource->m_CompileStatus.first));

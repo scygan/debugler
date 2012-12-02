@@ -31,6 +31,7 @@ private slots:
 
 private:
     Ui::DGLProgramViewItem m_Ui;
+    QLabel* m_Label;
     DGLResourceListener* m_Listener;
     DGLResourceManager* m_ResourceManager;
 };

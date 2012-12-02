@@ -2,9 +2,11 @@
 #include "dglgui.h"
 
 DGLBufferViewItem::DGLBufferViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
-    editor = new QHexEdit(this);
-    verticalLayout = new QVBoxLayout(this);
-    verticalLayout->addWidget(editor);
+    m_Editor = new QHexEdit(this);
+    m_Label = new QLabel(this);
+    m_VerticalLayout = new QVBoxLayout(this);
+    m_VerticalLayout->addWidget(m_Editor);
+    m_VerticalLayout->addWidget(m_Label);
 
     m_Listener = resManager->createListener(name, DGLResource::ObjectTypeBuffer);
     m_Listener->setParent(this);
@@ -14,13 +16,17 @@ DGLBufferViewItem::DGLBufferViewItem(uint name, DGLResourceManager* resManager, 
 }
 
 void DGLBufferViewItem::error(const std::string& message) {
-    //TODO
+    m_Editor->hide();
+    m_Label->setText(QString::fromStdString(message));
+    m_Label->show();
 }
 
 void DGLBufferViewItem::update(const DGLResource& res) {
+    m_Editor->show();
+    m_Label->hide();
     const DGLResourceBuffer* resource = dynamic_cast<const DGLResourceBuffer*>(&res);
     QByteArray array(&resource->m_Data[0], resource->m_Data.size());
-    editor->setData(array);
+    m_Editor->setData(array);
 }
 
 DGLBufferView::DGLBufferView(QWidget* parrent, DglController* controller):DGLTabbedView(parrent, controller) {
