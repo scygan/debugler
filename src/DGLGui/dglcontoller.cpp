@@ -29,13 +29,27 @@ void DGLResourceManager::emitQueries() {
 
 
 void DGLResourceManager::handleResourceMessage(const dglnet::ResourceMessage& msg) {
-    std::pair<std::multimap<uint, DGLResourceListener*>::iterator, std::multimap<uint, DGLResourceListener*>::iterator> range = m_Listeners.equal_range(msg.m_ListenerId);
-    for (std::multimap<uint, DGLResourceListener*>::iterator i = range.first; i != range.second; i++) {
-        std::string errorMessage;
-        if (msg.isOk(errorMessage)) {
-            i->second->update(*msg.m_Resource);
+
+    int  idx = 0; 
+    bool end = false;
+
+    //this strange method of iteration is to allow modification of m_Listeners
+
+    for (int idx = 0; !end; idx++) {
+        std::pair<std::multimap<uint, DGLResourceListener*>::iterator, std::multimap<uint, DGLResourceListener*>::iterator> range = m_Listeners.equal_range(msg.m_ListenerId);
+        std::multimap<uint, DGLResourceListener*>::iterator i  = range.first;
+        for (int j = 0; j < idx && i != range.second ; j++) {
+            i++;
+        }
+        if (i == range.second) {
+            end = true; 
         } else {
-            i->second->error(errorMessage);
+            std::string errorMessage;
+            if (msg.isOk(errorMessage)) {
+                i->second->update(*msg.m_Resource);
+            } else {
+                i->second->error(errorMessage);
+            }
         }
     }
 }

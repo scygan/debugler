@@ -26,11 +26,18 @@ void DGLProgramViewItem::update(const DGLResource& res) {
     m_Ui.textEditLinker->setText(QString::fromStdString(resource->mLinkStatus.first));
 
     for (size_t i = 0; i <resource->m_AttachedShaders.size(); i++) {
-        DGLShaderViewItem* newTab = new DGLShaderViewItem(resource->m_AttachedShaders[i].first, m_ResourceManager, this);
-        m_Ui.tabWidget->addTab(newTab, QString(GetShaderStageName(resource->m_AttachedShaders[i].second)
-            + QString(" Shader ") + QString::number(resource->m_AttachedShaders[i].first)));
-        //CONNASSERT(connect(controller, SIGNAL(gotShader(uint, const dglnet::ShaderMessage&)), this, SLOT(gotShader(uint, const dglnet::ShaderMessage&))));
-        //controller->request...
+        bool found = false;
+        for (int j = 0; j < m_Ui.tabWidget->count(); j++) {
+            DGLShaderViewItem* widget = dynamic_cast<DGLShaderViewItem*>(m_Ui.tabWidget->widget(j)); 
+            if (widget && widget->getObjId() == resource->m_AttachedShaders[i].first) {
+                found = true; break;
+            }
+        }
+        if (!found) {
+            DGLShaderViewItem* newTab = new DGLShaderViewItem(resource->m_AttachedShaders[i].first, m_ResourceManager, this);
+            m_Ui.tabWidget->addTab(newTab, QString(GetShaderStageName(resource->m_AttachedShaders[i].second)
+                + QString(" Shader ") + QString::number(resource->m_AttachedShaders[i].first)));
+        }
     }
             
     if (!resource->mLinkStatus.second) {
