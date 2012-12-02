@@ -12,6 +12,10 @@ void CalledEntryPoint::setError(uint32_t error) {
     m_glError = error;
 }
 
+void CalledEntryPoint::setDebugOutput(const std::string& message) {
+    m_DebugOutput = message;
+}
+
 const std::vector<AnyValue>& CalledEntryPoint::getArgs() const{
     return m_args;
 }
@@ -66,6 +70,9 @@ std::string CalledEntryPoint::toString() const {
     ret << ")";
     if (m_glError != GL_NO_ERROR) {
         ret << " -> " << GetGLEnumName(m_glError);
+    }
+    if (m_DebugOutput.size()) {
+        ret << " debug: " << m_DebugOutput;
     }
     return ret.str();;
 }

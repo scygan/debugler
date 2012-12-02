@@ -39,6 +39,7 @@ class BreakState {
 public:
     BreakState();
     bool breakAt(const Entrypoint&, GLenum glError = GL_NO_ERROR);
+    bool breakAtDebugOutput();
     bool isBreaked();
     //handlers for remote commands
     void handle(const dglnet::ConfigurationMessage&);
@@ -58,6 +59,7 @@ public:
     void query(const dglnet::QueryCallTraceMessage& query, dglnet::CallTraceMessage& reply);
     size_t size();
     void setError(GLenum error);
+    void setDebugOutput(const std::string& message);
 private:
     boost::circular_buffer<CalledEntryPoint> m_cb;
     boost::mutex m_mutex;

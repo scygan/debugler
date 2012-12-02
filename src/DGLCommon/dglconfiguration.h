@@ -3,8 +3,9 @@
 
 class DGLConfiguration {
 public:
-    DGLConfiguration():m_BreakOnGLError(true) {}
+    DGLConfiguration():m_BreakOnGLError(true), m_BreakOnDebugOutput(true) {}
     bool m_BreakOnGLError;
+    bool m_BreakOnDebugOutput;
 };
 
 #endif

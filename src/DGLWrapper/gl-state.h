@@ -145,6 +145,11 @@ public:
     GLenum getError();
     GLenum peekError();
 
+    void setDebugOutput(const std::string& message);
+    bool hasDebugOutput();
+    const std::string& popDebugOutput();
+
+
     void startQuery();
     bool endQuery(std::string& message);
 
@@ -159,6 +164,9 @@ private:
     NPISurface* m_NPISurface;
 
     std::queue<GLenum> m_PokedErrorQueue;
+
+    bool m_HasDebugOutput;
+    std::string m_DebugOutput;
 };
 
 } //namespace

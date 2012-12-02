@@ -94,6 +94,7 @@ class CalledEntryPoint {
         ar & m_args;
         ar & m_entryp;
         ar & m_glError;
+        ar & m_DebugOutput;
     }
 
 public:
@@ -101,6 +102,7 @@ public:
     CalledEntryPoint(Entrypoint, int numArgs);
     Entrypoint getEntrypoint() const;
     void setError(uint32_t error);
+    void setDebugOutput(const std::string& message);
 
     const std::vector<AnyValue>& getArgs() const;
     template<typename T>
@@ -113,6 +115,7 @@ private:
     std::vector<AnyValue> m_args;
     Entrypoint m_entryp;
     int32_t m_glError;
+    std::string m_DebugOutput;
     int m_SavedArgsCount;
 };
 

@@ -173,7 +173,7 @@ GLenum GLFBObj::getTarget() {
     return m_Target;
 }
 
-GLContext::GLContext(uint32_t id):m_Id(id), m_InUse(false), m_Deleted(false), m_NPISurface(NULL), m_EverUsed(false) {}
+GLContext::GLContext(uint32_t id):m_Id(id), m_InUse(false), m_Deleted(false), m_NPISurface(NULL), m_EverUsed(false), m_HasDebugOutput(false)  {}
 
 dglnet::ContextReport GLContext::describe() {
     dglnet::ContextReport ret(m_Id);
@@ -306,6 +306,20 @@ GLenum GLContext::peekError() {
     return ret;
 }
 
+void GLContext::setDebugOutput(const std::string& message) {
+    m_HasDebugOutput = true; 
+    m_DebugOutput = message;
+}
+
+bool GLContext::hasDebugOutput() {
+    return m_HasDebugOutput;
+}
+
+const std::string& GLContext::popDebugOutput() {
+    m_HasDebugOutput = false;
+    return m_DebugOutput;
+}
+
 void GLContext::startQuery() {
     peekError();
 }
@@ -325,6 +339,10 @@ bool GLContext::endQuery(std::string& message) {
         ret = false;
     }
     while (DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR);
+    
+    //alway invalidate debug output from query functions
+    m_HasDebugOutput = false;
+
     return ret;
 }
 
@@ -713,7 +731,7 @@ int32_t GLContext::getId() {
 }
 
 void APIENTRY debugOutputCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,  const GLchar* message, GLvoid* userParam) {
-    reinterpret_cast<GLContext*>(userParam);
+    reinterpret_cast<GLContext*>(userParam)->setDebugOutput(std::string(message, length));
 };
 
 

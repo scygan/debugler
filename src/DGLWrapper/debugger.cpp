@@ -123,6 +123,11 @@ bool BreakState::breakAt(const Entrypoint& e, GLenum error) {
     return isBreaked();
 }
 
+bool BreakState::breakAtDebugOutput()  {
+    m_break = true; 
+    return isBreaked();
+}
+
 bool BreakState::isBreaked() {
     return m_break;
 }
@@ -173,6 +178,11 @@ size_t CallHistory::size() {
 void CallHistory::setError( GLenum error ) {
     boost::lock_guard<boost::mutex> lock(m_mutex);
     m_cb.back().setError(error);
+}
+
+void CallHistory::setDebugOutput(const std::string& message) {
+    boost::lock_guard<boost::mutex> lock(m_mutex);
+    m_cb.back().setDebugOutput(message);
 }
 
 DebugController::~DebugController() {
