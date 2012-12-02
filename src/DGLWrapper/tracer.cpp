@@ -299,12 +299,14 @@ RetValue ProgramTracer::Pre(const CalledEntryPoint& call) {
 
         GLint currentProgramName;
         DIRECT_CALL(glGetIntegerv)(GL_CURRENT_PROGRAM, &currentProgramName);
+        
+        if (currentProgramName) {
+            dglstate::GLProgramObj* currentProgram = g_GLState.getCurrent()->ensureProgram(currentProgramName);
 
-        dglstate::GLProgramObj* currentProgram = g_GLState.getCurrent()->ensureProgram(currentProgramName);
-
-        currentProgram->use(false);
-        if (currentProgram->mayDelete()) {
-            g_GLState.getCurrent()->deleteProgram(currentProgramName);
+            currentProgram->use(false);
+            if (currentProgram->mayDelete()) {
+                g_GLState.getCurrent()->deleteProgram(currentProgramName);
+            }
         }
     }
     return ret;
@@ -335,8 +337,9 @@ void ProgramTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
             call.getArgs()[0].get(name);
 
-            g_GLState.getCurrent()->ensureProgram(name)->use(true);
-
+            if (name != 0) {
+                g_GLState.getCurrent()->ensureProgram(name)->use(true);
+            }
         }
     }
     PrevPost(call, ret);
@@ -362,8 +365,8 @@ void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
             call.getArgs()[0].get(name);
 
-            dglstate::GLProgramObj* program = g_GLState.getCurrent()->ensureProgram(name);
-            program->markDeleted();
+            dglstate::GLShaderObj* shader = g_GLState.getCurrent()->ensureShader(name);
+            shader->markDeleted();
 
         } else if (entrp == glShaderSource_Call || entrp == glShaderSourceARB_Call) {
 
