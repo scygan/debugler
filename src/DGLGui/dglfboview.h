@@ -7,19 +7,19 @@
 class DGLFBOViewItem: public DGLTabbedViewItem {
     Q_OBJECT
 public:
-    DGLFBOViewItem(uint name, QWidget* parrent);
+    DGLFBOViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent);
 
-    void update(const dglnet::FBOMessage& msg);
 private slots:
-
+    void error(const std::string& message);
+    void update(const DGLResource&);
     void showAttachment(int id);
 
-    virtual void requestUpdate(DglController* controller);
 private: 
     Ui_DGLFBOViewItem m_Ui;
     boost::shared_ptr<QGraphicsScene> m_Scene;
-    std::vector<dglnet::FBOAttachment> m_Attachments;
+    std::vector<DGLResourceFBO::FBOAttachment> m_Attachments;
     bool m_Error; 
+    DGLResourceListener* m_Listener;
 };
 
 
@@ -32,7 +32,6 @@ public:
 
     public slots:
         void showFBO(uint);
-        void gotFBO(uint, const dglnet::FBOMessage&);
 
 private:
         virtual DGLTabbedViewItem* createTab(uint id);

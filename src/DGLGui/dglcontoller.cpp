@@ -1,7 +1,101 @@
 #include "dglcontroller.h"
 #include "dglgui.h"
 
-DglController::DglController():m_DglClientDead(false),m_BreakPointController(this) {
+
+
+DGLResourceListener::DGLResourceListener(uint listenerId, uint objectId, DGLResource::ObjectType type, DGLResourceManager* manager):
+m_ListenerId(listenerId), m_ObjectId(objectId), m_ObjectType(type), m_Manager(manager), m_RefCount(0) {
+    m_Manager->registerListener(this);
+}
+
+DGLResourceListener::~DGLResourceListener() {
+    m_Manager->unregisterListener(this);
+}
+
+DGLResourceManager::DGLResourceManager(DglController* controller):m_MaxListenerId(0), m_Controller(controller) {}
+
+void DGLResourceManager::emitQueries() {
+    dglnet::QueryResourceMessage queries;
+    for (std::multimap<uint, DGLResourceListener*>::iterator i = m_Listeners.begin(); i != m_Listeners.end(); i++) {
+        dglnet::QueryResourceMessage::ResourceQuery query;
+        query.m_ListenerId = i->first;
+        query.m_ObjectId = i->second->m_ObjectId;
+        query.m_Type = i->second->m_ObjectType;
+        queries.m_ResourceQueries.push_back(query);
+    }
+    if (queries.m_ResourceQueries.size())
+        m_Controller->sendMessage(&queries);
+}
+
+
+void DGLResourceManager::handleResourceMessage(const dglnet::ResourceMessage& msg) {
+    std::pair<std::multimap<uint, DGLResourceListener*>::iterator, std::multimap<uint, DGLResourceListener*>::iterator> range = m_Listeners.equal_range(msg.m_ListenerId);
+    for (std::multimap<uint, DGLResourceListener*>::iterator i = range.first; i != range.second; i++) {
+        std::string errorMessage;
+        if (msg.isOk(errorMessage)) {
+            i->second->update(*msg.m_Resource);
+        } else {
+            i->second->error(errorMessage);
+        }
+    }
+}
+
+DGLResourceListener* DGLResourceManager::createListener(uint objectId, DGLResource::ObjectType type) {
+    for (std::multimap<uint, DGLResourceListener*>::iterator i = m_Listeners.begin(); i != m_Listeners.end(); i++) {
+        if (i->second->m_ObjectId == objectId && i->second->m_ObjectType == type) {
+            return new DGLResourceListener(i->second->m_ListenerId, objectId, type, this);
+        }
+    }
+    return new DGLResourceListener(m_MaxListenerId++, objectId, type, this);
+}
+
+void DGLResourceManager::registerListener(DGLResourceListener* listener) {
+    m_Listeners.insert(std::pair<uint, DGLResourceListener*>(listener->m_ListenerId, listener));
+
+    dglnet::QueryResourceMessage queries;
+    dglnet::QueryResourceMessage::ResourceQuery query;
+    query.m_ListenerId = listener->m_ListenerId;
+    query.m_ObjectId = listener->m_ObjectId;
+    query.m_Type = listener->m_ObjectType;
+    queries.m_ResourceQueries.push_back(query);
+    m_Controller->sendMessage(&queries);
+}
+
+void DGLResourceManager::unregisterListener(DGLResourceListener* listener) {
+    std::pair<std::multimap<uint, DGLResourceListener*>::iterator, std::multimap<uint, DGLResourceListener*>::iterator> range = m_Listeners.equal_range(listener->m_ListenerId);
+    for (std::multimap<uint, DGLResourceListener*>::iterator i = range.first; i != range.second; i++) {
+        if (i->second == listener) {
+            m_Listeners.erase(i);
+            break;
+        }
+    }
+}
+
+void DGLViewRouter::show(uint name, DGLResource::ObjectType type, uint target) {
+    switch (type) {
+        case DGLResource::ObjectTypeBuffer:
+            emit showBuffer(name);
+            break;
+        case DGLResource::ObjectTypeFramebuffer:
+            emit showFramebuffer(name);
+            break;
+        case DGLResource::ObjectTypeFBO:
+            emit showFBO(name);
+            break;
+        case DGLResource::ObjectTypeTexture:
+            emit showTexture(name);
+            break;
+        case DGLResource::ObjectTypeShader:
+            assert(target);
+            emit showShader(name, target);
+            break;
+        case DGLResource::ObjectTypeProgram:
+            emit showProgram(name);
+            break;
+    }
+}
+
+DglController::DglController():m_DglClientDead(false),m_BreakPointController(this), m_ResourceManager(this) {
     m_Timer.setInterval(10);
     CONNASSERT(connect(&m_Timer, SIGNAL(timeout()), this, SLOT(poll())));
 }
@@ -87,87 +181,22 @@ void DglController::queryCallTrace(uint startOffset, uint endOffset) {
 void DglController::doHandle(const dglnet::BreakedCallMessage & msg) {
     breaked(msg.m_entryp, msg.m_TraceSize);
     breakedWithStateReports(msg.m_CurrentCtx, msg.m_CtxReports);
+
+    m_ResourceManager.emitQueries();
+
 }
 
 void DglController::doHandle(const dglnet::CallTraceMessage& msg) {
     gotCallTraceChunkChunk(msg.m_StartOffset, msg.m_Trace);
 }
 
-void DglController::doHandle(const dglnet::TextureMessage& msg) {
-    gotTexture(msg.m_TextureName, msg);
-}
-
-void DglController::doHandle(const dglnet::BufferMessage& msg) {
-    gotBuffer(msg.m_BufferName, msg);
-}
-
-void DglController::doHandle(const dglnet::FramebufferMessage& msg) {
-    gotFramebuffer(msg.m_BufferEnum, msg);
-}
-
-void DglController::doHandle(const dglnet::FBOMessage& msg) {
-    gotFBO(msg.m_Name, msg);
-}
-
-void DglController::doHandle(const dglnet::ShaderMessage& msg) {
-    gotShader(msg.m_Name, msg);
-}
-
-void DglController::doHandle(const dglnet::ProgramMessage& msg) {
-    gotProgram(msg.m_Name, msg);
+void DglController::doHandle(const dglnet::ResourceMessage& msg) {
+    m_ResourceManager.handleResourceMessage(msg);
 }
 
 void DglController::doHandleDisconnect(const std::string& msg) {
     m_DglClientDeadInfo = msg;
     m_DglClientDead = true; 
-}
-
-void DglController::requestTexture(uint name, bool focus) {
-    assert(m_DglClient);
-    dglnet::QueryTextureMessage message(name);
-    m_DglClient->sendMessage(&message);
-    if (focus)
-        focusTexture(name);
-}
-
-void DglController::requestBuffer(uint name, bool focus) {
-    assert(m_DglClient);
-    dglnet::QueryBufferMessage message(name);
-    m_DglClient->sendMessage(&message);
-    if (focus)
-        focusBuffer(name);
-}
-
-void DglController::requestFramebuffer(GLenum type, bool focus) {
-    assert(m_DglClient);
-    dglnet::QueryFramebufferMessage message(type);
-    m_DglClient->sendMessage(&message);
-    if (focus)
-        focusFramebuffer(type);
-}
-
-void DglController::requestFBO(uint name, bool focus) {
-    assert(m_DglClient);
-    dglnet::QueryFBOMessage message(name);
-    m_DglClient->sendMessage(&message);
-    if (focus)
-        focusFBO(name);
-} 
-
-void DglController::requestShader(uint name, uint target, bool focus) {
-    assert(m_DglClient);
-    dglnet::QueryShaderMessage message(name);
-    m_DglClient->sendMessage(&message);
-    if (focus)
-        focusShader(name, target);
-}
-
-void DglController::requestProgram(uint name, bool focus) {
-    assert(m_DglClient);
-    dglnet::QueryProgramMessage message(name);
-    m_DglClient->sendMessage(&message);
-    if (focus)
-        focusProgram(name);
 }
 
 void DglController::sendMessage(dglnet::Message* msg) {
@@ -177,6 +206,14 @@ void DglController::sendMessage(dglnet::Message* msg) {
 
 DGLBreakPointController* DglController::getBreakPoints() {
     return &m_BreakPointController;
+}
+
+DGLResourceManager* DglController::getResourceManager() {
+    return &m_ResourceManager;
+}
+
+DGLViewRouter* DglController::getViewRouter() {
+    return &m_ViewRouter;
 }
 
 void DglController::configure(bool breakOnGLError) {

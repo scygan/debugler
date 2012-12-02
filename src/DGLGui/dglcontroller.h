@@ -9,7 +9,55 @@
 #include "DGLCommon/dglconfiguration.h"
 #include <boost/make_shared.hpp>
 
+class DGLResourceManager;
+
+class DGLResourceListener: public QObject {
+    friend class DGLResourceManager;
+public:
+    Q_OBJECT
+
+    DGLResourceListener(uint listenerId, uint objectId, DGLResource::ObjectType type, DGLResourceManager* manager);
+
+    ~DGLResourceListener();
+
+signals:
+    void update(const DGLResource&);
+    void error(const std::string&);
+    void invalidate();
+private:
+    uint m_ListenerId, m_ObjectId;
+    DGLResourceManager* m_Manager;
+    DGLResource::ObjectType m_ObjectType;
+    uint m_RefCount;
+};
+
+
 class DglController;
+
+class DGLResourceManager {
+    friend class DGLResourceListener;
+public:
+    DGLResourceManager(DglController*);
+
+
+    void emitQueries();
+
+    void handleResourceMessage(const dglnet::ResourceMessage& msg);
+
+    DGLResourceListener* createListener(uint objectId, DGLResource::ObjectType type);
+
+private:
+    void registerListener(DGLResourceListener* listener);
+
+    void unregisterListener(DGLResourceListener* listener);
+
+    std::multimap<uint, DGLResourceListener*> m_Listeners;
+
+    uint m_MaxListenerId;
+
+    DglController* m_Controller;
+};
+
 
 /**
  * Class aggregating currently set bkpoints
@@ -45,6 +93,19 @@ private:
     DglController* m_Controller;
 };
 
+
+class DGLViewRouter:public QObject {
+    Q_OBJECT
+public:
+    void show(uint name, DGLResource::ObjectType type, uint target = 0);
+signals:
+    void showTexture(uint name);
+    void showBuffer(uint name);
+    void showFramebuffer(uint bufferEnum);
+    void showFBO(uint name);
+    void showShader(uint name, uint target);
+    void showProgram(uint name);
+};
 
 /** 
  * DGLController class - the interface between UI and debugee
@@ -83,52 +144,27 @@ public:
     //IMessageHandler methods:
     virtual void doHandle(const dglnet::BreakedCallMessage&);
     virtual void doHandle(const dglnet::CallTraceMessage&);
-    virtual void doHandle(const dglnet::TextureMessage&);
-    virtual void doHandle(const dglnet::BufferMessage&);
-    virtual void doHandle(const dglnet::FramebufferMessage&);
-    virtual void doHandle(const dglnet::FBOMessage&);
-    virtual void doHandle(const dglnet::ShaderMessage&);
-    virtual void doHandle(const dglnet::ProgramMessage&);
+    virtual void doHandle(const dglnet::ResourceMessage&);
 
     /** 
      * Method called by DGLclient, when disconnection condition is detected
      */
     virtual void doHandleDisconnect(const std::string&);
 
-    /** 
-     * Method called to request information on given texture from debugee
-     */
-    void requestTexture(uint name, bool focus = true);
-
-    /** 
-     * Method called to request information on given buffer from debugee
-     */
-    void requestBuffer(uint name, bool focus = true);
-
-    /** 
-     * Method called to request information on given frame buffer from debugee
-     */
-    void requestFramebuffer(uint bufferEnum, bool focus = true);
-
-    /** 
-     * Method called to request information on given frame buffer object from debugee
-     */
-    void requestFBO(uint name, bool focus = true);
-
-     /** 
-     * Method called to request information on given shader object from debugee
-     */
-    void requestShader(uint name, uint target, bool focus = true);
-
-    /** 
-     * Method called to request information on given shader program object from debugee
-     */
-    void requestProgram(uint name, bool focus = true);
-
     /**
      * Getter for break point controller object
      */
     DGLBreakPointController* getBreakPoints();
+
+    /**
+     * Getter for resource manager controller object
+     */
+    DGLResourceManager* getResourceManager();
+
+     /**
+     * Getter for view router controller object
+     */
+    DGLViewRouter* getViewRouter();
 
     /** 
      * Setter for new configuration of debugee
@@ -136,6 +172,11 @@ public:
     void configure(bool breakOnGLError);
 
     const DGLConfiguration& getConfig();
+
+    /** 
+     * Send message to debugee. Base method for all lover-level communication with debugee
+     */
+    void sendMessage(dglnet::Message*);
 
 signals:
     void disconnected();
@@ -146,23 +187,10 @@ signals:
     void breakedWithStateReports(uint, const std::vector<dglnet::ContextReport>&);
 
     void gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&);
-    void gotTexture(uint, const dglnet::TextureMessage&);
-    void gotBuffer(uint, const dglnet::BufferMessage&);
-    void gotFramebuffer(uint, const dglnet::FramebufferMessage&);
-    void gotFBO(uint, const dglnet::FBOMessage&);
-    void gotShader(uint, const dglnet::ShaderMessage&);
-    void gotProgram(uint, const dglnet::ProgramMessage&);
 
     void newStatus(const QString&);
     void error(const QString&, const QString&);
-
-    void focusTexture(uint name);
-    void focusBuffer(uint name);
-    void focusFramebuffer(uint bufferEnum);
-    void focusFBO(uint name);
-    void focusShader(uint name, uint target);
-    void focusProgram(uint name);
-    
+  
 public slots:
     void poll();
     void debugContinue();   
@@ -173,7 +201,6 @@ public slots:
     void queryCallTrace(uint, uint);
 
 private:
-    void sendMessage(dglnet::Message*);
 
     boost::shared_ptr<dglnet::Client> m_DglClient;
     boost::shared_ptr<QSocketNotifier> m_NotifierRead, m_NotifierWrite;
@@ -182,6 +209,8 @@ private:
     std::string m_DglClientDeadInfo;
     DGLBreakPointController m_BreakPointController;
     DGLConfiguration m_Config;
+    DGLResourceManager m_ResourceManager;
+    DGLViewRouter m_ViewRouter;
 };
 
 #endif

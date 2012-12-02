@@ -1,76 +1,63 @@
 #include "dglframebufferview.h"
 #include "dglgui.h"
 
-#include "ui_dglframebufferviewitem.h"
 
-class DGLFramebufferViewItem: public DGLTabbedViewItem {
-public:
-    DGLFramebufferViewItem(uint name, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
-        m_Ui.setupUi(this);
-        m_Scene = boost::make_shared<QGraphicsScene>(this);
-        m_Scene->setSceneRect(0, 0, 400, 320);
-        m_Ui.graphicsView->setScene(m_Scene.get());
-        m_Ui.graphicsView->show();
+
+DGLFramebufferViewItem::DGLFramebufferViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
+    m_Ui.setupUi(this);
+    m_Scene = boost::make_shared<QGraphicsScene>(this);
+    m_Scene->setSceneRect(0, 0, 400, 320);
+    m_Ui.graphicsView->setScene(m_Scene.get());
+    m_Ui.graphicsView->show();
+
+    m_Listener = resManager->createListener(name, DGLResource::ObjectTypeFramebuffer);
+    m_Listener->setParent(this);
+
+    CONNASSERT(connect(m_Listener,SIGNAL(update(const DGLResource&)),this,SLOT(update(const DGLResource&))));
+    CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
+}
+
+void DGLFramebufferViewItem::error(const std::string& message) {
+    m_Scene->clear();
+    m_Scene->addText(message.c_str());
+}
+
+void DGLFramebufferViewItem::update(const DGLResource& res) {
+    const DGLResourceFramebuffer* resource = dynamic_cast<const DGLResourceFramebuffer*>(&res);
+    m_Scene->clear();
+    m_PixelData = std::vector<uchar>(resource->m_Pixels.begin(), resource->m_Pixels.end());
+
+    uint realHeight = m_PixelData.size() / resource->m_Channels / resource->m_Width;
+
+    assert(realHeight == resource->m_Height);
+
+    QImage::Format format = QImage::Format_Invalid;            
+    switch (resource->m_Channels) {
+    case 4:
+        format = QImage::Format_ARGB32;
+        break;
+    case 3:
+        format = QImage::Format_RGB888;
+        break;
+    default:
+        assert(0);
     }
-
-    void update(const dglnet::FramebufferMessage& msg) {
-        std::string errorMsg;
-        m_Scene->clear();
-        if (!msg.isOk(errorMsg)) {
-            m_Scene->addText(errorMsg.c_str());
-        } else {
-            m_PixelData = std::vector<uchar>(msg.m_Pixels.begin(), msg.m_Pixels.end());
-
-            uint realHeight = m_PixelData.size() / msg.m_Channels / msg.m_Width;
-
-            assert(realHeight == msg.m_Height);
-
-            QImage::Format format = QImage::Format_Invalid;            
-            switch (msg.m_Channels) {
-            case 4:
-                format = QImage::Format_ARGB32;
-                break;
-            case 3:
-                format = QImage::Format_RGB888;
-                break;
-            default:
-                assert(0);
-            }
-            m_Scene->addPixmap(QPixmap::fromImage(QImage(&m_PixelData[0], msg.m_Width, realHeight, format)));
-        }
-    }
-
-    virtual void requestUpdate(DglController* controller) {
-        controller->requestFramebuffer(getObjId(), false);
-    }
-
-private: 
-    Ui_DGLFramebufferViewItem m_Ui;
-    boost::shared_ptr<QGraphicsScene> m_Scene;
-    std::vector<uchar> m_PixelData;
-};
+    m_Scene->addPixmap(QPixmap::fromImage(QImage(&m_PixelData[0], resource->m_Width, realHeight, format)));
+}
 
 DGLFramebufferView::DGLFramebufferView(QWidget* parrent, DglController* controller):DGLTabbedView(parrent, controller) {
     setupNames("Frame Buffers", "DGLFramebufferView");
 
     //inbound
-    CONNASSERT(connect(controller, SIGNAL(focusFramebuffer(uint)), this, SLOT(showFramebuffer(uint))));
-    CONNASSERT(connect(controller, SIGNAL(gotFramebuffer(uint, const dglnet::FramebufferMessage&)), this, SLOT(gotFramebuffer(uint, const dglnet::FramebufferMessage&))));
+    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showFramebuffer(uint)), this, SLOT(showFramebuffer(uint))));
 }
 
 void DGLFramebufferView::showFramebuffer(uint bufferEnum) {
-    update(bufferEnum);
-}
-
-void DGLFramebufferView::gotFramebuffer(uint bufferEnum, const dglnet::FramebufferMessage& msg) {
-    DGLTabbedViewItem* widget = getTab(bufferEnum);
-    if (widget) {
-        dynamic_cast<DGLFramebufferViewItem*>(widget)->update(msg);
-    }
+    ensureTabDisplayed(bufferEnum);
 }
 
 DGLTabbedViewItem* DGLFramebufferView::createTab(uint id) {
-    return new DGLFramebufferViewItem(id, this);
+    return new DGLFramebufferViewItem(id, m_ResourceManager, this);
 }
 
 QString DGLFramebufferView::getTabName(uint id, uint target) {

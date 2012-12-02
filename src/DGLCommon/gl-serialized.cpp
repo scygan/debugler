@@ -69,3 +69,17 @@ std::string CalledEntryPoint::toString() const {
     }
     return ret.str();;
 }
+
+
+
+DGLResourceFBO::FBOAttachment::FBOAttachment(uint32_t id):m_Ok(true),m_Id(id) {}
+
+void DGLResourceFBO::FBOAttachment::error(std::string msg) {
+    m_Ok = false;
+    m_ErrorMsg = msg;
+}
+
+bool DGLResourceFBO::FBOAttachment::isOk(std::string& msg) const {
+    msg = m_ErrorMsg;
+    return m_Ok;
+}

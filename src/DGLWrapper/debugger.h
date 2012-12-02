@@ -79,12 +79,7 @@ public:
     void doHandle(const dglnet::ConfigurationMessage&);
     void doHandle(const dglnet::ContinueBreakMessage&);
     void doHandle(const dglnet::QueryCallTraceMessage&);
-    void doHandle(const dglnet::QueryTextureMessage&);
-    void doHandle(const dglnet::QueryBufferMessage&);
-    void doHandle(const dglnet::QueryFramebufferMessage&);
-    void doHandle(const dglnet::QueryFBOMessage&);
-    void doHandle(const dglnet::QueryShaderMessage&);
-    void doHandle(const dglnet::QueryProgramMessage&);
+    void doHandle(const dglnet::QueryResourceMessage&);
     void doHandle(const dglnet::SetBreakPointsMessage&);
 
 private:

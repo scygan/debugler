@@ -12,12 +12,10 @@ public:
 
     public slots:
         void showShader(uint, uint);
-        void gotShader(uint, const dglnet::ShaderMessage&);
 
 private:
         virtual DGLTabbedViewItem* createTab(uint id);
         virtual QString getTabName(uint id, uint target);
-
 };
 
 class DGLGLSLEditor : public QPlainTextEdit {

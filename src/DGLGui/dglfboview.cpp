@@ -1,10 +1,10 @@
-#include "DGLFBOView.h"
+#include "dglfboview.h"
 #include "dglgui.h"
 
 #include "ui_dglfboviewitem.h"
 
 
-DGLFBOViewItem::DGLFBOViewItem(uint name, QWidget* parrent):DGLTabbedViewItem(name, parrent),m_Error(false) {
+DGLFBOViewItem::DGLFBOViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent),m_Error(false) {
     m_Ui.setupUi(this);
     m_Scene = boost::make_shared<QGraphicsScene>(this);
     m_Scene->setSceneRect(0, 0, 400, 320);
@@ -14,27 +14,33 @@ DGLFBOViewItem::DGLFBOViewItem(uint name, QWidget* parrent):DGLTabbedViewItem(na
     //internal
     CONNASSERT(connect(m_Ui.m_AttListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(showAttachment(int))));
 
+    m_Listener = resManager->createListener(name, DGLResource::ObjectTypeFBO);
+    m_Listener->setParent(this);
+
+    CONNASSERT(connect(m_Listener,SIGNAL(update(const DGLResource&)),this,SLOT(update(const DGLResource&))));
+    CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
+
 }
 
-void DGLFBOViewItem::update(const dglnet::FBOMessage& msg) {
-    std::string errorMsg;
+void DGLFBOViewItem::error(const std::string& message) {
     m_Scene->clear();
     m_Ui.m_AttListWidget->clear();
-    if (!msg.isOk(errorMsg)) {
-        m_Scene->addText(errorMsg.c_str());
-        m_Error = true;
-    } else {
-        m_Error = false;
-        m_Attachments = msg.m_Attachments;
-        for (int i = 0; i < msg.m_Attachments.size(); i++) {
-            m_Ui.m_AttListWidget->addItem(QString(GetGLEnumName(msg.m_Attachments[i].m_Id)));
-        }
-        showAttachment(0);
-    }
+    m_Scene->addText(message.c_str());
+    m_Error = true;
 }
 
-void DGLFBOViewItem::requestUpdate(DglController* controller) {
-    controller->requestFBO(getObjId());
+void DGLFBOViewItem::update(const DGLResource& res) {
+
+    const DGLResourceFBO* resource = dynamic_cast<const DGLResourceFBO*>(&res);
+    
+    m_Scene->clear();
+    m_Ui.m_AttListWidget->clear();
+    m_Error = false;
+    m_Attachments = resource->m_Attachments;
+    for (int i = 0; i < resource->m_Attachments.size(); i++) {
+        m_Ui.m_AttListWidget->addItem(QString(GetGLEnumName(resource->m_Attachments[i].m_Id)));
+    }
+    showAttachment(0);
 }
 
 void DGLFBOViewItem::showAttachment(int id) {
@@ -71,23 +77,15 @@ DGLFBOView::DGLFBOView(QWidget* parrent, DglController* controller):DGLTabbedVie
     setupNames("Framebuffer Objects", "DGLFBOView");
 
     //inbound
-    CONNASSERT(connect(controller, SIGNAL(focusFBO(uint)), this, SLOT(showFBO(uint))));
-    CONNASSERT(connect(controller, SIGNAL(gotFBO(uint, const dglnet::FBOMessage&)), this, SLOT(gotFBO(uint, const dglnet::FBOMessage&))));
+    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showFBO(uint)), this, SLOT(showFBO(uint))));
 }
 
 void DGLFBOView::showFBO(uint bufferEnum) {
-    update(bufferEnum);
-}
-
-void DGLFBOView::gotFBO(uint bufferEnum, const dglnet::FBOMessage& msg) {
-    DGLTabbedViewItem* widget = getTab(bufferEnum);
-    if (widget) {
-        dynamic_cast<DGLFBOViewItem*>(widget)->update(msg);
-    }
+    ensureTabDisplayed(bufferEnum);
 }
 
 DGLTabbedViewItem* DGLFBOView::createTab(uint id) {
-    return new DGLFBOViewItem(id, this);
+    return new DGLFBOViewItem(id, m_ResourceManager, this);
 }
 
 QString DGLFBOView::getTabName(uint id, uint target) {

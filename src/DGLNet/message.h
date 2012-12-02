@@ -7,6 +7,7 @@
 
 #include <DGLNet/serializer-fwd.h>
 #include <set>
+#include <boost/shared_ptr.hpp>
 
 namespace dglnet {
 
@@ -15,18 +16,10 @@ class BreakedCallMessage;
 class ContinueBreakMessage;
 class QueryCallTraceMessage;
 class CallTraceMessage;
-class QueryTextureMessage;
-class TextureMessage;
-class QueryBufferMessage;
-class BufferMessage;
-class QueryFramebufferMessage;
-class FramebufferMessage;
-class QueryFBOMessage;
-class FBOMessage;
-class QueryShaderMessage;
-class ShaderMessage;
-class QueryProgramMessage;
-class ProgramMessage;
+
+class QueryResourceMessage;
+class ResourceMessage;
+
 class SetBreakPointsMessage;
 
 
@@ -37,18 +30,10 @@ public:
     virtual void doHandle(const ContinueBreakMessage&);
     virtual void doHandle(const QueryCallTraceMessage&);
     virtual void doHandle(const CallTraceMessage&);
-    virtual void doHandle(const QueryTextureMessage&);
-    virtual void doHandle(const TextureMessage&);
-    virtual void doHandle(const QueryBufferMessage&);
-    virtual void doHandle(const BufferMessage&);
-    virtual void doHandle(const QueryFramebufferMessage&);
-    virtual void doHandle(const FramebufferMessage&);
-    virtual void doHandle(const QueryFBOMessage&);
-    virtual void doHandle(const FBOMessage&);
-    virtual void doHandle(const QueryShaderMessage&);
-    virtual void doHandle(const ShaderMessage&);
-    virtual void doHandle(const QueryProgramMessage&);
-    virtual void doHandle(const ProgramMessage&);
+
+    virtual void doHandle(const QueryResourceMessage&);
+    virtual void doHandle(const ResourceMessage&);
+
     virtual void doHandle(const SetBreakPointsMessage&);
     virtual void doHandleDisconnect(const std::string& why) = 0;
     virtual ~MessageHandler() {}
@@ -237,38 +222,7 @@ public:
     std::vector<CalledEntryPoint> m_Trace;
 };
 
-class QueryTextureMessage: public Message {
-    friend class boost::serialization::access;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<Message>(*this);
-        ar & m_TextureName;
-    }
-
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
-
-public:
-    QueryTextureMessage(){}
-    QueryTextureMessage(int32_t name):m_TextureName(name) {}
-
-    uint32_t m_TextureName;
-};
-
-class TextureLevel {
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & m_Width;
-        ar & m_Height;
-        ar & m_Channels;
-        ar & m_Pixels;
-    }
-public:
-    int32_t m_Width, m_Height, m_Channels;
-    std::vector<int8_t> m_Pixels;
-};
 
 class StatusMessage: public Message {
 public:
@@ -290,248 +244,55 @@ private:
     std::string m_ErrorMsg;
 };
 
-class TextureMessage: public StatusMessage {
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<StatusMessage>(*this);
-        ar & m_TextureName;
-        ar & m_Levels;
-    }
-
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
-
-public:
-    TextureMessage();
-
-    uint32_t m_TextureName;
-    std::vector<TextureLevel> m_Levels;
-};
-
-class QueryBufferMessage: public Message {
+class QueryResourceMessage: public Message {
+    
     friend class boost::serialization::access;
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
         ar & boost::serialization::base_object<Message>(*this);
-        ar & m_BufferName;
+        ar & m_ResourceQueries;
     }
+public:
 
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
 
-public:
-    QueryBufferMessage(){}
-    QueryBufferMessage(int32_t name):m_BufferName(name) {}
+    class ResourceQuery {
+        
+        friend class boost::serialization::access;
 
-    uint32_t m_BufferName;
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version) {
+            ar & m_Type;
+            ar & m_ObjectId;
+            ar & m_ListenerId;
+        }
+
+    public:
+        DGLResource::ObjectType m_Type;
+        uint32_t m_ObjectId, m_ListenerId;
+    };
+
+    std::vector<ResourceQuery> m_ResourceQueries;
 };
 
 
-class BufferMessage: public StatusMessage {
+
+
+class ResourceMessage: public StatusMessage {
     friend class boost::serialization::access;
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
         ar & boost::serialization::base_object<StatusMessage>(*this);
-        ar & m_BufferName;
-        ar & m_Data;
+        ar & m_ListenerId;
+        ar & m_Resource;
     }
-
+public:
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
 
-public:
-    BufferMessage();
-
-    uint32_t m_BufferName;
-    std::vector<char> m_Data;
-};
-
-class QueryFramebufferMessage: public Message {
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<Message>(*this);
-        ar & m_BufferEnum;
-    }
-
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
-
-public:
-    QueryFramebufferMessage(){}
-    QueryFramebufferMessage(int32_t bufferEnum):m_BufferEnum(bufferEnum) {}
-
-    uint32_t m_BufferEnum;
-};
-
-class FramebufferMessage: public StatusMessage {
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<StatusMessage>(*this);
-        ar & m_BufferEnum;
-        ar & m_Width;
-        ar & m_Height;
-        ar & m_Channels;
-        ar & m_Pixels;
-    }
-
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
-
-public:
-    FramebufferMessage();
-
-    uint32_t m_BufferEnum;
-    int32_t m_Width, m_Height, m_Channels;
-    std::vector<int8_t> m_Pixels;
-};
-
-class QueryFBOMessage: public Message {
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<Message>(*this);
-        ar & m_Name;
-    }
-
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
-
-public:
-    QueryFBOMessage(){}
-    QueryFBOMessage(int32_t m_Name):m_Name(m_Name) {}
-
-    uint32_t m_Name;
-};
-
-class FBOAttachment {
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & m_Ok;
-        ar & m_ErrorMsg;
-        ar & m_Width;
-        ar & m_Height;
-        ar & m_Channels;
-        ar & m_Pixels;
-        ar & m_Id;
-    }
-public:
-    FBOAttachment() {}
-    FBOAttachment(uint32_t id);
-
-    void error(std::string msg);
-    bool isOk(std::string& error) const;
-
-
-    int32_t m_Width, m_Height, m_Channels;
-    std::vector<int8_t> m_Pixels;
-    uint32_t m_Id;
-private:
-    bool m_Ok;
-    std::string m_ErrorMsg;
-};
-
-class FBOMessage: public StatusMessage {
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<StatusMessage>(*this);
-        ar & m_Name;
-        ar & m_Attachments;
-    }
-
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
-
-public:
-    FBOMessage();
-
-    uint32_t m_Name;
-    std::vector<FBOAttachment> m_Attachments;
-};
-
-class QueryShaderMessage: public Message {
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<Message>(*this);
-        ar & m_Name;
-    }
-
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
-
-public:
-    QueryShaderMessage(){}
-    QueryShaderMessage(int32_t m_Name):m_Name(m_Name) {}
-
-    uint32_t m_Name;
-};
-
-class ShaderMessage: public StatusMessage {
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<StatusMessage>(*this);
-        ar & m_Name;
-        ar & m_Sources;
-        ar & m_CompileStatus;
-        ar & m_Target;
-    }
-
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
-
-public:
-    ShaderMessage();
-
-    uint32_t m_Name, m_Target;
-    std::vector<std::string> m_Sources;
-    std::pair<std::string, uint32_t> m_CompileStatus;
-};
-
-class QueryProgramMessage: public Message {
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<Message>(*this);
-        ar & m_Name;
-    }
-
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
-
-public:
-    QueryProgramMessage(){}
-    QueryProgramMessage(int32_t m_Name):m_Name(m_Name) {}
-
-    uint32_t m_Name;
-};
-
-class ProgramMessage: public StatusMessage {
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<StatusMessage>(*this);
-        ar & m_Name;
-        ar & mLinkStatus;
-        ar & m_AttachedShaders;
-    }
-
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
-
-public:
-    ProgramMessage(){}
-    ProgramMessage(int32_t m_Name):m_Name(m_Name) {}
-
-    uint32_t m_Name;
-    std::pair<std::string, uint32_t> mLinkStatus;
-    std::vector<std::pair<uint32_t, uint32_t>> m_AttachedShaders;
+    uint32_t m_ListenerId;
+    boost::shared_ptr<DGLResource> m_Resource;
 };
 
 class SetBreakPointsMessage: public Message {

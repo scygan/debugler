@@ -2,7 +2,7 @@
 #define DGLBUFFERVIEW_H
 
 #include "dgltabbedview.h"
-
+#include "QHexEdit/qhexedit.h"
 
 class DGLBufferView : public DGLTabbedView {
     Q_OBJECT
@@ -12,11 +12,25 @@ public:
 
     public slots:
         void showBuffer(uint);
-        void gotBuffer(uint, const dglnet::BufferMessage&);
 
 private:
         virtual DGLTabbedViewItem* createTab(uint id);
         virtual QString getTabName(uint id, uint target);
+};
+
+class DGLBufferViewItem: public DGLTabbedViewItem {
+    Q_OBJECT
+public:
+    DGLBufferViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent);
+
+private slots:
+    void error(const std::string& message);
+    void update(const DGLResource& res);
+
+private: 
+    QHexEdit* editor;
+    QVBoxLayout* verticalLayout;
+    DGLResourceListener* m_Listener;
 };
 
 #endif //DGLBUFFERVIEW_H

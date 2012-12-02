@@ -221,64 +221,52 @@ void DebugController::doHandle(const dglnet::QueryCallTraceMessage& msg) {
     m_Server->sendMessage(&reply);
 }
 
-void DebugController::doHandle(const dglnet::QueryTextureMessage& msg) {
-    dglnet::TextureMessage reply;
+void DebugController::doHandle(const dglnet::QueryResourceMessage& msg) {
     dglstate::GLContext* ctx = g_GLState.getCurrent();
     if (ctx) {
-        ctx->queryTexture(msg.m_TextureName, reply);
+        for (size_t i = 0; i <  msg.m_ResourceQueries.size(); i++) {
+            boost::shared_ptr<DGLResource> res;
+
+            dglnet::ResourceMessage reply;
+
+            try {
+                ctx->startQuery();
+
+                switch (msg.m_ResourceQueries[i].m_Type) {
+                    case DGLResource::ObjectTypeBuffer:
+                        res = ctx->queryBuffer(msg.m_ResourceQueries[i].m_ObjectId);
+                        break;
+                    case DGLResource::ObjectTypeFramebuffer:
+                        res = ctx->queryFramebuffer(msg.m_ResourceQueries[i].m_ObjectId);
+                        break;
+                    case DGLResource::ObjectTypeFBO:
+                        res = ctx->queryFBO(msg.m_ResourceQueries[i].m_ObjectId);
+                        break;
+                    case DGLResource::ObjectTypeTexture:
+                        res = ctx->queryTexture(msg.m_ResourceQueries[i].m_ObjectId);
+                        break;
+                    case DGLResource::ObjectTypeShader:
+                        res = ctx->queryShader(msg.m_ResourceQueries[i].m_ObjectId);
+                        break;
+                    case DGLResource::ObjectTypeProgram:
+                        res = ctx->queryProgram(msg.m_ResourceQueries[i].m_ObjectId);
+                        break;
+                    default:
+                        throw std::runtime_error("Invalid object type requested");
+                }
+            } catch (const std::runtime_error& message) {
+                reply.error(message.what());
+            }
+            std::string message;
+            if (!ctx->endQuery(message)) {
+                reply.error(message);
+            }
+            reply.m_ListenerId = msg.m_ResourceQueries[i].m_ListenerId;
+            reply.m_Resource = res;
+            m_Server->sendMessage(&reply);
+        }
+        
     }
-    
-    m_Server->sendMessage(&reply);
-}
-
-void DebugController::doHandle(const dglnet::QueryBufferMessage& msg) {
-    dglnet::BufferMessage reply;
-    dglstate::GLContext* ctx = g_GLState.getCurrent();
-    if (ctx) {
-        ctx->queryBuffer(msg.m_BufferName, reply);
-    }
-
-    m_Server->sendMessage(&reply);
-}
-
-void DebugController::doHandle(const dglnet::QueryFramebufferMessage& msg) {
-    dglnet::FramebufferMessage reply;
-    dglstate::GLContext* ctx = g_GLState.getCurrent();
-    if (ctx) {
-        ctx->queryFramebuffer(msg.m_BufferEnum, reply);
-    }
-
-    m_Server->sendMessage(&reply);
-}
-
-void DebugController::doHandle(const dglnet::QueryFBOMessage& msg) {
-    dglnet::FBOMessage reply;
-    dglstate::GLContext* ctx = g_GLState.getCurrent();
-    if (ctx) {
-        ctx->queryFBO(msg.m_Name, reply);
-    }
-
-    m_Server->sendMessage(&reply);
-}
-
-void DebugController::doHandle(const dglnet::QueryShaderMessage& msg) {
-    dglnet::ShaderMessage reply;
-    dglstate::GLContext* ctx = g_GLState.getCurrent();
-    if (ctx) {
-        ctx->queryShader(msg.m_Name, reply);
-    }
-
-    m_Server->sendMessage(&reply);
-}
-
-void DebugController::doHandle(const dglnet::QueryProgramMessage& msg) {
-    dglnet::ProgramMessage reply;
-    dglstate::GLContext* ctx = g_GLState.getCurrent();
-    if (ctx) {
-        ctx->queryProgram(msg.m_Name, reply);
-    }
-
-    m_Server->sendMessage(&reply);
 }
 
 void DebugController::doHandle(const dglnet::SetBreakPointsMessage& msg) {

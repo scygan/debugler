@@ -2,6 +2,7 @@
 #define DGLTEXTUREVIEW_H
 
 #include "dgltabbedview.h"
+#include "ui_dgltextureviewitem.h"
 
 class DGLTextureView : public DGLTabbedView {
     Q_OBJECT
@@ -11,11 +12,26 @@ public:
 
 public slots:
     void showTexture(uint);
-    void gotTexture(uint, const dglnet::TextureMessage&);
 
 private:
     virtual DGLTabbedViewItem* createTab(uint id);
     virtual QString getTabName(uint id, uint target);
+};
+
+class DGLTextureViewItem: public DGLTabbedViewItem {
+    Q_OBJECT
+public:
+    DGLTextureViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent);
+
+private slots:
+    void error(const std::string& message);
+    void update(const DGLResource& res);
+
+private: 
+    Ui::DGLTextureViewItem m_Ui;
+    boost::shared_ptr<QGraphicsScene> m_Scene;
+    std::vector<uchar> m_PixelData;
+    DGLResourceListener* m_Listener;
 };
 
 #endif // DGLTEXTUREVIEW_H

@@ -328,404 +328,352 @@ bool GLContext::endQuery(std::string& message) {
     return ret;
 }
 
-void GLContext::queryTexture(GLuint name, dglnet::TextureMessage& ret) {
+boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
 
-    startQuery();
+    DGLResourceTexture* resource;
+    boost::shared_ptr<DGLResource> ret (resource = new DGLResourceTexture());
 
-    ret.m_TextureName = name;
-    
-    try {
-        //check if GL knows about a texture
-        if (DIRECT_CALL_CHK(glIsTexture)(name) != GL_TRUE) {
-            ret.error("Texture does not exist");
-            return;
+    //check if GL knows about a texture
+    if (DIRECT_CALL_CHK(glIsTexture)(name) != GL_TRUE) {
+        throw std::runtime_error("Texture does not exist");
+    }
+
+    //check if we know about a texture target
+    GLTextureObj* tex = ensureTexture(name);
+    if (tex->getTarget() == 0) {
+        throw std::runtime_error("Texture target is unknown");
+    } else if (tex->getTarget() != GL_TEXTURE_2D) {
+        throw std::runtime_error("Texture target is unsupported");
+    }
+
+    //disconnect PBO if it exists
+    state_setters::DefaultPBO defPBO;
+    state_setters::PixelStoreAlignment defAlignment;
+
+    //rebind texture, so we can access it
+    GLint lastTexture = 0;
+    switch (tex->getTarget()) {
+    case GL_TEXTURE_2D:
+        DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D, &lastTexture);
+        break;
+    default:
+        assert(0);
+    }
+    if (lastTexture != tex->getName()) {
+        DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), tex->getName());
+    }
+
+    {
+        int level = 0;
+        DGLResourceTexture::TextureLevel texLevel;
+        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &texLevel.m_Width);
+        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_HEIGHT, &texLevel.m_Height);
+        GLint alpha;
+        GLenum format;
+        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_ALPHA_SIZE, &alpha);
+        if (alpha) {
+            texLevel.m_Channels = 4;
+            format = GL_BGRA;
+        } else {
+            texLevel.m_Channels = 3;
+            format = GL_RGB;
         }
 
-        //check if we know about a texture target
-        GLTextureObj* tex = ensureTexture(name);
-        if (tex->getTarget() == 0) {
-            ret.error("Texture target is unknown");
-            return;
-        } else if (tex->getTarget() != GL_TEXTURE_2D) {
-            ret.error("Texture target is unsupported");
-            return;
-        }
+        queryCheckError();
 
-        //disconnect PBO if it exists
+        texLevel.m_Pixels.resize(texLevel.m_Width * texLevel.m_Height * texLevel.m_Channels);
+        DIRECT_CALL_CHK(glGetTexImage)(tex->getTarget(), level, format, GL_UNSIGNED_BYTE, &texLevel.m_Pixels[0]);
+        resource->m_Levels.push_back(texLevel);
+    }
+
+    //restore state
+    if (lastTexture != tex->getName()) {
+        DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), lastTexture);
+    }
+    return ret;
+}
+
+boost::shared_ptr<DGLResource> GLContext::queryBuffer(GLuint name) {
+
+    DGLResourceBuffer* resource;
+    boost::shared_ptr<DGLResource> ret (resource = new DGLResourceBuffer());
+
+    //check if GL knows about a texture
+    if (DIRECT_CALL_CHK(glIsBuffer)(name) != GL_TRUE) {
+        throw std::runtime_error("Buffer does not exist");
+    }
+
+    //check if we know about a texture target
+    GLBufferObj* buff = ensureBuffer(name);
+    if (buff->getTarget() == 0) {
+        throw std::runtime_error("Buffer target is unknown");
+    }
+
+    //rebind buffer, so we can access it
+    GLint lastBuffer = 0;
+    switch (buff->getTarget()) {
+        case GL_ARRAY_BUFFER:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_ARRAY_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_ATOMIC_COUNTER_BUFFER:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_ATOMIC_COUNTER_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_COPY_READ_BUFFER:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_COPY_READ_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_COPY_WRITE_BUFFER:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_COPY_WRITE_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_DRAW_INDIRECT_BUFFER:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_DRAW_INDIRECT_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_DISPATCH_INDIRECT_BUFFER:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_DISPATCH_INDIRECT_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_ELEMENT_ARRAY_BUFFER:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_ELEMENT_ARRAY_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_PIXEL_PACK_BUFFER:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_PIXEL_PACK_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_PIXEL_UNPACK_BUFFER:
+            DIRECT_CALL_CHK(glGetIntegerv)( GL_PIXEL_UNPACK_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_SHADER_STORAGE_BUFFER:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_SHADER_STORAGE_BUFFER_BINDING, &lastBuffer);
+            break;
+        /*case GL_TEXTURE_BUFFER:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_NO_IDEA_WHAT_SHOULD_BE_HERE, &lastBuffer);
+            break;*/
+        case GL_TRANSFORM_FEEDBACK_BUFFER:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, &lastBuffer);
+            break;
+        case GL_UNIFORM_BUFFER:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_UNIFORM_BUFFER_BINDING, &lastBuffer);
+            break;       
+    default:
+        throw std::runtime_error("Buffer target is not supported");
+    }
+    if (lastBuffer != buff->getName()) {
+        DIRECT_CALL_CHK(glBindBuffer)(buff->getTarget(), buff->getName());
+    }
+
+    queryCheckError();
+
+    GLint mapped; 
+    DIRECT_CALL_CHK(glGetBufferParameteriv)(buff->getTarget(), GL_BUFFER_MAPPED, &mapped);
+    if (mapped == GL_TRUE) {
+        throw std::runtime_error("Buffer is currently mapped, cannot access data.");
+    } else {
+        GLint size = 0; 
+        DIRECT_CALL_CHK(glGetBufferParameteriv)(buff->getTarget(), GL_BUFFER_SIZE, &size);
+
+        queryCheckError();
+
+        if (!size) {
+            throw std::runtime_error("Buffer empty (GL_BUFFER_SIZE is 0)");
+        } else {
+            resource->m_Data.resize(size);
+            DIRECT_CALL_CHK(glGetBufferSubData)(buff->getTarget(), 0, size, &resource->m_Data[0]);
+        }
+    }
+
+    //restore state
+    if (lastBuffer != buff->getName()) {
+        DIRECT_CALL_CHK(glBindBuffer)(buff->getTarget(), lastBuffer);
+    }
+    return ret;
+}
+
+boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
+    DGLResourceFramebuffer* resource;
+    boost::shared_ptr<DGLResource> ret (resource = new DGLResourceFramebuffer);
+
+    if (!m_NPISurface) {
+        throw std::runtime_error("Buffer does not exist");
+    }
+    //save state
+    GLint currentBuffer; 
+    {
+        DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &currentBuffer);
         state_setters::DefaultPBO defPBO;
+        state_setters::DefaultReadBuffer defReadFBO;
         state_setters::PixelStoreAlignment defAlignment;
 
-        //rebind texture, so we can access it
-        GLint lastTexture = 0;
-        switch (tex->getTarget()) {
-        case GL_TEXTURE_2D:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D, &lastTexture);
-            break;
-        default:
-            assert(0);
-        }
-        if (lastTexture != tex->getName()) {
-            DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), tex->getName());
-        }
+        //read the buffer
+        DIRECT_CALL_CHK(glReadBuffer)(bufferEnum);
 
-        {
-            int level = 0;
-            dglnet::TextureLevel texLevel;
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &texLevel.m_Width);
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_HEIGHT, &texLevel.m_Height);
-            GLint alpha;
+        resource->m_Width = m_NPISurface->getWidth();
+        resource->m_Height = m_NPISurface->getHeight();
+        GLenum format = GL_RGB;
+        resource->m_Channels = 3;
+        if (m_NPISurface->isAlpha()) {
+            resource->m_Channels = 4;
+            format = GL_BGRA;
+        }    
+        resource->m_Pixels.resize(resource->m_Width * resource->m_Height * resource->m_Channels);
+        DIRECT_CALL_CHK(glReadPixels)(0, 0, resource->m_Width, resource->m_Height, format, GL_UNSIGNED_BYTE, &resource->m_Pixels[0]);
+    }
+        
+    //restore state
+    DIRECT_CALL_CHK(glReadBuffer)(currentBuffer);
+
+    return ret;
+}
+
+boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
+
+    DGLResourceFBO* resource;
+    boost::shared_ptr<DGLResource> ret (resource = new DGLResourceFBO());
+ 
+    //save state
+    GLint currentBuffer; 
+    DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &currentBuffer);
+    {
+        state_setters::DefaultPBO defPBO;
+        state_setters::DefaultReadBuffer defReadFBO(name);
+        state_setters::PixelStoreAlignment defAlignment;
+
+        GLint maxColorAttachments; 
+        DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
+
+        for (int i = 0; i < maxColorAttachments; i++) {
+            GLint type, name, alphaSize;
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+                GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
+            if (type != GL_TEXTURE && type != GL_RENDERBUFFER)
+                continue;
+
+            resource->m_Attachments.push_back(DGLResourceFBO::FBOAttachment(GL_COLOR_ATTACHMENT0 + i));
+
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+                GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
+                GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &alphaSize);
+
+            queryCheckError();
+
+            GLint width, height;
+            if (type == GL_TEXTURE) {
+                if (!DIRECT_CALL_CHK(glIsTexture)(name)) {
+                    resource->m_Attachments.back().error("Attached texture object does not exist");
+                    continue;
+                }
+
+                GLTextureObj* tex = ensureTexture(name);
+                if (tex->getTarget() != GL_TEXTURE_2D) {
+                    resource->m_Attachments.back().error("Attached texture target is not supported");
+                }
+
+                GLint level;
+                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
+                    GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, &level);
+
+                GLint lastTexture;
+                DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D, &lastTexture);
+                DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), tex->getName());
+
+                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &width);
+                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &height);
+                DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), lastTexture);
+
+            } else if (type == GL_RENDERBUFFER) {
+                if (!DIRECT_CALL_CHK(glIsRenderbuffer)(name)) {
+                    resource->m_Attachments.back().error("Attached renderbuffer object does not exist");
+                    continue;
+                }
+                GLint lastRenderBuffer;
+                DIRECT_CALL_CHK(glGetIntegerv)(GL_RENDERBUFFER_BINDING, &lastRenderBuffer);
+                DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, name);
+                DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &width);
+                DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
+                DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, lastRenderBuffer);
+            }
+
+            queryCheckError();
+
             GLenum format;
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_ALPHA_SIZE, &alpha);
-            if (alpha) {
-                texLevel.m_Channels = 4;
+            if (alphaSize) {
+                resource->m_Attachments.back().m_Channels = 4;
                 format = GL_BGRA;
             } else {
-                texLevel.m_Channels = 3;
+                resource->m_Attachments.back().m_Channels = 3;
                 format = GL_RGB;
             }
 
-            queryCheckError();
+            resource->m_Attachments.back().m_Width = width;
+            resource->m_Attachments.back().m_Height = height;
 
-            texLevel.m_Pixels.resize(texLevel.m_Width * texLevel.m_Height * texLevel.m_Channels);
-            DIRECT_CALL_CHK(glGetTexImage)(tex->getTarget(), level, format, GL_UNSIGNED_BYTE, &texLevel.m_Pixels[0]);
-            ret.m_Levels.push_back(texLevel);
-        }
+            resource->m_Attachments.back().m_Pixels.resize(
+                resource->m_Attachments.back().m_Width * 
+                resource->m_Attachments.back().m_Height * 
+                resource->m_Attachments.back().m_Channels
+                );
 
-        //restore state
-        if (lastTexture != tex->getName()) {
-            DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), lastTexture);
+            DIRECT_CALL_CHK(glReadBuffer)(GL_COLOR_ATTACHMENT0 + i);
+            DIRECT_CALL_CHK(glReadPixels)(0, 0, resource->m_Attachments.back().m_Width,
+                resource->m_Attachments.back().m_Height,
+                format, GL_UNSIGNED_BYTE, &resource->m_Attachments.back().m_Pixels[0]);
         }
-    } catch (const std::runtime_error& err) {
-        ret.error(err.what());
     }
-    std::string message;
-    if (!endQuery(message)) {
-        ret.error(message);
-    }
+    //restore state
+    DIRECT_CALL_CHK(glReadBuffer)(currentBuffer);
+
+    return ret;
 }
 
-void GLContext::queryBuffer(GLuint name, dglnet::BufferMessage& ret) {
+boost::shared_ptr<DGLResource> GLContext::queryShader(GLuint name) {
 
-    startQuery();
+    DGLResourceShader* resource;
+    boost::shared_ptr<DGLResource> ret (resource = new DGLResourceShader);
 
-    ret.m_BufferName = name;
-    try {
-        //check if GL knows about a texture
-        if (DIRECT_CALL_CHK(glIsBuffer)(name) != GL_TRUE) {
-            ret.error("Buffer does not exist");
-            return;
-        }
-
-        //check if we know about a texture target
-        GLBufferObj* buff = ensureBuffer(name);
-        if (buff->getTarget() == 0) {
-            ret.error("Buffer target is unknown");
-            return;
-        }
-
-        //rebind buffer, so we can access it
-        GLint lastBuffer = 0;
-        switch (buff->getTarget()) {
-            case GL_ARRAY_BUFFER:
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_ARRAY_BUFFER_BINDING, &lastBuffer);
-                break;
-            case GL_ATOMIC_COUNTER_BUFFER:
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_ATOMIC_COUNTER_BUFFER_BINDING, &lastBuffer);
-                break;
-            case GL_COPY_READ_BUFFER:
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_COPY_READ_BUFFER_BINDING, &lastBuffer);
-                break;
-            case GL_COPY_WRITE_BUFFER:
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_COPY_WRITE_BUFFER_BINDING, &lastBuffer);
-                break;
-            case GL_DRAW_INDIRECT_BUFFER:
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_DRAW_INDIRECT_BUFFER_BINDING, &lastBuffer);
-                break;
-            case GL_DISPATCH_INDIRECT_BUFFER:
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_DISPATCH_INDIRECT_BUFFER_BINDING, &lastBuffer);
-                break;
-            case GL_ELEMENT_ARRAY_BUFFER:
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_ELEMENT_ARRAY_BUFFER_BINDING, &lastBuffer);
-                break;
-            case GL_PIXEL_PACK_BUFFER:
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_PIXEL_PACK_BUFFER_BINDING, &lastBuffer);
-                break;
-            case GL_PIXEL_UNPACK_BUFFER:
-                DIRECT_CALL_CHK(glGetIntegerv)( GL_PIXEL_UNPACK_BUFFER_BINDING, &lastBuffer);
-                break;
-            case GL_SHADER_STORAGE_BUFFER:
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_SHADER_STORAGE_BUFFER_BINDING, &lastBuffer);
-                break;
-            /*case GL_TEXTURE_BUFFER:
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_NO_IDEA_WHAT_SHOULD_BE_HERE, &lastBuffer);
-                break;*/
-            case GL_TRANSFORM_FEEDBACK_BUFFER:
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, &lastBuffer);
-                break;
-            case GL_UNIFORM_BUFFER:
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_UNIFORM_BUFFER_BINDING, &lastBuffer);
-                break;       
-        default:
-            ret.error("Buffer target is not supported");
-            return;
-        }
-        if (lastBuffer != buff->getName()) {
-            DIRECT_CALL_CHK(glBindBuffer)(buff->getTarget(), buff->getName());
-        }
-
-        queryCheckError();
-
-        GLint mapped; 
-        DIRECT_CALL_CHK(glGetBufferParameteriv)(buff->getTarget(), GL_BUFFER_MAPPED, &mapped);
-        if (mapped == GL_TRUE) {
-            ret.error("Buffer is currently mapped, cannot access data.");
-        } else {
-            GLint size = 0; 
-            DIRECT_CALL_CHK(glGetBufferParameteriv)(buff->getTarget(), GL_BUFFER_SIZE, &size);
-
-            queryCheckError();
-
-            if (!size) {
-                ret.error("Buffer empty (GL_BUFFER_SIZE is 0)");
-            } else {
-                ret.m_Data.resize(size);
-                DIRECT_CALL_CHK(glGetBufferSubData)(buff->getTarget(), 0, size, &ret.m_Data[0]);
-            }
-        }
-
-        //restore state
-        if (lastBuffer != buff->getName()) {
-            DIRECT_CALL_CHK(glBindBuffer)(buff->getTarget(), lastBuffer);
-        }
-    } catch (const std::runtime_error& err) {
-        ret.error(err.what());
+    std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.find(name);
+    if (i == m_Shaders.end()) {
+        throw std::runtime_error("Shader does not exist");
     }
-    std::string message;
-    if (!endQuery(message)) {
-        ret.error(message);
-    }
+    const GLShaderObj* shader = &i->second;
+    resource->m_CompileStatus = shader->getCompileStatus();
+    resource->m_Sources = shader->getSources();
+
+    return ret;
 }
 
-void GLContext::queryFramebuffer(GLuint bufferEnum, dglnet::FramebufferMessage& ret) {
+boost::shared_ptr<DGLResource> GLContext::queryProgram(GLuint name) {
 
-    startQuery();
+    DGLResourceProgram* resource;
+    boost::shared_ptr<DGLResource> ret (resource = new DGLResourceProgram);
 
-    ret.m_BufferEnum = bufferEnum;
+    std::map<GLuint, GLProgramObj>::iterator i = m_Programs.find(name);
+    if (i == m_Programs.end()) {
+        throw std::runtime_error("Shader Program does not exist");
+    }
+    GLProgramObj* program = &i->second;
 
-    try {
-        if (!m_NPISurface) {
-            ret.error("Buffer does not exist");
-            return;
+    std::set<GLShaderObj*> attachedShaders = program->getAttachedShaders();
+    for (std::set<GLShaderObj*>::iterator i = attachedShaders.begin(); i != attachedShaders.end(); i++) {
+        resource->m_AttachedShaders.push_back(std::pair<uint32_t, uint32_t>((*i)->getName(), (*i)->getTarget()));
+    }
+
+    GLint linkStatus, infoLogLength; 
+    DIRECT_CALL_CHK(glGetProgramiv)(name, GL_LINK_STATUS, &linkStatus);
+    DIRECT_CALL_CHK(glGetProgramiv)(name, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+    queryCheckError();
+
+    std::string infoLog; 
+    if (infoLogLength) {
+        infoLog.resize(infoLogLength);
+        GLint realInfoLogLength;
+        DIRECT_CALL_CHK(glGetProgramInfoLog)(program->getName(), infoLog.size(), &realInfoLogLength, &infoLog[0]);
+        if (realInfoLogLength < infoLogLength) {
+            //highly unlikely, only on buggy drivers
+            infoLog.resize(realInfoLogLength);
         }
-        //save state
-        GLint currentBuffer; 
-        {
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &currentBuffer);
-            state_setters::DefaultPBO defPBO;
-            state_setters::DefaultReadBuffer defReadFBO;
-            state_setters::PixelStoreAlignment defAlignment;
+    }       
 
-            //read the buffer
-            DIRECT_CALL_CHK(glReadBuffer)(bufferEnum);
+    resource->mLinkStatus = std::pair<std::string, uint32_t>(infoLog, linkStatus);
 
-            ret.m_Width = m_NPISurface->getWidth();
-            ret.m_Height = m_NPISurface->getHeight();
-            GLenum format = GL_RGB;
-            ret.m_Channels = 3;
-            if (m_NPISurface->isAlpha()) {
-                ret.m_Channels = 4;
-                format = GL_BGRA;
-            }    
-            ret.m_Pixels.resize(ret.m_Width * ret.m_Height * ret.m_Channels);
-            DIRECT_CALL_CHK(glReadPixels)(0, 0, ret.m_Width, ret.m_Height, format, GL_UNSIGNED_BYTE, &ret.m_Pixels[0]);
-        }
-        
-        //restore state
-        DIRECT_CALL_CHK(glReadBuffer)(currentBuffer);
-
-    } catch (const std::runtime_error& err) {
-        ret.error(err.what());
-    }
-    std::string message;
-    if (!endQuery(message)) {
-        ret.error(message);
-    }
-}
-
-void GLContext::queryFBO(GLuint name, dglnet::FBOMessage& ret) {
-    startQuery();
-
-    ret.m_Name = name;
-   
-    try {
- 
-        //save state
-        GLint currentBuffer; 
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &currentBuffer);
-        {
-            state_setters::DefaultPBO defPBO;
-            state_setters::DefaultReadBuffer defReadFBO(name);
-            state_setters::PixelStoreAlignment defAlignment;
-
-            GLint maxColorAttachments; 
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
-
-            for (int i = 0; i < maxColorAttachments; i++) {
-                GLint type, name, alphaSize;
-                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
-                    GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
-                if (type != GL_TEXTURE && type != GL_RENDERBUFFER)
-                    continue;
-
-                ret.m_Attachments.push_back(dglnet::FBOAttachment(GL_COLOR_ATTACHMENT0 + i));
-
-                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
-                    GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
-                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
-                    GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &alphaSize);
-
-                queryCheckError();
-
-                GLint width, height;
-                if (type == GL_TEXTURE) {
-                    if (!DIRECT_CALL_CHK(glIsTexture)(name)) {
-                        ret.m_Attachments.back().error("Attached texture object does not exist");
-                        continue;
-                    }
-
-                    GLTextureObj* tex = ensureTexture(name);
-                    if (tex->getTarget() != GL_TEXTURE_2D) {
-                        ret.m_Attachments.back().error("Attached texture target is not supported");
-                    }
-
-                    GLint level;
-                    DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
-                        GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, &level);
-
-                    GLint lastTexture;
-                    DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D, &lastTexture);
-                    DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), tex->getName());
-
-                    DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &width);
-                    DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &height);
-                    DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), lastTexture);
-
-                } else if (type == GL_RENDERBUFFER) {
-                    if (!DIRECT_CALL_CHK(glIsRenderbuffer)(name)) {
-                        ret.m_Attachments.back().error("Attached renderbuffer object does not exist");
-                        continue;
-                    }
-                    GLint lastRenderBuffer;
-                    DIRECT_CALL_CHK(glGetIntegerv)(GL_RENDERBUFFER_BINDING, &lastRenderBuffer);
-                    DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, name);
-                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &width);
-                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
-                    DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, lastRenderBuffer);
-                }
-
-                queryCheckError();
-
-                GLenum format;
-                if (alphaSize) {
-                    ret.m_Attachments.back().m_Channels = 4;
-                    format = GL_BGRA;
-                } else {
-                    ret.m_Attachments.back().m_Channels = 3;
-                    format = GL_RGB;
-                }
-
-                ret.m_Attachments.back().m_Width = width;
-                ret.m_Attachments.back().m_Height = height;
-
-                ret.m_Attachments.back().m_Pixels.resize(
-                    ret.m_Attachments.back().m_Width * 
-                    ret.m_Attachments.back().m_Height * 
-                    ret.m_Attachments.back().m_Channels
-                    );
-
-                DIRECT_CALL_CHK(glReadBuffer)(GL_COLOR_ATTACHMENT0 + i);
-                DIRECT_CALL_CHK(glReadPixels)(0, 0, ret.m_Attachments.back().m_Width,
-                    ret.m_Attachments.back().m_Height,
-                    format, GL_UNSIGNED_BYTE, &ret.m_Attachments.back().m_Pixels[0]);
-            }
-        }
-        //restore state
-        DIRECT_CALL_CHK(glReadBuffer)(currentBuffer);
-    } catch (const std::runtime_error& err) {
-        ret.error(err.what());
-    }
-
-    std::string message;
-    if (!endQuery(message)) {
-        ret.error(message);
-    }
-}
-
-void GLContext::queryShader(GLuint name, dglnet::ShaderMessage& ret) {
-
-    //this query is not GL intrusive, no need to call startQuery()
-
-    ret.m_Name = name;
-
-    try {
-        std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.find(name);
-        if (i == m_Shaders.end()) {
-            throw std::runtime_error("Shader does not exist");
-        }
-        const GLShaderObj* shader = &i->second;
-        ret.m_CompileStatus = shader->getCompileStatus();
-        ret.m_Sources = shader->getSources();
-        ret.m_Target = shader->getTarget();
-    } catch (const std::runtime_error& err) {
-        ret.error(err.what());
-    }
-}
-
-void GLContext::queryProgram(GLuint name, dglnet::ProgramMessage& ret) {
-    startQuery();
-
-    ret.m_Name = name;
-
-    try {
-        std::map<GLuint, GLProgramObj>::iterator i = m_Programs.find(name);
-        if (i == m_Programs.end()) {
-            throw std::runtime_error("Shader Program does not exist");
-        }
-        GLProgramObj* program = &i->second;
-
-        std::set<GLShaderObj*> attachedShaders = program->getAttachedShaders();
-        for (std::set<GLShaderObj*>::iterator i = attachedShaders.begin(); i != attachedShaders.end(); i++) {
-            ret.m_AttachedShaders.push_back(std::pair<uint32_t, uint32_t>((*i)->getName(), (*i)->getTarget()));
-        }
-
-        GLint linkStatus, infoLogLength; 
-        DIRECT_CALL_CHK(glGetProgramiv)(name, GL_LINK_STATUS, &linkStatus);
-        DIRECT_CALL_CHK(glGetProgramiv)(name, GL_INFO_LOG_LENGTH, &infoLogLength);
-
-        queryCheckError();
-
-        std::string infoLog; 
-        if (infoLogLength) {
-            infoLog.resize(infoLogLength);
-            GLint realInfoLogLength;
-            DIRECT_CALL_CHK(glGetProgramInfoLog)(program->getName(), infoLog.size(), &realInfoLogLength, &infoLog[0]);
-            if (realInfoLogLength < infoLogLength) {
-                //highly unlikely, only on buggy drivers
-                infoLog.resize(realInfoLogLength);
-            }
-        }       
-
-        ret.mLinkStatus = std::pair<std::string, uint32_t>(infoLog, linkStatus);
-        
-
-    } catch (const std::runtime_error& err) {
-        ret.error(err.what());
-    }
-
-    std::string message;
-    if (!endQuery(message)) {
-        ret.error(message);
-    }
+    return ret;
 }
 
 

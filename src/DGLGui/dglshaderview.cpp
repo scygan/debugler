@@ -111,7 +111,7 @@ void DGLGLSLEditor::lineNumberAreaPaintEvent(QPaintEvent *event) {
 }
 
 
-DGLShaderViewItem::DGLShaderViewItem(uint name, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
+DGLShaderViewItem::DGLShaderViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
     m_Ui.setupUi(this);
     m_GLSLEditor = new DGLGLSLEditor(this);
 
@@ -124,52 +124,48 @@ DGLShaderViewItem::DGLShaderViewItem(uint name, QWidget* parrent):DGLTabbedViewI
 
     m_Highlighter = boost::make_shared<srchiliteqt::Qt4SyntaxHighlighter>(m_GLSLEditor->document());
     m_Highlighter->init("glsl.lang");
+
+    m_Listener = resManager->createListener(name, DGLResource::ObjectTypeShader);
+    m_Listener->setParent(this);
+
+    CONNASSERT(connect(m_Listener,SIGNAL(update(const DGLResource&)),this,SLOT(update(const DGLResource&))));
+    CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
+
 }
 
-void DGLShaderViewItem::update(const dglnet::ShaderMessage& msg) {
-    std::string errorMsg;
-    if (!msg.isOk(errorMsg)) {
-//TODO
+void DGLShaderViewItem::error(const std::string& message) {
+    //TODO
+}
+
+void DGLShaderViewItem::update(const DGLResource& res) {
+
+    const DGLResourceShader* resource = dynamic_cast<const DGLResourceShader*>(&res);
+
+    m_Ui.textEditLinker->setText(QString::fromStdString(resource->m_CompileStatus.first));
+    m_GLSLEditor->clear();
+    for (size_t i = 0; i < resource->m_Sources.size(); i++) {
+        m_GLSLEditor->appendPlainText(QString::fromStdString(resource->m_Sources[i]));
+    }
+    if (!resource->m_CompileStatus.second) {
+        m_Ui.labelLinkStatus->setText(tr("Compile status: failed"));
     } else {
-        m_Ui.textEditLinker->setText(QString::fromStdString(msg.m_CompileStatus.first));
-        m_GLSLEditor->clear();
-        for (size_t i = 0; i < msg.m_Sources.size(); i++) {
-            m_GLSLEditor->appendPlainText(QString::fromStdString(msg.m_Sources[i]));
-        }
-        if (!msg.m_CompileStatus.second) {
-            m_Ui.labelLinkStatus->setText(tr("Compile status: failed"));
-        } else {
-            m_Ui.labelLinkStatus->setText(tr("Compile status: success"));
-        }
+        m_Ui.labelLinkStatus->setText(tr("Compile status: success"));
     }
 }
     
-void DGLShaderViewItem::requestUpdate(DglController* controller) {
-    controller->requestShader(getObjId(), false);
-}
-
-
 DGLShaderView::DGLShaderView(QWidget* parrent, DglController* controller):DGLTabbedView(parrent, controller) {
     setupNames("Shaders", "DGLShaderView");
 
     //inbound
-    CONNASSERT(connect(controller, SIGNAL(focusShader(uint, uint)), this, SLOT(showShader(uint, uint))));
-    CONNASSERT(connect(controller, SIGNAL(gotShader(uint, const dglnet::ShaderMessage&)), this, SLOT(gotShader(uint, const dglnet::ShaderMessage&))));
+    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showShader(uint, uint)), this, SLOT(showShader(uint, uint))));
 }
 
 void DGLShaderView::showShader(uint name, uint target) {
-    update(name, target);
-}
-
-void DGLShaderView::gotShader(uint name, const dglnet::ShaderMessage& msg) {
-    DGLTabbedViewItem* widget = getTab(name);
-    if (widget) {
-        dynamic_cast<DGLShaderViewItem*>(widget)->update(msg);
-    }
+    ensureTabDisplayed(name, target);
 }
 
 DGLTabbedViewItem* DGLShaderView::createTab(uint id) {
-    return new DGLShaderViewItem(id, this);
+    return new DGLShaderViewItem(id, m_ResourceManager, this);
 }
 
 QString DGLShaderView::getTabName(uint id, uint target) {

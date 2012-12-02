@@ -47,7 +47,7 @@ DGLTextureWidget::DGLTextureWidget(dglnet::ContextObjectName name):m_name(name) 
 }
 
 void DGLTextureWidget::handleDoubleClick(DglController* controller) {
-    controller->requestTexture(m_name.m_Name);
+    controller->getViewRouter()->show(m_name.m_Name, DGLResource::ObjectTypeTexture);
 }
 
 class DGLBufferWidget: public QClickableTreeWidgetItem {
@@ -57,7 +57,7 @@ public:
         setText(0, QString("Buffer ") + QString::number(name.m_Name));
     }
     void handleDoubleClick(DglController* controller) {
-        controller->requestBuffer(m_name.m_Name);
+        controller->getViewRouter()->show(m_name.m_Name, DGLResource::ObjectTypeBuffer);
     }
 private:
     dglnet::ContextObjectName m_name;
@@ -70,7 +70,7 @@ public:
         setText(0, QString("FBO ") + QString::number(name.m_Name));
     }
     void handleDoubleClick(DglController* controller) {
-        controller->requestFBO(m_name.m_Name);
+        controller->getViewRouter()->show(m_name.m_Name, DGLResource::ObjectTypeFBO);
     }
 private:
     dglnet::ContextObjectName m_name;
@@ -83,7 +83,7 @@ public:
         setText(0, QString(GetShaderStageName(name.m_Target)) + QString(" Shader ") + QString::number(name.m_Name));
     }
     void handleDoubleClick(DglController* controller) {
-        controller->requestShader(m_name.m_Name, m_name.m_Target);
+        controller->getViewRouter()->show(m_name.m_Name, DGLResource::ObjectTypeShader, m_name.m_Target);
     }
 private:
     dglnet::ContextObjectNameTarget m_name;
@@ -96,7 +96,7 @@ public:
         setText(0, QString(" Shader Program ") + QString::number(name.m_Name));
     }
     void handleDoubleClick(DglController* controller) {
-        controller->requestProgram(m_name.m_Name);
+        controller->getViewRouter()->show(m_name.m_Name, DGLResource::ObjectTypeProgram);
     }
 private:
     dglnet::ContextObjectName m_name;
@@ -121,7 +121,7 @@ public:
         setText(0, QString(name.c_str()));
     }
     void handleDoubleClick(DglController* controller) {
-        controller->requestFramebuffer(m_type.m_Name);
+        controller->getViewRouter()->show(m_type.m_Name, DGLResource::ObjectTypeFramebuffer);
     }
     dglnet::ContextObjectName m_type;
 };

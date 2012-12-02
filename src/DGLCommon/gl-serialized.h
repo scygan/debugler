@@ -115,4 +115,157 @@ private:
     int32_t m_glError;
     int m_SavedArgsCount;
 };
+
+class DGLResource {
+    friend class boost::serialization::access;
+    
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {}
+
+public:
+    virtual ~DGLResource() {}
+
+    enum ObjectType {
+        ObjectTypeTexture,
+        ObjectTypeFBO,
+        ObjectTypeFramebuffer,
+        ObjectTypeShader,
+        ObjectTypeProgram,
+        ObjectTypeBuffer
+    };
+};
+
+class DGLResourceTexture: public DGLResource {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<DGLResource>(*this);
+        ar & m_Levels;
+    }
+
+public:
+
+    class TextureLevel {
+        friend class boost::serialization::access;
+
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version) {
+            ar & m_Width;
+            ar & m_Height;
+            ar & m_Channels;
+            ar & m_Pixels;
+        }
+    public:
+        int32_t m_Width, m_Height, m_Channels;
+        std::vector<int8_t> m_Pixels;
+    };
+
+    std::vector<TextureLevel> m_Levels;
+};
+
+class DGLResourceBuffer: public DGLResource {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<DGLResource>(*this);
+        ar & m_Data;
+    }
+
+public:
+    std::vector<char> m_Data;
+};
+
+class DGLResourceFramebuffer: public DGLResource {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<DGLResource>(*this);
+        ar & m_Width;
+        ar & m_Height;
+        ar & m_Channels;
+        ar & m_Pixels;
+    }
+
+public:
+
+    int32_t m_Width, m_Height, m_Channels;
+    std::vector<int8_t> m_Pixels;
+};
+
+class DGLResourceFBO: public DGLResource {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<DGLResource>(*this);
+        ar & m_Attachments;
+    }
+
+public:
+    class FBOAttachment {
+        friend class boost::serialization::access;
+
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version) {
+            ar & m_Ok;
+            ar & m_ErrorMsg;
+            ar & m_Width;
+            ar & m_Height;
+            ar & m_Channels;
+            ar & m_Pixels;
+            ar & m_Id;
+        }
+    public:
+        FBOAttachment() {}
+        FBOAttachment(uint32_t id);
+
+        void error(std::string msg);
+        bool isOk(std::string& error) const;
+
+
+        int32_t m_Width, m_Height, m_Channels;
+        std::vector<int8_t> m_Pixels;
+        uint32_t m_Id;
+    private:
+        bool m_Ok;
+        std::string m_ErrorMsg;
+    };
+
+    std::vector<FBOAttachment> m_Attachments;
+};
+
+class DGLResourceShader: public DGLResource {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<DGLResource>(*this);
+        ar & m_Sources;
+        ar & m_CompileStatus;
+    }
+
+public:
+    std::vector<std::string> m_Sources;
+    std::pair<std::string, uint32_t> m_CompileStatus;
+};
+
+class DGLResourceProgram: public DGLResource {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<DGLResource>(*this);
+        ar & mLinkStatus;
+        ar & m_AttachedShaders;
+    }
+
+public:
+
+    std::pair<std::string, uint32_t> mLinkStatus;
+    std::vector<std::pair<uint32_t, uint32_t>> m_AttachedShaders;
+};
+
 #endif

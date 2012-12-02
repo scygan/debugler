@@ -1,67 +1,58 @@
 #include "dglprogramview.h"
 #include "dglgui.h"
 
-#include "ui_dglprogramview.h"
 #include "dglshaderviewitem.h"
 
 
-class DGLProgramViewItem: public DGLTabbedViewItem {
-public:
-    DGLProgramViewItem(uint name, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
-        m_Ui.setupUi(this);
+DGLProgramViewItem::DGLProgramViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent), m_ResourceManager(resManager) {
+    m_Ui.setupUi(this);
+
+    m_Listener = resManager->createListener(name, DGLResource::ObjectTypeProgram);
+    m_Listener->setParent(this);
+
+    CONNASSERT(connect(m_Listener,SIGNAL(update(const DGLResource&)),this,SLOT(update(const DGLResource&))));
+    CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
+}
+
+void DGLProgramViewItem::error(const std::string& message) {
+    //TODO
+}
+
+void DGLProgramViewItem::update(const DGLResource& res) {
+
+    const DGLResourceProgram* resource = dynamic_cast<const DGLResourceProgram*>(&res);
+    std::string errorMsg;
+
+    m_Ui.textEditLinker->setText(QString::fromStdString(resource->mLinkStatus.first));
+
+    for (size_t i = 0; i <resource->m_AttachedShaders.size(); i++) {
+        DGLShaderViewItem* newTab = new DGLShaderViewItem(resource->m_AttachedShaders[i].first, m_ResourceManager, this);
+        m_Ui.tabWidget->addTab(newTab, QString(GetShaderStageName(resource->m_AttachedShaders[i].second)
+            + QString(" Shader ") + QString::number(resource->m_AttachedShaders[i].first)));
+        //CONNASSERT(connect(controller, SIGNAL(gotShader(uint, const dglnet::ShaderMessage&)), this, SLOT(gotShader(uint, const dglnet::ShaderMessage&))));
+        //controller->request...
     }
-
-    void update(const dglnet::ProgramMessage& msg) {
-        std::string errorMsg;
-        if (!msg.isOk(errorMsg)) {
-//TODO
-        } else {
-            m_Ui.textEditLinker->setText(QString::fromStdString(msg.mLinkStatus.first));
-
-            for (size_t i = 0; i < msg.m_AttachedShaders.size(); i++) {
-                DGLShaderViewItem* newTab = new DGLShaderViewItem(msg.m_AttachedShaders[i].first, this);
-                m_Ui.tabWidget->addTab(newTab, QSting(GetShaderStageName(msg.m_AttachedShaders[i].second)
-                    + QString(" Shader ") + QString::number(msg.m_AttachedShaders[i].first)));
-                //CONNASSERT(connect(controller, SIGNAL(gotShader(uint, const dglnet::ShaderMessage&)), this, SLOT(gotShader(uint, const dglnet::ShaderMessage&))));
-                //controller->request...
-            }
-            }
             
-            if (!msg.mLinkStatus.second) {
-                m_Ui.labelLinkStatus->setText(tr("Link status: failed"));
-            } else {
-                m_Ui.labelLinkStatus->setText(tr("Link status: success"));
-            }
-        }
+    if (!resource->mLinkStatus.second) {
+        m_Ui.labelLinkStatus->setText(tr("Link status: failed"));
+    } else {
+        m_Ui.labelLinkStatus->setText(tr("Link status: success"));
     }
-    
-    virtual void requestUpdate(DglController* controller) {
-        controller->requestProgram(getObjId(), false);
-    }
-    Ui::DGLProgramViewItem m_Ui;
-};
+}
 
 DGLProgramView::DGLProgramView(QWidget* parrent, DglController* controller):DGLTabbedView(parrent, controller) {
     setupNames("Shader Programs", "DGLProgramView");
 
     //inbound
-    CONNASSERT(connect(controller, SIGNAL(focusProgram(uint)), this, SLOT(showProgram(uint))));
-    CONNASSERT(connect(controller, SIGNAL(gotProgram(uint, const dglnet::ProgramMessage&)), this, SLOT(gotProgram(uint, const dglnet::ProgramMessage&))));
+    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showProgram(uint)), this, SLOT(showProgram(uint))));
 }
 
 void DGLProgramView::showProgram(uint name) {
-    update(name);
-}
-
-void DGLProgramView::gotProgram(uint name, const dglnet::ProgramMessage& msg) {
-    DGLTabbedViewItem* widget = getTab(name);
-    if (widget) {
-        dynamic_cast<DGLProgramViewItem*>(widget)->update(msg);
-    }
+    ensureTabDisplayed(name);
 }
 
 DGLTabbedViewItem* DGLProgramView::createTab(uint id) {
-    return new DGLProgramViewItem(id, this);
+    return new DGLProgramViewItem(id, m_ResourceManager, this);
 }
 
 QString DGLProgramView::getTabName(uint id, uint target) {

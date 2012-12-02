@@ -6,6 +6,7 @@
 
 #include <map>
 #include <queue>
+#include <boost/shared_ptr.hpp>
 
 namespace dglstate {
 
@@ -132,23 +133,24 @@ public:
     GLShaderObj* ensureShader(GLuint name);
     void markShaderDeleted(GLuint name);
 
-    void queryTexture(GLuint name, dglnet::TextureMessage& ret);
-    void queryBuffer(GLuint name, dglnet::BufferMessage& ret);
-    void queryFramebuffer(GLuint bufferEnum, dglnet::FramebufferMessage& ret);
-    void queryFBO(GLuint name, dglnet::FBOMessage& ret);
-    void queryShader(GLuint name, dglnet::ShaderMessage& ret);
-    void queryProgram(GLuint name, dglnet::ProgramMessage& ret);
+    boost::shared_ptr<DGLResource> queryTexture(GLuint name);
+    boost::shared_ptr<DGLResource> queryBuffer(GLuint name);
+    boost::shared_ptr<DGLResource> queryFramebuffer(GLuint bufferEnum);
+    boost::shared_ptr<DGLResource> queryFBO(GLuint name);
+    boost::shared_ptr<DGLResource> queryShader(GLuint name);
+    boost::shared_ptr<DGLResource> queryProgram(GLuint name);
 
     int32_t getId();
 
     GLenum getError();
     GLenum peekError();
 
-private:
-    
     void startQuery();
-    void queryCheckError();
     bool endQuery(std::string& message);
+
+private:
+    void queryCheckError();
+    
 
     void firstUse();       
 

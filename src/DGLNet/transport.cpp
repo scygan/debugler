@@ -11,6 +11,7 @@
 #include <boost/serialization/variant.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/utility.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 
 #include <sstream>
@@ -18,25 +19,26 @@
 
 
 //TODO: this one is horrible. very.
-BOOST_CLASS_EXPORT(dglnet::Message);
-BOOST_CLASS_EXPORT_GUID(dglnet::ConfigurationMessage, "dglnet::ConfigurationMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::BreakedCallMessage, "dglnet::CurrentCallStateMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::ContinueBreakMessage, "dglnet::ContinueBreakMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::QueryCallTraceMessage, "dglnet::QueryCallTraceMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::CallTraceMessage, "dglnet::CallTraceMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::QueryTextureMessage, "dglnet::QueryTextureMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::TextureMessage, "dglnet::TextureMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::QueryBufferMessage, "dglnet::QueryBufferMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::BufferMessage, "dglnet::BufferMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::QueryFramebufferMessage, "dglnet::QueryFramebufferMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::FramebufferMessage, "dglnet::FramebufferMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::QueryFBOMessage, "dglnet::QueryFBOMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::FBOMessage, "dglnet::FBOMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::QueryShaderMessage, "dglnet::QueryShaderMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::ShaderMessage, "dglnet::ShaderMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::QueryProgramMessage, "dglnet::QueryProgramMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::ProgramMessage, "dglnet::ProgramMessage");
-BOOST_CLASS_EXPORT_GUID(dglnet::SetBreakPointsMessage, "dglnet::SetBreakPointsMessage");
+
+#define REGISTER_CLASS(X) BOOST_CLASS_EXPORT_GUID(X, #X)
+
+REGISTER_CLASS(dglnet::Message)
+REGISTER_CLASS(dglnet::ConfigurationMessage);
+REGISTER_CLASS(dglnet::BreakedCallMessage);
+REGISTER_CLASS(dglnet::ContinueBreakMessage);
+REGISTER_CLASS(dglnet::QueryCallTraceMessage);
+REGISTER_CLASS(dglnet::CallTraceMessage);
+REGISTER_CLASS(dglnet::SetBreakPointsMessage);
+REGISTER_CLASS(dglnet::QueryResourceMessage);
+REGISTER_CLASS(dglnet::ResourceMessage);
+
+REGISTER_CLASS(DGLResource);
+REGISTER_CLASS(DGLResourceTexture);
+REGISTER_CLASS(DGLResourceBuffer);
+REGISTER_CLASS(DGLResourceFramebuffer);
+REGISTER_CLASS(DGLResourceFBO);
+REGISTER_CLASS(DGLResourceShader);
+REGISTER_CLASS(DGLResourceProgram);
 
 
 namespace dglnet {

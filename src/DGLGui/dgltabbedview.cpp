@@ -19,6 +19,8 @@ DGLTabbedView::DGLTabbedView(QWidget* parrent, DglController* controller):QDockW
 
     //internal
     CONNASSERT(connect(&m_TabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(closeTab(int))));
+
+    m_ResourceManager = controller->getResourceManager();
 }
 
 
@@ -28,10 +30,6 @@ void DGLTabbedView::disable() {
 
 void DGLTabbedView::enable() {
     m_TabWidget.setDisabled(false);
-    for (int i = 0; i < m_TabWidget.count(); i++) {
-        DGLTabbedViewItem* widget = dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));
-        widget->requestUpdate(m_Controller);
-    }
 }
 
 void DGLTabbedView::clear() {
@@ -46,7 +44,7 @@ void DGLTabbedView::closeTab(int idx) {
 }
 
 
-void DGLTabbedView::update(uint id, uint target) {
+void DGLTabbedView::ensureTabDisplayed(uint id, uint target) {
     bool found = false; 
     for (int i = 0; i < m_TabWidget.count(); i++) {
         DGLTabbedViewItem* widget = dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));
