@@ -150,12 +150,12 @@ void DglController::requestFBO(uint name, bool focus) {
         focusFBO(name);
 } 
 
-void DglController::requestShader(uint name, bool focus) {
+void DglController::requestShader(uint name, uint target, bool focus) {
     assert(m_DglClient);
     dglnet::QueryShaderMessage message(name);
     m_DglClient->sendMessage(&message);
     if (focus)
-        focusShader(name);
+        focusShader(name, target);
 } 
 
 void DglController::sendMessage(dglnet::Message* msg) {

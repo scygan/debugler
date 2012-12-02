@@ -36,14 +36,14 @@ public:
         void closeTab(int);
 
 protected:
-    void update(uint id);
+    void update(uint id, uint target = 0);
     DGLTabbedViewItem* getTab(uint id);
     void setupNames(char* title, char* objName);
 
     DglController* m_Controller;
 private: 
     virtual DGLTabbedViewItem* createTab(uint id) = 0;
-    virtual QString getTabName(uint id) = 0;
+    virtual QString getTabName(uint id, uint target) = 0;
     QTabWidget m_TabWidget;
 };
 

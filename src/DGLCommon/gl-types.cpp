@@ -65,6 +65,22 @@ const char* GetGLEnumName(uint64_t glEnum) {
     return ret->second.c_str();
 }
 
+const char* GetShaderStageName(uint64_t glEnum) {
+    switch (glEnum) {
+        case GL_VERTEX_SHADER:
+            return "Vertex";
+        case GL_TESS_CONTROL_SHADER:
+            return "Tesselation Control";
+        case GL_TESS_EVALUATION_SHADER:
+            return "Tesselation Evaluation";
+        case GL_GEOMETRY_SHADER:
+            return "Geometry";
+        case GL_FRAGMENT_SHADER:
+            return "Fragment";
+        default:
+            return "<unknown>";
+    }
+}
 
 namespace call_sets {
     Entrypoint frameDelims[] = {

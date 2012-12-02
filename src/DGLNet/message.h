@@ -64,6 +64,37 @@ public:
     virtual ~Message() {}
 };
 
+class ContextObjectName {
+public:
+    ContextObjectName() {}
+    ContextObjectName(uint32_t name):m_Name(name) {}
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & m_Name;
+    }
+
+    bool operator<(const ContextObjectName&rhs) const {
+        return m_Name < rhs.m_Name;
+    }
+
+    uint32_t m_Name;
+};
+
+class ContextObjectNameTarget: public ContextObjectName {
+public:
+    ContextObjectNameTarget() {}
+    ContextObjectNameTarget(uint32_t name, uint32_t target = 0):ContextObjectName(name), m_Target(target) {}
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<ContextObjectName>(*this);
+        ar & m_Target;
+    }
+
+    uint32_t m_Target;
+};
+
 class ContextReport {
     friend class boost::serialization::access;
 
@@ -80,11 +111,11 @@ public:
     ContextReport() {}
     ContextReport(int32_t id):m_Id(id) {}
     int32_t m_Id;
-    std::set<uint32_t> m_TextureSpace;
-    std::set<uint32_t> m_BufferSpace;
-    std::set<uint32_t> m_ShaderSpace;
-    std::set<uint32_t> m_FBOSpace;
-    std::set<GLenum> m_FramebufferSpace;
+    std::set<ContextObjectName> m_TextureSpace;
+    std::set<ContextObjectName> m_BufferSpace;
+    std::set<ContextObjectNameTarget> m_ShaderSpace;
+    std::set<ContextObjectName> m_FBOSpace;
+    std::set<ContextObjectName> m_FramebufferSpace;
 };
 
 class ConfigurationMessage: public Message, public DGLConfiguration {
@@ -462,6 +493,7 @@ class ShaderMessage: public Message {
         ar & m_ErrorMsg;
         ar & m_Sources;
         ar & m_CompileStatus;
+        ar & m_Target;
     }
 
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
@@ -472,7 +504,7 @@ public:
     void error(std::string msg);
     bool isOk(std::string& error) const;
 
-    uint32_t m_Name;
+    uint32_t m_Name, m_Target;
     std::vector<std::string> m_Sources;
     std::pair<std::string, GLint> m_CompileStatus;
 

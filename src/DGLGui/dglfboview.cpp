@@ -90,6 +90,6 @@ DGLTabbedViewItem* DGLFBOView::createTab(uint id) {
     return new DGLFBOViewItem(id, this);
 }
 
-QString DGLFBOView::getTabName(uint id) {
+QString DGLFBOView::getTabName(uint id, uint target) {
     return QString("FBO ") + QString::number(id);
 }

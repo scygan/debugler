@@ -73,7 +73,7 @@ DGLTabbedViewItem* DGLFramebufferView::createTab(uint id) {
     return new DGLFramebufferViewItem(id, this);
 }
 
-QString DGLFramebufferView::getTabName(uint id) {
+QString DGLFramebufferView::getTabName(uint id, uint target) {
     switch (id) {
         case GL_FRONT_RIGHT:
             return "Front right buffer"; 

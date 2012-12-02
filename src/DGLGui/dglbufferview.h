@@ -16,7 +16,7 @@ public:
 
 private:
         virtual DGLTabbedViewItem* createTab(uint id);
-        virtual QString getTabName(uint id);
+        virtual QString getTabName(uint id, uint target);
 };
 
 #endif //DGLBUFFERVIEW_H

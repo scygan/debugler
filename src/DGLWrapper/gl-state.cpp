@@ -115,7 +115,7 @@ void GLProgramObj::markDeleted() {
     m_Deleted = true;
 }
 
-GLShaderObj::GLShaderObj(GLuint name):GLObj(name), m_Deleted(false) {
+GLShaderObj::GLShaderObj(GLuint name):GLObj(name), m_Deleted(false), m_Target(0) {
     m_CompileStatus.second = GL_FALSE;
 }
 
@@ -132,12 +132,20 @@ void GLShaderObj::setCompilationStatus(const std::string& compileLog, GLint comp
     m_CompileStatus.second = compileStatus;
 }
 
-const std::vector<std::string>& GLShaderObj::getSources() {
+const std::vector<std::string>& GLShaderObj::getSources() const {
     return m_Sources;   
 }
 
-const std::pair<std::string, GLint>& GLShaderObj::getCompileStatus() {
+GLenum GLShaderObj::getTarget() const {
+    return m_Target;   
+}
+
+const std::pair<std::string, GLint>& GLShaderObj::getCompileStatus() const {
     return m_CompileStatus;
+}
+
+void GLShaderObj::setTarget( GLenum target ) {
+    m_Target = target;
 }
 
 
@@ -166,7 +174,7 @@ dglnet::ContextReport GLContext::describe() {
     }
     for (std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.begin(); 
         i != m_Shaders.end(); i++) {
-            ret.m_ShaderSpace.insert(i->second.getName());
+            ret.m_ShaderSpace.insert(dglnet::ContextObjectNameTarget(i->second.getName(), i->second.getTarget()));
     }
     for (std::map<GLuint, GLFBObj>::iterator i = m_FBOs.begin(); 
         i != m_FBOs.end(); i++) {
@@ -629,8 +637,10 @@ void GLContext::queryShader(GLuint name, dglnet::ShaderMessage& ret) {
         if (i == m_Shaders.end()) {
             throw std::runtime_error("Shader does not exist");
         }
-        ret.m_CompileStatus = i->second.getCompileStatus();
-        ret.m_Sources = i->second.getSources();
+        const GLShaderObj* shader = &i->second;
+        ret.m_CompileStatus = shader->getCompileStatus();
+        ret.m_Sources = shader->getSources();
+        ret.m_Target = shader->getTarget();
     } catch (const std::runtime_error& err) {
         ret.error(err.what());
     }

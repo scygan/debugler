@@ -117,7 +117,7 @@ public:
      /** 
      * Method called to request information on given shader object from debugee
      */
-    void requestShader(uint name, bool focus = true);
+    void requestShader(uint name, uint target, bool focus = true);
 
     /**
      * Getter for break point controller object
@@ -153,7 +153,7 @@ signals:
     void focusBuffer(uint name);
     void focusFramebuffer(uint bufferEnum);
     void focusFBO(uint name);
-    void focusShader(uint name);
+    void focusShader(uint name, uint target);
     
 public slots:
     void poll();

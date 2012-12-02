@@ -22,6 +22,9 @@ char* GetEntryPointName(Entrypoint entryp);
 Entrypoint GetEntryPointEnum(const char* name);
 const char* GetGLEnumName(uint64_t glEnum);
 
+const char* GetShaderStageName(uint64_t glEnum);
+
+
 bool IsDrawCall(Entrypoint);
 bool IsFrameDelimiter(Entrypoint);
 

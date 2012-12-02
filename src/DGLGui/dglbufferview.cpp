@@ -52,6 +52,6 @@ DGLTabbedViewItem* DGLBufferView::createTab(uint id) {
     return new DGLBufferViewItem(id, this);
 }
 
-QString DGLBufferView::getTabName(uint id) {
+QString DGLBufferView::getTabName(uint id, uint target) {
     return QString("Vertex Buffer ") + QString::number(id);
 }

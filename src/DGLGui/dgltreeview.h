@@ -20,10 +20,10 @@ public:
 class DGLTextureWidget: public QClickableTreeWidgetItem {
 public:
     DGLTextureWidget();
-    DGLTextureWidget(uint name);
+    DGLTextureWidget(dglnet::ContextObjectName name);
     virtual void handleDoubleClick(DglController*);
 private:
-    uint m_name;
+    dglnet::ContextObjectName m_name;
 };
 
 

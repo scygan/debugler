@@ -42,59 +42,59 @@ void QClickableTreeWidgetItem::handleDoubleClick(DglController*) {}
 
 DGLTextureWidget::DGLTextureWidget():m_name(0) {}
 
-DGLTextureWidget::DGLTextureWidget(uint name):m_name(name) {
-    setText(0, QString("Texture ") + QString::number(name));
+DGLTextureWidget::DGLTextureWidget(dglnet::ContextObjectName name):m_name(name) {
+    setText(0, QString("Texture ") + QString::number(name.m_Name));
 }
 
 void DGLTextureWidget::handleDoubleClick(DglController* controller) {
-    controller->requestTexture(m_name);
+    controller->requestTexture(m_name.m_Name);
 }
 
 class DGLBufferWidget: public QClickableTreeWidgetItem {
 public:
     DGLBufferWidget() {}
-    DGLBufferWidget(uint name):m_name(name) {
-        setText(0, QString("Buffer ") + QString::number(name));
+    DGLBufferWidget(dglnet::ContextObjectName name):m_name(name) {
+        setText(0, QString("Buffer ") + QString::number(name.m_Name));
     }
     void handleDoubleClick(DglController* controller) {
-        controller->requestBuffer(m_name);
+        controller->requestBuffer(m_name.m_Name);
     }
 private:
-    uint m_name;
+    dglnet::ContextObjectName m_name;
 };
 
 class DGLFBOWidget: public QClickableTreeWidgetItem {
 public:
     DGLFBOWidget() {}
-    DGLFBOWidget(uint name):m_name(name) {
-        setText(0, QString("FBO ") + QString::number(name));
+    DGLFBOWidget(dglnet::ContextObjectName name):m_name(name) {
+        setText(0, QString("FBO ") + QString::number(name.m_Name));
     }
     void handleDoubleClick(DglController* controller) {
-        controller->requestFBO(m_name);
+        controller->requestFBO(m_name.m_Name);
     }
 private:
-    uint m_name;
+    dglnet::ContextObjectName m_name;
 };
 
 class DGLShaderWidget: public QClickableTreeWidgetItem {
 public:
     DGLShaderWidget() {}
-    DGLShaderWidget(uint name):m_name(name) {
-        setText(0, QString("Shader ") + QString::number(name));
+    DGLShaderWidget(dglnet::ContextObjectNameTarget name):m_name(name) {
+        setText(0, QString(GetShaderStageName(name.m_Target)) + QString(" Shader ") + QString::number(name.m_Name));
     }
     void handleDoubleClick(DglController* controller) {
-        controller->requestShader(m_name);
+        controller->requestShader(m_name.m_Name, m_name.m_Target);
     }
 private:
-    uint m_name;
+    dglnet::ContextObjectNameTarget m_name;
 };
 
 class DGLFramebufferWidget: public QClickableTreeWidgetItem {
 public:
     DGLFramebufferWidget() {}
-    DGLFramebufferWidget(GLenum type):m_type(type) {
+    DGLFramebufferWidget(dglnet::ContextObjectName type):m_type(type) {
         std::string name = "unknown";
-        switch (type) {
+        switch (type.m_Name) {
             case GL_FRONT_RIGHT:
                 name = "Front right buffer"; break;
             case GL_BACK_RIGHT:
@@ -107,9 +107,9 @@ public:
         setText(0, QString(name.c_str()));
     }
     void handleDoubleClick(DglController* controller) {
-        controller->requestFramebuffer(m_type);
+        controller->requestFramebuffer(m_type.m_Name);
     }
-    GLenum m_type;
+    dglnet::ContextObjectName m_type;
 };
 
 template<class ObjType>
@@ -118,16 +118,17 @@ public:
     DGLObjectNodeWidget(QString header) {
         setText(0, header);
     }
-    void update(const std::set<uint32_t>& names) {
-        for (std::set<uint32_t>::iterator i = names.begin(); i != names.end(); i++) {
-            if (m_Childs.find(*i) == m_Childs.end()) {
-                m_Childs[*i] = ObjType(*i);
-                addChild(&m_Childs[*i]);
+    template<typename T>
+    void update(const std::set<T>& names) {
+        for (std::set<T>::iterator i = names.begin(); i != names.end(); i++) {
+            if (m_Childs.find(i->m_Name) == m_Childs.end()) {
+                m_Childs[i->m_Name] = ObjType(*i);
+                addChild(&m_Childs[i->m_Name]);
             }
         }
         std::map<uint, ObjType>::iterator i = m_Childs.begin();
         while (i != m_Childs.end()) {
-            if (names.find(i->first) == names.end()) {
+            if (names.find(T(i->first)) == names.end()) {
                 removeChild(&(i->second));
                 i = m_Childs.erase(i);
             } else {

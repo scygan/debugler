@@ -347,7 +347,10 @@ void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
             ret.get(name);
 
-            g_GLState.getCurrent()->ensureShader(name);
+            GLenumWrap target;
+            call.getArgs()[0].get(target);
+
+            g_GLState.getCurrent()->ensureShader(name)->setTarget(target);
 
         } else if (entrp == glDeleteShader_Call || entrp == glDeleteObjectARB_Call) {
 

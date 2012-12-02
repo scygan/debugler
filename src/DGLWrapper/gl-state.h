@@ -59,15 +59,17 @@ public:
 
     void setSources(const std::vector<std::string>&);
     void setCompilationStatus(const std::string&, GLint compileStatus);
-    
-    const std::vector<std::string>& getSources();
-    const std::pair<std::string, GLint>& getCompileStatus();
-    
+    void setTarget(GLenum target);
+
+    const std::vector<std::string>& getSources() const;
+    GLenum getTarget() const;
+    const std::pair<std::string, GLint>& getCompileStatus() const;
 
 private:
     bool m_Deleted;
     std::vector<std::string> m_Sources;
     std::pair<std::string, GLint> m_CompileStatus;
+    GLenum m_Target;
 };
 
 class GLFBObj: public GLObj {

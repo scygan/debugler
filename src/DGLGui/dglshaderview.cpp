@@ -124,9 +124,8 @@ public:
         m_Ui.verticalLayout->setStretch(0, 4);
         m_Ui.verticalLayout->setStretch(1, 1);
 
-        srchiliteqt::Qt4SyntaxHighlighter *highlighter =
-            new srchiliteqt::Qt4SyntaxHighlighter(m_GLSLEditor->document());
-        highlighter->init("glsl.lang");
+        m_Highlighter = boost::make_shared<srchiliteqt::Qt4SyntaxHighlighter>(m_GLSLEditor->document());
+        m_Highlighter->init("glsl.lang");
     }
 
     void update(const dglnet::ShaderMessage& msg) {
@@ -152,18 +151,19 @@ public:
     }
     Ui::DGLShaderViewItem m_Ui;
     DGLGLSLEditor* m_GLSLEditor;
+    boost::shared_ptr<srchiliteqt::Qt4SyntaxHighlighter> m_Highlighter;
 };
 
 DGLShaderView::DGLShaderView(QWidget* parrent, DglController* controller):DGLTabbedView(parrent, controller) {
     setupNames("Shaders", "DGLShaderView");
 
     //inbound
-    CONNASSERT(connect(controller, SIGNAL(focusShader(uint)), this, SLOT(showShader(uint))));
+    CONNASSERT(connect(controller, SIGNAL(focusShader(uint, uint)), this, SLOT(showShader(uint, uint))));
     CONNASSERT(connect(controller, SIGNAL(gotShader(uint, const dglnet::ShaderMessage&)), this, SLOT(gotShader(uint, const dglnet::ShaderMessage&))));
 }
 
-void DGLShaderView::showShader(uint name) {
-    update(name);
+void DGLShaderView::showShader(uint name, uint target) {
+    update(name, target);
 }
 
 void DGLShaderView::gotShader(uint name, const dglnet::ShaderMessage& msg) {
@@ -177,6 +177,6 @@ DGLTabbedViewItem* DGLShaderView::createTab(uint id) {
     return new DGLShaderViewItem(id, this);
 }
 
-QString DGLShaderView::getTabName(uint id) {
-    return QString("Shader ") + QString::number(id);
+QString DGLShaderView::getTabName(uint id, uint target) {
+    return QString(GetShaderStageName(target)) + QString(" Shader ") + QString::number(id);
 }
