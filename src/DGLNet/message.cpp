@@ -62,6 +62,14 @@ namespace dglnet {
         unsupported();
     }
 
+    void MessageHandler::doHandle(const QueryProgramMessage&) {
+        unsupported();
+    }
+
+    void MessageHandler::doHandle(const ProgramMessage&) {
+        unsupported();
+    }
+
     void MessageHandler::doHandle(const SetBreakPointsMessage&) {
         unsupported();
     }
@@ -78,43 +86,27 @@ namespace dglnet {
         return std::pair<bool, StepMode>(m_InStepMode, m_StepMode);
     }
 
-    TextureMessage::TextureMessage():m_Ok(true), m_TextureName(0) {}
+    StatusMessage::StatusMessage():m_Ok(true) {}
 
-    void TextureMessage::error(std::string msg) {
-        m_Ok = false;
+    void StatusMessage::error(std::string msg) {
         m_ErrorMsg = msg;
+        m_Ok = false;
     }
 
-    bool TextureMessage::isOk(std::string& msg) const {
-        msg = m_ErrorMsg;
+    bool StatusMessage::isOk(std::string& error) const {
+        if (!m_Ok) {
+            error = m_ErrorMsg;
+        }
         return m_Ok;
     }
 
-    BufferMessage::BufferMessage():m_Ok(true), m_BufferName(0) {}
+    TextureMessage::TextureMessage():m_TextureName(0) {}
 
-    void BufferMessage::error(std::string msg) {
-        m_Ok = false;
-        m_ErrorMsg = msg;
-    }
+    BufferMessage::BufferMessage():m_BufferName(0) {}
 
-    bool BufferMessage::isOk(std::string& msg) const {
-        msg = m_ErrorMsg;
-        return m_Ok;
-    }
+    FramebufferMessage::FramebufferMessage():m_BufferEnum(0) {}
 
-    FramebufferMessage::FramebufferMessage():m_Ok(true), m_BufferEnum(0) {}
-
-    void FramebufferMessage::error(std::string msg) {
-        m_Ok = false;
-        m_ErrorMsg = msg;
-    }
-
-    bool FramebufferMessage::isOk(std::string& msg) const {
-        msg = m_ErrorMsg;
-        return m_Ok;
-    }
-
-    FBOMessage::FBOMessage():m_Ok(true), m_Name(0) {}
+    FBOMessage::FBOMessage():m_Name(0) {}
 
     FBOAttachment::FBOAttachment(uint32_t id):m_Ok(true),m_Id(id) {}
 
@@ -128,27 +120,7 @@ namespace dglnet {
         return m_Ok;
     }
 
-    void FBOMessage::error(std::string msg) {
-        m_Ok = false;
-        m_ErrorMsg = msg;
-    }
-
-    bool FBOMessage::isOk(std::string& msg) const {
-        msg = m_ErrorMsg;
-        return m_Ok;
-    }
-
-    ShaderMessage::ShaderMessage():m_Ok(true), m_Name(0) {}
-
-    void ShaderMessage::error(std::string msg) {
-        m_Ok = false;
-        m_ErrorMsg = msg;
-    }
-
-    bool ShaderMessage::isOk(std::string& msg) const {
-        msg = m_ErrorMsg;
-        return m_Ok;
-    }
+    ShaderMessage::ShaderMessage():m_Name(0) {}
 
     SetBreakPointsMessage::SetBreakPointsMessage(const std::set<Entrypoint>& breakpoints):m_BreakPoints(breakpoints) {}
 

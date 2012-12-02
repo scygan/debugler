@@ -1,8 +1,7 @@
 #include "dglshaderview.h"
 #include "dglgui.h"
-#include "srchiliteqt/lib/srchiliteqt/Qt4SyntaxHighlighter.h"
 
-#include "ui_dglshaderview.h"
+#include "dglshaderviewitem.h"
 #include <QPainter>
 
 
@@ -111,48 +110,44 @@ void DGLGLSLEditor::lineNumberAreaPaintEvent(QPaintEvent *event) {
     }
 }
 
-class DGLShaderViewItem: public DGLTabbedViewItem {
-public:
-    DGLShaderViewItem(uint name, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
-        m_Ui.setupUi(this);
-        m_GLSLEditor = new DGLGLSLEditor(this);
 
-        //we may modify this in far future :)
-        m_GLSLEditor->setReadOnly(true);
+DGLShaderViewItem::DGLShaderViewItem(uint name, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
+    m_Ui.setupUi(this);
+    m_GLSLEditor = new DGLGLSLEditor(this);
 
-        m_Ui.verticalLayout->insertWidget(0, m_GLSLEditor);
-        m_Ui.verticalLayout->setStretch(0, 4);
-        m_Ui.verticalLayout->setStretch(1, 1);
+    //we may modify this in far future :)
+    m_GLSLEditor->setReadOnly(true);
 
-        m_Highlighter = boost::make_shared<srchiliteqt::Qt4SyntaxHighlighter>(m_GLSLEditor->document());
-        m_Highlighter->init("glsl.lang");
-    }
+    m_Ui.verticalLayout->insertWidget(0, m_GLSLEditor);
+    m_Ui.verticalLayout->setStretch(0, 4);
+    m_Ui.verticalLayout->setStretch(1, 1);
 
-    void update(const dglnet::ShaderMessage& msg) {
-        std::string errorMsg;
-        if (!msg.isOk(errorMsg)) {
+    m_Highlighter = boost::make_shared<srchiliteqt::Qt4SyntaxHighlighter>(m_GLSLEditor->document());
+    m_Highlighter->init("glsl.lang");
+}
+
+void DGLShaderViewItem::update(const dglnet::ShaderMessage& msg) {
+    std::string errorMsg;
+    if (!msg.isOk(errorMsg)) {
 //TODO
+    } else {
+        m_Ui.textEditLinker->setText(QString::fromStdString(msg.m_CompileStatus.first));
+        m_GLSLEditor->clear();
+        for (size_t i = 0; i < msg.m_Sources.size(); i++) {
+            m_GLSLEditor->appendPlainText(QString::fromStdString(msg.m_Sources[i]));
+        }
+        if (!msg.m_CompileStatus.second) {
+            m_Ui.labelLinkStatus->setText(tr("Compile status: failed"));
         } else {
-            m_Ui.textEditLinker->setText(QString::fromStdString(msg.m_CompileStatus.first));
-            m_GLSLEditor->clear();
-            for (size_t i = 0; i < msg.m_Sources.size(); i++) {
-                m_GLSLEditor->appendPlainText(QString::fromStdString(msg.m_Sources[i]));
-            }
-            if (!msg.m_CompileStatus.second) {
-                m_Ui.labelLinkStatus->setText(tr("Compile status: failed"));
-            } else {
-                m_Ui.labelLinkStatus->setText(tr("Compile status: success"));
-            }
+            m_Ui.labelLinkStatus->setText(tr("Compile status: success"));
         }
     }
+}
     
-    virtual void requestUpdate(DglController* controller) {
-        controller->requestShader(getObjId(), false);
-    }
-    Ui::DGLShaderViewItem m_Ui;
-    DGLGLSLEditor* m_GLSLEditor;
-    boost::shared_ptr<srchiliteqt::Qt4SyntaxHighlighter> m_Highlighter;
-};
+void DGLShaderViewItem::requestUpdate(DglController* controller) {
+    controller->requestShader(getObjId(), false);
+}
+
 
 DGLShaderView::DGLShaderView(QWidget* parrent, DglController* controller):DGLTabbedView(parrent, controller) {
     setupNames("Shaders", "DGLShaderView");

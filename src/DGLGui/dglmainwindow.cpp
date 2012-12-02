@@ -13,6 +13,7 @@
 #include "dglfboview.h"
 #include "dglbreakpointview.h"
 #include "dglshaderview.h"
+#include "dglprogramview.h"
 #include "dglgui.h"
 
 
@@ -121,6 +122,11 @@ void DGLMainWindow::createDockWindows() {
         viewMenu->addAction(dock->toggleViewAction());
     } {
         QDockWidget *dock = new DGLShaderView(this, &m_controller);
+        dock->setMinimumSize(QSize(600, 0));
+        addDockWidget(Qt::AllDockWidgetAreas, dock);
+        viewMenu->addAction(dock->toggleViewAction());
+    } {
+        QDockWidget *dock = new DGLProgramView(this, &m_controller);
         dock->setMinimumSize(QSize(600, 0));
         addDockWidget(Qt::AllDockWidgetAreas, dock);
         viewMenu->addAction(dock->toggleViewAction());

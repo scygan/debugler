@@ -1,6 +1,6 @@
 #include "dgltextureview.h"
 #include "dglgui.h"
-
+#include "dglshaderviewitem.h"
 #include "ui_dgltextureviewitem.h"
 
 #include <QGraphicsTextItem>

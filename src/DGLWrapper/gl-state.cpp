@@ -115,6 +115,19 @@ void GLProgramObj::markDeleted() {
     m_Deleted = true;
 }
 
+void GLProgramObj::attachShader(GLShaderObj* shader) {
+    m_AttachedShaders.insert(shader);
+
+}
+
+void GLProgramObj::detachShader(GLShaderObj* shader) {
+    m_AttachedShaders.erase(shader);
+}
+
+std::set<GLShaderObj*>& GLProgramObj::getAttachedShaders() {
+    return m_AttachedShaders;
+}
+
 GLShaderObj::GLShaderObj(GLuint name):GLObj(name), m_Deleted(false), m_Target(0) {
     m_CompileStatus.second = GL_FALSE;
 }
@@ -175,6 +188,10 @@ dglnet::ContextReport GLContext::describe() {
     for (std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.begin(); 
         i != m_Shaders.end(); i++) {
             ret.m_ShaderSpace.insert(dglnet::ContextObjectNameTarget(i->second.getName(), i->second.getTarget()));
+    }
+    for (std::map<GLuint, GLProgramObj>::iterator i = m_Programs.begin(); 
+        i != m_Programs.end(); i++) {
+            ret.m_ProgramSpace.insert(i->second.getName());
     }
     for (std::map<GLuint, GLFBObj>::iterator i = m_FBOs.begin(); 
         i != m_FBOs.end(); i++) {
@@ -293,6 +310,13 @@ void GLContext::startQuery() {
     peekError();
 }
 
+void GLContext::queryCheckError() {
+    GLenum error;
+    if  ((error = DIRECT_CALL_CHK(glGetError)()) != GL_NO_ERROR ) {
+        throw std::runtime_error(std::string("Query failed: got OpenGL error (") + GetGLEnumName(error) + ")");
+    }
+}
+
 bool GLContext::endQuery(std::string& message) {
     bool ret = true;
     GLenum error;
@@ -359,6 +383,8 @@ void GLContext::queryTexture(GLuint name, dglnet::TextureMessage& ret) {
                 texLevel.m_Channels = 3;
                 format = GL_RGB;
             }
+
+            queryCheckError();
 
             texLevel.m_Pixels.resize(texLevel.m_Width * texLevel.m_Height * texLevel.m_Channels);
             DIRECT_CALL_CHK(glGetTexImage)(tex->getTarget(), level, format, GL_UNSIGNED_BYTE, &texLevel.m_Pixels[0]);
@@ -447,6 +473,8 @@ void GLContext::queryBuffer(GLuint name, dglnet::BufferMessage& ret) {
             DIRECT_CALL_CHK(glBindBuffer)(buff->getTarget(), buff->getName());
         }
 
+        queryCheckError();
+
         GLint mapped; 
         DIRECT_CALL_CHK(glGetBufferParameteriv)(buff->getTarget(), GL_BUFFER_MAPPED, &mapped);
         if (mapped == GL_TRUE) {
@@ -454,6 +482,9 @@ void GLContext::queryBuffer(GLuint name, dglnet::BufferMessage& ret) {
         } else {
             GLint size = 0; 
             DIRECT_CALL_CHK(glGetBufferParameteriv)(buff->getTarget(), GL_BUFFER_SIZE, &size);
+
+            queryCheckError();
+
             if (!size) {
                 ret.error("Buffer empty (GL_BUFFER_SIZE is 0)");
             } else {
@@ -553,6 +584,8 @@ void GLContext::queryFBO(GLuint name, dglnet::FBOMessage& ret) {
                 DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
                     GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &alphaSize);
 
+                queryCheckError();
+
                 GLint width, height;
                 if (type == GL_TEXTURE) {
                     if (!DIRECT_CALL_CHK(glIsTexture)(name)) {
@@ -589,6 +622,8 @@ void GLContext::queryFBO(GLuint name, dglnet::FBOMessage& ret) {
                     DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
                     DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, lastRenderBuffer);
                 }
+
+                queryCheckError();
 
                 GLenum format;
                 if (alphaSize) {
@@ -643,6 +678,53 @@ void GLContext::queryShader(GLuint name, dglnet::ShaderMessage& ret) {
         ret.m_Target = shader->getTarget();
     } catch (const std::runtime_error& err) {
         ret.error(err.what());
+    }
+}
+
+void GLContext::queryProgram(GLuint name, dglnet::ProgramMessage& ret) {
+    startQuery();
+
+    ret.m_Name = name;
+
+    try {
+        std::map<GLuint, GLProgramObj>::iterator i = m_Programs.find(name);
+        if (i == m_Programs.end()) {
+            throw std::runtime_error("Shader Program does not exist");
+        }
+        GLProgramObj* program = &i->second;
+
+        std::set<GLShaderObj*> attachedShaders = program->getAttachedShaders();
+        for (std::set<GLShaderObj*>::iterator i = attachedShaders.begin(); i != attachedShaders.end(); i++) {
+            ret.m_AttachedShaders.push_back(std::pair<uint32_t, uint32_t>((*i)->getName(), (*i)->getTarget()));
+        }
+
+        GLint linkStatus, infoLogLength; 
+        DIRECT_CALL_CHK(glGetProgramiv)(name, GL_LINK_STATUS, &linkStatus);
+        DIRECT_CALL_CHK(glGetProgramiv)(name, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+        queryCheckError();
+
+        std::string infoLog; 
+        if (infoLogLength) {
+            infoLog.resize(infoLogLength);
+            GLint realInfoLogLength;
+            DIRECT_CALL_CHK(glGetProgramInfoLog)(program->getName(), infoLog.size(), &realInfoLogLength, &infoLog[0]);
+            if (realInfoLogLength < infoLogLength) {
+                //highly unlikely, only on buggy drivers
+                infoLog.resize(realInfoLogLength);
+            }
+        }       
+
+        ret.mLinkStatus = std::pair<std::string, uint32_t>(infoLog, linkStatus);
+        
+
+    } catch (const std::runtime_error& err) {
+        ret.error(err.what());
+    }
+
+    std::string message;
+    if (!endQuery(message)) {
+        ret.error(message);
     }
 }
 

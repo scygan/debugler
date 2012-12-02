@@ -84,6 +84,7 @@ public:
     void doHandle(const dglnet::QueryFramebufferMessage&);
     void doHandle(const dglnet::QueryFBOMessage&);
     void doHandle(const dglnet::QueryShaderMessage&);
+    void doHandle(const dglnet::QueryProgramMessage&);
     void doHandle(const dglnet::SetBreakPointsMessage&);
 
 private:

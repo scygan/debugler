@@ -88,6 +88,7 @@ public:
     virtual void doHandle(const dglnet::FramebufferMessage&);
     virtual void doHandle(const dglnet::FBOMessage&);
     virtual void doHandle(const dglnet::ShaderMessage&);
+    virtual void doHandle(const dglnet::ProgramMessage&);
 
     /** 
      * Method called by DGLclient, when disconnection condition is detected
@@ -119,6 +120,11 @@ public:
      */
     void requestShader(uint name, uint target, bool focus = true);
 
+    /** 
+     * Method called to request information on given shader program object from debugee
+     */
+    void requestProgram(uint name, bool focus = true);
+
     /**
      * Getter for break point controller object
      */
@@ -145,6 +151,7 @@ signals:
     void gotFramebuffer(uint, const dglnet::FramebufferMessage&);
     void gotFBO(uint, const dglnet::FBOMessage&);
     void gotShader(uint, const dglnet::ShaderMessage&);
+    void gotProgram(uint, const dglnet::ProgramMessage&);
 
     void newStatus(const QString&);
     void error(const QString&, const QString&);
@@ -154,6 +161,7 @@ signals:
     void focusFramebuffer(uint bufferEnum);
     void focusFBO(uint name);
     void focusShader(uint name, uint target);
+    void focusProgram(uint name);
     
 public slots:
     void poll();

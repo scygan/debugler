@@ -34,6 +34,8 @@ BOOST_CLASS_EXPORT_GUID(dglnet::QueryFBOMessage, "dglnet::QueryFBOMessage");
 BOOST_CLASS_EXPORT_GUID(dglnet::FBOMessage, "dglnet::FBOMessage");
 BOOST_CLASS_EXPORT_GUID(dglnet::QueryShaderMessage, "dglnet::QueryShaderMessage");
 BOOST_CLASS_EXPORT_GUID(dglnet::ShaderMessage, "dglnet::ShaderMessage");
+BOOST_CLASS_EXPORT_GUID(dglnet::QueryProgramMessage, "dglnet::QueryProgramMessage");
+BOOST_CLASS_EXPORT_GUID(dglnet::ProgramMessage, "dglnet::ProgramMessage");
 BOOST_CLASS_EXPORT_GUID(dglnet::SetBreakPointsMessage, "dglnet::SetBreakPointsMessage");
 
 

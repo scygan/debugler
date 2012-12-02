@@ -25,6 +25,8 @@ class QueryFBOMessage;
 class FBOMessage;
 class QueryShaderMessage;
 class ShaderMessage;
+class QueryProgramMessage;
+class ProgramMessage;
 class SetBreakPointsMessage;
 
 
@@ -45,6 +47,8 @@ public:
     virtual void doHandle(const FBOMessage&);
     virtual void doHandle(const QueryShaderMessage&);
     virtual void doHandle(const ShaderMessage&);
+    virtual void doHandle(const QueryProgramMessage&);
+    virtual void doHandle(const ProgramMessage&);
     virtual void doHandle(const SetBreakPointsMessage&);
     virtual void doHandleDisconnect(const std::string& why) = 0;
     virtual ~MessageHandler() {}
@@ -104,6 +108,7 @@ class ContextReport {
         ar & m_TextureSpace;
         ar & m_BufferSpace;
         ar & m_ShaderSpace;
+        ar & m_ProgramSpace;
         ar & m_FBOSpace;
         ar & m_FramebufferSpace;
     }
@@ -114,6 +119,7 @@ public:
     std::set<ContextObjectName> m_TextureSpace;
     std::set<ContextObjectName> m_BufferSpace;
     std::set<ContextObjectNameTarget> m_ShaderSpace;
+    std::set<ContextObjectName> m_ProgramSpace;
     std::set<ContextObjectName> m_FBOSpace;
     std::set<ContextObjectName> m_FramebufferSpace;
 };
@@ -264,15 +270,33 @@ public:
     std::vector<int8_t> m_Pixels;
 };
 
-class TextureMessage: public Message {
+class StatusMessage: public Message {
+public:
     friend class boost::serialization::access;
+
+    StatusMessage();
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
         ar & boost::serialization::base_object<Message>(*this);
-        ar & m_TextureName;
         ar & m_Ok;
         ar & m_ErrorMsg;
+    }
+    void error(std::string msg);
+    bool isOk(std::string& error) const;
+
+private:
+    bool m_Ok;
+    std::string m_ErrorMsg;
+};
+
+class TextureMessage: public StatusMessage {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<StatusMessage>(*this);
+        ar & m_TextureName;
         ar & m_Levels;
     }
 
@@ -281,15 +305,8 @@ class TextureMessage: public Message {
 public:
     TextureMessage();
 
-    void error(std::string msg);
-    bool isOk(std::string& error) const;
-
     uint32_t m_TextureName;
     std::vector<TextureLevel> m_Levels;
-
-private:
-    bool m_Ok;
-    std::string m_ErrorMsg;
 };
 
 class QueryBufferMessage: public Message {
@@ -311,15 +328,13 @@ public:
 };
 
 
-class BufferMessage: public Message {
+class BufferMessage: public StatusMessage {
     friend class boost::serialization::access;
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<Message>(*this);
+        ar & boost::serialization::base_object<StatusMessage>(*this);
         ar & m_BufferName;
-        ar & m_Ok;
-        ar & m_ErrorMsg;
         ar & m_Data;
     }
 
@@ -328,15 +343,8 @@ class BufferMessage: public Message {
 public:
     BufferMessage();
 
-    void error(std::string msg);
-    bool isOk(std::string& error) const;
-
     uint32_t m_BufferName;
     std::vector<char> m_Data;
-
-private:
-    bool m_Ok;
-    std::string m_ErrorMsg;
 };
 
 class QueryFramebufferMessage: public Message {
@@ -357,15 +365,13 @@ public:
     uint32_t m_BufferEnum;
 };
 
-class FramebufferMessage: public Message {
+class FramebufferMessage: public StatusMessage {
     friend class boost::serialization::access;
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<Message>(*this);
+        ar & boost::serialization::base_object<StatusMessage>(*this);
         ar & m_BufferEnum;
-        ar & m_Ok;
-        ar & m_ErrorMsg;
         ar & m_Width;
         ar & m_Height;
         ar & m_Channels;
@@ -377,16 +383,9 @@ class FramebufferMessage: public Message {
 public:
     FramebufferMessage();
 
-    void error(std::string msg);
-    bool isOk(std::string& error) const;
-
     uint32_t m_BufferEnum;
     int32_t m_Width, m_Height, m_Channels;
     std::vector<int8_t> m_Pixels;
-
-private:
-    bool m_Ok;
-    std::string m_ErrorMsg;
 };
 
 class QueryFBOMessage: public Message {
@@ -436,15 +435,13 @@ private:
     std::string m_ErrorMsg;
 };
 
-class FBOMessage: public Message {
+class FBOMessage: public StatusMessage {
     friend class boost::serialization::access;
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<Message>(*this);
+        ar & boost::serialization::base_object<StatusMessage>(*this);
         ar & m_Name;
-        ar & m_Ok;
-        ar & m_ErrorMsg;
         ar & m_Attachments;
     }
 
@@ -453,15 +450,8 @@ class FBOMessage: public Message {
 public:
     FBOMessage();
 
-    void error(std::string msg);
-    bool isOk(std::string& error) const;
-
     uint32_t m_Name;
     std::vector<FBOAttachment> m_Attachments;
-
-private:
-    bool m_Ok;
-    std::string m_ErrorMsg;
 };
 
 class QueryShaderMessage: public Message {
@@ -482,15 +472,13 @@ public:
     uint32_t m_Name;
 };
 
-class ShaderMessage: public Message {
+class ShaderMessage: public StatusMessage {
     friend class boost::serialization::access;
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<Message>(*this);
+        ar & boost::serialization::base_object<StatusMessage>(*this);
         ar & m_Name;
-        ar & m_Ok;
-        ar & m_ErrorMsg;
         ar & m_Sources;
         ar & m_CompileStatus;
         ar & m_Target;
@@ -501,19 +489,50 @@ class ShaderMessage: public Message {
 public:
     ShaderMessage();
 
-    void error(std::string msg);
-    bool isOk(std::string& error) const;
-
     uint32_t m_Name, m_Target;
     std::vector<std::string> m_Sources;
-    std::pair<std::string, GLint> m_CompileStatus;
-
-private:
-    bool m_Ok;
-    std::string m_ErrorMsg;
+    std::pair<std::string, uint32_t> m_CompileStatus;
 };
 
+class QueryProgramMessage: public Message {
+    friend class boost::serialization::access;
 
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_Name;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    QueryProgramMessage(){}
+    QueryProgramMessage(int32_t m_Name):m_Name(m_Name) {}
+
+    uint32_t m_Name;
+};
+
+class ProgramMessage: public StatusMessage {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<StatusMessage>(*this);
+        ar & m_Name;
+        ar & mLinkStatus;
+        ar & m_AttachedShaders;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    ProgramMessage(){}
+    ProgramMessage(int32_t m_Name):m_Name(m_Name) {}
+
+    uint32_t m_Name;
+    std::pair<std::string, uint32_t> mLinkStatus;
+    std::vector<std::pair<uint32_t, uint32_t>> m_AttachedShaders;
+};
 
 class SetBreakPointsMessage: public Message {
     friend class boost::serialization::access;

@@ -38,19 +38,6 @@ private:
     GLenum m_Target;
 };
 
-class GLProgramObj: public GLObj {
-public:
-    GLProgramObj(GLuint name);
-    GLProgramObj() {}
-    void use(bool inUse); 
-    bool mayDelete(); 
-    void markDeleted();
-
-private:
-    int m_InUse;
-    bool m_Deleted;
-};
-
 class GLShaderObj: public GLObj {
 public:
     GLShaderObj(GLuint name);
@@ -70,6 +57,23 @@ private:
     std::vector<std::string> m_Sources;
     std::pair<std::string, GLint> m_CompileStatus;
     GLenum m_Target;
+};
+
+class GLProgramObj: public GLObj {
+public:
+    GLProgramObj(GLuint name);
+    GLProgramObj() {}
+    void use(bool inUse); 
+    bool mayDelete(); 
+    void markDeleted();
+    void attachShader(GLShaderObj*);
+    void detachShader(GLShaderObj*);
+    std::set<GLShaderObj*>& getAttachedShaders();
+
+private:
+    int m_InUse;
+    bool m_Deleted;
+    std::set<GLShaderObj*> m_AttachedShaders;
 };
 
 class GLFBObj: public GLObj {
@@ -133,6 +137,7 @@ public:
     void queryFramebuffer(GLuint bufferEnum, dglnet::FramebufferMessage& ret);
     void queryFBO(GLuint name, dglnet::FBOMessage& ret);
     void queryShader(GLuint name, dglnet::ShaderMessage& ret);
+    void queryProgram(GLuint name, dglnet::ProgramMessage& ret);
 
     int32_t getId();
 
@@ -142,6 +147,7 @@ public:
 private:
     
     void startQuery();
+    void queryCheckError();
     bool endQuery(std::string& message);
 
     void firstUse();       
@@ -155,3 +161,4 @@ private:
 
 } //namespace
 #endif
+

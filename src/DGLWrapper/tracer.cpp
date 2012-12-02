@@ -288,8 +288,8 @@ void BufferTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
 RetValue ProgramTracer::Pre(const CalledEntryPoint& call) {
     RetValue ret = PrevPre(call);
-    
-    if (call.getEntrypoint() == glUseProgram_Call) {
+
+    if (call.getEntrypoint() == glUseProgram_Call || call.getEntrypoint() == glUseProgramObjectARB_Call) {
 
         GLint currentProgramName;
         DIRECT_CALL(glGetIntegerv)(GL_CURRENT_PROGRAM, &currentProgramName);
@@ -309,13 +309,13 @@ void ProgramTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
     if (g_GLState.getCurrent()) {
         GLuint name;
-        if (entrp == glCreateProgram_Call) {
+        if (entrp == glCreateProgram_Call || entrp == glCreateProgramObjectARB_Call) {
 
             ret.get(name);
 
             g_GLState.getCurrent()->ensureProgram(name);
 
-        } else if (entrp == glDeleteProgram_Call) {
+        } else if (entrp == glDeleteProgram_Call || entrp == glDeleteObjectARB_Call) {
 
             call.getArgs()[0].get(name);
 
@@ -325,7 +325,7 @@ void ProgramTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 g_GLState.getCurrent()->deleteProgram(name);
             }
 
-        } else if (entrp == glUseProgram_Call) {
+        } else if (entrp == glUseProgram_Call || entrp == glUseProgramObjectARB_Call) {
 
             call.getArgs()[0].get(name);
 
@@ -401,6 +401,11 @@ void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             }
 
             g_GLState.getCurrent()->ensureShader(name)->setCompilationStatus(infoLog, compileStatus);
+        } else if (entrp == glAttachShader_Call || entrp == glAttachObjectARB_Call) {
+            GLuint prog, shad;
+            call.getArgs()[0].get(prog);
+            call.getArgs()[1].get(shad);
+            g_GLState.getCurrent()->ensureProgram(prog)->attachShader(g_GLState.getCurrent()->ensureShader(shad));
         }
     }
     PrevPost(call, ret);

@@ -113,6 +113,10 @@ void DglController::doHandle(const dglnet::ShaderMessage& msg) {
     gotShader(msg.m_Name, msg);
 }
 
+void DglController::doHandle(const dglnet::ProgramMessage& msg) {
+    gotProgram(msg.m_Name, msg);
+}
+
 void DglController::doHandleDisconnect(const std::string& msg) {
     m_DglClientDeadInfo = msg;
     m_DglClientDead = true; 
@@ -156,7 +160,15 @@ void DglController::requestShader(uint name, uint target, bool focus) {
     m_DglClient->sendMessage(&message);
     if (focus)
         focusShader(name, target);
-} 
+}
+
+void DglController::requestProgram(uint name, bool focus) {
+    assert(m_DglClient);
+    dglnet::QueryProgramMessage message(name);
+    m_DglClient->sendMessage(&message);
+    if (focus)
+        focusProgram(name);
+}
 
 void DglController::sendMessage(dglnet::Message* msg) {
     assert(m_DglClient);
