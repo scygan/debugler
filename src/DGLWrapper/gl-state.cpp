@@ -29,11 +29,8 @@ namespace state_setters {
 
     class DefaultReadBuffer {
     public:
-        DefaultReadBuffer(GLuint name = 0) {
+        DefaultReadBuffer() {
             DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_FRAMEBUFFER_BINDING, &m_FBO);
-            if (m_FBO) {
-                DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, name);
-            }
         }
         ~DefaultReadBuffer() {
             if (m_FBO) {
@@ -42,6 +39,21 @@ namespace state_setters {
         }
     private:
         GLint m_FBO;
+    };
+
+    class CurrentFramebuffer {
+    public:
+        CurrentFramebuffer(GLuint name) {
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_FRAMEBUFFER_BINDING, &m_ReadFBO);
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_DRAW_FRAMEBUFFER_BINDING, &m_DrawFBO);
+            DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, name);
+        }
+        ~CurrentFramebuffer() {
+            DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, m_ReadFBO);
+            DIRECT_CALL_CHK(glBindFramebuffer)(GL_DRAW_FRAMEBUFFER, m_DrawFBO);
+        }
+    private:
+        GLint m_ReadFBO, m_DrawFBO;
     };
 
     class PixelStoreAlignment {
@@ -549,7 +561,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
     DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &currentBuffer);
     {
         state_setters::DefaultPBO defPBO;
-        state_setters::DefaultReadBuffer defReadFBO(name);
+        state_setters::CurrentFramebuffer currentFBO(name);
         state_setters::PixelStoreAlignment defAlignment;
 
         GLint maxColorAttachments; 
