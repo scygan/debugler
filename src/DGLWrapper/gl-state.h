@@ -153,20 +153,49 @@ public:
     void startQuery();
     bool endQuery(std::string& message);
 
+    /**
+     * Imemdiate mode setter - must be set, when betweek glBegin()/glEnd(), otherwise spurious GL errors will happen
+     * No query will be emitted when in immediate mode
+     */
+    void setImmediateMode(bool);
+
 private:
     void queryCheckError();
     
 
     void firstUse();       
 
+    /**
+     * WGL or other native API context ID
+     */
     int32_t m_Id;
+
     bool m_InUse, m_Deleted, m_EverUsed;
+
+    /**
+     * Handle to native surface (drawable)
+     */
     NPISurface* m_NPISurface;
 
+    /**
+     * Queue for errors poked from glGetError(), not yet delivered to application
+     */
     std::queue<GLenum> m_PokedErrorQueue;
 
+    /**
+     * Set to if pending message from debug output is present
+     */
     bool m_HasDebugOutput;
+
+    /**
+     * Pending message from debug output
+     */
     std::string m_DebugOutput;
+
+    /**
+     * Set to true if betweek glBegin() and glEnd() 
+     */
+    bool m_InImmediateMode;
 };
 
 } //namespace

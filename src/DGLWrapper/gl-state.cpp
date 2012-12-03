@@ -185,7 +185,7 @@ GLenum GLFBObj::getTarget() {
     return m_Target;
 }
 
-GLContext::GLContext(uint32_t id):m_Id(id), m_InUse(false), m_Deleted(false), m_NPISurface(NULL), m_EverUsed(false), m_HasDebugOutput(false)  {}
+GLContext::GLContext(uint32_t id):m_Id(id), m_InUse(false), m_Deleted(false), m_NPISurface(NULL), m_EverUsed(false), m_HasDebugOutput(false), m_InImmediateMode(false)  {}
 
 dglnet::ContextReport GLContext::describe() {
     dglnet::ContextReport ret(m_Id);
@@ -301,12 +301,19 @@ GLenum GLContext::getError() {
         ret = m_PokedErrorQueue.front();
         m_PokedErrorQueue.pop();
     } else {
-        ret = DIRECT_CALL_CHK(glGetError)();
+        if (!m_InImmediateMode) {
+            ret = DIRECT_CALL_CHK(glGetError)();
+        } else {
+            ret = GL_NO_ERROR;
+        }
     }
     return ret;
 }
 
 GLenum GLContext::peekError() {
+
+    if (m_InImmediateMode) return NO_ERROR; //we cannot get erros after glBegin()
+
     GLenum ret = DIRECT_CALL_CHK(glGetError)();
     if (ret != GL_NO_ERROR) {
         GLenum error = ret;
@@ -334,6 +341,9 @@ const std::string& GLContext::popDebugOutput() {
 
 void GLContext::startQuery() {
     peekError();
+    if (m_InImmediateMode) {
+        throw std::runtime_error("OpenGL is currently in immediate mode (after glBegin,  before glEnd) - cannot issue query");
+    }
 }
 
 void GLContext::queryCheckError() {
@@ -356,6 +366,10 @@ bool GLContext::endQuery(std::string& message) {
     m_HasDebugOutput = false;
 
     return ret;
+}
+
+void GLContext::setImmediateMode(bool immed) {
+    m_InImmediateMode = immed;
 }
 
 boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {

@@ -420,6 +420,20 @@ void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     PrevPost(call, ret);
 }
 
+void ImmediateModeTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
+    if (g_GLState.getCurrent()) {
+        switch (call.getEntrypoint()) {
+            case glBegin_Call:
+                g_GLState.getCurrent()->setImmediateMode(true);
+                break;
+            case glEnd_Call:
+                g_GLState.getCurrent()->setImmediateMode(false);
+                break;
+        }
+    }
+    PrevPost(call, ret);
+}
+
 
 void FBOTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
