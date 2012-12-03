@@ -46,6 +46,11 @@ private slots:
      */
     void attach();
 
+     /**
+     * Slot for displaing "Run application window..." 
+     */
+    void runDialog();
+
     /**
      * Slot for disconnecting current connection
      */
@@ -118,6 +123,7 @@ private:
     QAction *aboutQtAct;
     QAction *quitAct;
 
+    QAction *runAct;
     QAction *attachAct;
     QAction *disconnectAct;
     QAction *debugInterruptAct;

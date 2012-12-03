@@ -3,12 +3,17 @@
 #include "api-loader.h"
 #include "debugger.h"
 #include "tracer.h"
-
+#include "DGLWrapper.h"
 #include <boost/make_shared.hpp>
 
 #include<windows.h>
 
-void Initialize() {
+
+
+extern "C" __declspec(dllexport) void InitializeThread() {}
+     
+     
+ void Initialize(void) {
     LoadOpenGLLibrary();
 
     SetAllTracers<DefaultTracer>();
@@ -59,11 +64,17 @@ void Initialize() {
     TracerBase::SetNext<ShaderTracer>(glAttachObjectARB_Call);
     TracerBase::SetNext<ShaderTracer>(glAttachShader_Call);
     
+    int port = 8888;
+    /*char* portStr; size_t len;
+    if (_dupenv_s(&portStr, &len, "dgl_port") == 0 && portStr && strlen(portStr)) {
+        port = atoi(portStr);
+    }*/
 
     g_Controller = boost::make_shared<DebugController>();
-    boost::shared_ptr<dglnet::Server> srv = boost::make_shared<dglnet::Server>(5555, g_Controller.get());
-    srv->accept();
-    g_Controller->connect(srv);
+    //boost::shared_ptr<dglnet::Server> srv = boost::make_shared<dglnet::Server>(port, g_Controller.get());
+    //srv->accept();
+    //g_Controller->connect(srv);
+    SetDllDirectoryA("C:\\Users\\Administrator\\Desktop\\debugler\\build\\Debug\\DGLWrapper");
 }
 
 void TearDown() {

@@ -206,6 +206,11 @@ void DebugController::doHandleDisconnect(const std::string&) {
 }
 
 dglnet::Server& DebugController::getServer() {
+    if (!m_Server) {
+        boost::shared_ptr<dglnet::Server> srv = boost::make_shared<dglnet::Server>(8888, g_Controller.get());
+        srv->accept();
+        g_Controller->connect(srv);
+    }
     return *m_Server;
 }
 

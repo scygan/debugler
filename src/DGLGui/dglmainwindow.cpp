@@ -3,6 +3,7 @@
 #include <QFile>
 
 #include "dglmainwindow.h"
+#include "dglrundialog.h"
 #include "dglconnectdialog.h"
 #include "dglbreakpointdialog.h"
 #include "dgltraceview.h"
@@ -16,6 +17,8 @@
 #include "dglprogramview.h"
 #include "dglgui.h"
 
+
+#include "CompleteInject.h"
 
 /**
  * Macros indentyfying entity, that stores & loads QSettings
@@ -135,6 +138,7 @@ void DGLMainWindow::createDockWindows() {
 
 void DGLMainWindow::createMenus() {
      fileMenu = menuBar()->addMenu(tr("&File"));
+     fileMenu->addAction(runAct);
      fileMenu->addAction(attachAct);
      fileMenu->addAction(disconnectAct);
      fileMenu->addSeparator();
@@ -197,6 +201,10 @@ void DGLMainWindow::createToolBars() {
      aboutAct = new QAction(tr("&About"), this);
      aboutAct->setStatusTip(tr("Show the application's About box"));
      CONNASSERT(connect(aboutAct, SIGNAL(triggered()), this, SLOT(about())));
+
+     runAct = new QAction(tr("&Run application ..."), this);
+     runAct->setStatusTip(tr("Opens run application dialog window"));
+     CONNASSERT(connect(runAct, SIGNAL(triggered()), this, SLOT(runDialog())));
 
      attachAct = new QAction(tr("&Attach to"), this);
      attachAct->setStatusTip(tr("Attach to IP target"));
@@ -333,6 +341,91 @@ void DGLMainWindow::createToolBars() {
          //if dialog is successfull, initialte connection in DGLController
 
          m_controller.connectServer(dialog.getAddress(), dialog.getPort());
+     }
+ }
+
+ void DGLMainWindow::runDialog() {
+
+     //execute connection dialog to obtain connection parameters
+
+     DGLRunDialog dialog;
+
+     if (dialog.exec() == QDialog::Accepted) {
+
+         try {
+             srand(GetTickCount());
+             int port = rand() % (0xffff - 1024) + 1024;
+             std::stringstream portStr;  portStr << port;
+             std::stringstream envStream; 
+             envStream << "dgl_mode=inject|dgl_portxxx=" << portStr.str() << "||";
+
+             std::vector<char> env(envStream.str().length());
+             memcpy(&env[0], envStream.str().c_str(), env.size());
+             for (size_t i = 0; i < env.size(); i++) {
+                 if (env[i] == '|')
+                     env[i] = 0;
+             }
+
+             STARTUPINFOA startupInfo;
+             memset(&startupInfo, 0, sizeof(startupInfo));
+             startupInfo.cb = sizeof(startupInfo);
+
+             PROCESS_INFORMATION processInformation; 
+             memset(&processInformation, 0, sizeof(processInformation));
+
+             if (CreateProcessA(
+                 (LPSTR)dialog.getExecutable().c_str(),
+                 (LPSTR)dialog.getCommandLineArgs().c_str(),
+                 NULL, 
+                 NULL,
+                 FALSE, 
+                 CREATE_SUSPENDED,
+                 (const LPVOID)&env[0],
+                 dialog.getPath().c_str(),
+                 &startupInfo, 
+                 &processInformation) == 0 ) {
+
+                     throw std::runtime_error("Cannot create process");
+             }
+             QString absPath = QFileInfo("../../build/Debug/DGLWrapper/OpenGL32.dll").absoluteFilePath();
+             QByteArray baPath = QDir::toNativeSeparators(absPath).toUtf8();
+             const char* path = baPath.constData();
+
+             HANDLE thread = Inject(processInformation.hProcess, path, "InitializeThread");
+
+             std::string host = "localhost";
+             std::string portStr2 = "8888";
+             m_controller.connectServer(host, portStr2);//portStr.str());
+
+             WaitForSingleObject(thread, INFINITE); 
+
+
+             if (ResumeThread(processInformation.hThread) == -1) {
+                 throw std::runtime_error("Cannot resume process");
+             }
+         } catch (const std::runtime_error& err) {
+             char* errorText;
+             FormatMessageA(
+                 FORMAT_MESSAGE_FROM_SYSTEM
+                 |FORMAT_MESSAGE_ALLOCATE_BUFFER
+                 |FORMAT_MESSAGE_IGNORE_INSERTS,  
+                 NULL,
+                 GetLastError(),
+                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                 (LPSTR)&errorText,
+                 0,
+                 NULL);
+
+             if ( NULL != errorText ) {
+                 QMessageBox::critical(NULL, "Fatal Error",
+                     QString::fromStdString(err.what()) + ": " +  errorText);
+                 LocalFree(errorText);
+             } else {
+                 QMessageBox::critical(NULL, "Fatal Error",
+                     QString::fromStdString(err.what()));
+             }
+         }
+         //m_controller.connectServer(dialog.getAddress(), dialog.getPort());
      }
  }
 
