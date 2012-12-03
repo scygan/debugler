@@ -8,7 +8,9 @@
 #else
 #define CONNASSERT(x) assert(x)
 
+#ifdef HAVE_VLD
 #include <vld.h>
+#endif
 
 #endif
 
