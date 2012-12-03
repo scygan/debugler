@@ -17,7 +17,11 @@ void * LoadOpenGLPointer(char* name) {
 }
 
 void* LoadOpenGLExtPointer(Entrypoint entryp) {
-    return g_DirectPointers[entryp] = DIRECT_CALL(wglGetProcAddress)(GetEntryPointName(entryp));
+    if (!g_DirectPointers[entryp]) {
+        return g_DirectPointers[entryp] = DIRECT_CALL(wglGetProcAddress)(GetEntryPointName(entryp));
+    } else {
+        return g_DirectPointers[entryp];
+    }    
 }
 
 #define FUNCTION_LIST_ELEMENT(name, type) POINTER(name) = LoadOpenGLPointer(#name);
