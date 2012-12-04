@@ -235,7 +235,23 @@ private:
     boost::shared_ptr<dglnet::Client> m_DglClient;
     boost::shared_ptr<QSocketNotifier> m_NotifierRead, m_NotifierWrite;
     QTimer m_Timer;
-    bool m_DglClientDead, m_ConfiguredAndBkpointsSet, m_Connected;
+
+    /**
+     * Set to true, if client is no longer connected (setting to true from asio handler will cause disconnection)
+     */
+    bool m_Disconnected;
+
+    /**
+     * Set to true if configuration and breakpoints were already send.
+     * If not set, the configuration and breakpoint will be synced ASAP.
+     */
+    bool m_ConfiguredAndBkpointsSet;
+
+    /**
+     * Set to true, if client is ready for receiving messages. Does not always equal !m_Disconnected
+     */
+    bool m_Connected;
+
     std::string m_DglClientDeadInfo;
     DGLBreakPointController m_BreakPointController;
     DGLConfiguration m_Config;

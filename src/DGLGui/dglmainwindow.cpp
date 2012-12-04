@@ -18,7 +18,8 @@
 #include "dglgui.h"
 
 #include <boost/interprocess/sync/named_semaphore.hpp>
-
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/thread/thread.hpp>
 
 #include "CompleteInject.h"
 
@@ -381,21 +382,29 @@ void DGLMainWindow::createToolBars() {
      if (dialog.exec() == QDialog::Accepted) {
 
          try {
+             
+             //randomize connection port
              srand(GetTickCount());
              int port = rand() % (0xffff - 1024) + 1024;
              std::stringstream portStr;  portStr << port;
+
+             //set environment variables - child process will inherit these
              SetEnvironmentVariableA("dgl_port", portStr.str().c_str());
              std::string semName = "sem_" + portStr.str();
              SetEnvironmentVariableA("dgl_semaphore", semName.c_str());
+
+             //get wrapper path
              QByteArray baPath = QDir::toNativeSeparators(QFileInfo("OpenGL32.dll").absoluteFilePath()).toUtf8();
              const char* wrapperPath = baPath.constData();
 
+             //prepare some structures for CreateProcess output
              STARTUPINFOA startupInfo;
              memset(&startupInfo, 0, sizeof(startupInfo));
              startupInfo.cb = sizeof(startupInfo);
-
              PROCESS_INFORMATION processInformation; 
              memset(&processInformation, 0, sizeof(processInformation));
+
+             //try run process (suspended - will not run user thread)
 
              if (CreateProcessA(
                  (LPSTR)dialog.getExecutable().c_str(),
@@ -411,48 +420,82 @@ void DGLMainWindow::createToolBars() {
 
                      throw std::runtime_error("Cannot create process");
              }
-           
+             
+             //process is running, but is suspended (user thread not started, some DLLMain-s may be run by now)
+
+             //inject thread with wrapper library loading code, run through DLLMain and InitializeThread() function
 
              HANDLE thread = Inject(processInformation.hProcess, wrapperPath, "InitializeThread");
+
+             //wait for remote thread to end - wait for library to load and InitializeThread() to return
 
              WaitForSingleObject(thread, INFINITE); 
 
              {
+                 //create named IPC semaphore. Application will post it, when server is created (and when OpenGL is first used)
+
                  boost::interprocess::named_semaphore sem(boost::interprocess::create_only, semName.c_str(), 0);
 
+                 //resume process - now user thread is running
+                 //whole OpenGL should be wrapped by now
 
                  if (ResumeThread(processInformation.hThread) == -1) {
                      throw std::runtime_error("Cannot resume process");
                  }
 
-                 sem.wait();
+                 //Wait for application to startup connection server
+                 //this may take some time, as we cannot do it on start (cannot setup socket from DLLMain())
+                 //we basically wait here for application to call WGL
+
+                 bool timeout; 
+                 //boost::posix_time::ptime p = boost::get_system_time() + boost::posix_time::milliseconds(5000);
+                 while ((timeout = !sem.timed_wait(boost::get_system_time() + boost::posix_time::milliseconds(5000)))) {
+
+                     //5 seconds is enough. it ususally means that this application is not using OpenGL at all..
+                     if (QMessageBox::question(this, tr("Timeout"), tr("The debugger has waited 5 seconds for application to use OpenGL. Wait another 5s?"),
+                         QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
+                         break;
+                     }
+                 }
+                 if (timeout) {
+                     throw std::runtime_error("Timed out waiting for application to use OpenGL");
+                 }
              }
+
+             //application should be running server by now, connect to it and begin debugging
+
              std::string host = "127.0.0.1";
+
              m_controller.connectServer(host, portStr.str());
 
          } catch (const std::runtime_error& err) {
-             char* errorText;
-             FormatMessageA(
-                 FORMAT_MESSAGE_FROM_SYSTEM
-                 |FORMAT_MESSAGE_ALLOCATE_BUFFER
-                 |FORMAT_MESSAGE_IGNORE_INSERTS,  
-                 NULL,
-                 GetLastError(),
-                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                 (LPSTR)&errorText,
-                 0,
-                 NULL);
 
-             if ( NULL != errorText ) {
+             //generic, GetLastError() aware error printer
+ 
+             if ( DWORD lastError = GetLastError()) {
+
+                 char* errorText;
+                 FormatMessageA(
+                     FORMAT_MESSAGE_FROM_SYSTEM
+                     |FORMAT_MESSAGE_ALLOCATE_BUFFER
+                     |FORMAT_MESSAGE_IGNORE_INSERTS,  
+                     NULL,
+                     GetLastError(),
+                     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                     (LPSTR)&errorText,
+                     0,
+                     NULL);
+
                  QMessageBox::critical(NULL, "Fatal Error",
                      QString::fromStdString(err.what()) + ": " +  errorText);
+
                  LocalFree(errorText);
+
              } else {
                  QMessageBox::critical(NULL, "Fatal Error",
                      QString::fromStdString(err.what()));
              }
          }
-         //m_controller.connectServer(dialog.getAddress(), dialog.getPort());
      }
  }
 

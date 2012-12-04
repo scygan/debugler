@@ -125,11 +125,13 @@ DGLShaderViewItem::DGLShaderViewItem(uint name, DGLResourceManager* resManager, 
     m_Ui.verticalLayout->setStretch(0, 4);
     m_Ui.verticalLayout->setStretch(1, 1);
 
-    m_Highlighter = boost::make_shared<srchiliteqt::Qt4SyntaxHighlighter>(m_GLSLEditor->document());
+    m_Highlighter = boost::make_shared<srchiliteqt::Qt4SyntaxHighlighter>(m_Ui.checkBox_Highlight->isChecked()?m_GLSLEditor->document():NULL);
     m_Highlighter->init("glsl.lang");
 
     m_Listener = resManager->createListener(name, DGLResource::ObjectTypeShader);
     m_Listener->setParent(this);
+
+    CONNASSERT(connect(m_Ui.checkBox_Highlight, SIGNAL(toggled(bool)), this, SLOT(toggleHighlight(bool))));
 
     CONNASSERT(connect(m_Listener,SIGNAL(update(const DGLResource&)),this,SLOT(update(const DGLResource&))));
     CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
@@ -160,6 +162,11 @@ void DGLShaderViewItem::update(const DGLResource& res) {
         m_Ui.labelLinkStatus->setText(tr("Compile status: success"));
     }
 }
+
+void DGLShaderViewItem::toggleHighlight(bool enabled) {
+    m_Highlighter->setDocument(enabled ? m_GLSLEditor->document() : NULL );
+}
+
     
 DGLShaderView::DGLShaderView(QWidget* parrent, DglController* controller):DGLTabbedView(parrent, controller) {
     setupNames("Shaders", "DGLShaderView");

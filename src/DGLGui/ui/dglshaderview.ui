@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="1">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0">
    <item>
     <widget class="QGroupBox" name="groupBox1">
      <property name="title">
@@ -28,10 +28,26 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="labelLinkStatus">
-        <property name="text">
-         <string>Compile Status: Unknown</string>
-        </property>
+       <widget class="QWidget" name="widget" native="true">
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="labelLinkStatus">
+           <property name="text">
+            <string>Compile Status: Unknown</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QCheckBox" name="checkBox_Highlight">
+           <property name="text">
+            <string>Highligh syntax</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>

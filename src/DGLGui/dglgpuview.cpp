@@ -6,6 +6,7 @@
 
 DGLGPUView::DGLGPUView(QWidget* parrent, DglController* controller):QDockWidget(tr("State Tree"), parrent), m_Listener(NULL), m_Controller(controller), m_Ui(NULL) {
     setObjectName("DGLGPUView");
+    setWindowTitle("OpenGL and GPU");
 
     setConnected(false);
    

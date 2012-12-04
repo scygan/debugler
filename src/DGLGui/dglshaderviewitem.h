@@ -15,6 +15,7 @@ public:
 private slots:
     void update(const DGLResource& res);
     void error(const std::string&);
+    void toggleHighlight(bool);
 private:
     Ui::DGLShaderViewItem m_Ui;
     QLabel* m_Label;

@@ -109,7 +109,7 @@ void DGLViewRouter::show(uint name, DGLResource::ObjectType type, uint target) {
     }
 }
 
-DglController::DglController():m_DglClientDead(false),m_BreakPointController(this), m_ResourceManager(this), m_ConfiguredAndBkpointsSet(false) {
+DglController::DglController():m_Disconnected(true), m_Connected(false), m_ConfiguredAndBkpointsSet(false), m_BreakPointController(this), m_ResourceManager(this) {
     m_Timer.setInterval(10);
     CONNASSERT(connect(&m_Timer, SIGNAL(timeout()), this, SLOT(poll())));
 }
@@ -118,7 +118,10 @@ void DglController::connectServer(const std::string& host, const std::string& po
     if (m_DglClient) {
         disconnectServer();
     }
-    m_DglClientDead = false;
+
+    //we are not disconnected, but not yet connected - so we do not set m_Connected
+    m_Disconnected = false; 
+
     m_DglClient = boost::make_shared<dglnet::Client>(this, this);
     m_DglClient->connectServer(host, port);
     m_Timer.start();
@@ -130,7 +133,10 @@ void DglController::onSocket() {
     m_NotifierWrite = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Write); 
     CONNASSERT(connect(&*m_NotifierRead, SIGNAL(activated(int)), this, SLOT(poll())));
     CONNASSERT(connect(&*m_NotifierWrite, SIGNAL(activated(int)), this, SLOT(poll())));
+
+    //we are connected now
     m_Connected = true;
+
     setConnected(true);
     setDisconnected(false);
 }
@@ -143,9 +149,9 @@ void DglController::disconnectServer() {
         setConnected(false);
         setDisconnected(true);
     }
+    m_Connected = false;
     m_NotifierRead.reset();
     m_NotifierWrite.reset();
-    m_Connected = false;
 }
 
 bool DglController::isConnected() {
@@ -155,7 +161,9 @@ bool DglController::isConnected() {
 void DglController::poll() {
     if (m_DglClient) {
         m_DglClient->poll();
-        if (m_DglClientDead)  {
+
+        if (m_Disconnected)  {
+            //one of asio handlers requested disconnection
             disconnectServer();
             error(tr("Connection error"), m_DglClientDeadInfo.c_str());
         }
@@ -239,7 +247,8 @@ void DglController::doHandle(const dglnet::ResourceMessage& msg) {
 
 void DglController::doHandleDisconnect(const std::string& msg) {
     m_DglClientDeadInfo = msg;
-    m_DglClientDead = true; 
+    m_Disconnected = true; 
+    m_Connected = !m_Disconnected;
 }
 
 void DglController::sendMessage(dglnet::Message* msg) {
