@@ -76,16 +76,23 @@ DGLMainWindow::~DGLMainWindow() {
 
 void DGLMainWindow::closeEvent(QCloseEvent *event) {
 
-    //store QSettings
-    
-    QSettings settings(DGL_COMPANY, DGL_PRODUCT);
-    settings.setValue(DGL_GEOMETRY_SETTINGS, saveGeometry());
-    settings.setValue(DGL_WINDOW_STATE_SETTINGS, saveState());
-    settings.setValue(DGL_ColorScheme_SETTINGS, m_ColorScheme);
+    if (m_controller.isConnected() && QMessageBox::question(this, "Confirm close", "Debugging session is in progress. Close application?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
+        event->ignore();
 
-    //Send even to parrent class
-    
-    QMainWindow::closeEvent(event);
+    } else {
+        m_controller.disconnectServer();
+
+        //store QSettings
+
+        QSettings settings(DGL_COMPANY, DGL_PRODUCT);
+        settings.setValue(DGL_GEOMETRY_SETTINGS, saveGeometry());
+        settings.setValue(DGL_WINDOW_STATE_SETTINGS, saveState());
+        settings.setValue(DGL_ColorScheme_SETTINGS, m_ColorScheme);
+
+        //Send even to parrent class
+
+        event->accept();
+    }
 }
 
 

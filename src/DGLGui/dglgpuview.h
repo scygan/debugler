@@ -22,7 +22,7 @@ public slots:
 private: 
     DGLResourceListener * m_Listener;
     DglController* m_Controller;
-    Ui_DGLGPUView m_Ui;
+    Ui_DGLGPUView* m_Ui;
 };
 
 #endif // DGLTREEVIEW_H
