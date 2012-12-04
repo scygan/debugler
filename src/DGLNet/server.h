@@ -11,15 +11,20 @@ namespace dglnet {
 class Server: public Transport {
 public: 
     Server(int port, MessageHandler*);
-    void accept();
+    void startAccept();
     void lock();
     void unlock();
+    void waitAcceptedAndRead();
 
 private:
+
+    void onAccept(const boost::system::error_code &ec);
+    boost::shared_ptr<Server> shared_from_this();
 
     boost::asio::ip::tcp::endpoint m_endpoint;
     boost::asio::ip::tcp::acceptor m_acceptor;
     boost::mutex m_mutex;
+    bool m_Accepted;
 };
 
 }

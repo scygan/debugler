@@ -2,6 +2,7 @@
 #include <boost/make_shared.hpp>
 
 #include"debugger.h"
+#include <boost/interprocess/sync/named_semaphore.hpp>
 
 boost::shared_ptr<DebugController> g_Controller;
 GLState g_GLState;
@@ -207,9 +208,20 @@ void DebugController::doHandleDisconnect(const std::string&) {
 
 dglnet::Server& DebugController::getServer() {
     if (!m_Server) {
-        boost::shared_ptr<dglnet::Server> srv = boost::make_shared<dglnet::Server>(8888, g_Controller.get());
-        srv->accept();
+        char port[20], semaphore[100];
+        int portNum = 5555;
+        if (GetEnvironmentVariableA("dgl_port", port, sizeof(port)) != 0) {
+            portNum = atoi(port);
+        }
+        boost::shared_ptr<dglnet::Server> srv = boost::make_shared<dglnet::Server>(portNum, g_Controller.get());
+        srv->startAccept();
+        if (GetEnvironmentVariableA("dgl_semaphore", semaphore, sizeof(semaphore)) != 0) {
+            boost::interprocess::named_semaphore sem(boost::interprocess::open_only, semaphore);
+            sem.post();
+        }
+        srv->waitAcceptedAndRead();
         g_Controller->connect(srv);
+
     }
     return *m_Server;
 }

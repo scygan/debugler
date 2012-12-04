@@ -16,6 +16,8 @@
 #include "dglprogramview.h"
 #include "dglgui.h"
 
+#include <boost/interprocess/sync/named_semaphore.hpp>
+
 
 #include "CompleteInject.h"
 
@@ -369,15 +371,9 @@ void DGLMainWindow::createToolBars() {
              srand(GetTickCount());
              int port = rand() % (0xffff - 1024) + 1024;
              std::stringstream portStr;  portStr << port;
-             std::stringstream envStream; 
-             envStream << "dgl_mode=inject|dgl_portxxx=" << portStr.str() << "||";
-
-             std::vector<char> env(envStream.str().length());
-             memcpy(&env[0], envStream.str().c_str(), env.size());
-             for (size_t i = 0; i < env.size(); i++) {
-                 if (env[i] == '|')
-                     env[i] = 0;
-             }
+             SetEnvironmentVariableA("dgl_port", portStr.str().c_str());
+             std::string semName = "sem_" + portStr.str();
+             SetEnvironmentVariableA("dgl_semaphore", semName.c_str());
 
              STARTUPINFOA startupInfo;
              memset(&startupInfo, 0, sizeof(startupInfo));
@@ -393,29 +389,34 @@ void DGLMainWindow::createToolBars() {
                  NULL,
                  FALSE, 
                  CREATE_SUSPENDED,
-                 (const LPVOID)&env[0],
+                 NULL,
                  dialog.getPath().c_str(),
                  &startupInfo, 
                  &processInformation) == 0 ) {
 
                      throw std::runtime_error("Cannot create process");
              }
-             QString absPath = QFileInfo("../../build/Debug/DGLWrapper/OpenGL32.dll").absoluteFilePath();
+             QString absPath = QFileInfo("OpenGL32.dll").absoluteFilePath();
              QByteArray baPath = QDir::toNativeSeparators(absPath).toUtf8();
              const char* path = baPath.constData();
 
              HANDLE thread = Inject(processInformation.hProcess, path, "InitializeThread");
 
-             std::string host = "localhost";
-             std::string portStr2 = "8888";
-             m_controller.connectServer(host, portStr2);//portStr.str());
-
              WaitForSingleObject(thread, INFINITE); 
 
+             {
+                 boost::interprocess::named_semaphore sem(boost::interprocess::create_only, semName.c_str(), 0);
 
-             if (ResumeThread(processInformation.hThread) == -1) {
-                 throw std::runtime_error("Cannot resume process");
+
+                 if (ResumeThread(processInformation.hThread) == -1) {
+                     throw std::runtime_error("Cannot resume process");
+                 }
+
+                 sem.wait();
              }
+             std::string host = "127.0.0.1";
+             m_controller.connectServer(host, portStr.str());
+
          } catch (const std::runtime_error& err) {
              char* errorText;
              FormatMessageA(
