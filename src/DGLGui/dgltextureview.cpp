@@ -27,9 +27,26 @@ void DGLTextureViewItem::update(const DGLResource& res) {
     const DGLResourceTexture* resource = dynamic_cast<const DGLResourceTexture*>(&res);
 
     m_Scene->clear();
-    m_PixelData = std::vector<uchar>(resource->m_Levels[0].m_Pixels.begin(), resource->m_Levels[0].m_Pixels.end());
 
-    uint realHeight = m_PixelData.size() / resource->m_Levels[0].m_Channels / resource->m_Levels[0].m_Width;
+    uint realHeight;
+
+    if (resource->m_Levels[0].m_Channels == 2) {
+        //special case: recompute buffer to be 4 element
+        m_PixelData.resize(resource->m_Levels[0].m_Pixels.size() * 2, 0);
+        for (size_t i = 0; i < m_PixelData.size(); i+=4) {
+            m_PixelData[i + 0] = resource->m_Levels[0].m_Pixels[i << 1 + 0];
+            m_PixelData[i + 1] = resource->m_Levels[0].m_Pixels[i << 1 + 1];
+            m_PixelData[i + 2] = 0;
+            m_PixelData[i + 3] = 0;
+        }
+        realHeight = m_PixelData.size() / 4 / resource->m_Levels[0].m_Width;
+    } else {
+        //normal case, use buffer untouched
+        m_PixelData = std::vector<uchar>(resource->m_Levels[0].m_Pixels.begin(), resource->m_Levels[0].m_Pixels.end());
+
+        realHeight = m_PixelData.size() / resource->m_Levels[0].m_Channels / resource->m_Levels[0].m_Width;
+    }
+
 
     assert(realHeight == resource->m_Levels[0].m_Height);
 
@@ -41,10 +58,26 @@ void DGLTextureViewItem::update(const DGLResource& res) {
     case 3:
         format = QImage::Format_RGB888;
         break;
+    case 2:
+        format = QImage::Format_RGB32; //we have recomputed buffer, so we can use 32-bit non-alpha format
+        break;
+    case 1:
+        format = QImage::Format_Indexed8;
+        break;
     default:
         assert(0);
     }
-    m_Scene->addPixmap(QPixmap::fromImage(QImage(&m_PixelData[0], resource->m_Levels[0].m_Width, realHeight, format)));
+    
+    QImage image(&m_PixelData[0], resource->m_Levels[0].m_Width, realHeight, format);
+
+    if (resource->m_Levels[0].m_Channels == 1) {
+        //this is special case: we do not want to re-compute buffer, so we use color indices to emulate GL_R8 texture
+        for(int i=0;i<256;++i) {
+            image.setColor(i, qRgb(i,i,i));
+        }
+    }
+
+    m_Scene->addPixmap(QPixmap::fromImage(image));
 }
 
 

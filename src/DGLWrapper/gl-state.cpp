@@ -412,18 +412,45 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
         DGLResourceTexture::TextureLevel texLevel;
         DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &texLevel.m_Width);
         DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_HEIGHT, &texLevel.m_Height);
-        GLint alpha;
-        GLenum format;
-        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_ALPHA_SIZE, &alpha);
-        if (alpha) {
-            texLevel.m_Channels = 4;
-            format = GL_BGRA;
-        } else {
-            texLevel.m_Channels = 3;
-            format = GL_RGB;
+        
+        GLint rgba[4] = {0, 0, 0, 0};
+        GLint stencil = 0, depth = 0;
+        
+        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_RED_SIZE, &rgba[0]);
+        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_GREEN_SIZE, &rgba[1]);
+        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_BLUE_SIZE, &rgba[2]);
+        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_ALPHA_SIZE, &rgba[3]);
+        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_STENCIL_SIZE, &stencil);
+        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_DEPTH_SIZE, &depth);
+
+        GLenum colorFormats[4] = { GL_RED, GL_RG, GL_RGB, GL_BGRA }; //last element is BGRA intentionally (viewer will handle DX format faster)
+
+        GLenum format = 0;
+        texLevel.m_Channels = 0;
+        for (int i = 0; i < 4; i++) {
+            if (rgba[i]) {
+                texLevel.m_Channels = i + 1;
+                format = colorFormats[i];
+            }
+        }
+        if (!format) {
+            // not a color texture
+            if (depth) {
+                format = GL_DEPTH_COMPONENT; texLevel.m_Channels = 1;
+            }
+            if (stencil) {
+                format = GL_STENCIL_INDEX; texLevel.m_Channels = 1;
+            }
+            if (stencil && depth) {
+                format = GL_DEPTH_STENCIL; texLevel.m_Channels = 2;
+            }
         }
 
         queryCheckError();
+
+        if (!format) {
+            throw std::runtime_error("Checked texture red, green, blue, alpha, stencil and depth size - all are 0. Unrecognized format.");
+        }
 
         texLevel.m_Pixels.resize(texLevel.m_Width * texLevel.m_Height * texLevel.m_Channels);
         DIRECT_CALL_CHK(glGetTexImage)(tex->getTarget(), level, format, GL_UNSIGNED_BYTE, &texLevel.m_Pixels[0]);
