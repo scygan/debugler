@@ -214,12 +214,11 @@ dglnet::Server& DebugController::getServer() {
             portNum = atoi(port);
         }
         boost::shared_ptr<dglnet::Server> srv = boost::make_shared<dglnet::Server>(portNum, g_Controller.get());
-        srv->startAccept();
         if (GetEnvironmentVariableA("dgl_semaphore", semaphore, sizeof(semaphore)) != 0) {
             boost::interprocess::named_semaphore sem(boost::interprocess::open_only, semaphore);
             sem.post();
         }
-        srv->waitAcceptedAndRead();
+        srv->accept();
         g_Controller->connect(srv);
 
     }
