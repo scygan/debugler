@@ -374,6 +374,8 @@ void DGLMainWindow::createToolBars() {
              SetEnvironmentVariableA("dgl_port", portStr.str().c_str());
              std::string semName = "sem_" + portStr.str();
              SetEnvironmentVariableA("dgl_semaphore", semName.c_str());
+             QByteArray baPath = QDir::toNativeSeparators(QFileInfo("OpenGL32.dll").absoluteFilePath()).toUtf8();
+             const char* wrapperPath = baPath.constData();
 
              STARTUPINFOA startupInfo;
              memset(&startupInfo, 0, sizeof(startupInfo));
@@ -396,11 +398,9 @@ void DGLMainWindow::createToolBars() {
 
                      throw std::runtime_error("Cannot create process");
              }
-             QString absPath = QFileInfo("OpenGL32.dll").absoluteFilePath();
-             QByteArray baPath = QDir::toNativeSeparators(absPath).toUtf8();
-             const char* path = baPath.constData();
+           
 
-             HANDLE thread = Inject(processInformation.hProcess, path, "InitializeThread");
+             HANDLE thread = Inject(processInformation.hProcess, wrapperPath, "InitializeThread");
 
              WaitForSingleObject(thread, INFINITE); 
 

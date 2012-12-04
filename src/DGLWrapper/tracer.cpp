@@ -99,7 +99,7 @@ RetValue GetProcAddressTracer::Pre(const CalledEntryPoint& call) {
     }
     //we recognize this entrypoint, load if nessesary and return address to  wrapper
     LoadOpenGLExtPointer(entryp);
-    ret = getWrapperPointer(entryp);
+    ret = (const void *)getWrapperPointer(entryp);
     return ret;
 }
 

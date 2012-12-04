@@ -10,12 +10,12 @@ extern "C" {
 
 
 #define FUNCTION_LIST_ELEMENT(name, type) &name,
-const void * wrapperPtrs[] = {
+void * wrapperPtrs[] = {
     #include "../../dump/codegen/functionList.inl"
     NULL
 };
 
 
-const void* getWrapperPointer(Entrypoint entryp) {
+void* getWrapperPointer(Entrypoint entryp) {
     return wrapperPtrs[entryp];
 }

@@ -5,6 +5,8 @@
 #include "pointers.h"
 
 #include <string>
+#include "detours/detours.h"
+#include "gl-wrappers.h"
 
 //here direct pointers are kept (pointers to entrypoints exposed by underlying OpenGL32 implementation
 //use DIRECT_CALL(name) to call one of these pointers
@@ -43,6 +45,21 @@ void LoadOpenGLLibrary() {
     }
 
     LoadOpenGLPointers();
+
+    DetourRestoreAfterWith();
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+    //g_DirectPointers is now filled with opengl32.dll pointers
+    // we will now detour (hook) them all, so g_DirectPointers will still lead to original opengl32.dll, but
+    //application will always call us. 
+    for (int i = 0; i < Entrypoints_NUM; i++) {
+        if (g_DirectPointers[i]) {
+            //this entrypoint was loaded from OpenGL32.dll, detour it!
+            void * hookPtr = getWrapperPointer(i);
+            DetourAttach(&(PVOID&)g_DirectPointers[i], hookPtr);
+        }
+    }
+    DetourTransactionCommit();
 }
 
 

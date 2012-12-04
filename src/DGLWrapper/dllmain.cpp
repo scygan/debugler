@@ -6,14 +6,15 @@
 #include "DGLWrapper.h"
 #include <boost/make_shared.hpp>
 
-#include<windows.h>
 
+#include "detours/detours.h"
 
 
 extern "C" __declspec(dllexport) void InitializeThread() {}
      
      
  void Initialize(void) {
+    
     LoadOpenGLLibrary();
 
     SetAllTracers<DefaultTracer>();
@@ -90,7 +91,11 @@ BOOL APIENTRY DllMain( HMODULE hModule,
                      ) {
     switch (ul_reason_for_call) {
         case DLL_PROCESS_ATTACH:
-            Initialize(); break;
+            if (DetourIsHelperProcess()) {
+                return TRUE;
+            }
+            Initialize();
+            break;
         case DLL_THREAD_ATTACH:
         case DLL_THREAD_DETACH:
             break;
