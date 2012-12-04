@@ -34,8 +34,8 @@ void DGLTextureViewItem::update(const DGLResource& res) {
         //special case: recompute buffer to be 4 element
         m_PixelData.resize(resource->m_Levels[0].m_Pixels.size() * 2, 0);
         for (size_t i = 0; i < m_PixelData.size(); i+=4) {
-            m_PixelData[i + 0] = resource->m_Levels[0].m_Pixels[i << 1 + 0];
-            m_PixelData[i + 1] = resource->m_Levels[0].m_Pixels[i << 1 + 1];
+            m_PixelData[i + 0] = resource->m_Levels[0].m_Pixels[i >> 1 + 0];
+            m_PixelData[i + 1] = resource->m_Levels[0].m_Pixels[i >> 1 + 1];
             m_PixelData[i + 2] = 0;
             m_PixelData[i + 3] = 0;
         }
