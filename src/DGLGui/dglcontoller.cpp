@@ -130,9 +130,9 @@ void DglController::onSocket() {
     m_NotifierWrite = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Write); 
     CONNASSERT(connect(&*m_NotifierRead, SIGNAL(activated(int)), this, SLOT(poll())));
     CONNASSERT(connect(&*m_NotifierWrite, SIGNAL(activated(int)), this, SLOT(poll())));
+    m_Connected = true;
     setConnected(true);
     setDisconnected(false);
-    m_Connected = true;
 }
 
 void DglController::disconnectServer() {

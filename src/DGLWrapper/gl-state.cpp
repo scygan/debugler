@@ -720,6 +720,18 @@ boost::shared_ptr<DGLResource> GLContext::queryProgram(GLuint name) {
     return ret;
 }
 
+boost::shared_ptr<DGLResource> GLContext::queryGPU(GLuint name) {
+
+    DGLResourceGPU* resource;
+    boost::shared_ptr<DGLResource> ret (resource = new DGLResourceGPU);
+
+    resource->m_Renderer = (const char*)DIRECT_CALL_CHK(glGetString)(GL_RENDERER);
+    resource->m_Vendor   = (const char*)DIRECT_CALL_CHK(glGetString)(GL_VENDOR);
+    resource->m_Version  = (const char*)DIRECT_CALL_CHK(glGetString)(GL_VERSION);
+
+    return ret;
+}
+
 
 GLProgramObj* GLContext::ensureProgram(GLuint name) {
     std::map<GLuint, GLProgramObj>::iterator i = m_Programs.find(name);

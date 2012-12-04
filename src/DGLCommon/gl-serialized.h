@@ -134,7 +134,8 @@ public:
         ObjectTypeFramebuffer,
         ObjectTypeShader,
         ObjectTypeProgram,
-        ObjectTypeBuffer
+        ObjectTypeBuffer,
+        ObjectTypeGPU
     };
 };
 
@@ -269,6 +270,22 @@ public:
 
     std::pair<std::string, uint32_t> mLinkStatus;
     std::vector<std::pair<uint32_t, uint32_t>> m_AttachedShaders;
+};
+
+class DGLResourceGPU: public DGLResource {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<DGLResource>(*this);
+        ar & m_Renderer;
+        ar & m_Version;
+        ar & m_Vendor;
+    }
+
+
+public:
+    std::string m_Renderer, m_Version, m_Vendor;
 };
 
 #endif

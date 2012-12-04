@@ -14,6 +14,7 @@
 #include "dglfboview.h"
 #include "dglshaderview.h"
 #include "dglprogramview.h"
+#include "dglgpuview.h"
 #include "dglgui.h"
 
 #include <boost/interprocess/sync/named_semaphore.hpp>
@@ -128,6 +129,11 @@ void DGLMainWindow::createDockWindows() {
     } {
         QDockWidget *dock = new DGLProgramView(this, &m_controller);
         dock->setMinimumSize(QSize(600, 0));
+        addDockWidget(Qt::AllDockWidgetAreas, dock);
+        viewMenu->addAction(dock->toggleViewAction());
+    } {
+        QDockWidget *dock = new DGLGPUView(this, &m_controller);
+        dock->setMinimumSize(QSize(0, 0));
         addDockWidget(Qt::AllDockWidgetAreas, dock);
         viewMenu->addAction(dock->toggleViewAction());
     }

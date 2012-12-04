@@ -17,6 +17,8 @@ public:
 
 private slots:
     void updatePath();
+    void browseExecutable();
+    void browseDirectory();
 
 private:
     QIntValidator m_portValidator;

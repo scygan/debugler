@@ -250,50 +250,53 @@ void DebugController::doHandle(const dglnet::QueryCallTraceMessage& msg) {
 
 void DebugController::doHandle(const dglnet::QueryResourceMessage& msg) {
     dglstate::GLContext* ctx = g_GLState.getCurrent();
-    if (ctx) {
-        for (size_t i = 0; i <  msg.m_ResourceQueries.size(); i++) {
-            boost::shared_ptr<DGLResource> res;
+    for (size_t i = 0; i <  msg.m_ResourceQueries.size(); i++) {
+        boost::shared_ptr<DGLResource> res;
 
-            dglnet::ResourceMessage reply;
+        dglnet::ResourceMessage reply;
 
-            try {
-                ctx->startQuery();
-
-                switch (msg.m_ResourceQueries[i].m_Type) {
-                    case DGLResource::ObjectTypeBuffer:
-                        res = ctx->queryBuffer(msg.m_ResourceQueries[i].m_ObjectId);
-                        break;
-                    case DGLResource::ObjectTypeFramebuffer:
-                        res = ctx->queryFramebuffer(msg.m_ResourceQueries[i].m_ObjectId);
-                        break;
-                    case DGLResource::ObjectTypeFBO:
-                        res = ctx->queryFBO(msg.m_ResourceQueries[i].m_ObjectId);
-                        break;
-                    case DGLResource::ObjectTypeTexture:
-                        res = ctx->queryTexture(msg.m_ResourceQueries[i].m_ObjectId);
-                        break;
-                    case DGLResource::ObjectTypeShader:
-                        res = ctx->queryShader(msg.m_ResourceQueries[i].m_ObjectId);
-                        break;
-                    case DGLResource::ObjectTypeProgram:
-                        res = ctx->queryProgram(msg.m_ResourceQueries[i].m_ObjectId);
-                        break;
-                    default:
-                        throw std::runtime_error("Invalid object type requested");
-                }
-            } catch (const std::runtime_error& message) {
-                reply.error(message.what());
+        try {
+            if (!ctx) {
+                throw std::runtime_error("No OpenGL Context present, cannot issue query");
             }
-            std::string message;
-            if (!ctx->endQuery(message)) {
-                reply.error(message);
+            ctx->startQuery();
+            switch (msg.m_ResourceQueries[i].m_Type) {
+                case DGLResource::ObjectTypeBuffer:
+                    res = ctx->queryBuffer(msg.m_ResourceQueries[i].m_ObjectId);
+                    break;
+                case DGLResource::ObjectTypeFramebuffer:
+                    res = ctx->queryFramebuffer(msg.m_ResourceQueries[i].m_ObjectId);
+                    break;
+                case DGLResource::ObjectTypeFBO:
+                    res = ctx->queryFBO(msg.m_ResourceQueries[i].m_ObjectId);
+                    break;
+                case DGLResource::ObjectTypeTexture:
+                    res = ctx->queryTexture(msg.m_ResourceQueries[i].m_ObjectId);
+                    break;
+                case DGLResource::ObjectTypeShader:
+                    res = ctx->queryShader(msg.m_ResourceQueries[i].m_ObjectId);
+                    break;
+                case DGLResource::ObjectTypeProgram:
+                    res = ctx->queryProgram(msg.m_ResourceQueries[i].m_ObjectId);
+                    break;
+                case DGLResource::ObjectTypeGPU:
+                    res = ctx->queryGPU(msg.m_ResourceQueries[i].m_ObjectId);
+                    break;
+                default:
+                    throw std::runtime_error("Invalid object type requested");
             }
-            reply.m_ListenerId = msg.m_ResourceQueries[i].m_ListenerId;
-            reply.m_Resource = res;
-            m_Server->sendMessage(&reply);
+        } catch (const std::runtime_error& message) {
+            reply.error(message.what());
         }
-        
+        std::string message;
+        if (ctx && !ctx->endQuery(message)) {
+            reply.error(message);
+        }
+        reply.m_ListenerId = msg.m_ResourceQueries[i].m_ListenerId;
+        reply.m_Resource = res;
+        m_Server->sendMessage(&reply);
     }
+        
 }
 
 void DebugController::doHandle(const dglnet::SetBreakPointsMessage& msg) {

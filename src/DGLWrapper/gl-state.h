@@ -139,6 +139,7 @@ public:
     boost::shared_ptr<DGLResource> queryFBO(GLuint name);
     boost::shared_ptr<DGLResource> queryShader(GLuint name);
     boost::shared_ptr<DGLResource> queryProgram(GLuint name);
+    boost::shared_ptr<DGLResource> queryGPU(GLuint name);
 
     int32_t getId();
 
