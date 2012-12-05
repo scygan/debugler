@@ -3,7 +3,6 @@
 #include <QFile>
 
 #include "dglmainwindow.h"
-#include "dglrundialog.h"
 #include "dglconnectdialog.h"
 #include "dglbreakpointdialog.h"
 #include "dgltraceview.h"
@@ -377,9 +376,7 @@ void DGLMainWindow::createToolBars() {
 
      //execute connection dialog to obtain connection parameters
 
-     DGLRunDialog dialog;
-
-     if (dialog.exec() == QDialog::Accepted) {
+     if (m_RunDialog.exec() == QDialog::Accepted) {
 
          try {
              
@@ -407,14 +404,14 @@ void DGLMainWindow::createToolBars() {
              //try run process (suspended - will not run user thread)
 
              if (CreateProcessA(
-                 (LPSTR)dialog.getExecutable().c_str(),
-                 (LPSTR)dialog.getCommandLineArgs().c_str(),
+                 (LPSTR)m_RunDialog.getExecutable().c_str(),
+                 (LPSTR)m_RunDialog.getCommandLineArgs().c_str(),
                  NULL, 
                  NULL,
                  FALSE, 
                  CREATE_SUSPENDED,
                  NULL,
-                 dialog.getPath().c_str(),
+                 m_RunDialog.getPath().c_str(),
                  &startupInfo, 
                  &processInformation) == 0 ) {
 

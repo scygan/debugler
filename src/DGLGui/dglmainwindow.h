@@ -8,6 +8,7 @@
 #include "ui_dglmainwindow.h"
 
 #include "dglcontroller.h"
+#include "dglrundialog.h"
 
 /**
  * Number of avaliable color schemes
@@ -158,6 +159,8 @@ private:
      * The DGLController object - the one and only interface to debugee from UI
      */
     DglController m_controller;
+
+    DGLRunDialog m_RunDialog;
 };
 
 #endif // DGLMAINWINDOW_H
