@@ -185,7 +185,7 @@ GLenum GLFBObj::getTarget() {
     return m_Target;
 }
 
-GLContext::GLContext(uint32_t id):m_Id(id), m_InUse(false), m_Deleted(false), m_NPISurface(NULL), m_EverUsed(false), m_HasDebugOutput(false), m_InImmediateMode(false)  {}
+GLContext::GLContext(uint32_t id):m_Id(id), m_InUse(false), m_Deleted(false), m_NPISurface(NULL), m_EverUsed(false), m_HasNVXMemoryInfo(false), m_HasDebugOutput(false), m_InImmediateMode(false)  {}
 
 dglnet::ContextReport GLContext::describe() {
     dglnet::ContextReport ret(m_Id);
@@ -747,6 +747,8 @@ boost::shared_ptr<DGLResource> GLContext::queryProgram(GLuint name) {
     return ret;
 }
 
+
+
 boost::shared_ptr<DGLResource> GLContext::queryGPU(GLuint name) {
 
     DGLResourceGPU* resource;
@@ -755,6 +757,28 @@ boost::shared_ptr<DGLResource> GLContext::queryGPU(GLuint name) {
     resource->m_Renderer = (const char*)DIRECT_CALL_CHK(glGetString)(GL_RENDERER);
     resource->m_Vendor   = (const char*)DIRECT_CALL_CHK(glGetString)(GL_VENDOR);
     resource->m_Version  = (const char*)DIRECT_CALL_CHK(glGetString)(GL_VERSION);
+
+    resource->m_hasNVXGPUMemoryInfo = m_HasNVXMemoryInfo;
+    if (resource->m_hasNVXGPUMemoryInfo = m_HasNVXMemoryInfo) {
+        GLint val;
+
+#define GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          0x9047
+#define GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX    0x9048
+#define GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX  0x9049
+#define GL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX            0x904A
+#define GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            0x904B
+
+        DIRECT_CALL_CHK(glGetIntegerv)(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &val);
+        resource->m_nvidiaMemory.memInfoDedidactedVidMem = val;
+        DIRECT_CALL_CHK(glGetIntegerv)(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &val);
+        resource->m_nvidiaMemory.memInfoTotalAvailMem = val;
+        DIRECT_CALL_CHK(glGetIntegerv)(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &val);
+        resource->m_nvidiaMemory.memInfoCurrentAvailVidMem = val;
+        DIRECT_CALL_CHK(glGetIntegerv)(GL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX, &val);
+        resource->m_nvidiaMemory.memInfoEvictionCount = val;
+        DIRECT_CALL_CHK(glGetIntegerv)(GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX, &val);
+        resource->m_nvidiaMemory.memInfoEvictedMem = val;
+    }
 
     return ret;
 }
@@ -810,6 +834,8 @@ void GLContext::firstUse() {
         const char* ext = (char*)DIRECT_CALL_CHK(glGetStringi)(GL_EXTENSIONS, i);
         if (strcmp("GL_ARB_debug_output", ext) == 0)
             debugOutputSupported = true;
+        if (strcmp("GL_NVX_gpu_memory_info", ext) == 0)
+            m_HasNVXMemoryInfo = true;
     }
     if (debugOutputSupported) {
         DIRECT_CALL_CHK(glEnable)(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);

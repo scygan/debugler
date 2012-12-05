@@ -183,6 +183,12 @@ private:
      */
     std::queue<GLenum> m_PokedErrorQueue;
 
+
+    /**
+     * Set if NVX_gpu_memory_info is present
+     */
+    bool m_HasNVXMemoryInfo;
+
     /**
      * Set to if pending message from debug output is present
      */

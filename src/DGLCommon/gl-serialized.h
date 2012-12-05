@@ -281,11 +281,33 @@ class DGLResourceGPU: public DGLResource {
         ar & m_Renderer;
         ar & m_Version;
         ar & m_Vendor;
+        ar & m_hasNVXGPUMemoryInfo;
+        ar & m_nvidiaMemory;
     }
+
+    struct NVXGPUMemoryInfo {
+
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version) {
+            ar & memInfoDedidactedVidMem;
+            ar & memInfoTotalAvailMem;
+            ar & memInfoCurrentAvailVidMem;
+            ar & memInfoEvictionCount;
+            ar & memInfoEvictedMem;
+        }
+
+        int32_t memInfoDedidactedVidMem;
+        int32_t memInfoTotalAvailMem;
+        int32_t memInfoCurrentAvailVidMem;
+        int32_t memInfoEvictionCount;
+        int32_t memInfoEvictedMem;
+    };
 
 
 public:
     std::string m_Renderer, m_Version, m_Vendor;
+    bool m_hasNVXGPUMemoryInfo;
+    NVXGPUMemoryInfo m_nvidiaMemory;
 };
 
 #endif

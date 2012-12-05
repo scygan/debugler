@@ -330,7 +330,7 @@ QMainWindow::separator:hover
 QToolBar::handle
 {
      spacing: 3px; /* spacing between items in the tool bar */
-     background: url(:/images/handle.png);
+     background: url(:/res/handle.png);
 }
 
 QMenu::separator
@@ -347,14 +347,13 @@ QProgressBar
 {
     border: 2px solid grey;
     border-radius: 5px;
-    text-align: center;
+    text-align: right;
 }
 
 QProgressBar::chunk
 {
     background-color: #d7801a;
     width: 2.15px;
-    margin: 0.5px;
 }
 
 QTabBar::tab {
@@ -450,7 +449,7 @@ QRadioButton::indicator:hover, QCheckBox::indicator:hover
 
 QCheckBox::indicator:checked
 {
-    image:url(:/images/checkbox.png);
+    image:url(:/res/checkbox.png);
 }
 
 QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
