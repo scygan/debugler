@@ -393,11 +393,12 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
         DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), tex->getName());
     }
 
-    {
-        int level = 0;
+    for (int level = 0; true; level++) {
         DGLPixelRectangle texLevel;
         DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &texLevel.m_Width);
         DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_HEIGHT, &texLevel.m_Height);
+        if (!texLevel.m_Width || !texLevel.m_Height || DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
+            break;
         
         GLint rgba[4] = {0, 0, 0, 0};
         GLint stencil = 0, depth = 0;

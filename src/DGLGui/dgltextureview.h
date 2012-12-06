@@ -27,12 +27,13 @@ public:
 private slots:
     void error(const std::string& message);
     void update(const DGLResource& res);
+    void sliderMoved(int value);
 
 private: 
     Ui::DGLTextureViewItem m_Ui;
     DGLPixelRectangleScene* m_PixelRectangleScene;
     boost::shared_ptr<DGLPixelRectangleView> m_PixelRectangleView;
-    
+    std::vector<DGLPixelRectangle> m_Levels;
 
     DGLResourceListener* m_Listener;
 };
