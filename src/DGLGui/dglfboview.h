@@ -2,6 +2,7 @@
 #define DGLFBOVIEW_H
 
 #include "dgltabbedview.h"
+#include "dglpixelrectangle.h"
 #include "ui_dglfboviewitem.h"
 
 class DGLFBOViewItem: public DGLTabbedViewItem {
@@ -16,7 +17,8 @@ private slots:
 
 private: 
     Ui_DGLFBOViewItem m_Ui;
-    boost::shared_ptr<QGraphicsScene> m_Scene;
+    DGLPixelRectangleScene* m_PixelRectangleScene;
+    boost::shared_ptr<DGLPixelRectangleView> m_PixelRectangleView;
     std::vector<DGLResourceFBO::FBOAttachment> m_Attachments;
     bool m_Error; 
     DGLResourceListener* m_Listener;

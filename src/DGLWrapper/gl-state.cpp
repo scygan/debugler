@@ -27,20 +27,6 @@ namespace state_setters {
         GLint m_PBO;
     };
 
-    class DefaultReadBuffer {
-    public:
-        DefaultReadBuffer() {
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_FRAMEBUFFER_BINDING, &m_FBO);
-        }
-        ~DefaultReadBuffer() {
-            if (m_FBO) {
-               DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, m_FBO);
-            }
-        }
-    private:
-        GLint m_FBO;
-    };
-
     class CurrentFramebuffer {
     public:
         CurrentFramebuffer(GLuint name) {
@@ -409,7 +395,7 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
 
     {
         int level = 0;
-        DGLResourceTexture::TextureLevel texLevel;
+        DGLPixelRectangle texLevel;
         DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &texLevel.m_Width);
         DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_HEIGHT, &texLevel.m_Height);
         
@@ -568,22 +554,43 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
     {
         DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &currentBuffer);
         state_setters::DefaultPBO defPBO;
-        state_setters::DefaultReadBuffer defReadFBO;
+        state_setters::CurrentFramebuffer currentFramebuffer(0);
         state_setters::PixelStoreAlignment defAlignment;
 
         //read the buffer
         DIRECT_CALL_CHK(glReadBuffer)(bufferEnum);
 
-        resource->m_Width = m_NPISurface->getWidth();
-        resource->m_Height = m_NPISurface->getHeight();
-        GLenum format = GL_RGB;
-        resource->m_Channels = 3;
-        if (m_NPISurface->isAlpha()) {
-            resource->m_Channels = 4;
-            format = GL_BGRA;
-        }    
-        resource->m_Pixels.resize(resource->m_Width * resource->m_Height * resource->m_Channels);
-        DIRECT_CALL_CHK(glReadPixels)(0, 0, resource->m_Width, resource->m_Height, format, GL_UNSIGNED_BYTE, &resource->m_Pixels[0]);
+
+        GLenum colorFormats[4] = { GL_RED, GL_RG, GL_RGB, GL_BGRA }; //last element is BGRA intentionally (viewer will handle DX format faster)
+
+        GLenum format = 0;
+
+
+        resource->m_PixelRectangle.m_Width = m_NPISurface->getWidth();
+        resource->m_PixelRectangle.m_Height = m_NPISurface->getHeight();
+
+        resource->m_PixelRectangle.m_Channels = 0;
+        for (int i = 0; i < 4; i++) {
+            if (m_NPISurface->getRGBASizes()[i]) {
+                resource->m_PixelRectangle.m_Channels = i + 1;
+                format = colorFormats[i];
+            }
+        }
+        if (!format) {
+            // not a color texture
+            if (m_NPISurface->getDepthSize()) {
+                format = GL_DEPTH_COMPONENT; resource->m_PixelRectangle.m_Channels = 1;
+            }
+            if (m_NPISurface->getStencilSize()) {
+                format = GL_STENCIL_INDEX; resource->m_PixelRectangle.m_Channels = 1;
+            }
+            if (m_NPISurface->getStencilSize() && m_NPISurface->getDepthSize()) {
+                format = GL_DEPTH_STENCIL; resource->m_PixelRectangle.m_Channels = 2;
+            }
+        }       
+
+        resource->m_PixelRectangle.m_Pixels.resize(resource->m_PixelRectangle.m_Width * resource->m_PixelRectangle.m_Height * resource->m_PixelRectangle.m_Channels);
+        DIRECT_CALL_CHK(glReadPixels)(0, 0, resource->m_PixelRectangle.m_Width, resource->m_PixelRectangle.m_Height, format, GL_UNSIGNED_BYTE, &resource->m_PixelRectangle.m_Pixels[0]);
     }
         
     //restore state
@@ -609,7 +616,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
         DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
 
         for (int i = 0; i < maxColorAttachments; i++) {
-            GLint type, name, alphaSize;
+            GLint type, name;
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
                 GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
             if (type != GL_TEXTURE && type != GL_RENDERBUFFER)
@@ -617,10 +624,23 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
 
             resource->m_Attachments.push_back(DGLResourceFBO::FBOAttachment(GL_COLOR_ATTACHMENT0 + i));
 
+            GLint rgba[4] = {0, 0, 0, 0};
+            GLint stencil = 0, depth = 0;
+
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
                 GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
-                GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &alphaSize);
+                GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &rgba[0]);
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
+                GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, &rgba[1]);
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
+                GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, &rgba[2]);
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
+                GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &rgba[3]);
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
+                GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &stencil);
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
+                GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &depth);
 
             queryCheckError();
 
@@ -663,28 +683,43 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
 
             queryCheckError();
 
-            GLenum format;
-            if (alphaSize) {
-                resource->m_Attachments.back().m_Channels = 4;
-                format = GL_BGRA;
-            } else {
-                resource->m_Attachments.back().m_Channels = 3;
-                format = GL_RGB;
+            GLenum colorFormats[4] = { GL_RED, GL_RG, GL_RGB, GL_BGRA }; //last element is BGRA intentionally (viewer will handle DX format faster)
+
+            GLenum format = 0;
+           
+            resource->m_Attachments.back().m_PixelRectangle.m_Channels = 0;
+            for (int j = 0; j < 4; j++) {
+                if (rgba[j]) {
+                    resource->m_Attachments.back().m_PixelRectangle.m_Channels = j + 1;
+                    format = colorFormats[j];
+                }
+            }
+            if (!format) {
+                // not a color texture
+                if (depth) {
+                    format = GL_DEPTH_COMPONENT; resource->m_Attachments.back().m_PixelRectangle.m_Channels = 1;
+                }
+                if (stencil) {
+                    format = GL_STENCIL_INDEX; resource->m_Attachments.back().m_PixelRectangle.m_Channels = 1;
+                }
+                if (stencil && depth) {
+                    format = GL_DEPTH_STENCIL; resource->m_Attachments.back().m_PixelRectangle.m_Channels = 2;
+                }
             }
 
-            resource->m_Attachments.back().m_Width = width;
-            resource->m_Attachments.back().m_Height = height;
+            resource->m_Attachments.back().m_PixelRectangle.m_Width = width;
+            resource->m_Attachments.back().m_PixelRectangle.m_Height = height;
 
-            resource->m_Attachments.back().m_Pixels.resize(
-                resource->m_Attachments.back().m_Width * 
-                resource->m_Attachments.back().m_Height * 
-                resource->m_Attachments.back().m_Channels
+            resource->m_Attachments.back().m_PixelRectangle.m_Pixels.resize(
+                resource->m_Attachments.back().m_PixelRectangle.m_Width * 
+                resource->m_Attachments.back().m_PixelRectangle.m_Height * 
+                resource->m_Attachments.back().m_PixelRectangle.m_Channels
                 );
 
             DIRECT_CALL_CHK(glReadBuffer)(GL_COLOR_ATTACHMENT0 + i);
-            DIRECT_CALL_CHK(glReadPixels)(0, 0, resource->m_Attachments.back().m_Width,
-                resource->m_Attachments.back().m_Height,
-                format, GL_UNSIGNED_BYTE, &resource->m_Attachments.back().m_Pixels[0]);
+            DIRECT_CALL_CHK(glReadPixels)(0, 0, resource->m_Attachments.back().m_PixelRectangle.m_Width,
+                resource->m_Attachments.back().m_PixelRectangle.m_Height,
+                format, GL_UNSIGNED_BYTE, &resource->m_Attachments.back().m_PixelRectangle.m_Pixels[0]);
         }
     }
     //restore state
@@ -851,8 +886,12 @@ NPISurface::NPISurface(uint32_t id):m_Id(id) {
         sizeof(PIXELFORMATDESCRIPTOR), &pfd);
     m_DoubleBuffered = (pfd.dwFlags & PFD_DOUBLEBUFFER) != 0;
     m_Stereo = (pfd.dwFlags & PFD_STEREO) != 0;
-    m_Alpha = (pfd.cAlphaBits != 0);
-
+    m_RGBASizes[0] = pfd.cRedBits;
+    m_RGBASizes[1] = pfd.cGreenBits;
+    m_RGBASizes[2] = pfd.cBlueBits;
+    m_RGBASizes[3] = pfd.cAlphaBits;
+    m_StencilSize = pfd.cStencilBits;
+    m_DepthSize = pfd.cDepthBits;
     RECT rc;
     GetClientRect(WindowFromDC(hdc), &rc);
     m_Width = rc.right - rc.left;
@@ -872,9 +911,18 @@ bool NPISurface::isStereo() {
     return m_Stereo;
 }
 
-bool NPISurface::isAlpha() {
-    return m_Alpha;
+int* NPISurface::getRGBASizes() {
+    return m_RGBASizes;
 }
+
+int NPISurface::getStencilSize() {
+    return m_StencilSize;
+}
+
+int NPISurface::getDepthSize() {
+    return m_DepthSize;
+}
+
 
 int NPISurface::getWidth() {
     return m_Width;

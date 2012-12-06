@@ -86,7 +86,7 @@
          <item row="3" column="0">
           <widget class="QLabel" name="label_5">
            <property name="text">
-            <string>Video memory:</string>
+            <string>Used Video memory:</string>
            </property>
           </widget>
          </item>

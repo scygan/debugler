@@ -212,6 +212,15 @@
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglgpuview.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglpixelrectangle.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglpixelrectangle.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="dglpixelrectangle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">
@@ -299,6 +308,9 @@
       <Filter>Form Files</Filter>
     </CustomBuild>
     <CustomBuild Include="dglgpuview.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dglpixelrectangle.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>

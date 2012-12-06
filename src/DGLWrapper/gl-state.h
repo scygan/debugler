@@ -94,13 +94,20 @@ public:
     uint32_t getId();
     bool isDoubleBuffered();
     bool isStereo();
-    bool isAlpha();
+
+    int* getRGBASizes();
+    int getStencilSize();
+    int getDepthSize();
+
     int getWidth(); 
     int getHeight(); 
 private:
     uint32_t m_Id;
     int m_Width, m_Height;
-    bool m_Stereo, m_DoubleBuffered, m_Alpha;
+    bool m_Stereo, m_DoubleBuffered;
+    int m_RGBASizes[4];
+    int m_DepthSize, m_StencilSize;
+
 };
 
 class GLContext {

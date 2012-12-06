@@ -88,7 +88,8 @@
       <ModuleDefinitionFile>$(SolutionDir)..\dump\codegen\OpenGL32.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)..\build\$(Configuration)\$(ProjectName)\opengl32.dll "C:\Program Files\Unigine\Heaven DX11 Benchmark 3.0\bin"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

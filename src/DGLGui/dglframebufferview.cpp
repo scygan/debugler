@@ -5,10 +5,11 @@
 
 DGLFramebufferViewItem::DGLFramebufferViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
     m_Ui.setupUi(this);
-    m_Scene = boost::make_shared<QGraphicsScene>(this);
-    m_Scene->setSceneRect(0, 0, 400, 320);
-    m_Ui.graphicsView->setScene(m_Scene.get());
-    m_Ui.graphicsView->show();
+    m_PixelRectangleScene = new DGLPixelRectangleScene();
+    m_PixelRectangleView = boost::make_shared<DGLPixelRectangleView>(this, m_PixelRectangleScene);
+    m_PixelRectangleView->setMinimumSize(QSize(400, 320));
+    m_Ui.verticalLayout->addWidget(m_PixelRectangleView.get());    
+    
 
     m_Listener = resManager->createListener(name, DGLResource::ObjectTypeFramebuffer);
     m_Listener->setParent(this);
@@ -18,31 +19,12 @@ DGLFramebufferViewItem::DGLFramebufferViewItem(uint name, DGLResourceManager* re
 }
 
 void DGLFramebufferViewItem::error(const std::string& message) {
-    m_Scene->clear();
-    m_Scene->addText(message.c_str());
+    m_PixelRectangleScene->setText(message);
 }
 
 void DGLFramebufferViewItem::update(const DGLResource& res) {
     const DGLResourceFramebuffer* resource = dynamic_cast<const DGLResourceFramebuffer*>(&res);
-    m_Scene->clear();
-    m_PixelData = std::vector<uchar>(resource->m_Pixels.begin(), resource->m_Pixels.end());
-
-    uint realHeight = m_PixelData.size() / resource->m_Channels / resource->m_Width;
-
-    assert(realHeight == resource->m_Height);
-
-    QImage::Format format = QImage::Format_Invalid;            
-    switch (resource->m_Channels) {
-    case 4:
-        format = QImage::Format_ARGB32;
-        break;
-    case 3:
-        format = QImage::Format_RGB888;
-        break;
-    default:
-        assert(0);
-    }
-    m_Scene->addPixmap(QPixmap::fromImage(QImage(&m_PixelData[0], resource->m_Width, realHeight, format)));
+    m_PixelRectangleScene->setPixelRectangle(&resource->m_PixelRectangle);
 }
 
 DGLFramebufferView::DGLFramebufferView(QWidget* parrent, DglController* controller):DGLTabbedView(parrent, controller) {

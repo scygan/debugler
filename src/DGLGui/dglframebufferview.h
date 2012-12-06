@@ -2,6 +2,7 @@
 #define DGLFRAMEBUFFERVIEW_H
 
 #include "dgltabbedview.h"
+#include "dglpixelrectangle.h"
 #include "ui_dglframebufferviewitem.h"
 
 class DGLFramebufferView : public DGLTabbedView {
@@ -29,8 +30,8 @@ private slots:
 
 private: 
     Ui::DGLFramebufferViewItem m_Ui;
-    boost::shared_ptr<QGraphicsScene> m_Scene;
-    std::vector<uchar> m_PixelData;
+    DGLPixelRectangleScene* m_PixelRectangleScene;
+    boost::shared_ptr<DGLPixelRectangleView> m_PixelRectangleView;
     DGLResourceListener* m_Listener;
 };
 

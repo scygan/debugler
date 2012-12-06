@@ -139,6 +139,21 @@ public:
     };
 };
 
+class DGLPixelRectangle {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & m_Width;
+        ar & m_Height;
+        ar & m_Channels;
+        ar & m_Pixels;
+    }
+public:
+    int32_t m_Width, m_Height, m_Channels;
+    std::vector<int8_t> m_Pixels;
+};
+
 class DGLResourceTexture: public DGLResource {
     friend class boost::serialization::access;
 
@@ -149,23 +164,7 @@ class DGLResourceTexture: public DGLResource {
     }
 
 public:
-
-    class TextureLevel {
-        friend class boost::serialization::access;
-
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int version) {
-            ar & m_Width;
-            ar & m_Height;
-            ar & m_Channels;
-            ar & m_Pixels;
-        }
-    public:
-        int32_t m_Width, m_Height, m_Channels;
-        std::vector<int8_t> m_Pixels;
-    };
-
-    std::vector<TextureLevel> m_Levels;
+    std::vector<DGLPixelRectangle> m_Levels;
 };
 
 class DGLResourceBuffer: public DGLResource {
@@ -187,16 +186,12 @@ class DGLResourceFramebuffer: public DGLResource {
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
         ar & boost::serialization::base_object<DGLResource>(*this);
-        ar & m_Width;
-        ar & m_Height;
-        ar & m_Channels;
-        ar & m_Pixels;
+        ar & m_PixelRectangle;
     }
 
 public:
 
-    int32_t m_Width, m_Height, m_Channels;
-    std::vector<int8_t> m_Pixels;
+    DGLPixelRectangle m_PixelRectangle;
 };
 
 class DGLResourceFBO: public DGLResource {
@@ -216,10 +211,7 @@ public:
         void serialize(Archive & ar, const unsigned int version) {
             ar & m_Ok;
             ar & m_ErrorMsg;
-            ar & m_Width;
-            ar & m_Height;
-            ar & m_Channels;
-            ar & m_Pixels;
+            ar & m_PixelRectangle;
             ar & m_Id;
         }
     public:
@@ -229,9 +221,7 @@ public:
         void error(std::string msg);
         bool isOk(std::string& error) const;
 
-
-        int32_t m_Width, m_Height, m_Channels;
-        std::vector<int8_t> m_Pixels;
+        DGLPixelRectangle m_PixelRectangle;
         uint32_t m_Id;
     private:
         bool m_Ok;
