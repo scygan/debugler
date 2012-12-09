@@ -26,7 +26,7 @@ def isPointer(type):
 def parse(file, genNonExtTypedefs = False):
 	for line in file:
 		enumMatch = re.match("^#define GL([a-zA-Z0-9_]*) (.*)0x(.*)$", line)
-		if enumMatch and not "GL_LINE_BIT" in enumMatch.group(1):
+		if enumMatch and not "_LINE_BIT" in enumMatch.group(1):
 			print >> enumFile, "#ifdef GL" + enumMatch.group(1)
 			print >> enumFile, "	ENUM_LIST_ELEMENT(GL" + enumMatch.group(1) + ")"
 			print >> enumFile, "#endif"
