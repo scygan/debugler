@@ -327,10 +327,26 @@ QMainWindow::separator:hover
     spacing: 3px; /* spacing between items in the tool bar */
 }
 
-QToolBar::handle
+QToolButton
 {
-     spacing: 3px; /* spacing between items in the tool bar */
-     background: url(:/res/handle.png);
+    color: #b1b1b1;
+    background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #565656, stop: 0.1 #525252, stop: 0.5 #4e4e4e, stop: 0.9 #4a4a4a, stop: 1 #464646);
+    border-width: 1px;
+    border-color: #1e1e1e;
+    border-radius: 1;
+    padding: 2px;
+    font-size: 12px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+QToolButton:pressed
+{
+    background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #2d2d2d, stop: 0.1 #2b2b2b, stop: 0.5 #292929, stop: 0.9 #282828, stop: 1 #252525);
+}
+
+QToolButton:checked{
+    background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #4d2d2d, stop: 0.1 #4b2b2b, stop: 0.5 #592929, stop: 0.9 #582828, stop: 1 #452525);
 }
 
 QMenu::separator

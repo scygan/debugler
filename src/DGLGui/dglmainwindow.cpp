@@ -288,7 +288,7 @@ void DGLMainWindow::createToolBars() {
      setBreakOnGLErrorAct->setChecked(m_controller.getConfig().m_BreakOnGLError);
      CONNASSERT(connect(setBreakOnGLErrorAct, SIGNAL(toggled(bool)), this, SLOT(setBreakOnWhatever(bool))));
 
-     setBreakOnDebugOutputAct = new QAction(tr("Break debug output"), this);
+     setBreakOnDebugOutputAct = new QAction(tr("Break on debug output"), this);
      setBreakOnDebugOutputAct->setStatusTip(tr("Break execution on debug output message"));
 
      //this action has a state - it is checbox-like checkable
