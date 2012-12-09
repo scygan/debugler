@@ -2,6 +2,10 @@
 
 namespace dglnet {
 
+    void MessageHandler::doHandle(const HelloMessage&) {
+        unsupported();
+    }
+
     void MessageHandler::doHandle(const ConfigurationMessage&) {
         unsupported();
     }

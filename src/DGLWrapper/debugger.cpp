@@ -4,6 +4,8 @@
 #include"debugger.h"
 #include <boost/interprocess/sync/named_semaphore.hpp>
 
+#include <Psapi.h>
+
 boost::shared_ptr<DebugController> g_Controller;
 GLState g_GLState;
 DGLConfiguration g_Config;
@@ -195,6 +197,20 @@ DebugController::~DebugController() {
 
 void DebugController::connect(boost::shared_ptr<dglnet::Server> srv) {
     m_Server = srv;
+    
+    std::string currentProcessName = "<unknown>";
+
+    HANDLE currentProcess =  GetCurrentProcess();
+    if (currentProcess) {
+        std::vector<char> buff(200);
+        buff[GetModuleBaseName(currentProcess, NULL, &buff[0], 200)] = 0;
+        if (buff[0]) {
+            currentProcessName = &buff[0];
+        }
+    }
+
+    dglnet::HelloMessage hello(currentProcessName);
+    srv->sendMessage(&hello);
 }
 
 void DebugController::doHandleDisconnect(const std::string&) {

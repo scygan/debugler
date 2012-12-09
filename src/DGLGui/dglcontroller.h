@@ -153,6 +153,7 @@ public:
     virtual void onSocket();
 
     //IMessageHandler methods:
+    virtual void doHandle(const dglnet::HelloMessage&);
     virtual void doHandle(const dglnet::BreakedCallMessage&);
     virtual void doHandle(const dglnet::CallTraceMessage&);
     virtual void doHandle(const dglnet::ResourceMessage&);
@@ -191,9 +192,14 @@ public:
 
 signals:
 
-     /** 
-     * Signal for setting GUI state
-     */
+    /** 
+    * Signal for setting GUI state
+    */
+    void debugeeInfo(const std::string&);
+
+    /** 
+    * Signal for setting GUI state
+    */
     void setConnected(bool);
 
     /** 

@@ -14,6 +14,7 @@ DGLTreeView::DGLTreeView(QWidget* parrent, DglController* controller):QDockWidge
     setWidget(&m_TreeWidget);
     //inbound
     CONNASSERT(connect(controller, SIGNAL(setConnected(bool)), this, SLOT(setConnected(bool))));
+    CONNASSERT(connect(controller, SIGNAL(debugeeInfo(const std::string&)), this, SLOT(debugeeInfo(const std::string&))));
     CONNASSERT(connect(controller, SIGNAL(setBreaked(bool)), &m_TreeWidget, SLOT(setEnabled(bool))));
     CONNASSERT(connect(controller, SIGNAL(breakedWithStateReports(uint, const std::vector<dglnet::ContextReport>&)),
         this, SLOT(breakedWithStateReports(uint, const std::vector<dglnet::ContextReport>&))));
@@ -29,6 +30,7 @@ DGLTreeView::~DGLTreeView() {}
 void DGLTreeView::setConnected(bool connected) {
     m_Connected = connected;
     if (!connected) {
+        m_TreeWidget.setHeaderLabel("");
         while (m_TreeWidget.topLevelItemCount()) {
             delete m_TreeWidget.takeTopLevelItem(0);
         }
@@ -222,4 +224,8 @@ void DGLTreeView::onDoubleClicked(QTreeWidgetItem* item, int) {
     if (clickableItem) {
         clickableItem->handleDoubleClick(m_controller);
     }    
+}
+
+void DGLTreeView::debugeeInfo(const std::string& processName) {
+    m_TreeWidget.setHeaderLabel(processName.c_str());
 }

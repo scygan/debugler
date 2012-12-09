@@ -133,12 +133,6 @@ void DglController::onSocket() {
     m_NotifierWrite = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Write); 
     CONNASSERT(connect(&*m_NotifierRead, SIGNAL(activated(int)), this, SLOT(poll())));
     CONNASSERT(connect(&*m_NotifierWrite, SIGNAL(activated(int)), this, SLOT(poll())));
-
-    //we are connected now
-    m_Connected = true;
-
-    setConnected(true);
-    setDisconnected(false);
 }
 
 void DglController::disconnectServer() {
@@ -148,6 +142,7 @@ void DglController::disconnectServer() {
         m_ConfiguredAndBkpointsSet = false;
         setConnected(false);
         setDisconnected(true);
+        debugeeInfo("");
     }
     m_Connected = false;
     m_NotifierRead.reset();
@@ -215,6 +210,14 @@ void DglController::onSetStatus(std::string str) {
 void DglController::queryCallTrace(uint startOffset, uint endOffset) {
     dglnet::QueryCallTraceMessage message(startOffset, endOffset);
     m_DglClient->sendMessage(&message);
+}
+
+void DglController::doHandle(const dglnet::HelloMessage & msg) {
+    //we are connected now
+    m_Connected = true;
+    debugeeInfo(msg.m_ProcessName);
+    setConnected(true); 
+    setDisconnected(false);
 }
 
 void DglController::doHandle(const dglnet::BreakedCallMessage & msg) {

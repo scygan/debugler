@@ -23,6 +23,7 @@
 #define REGISTER_CLASS(X) BOOST_CLASS_EXPORT_GUID(X, #X)
 
 REGISTER_CLASS(dglnet::Message)
+REGISTER_CLASS(dglnet::HelloMessage)
 REGISTER_CLASS(dglnet::ConfigurationMessage);
 REGISTER_CLASS(dglnet::BreakedCallMessage);
 REGISTER_CLASS(dglnet::ContinueBreakMessage);

@@ -11,6 +11,7 @@
 
 namespace dglnet {
 
+class HelloMessage;
 class ConfigurationMessage;
 class BreakedCallMessage;
 class ContinueBreakMessage;
@@ -25,6 +26,7 @@ class SetBreakPointsMessage;
 
 class MessageHandler {
 public:
+    virtual void doHandle(const HelloMessage&);
     virtual void doHandle(const ConfigurationMessage&);
     virtual void doHandle(const BreakedCallMessage&);
     virtual void doHandle(const ContinueBreakMessage&);
@@ -107,6 +109,23 @@ public:
     std::set<ContextObjectName> m_ProgramSpace;
     std::set<ContextObjectName> m_FBOSpace;
     std::set<ContextObjectName> m_FramebufferSpace;
+};
+
+class HelloMessage: public Message {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_ProcessName;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    HelloMessage() {}
+    HelloMessage(std::string name):m_ProcessName(name) {}
+    std::string m_ProcessName;
 };
 
 class ConfigurationMessage: public Message, public DGLConfiguration {

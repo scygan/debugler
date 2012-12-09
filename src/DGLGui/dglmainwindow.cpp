@@ -58,6 +58,8 @@ DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
     setCentralWidget(NULL);
     setDockNestingEnabled(true);
 
+    debugeeInfo("");
+
     // create all widgets, actions iteractions etc...
     
     createActions();
@@ -327,6 +329,7 @@ void DGLMainWindow::createToolBars() {
 
       CONNASSERT(connect(&m_controller, SIGNAL(newStatus(const QString&)), m_ui.statusBar, SLOT(showMessage(const QString&))));
       CONNASSERT(connect(&m_controller, SIGNAL(error(const QString&, const QString&)), this, SLOT(errorMessage(const QString&, const QString&))));
+      CONNASSERT(connect(&m_controller, SIGNAL(debugeeInfo(const std::string&)), this, SLOT(debugeeInfo(const std::string&))));
   }
 
   void DGLMainWindow::readSettings() {
@@ -370,6 +373,14 @@ void DGLMainWindow::createToolBars() {
               qApp->setStyleSheet(colorSchemeSheet);
           }
       }
+  }
+
+  void DGLMainWindow::debugeeInfo(const std::string& processName) {
+      if (processName.length()) {
+          setWindowTitle(QString::fromStdString("Debugler - " + processName));
+      } else {
+          setWindowTitle("Debugler - disconnected");
+      }    
   }
 
   void DGLMainWindow::about() {

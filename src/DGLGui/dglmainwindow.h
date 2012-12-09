@@ -74,6 +74,11 @@ private slots:
      */
     void setColorScheme(int ColorScheme);
 
+    /**
+     * Called by dgl controller to give debugee process info. Used to populate window caption
+     */
+    void debugeeInfo(const std::string&);
+
 private:
 
     /**

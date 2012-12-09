@@ -94,7 +94,6 @@
     <ClInclude Include="tracer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\DGLNet\client.cpp" />
     <ClCompile Include="debugger.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="api-loader.cpp" />
