@@ -55,6 +55,8 @@ DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
     //load designer UI 
     
     m_ui.setupUi(this);
+    setCentralWidget(NULL);
+    setDockNestingEnabled(true);
 
     // create all widgets, actions iteractions etc...
     
@@ -102,46 +104,55 @@ void DGLMainWindow::createDockWindows() {
     
     {
         QDockWidget *dock = new DGLTraceView(this, &m_controller);
-        addDockWidget(Qt::AllDockWidgetAreas, dock);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        addDockWidget(Qt::TopDockWidgetArea, dock);
         viewMenu->addAction(dock->toggleViewAction());
     } {
         QDockWidget *dock = new DGLTreeView(this, &m_controller);
-        addDockWidget(Qt::AllDockWidgetAreas, dock);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        addDockWidget(Qt::TopDockWidgetArea, dock);
         viewMenu->addAction(dock->toggleViewAction());
     } {
         QDockWidget *dock = new DGLTextureView(this, &m_controller);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
         dock->setMinimumSize(QSize(600, 0));
-        addDockWidget(Qt::AllDockWidgetAreas, dock);
+        addDockWidget(Qt::TopDockWidgetArea, dock);
         viewMenu->addAction(dock->toggleViewAction());
     } {
         QDockWidget *dock = new DGLBufferView(this, &m_controller);
         dock->setMinimumSize(QSize(600, 0));
-        addDockWidget(Qt::AllDockWidgetAreas, dock);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        addDockWidget(Qt::TopDockWidgetArea, dock);
         viewMenu->addAction(dock->toggleViewAction());
     } {
         QDockWidget *dock = new DGLFramebufferView(this, &m_controller);
         dock->setMinimumSize(QSize(600, 0));
-        addDockWidget(Qt::AllDockWidgetAreas, dock);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        addDockWidget(Qt::TopDockWidgetArea, dock);
         viewMenu->addAction(dock->toggleViewAction());
     } {
         QDockWidget *dock = new DGLFBOView(this, &m_controller);
         dock->setMinimumSize(QSize(600, 0));
-        addDockWidget(Qt::AllDockWidgetAreas, dock);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        addDockWidget(Qt::TopDockWidgetArea, dock);
         viewMenu->addAction(dock->toggleViewAction());
     } {
         QDockWidget *dock = new DGLShaderView(this, &m_controller);
         dock->setMinimumSize(QSize(600, 0));
-        addDockWidget(Qt::AllDockWidgetAreas, dock);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        addDockWidget(Qt::TopDockWidgetArea, dock);
         viewMenu->addAction(dock->toggleViewAction());
     } {
         QDockWidget *dock = new DGLProgramView(this, &m_controller);
         dock->setMinimumSize(QSize(600, 0));
-        addDockWidget(Qt::AllDockWidgetAreas, dock);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        addDockWidget(Qt::TopDockWidgetArea, dock);
         viewMenu->addAction(dock->toggleViewAction());
     } {
         QDockWidget *dock = new DGLGPUView(this, &m_controller);
         dock->setMinimumSize(QSize(0, 0));
-        addDockWidget(Qt::AllDockWidgetAreas, dock);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        addDockWidget(Qt::TopDockWidgetArea, dock);
         viewMenu->addAction(dock->toggleViewAction());
     }
 }
