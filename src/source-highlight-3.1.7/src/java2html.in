@@ -1,3 +1,0 @@
-#! @SHELL@
-
-@PACKAGE@ -s java -f html $*

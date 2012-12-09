@@ -1,3 +1,0 @@
-Please, use one of the two syntaxes for invocation: 
-source-highlight [OPTIONS]... -i input_file -o output_file
-source-highlight [OPTIONS]... [FILES]...

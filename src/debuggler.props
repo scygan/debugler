@@ -7,13 +7,14 @@
   </PropertyGroup>
   <PropertyGroup>
     <IntDir>$(SolutionDir)..\dump\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Configuration)\DGLNet;$(SolutionDir)\..\build\$(Configuration)\DGLCommon;$(SolutionDir)\boost\stage\lib;$(SolutionDir)\..\build\$(Configuration)\srchiliteqt;$(SolutionDir)\..\build\$(Configuration)\source-highlight;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Configuration)\DGLNet;$(SolutionDir)\..\build\$(Configuration)\DGLCommon;$(SolutionDir)\external\boost\stage\lib;$(SolutionDir)\..\build\$(Configuration)\srchiliteqt;$(SolutionDir)\..\build\$(Configuration)\source-highlight;</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>../boost/;..</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;../external/boost/;../boost;../external/</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WIN32_WINNT=0x0501</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
@@ -21,7 +22,7 @@
     <Lib>
       <AdditionalDependencies>
       </AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Configuration)\DGLNet;$(SolutionDir)\..\build\$(Configuration)\DGLCommon;$(SolutionDir)\boost\stage\lib;$(SolutionDir)\..\build\$(Configuration)\srchiliteqt;$(SolutionDir)\..\build\$(Configuration)\source-highlight;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Configuration)\DGLNet;$(SolutionDir)\..\build\$(Configuration)\DGLCommon;$(SolutionDir)\external\boost\stage\lib;$(SolutionDir)\..\build\$(Configuration)\srchiliteqt;$(SolutionDir)\..\build\$(Configuration)\source-highlight;</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup />

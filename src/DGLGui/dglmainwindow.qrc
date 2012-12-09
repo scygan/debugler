@@ -8,7 +8,6 @@
         <file>highlight/default.lang</file>
         <file>highlight/c_comment.lang</file>
         <file>highlight/c_string.lang</file>
-        <file>highlight/default.lang</file>
         <file>highlight/default.style</file>
         <file>highlight/function.lang</file>
         <file>highlight/glsl.lang</file>

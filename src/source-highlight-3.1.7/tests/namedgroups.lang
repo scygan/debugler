@@ -1,2 +1,0 @@
-(keyword,normal,type,symbol) = `(Hello|Ciao)([[:blank:]]*)([mM]ondo|[wW]orld)([[:punct:]]*)`
-comment = "highlight"

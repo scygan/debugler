@@ -36,6 +36,9 @@
     <Filter Include="QHexEdit">
       <UniqueIdentifier>{a7a6b899-218f-4348-998d-77392b50cc58}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ComleteInject">
+      <UniqueIdentifier>{f58f9574-793c-41f5-ad16-cba0f9569892}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -107,30 +110,6 @@
     <ClCompile Include="dglbreakpointdialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="QHexEdit\commands.cpp">
-      <Filter>QHexEdit</Filter>
-    </ClCompile>
-    <ClCompile Include="QHexEdit\qhexedit.cpp">
-      <Filter>QHexEdit</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_qhexedit.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_qhexedit.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="QHexEdit\qhexedit_p.cpp">
-      <Filter>QHexEdit</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_qhexedit_p.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_qhexedit_p.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="QHexEdit\xbytearray.cpp">
-      <Filter>QHexEdit</Filter>
-    </ClCompile>
     <ClCompile Include="dglbufferview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -200,9 +179,6 @@
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglrundialog.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="CompleteInject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dglgpuview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -220,6 +196,33 @@
     </ClCompile>
     <ClCompile Include="dglpixelrectangle.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\QHexEdit\commands.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_qhexedit.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_qhexedit.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_qhexedit_p.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_qhexedit_p.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\CompleteInject\CompleteInject.cpp">
+      <Filter>ComleteInject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\QHexEdit\qhexedit.cpp">
+      <Filter>QHexEdit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\QHexEdit\qhexedit_p.cpp">
+      <Filter>QHexEdit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\QHexEdit\xbytearray.cpp">
+      <Filter>QHexEdit</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -246,12 +249,6 @@
     </CustomBuild>
     <CustomBuild Include="dglbreakpointdialog.h">
       <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="QHexEdit\qhexedit.h">
-      <Filter>QHexEdit</Filter>
-    </CustomBuild>
-    <CustomBuild Include="QHexEdit\qhexedit_p.h">
-      <Filter>QHexEdit</Filter>
     </CustomBuild>
     <CustomBuild Include="dglbufferview.h">
       <Filter>Header Files</Filter>
@@ -313,16 +310,16 @@
     <CustomBuild Include="dglpixelrectangle.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="..\external\QHexEdit\qhexedit.h">
+      <Filter>QHexEdit</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\external\QHexEdit\qhexedit_p.h">
+      <Filter>QHexEdit</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dglgui.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="QHexEdit\commands.h">
-      <Filter>QHexEdit</Filter>
-    </ClInclude>
-    <ClInclude Include="QHexEdit\xbytearray.h">
-      <Filter>QHexEdit</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglfboviewitem.h">
       <Filter>Generated Files</Filter>
@@ -351,11 +348,17 @@
     <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglrundialog.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="CompleteInject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglgpuview.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\QHexEdit\xbytearray.h">
+      <Filter>QHexEdit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\QHexEdit\commands.h">
+      <Filter>QHexEdit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\CompleteInject\CompleteInject.h">
+      <Filter>ComleteInject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

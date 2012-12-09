@@ -23,12 +23,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLCommon", "DGLCommon\DGLC
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "codegen", "codegen\codegen.vcxproj", "{F16EFBD2-E47A-4E5B-B091-7D400430745A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "srchiliteqt", "srchiliteqt\srchiliteqt.vcxproj", "{05E37BC0-6128-4EE7-B147-164774C2E485}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "srchiliteqt", "external\srchiliteqt\srchiliteqt.vcxproj", "{05E37BC0-6128-4EE7-B147-164774C2E485}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5C2A907E-02DA-4D13-B84B-B48500DBEFA8} = {5C2A907E-02DA-4D13-B84B-B48500DBEFA8}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "source-highlight", "source-highlight-3.1.7\source-highlight.vcxproj", "{5C2A907E-02DA-4D13-B84B-B48500DBEFA8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "source-highlight", "external\source-highlight-3.1.7\source-highlight.vcxproj", "{5C2A907E-02DA-4D13-B84B-B48500DBEFA8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

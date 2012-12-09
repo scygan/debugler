@@ -23,7 +23,7 @@ bool initializeTemporaries() {
 
     try {
         for (size_t i = 0; i < sizeof(files)/sizeof(files[0]); i++) {
-            QFile in((std::string(":/highlight/") + files[i]).c_str());
+            QFile in((std::string(":highlight/") + files[i]).c_str());
             QFile out(files[i]);
             if (!in.open(QIODevice::ReadOnly) || !out.open(QIODevice::WriteOnly)) {
                 throw 1;
