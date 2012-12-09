@@ -1,7 +1,12 @@
-all: nonExtTypedefs.inl wrappers.inl pointers.inl pointers_load.inl functionList.inl OpenGL32.def
+all: ../../dump/codegen/nonExtTypedefs.inl ../../dump/codegen/wrappers.inl ../../dump/codegen/functionList.inl ../../dump/codegen/OpenGL32.def ../../dump/codegen/enum.inl 
 
-nonExtTypedefs.inl wrappers.inl pointers.inl pointers_load.inl functionList.inl OpenGL32.def: input\GL.h input\wgl.h
+../../dump/codegen/nonExtTypedefs.inl ../../dump/codegen/wrappers.inl ../../dump/codegen/functionList.inl ../../dump/codegen/OpenGL32.def ../../dump/codegen/enum.inl : input\GL.h input\wgl.h input\glext.h input\wglext.h input\wglext-partial.h
 	codegen.py
 
 clean:
 	del ../../dump/codegen/*.*
+	
+	
+	
+	
+
