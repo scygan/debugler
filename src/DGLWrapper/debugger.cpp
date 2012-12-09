@@ -235,6 +235,7 @@ CallHistory& DebugController::getCallHistory() {
 
 void DebugController::doHandle(const dglnet::ConfigurationMessage& msg) {
     g_Config.m_BreakOnGLError = msg.m_BreakOnGLError;
+    g_Config.m_BreakOnDebugOutput = msg.m_BreakOnDebugOutput;
 }
 
 void DebugController::doHandle(const dglnet::ContinueBreakMessage& msg) {

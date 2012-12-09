@@ -268,8 +268,9 @@ DGLViewRouter* DglController::getViewRouter() {
     return &m_ViewRouter;
 }
 
-void DglController::configure(bool breakOnGLError) {
+void DglController::configure(bool breakOnGLError, bool breakOnDebugOutput) {
     m_Config.m_BreakOnGLError = breakOnGLError;
+    m_Config.m_BreakOnDebugOutput = breakOnDebugOutput;
     sendConfig();
 }
 

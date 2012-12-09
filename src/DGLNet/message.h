@@ -116,6 +116,7 @@ class ConfigurationMessage: public Message, public DGLConfiguration {
     void serialize(Archive & ar, const unsigned int version) {
         ar & boost::serialization::base_object<Message>(*this);
         ar & m_BreakOnGLError;
+        ar & m_BreakOnDebugOutput;
     }
 
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }

@@ -63,9 +63,9 @@ private slots:
     void addDeleteBreakPoints();
 
     /** 
-     * Slot for manipulating "Break on GL error" setting"
+     * Slot for manipulating "Break on GL error" and "Break on debug output" setting
      */
-    void setBreakOnGLError(bool);
+    void setBreakOnWhatever(bool);
 
     /**
      * Shared slot for all color scheme-change actions.
@@ -134,6 +134,7 @@ private:
     QAction *debugStepDrawCallAct;
     QAction *addDeleteBreakPointsAct;
     QAction *setBreakOnGLErrorAct;
+    QAction *setBreakOnDebugOutputAct;
     QAction *setColorSchemeActs[DGLNUM_COLOR_SCHEMES];
     /**
      * Action group for all actions from setColorSchemeActs[]

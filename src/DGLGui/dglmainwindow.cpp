@@ -174,6 +174,7 @@ void DGLMainWindow::createMenus() {
      debugMenu->addAction(addDeleteBreakPointsAct);
      debugMenu->addSeparator();
      debugMenu->addAction(setBreakOnGLErrorAct);
+     debugMenu->addAction(setBreakOnDebugOutputAct);
 
 
      viewMenu = menuBar()->addMenu(tr("&View"));
@@ -201,6 +202,7 @@ void DGLMainWindow::createToolBars() {
      debugToolBar->addAction(addDeleteBreakPointsAct);
      debugToolBar->addSeparator();
      debugToolBar->addAction(setBreakOnGLErrorAct);
+     debugToolBar->addAction(setBreakOnDebugOutputAct);
  }
 
  void DGLMainWindow::createStatusBar() {
@@ -284,7 +286,16 @@ void DGLMainWindow::createToolBars() {
 
      setBreakOnGLErrorAct->setCheckable(true);
      setBreakOnGLErrorAct->setChecked(m_controller.getConfig().m_BreakOnGLError);
-     CONNASSERT(connect(setBreakOnGLErrorAct, SIGNAL(toggled(bool)), this, SLOT(setBreakOnGLError(bool))));
+     CONNASSERT(connect(setBreakOnGLErrorAct, SIGNAL(toggled(bool)), this, SLOT(setBreakOnWhatever(bool))));
+
+     setBreakOnDebugOutputAct = new QAction(tr("Break debug output"), this);
+     setBreakOnDebugOutputAct->setStatusTip(tr("Break execution on debug output message"));
+
+     //this action has a state - it is checbox-like checkable
+
+     setBreakOnDebugOutputAct->setCheckable(true);
+     setBreakOnDebugOutputAct->setChecked(m_controller.getConfig().m_BreakOnGLError);
+     CONNASSERT(connect(setBreakOnDebugOutputAct, SIGNAL(toggled(bool)), this, SLOT(setBreakOnWhatever(bool))));
      
     
      //Only one color scheme can be choosed - put all related actions to action group
@@ -529,14 +540,13 @@ void DGLMainWindow::createToolBars() {
      }
  }
 
- void DGLMainWindow::setBreakOnGLError(bool breakOnGLError) {
+ void DGLMainWindow::setBreakOnWhatever(bool) {
      
-     //This action enables breaking on GL error
+     //This action enables breaking on various events, like GL error or debug output
      //tell DGLController to configure it's debugee
 
-     m_controller.configure(breakOnGLError);
-
- }
+     m_controller.configure(setBreakOnGLErrorAct->isChecked(), setBreakOnDebugOutputAct->isChecked());
+}
 
 void DGLMainWindow::errorMessage(const QString& title, const QString& msg) {
 

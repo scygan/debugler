@@ -180,7 +180,7 @@ public:
     /** 
      * Setter for new configuration of debugee
      */
-    void configure(bool breakOnGLError);
+    void configure(bool breakOnGLError, bool breakOnDebugOutput);
 
     const DGLConfiguration& getConfig();
 
