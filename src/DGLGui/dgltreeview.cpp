@@ -173,7 +173,7 @@ public:
         m_FBONode.update(report.m_FBOSpace);
         m_ShaderNode.update(report.m_ShaderSpace);
         m_ProgramNode.update(report.m_ProgramSpace);
-        m_BufferNode.update(report.m_ProgramSpace);
+        m_BufferNode.update(report.m_BufferSpace);
         m_FramebufferNode.update(report.m_FramebufferSpace);
     }
 
