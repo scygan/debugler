@@ -286,7 +286,9 @@ void BufferTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[0].get(target);
             GLuint name;
             call.getArgs()[1].get(name);
-            g_GLState.getCurrent()->ensureBuffer(name)->setTarget(target);
+            if (name) {
+                g_GLState.getCurrent()->ensureBuffer(name)->setTarget(target);
+            }
         }
     }
     PrevPost(call, ret);
