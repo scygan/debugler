@@ -42,13 +42,13 @@
     <LinkIncremental>true</LinkIncremental>
     <TargetName>opengl32</TargetName>
     <IntDir>$(SolutionDir)..\dump\$(Configuration)\$(ProjectName)\</IntDir>
-    <OutDir>$(SolutionDir)..\build\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)..\build\$(Configuration)\$(ProjectName)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <TargetName>OpenGL32</TargetName>
     <IntDir>$(SolutionDir)..\dump\$(Configuration)\$(ProjectName)\</IntDir>
-    <OutDir>$(SolutionDir)..\build\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)..\build\$(Configuration)\$(ProjectName)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

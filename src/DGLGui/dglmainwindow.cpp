@@ -25,8 +25,8 @@
 /**
  * Macros indentyfying entity, that stores & loads QSettings
  */
-#define DGL_COMPANY "sacygan"
-#define DGL_PRODUCT "debuggler"
+#define DGL_COMPANY "SaCygan"
+#define DGL_PRODUCT "Debugler"
 
 /** 
  * Macros for QSettings variable names
@@ -424,7 +424,7 @@ void DGLMainWindow::createToolBars() {
              SetEnvironmentVariableA("dgl_semaphore", semName.c_str());
 
              //get wrapper path
-             QByteArray baPath = QDir::toNativeSeparators(QFileInfo("OpenGL32.dll").absoluteFilePath()).toUtf8();
+             QByteArray baPath = QDir::toNativeSeparators(QFileInfo("DGLWrapper/OpenGL32.dll").absoluteFilePath()).toUtf8();
              const char* wrapperPath = baPath.constData();
 
              //prepare some structures for CreateProcess output
