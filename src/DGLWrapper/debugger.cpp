@@ -298,6 +298,9 @@ void DGLDebugController::doHandle(const dglnet::QueryResourceMessage& msg) {
                 case DGLResource::ObjectTypeGPU:
                     res = ctx->queryGPU(msg.m_ResourceQueries[i].m_ObjectId);
                     break;
+                case DGLResource::ObjectTypeState:
+                    res = ctx->queryState(msg.m_ResourceQueries[i].m_ObjectId);
+                    break;
                 default:
                     throw std::runtime_error("Invalid object type requested");
             }

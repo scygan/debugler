@@ -135,7 +135,8 @@ public:
         ObjectTypeShader,
         ObjectTypeProgram,
         ObjectTypeBuffer,
-        ObjectTypeGPU
+        ObjectTypeGPU,
+        ObjectTypeState,
     };
 };
 
@@ -298,6 +299,33 @@ public:
     std::string m_Renderer, m_Version, m_Vendor;
     bool m_hasNVXGPUMemoryInfo;
     NVXGPUMemoryInfo m_nvidiaMemory;
+};
+
+
+class DGLResourceState: public DGLResource {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<DGLResource>(*this);
+        ar & m_Items;
+    }
+
+public:
+    struct StateItem {
+
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version) {
+            ar & m_Name;
+            ar & m_Values;
+        }
+        std::string m_Name;
+        std::vector<double> m_Values;
+    };
+
+
+public:
+    std::vector<StateItem> m_Items;
 };
 
 #endif

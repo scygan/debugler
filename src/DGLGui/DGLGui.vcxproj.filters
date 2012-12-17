@@ -224,6 +224,15 @@
     <ClCompile Include="..\external\QHexEdit\xbytearray.cpp">
       <Filter>QHexEdit</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglstateview.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglstateview.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="dglstateview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">
@@ -316,6 +325,12 @@
     <CustomBuild Include="..\external\QHexEdit\qhexedit_p.h">
       <Filter>QHexEdit</Filter>
     </CustomBuild>
+    <CustomBuild Include="dglstateview.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\dglstateview.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dglgui.h">
@@ -359,6 +374,9 @@
     </ClInclude>
     <ClInclude Include="..\external\CompleteInject\CompleteInject.h">
       <Filter>ComleteInject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglstateview.h">
+      <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -820,6 +820,56 @@ boost::shared_ptr<DGLResource> GLContext::queryGPU(GLuint name) {
 }
 
 
+boost::shared_ptr<DGLResource> GLContext::queryState(GLuint name) {
+
+    DGLResourceState* resource;
+    boost::shared_ptr<DGLResource> ret (resource = new DGLResourceState);
+
+#define GET_STATE(NAME, LENGTH) \
+    { \
+        DGLResourceState::StateItem item; \
+        item.m_Name = #NAME;\
+        item.m_Values.resize(LENGTH);\
+        DIRECT_CALL_CHK(glGetDoublev)(NAME, &item.m_Values[0]);\
+        if (DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR) {\
+            item.m_Values.clear();\
+        }\
+        resource->m_Items.push_back(item);\
+    }
+
+    GET_STATE(GL_PATCH_DEFAULT_OUTER_LEVEL, 4);
+    GL_PATCH DEFAULT INNER LEVEL 2
+    GL_ELEMENT ARRAY BUFFER BINDING 1
+    GL_VERTEX BINDING OFFSET
+    GL_VERTEX BINDING STRIDE
+    GL_ARRAY BUFFER BINDING
+    GL_DRAW INDIRECT BUFFER BINDING
+    GL_VERTEX ARRAY BINDING
+    GL_PRIMITIVE RESTART INDEX
+    GL_CLAMP READ COLOR
+    GL_PROVOKING VERTEX
+    GL_POINT SIZE
+    GL_POINT FADE THRESHOLD SIZE
+    GL_POINT SPRITE COORD ORIGIN
+    GL_CULL FACE MODE
+    GL_GL_FRONT_FACE
+    GL_POLYGON MODE
+    GL_POLYGON OFFSET FACTOR
+    GL_POLYGON OFFSET UNITS
+    GL_SAMPLE COVERAGE VALUE
+    GL_MIN SAMPLE SHADING VALUE
+
+
+
+
+
+
+
+    
+    return ret;
+}
+
+
 GLProgramObj* GLContext::ensureProgram(GLuint name) {
     std::map<GLuint, GLProgramObj>::iterator i = m_Programs.find(name);
     if (i == m_Programs.end()) {

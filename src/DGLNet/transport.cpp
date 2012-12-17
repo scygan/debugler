@@ -41,6 +41,7 @@ REGISTER_CLASS(DGLResourceFBO);
 REGISTER_CLASS(DGLResourceShader);
 REGISTER_CLASS(DGLResourceProgram);
 REGISTER_CLASS(DGLResourceGPU);
+REGISTER_CLASS(DGLResourceState);
 
 
 namespace dglnet {
