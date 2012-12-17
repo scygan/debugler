@@ -320,7 +320,7 @@ public:
             ar & m_Values;
         }
         std::string m_Name;
-        std::vector<double> m_Values;
+        std::vector<AnyValue> m_Values;
     };
 
 
