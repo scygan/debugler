@@ -74,7 +74,7 @@ extern "C" __declspec(dllexport) void InitializeThread() {}
         port = atoi(portStr);
     }*/
 
-    g_Controller = boost::make_shared<DebugController>();
+    g_Controller = boost::make_shared<DGLDebugController>();
     //boost::shared_ptr<dglnet::Server> srv = boost::make_shared<dglnet::Server>(port, g_Controller.get());
     //srv->accept();
     //g_Controller->connect(srv);

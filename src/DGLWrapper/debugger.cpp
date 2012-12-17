@@ -6,24 +6,24 @@
 
 #include <Psapi.h>
 
-boost::shared_ptr<DebugController> g_Controller;
-GLState g_GLState;
+boost::shared_ptr<DGLDebugController> g_Controller;
+DGLGLState g_DGLGLState;
 DGLConfiguration g_Config;
 
 template<typename T>
 void nop(T*) {}
 
-GLState::GLState():m_Current(&nop<dglstate::GLContext>), m_CurrentSurface(&nop<dglstate::NPISurface>) {};
+DGLGLState::DGLGLState():m_Current(&nop<dglState::GLContext>), m_CurrentSurface(&nop<dglState::NativeSurface>) {};
 
-GLState::ContextListIter GLState::ensureContext(uint32_t id, bool lock) {
+DGLGLState::ContextListIter DGLGLState::ensureContext(uint32_t id, bool lock) {
     if (lock) {
         m_ContextListMutex.lock();
     }
     ContextListIter i = m_ContextList.find(id);
     if (i == m_ContextList.end()) {
         i = m_ContextList.insert(
-                std::pair<uint32_t, boost::shared_ptr<dglstate::GLContext>> (
-                    id, boost::make_shared<dglstate::GLContext>(id)
+                std::pair<uint32_t, boost::shared_ptr<dglState::GLContext>> (
+                    id, boost::make_shared<dglState::GLContext>(id)
                     )
             ).first;
     }
@@ -33,15 +33,15 @@ GLState::ContextListIter GLState::ensureContext(uint32_t id, bool lock) {
     return i;
 }
 
-GLState::SurfaceListIter GLState::ensureSurface(uint32_t id, bool lock) {
+DGLGLState::SurfaceListIter DGLGLState::ensureSurface(uint32_t id, bool lock) {
     if (lock) {
         m_SurfaceListMutex.lock();
     }
     SurfaceListIter i = m_SurfaceList.find(id);
     if (i == m_SurfaceList.end()) {
         i = m_SurfaceList.insert(
-            std::pair<uint32_t, boost::shared_ptr<dglstate::NPISurface>> (
-            id, boost::make_shared<dglstate::NPISurface>(id)
+            std::pair<uint32_t, boost::shared_ptr<dglState::NativeSurface>> (
+            id, boost::make_shared<dglState::NativeSurface>(id)
             )
             ).first;
     }
@@ -51,12 +51,12 @@ GLState::SurfaceListIter GLState::ensureSurface(uint32_t id, bool lock) {
     return i;
 }
 
-dglstate::GLContext* GLState::getCurrent() {
+dglState::GLContext* DGLGLState::getCurrent() {
     return m_Current.get();
 }
 
-void GLState::bindContext(uint32_t ctxId, uint32_t npiSurfaceId) {
-    dglstate::GLContext* current = getCurrent();
+void DGLGLState::bindContext(uint32_t ctxId, uint32_t NativeSurfaceId) {
+    dglState::GLContext* current = getCurrent();
 
     if (current && ctxId == current->getId())
         return;
@@ -71,9 +71,9 @@ void GLState::bindContext(uint32_t ctxId, uint32_t npiSurfaceId) {
         m_Current.reset(&(*(ensureContext(ctxId)->second)));
         getCurrent()->use(true);
         
-        dglstate::NPISurface* npiSurface = getCurrent()->getNpiSurface();
-        if (!npiSurface || npiSurface->getId() != npiSurfaceId) {
-            getCurrent()->setNpiSurface(&(*(ensureSurface(npiSurfaceId)->second)));
+        dglState::NativeSurface* NativeSurface = getCurrent()->getNativeSurface();
+        if (!NativeSurface || NativeSurface->getId() != NativeSurfaceId) {
+            getCurrent()->setNativeSurface(&(*(ensureSurface(NativeSurfaceId)->second)));
         }
 
     } else {
@@ -81,7 +81,7 @@ void GLState::bindContext(uint32_t ctxId, uint32_t npiSurfaceId) {
     }
 }
 
-void GLState::deleteContext(uint32_t id) {
+void DGLGLState::deleteContext(uint32_t id) {
     boost::lock_guard<boost::mutex> quard(m_ContextListMutex);
     ContextListIter i = ensureContext(id, false);
     if (i->second->lazyDelete()) {
@@ -89,7 +89,7 @@ void GLState::deleteContext(uint32_t id) {
     }
 }
 
-std::vector<dglnet::ContextReport> GLState::describe() {
+std::vector<dglnet::ContextReport> DGLGLState::describe() {
     boost::lock_guard<boost::mutex> quard(m_ContextListMutex);
     std::vector<dglnet::ContextReport> ret(m_ContextList.size());
     int j = 0;
@@ -188,14 +188,14 @@ void CallHistory::setDebugOutput(const std::string& message) {
     m_cb.back().setDebugOutput(message);
 }
 
-DebugController::~DebugController() {
+DGLDebugController::~DGLDebugController() {
     if (m_Server) {
         m_Server->abort();
         m_Server.reset();
     }
 }
 
-void DebugController::connect(boost::shared_ptr<dglnet::Server> srv) {
+void DGLDebugController::connect(boost::shared_ptr<dglnet::Server> srv) {
     m_Server = srv;
     
     std::string currentProcessName = "<unknown>";
@@ -213,7 +213,7 @@ void DebugController::connect(boost::shared_ptr<dglnet::Server> srv) {
     srv->sendMessage(&hello);
 }
 
-void DebugController::doHandleDisconnect(const std::string&) {
+void DGLDebugController::doHandleDisconnect(const std::string&) {
     //we have got disconnected from the client
     //it is better to die here, than allow app to run uncontrolled.
 
@@ -222,7 +222,7 @@ void DebugController::doHandleDisconnect(const std::string&) {
     TerminateProcess(GetCurrentProcess(), 0);
 }
 
-dglnet::Server& DebugController::getServer() {
+dglnet::Server& DGLDebugController::getServer() {
     if (!m_Server) {
         char port[20], semaphore[100];
         int portNum = 5555;
@@ -241,31 +241,31 @@ dglnet::Server& DebugController::getServer() {
     return *m_Server;
 }
 
-BreakState& DebugController::getBreakState() {
+BreakState& DGLDebugController::getBreakState() {
     return m_BreakState;
 }
 
-CallHistory& DebugController::getCallHistory() {
+CallHistory& DGLDebugController::getCallHistory() {
     return m_CallHistory;
 }
 
-void DebugController::doHandle(const dglnet::ConfigurationMessage& msg) {
+void DGLDebugController::doHandle(const dglnet::ConfigurationMessage& msg) {
     g_Config.m_BreakOnGLError = msg.m_BreakOnGLError;
     g_Config.m_BreakOnDebugOutput = msg.m_BreakOnDebugOutput;
 }
 
-void DebugController::doHandle(const dglnet::ContinueBreakMessage& msg) {
+void DGLDebugController::doHandle(const dglnet::ContinueBreakMessage& msg) {
     m_BreakState.handle(msg);
 }
 
-void DebugController::doHandle(const dglnet::QueryCallTraceMessage& msg) {
+void DGLDebugController::doHandle(const dglnet::QueryCallTraceMessage& msg) {
     dglnet::CallTraceMessage reply;
     m_CallHistory.query(msg, reply);
     m_Server->sendMessage(&reply);
 }
 
-void DebugController::doHandle(const dglnet::QueryResourceMessage& msg) {
-    dglstate::GLContext* ctx = g_GLState.getCurrent();
+void DGLDebugController::doHandle(const dglnet::QueryResourceMessage& msg) {
+    dglState::GLContext* ctx = g_DGLGLState.getCurrent();
     for (size_t i = 0; i <  msg.m_ResourceQueries.size(); i++) {
         boost::shared_ptr<DGLResource> res;
 
@@ -315,6 +315,6 @@ void DebugController::doHandle(const dglnet::QueryResourceMessage& msg) {
         
 }
 
-void DebugController::doHandle(const dglnet::SetBreakPointsMessage& msg) {
+void DGLDebugController::doHandle(const dglnet::SetBreakPointsMessage& msg) {
     getBreakState().handle(msg);
 }

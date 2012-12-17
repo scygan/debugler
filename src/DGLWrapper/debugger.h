@@ -12,12 +12,12 @@
 #define CALL_HISTORY_LEN 1000
 
 
-class GLState {
-    typedef std::map<uint32_t, boost::shared_ptr<dglstate::GLContext> >::iterator ContextListIter;
-    typedef std::map<uint32_t, boost::shared_ptr<dglstate::NPISurface> >::iterator SurfaceListIter;
+class DGLGLState {
+    typedef std::map<uint32_t, boost::shared_ptr<dglState::GLContext> >::iterator ContextListIter;
+    typedef std::map<uint32_t, boost::shared_ptr<dglState::NativeSurface> >::iterator SurfaceListIter;
 public:
-    GLState();
-    dglstate::GLContext* getCurrent();
+    DGLGLState();
+    dglState::GLContext* getCurrent();
     ContextListIter ensureContext(uint32_t id, bool lock = true);
     SurfaceListIter ensureSurface(uint32_t id, bool lock = true);
     void bindContext(uint32_t id, uint32_t hdc);
@@ -26,10 +26,10 @@ public:
     std::vector<dglnet::ContextReport> describe();
 
 private:
-    std::map<uint32_t, boost::shared_ptr<dglstate::GLContext> > m_ContextList;
-    std::map<uint32_t, boost::shared_ptr<dglstate::NPISurface> > m_SurfaceList;
-    boost::thread_specific_ptr<dglstate::GLContext> m_Current;
-    boost::thread_specific_ptr<dglstate::NPISurface> m_CurrentSurface;
+    std::map<uint32_t, boost::shared_ptr<dglState::GLContext> > m_ContextList;
+    std::map<uint32_t, boost::shared_ptr<dglState::NativeSurface> > m_SurfaceList;
+    boost::thread_specific_ptr<dglState::GLContext> m_Current;
+    boost::thread_specific_ptr<dglState::NativeSurface> m_CurrentSurface;
 
     boost::mutex m_ContextListMutex;
     boost::mutex m_SurfaceListMutex;
@@ -65,9 +65,9 @@ private:
     boost::mutex m_mutex;
 };
 
-class DebugController: public dglnet::MessageHandler {
+class DGLDebugController: public dglnet::MessageHandler {
 public:
-    ~DebugController();
+    ~DGLDebugController();
     void connect(boost::shared_ptr<dglnet::Server>);
     virtual void doHandleDisconnect(const std::string&);
 
@@ -89,6 +89,6 @@ private:
     CallHistory m_CallHistory;
 };
 
-extern boost::shared_ptr<DebugController> g_Controller;
-extern GLState g_GLState; 
+extern boost::shared_ptr<DGLDebugController> g_Controller;
+extern DGLGLState g_DGLGLState; 
 extern DGLConfiguration g_Config;

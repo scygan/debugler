@@ -6,7 +6,7 @@
 #include "pointers.h"
 #include "api-loader.h"
 
-namespace dglstate {
+namespace dglState {
 
 namespace state_setters {
 
@@ -171,7 +171,7 @@ GLenum GLFBObj::getTarget() {
     return m_Target;
 }
 
-GLContext::GLContext(uint32_t id):m_Id(id), m_InUse(false), m_Deleted(false), m_NPISurface(NULL), m_EverUsed(false), m_HasNVXMemoryInfo(false), m_HasDebugOutput(false), m_InImmediateMode(false)  {}
+GLContext::GLContext(uint32_t id):m_Id(id), m_InUse(false), m_Deleted(false), m_NativeSurface(NULL), m_EverUsed(false), m_HasNVXMemoryInfo(false), m_HasDebugOutput(false), m_InImmediateMode(false)  {}
 
 dglnet::ContextReport GLContext::describe() {
     dglnet::ContextReport ret(m_Id);
@@ -195,14 +195,14 @@ dglnet::ContextReport GLContext::describe() {
         i != m_FBOs.end(); i++) {
             ret.m_FBOSpace.insert(i->second.getName());
     }
-    if (m_NPISurface) {
-        if (m_NPISurface->isStereo()) {
-            if (m_NPISurface->isDoubleBuffered()) {
+    if (m_NativeSurface) {
+        if (m_NativeSurface->isStereo()) {
+            if (m_NativeSurface->isDoubleBuffered()) {
                 ret.m_FramebufferSpace.insert(GL_BACK_RIGHT);
             }
             ret.m_FramebufferSpace.insert(GL_FRONT_RIGHT);
         }
-        if (m_NPISurface->isDoubleBuffered()) {
+        if (m_NativeSurface->isDoubleBuffered()) {
             ret.m_FramebufferSpace.insert(GL_BACK);
         }
         ret.m_FramebufferSpace.insert(GL_FRONT);
@@ -227,12 +227,12 @@ bool GLContext::isDeleted() {
     return m_Deleted;
 }
 
-NPISurface* GLContext::getNpiSurface() {
-    return m_NPISurface;
+NativeSurface* GLContext::getNativeSurface() {
+    return m_NativeSurface;
 }
 
-void GLContext::setNpiSurface(NPISurface* surface) {
-    m_NPISurface = surface;
+void GLContext::setNativeSurface(NativeSurface* surface) {
+    m_NativeSurface = surface;
 }
 
 GLTextureObj* GLContext::ensureTexture(GLuint name) {
@@ -547,7 +547,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
     DGLResourceFramebuffer* resource;
     boost::shared_ptr<DGLResource> ret (resource = new DGLResourceFramebuffer);
 
-    if (!m_NPISurface) {
+    if (!m_NativeSurface) {
         throw std::runtime_error("Buffer does not exist");
     }
     //save state
@@ -567,25 +567,25 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
         GLenum format = 0;
 
 
-        resource->m_PixelRectangle.m_Width = m_NPISurface->getWidth();
-        resource->m_PixelRectangle.m_Height = m_NPISurface->getHeight();
+        resource->m_PixelRectangle.m_Width = m_NativeSurface->getWidth();
+        resource->m_PixelRectangle.m_Height = m_NativeSurface->getHeight();
 
         resource->m_PixelRectangle.m_Channels = 0;
         for (int i = 0; i < 4; i++) {
-            if (m_NPISurface->getRGBASizes()[i]) {
+            if (m_NativeSurface->getRGBASizes()[i]) {
                 resource->m_PixelRectangle.m_Channels = i + 1;
                 format = colorFormats[i];
             }
         }
         if (!format) {
             // not a color texture
-            if (m_NPISurface->getDepthSize()) {
+            if (m_NativeSurface->getDepthSize()) {
                 format = GL_DEPTH_COMPONENT; resource->m_PixelRectangle.m_Channels = 1;
             }
-            if (m_NPISurface->getStencilSize()) {
+            if (m_NativeSurface->getStencilSize()) {
                 format = GL_STENCIL_INDEX; resource->m_PixelRectangle.m_Channels = 1;
             }
-            if (m_NPISurface->getStencilSize() && m_NPISurface->getDepthSize()) {
+            if (m_NativeSurface->getStencilSize() && m_NativeSurface->getDepthSize()) {
                 format = GL_DEPTH_STENCIL; resource->m_PixelRectangle.m_Channels = 2;
             }
         }       
@@ -879,7 +879,7 @@ void GLContext::firstUse() {
     }
 }
 
-NPISurface::NPISurface(uint32_t id):m_Id(id) {
+NativeSurface::NativeSurface(uint32_t id):m_Id(id) {
     HDC hdc = reinterpret_cast<HDC>(id);
     int i = DIRECT_CALL_CHK(wglGetPixelFormat)(hdc);
     PIXELFORMATDESCRIPTOR  pfd;
@@ -900,38 +900,38 @@ NPISurface::NPISurface(uint32_t id):m_Id(id) {
 }
 
 
-uint32_t NPISurface::getId() {
+uint32_t NativeSurface::getId() {
     return m_Id;
 }
 
-bool NPISurface::isDoubleBuffered() {
+bool NativeSurface::isDoubleBuffered() {
     return m_DoubleBuffered;
 }
 
-bool NPISurface::isStereo() {
+bool NativeSurface::isStereo() {
     return m_Stereo;
 }
 
-int* NPISurface::getRGBASizes() {
+int* NativeSurface::getRGBASizes() {
     return m_RGBASizes;
 }
 
-int NPISurface::getStencilSize() {
+int NativeSurface::getStencilSize() {
     return m_StencilSize;
 }
 
-int NPISurface::getDepthSize() {
+int NativeSurface::getDepthSize() {
     return m_DepthSize;
 }
 
 
-int NPISurface::getWidth() {
+int NativeSurface::getWidth() {
     return m_Width;
 }
 
-int NPISurface::getHeight() {
+int NativeSurface::getHeight() {
     return m_Height;
 }
 
 
-} //namespace dglstate
+} //namespace dglState

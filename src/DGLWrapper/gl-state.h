@@ -8,7 +8,7 @@
 #include <queue>
 #include <boost/shared_ptr.hpp>
 
-namespace dglstate {
+namespace dglState {
 
 class GLObj {
 public:
@@ -88,9 +88,9 @@ private:
 };
 
 //Native platform interface surface. HDC on windows
-class NPISurface {
+class NativeSurface {
 public:
-    NPISurface(uint32_t);
+    NativeSurface(uint32_t);
     uint32_t getId();
     bool isDoubleBuffered();
     bool isStereo();
@@ -126,8 +126,8 @@ public:
     bool lazyDelete();
     bool isDeleted();
 
-    NPISurface* getNpiSurface();
-    void setNpiSurface(NPISurface*);
+    NativeSurface* getNativeSurface();
+    void setNativeSurface(NativeSurface*);
 
     GLTextureObj* ensureTexture(GLuint name);
     void deleteTexture(GLuint name);
@@ -183,7 +183,7 @@ private:
     /**
      * Handle to native surface (drawable)
      */
-    NPISurface* m_NPISurface;
+    NativeSurface* m_NativeSurface;
 
     /**
      * Queue for errors poked from glGetError(), not yet delivered to application
