@@ -271,6 +271,7 @@ class DGLResourceGPU: public DGLResource {
         ar & boost::serialization::base_object<DGLResource>(*this);
         ar & m_Renderer;
         ar & m_Version;
+        ar & m_GLSL;
         ar & m_Vendor;
         ar & m_hasNVXGPUMemoryInfo;
         ar & m_nvidiaMemory;
@@ -296,7 +297,7 @@ class DGLResourceGPU: public DGLResource {
 
 
 public:
-    std::string m_Renderer, m_Version, m_Vendor;
+    std::string m_Renderer, m_Version, m_Vendor, m_GLSL;
     bool m_hasNVXGPUMemoryInfo;
     NVXGPUMemoryInfo m_nvidiaMemory;
 };

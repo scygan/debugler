@@ -792,12 +792,11 @@ boost::shared_ptr<DGLResource> GLContext::queryGPU(GLuint name) {
 
     // Forgot about:
     //GL_EXTENSIONS
-    //GL_SHADING_LANGUAGE_VERSION
-    //GL_SHADING_LANGUAGE_VERSION
     
     resource->m_Renderer = (const char*)DIRECT_CALL_CHK(glGetString)(GL_RENDERER);
     resource->m_Vendor   = (const char*)DIRECT_CALL_CHK(glGetString)(GL_VENDOR);
     resource->m_Version  = (const char*)DIRECT_CALL_CHK(glGetString)(GL_VERSION);
+    resource->m_GLSL  = (const char*)DIRECT_CALL_CHK(glGetString)(GL_SHADING_LANGUAGE_VERSION);
 
     resource->m_hasNVXGPUMemoryInfo = m_HasNVXMemoryInfo;
     if (resource->m_hasNVXGPUMemoryInfo = m_HasNVXMemoryInfo) {

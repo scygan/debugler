@@ -18,6 +18,7 @@ void DGLGPUView::update(const DGLResource& res) {
     m_Ui->label_Renderer->setText(QString::fromStdString(resource->m_Renderer));
     m_Ui->label_Vendor->setText(QString::fromStdString(resource->m_Vendor));
     m_Ui->label_Version->setText(QString::fromStdString(resource->m_Version));
+    m_Ui->label_GLSL->setText(QString::fromStdString(resource->m_GLSL));
 
     if (!resource->m_hasNVXGPUMemoryInfo) {
         m_Ui->groupBox_NVMem->hide();
@@ -35,6 +36,7 @@ void DGLGPUView::error(const std::string& message) {
     m_Ui->label_Renderer->setText(QString::fromStdString(message));
     m_Ui->label_Vendor->clear();
     m_Ui->label_Version->clear();
+    m_Ui->label_GLSL->clear();
     m_Ui->groupBox_NVMem->hide();
 }
 
