@@ -2,10 +2,53 @@
 #include "dglgui.h"
 
 #include <QScrollBar>
+#include <QStyledItemDelegate>
+#include <QPainter>
+
+class DGLTraceViewDelegate : public QStyledItemDelegate {
+public:
+    DGLTraceViewDelegate(QObject *parent=0) : QStyledItemDelegate (parent){}
+
+    void paint ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const{
+
+
+        if(option.state & QStyle::State_Selected){
+            painter->fillRect(option.rect, option.palette.color(QPalette::Highlight));
+        }
+
+        GLenum glError = index.data(Qt::UserRole + 1).toInt();
+        QString error = (glError == GL_NO_ERROR)?"GL_NO_ERROR":GetGLEnumName(glError);
+
+        QPen backup = painter->pen();
+
+        QRect r = option.rect.adjusted(15, 0, -160,  - option.rect.height() / 2);
+        painter->drawText(r.left(), r.top(), r.width(), r.height(), Qt::AlignTop|Qt::AlignLeft, index.data(Qt::UserRole).toString());
+
+        if (glError == GL_NO_ERROR) {
+            painter->setPen(QPen(QColor("#20ff20")));
+        } else {
+            painter->setPen(QPen(QColor("#ff2020")));
+        }
+        
+        r = QRect(option.rect.width() - 160, option.rect.y(), 150, option.rect.height() / 2);
+        painter->drawText(r.left(), r.top(), r.width(), r.height(), Qt::AlignTop|Qt::AlignRight, error);
+        
+        painter->setPen(QPen(QColor("#2020ff")));
+        r = option.rect.adjusted(15, option.rect.height() / 2, 0, 0);
+        painter->drawText(r.left(), r.top(), r.width(), r.height(), Qt::AlignTop|Qt::AlignLeft, index.data(Qt::UserRole + 2).toString());
+
+        painter->setPen(backup);
+    }
+
+    QSize sizeHint ( const QStyleOptionViewItem & option, const QModelIndex & index ) const{
+        return QSize(200, 40);
+    }
+};
 
 DGLTraceViewList::DGLTraceViewList(QWidget* parrent):QListWidget(parrent) {
     CONNASSERT(connect(this, SIGNAL(resized()), parrent, SLOT(mayNeedNewElements())));
     CONNASSERT(connect(this->verticalScrollBar(), SIGNAL(valueChanged(int)), parrent, SLOT(mayNeedNewElements())));
+    setItemDelegate(new DGLTraceViewDelegate(this));
 }
 
 uint DGLTraceViewList::getVisibleRowCount() {
@@ -70,9 +113,13 @@ void DGLTraceView::breaked(CalledEntryPoint entryp, uint traceSize) {
     m_traceList.clear();
     m_QueryUpperBound = 0;
     for (uint i = 0; i < traceSize; i++) {
-        m_traceList.addItem(QString("<unknown>"));
+        QListWidgetItem *item = new QListWidgetItem();
+        item->setData(Qt::UserRole, "<unknown>");
+        m_traceList.addItem(item);
     }
-    m_traceList.addItems(QStringList() << QString("Breaked on: ") + entryp.toString().c_str());
+    QListWidgetItem *item = new QListWidgetItem();
+    item->setData(Qt::UserRole, QString("BREAKED :  ") + GetEntryPointName(entryp.getEntrypoint()));
+    m_traceList.addItem(item);
     m_traceList.setCurrentRow(m_traceList.count() - 1);
     m_traceList.scrollToBottom();
     m_QueryUpperBound = 0;
@@ -83,6 +130,25 @@ void DGLTraceView::gotCallTraceChunkChunk(uint offset, const std::vector<CalledE
     for (uint i = offset; i < offset + trace.size(); i++) {
         int row = m_traceList.count() - i - 2;
         delete m_traceList.takeItem(row);
-        m_traceList.insertItem(row, QString(trace[trace.size() - 1 - i + offset].toString().c_str()));
+        /*
+        if (m_glError != GL_NO_ERROR) {
+        ret << " -> " << GetGLEnumName(m_glError);
+        }
+        if (m_DebugOutput.size()) {
+        ret << " debug: " << m_DebugOutput;
+        }*/
+        std::string func = trace[trace.size() - 1 - i + offset].toString();
+        GLenum error = trace[trace.size() - 1 - i + offset].getError();
+        std::string debugOutput = trace[trace.size() - 1 - i + offset].getDebugOutput();
+
+        QListWidgetItem *item = new QListWidgetItem();
+        item->setData(Qt::UserRole, func.c_str());
+        item->setData(Qt::UserRole + 1, error);
+        if (debugOutput.length()) {
+            item->setData(Qt::UserRole + 2, debugOutput.c_str());
+        }
+        
+
+        m_traceList.insertItem(row, item);
     }
 }

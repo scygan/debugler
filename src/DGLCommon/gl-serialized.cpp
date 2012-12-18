@@ -68,15 +68,16 @@ std::string CalledEntryPoint::toString() const {
     }
 
     ret << ")";
-    if (m_glError != GL_NO_ERROR) {
-        ret << " -> " << GetGLEnumName(m_glError);
-    }
-    if (m_DebugOutput.size()) {
-        ret << " debug: " << m_DebugOutput;
-    }
     return ret.str();;
 }
 
+GLenum CalledEntryPoint::getError() const {
+    return m_glError;
+}
+
+const std::string& CalledEntryPoint::getDebugOutput() const {
+    return m_DebugOutput;
+}
 
 
 DGLResourceFBO::FBOAttachment::FBOAttachment(uint32_t id):m_Ok(true),m_Id(id) {}
