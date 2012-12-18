@@ -69,12 +69,17 @@ void DefaultTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
     GLenum error;
     if (dglState::GLContext* ctx = g_DGLGLState.getCurrent()) {
+
+        bool hasDebugOutput = ctx->hasDebugOutput();
+        if (hasDebugOutput) {
+            g_Controller->getCallHistory().setDebugOutput(ctx->popDebugOutput());
+        }
+
         if ((error = g_DGLGLState.getCurrent()->peekError()) != GL_NO_ERROR && g_Config.m_BreakOnGLError) {
             g_Controller->getCallHistory().setError(error);
             g_Controller->getBreakState().breakAt(call.getEntrypoint(), error);
         }
-        if (ctx->hasDebugOutput() && g_Config.m_BreakOnDebugOutput) {
-            g_Controller->getCallHistory().setDebugOutput(ctx->popDebugOutput());
+        if (hasDebugOutput && g_Config.m_BreakOnDebugOutput) {
             g_Controller->getBreakState().breakAtDebugOutput();
         }
     }    

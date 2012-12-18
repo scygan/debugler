@@ -342,13 +342,13 @@ void GLContext::queryCheckError() {
 bool GLContext::endQuery(std::string& message) {
     bool ret = true;
     GLenum error;
-    if  ((error = DIRECT_CALL_CHK(glGetError)()) != GL_NO_ERROR ) {
+    if  (!m_InImmediateMode && (error = DIRECT_CALL_CHK(glGetError)()) != GL_NO_ERROR ) {
         message = std::string("Query failed: got OpenGL error (") + GetGLEnumName(error) + ")";
         ret = false;
     }
-    while (DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR);
+    while (!m_InImmediateMode && DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR);
     
-    //alway invalidate debug output from query functions
+    //always invalidate debug output from query functions
     m_HasDebugOutput = false;
 
     return ret;
