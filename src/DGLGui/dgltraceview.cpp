@@ -118,7 +118,7 @@ void DGLTraceView::breaked(CalledEntryPoint entryp, uint traceSize) {
         m_traceList.addItem(item);
     }
     QListWidgetItem *item = new QListWidgetItem();
-    item->setData(Qt::UserRole, QString("BREAKED :  ") + GetEntryPointName(entryp.getEntrypoint()));
+    item->setData(Qt::UserRole, QString("BREAKED :  ") + QString::fromStdString(entryp.toString()));
     m_traceList.addItem(item);
     m_traceList.setCurrentRow(m_traceList.count() - 1);
     m_traceList.scrollToBottom();
