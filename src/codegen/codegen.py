@@ -6,7 +6,7 @@ from sets import Set
 outputDir = "../../dump/codegen/"
 
 if not os.path.exists(outputDir):
-    os.makedirs(outputDir)
+	os.makedirs(outputDir)
 
 nonExtTypedefs = open(outputDir + "nonExtTypedefs.inl", "w")
 wrappersFile = open(outputDir + "wrappers.inl", "w")
@@ -23,7 +23,7 @@ def isPointer(type):
 		return True
 	return False
 	
-def parse(file, genNonExtTypedefs = False):
+def parse(file, genNonExtTypedefs = False, skipTrace = False):
 	for line in file:
 		enumMatch = re.match("^#define GL([a-zA-Z0-9_]*) (.*)0x(.*)$", line)
 		if enumMatch and not "_LINE_BIT" in enumMatch.group(1):
@@ -101,7 +101,11 @@ def parse(file, genNonExtTypedefs = False):
 					print >> wrappersFile, "	call << " + functionAttrNamesList[i] + ";"
 				i+=1
 			
-			print >> wrappersFile, "    RetValue retVal = g_Tracers[" + functionName + "_Call]->Pre(call);"
+			print >> wrappersFile, "    RetValue retVal;"
+			
+			if not skipTrace:
+				print >> wrappersFile, "    retVal = g_Tracers[" + functionName + "_Call]->Pre(call);"
+
 			print >> wrappersFile, "    if (!retVal.isSet()) {"
 			if functionRetType != "void":
 				print >> wrappersFile, "    	retVal = DIRECT_CALL(" + functionName + ")(" + functionAttrNames + ");"
@@ -109,14 +113,19 @@ def parse(file, genNonExtTypedefs = False):
 				print >> wrappersFile, "    	DIRECT_CALL(" + functionName + ")(" + functionAttrNames + ");"			
 			print >> wrappersFile, "    }"
 			
-			
+			if not skipTrace:
+				if functionRetType != "void":
+					print >> wrappersFile, "    g_Tracers[" + functionName + "_Call]->Post(call, retVal);"
+					
+				else:
+					print >> wrappersFile, "    g_Tracers[" + functionName + "_Call]->Post(call);"
+				
+
 			if functionRetType != "void":
-				print >> wrappersFile, "    g_Tracers[" + functionName + "_Call]->Post(call, retVal);"
 				print >> wrappersFile, "    " + functionRetType + " tmp;  retVal.get(tmp); return tmp;"
-			else:
-				print >> wrappersFile, "    g_Tracers[" + functionName + "_Call]->Post(call);"
+
 			print >> wrappersFile, "}"
-			
+
 			if genNonExtTypedefs:
 				print >> nonExtTypedefs, "typedef " + functionRetType + " (APIENTRYP " + functionPFNType + ")(" + functionAttrList + ");"
 			
@@ -130,11 +139,13 @@ wglFile = open("input/wgl.h", "r").readlines()
 wglextFile = open("input/wglext-partial.h", "r").readlines()
 glFile = open("input/GL.h", "r").readlines()
 glextFile = open("input/glext.h", "r").readlines()
+wglNoTraceFile = open("input/wgl-notrace.h", "r").readlines()
 
 parse(wglFile)
 parse(wglextFile)
 parse(glFile, True)
 parse(glextFile)
+parse(wglNoTraceFile, False, True)
 
 
 
