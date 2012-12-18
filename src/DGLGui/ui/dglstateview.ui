@@ -18,41 +18,15 @@
     <widget class="QFrame" name="frame">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QGroupBox" name="groupBox">
-        <property name="title">
-         <string/>
+       <widget class="QTableWidget" name="tableWidget">
+        <property name="columnCount">
+         <number>2</number>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <widget class="QTableWidget" name="tableWidget">
-           <property name="rowCount">
-            <number>0</number>
-           </property>
-           <property name="columnCount">
-            <number>2</number>
-           </property>
-           <attribute name="horizontalHeaderMinimumSectionSize">
-            <number>37</number>
-           </attribute>
-           <attribute name="horizontalHeaderStretchLastSection">
-            <bool>false</bool>
-           </attribute>
-           <attribute name="verticalHeaderVisible">
-            <bool>false</bool>
-           </attribute>
-           <column>
-            <property name="text">
-             <string>Parameter</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>Value</string>
-            </property>
-           </column>
-          </widget>
-         </item>
-        </layout>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+        <column/>
+        <column/>
        </widget>
       </item>
      </layout>
