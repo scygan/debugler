@@ -211,8 +211,40 @@ private:
      * Set to true if betweek glBegin() and glEnd() 
      */
     bool m_InImmediateMode;
+
+    /**
+     * Get state element (using glGetIntegerv)
+     */
+    DGLResourceState::StateItem getStateIntegerv(const char* name, GLenum value, size_t length);
+
+    /**
+    * Get state element (using glGetInteger64v)
+    */
+    DGLResourceState::StateItem getStateInteger64v(const char* name, GLenum value, size_t length);
+
+    /**
+     * Get state element (using glGetFloatv)
+     */
+    DGLResourceState::StateItem getStateFloatv(const char* name, GLenum value, size_t length);
+
+    /**
+     * Get state element (using glGetDoublev)
+     */
+    DGLResourceState::StateItem getStateDoublev(const char* name, GLenum value, size_t length);
+
+    /**
+     * Get state element (using glGetBooleanv)
+     */
+    DGLResourceState::StateItem getStateBooleanv(const char* name, GLenum value, size_t length);
+
+    /**
+     * Get state element (using glIsEnabled)
+     */
+    DGLResourceState::StateItem getStateIsEnabled(const char* name, GLenum value);
 };
 
 } //namespace
 #endif
 
+
+DGLResourceState::StateItem getState(const char* name, GLenum value, size_t length);

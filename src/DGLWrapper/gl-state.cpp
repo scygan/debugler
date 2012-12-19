@@ -824,97 +824,112 @@ boost::shared_ptr<DGLResource> GLContext::queryGPU(GLuint name) {
 }
 
 
+DGLResourceState::StateItem GLContext::getStateIntegerv(const char* name, GLenum value, size_t length) {
+    DGLResourceState::StateItem ret;
+    ret.m_Name = name;
+    std::vector<GLint> val(length, 0);
+    
+    DIRECT_CALL_CHK(glGetIntegerv)(value, &val[0]);
+    
+    if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {
+        ret.m_Values.resize(val.size());
+        for (size_t i = 0; i < length; i++) {
+            ret.m_Values[i] = val[i];
+        }
+    }
+    return ret;
+}
+
+DGLResourceState::StateItem GLContext::getStateInteger64v(const char* name, GLenum value, size_t length) {
+    DGLResourceState::StateItem ret;
+    ret.m_Name = name;
+    std::vector<GLint64> val(length, 0);
+
+    DIRECT_CALL_CHK(glGetInteger64v)(value, &val[0]);
+
+    if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {
+        ret.m_Values.resize(val.size());
+        for (size_t i = 0; i < length; i++) {
+            ret.m_Values[i] = val[i];
+        }
+    }
+    return ret;
+}
+
+DGLResourceState::StateItem GLContext::getStateFloatv(const char* name, GLenum value, size_t length) {
+    DGLResourceState::StateItem ret;
+    ret.m_Name = name;
+    std::vector<GLfloat> val(length, 0);
+
+    DIRECT_CALL_CHK(glGetFloatv)(value, &val[0]);
+
+    if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {
+        ret.m_Values.resize(val.size());
+        for (size_t i = 0; i < length; i++) {
+            ret.m_Values[i] = val[i];
+        }
+    }
+    return ret;                                                      
+}
+
+DGLResourceState::StateItem GLContext::getStateDoublev(const char* name, GLenum value, size_t length) {
+    DGLResourceState::StateItem ret;
+    ret.m_Name = name;
+    std::vector<GLdouble> val(length, 0);
+
+    DIRECT_CALL_CHK(glGetDoublev)(value, &val[0]);
+
+    if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {
+        ret.m_Values.resize(val.size());
+        for (size_t i = 0; i < length; i++) {
+            ret.m_Values[i] = val[i];
+        }
+    }
+    return ret;
+}
+
+DGLResourceState::StateItem GLContext::getStateBooleanv(const char* name, GLenum value, size_t length) {
+    DGLResourceState::StateItem ret;
+    ret.m_Name = name;
+    std::vector<GLboolean> val(length, 0);
+
+    DIRECT_CALL_CHK(glGetBooleanv)(value, &val[0]);
+
+    if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {
+        ret.m_Values.resize(val.size());
+        for (size_t i = 0; i < length; i++) {
+            ret.m_Values[i] = val[i];
+        }
+    }
+    return ret;                                         
+}
+
+DGLResourceState::StateItem GLContext::getStateIsEnabled(const char* name, GLenum value) {
+    DGLResourceState::StateItem ret;
+    ret.m_Name = name;
+    GLboolean val =  DIRECT_CALL_CHK(glIsEnabled)(value);
+    if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {
+        ret.m_Values.resize(1, val);
+    }                                          
+    return ret;
+}
+
+
 boost::shared_ptr<DGLResource> GLContext::queryState(GLuint name) {
 
     DGLResourceState* resource;
     boost::shared_ptr<DGLResource> ret (resource = new DGLResourceState);
 
-#define GET_STATE(NAME, VALUE, LENGTH) {                            \
-        DGLResourceState::StateItem item;                           \
-        item.m_Name = NAME;                                         \
-        std::vector<GLdouble> val(LENGTH, 0);                       \
-        DIRECT_CALL_CHK(glGetDoublev)(VALUE, &val[0]);              \
-        if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {         \
-            item.m_Values.resize(val.size());                       \
-            for (int i = 0; i < LENGTH; i++) {                      \
-                item.m_Values[i] = val[i];                          \
-            }                                                       \
-        }                                                           \
-    resource->m_Items.push_back(item);                              \
-}
 
 
-#define STATE_INTEGERV_BASE(NAME, VALUE, LENGTH) {              \
-    DGLResourceState::StateItem item;                           \
-    item.m_Name = NAME;                                         \
-    std::vector<GLint> val(LENGTH, 0);                          \
-    DIRECT_CALL_CHK(glGetIntegerv)(VALUE, &val[0]);             \
-    if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {         \
-        item.m_Values.resize(val.size());                       \
-        for (int i = 0; i < LENGTH; i++) {                      \
-            item.m_Values[i] = val[i];                          \
-        }                                                       \
-    }                                                           \
-    resource->m_Items.push_back(item);                          \
-}
-
-#define STATE_INTEGERV(NAME, LENGTH) STATE_INTEGERV_BASE(#NAME, NAME, LENGTH)
-#define STATE_INTEGER64V(NAME, LENGTH) STATE_INTEGERV_BASE(#NAME, NAME, LENGTH)
-#define STATE_INTEGERENUMV(NAME, LENGTH) STATE_INTEGERV_BASE(#NAME, NAME, LENGTH)
-
-
-#define STATE_FLOATV(NAME, LENGTH) {              \
-    DGLResourceState::StateItem item;                            \
-    item.m_Name = #NAME;                                         \
-    std::vector<GLfloat> val(LENGTH, 0);                           \
-    DIRECT_CALL_CHK(glGetFloatv)(NAME, &val[0]);               \
-    if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {         \
-        item.m_Values.resize(val.size());                       \
-        for (int i = 0; i < LENGTH; i++) {                      \
-            item.m_Values[i] = val[i];                          \
-        }                                                       \
-    }                                                           \
-        resource->m_Items.push_back(item);                      \
-}
-
-
-#define STATE_DOUBLEV(NAME, LENGTH) {              \
-    DGLResourceState::StateItem item;                            \
-    item.m_Name = #NAME;                                         \
-    std::vector<GLdouble> val(LENGTH, 0);                           \
-    DIRECT_CALL_CHK(glGetDoublev)(NAME, &val[0]);               \
-    if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {         \
-        item.m_Values.resize(val.size());                       \
-        for (int i = 0; i < LENGTH; i++) {                      \
-            item.m_Values[i] = val[i];                          \
-        }                                                       \
-    }                                                           \
-    resource->m_Items.push_back(item);                      \
-}
-
-#define STATE_BOOLEANV(NAME, LENGTH) {              \
-    DGLResourceState::StateItem item;                            \
-    item.m_Name = #NAME;                                         \
-    std::vector<GLboolean> val(LENGTH, 0);                           \
-    DIRECT_CALL_CHK(glGetBooleanv)(NAME, &val[0]);               \
-    if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {         \
-    item.m_Values.resize(val.size());                       \
-        for (int i = 0; i < LENGTH; i++) {                      \
-            item.m_Values[i] = val[i];                          \
-        }                                                       \
-    }                                                           \
-    resource->m_Items.push_back(item);                      \
-}
-
-#define STATE_ISENABLED(NAME) {              \
-    DGLResourceState::StateItem item;                            \
-    item.m_Name = #NAME;                                         \
-    GLboolean val =  DIRECT_CALL_CHK(glIsEnabled)(NAME);               \
-    if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {         \
-        item.m_Values.resize(1, val);                       \
-    }                                                           \
-    resource->m_Items.push_back(item);                      \
-}
+#define STATE_INTEGERV(NAME, LENGTH) resource->m_Items.push_back(getStateIntegerv(#NAME, NAME, LENGTH))
+#define STATE_INTEGER64V(NAME, LENGTH) resource->m_Items.push_back(getStateInteger64v(#NAME, NAME, LENGTH))
+//TODO: we may handle enums properly here
+#define STATE_INTEGERENUMV(NAME, LENGTH) resource->m_Items.push_back(getStateIntegerv(#NAME, NAME, LENGTH))
+#define STATE_FLOATV(NAME, LENGTH) resource->m_Items.push_back(getStateFloatv(#NAME, NAME, LENGTH))
+#define STATE_DOUBLEV(NAME, LENGTH) resource->m_Items.push_back(getStateDoublev(#NAME, NAME, LENGTH))
+#define STATE_BOOLEANV(NAME, LENGTH) resource->m_Items.push_back(getStateBooleanv(#NAME, NAME, LENGTH))
+#define STATE_ISENABLED(NAME) resource->m_Items.push_back(getStateIsEnabled(#NAME, NAME))
 
 
     STATE_INTEGERV(GL_PATCH_VERTICES, 1);
