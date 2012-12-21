@@ -25,8 +25,16 @@ private:
 class TracerBase {
 public:
     virtual ~TracerBase() {}
-    virtual RetValue Pre(const CalledEntryPoint&);
-    virtual void Post(const CalledEntryPoint&, const RetValue& ret = RetValue());
+
+    /** 
+     * Entrypoint fo r Pre() tracing, called by wrappers
+     */
+    virtual RetValue DoPre(const CalledEntryPoint&);
+
+    /** 
+     * Entrypoint fo r Post() tracing, called by wrappers
+     */
+    virtual void DoPost(const CalledEntryPoint&, const RetValue& ret = RetValue());
 
     template<typename SpecificTracerType> 
     static void SetNext(Entrypoint entryp) {
@@ -35,9 +43,28 @@ public:
         g_Tracers[entryp]->SetPrev(prev);
     }
 protected:
+    /** 
+     * Call previous tracer in Chain of Dependency
+     */
     RetValue PrevPre(const CalledEntryPoint&);
+
+    /** 
+     * Call previous tracer in Chain of Dependency
+     */
     void PrevPost(const CalledEntryPoint&, const RetValue& ret);
+
+     /** 
+     * Default, empty Pre() tracer. Subclasses may want to reimplement this
+     */
+    virtual RetValue Pre(const CalledEntryPoint&);
+
+    /** 
+     * Default, empty Post() tracer. Subclasses may want to reimplement this
+     */
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret = RetValue());
 private:
+    static boost::thread_specific_ptr<int> m_ThreadedInfiniteRecursionGuard;
+
     void SetPrev(const boost::shared_ptr<TracerBase>& prev);
     boost::shared_ptr<TracerBase> m_PrevTracer;
 };
@@ -58,7 +85,6 @@ class ContextTracer: public TracerBase {
 class DebugContextTracer: public TracerBase {
     virtual RetValue Pre(const CalledEntryPoint&); 
     static bool anyContextPresent;
-    static boost::thread_specific_ptr<bool> m_ThreadedInfiniteRecursionGuard;
 };
 
 class TextureTracer: public TracerBase {

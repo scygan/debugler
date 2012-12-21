@@ -10,6 +10,35 @@
 
 boost::shared_ptr<TracerBase> g_Tracers[NUM_ENTRYPOINTS];
 
+boost::thread_specific_ptr<int> TracerBase::m_ThreadedInfiniteRecursionGuard;
+
+
+RetValue TracerBase::DoPre(const CalledEntryPoint& call) {
+    if (m_ThreadedInfiniteRecursionGuard.get() == NULL) {
+        m_ThreadedInfiniteRecursionGuard.reset(new int(0));
+    }
+
+    (*m_ThreadedInfiniteRecursionGuard.get())++;
+
+    if (*m_ThreadedInfiniteRecursionGuard.get() > 1) {
+        //	This is unlikely, but may happen sometimes - OpenGL implementation called us. 
+        //If we dont catch it here, we will deadlock later, or likely get into infinite recursion.
+        return RetValue();
+    } else {
+        return Pre(call);
+    }
+}
+
+void TracerBase::DoPost(const CalledEntryPoint& call, const RetValue& ret) {
+
+    (*m_ThreadedInfiniteRecursionGuard.get())--;
+
+    if (*m_ThreadedInfiniteRecursionGuard.get() == 0) {
+        Post(call, ret);
+    }
+}
+
+
 void TracerBase::SetPrev(const boost::shared_ptr<TracerBase>& prev) {
     m_PrevTracer = prev;
 }
@@ -86,7 +115,7 @@ void DefaultTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     
     g_Controller->getServer().unlock();
     
-    PrevPre(call);
+    PrevPost(call, ret);
 }
 
 RetValue GetProcAddressTracer::Pre(const CalledEntryPoint& call) {
@@ -140,25 +169,11 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 }
 
 bool DebugContextTracer::anyContextPresent = false;
-boost::thread_specific_ptr<bool> DebugContextTracer::m_ThreadedInfiniteRecursionGuard;
 
 RetValue DebugContextTracer::Pre(const CalledEntryPoint& call) {
     RetValue ret = PrevPre(call);
 
     if (ret.isSet()) return ret;
-
-	if (m_ThreadedInfiniteRecursionGuard.get() == NULL) {
-		m_ThreadedInfiniteRecursionGuard.reset(new bool(false));
-	}
-
-	if (*m_ThreadedInfiniteRecursionGuard.get()) {
-		//	This is unlikely, but may happen on some implementations. 
-		//If we are here the driver tried to recursively call wrapper's wglCreateContext* right from our
-		//injected wglCreateContextAttribs(..., flags |= debug) direct call;
-		//If we dont catch it here, this tracer would call wglCreateContextAttribs once again leading to 
-		//infinite recursion. To avoid this return immediately, causing wrapper to call exactly what driver want.
-		return ret;
-	}
 
     HDC hdc;
     HGLRC sharedCtx = NULL;
@@ -205,17 +220,12 @@ RetValue DebugContextTracer::Pre(const CalledEntryPoint& call) {
     }
 
 	{
-		//quard code in this block for recursions, so we can catch them above.
-		(*m_ThreadedInfiniteRecursionGuard.get()) = true;
-
 		try {
 			ret = DIRECT_CALL_CHK(wglCreateContextAttribsARB)(hdc, sharedCtx, &newAttribList[0]);
 		} catch (const std::runtime_error&) {
 			//exception was thrown - wglCreateContextAttribsARB is not avaliable. 
 			//do nothing - ret value is still not set, it will be set in standard wrapper function
 		}    
-
-		(*m_ThreadedInfiniteRecursionGuard.get()) = false;
 	}
 	
 

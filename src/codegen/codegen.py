@@ -104,7 +104,7 @@ def parse(file, genNonExtTypedefs = False, skipTrace = False):
 			print >> wrappersFile, "    RetValue retVal;"
 			
 			if not skipTrace:
-				print >> wrappersFile, "    retVal = g_Tracers[" + functionName + "_Call]->Pre(call);"
+				print >> wrappersFile, "    retVal = g_Tracers[" + functionName + "_Call]->DoPre(call);"
 
 			print >> wrappersFile, "    if (!retVal.isSet()) {"
 			if functionRetType != "void":
@@ -115,10 +115,10 @@ def parse(file, genNonExtTypedefs = False, skipTrace = False):
 			
 			if not skipTrace:
 				if functionRetType != "void":
-					print >> wrappersFile, "    g_Tracers[" + functionName + "_Call]->Post(call, retVal);"
+					print >> wrappersFile, "    g_Tracers[" + functionName + "_Call]->DoPost(call, retVal);"
 					
 				else:
-					print >> wrappersFile, "    g_Tracers[" + functionName + "_Call]->Post(call);"
+					print >> wrappersFile, "    g_Tracers[" + functionName + "_Call]->DoPost(call);"
 				
 
 			if functionRetType != "void":
