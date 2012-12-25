@@ -185,6 +185,7 @@ void DGLMainWindow::createMenus() {
      debugMenu->addSeparator();
      debugMenu->addAction(setBreakOnGLErrorAct);
      debugMenu->addAction(setBreakOnDebugOutputAct);
+     debugMenu->addAction(setBreakOnCompilerErrAct);
 
 
      viewMenu = menuBar()->addMenu(tr("&View"));
@@ -213,6 +214,7 @@ void DGLMainWindow::createToolBars() {
      debugToolBar->addSeparator();
      debugToolBar->addAction(setBreakOnGLErrorAct);
      debugToolBar->addAction(setBreakOnDebugOutputAct);
+     debugToolBar->addAction(setBreakOnCompilerErrAct);
  }
 
  void DGLMainWindow::createStatusBar() {
@@ -306,6 +308,15 @@ void DGLMainWindow::createToolBars() {
      setBreakOnDebugOutputAct->setCheckable(true);
      setBreakOnDebugOutputAct->setChecked(m_controller.getConfig().m_BreakOnGLError);
      CONNASSERT(connect(setBreakOnDebugOutputAct, SIGNAL(toggled(bool)), this, SLOT(setBreakOnWhatever(bool))));
+
+     setBreakOnCompilerErrAct = new QAction(tr("Break on compiler/linker error"), this);
+     setBreakOnCompilerErrAct->setStatusTip(tr("Break execution on debug GLSL compiler or linker error"));
+
+     //this action has a state - it is checbox-like checkable
+
+     setBreakOnCompilerErrAct->setCheckable(true);
+     setBreakOnCompilerErrAct->setChecked(m_controller.getConfig().m_BreakOnCompilerError);
+     CONNASSERT(connect(setBreakOnCompilerErrAct, SIGNAL(toggled(bool)), this, SLOT(setBreakOnWhatever(bool))));
      
     
      //Only one color scheme can be choosed - put all related actions to action group
@@ -564,7 +575,7 @@ void DGLMainWindow::createToolBars() {
      //This action enables breaking on various events, like GL error or debug output
      //tell DGLController to configure it's debugee
 
-     m_controller.configure(setBreakOnGLErrorAct->isChecked(), setBreakOnDebugOutputAct->isChecked());
+     m_controller.configure(setBreakOnGLErrorAct->isChecked(), setBreakOnDebugOutputAct->isChecked(), setBreakOnCompilerErrAct->isChecked());
 }
 
 void DGLMainWindow::errorMessage(const QString& title, const QString& msg) {

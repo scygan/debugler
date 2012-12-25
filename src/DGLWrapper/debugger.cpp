@@ -126,9 +126,12 @@ bool BreakState::breakAt(const Entrypoint& e, GLenum error) {
     return isBreaked();
 }
 
-bool BreakState::breakAtDebugOutput()  {
-    m_break = true; 
-    return isBreaked();
+void BreakState::breakAtDebugOutput()  {
+    m_break = true;
+}
+
+void BreakState::breakAtCompilerError()  {
+    m_break = true;
 }
 
 bool BreakState::isBreaked() {
@@ -252,6 +255,7 @@ CallHistory& DGLDebugController::getCallHistory() {
 void DGLDebugController::doHandle(const dglnet::ConfigurationMessage& msg) {
     g_Config.m_BreakOnGLError = msg.m_BreakOnGLError;
     g_Config.m_BreakOnDebugOutput = msg.m_BreakOnDebugOutput;
+    g_Config.m_BreakOnCompilerError = msg.m_BreakOnCompilerError;
 }
 
 void DGLDebugController::doHandle(const dglnet::ContinueBreakMessage& msg) {

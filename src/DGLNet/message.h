@@ -136,6 +136,7 @@ class ConfigurationMessage: public Message, public DGLConfiguration {
         ar & boost::serialization::base_object<Message>(*this);
         ar & m_BreakOnGLError;
         ar & m_BreakOnDebugOutput;
+        ar & m_BreakOnCompilerError;
     }
 
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }

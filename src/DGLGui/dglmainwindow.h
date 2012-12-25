@@ -140,6 +140,7 @@ private:
     QAction *addDeleteBreakPointsAct;
     QAction *setBreakOnGLErrorAct;
     QAction *setBreakOnDebugOutputAct;
+	QAction *setBreakOnCompilerErrAct;
     QAction *setColorSchemeActs[DGLNUM_COLOR_SCHEMES];
     /**
      * Action group for all actions from setColorSchemeActs[]

@@ -39,7 +39,8 @@ class BreakState {
 public:
     BreakState();
     bool breakAt(const Entrypoint&, GLenum glError = GL_NO_ERROR);
-    bool breakAtDebugOutput();
+    void breakAtDebugOutput();
+    void breakAtCompilerError();
     bool isBreaked();
     //handlers for remote commands
     void handle(const dglnet::ConfigurationMessage&);

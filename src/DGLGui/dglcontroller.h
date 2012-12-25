@@ -181,7 +181,8 @@ public:
     /** 
      * Setter for new configuration of debugee
      */
-    void configure(bool breakOnGLError, bool breakOnDebugOutput);
+    void configure(bool breakOnGLError, bool breakOnDebugOutput, bool breakOnCompilerError);
+
 
     const DGLConfiguration& getConfig();
 
