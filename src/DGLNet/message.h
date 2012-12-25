@@ -128,22 +128,24 @@ public:
     std::string m_ProcessName;
 };
 
-class ConfigurationMessage: public Message, public DGLConfiguration {
+class ConfigurationMessage: public Message {
     friend class boost::serialization::access;
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
         ar & boost::serialization::base_object<Message>(*this);
-        ar & m_BreakOnGLError;
-        ar & m_BreakOnDebugOutput;
-        ar & m_BreakOnCompilerError;
+        ar & m_config.m_BreakOnGLError;
+        ar & m_config.m_BreakOnDebugOutput;
+        ar & m_config.m_BreakOnCompilerError;
     }
 
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
 
 public:
     ConfigurationMessage() {}
-    ConfigurationMessage(const DGLConfiguration& conf):DGLConfiguration(conf) {}
+    ConfigurationMessage(const DGLConfiguration& conf):m_config(conf) {}
+
+    DGLConfiguration m_config;
 };
 
 class BreakedCallMessage: public Message {

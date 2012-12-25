@@ -253,11 +253,8 @@ CallHistory& DGLDebugController::getCallHistory() {
 }
 
 void DGLDebugController::doHandle(const dglnet::ConfigurationMessage& msg) {
-    g_Config.m_BreakOnGLError = msg.m_BreakOnGLError;
-    g_Config.m_BreakOnDebugOutput = msg.m_BreakOnDebugOutput;
-    g_Config.m_BreakOnCompilerError = msg.m_BreakOnCompilerError;
+    g_Config =  msg.m_config;
 }
-
 void DGLDebugController::doHandle(const dglnet::ContinueBreakMessage& msg) {
     m_BreakState.handle(msg);
 }
