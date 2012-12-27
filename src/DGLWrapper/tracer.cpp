@@ -374,6 +374,27 @@ void ProgramTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             if (name != 0) {
                 g_DGLGLState.getCurrent()->ensureProgram(name)->use(true);
             }
+        } else if (entrp == glLinkProgram_Call) {
+
+            call.getArgs()[0].get(name);
+
+            GLint linkStatus;
+            DIRECT_CALL_CHK(glGetProgramiv)(name, GL_LINK_STATUS, &linkStatus);
+
+            if (g_Config.m_BreakOnCompilerError &&  linkStatus != GL_TRUE) {
+                g_Controller->getBreakState().breakAtCompilerError();
+            }
+
+        } else if (entrp == glLinkProgramARB_Call) {
+            call.getArgs()[0].get(name);
+
+            GLint linkStatus;
+            DIRECT_CALL_CHK(glGetObjectParameterivARB)(name, GL_OBJECT_LINK_STATUS_ARB, &linkStatus);
+
+            if (g_Config.m_BreakOnCompilerError &&  linkStatus != GL_TRUE) {
+                g_Controller->getBreakState().breakAtCompilerError();
+            }
+
         }
     }
     PrevPost(call, ret);
@@ -426,7 +447,7 @@ void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             g_DGLGLState.getCurrent()->ensureShader(name)->setSources(sources);
 
 
-        } else if (entrp == glCompileShader_Call || entrp == glCompileShaderARB_Call) {
+        } else if (entrp == glCompileShader_Call) {
             
             call.getArgs()[0].get(name);
 
@@ -444,6 +465,34 @@ void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             }
 
             g_DGLGLState.getCurrent()->ensureShader(name)->setCompilationStatus(infoLog, compileStatus);
+
+            if (g_Config.m_BreakOnCompilerError &&  compileStatus != GL_TRUE) {
+                g_Controller->getBreakState().breakAtCompilerError();
+            }
+
+        } else if (entrp == glCompileShaderARB_Call) {
+
+            call.getArgs()[0].get(name);
+
+            GLint infoLogLength, compileStatus;
+            DIRECT_CALL_CHK(glGetObjectParameterivARB)(name, GL_OBJECT_INFO_LOG_LENGTH_ARB, &infoLogLength);
+            DIRECT_CALL_CHK(glGetObjectParameterivARB)(name, GL_OBJECT_COMPILE_STATUS_ARB, &compileStatus);
+
+            std::string infoLog; infoLog.resize(infoLogLength);
+            GLsizei actualLength;
+            DIRECT_CALL_CHK(glGetInfoLogARB)(name, infoLog.size(), &actualLength, &infoLog[0]);
+
+            if (actualLength < infoLogLength) {
+                //highly unlikely - only on buggy drivers
+                infoLog.resize(actualLength);
+            }
+
+            g_DGLGLState.getCurrent()->ensureShader(name)->setCompilationStatus(infoLog, compileStatus);
+
+            if (g_Config.m_BreakOnCompilerError &&  compileStatus != GL_TRUE) {
+                g_Controller->getBreakState().breakAtCompilerError();
+            }
+
         } else if (entrp == glAttachShader_Call || entrp == glAttachObjectARB_Call) {
             GLuint prog, shad;
             call.getArgs()[0].get(prog);
@@ -500,25 +549,6 @@ void FBOTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[1].get(name);
             if (name) {
                 g_DGLGLState.getCurrent()->ensureFBO(name)->setTarget(target);
-            }
-        }
-    }
-    PrevPost(call, ret);
-}
-
-void CompilerTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
-    Entrypoint entrp = call.getEntrypoint();
-    if (g_Config.m_BreakOnCompilerError && g_DGLGLState.getCurrent()) {
-        if (entrp == glLinkProgram_Call || entrp == glLinkProgramARB_Call) {
-            GLuint name;
-            call.getArgs()[1].get(name);
-            if (DIRECT_CALL_CHK(glIsProgram)(name)) {
-                g_DGLGLState.getCurrent()->ensureProgram(name);
-                GLint linkStatus;
-                DIRECT_CALL_CHK(glGetProgramiv)(name, GL_LINK_STATUS, &linkStatus);
-                if (linkStatus != GL_TRUE) {
-                    g_Controller->getBreakState().breakAtCompilerError();
-                }
             }
         }
     }

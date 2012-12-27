@@ -118,11 +118,6 @@ class FBOTracer: public TracerBase {
 };
 
 
-class CompilerTracer: public TracerBase {
-    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
-};
-
-
 extern boost::shared_ptr<TracerBase> g_Tracers[NUM_ENTRYPOINTS];
 
 template<typename Tracer>

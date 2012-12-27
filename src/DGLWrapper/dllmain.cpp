@@ -54,6 +54,8 @@ extern "C" __declspec(dllexport) void InitializeThread() {}
     TracerBase::SetNext<ProgramTracer>(glDeleteObjectARB_Call);
     TracerBase::SetNext<ProgramTracer>(glUseProgram_Call);
     TracerBase::SetNext<ProgramTracer>(glUseProgramObjectARB_Call);
+    TracerBase::SetNext<ProgramTracer>(glLinkProgram_Call);
+    TracerBase::SetNext<ProgramTracer>(glLinkProgramARB_Call);
 
     TracerBase::SetNext<ShaderTracer>(glCreateShader_Call);
     TracerBase::SetNext<ShaderTracer>(glCreateShaderObjectARB_Call);
