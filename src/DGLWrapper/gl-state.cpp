@@ -281,17 +281,14 @@ void GLContext::deleteFBO(GLuint name) {
     }
 }
 
-GLenum GLContext::getError() {
-    GLenum ret;
+std::pair<bool, GLenum> GLContext::getPokedError() {
+    std::pair<bool, GLenum> ret;
     if (m_PokedErrorQueue.size()) {
-        ret = m_PokedErrorQueue.front();
+        ret.first = true;
+        ret.second = m_PokedErrorQueue.front();
         m_PokedErrorQueue.pop();
     } else {
-        if (!m_InImmediateMode) {
-            ret = DIRECT_CALL_CHK(glGetError)();
-        } else {
-            ret = GL_NO_ERROR;
-        }
+        ret.first = false;
     }
     return ret;
 }

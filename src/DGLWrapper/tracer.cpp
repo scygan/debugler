@@ -118,6 +118,23 @@ void DefaultTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     PrevPost(call, ret);
 }
 
+
+
+RetValue GLGetErrorTracer::Pre(const CalledEntryPoint& call) {
+    RetValue ret = PrevPre(call);
+    
+    if (ret.isSet()) return ret;
+
+    if (g_DGLGLState.getCurrent() && call.getEntrypoint() == glGetError_Call) {
+        std::pair<bool, GLenum> pokedError = g_DGLGLState.getCurrent()->getPokedError();
+        if (pokedError.first) {
+            ret = pokedError.second;
+        }
+    }
+
+    return ret;
+}
+
 RetValue GetProcAddressTracer::Pre(const CalledEntryPoint& call) {
     RetValue ret = PrevPre(call);
 

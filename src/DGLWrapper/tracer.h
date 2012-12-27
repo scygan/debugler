@@ -74,6 +74,10 @@ class DefaultTracer: public TracerBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
+class GLGetErrorTracer: public TracerBase {
+    virtual RetValue Pre(const CalledEntryPoint&); 
+};
+
 class GetProcAddressTracer: public TracerBase {
     virtual RetValue Pre(const CalledEntryPoint&); 
 };

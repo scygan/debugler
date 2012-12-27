@@ -17,7 +17,10 @@ public:
         }
 
         GLenum glError = index.data(Qt::UserRole + 1).toInt();
-        QString error = (glError == GL_NO_ERROR)?"GL_NO_ERROR":GetGLEnumName(glError);
+        QString error;
+        if (glError != -1) {
+            error = (glError == GL_NO_ERROR)?"GL_NO_ERROR":GetGLEnumName(glError);
+        }
 
         QPen backup = painter->pen();
 
@@ -119,6 +122,7 @@ void DGLTraceView::breaked(CalledEntryPoint entryp, uint traceSize) {
     }
     QListWidgetItem *item = new QListWidgetItem();
     item->setData(Qt::UserRole, QString("BREAKED :  ") + QString::fromStdString(entryp.toString()));
+    item->setData(Qt::UserRole + 1, -1); //do not display GL error
     m_traceList.addItem(item);
     m_traceList.setCurrentRow(m_traceList.count() - 1);
     m_traceList.scrollToBottom();

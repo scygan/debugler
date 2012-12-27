@@ -151,7 +151,7 @@ public:
 
     int32_t getId();
 
-    GLenum getError();
+    std::pair<bool, GLenum> getPokedError();
     GLenum peekError();
 
     void setDebugOutput(const std::string& message);
