@@ -36,7 +36,7 @@ void DGLFBOViewItem::update(const DGLResource& res) {
     m_Error = false;
     m_Attachments = resource->m_Attachments;
     for (int i = 0; i < resource->m_Attachments.size(); i++) {
-        m_Ui.m_AttListWidget->addItem(QString(GetGLEnumName(resource->m_Attachments[i].m_Id)));
+        m_Ui.m_AttListWidget->addItem(QString::fromStdString(GetGLEnumName(resource->m_Attachments[i].m_Id)));
     }
     showAttachment(0);
 }

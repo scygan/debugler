@@ -2,7 +2,7 @@
 
 #include<map>
 #include<set>
-#include<string>
+#include<sstream>
 
 namespace {
 #define FUNCTION_LIST_ELEMENT(name, type) #name,
@@ -57,11 +57,14 @@ Entrypoint GetEntryPointEnum(const char* name) {
     return ret->second;
 }
 
-const char* GetGLEnumName(uint64_t glEnum) {
+std::string GetGLEnumName(uint64_t glEnum) {
     ensureEnumMapIntialized();
     std::map<uint64_t, std::string>::iterator ret = g_GLEnumValueToName.find(glEnum);
-    if (ret == g_GLEnumValueToName.end())
-        return "<unknown>";
+    if (ret == g_GLEnumValueToName.end()) {
+        std::ostringstream tmp; 
+        tmp << "0x" << std::hex << glEnum;
+        return tmp.str();
+    }
     return ret->second.c_str();
 }
 

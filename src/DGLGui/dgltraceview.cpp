@@ -19,7 +19,7 @@ public:
         GLenum glError = index.data(Qt::UserRole + 1).toInt();
         QString error;
         if (glError != -1) {
-            error = (glError == GL_NO_ERROR)?"GL_NO_ERROR":GetGLEnumName(glError);
+            error = (glError == GL_NO_ERROR)?"GL_NO_ERROR":QString::fromStdString(GetGLEnumName(glError));
         }
 
         QPen backup = painter->pen();

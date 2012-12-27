@@ -2,6 +2,7 @@
 #define _GL_TYPES_H
 
 #include <DGLcommon/gl-headers.h>
+#include<string>
 
 
 #define FUNCTION_LIST_ELEMENT(name, type) name##_Call,
@@ -20,7 +21,7 @@ typedef int Entrypoint;
 
 char* GetEntryPointName(Entrypoint entryp);
 Entrypoint GetEntryPointEnum(const char* name);
-const char* GetGLEnumName(uint64_t glEnum);
+std::string GetGLEnumName(uint64_t glEnum);
 
 const char* GetShaderStageName(uint64_t glEnum);
 
