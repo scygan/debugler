@@ -3,7 +3,6 @@
 #include <QFile>
 
 #include "dglmainwindow.h"
-#include "dglconnectdialog.h"
 #include "dglbreakpointdialog.h"
 #include "dgltraceview.h"
 #include "dgltreeview.h"
@@ -24,7 +23,7 @@
 #include "CompleteInject.h"
 
 /**
- * Macros indentyfying entity, that stores & loads QSettings
+ * Macros indentifying entity, that stores & loads QSettings
  */
 #define DGL_COMPANY "SaCygan"
 #define DGL_PRODUCT "Debugler"
@@ -414,13 +413,12 @@ void DGLMainWindow::createToolBars() {
 
      //execute connection dialog to obtain connection parameters
 
-     DGLConnectDialog dialog;
 
-     if (dialog.exec() == QDialog::Accepted) {
+     if (m_ConnectDialog.exec() == QDialog::Accepted) {
 
          //if dialog is successfull, initialte connection in DGLController
 
-         m_controller.connectServer(dialog.getAddress(), dialog.getPort());
+         m_controller.connectServer(m_ConnectDialog.getAddress(), m_ConnectDialog.getPort());
      }
  }
 

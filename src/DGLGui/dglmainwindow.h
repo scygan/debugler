@@ -9,6 +9,7 @@
 
 #include "dglcontroller.h"
 #include "dglrundialog.h"
+#include "dglconnectdialog.h"
 
 /**
  * Number of avaliable color schemes
@@ -168,6 +169,7 @@ private:
     DglController m_controller;
 
     DGLRunDialog m_RunDialog;
+    DGLConnectDialog m_ConnectDialog;
 };
 
 #endif // DGLMAINWINDOW_H
