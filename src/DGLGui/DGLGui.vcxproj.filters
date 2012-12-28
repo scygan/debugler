@@ -331,6 +331,9 @@
     <CustomBuild Include="ui\dglstateview.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="ui\dglpixelrectangleview.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dglgui.h">
@@ -376,6 +379,9 @@
       <Filter>ComleteInject</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglstateview.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglpixelrectangleview.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
