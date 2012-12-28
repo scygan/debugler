@@ -1,6 +1,7 @@
 #include "gl-serialized.h"
 
 #include <sstream>
+#include <iomanip>
 
 CalledEntryPoint::CalledEntryPoint(Entrypoint entryp, int numArgs):m_entryp(entryp), m_SavedArgsCount(0), m_glError(GL_NO_ERROR) {
     m_args.resize(numArgs);
@@ -50,18 +51,16 @@ public:
     std::stringstream * m_Stream;
 };
 
-std::string AnyValue::toString() const {
-    std::stringstream ret;
-    boost::apply_visitor(AnyValueWriter(ret), m_value);
-    return ret.str();
+void AnyValue::writeToSS(std::stringstream& out) const {
+    boost::apply_visitor(AnyValueWriter(out), m_value);
 }
 
 std::string CalledEntryPoint::toString() const {
     std::stringstream ret;
-    ret << GetEntryPointName(m_entryp) << "(";
+    ret << GetEntryPointName(m_entryp) << "(" << std::showpoint;
 
     for (size_t i = 0; i < m_args.size(); i++) {
-        ret << m_args[i].toString();
+        m_args[i].writeToSS(ret);
         if (i != m_args.size() - 1) {
             ret << ", ";
         }

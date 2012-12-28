@@ -79,7 +79,7 @@ public:
     //for function pointers const qualifier is meaningless, so we need specific overload to resolve ambiguity
     void get(PROC& v) const { v = (PROC)boost::get<PtrWrap<const void*>>(m_value); }
 
-    std::string toString() const;
+    void writeToSS(std::stringstream& out) const;
 
 private:
     boost::variant<signed long long, unsigned long long, signed long, unsigned long, unsigned int, signed int, unsigned short, signed short, unsigned char, signed char, float, double,
@@ -257,12 +257,31 @@ class DGLResourceProgram: public DGLResource {
         ar & boost::serialization::base_object<DGLResource>(*this);
         ar & mLinkStatus;
         ar & m_AttachedShaders;
+        ar & m_Uniforms;
     }
 
 public:
 
+    struct Uniform {
+        uint32_t m_type;
+        uint32_t m_location;
+        std::string m_name;
+        std::vector<AnyValue> m_value;
+        bool m_supportedType;
+
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version) {
+            ar & m_type;
+            ar & m_location;
+            ar & m_name;
+            ar & m_value;
+            ar & m_supportedType;
+        }
+    };
+
     std::pair<std::string, uint32_t> mLinkStatus;
     std::vector<std::pair<uint32_t, uint32_t>> m_AttachedShaders;
+    std::vector<Uniform> m_Uniforms;
 };
 
 class DGLResourceGPU: public DGLResource {

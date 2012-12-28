@@ -8,7 +8,12 @@ DGLProgramViewItem::DGLProgramViewItem(uint name, DGLResourceManager* resManager
     m_Ui.setupUi(this);
 
     m_Label = new QLabel(this);
-    m_Ui.verticalLayout->addWidget(m_Label);
+    m_Ui.verticalLayout_2->addWidget(m_Label);
+    m_Ui.tableWidgetUniforms->setRowCount(1);
+    m_Ui.tableWidgetUniforms->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+    m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(0, new QTableWidgetItem("name"));
+    m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(1, new QTableWidgetItem("type"));
+    m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(2, new QTableWidgetItem("value"));
 
     m_Listener = resManager->createListener(name, DGLResource::ObjectTypeProgram);
     m_Listener->setParent(this);
@@ -19,14 +24,16 @@ DGLProgramViewItem::DGLProgramViewItem(uint name, DGLResourceManager* resManager
 
 void DGLProgramViewItem::error(const std::string& message) {
     m_Ui.tabWidget->hide();
-    m_Ui.groupBox1->hide();
+    m_Ui.groupBoxLinkStatus->hide();
+    m_Ui.groupBoxUniforms->hide();
     m_Label->setText(QString::fromStdString(message));
     m_Label->show();
 }
 
 void DGLProgramViewItem::update(const DGLResource& res) {
     m_Ui.tabWidget->show();
-    m_Ui.groupBox1->show();
+    m_Ui.groupBoxLinkStatus->show();
+    m_Ui.groupBoxUniforms->show();
     m_Label->hide();
 
     const DGLResourceProgram* resource = dynamic_cast<const DGLResourceProgram*>(&res);
@@ -54,6 +61,34 @@ void DGLProgramViewItem::update(const DGLResource& res) {
     } else {
         m_Ui.labelLinkStatus->setText(tr("Link status: success"));
     }
+
+    m_Ui.tableWidgetUniforms->setRowCount(resource->m_Uniforms.size());
+    for (size_t i = 0; i < resource->m_Uniforms.size(); i++) { 
+        QTableWidgetItem * item = new QTableWidgetItem(resource->m_Uniforms[i].m_name.c_str());
+        item->setFlags(Qt::ItemIsEnabled);
+        m_Ui.tableWidgetUniforms->setItem(i, 0, item);
+
+        item = new QTableWidgetItem(GetGLEnumName(resource->m_Uniforms[i].m_type).c_str());
+        item->setFlags(Qt::ItemIsEnabled);
+        m_Ui.tableWidgetUniforms->setItem(i, 1, item);
+
+        if (resource->m_Uniforms[i].m_supportedType) {
+            std::stringstream valStream; 
+            valStream << std::showpoint;
+            for (int j = 0; j < resource->m_Uniforms[i].m_value.size(); j++) {
+                if (j)
+                    valStream << ", ";
+                resource->m_Uniforms[i].m_value[j].writeToSS(valStream);
+            }
+            item = new QTableWidgetItem(valStream.str().c_str());
+        } else {
+            item = new QTableWidgetItem(tr("Not supported by debugger"));
+        }
+        item->setFlags(Qt::ItemIsEnabled);
+        m_Ui.tableWidgetUniforms->setItem(i, 2, item);
+    }
+    m_Ui.tableWidgetUniforms->resizeRowsToContents();
+
 }
 
 DGLProgramView::DGLProgramView(QWidget* parrent, DglController* controller):DGLTabbedView(parrent, controller) {

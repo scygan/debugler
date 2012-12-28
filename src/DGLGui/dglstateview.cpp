@@ -3,10 +3,11 @@
 
 #include <set>
 #include <climits>
+#include <iomanip>
 
 DGLStateView::DGLStateView(QWidget* parrent, DglController* controller):QDockWidget(tr("OpenGL State"), parrent), m_Listener(NULL), m_Controller(controller), m_Ui(NULL) {
     setObjectName("DGLStateView");
-
+    
     setConnected(false);
    
     //inbound
@@ -30,10 +31,12 @@ void DGLStateView::update(const DGLResource& res) {
 
     for (size_t i = 0; i < resource->m_Items.size(); i++) {
         std::stringstream valStream;
+        valStream << std::showpoint;
         for (int j = 0; j < resource->m_Items[i].m_Values.size(); j++) {
             if (j)
                 valStream << ", ";
-            valStream << resource->m_Items[i].m_Values[j].toString() << " ";
+            resource->m_Items[i].m_Values[j].writeToSS(valStream);
+            valStream << " ";
         }
         QTableWidgetItem * item = new QTableWidgetItem(valStream.str().c_str());
         item->setFlags(Qt::ItemIsEnabled);

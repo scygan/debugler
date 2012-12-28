@@ -777,6 +777,227 @@ boost::shared_ptr<DGLResource> GLContext::queryProgram(GLuint name) {
 
     resource->mLinkStatus = std::pair<std::string, uint32_t>(infoLog, linkStatus);
 
+    if (resource->mLinkStatus.second) {
+
+        //if the program is linked, acquire it's uniform values
+
+        GLint activeUniforms, activeUniformsMaxNameLength;
+        DIRECT_CALL_CHK(glGetProgramiv)(name, GL_ACTIVE_UNIFORMS, &activeUniforms);
+        DIRECT_CALL_CHK(glGetProgramiv)(name, GL_ACTIVE_UNIFORM_MAX_LENGTH, &activeUniformsMaxNameLength);
+        std::vector<GLchar> nameBuffer(activeUniformsMaxNameLength);
+        for (int i =0; i < activeUniforms; i++) {
+            DGLResourceProgram::Uniform uniform;
+
+            GLsizei length;
+            GLint size;
+            GLenum type;
+            DIRECT_CALL_CHK(glGetActiveUniform)(name, i, activeUniformsMaxNameLength, &length, &size, &type, &nameBuffer[0]);
+
+            nameBuffer[length] = 0;
+            uniform.m_name = &nameBuffer[0];
+            uniform.m_type = type; 
+
+            uniform.m_location = DIRECT_CALL_CHK(glGetUniformLocation)(name, uniform.m_name.c_str());
+            if (uniform.m_location >= 0) {
+                uniform.m_supportedType = true;
+                GLenum baseType;
+                int typeSize;
+                switch (type) {
+                case GL_FLOAT:
+                    typeSize = 1;
+                    baseType = GL_FLOAT;
+                    break;
+                case GL_FLOAT_VEC2:
+                    typeSize = 2;
+                    baseType = GL_FLOAT;
+                    break;
+                case GL_FLOAT_VEC3:
+                    typeSize = 3;
+                    baseType = GL_FLOAT;
+                    break;
+                case GL_FLOAT_VEC4:
+                    typeSize = 4;
+                    baseType = GL_FLOAT;
+                    break;
+                case GL_FLOAT_MAT2:
+                    typeSize = 4;
+                    baseType = GL_FLOAT;
+                    break;
+                case GL_FLOAT_MAT3:
+                    typeSize = 9;
+                    baseType = GL_FLOAT;
+                    break;
+                case GL_FLOAT_MAT4:
+                    typeSize = 16;
+                    baseType = GL_FLOAT;
+                    break;
+                case GL_FLOAT_MAT2x3:
+                    typeSize = 6;
+                    baseType = GL_FLOAT;
+                    break;
+                case GL_FLOAT_MAT2x4:
+                    typeSize = 8;
+                    baseType = GL_FLOAT;
+                    break;
+                case GL_FLOAT_MAT3x2:
+                    typeSize = 6;
+                    baseType = GL_FLOAT;
+                    break;
+                case GL_FLOAT_MAT3x4:
+                    typeSize = 12;
+                    baseType = GL_FLOAT;
+                    break;
+                case GL_FLOAT_MAT4x2:
+                    typeSize = 8;
+                    baseType = GL_FLOAT;
+                    break;
+                case GL_FLOAT_MAT4x3:
+                    typeSize = 12;
+                    baseType = GL_FLOAT;
+                    break;
+                case GL_DOUBLE:
+                    typeSize = 1;
+                    baseType = GL_DOUBLE;
+                    break;
+                case GL_DOUBLE_VEC2:
+                    typeSize = 2;
+                    baseType = GL_DOUBLE;
+                    break;
+                case GL_DOUBLE_VEC3:
+                    typeSize = 3;
+                    baseType = GL_DOUBLE;
+                    break;
+                case GL_DOUBLE_VEC4:
+                    typeSize = 4;
+                    baseType = GL_DOUBLE;
+                    break;
+                case GL_DOUBLE_MAT2:
+                    typeSize = 4;
+                    baseType = GL_DOUBLE;
+                    break;
+                case GL_DOUBLE_MAT3:
+                    typeSize = 9;
+                    baseType = GL_DOUBLE;
+                    break;
+                case GL_DOUBLE_MAT4:
+                    typeSize = 16;
+                    baseType = GL_DOUBLE;
+                    break;
+                case GL_DOUBLE_MAT2x3:
+                    typeSize = 6;
+                    baseType = GL_DOUBLE;
+                    break;
+                case GL_DOUBLE_MAT2x4:
+                    typeSize = 8;
+                    baseType = GL_DOUBLE;
+                    break;
+                case GL_DOUBLE_MAT3x2:
+                    typeSize = 6;
+                    baseType = GL_DOUBLE;
+                    break;
+                case GL_DOUBLE_MAT3x4:
+                    typeSize = 12;
+                    baseType = GL_DOUBLE;
+                    break;
+                case GL_DOUBLE_MAT4x2:
+                    typeSize = 8;
+                    baseType = GL_DOUBLE;
+                    break;
+                case GL_DOUBLE_MAT4x3:
+                    typeSize = 12;
+                    baseType = GL_DOUBLE;
+                    break;
+                case GL_INT:
+                    typeSize = 1;
+                    baseType = GL_INT;
+                    break;
+                case GL_INT_VEC2:
+                    typeSize = 2;
+                    baseType = GL_INT;
+                    break;
+                case GL_INT_VEC3:
+                    typeSize = 3;
+                    baseType = GL_INT;
+                    break;
+                case GL_INT_VEC4:
+                    typeSize = 4;
+                    baseType = GL_INT;
+                    break;
+                case GL_UNSIGNED_INT:
+                    typeSize = 1;
+                    baseType = GL_UNSIGNED_INT;
+                    break;
+                case GL_UNSIGNED_INT_VEC2:
+                    typeSize = 2;
+                    baseType = GL_UNSIGNED_INT;
+                    break;
+                case GL_UNSIGNED_INT_VEC3:
+                    typeSize = 3;
+                    baseType = GL_UNSIGNED_INT;
+                    break;
+                case GL_UNSIGNED_INT_VEC4:
+                    typeSize = 4;
+                    baseType = GL_UNSIGNED_INT;
+                    break;
+                case GL_BOOL:
+                    typeSize = 1;
+                    baseType = GL_BOOL;
+                    break;
+                case GL_BOOL_VEC2:
+                    typeSize = 2;
+                    baseType = GL_BOOL;
+                    break;
+                case GL_BOOL_VEC3:
+                    typeSize = 3;
+                    baseType = GL_BOOL;
+                    break;
+                case GL_BOOL_VEC4:
+                    typeSize = 4;
+                    baseType = GL_BOOL;
+                    break;
+                default:
+                    uniform.m_supportedType = false;
+                }
+
+                if (uniform.m_supportedType) {
+
+                    //size is 1 for scalars and > 1 for arrays of uniform scalars (see glGetActiveUniform)
+
+                    //typeSize is size of uniform type in terms of baseType elements
+
+                    uniform.m_value.resize(size * typeSize);
+
+                    if (baseType == GL_FLOAT) {
+                        std::vector<GLfloat> value(uniform.m_value.size());
+                        for (int i = 0; i < size; i++) {
+                            DIRECT_CALL_CHK(glGetUniformfv)(name, uniform.m_location + i, &value[i * typeSize]);
+                        }
+                        std::copy(value.begin(), value.end(), uniform.m_value.begin());
+                    } else if (baseType == GL_DOUBLE) {
+                        std::vector<GLdouble> value(uniform.m_value.size());
+                        for (int i = 0; i < size; i++) {
+                            DIRECT_CALL_CHK(glGetUniformdv)(name, uniform.m_location + i, &value[i * typeSize]);
+                        }
+                        std::copy(value.begin(), value.end(), uniform.m_value.begin());
+                    } else if (baseType == GL_INT) {
+                        std::vector<GLint> value(uniform.m_value.size());
+                        for (int i = 0; i < size; i++) {
+                            DIRECT_CALL_CHK(glGetUniformiv)(name, uniform.m_location + i, &value[i * typeSize]);
+                        }
+                        std::copy(value.begin(), value.end(), uniform.m_value.begin());
+                    } else if (baseType == GL_UNSIGNED_INT || baseType == GL_BOOL) {
+                        std::vector<GLuint> value(uniform.m_value.size());
+                        for (int i = 0; i < size; i++) {
+                            DIRECT_CALL_CHK(glGetUniformuiv)(name, uniform.m_location + i, &value[i * typeSize]);
+                        }
+                        std::copy(value.begin(), value.end(), uniform.m_value.begin());
+                    } else  { assert(0); }
+                }
+            }
+            resource->m_Uniforms.push_back(uniform);
+        }
+
+    }
     return ret;
 }
 
