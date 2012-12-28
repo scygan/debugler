@@ -148,6 +148,14 @@
         {
             "LaunchCondition"
             {
+                "{A06ECF26-33A3-4562-8140-9B0E340D4F24}:_88969DFB2C39474F96AB86F47F2C9BF6"
+                {
+                "Name" = "8:.NET Framework"
+                "Message" = "8:[VSDNETMSG]"
+                "FrameworkVersion" = "8:.NETFramework,Version=v4.0,Profile=Client"
+                "AllowLaterVersions" = "11:FALSE"
+                "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=131000"
+                }
             }
         }
         "File"
@@ -291,7 +299,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Debugler"
         "ProductCode" = "8:{1DFAE185-E52E-40C5-90B8-14C3A838F260}"
-        "PackageCode" = "8:{031BDEBD-85D9-4F53-81F3-DB35B37E6CAF}"
+        "PackageCode" = "8:{22B8BBAD-7175-4941-8724-B225F007A458}"
         "UpgradeCode" = "8:{7DA79E05-4B7B-4671-A35D-45688442DE81}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
