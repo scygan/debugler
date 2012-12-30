@@ -33,7 +33,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "srchiliteqt", "external\src
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "source-highlight", "external\source-highlight-3.1.7\source-highlight.vcxproj", "{5C2A907E-02DA-4D13-B84B-B48500DBEFA8}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupWizard", "SetupWizard\SetupWizard.vdproj", "{55ABEC8C-2C4B-4216-AC6D-C62A7A8F5D77}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Installer", "Installer\Installer.vdproj", "{55ABEC8C-2C4B-4216-AC6D-C62A7A8F5D77}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

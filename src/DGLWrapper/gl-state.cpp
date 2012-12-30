@@ -43,31 +43,31 @@ namespace state_setters {
     };
 
     class PixelStoreAlignment {
-        static const int StateSize = 8;
+#define STATE_SIZE 8
     public:
         PixelStoreAlignment() {
             //dump and set pixel store state
-            for (int i = 0; i < StateSize; i++) {
+            for (int i = 0; i < STATE_SIZE; i++) {
                 DIRECT_CALL_CHK(glGetIntegerv)(m_Targets[i], &m_SavedState[i]);
                 DIRECT_CALL_CHK(glPixelStorei)(m_Targets[i], m_State[i]);
             }
         }
         ~PixelStoreAlignment() {
-            for (int i = 0; i < StateSize; i++) {
+            for (int i = 0; i < STATE_SIZE; i++) {
                 DIRECT_CALL_CHK(glPixelStorei)(m_Targets[i], m_SavedState[i]);
             }
         }
     private:
-        static const GLenum m_Targets[StateSize]; 
-        static GLint m_SavedState[StateSize];
-        static const GLint m_State[StateSize];
+        static const GLenum m_Targets[STATE_SIZE]; 
+        static GLint m_SavedState[STATE_SIZE];
+        static const GLint m_State[STATE_SIZE];
     };
-    const GLenum PixelStoreAlignment::m_Targets[StateSize] = {GL_PACK_SWAP_BYTES, GL_PACK_LSB_FIRST, GL_PACK_ROW_LENGTH, GL_PACK_IMAGE_HEIGHT, GL_PACK_SKIP_ROWS,
+    const GLenum PixelStoreAlignment::m_Targets[STATE_SIZE] = {GL_PACK_SWAP_BYTES, GL_PACK_LSB_FIRST, GL_PACK_ROW_LENGTH, GL_PACK_IMAGE_HEIGHT, GL_PACK_SKIP_ROWS,
         GL_PACK_SKIP_PIXELS, GL_PACK_SKIP_IMAGES, GL_PACK_ALIGNMENT};
-    const GLint PixelStoreAlignment::m_State[StateSize] =  {GL_FALSE, GL_FALSE, 0, 0, 0, 0, 0, 1 };
-    GLint PixelStoreAlignment::m_SavedState[StateSize];
+    const GLint PixelStoreAlignment::m_State[STATE_SIZE] =  {GL_FALSE, GL_FALSE, 0, 0, 0, 0, 0, 1 };
+    GLint PixelStoreAlignment::m_SavedState[STATE_SIZE];
 };
-
+#undef STATE_SIZE
 
 
 GLObj::GLObj():m_Name(0) {}
