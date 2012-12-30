@@ -3,8 +3,7 @@
 
 #include"debugger.h"
 #include <boost/interprocess/sync/named_semaphore.hpp>
-
-#include <Psapi.h>
+#include "os.h"
 
 boost::shared_ptr<DGLDebugController> g_Controller;
 DGLGLState g_DGLGLState;
@@ -203,16 +202,7 @@ void DGLDebugController::connect(boost::shared_ptr<dglnet::Server> srv) {
     
     std::string currentProcessName = "<unknown>";
 
-    HANDLE currentProcess =  GetCurrentProcess();
-    if (currentProcess) {
-        std::vector<char> buff(200);
-        buff[GetModuleBaseName(currentProcess, NULL, &buff[0], 200)] = 0;
-        if (buff[0]) {
-            currentProcessName = &buff[0];
-        }
-    }
-
-    dglnet::HelloMessage hello(currentProcessName);
+    dglnet::HelloMessage hello(Os::getProcessName());
     srv->sendMessage(&hello);
 }
 
@@ -222,21 +212,37 @@ void DGLDebugController::doHandleDisconnect(const std::string&) {
 
     //this destroys "this"!
     g_Controller.reset();
-    TerminateProcess(GetCurrentProcess(), 0);
+    Os::terminate();
 }
 
 dglnet::Server& DGLDebugController::getServer() {
     if (!m_Server) {
-        char port[20], semaphore[100];
-        int portNum = 5555;
-        if (GetEnvironmentVariableA("dgl_port", port, sizeof(port)) != 0) {
-            portNum = atoi(port);
+
+        std::string port = "5555";
+
+        {
+            //port may be overrided by environment
+
+            std::string tmp = Os::getEnv("dgl_port");
+            if (tmp.length()) 
+                port = tmp;
         }
+        
+
+        int portNum = atoi(port.c_str());
         boost::shared_ptr<dglnet::Server> srv = boost::make_shared<dglnet::Server>(portNum, g_Controller.get());
-        if (GetEnvironmentVariableA("dgl_semaphore", semaphore, sizeof(semaphore)) != 0) {
-            boost::interprocess::named_semaphore sem(boost::interprocess::open_only, semaphore);
+        
+        std::string semaphore = Os::getEnv("dgl_semaphore");
+        if (semaphore.length()) {
+
+            //this is a rather dirty WA for local debugging
+            //we fire given semaphore, when we are ready for connection (now!)
+
+            boost::interprocess::named_semaphore sem(boost::interprocess::open_only, semaphore.c_str());
             sem.post();
+
         }
+                        
         srv->accept();
         g_Controller->connect(srv);
 

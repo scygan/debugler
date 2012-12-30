@@ -71,17 +71,7 @@ extern "C" __declspec(dllexport) void InitializeThread() {}
     TracerBase::SetNext<ImmediateModeTracer>(glBegin_Call);
     TracerBase::SetNext<ImmediateModeTracer>(glEnd_Call);
     
-    int port = 8888;
-    /*char* portStr; size_t len;
-    if (_dupenv_s(&portStr, &len, "dgl_port") == 0 && portStr && strlen(portStr)) {
-        port = atoi(portStr);
-    }*/
-
     g_Controller = boost::make_shared<DGLDebugController>();
-    //boost::shared_ptr<dglnet::Server> srv = boost::make_shared<dglnet::Server>(port, g_Controller.get());
-    //srv->accept();
-    //g_Controller->connect(srv);
-    //SetDllDirectoryA("C:\\Users\\Administrator\\Desktop\\debugler\\build\\Debug\\DGLWrapper");
 }
 
 void TearDown() {
