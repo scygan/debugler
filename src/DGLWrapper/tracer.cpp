@@ -72,7 +72,7 @@ RetValue DefaultTracer::Pre(const CalledEntryPoint& call) {
     g_Controller->getServer().poll();
 
     //check if any break is pending
-    if (g_Controller->getBreakState().breakAt(call.getEntrypoint())) {
+    if (g_Controller->getBreakState().mayBreakAt(call.getEntrypoint())) {
         //we just hit a break;
         dglState::GLContext* ctx = g_DGLGLState.getCurrent();
         dglnet::BreakedCallMessage callStateMessage(call, g_Controller->getCallHistory().size(), ctx?ctx->getId():0, g_DGLGLState.describe());
@@ -102,14 +102,12 @@ void DefaultTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
         bool hasDebugOutput = ctx->hasDebugOutput();
         if (hasDebugOutput) {
             g_Controller->getCallHistory().setDebugOutput(ctx->popDebugOutput());
+            g_Controller->getBreakState().setBreakAtDebugOutput();
         }
 
-        if ((error = g_DGLGLState.getCurrent()->peekError()) != GL_NO_ERROR && g_Config.m_BreakOnGLError) {
+        if ((error = g_DGLGLState.getCurrent()->peekError()) != GL_NO_ERROR) {
             g_Controller->getCallHistory().setError(error);
-            g_Controller->getBreakState().breakAt(call.getEntrypoint(), error);
-        }
-        if (hasDebugOutput && g_Config.m_BreakOnDebugOutput) {
-            g_Controller->getBreakState().breakAtDebugOutput();
+            g_Controller->getBreakState().setBreakAtGLError(error);
         }
     }    
     
@@ -381,8 +379,8 @@ void ProgramTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             GLint linkStatus;
             DIRECT_CALL_CHK(glGetProgramiv)(name, GL_LINK_STATUS, &linkStatus);
 
-            if (g_Config.m_BreakOnCompilerError &&  linkStatus != GL_TRUE) {
-                g_Controller->getBreakState().breakAtCompilerError();
+            if (linkStatus != GL_TRUE) {
+                g_Controller->getBreakState().setBreakAtCompilerError();
             }
 
         } else if (entrp == glLinkProgramARB_Call) {
@@ -391,8 +389,8 @@ void ProgramTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             GLint linkStatus;
             DIRECT_CALL_CHK(glGetObjectParameterivARB)(name, GL_OBJECT_LINK_STATUS_ARB, &linkStatus);
 
-            if (g_Config.m_BreakOnCompilerError &&  linkStatus != GL_TRUE) {
-                g_Controller->getBreakState().breakAtCompilerError();
+            if (linkStatus != GL_TRUE) {
+                g_Controller->getBreakState().setBreakAtCompilerError();
             }
 
         }
@@ -466,8 +464,8 @@ void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
             g_DGLGLState.getCurrent()->ensureShader(name)->setCompilationStatus(infoLog, compileStatus);
 
-            if (g_Config.m_BreakOnCompilerError &&  compileStatus != GL_TRUE) {
-                g_Controller->getBreakState().breakAtCompilerError();
+            if (compileStatus != GL_TRUE) {
+                g_Controller->getBreakState().setBreakAtCompilerError();
             }
 
         } else if (entrp == glCompileShaderARB_Call) {
@@ -489,8 +487,8 @@ void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
             g_DGLGLState.getCurrent()->ensureShader(name)->setCompilationStatus(infoLog, compileStatus);
 
-            if (g_Config.m_BreakOnCompilerError &&  compileStatus != GL_TRUE) {
-                g_Controller->getBreakState().breakAtCompilerError();
+            if (compileStatus != GL_TRUE) {
+                g_Controller->getBreakState().setBreakAtCompilerError();
             }
 
         } else if (entrp == glAttachShader_Call || entrp == glAttachObjectARB_Call) {

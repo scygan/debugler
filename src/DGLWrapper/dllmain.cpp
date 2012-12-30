@@ -9,15 +9,30 @@
 
 #include "detours/detours.h"
 
+/**
+ * DGLwrapper routine called just after DLLinjection
+ */
+extern "C" __declspec(dllexport) void InitializeThread() {
 
-extern "C" __declspec(dllexport) void InitializeThread() {}
+    //this is called from remotely - created thread started right after dll injection
+
+    // empty.
+}
      
-     
+/**
+ * DGLwrapper routine called on library load
+ */
  void Initialize(void) {
     
+    //load system GL libraries (& initialize entrypoint tables)
     LoadOpenGLLibrary();
 
+    //set default tracer for all entrypoints (std debugging routines)
     SetAllTracers<DefaultTracer>();
+
+    //setup additional, special tracers for some choosed entrypoints 
+    //for more specific routines 
+
     TracerBase::SetNext<GLGetErrorTracer>(glGetError_Call);
     TracerBase::SetNext<GetProcAddressTracer>(wglGetProcAddress_Call);
     TracerBase::SetNext<ContextTracer>(wglCreateContext_Call);
@@ -74,10 +89,16 @@ extern "C" __declspec(dllexport) void InitializeThread() {}
     g_Controller = boost::make_shared<DGLDebugController>();
 }
 
+/**
+ * DGLwrapper routine called on library unload
+ */
 void TearDown() {
     g_Controller.reset();
 }
 
+/**
+ * Main entrypoint of DGLwrapper library
+ */
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
                        LPVOID lpReserved

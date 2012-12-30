@@ -100,7 +100,7 @@ std::vector<dglnet::ContextReport> DGLGLState::describe() {
 
 BreakState::BreakState():m_break(true),m_StepModeEnabled(false) {}
 
-bool BreakState::breakAt(const Entrypoint& e, GLenum error) {
+bool BreakState::mayBreakAt(const Entrypoint& e) {
     if (m_StepModeEnabled) {
         switch (m_StepMode) {
             case dglnet::ContinueBreakMessage::STEP_CALL:  
@@ -118,19 +118,23 @@ bool BreakState::breakAt(const Entrypoint& e, GLenum error) {
     if (m_BreakPoints.find(e) != m_BreakPoints.end()) {
         m_break = true;
     }
-    if (error != GL_NO_ERROR) {
-        m_break = true;
-    }
-
     return isBreaked();
 }
 
-void BreakState::breakAtDebugOutput()  {
-    m_break = true;
+void BreakState::setBreakAtGLError(GLenum glError) {
+    if (glError != GL_NO_ERROR && g_Config.m_BreakOnGLError) {
+        m_break = true;
+    }
 }
 
-void BreakState::breakAtCompilerError()  {
-    m_break = true;
+void BreakState::setBreakAtDebugOutput()  {
+    if (g_Config.m_BreakOnDebugOutput)
+        m_break = true;
+}
+
+void BreakState::setBreakAtCompilerError()  {
+    if (g_Config.m_BreakOnCompilerError)
+        m_break = true;
 }
 
 bool BreakState::isBreaked() {
