@@ -103,7 +103,7 @@ public:
     ContextReport() {}
     ContextReport(int32_t id):m_Id(id) {}
     int32_t m_Id;
-    std::set<ContextObjectName> m_TextureSpace;
+    std::set<ContextObjectNameTarget> m_TextureSpace;
     std::set<ContextObjectName> m_BufferSpace;
     std::set<ContextObjectNameTarget> m_ShaderSpace;
     std::set<ContextObjectName> m_ProgramSpace;

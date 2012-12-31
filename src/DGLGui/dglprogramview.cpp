@@ -51,8 +51,8 @@ void DGLProgramViewItem::update(const DGLResource& res) {
         }
         if (!found) {
             DGLShaderViewItem* newTab = new DGLShaderViewItem(resource->m_AttachedShaders[i].first, m_ResourceManager, this);
-            m_Ui.tabWidget->addTab(newTab, QString(GetShaderStageName(resource->m_AttachedShaders[i].second)
-                + QString(" Shader ") + QString::number(resource->m_AttachedShaders[i].first)));
+            m_Ui.tabWidget->addTab(newTab, QString::fromStdString(GetShaderStageName(resource->m_AttachedShaders[i].second))
+                + QString(" Shader ") + QString::number(resource->m_AttachedShaders[i].first));
         }
     }
             

@@ -21,7 +21,7 @@ std::string DGLRunDialog::getExecutable() {
 }
 
 std::string DGLRunDialog::getCommandLineArgs() {
-    return m_ui.lineEdit_CommandLineArgs->text().toStdString();
+    return getExecutable() + " " + m_ui.lineEdit_CommandLineArgs->text().toStdString();
 }
 
 std::string DGLRunDialog::getPath() {

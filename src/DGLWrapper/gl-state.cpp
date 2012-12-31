@@ -177,7 +177,7 @@ dglnet::ContextReport GLContext::describe() {
     dglnet::ContextReport ret(m_Id);
     for (std::map<GLuint, GLTextureObj>::iterator i = m_Textures.begin(); 
         i != m_Textures.end(); i++) {
-            ret.m_TextureSpace.insert(i->second.getName());
+            ret.m_TextureSpace.insert(dglnet::ContextObjectNameTarget(i->second.getName(), i->second.getTarget()));
     }
     for (std::map<GLuint, GLBufferObj>::iterator i = m_Buffers.begin(); 
         i != m_Buffers.end(); i++) {

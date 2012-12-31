@@ -23,7 +23,8 @@ char* GetEntryPointName(Entrypoint entryp);
 Entrypoint GetEntryPointEnum(const char* name);
 std::string GetGLEnumName(uint64_t glEnum);
 
-const char* GetShaderStageName(uint64_t glEnum);
+std::string GetShaderStageName(uint64_t glEnum);
+std::string GetTextureTargetName(uint64_t glEnum);
 
 
 bool IsDrawCall(Entrypoint);

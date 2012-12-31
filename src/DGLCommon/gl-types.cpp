@@ -65,10 +65,10 @@ std::string GetGLEnumName(uint64_t glEnum) {
         tmp << "0x" << std::hex << glEnum;
         return tmp.str();
     }
-    return ret->second.c_str();
+    return ret->second;
 }
 
-const char* GetShaderStageName(uint64_t glEnum) {
+std::string GetShaderStageName(uint64_t glEnum) {
     switch (glEnum) {
         case GL_VERTEX_SHADER:
             return "Vertex";
@@ -81,7 +81,36 @@ const char* GetShaderStageName(uint64_t glEnum) {
         case GL_FRAGMENT_SHADER:
             return "Fragment";
         default:
-            return "<unknown>";
+            return GetGLEnumName(glEnum).c_str();
+    }
+}
+
+std::string GetTextureTargetName(uint64_t glEnum) {
+    switch (glEnum) {
+    case GL_TEXTURE_1D:
+        return "1D";
+    case GL_TEXTURE_2D:
+        return "2D";
+    case GL_TEXTURE_3D:
+        return "3D";
+    case GL_TEXTURE_1D_ARRAY:
+        return "1D Array";
+    case GL_TEXTURE_2D_ARRAY:
+        return "2D Array";
+    case GL_TEXTURE_RECTANGLE:
+        return "Rectangle";
+    case GL_TEXTURE_CUBE_MAP:
+        return "Cube Map";
+    case GL_TEXTURE_CUBE_MAP_ARRAY:
+        return "Cube Map Array";
+    case GL_TEXTURE_BUFFER:
+        return "Buffer";
+    case GL_TEXTURE_2D_MULTISAMPLE:
+        return "2D MS";
+    case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
+        return "2D MS Array";
+    default:
+        return GetGLEnumName(glEnum).c_str();
     }
 }
 

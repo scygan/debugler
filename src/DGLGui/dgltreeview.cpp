@@ -41,8 +41,8 @@ void QClickableTreeWidgetItem::handleDoubleClick(DglController*) {}
 
 DGLTextureWidget::DGLTextureWidget():m_name(0) {}
 
-DGLTextureWidget::DGLTextureWidget(dglnet::ContextObjectName name):m_name(name) {
-    setText(0, QString("Texture ") + QString::number(name.m_Name));
+DGLTextureWidget::DGLTextureWidget(dglnet::ContextObjectNameTarget name):m_name(name) {
+    setText(0, QString("Texture ") + QString::number(name.m_Name) + QString::fromStdString(" (" + GetTextureTargetName(name.m_Target) + ")"));
 }
 
 void DGLTextureWidget::handleDoubleClick(DglController* controller) {
@@ -79,7 +79,7 @@ class DGLShaderWidget: public QClickableTreeWidgetItem {
 public:
     DGLShaderWidget() {}
     DGLShaderWidget(dglnet::ContextObjectNameTarget name):m_name(name) {
-        setText(0, QString(GetShaderStageName(name.m_Target)) + QString(" Shader ") + QString::number(name.m_Name));
+        setText(0, QString("Shader ") + QString::number(name.m_Name) + QString::fromStdString(" (" + GetShaderStageName(name.m_Target) + ")"));
     }
     void handleDoubleClick(DglController* controller) {
         controller->getViewRouter()->show(m_name.m_Name, DGLResource::ObjectTypeShader, m_name.m_Target);

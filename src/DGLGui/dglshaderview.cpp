@@ -184,5 +184,5 @@ DGLTabbedViewItem* DGLShaderView::createTab(uint id) {
 }
 
 QString DGLShaderView::getTabName(uint id, uint target) {
-    return QString(GetShaderStageName(target)) + QString(" Shader ") + QString::number(id);
+    return QString::fromStdString(GetShaderStageName(target)) + QString(" Shader ") + QString::number(id);
 }
