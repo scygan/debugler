@@ -75,7 +75,7 @@ RetValue DefaultTracer::Pre(const CalledEntryPoint& call) {
     if (g_Controller->getBreakState().mayBreakAt(call.getEntrypoint())) {
         //we just hit a break;
         dglState::GLContext* ctx = g_DGLGLState.getCurrent();
-        dglnet::BreakedCallMessage callStateMessage(call, g_Controller->getCallHistory().size(), ctx?ctx->getId():0, g_DGLGLState.describe());
+        dglnet::BreakedCallMessage callStateMessage(call, (uint32_t)g_Controller->getCallHistory().size(), ctx?ctx->getId():0, g_DGLGLState.describe());
         g_Controller->getServer().sendMessage(&callStateMessage);
     }
     
@@ -455,7 +455,7 @@ void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
             std::string infoLog; infoLog.resize(infoLogLength);
             GLsizei actualLength;
-            DIRECT_CALL_CHK(glGetShaderInfoLog)(name, infoLog.size(), &actualLength, &infoLog[0]);
+            DIRECT_CALL_CHK(glGetShaderInfoLog)(name, static_cast<GLsizei>(infoLog.size()), &actualLength, &infoLog[0]);
 
             if (actualLength < infoLogLength) {
                 //highly unlikely - only on buggy drivers
@@ -478,7 +478,7 @@ void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
             std::string infoLog; infoLog.resize(infoLogLength);
             GLsizei actualLength;
-            DIRECT_CALL_CHK(glGetInfoLogARB)(name, infoLog.size(), &actualLength, &infoLog[0]);
+            DIRECT_CALL_CHK(glGetInfoLogARB)(name, static_cast<GLsizei>(infoLog.size()), &actualLength, &infoLog[0]);
 
             if (actualLength < infoLogLength) {
                 //highly unlikely - only on buggy drivers

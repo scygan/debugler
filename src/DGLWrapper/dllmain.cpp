@@ -6,8 +6,9 @@
 #include "DGLWrapper.h"
 #include <boost/make_shared.hpp>
 
-
+#ifndef _WIN64
 #include "detours/detours.h"
+#endif
 
 /**
  * DGLwrapper routine called just after DLLinjection
@@ -105,9 +106,11 @@ BOOL APIENTRY DllMain( HMODULE hModule,
                      ) {
     switch (ul_reason_for_call) {
         case DLL_PROCESS_ATTACH:
+#ifndef _WIN64
             if (DetourIsHelperProcess()) {
                 return TRUE;
             }
+#endif
             Initialize();
             break;
         case DLL_THREAD_ATTACH:

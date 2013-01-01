@@ -9,6 +9,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="mhook">
+      <UniqueIdentifier>{c08d1e7d-2819-49d1-bae8-495d4da5bb67}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pointers.h">
@@ -38,6 +41,18 @@
     <ClInclude Include="os.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\external\mhook\disasm-lib\cpu.h">
+      <Filter>mhook</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\mhook\disasm-lib\disasm.h">
+      <Filter>mhook</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\mhook\disasm-lib\disasm_x86.h">
+      <Filter>mhook</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\mhook\disasm-lib\disasm_x86_tables.h">
+      <Filter>mhook</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -60,6 +75,18 @@
     </ClCompile>
     <ClCompile Include="os.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\mhook\mhook-lib\mhook.cpp">
+      <Filter>mhook</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\mhook\disasm-lib\cpu.c">
+      <Filter>mhook</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\mhook\disasm-lib\disasm.c">
+      <Filter>mhook</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\mhook\disasm-lib\disasm_x86.c">
+      <Filter>mhook</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

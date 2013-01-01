@@ -17,7 +17,7 @@ namespace dglnet {
         m_controller->onSetStatus("Looking up server...");
     }
 
-    int Client::getSocketFD() {
+    int64_t Client::getSocketFD() {
         return m_socket.native_handle();
     }
 

@@ -18,7 +18,7 @@ class Client: public Transport {
 public: 
     Client(IController* controller, MessageHandler* messageHandler);
     void connectServer(std::string host, std::string port);
-    int getSocketFD();
+    int64_t getSocketFD();
 
 private:
     void onResolve(const boost::system::error_code& err,

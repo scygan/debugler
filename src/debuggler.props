@@ -3,15 +3,15 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <OutDir>$(SolutionDir)..\build\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir>$(SolutionDir)..\build\$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
   </PropertyGroup>
   <PropertyGroup>
-    <IntDir>$(SolutionDir)..\dump\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir>$(SolutionDir)..\dump\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Configuration)\DGLNet;$(SolutionDir)\..\build\$(Configuration)\DGLCommon;$(SolutionDir)\external\boost\stage\lib;$(SolutionDir)\..\build\$(Configuration)\srchiliteqt;$(SolutionDir)\..\build\$(Configuration)\source-highlight;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLNet;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\external\boost\stage\lib\$(Platform);$(SolutionDir)\..\build\$(Platform)\$(Configuration)\srchiliteqt;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\source-highlight;</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>..;../external/boost/;../boost;../external/</AdditionalIncludeDirectories>
@@ -22,7 +22,7 @@
     <Lib>
       <AdditionalDependencies>
       </AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Configuration)\DGLNet;$(SolutionDir)\..\build\$(Configuration)\DGLCommon;$(SolutionDir)\external\boost\stage\lib;$(SolutionDir)\..\build\$(Configuration)\srchiliteqt;$(SolutionDir)\..\build\$(Configuration)\source-highlight;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLNet;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\external\boost\stage\lib\$(Platform);$(SolutionDir)\..\build\$(Platform)\$(Configuration)\srchiliteqt;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\source-highlight;</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup />

@@ -5,7 +5,12 @@
 #include "pointers.h"
 
 #include <string>
+#include <vector>
+#ifndef _WIN64
 #include "detours/detours.h"
+#else
+#include "mhook/mhook-lib/mhook.h"
+#endif
 #include "gl-wrappers.h"
 
 //here direct pointers are kept (pointers to entrypoints exposed by underlying OpenGL32 implementation
@@ -33,19 +38,43 @@ void LoadOpenGLPointers () {
 #undef FUNCTION_LIST_ELEMENT
 
 void LoadOpenGLLibrary() {
-    openGLLibraryHandle = LoadLibrary("C:\\Windows\\SysWOW64\\opengl32.dll");
+
+    std::vector<std::string> libSearchPath;
+    std::string libName = "\\opengl32.dll";
+
+    char buffer[1000];
+#ifndef _WIN64
+    if (GetSystemWow64Directory(buffer, sizeof(buffer)) > 0) {
+        //we are running 32bit app on 64 bit windows
+        libSearchPath.push_back(buffer + libName);
+    }
+#endif
     if (!openGLLibraryHandle) {
-        openGLLibraryHandle = LoadLibrary("C:\\Windows\\System32\\opengl32.dll");
+        if (GetSystemDirectory(buffer, sizeof(buffer)) > 0) {
+            //we are running on native system (32 on 32 or 64 on 64)
+            libSearchPath.push_back(buffer + libName);
+        }
     }
 
-    assert(openGLLibraryHandle);
+#ifndef _WIN64
+    libSearchPath.push_back("C:\\Windows\\SysWOW64\\opengl32.dll");
+#endif
+    libSearchPath.push_back("C:\\Windows\\System32\\opengl32.dll");
+
+    openGLLibraryHandle = NULL;
+    for (size_t i = 0; i < libSearchPath.size() && !openGLLibraryHandle; i++) {
+        openGLLibraryHandle = LoadLibrary(libSearchPath[i].c_str());
+    }
+    
     if (!openGLLibraryHandle) {
-        MessageBox(0, "Cannot load library", "Cannot Load library OpenGL32.dll", MB_OK | MB_ICONSTOP);
+        MessageBox(0, "Cannot load library", "Cannot load OpenGL32.dll system library", MB_OK | MB_ICONSTOP);
         exit(EXIT_FAILURE);
     }
 
     LoadOpenGLPointers();
 
+    //we use MS Detours only on win32, on x64 mHook is used
+#ifndef _WIN64
     DetourRestoreAfterWith();
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
@@ -60,6 +89,15 @@ void LoadOpenGLLibrary() {
         }
     }
     DetourTransactionCommit();
+#else 
+    for (int i = 0; i < Entrypoints_NUM; i++) {
+        if (g_DirectPointers[i]) {
+            //this entrypoint was loaded from OpenGL32.dll, detour it!
+            void * hookPtr = getWrapperPointer(i);
+            Mhook_SetHook(&(PVOID&)g_DirectPointers[i], hookPtr);
+        }
+    }
+#endif
 }
 
 
