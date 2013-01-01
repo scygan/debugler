@@ -437,7 +437,8 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
         }
 
         texLevel.m_Pixels.resize(texLevel.m_Width * texLevel.m_Height * texLevel.m_Channels);
-        DIRECT_CALL_CHK(glGetTexImage)(tex->getTarget(), level, format, GL_UNSIGNED_BYTE, &texLevel.m_Pixels[0]);
+        if (texLevel.m_Pixels.size())
+            DIRECT_CALL_CHK(glGetTexImage)(tex->getTarget(), level, format, GL_UNSIGNED_BYTE, &texLevel.m_Pixels[0]);
         resource->m_Levels.push_back(texLevel);
     }
 
@@ -588,7 +589,8 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
         }       
 
         resource->m_PixelRectangle.m_Pixels.resize(resource->m_PixelRectangle.m_Width * resource->m_PixelRectangle.m_Height * resource->m_PixelRectangle.m_Channels);
-        DIRECT_CALL_CHK(glReadPixels)(0, 0, resource->m_PixelRectangle.m_Width, resource->m_PixelRectangle.m_Height, format, GL_UNSIGNED_BYTE, &resource->m_PixelRectangle.m_Pixels[0]);
+        if (resource->m_PixelRectangle.m_Pixels.size())
+            DIRECT_CALL_CHK(glReadPixels)(0, 0, resource->m_PixelRectangle.m_Width, resource->m_PixelRectangle.m_Height, format, GL_UNSIGNED_BYTE, &resource->m_PixelRectangle.m_Pixels[0]);
     }
         
     //restore state
@@ -715,9 +717,10 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
                 );
 
             DIRECT_CALL_CHK(glReadBuffer)(GL_COLOR_ATTACHMENT0 + i);
-            DIRECT_CALL_CHK(glReadPixels)(0, 0, resource->m_Attachments.back().m_PixelRectangle.m_Width,
-                resource->m_Attachments.back().m_PixelRectangle.m_Height,
-                format, GL_UNSIGNED_BYTE, &resource->m_Attachments.back().m_PixelRectangle.m_Pixels[0]);
+            if (resource->m_Attachments.back().m_PixelRectangle.m_Pixels.size())
+                DIRECT_CALL_CHK(glReadPixels)(0, 0, resource->m_Attachments.back().m_PixelRectangle.m_Width,
+                    resource->m_Attachments.back().m_PixelRectangle.m_Height,
+                    format, GL_UNSIGNED_BYTE, &resource->m_Attachments.back().m_PixelRectangle.m_Pixels[0]);
         }
     }
     //restore state
@@ -768,7 +771,7 @@ boost::shared_ptr<DGLResource> GLContext::queryProgram(GLuint name) {
     if (infoLogLength) {
         infoLog.resize(infoLogLength);
         GLint realInfoLogLength;
-        DIRECT_CALL_CHK(glGetProgramInfoLog)(program->getName(), infoLog.size(), &realInfoLogLength, &infoLog[0]);
+        DIRECT_CALL_CHK(glGetProgramInfoLog)(program->getName(), static_cast<GLsizei>(infoLog.size()), &realInfoLogLength, &infoLog[0]);
         if (realInfoLogLength < infoLogLength) {
             //highly unlikely, only on buggy drivers
             infoLog.resize(realInfoLogLength);
@@ -787,6 +790,7 @@ boost::shared_ptr<DGLResource> GLContext::queryProgram(GLuint name) {
         std::vector<GLchar> nameBuffer(activeUniformsMaxNameLength);
         for (int i =0; i < activeUniforms; i++) {
             DGLResourceProgram::Uniform uniform;
+            uniform.m_supportedType = false;
 
             GLsizei length;
             GLint size;

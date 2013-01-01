@@ -264,7 +264,7 @@ public:
 
     struct Uniform {
         uint32_t m_type;
-        uint32_t m_location;
+        int32_t m_location;
         std::string m_name;
         std::vector<AnyValue> m_value;
         bool m_supportedType;
