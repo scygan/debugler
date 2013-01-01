@@ -4,8 +4,8 @@
 //for boost serialization
 #pragma warning(disable:4244 4308)
 
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
+#include <portable_archive/portable_oarchive.hpp>
+#include <portable_archive/portable_iarchive.hpp>
 #include <boost/serialization/set.hpp>
 #include <boost/serialization/export.hpp> 
 #include <boost/serialization/variant.hpp>
@@ -49,7 +49,7 @@ namespace dglnet {
     class TransportHeader {
     public:
         TransportHeader() {}
-        TransportHeader(int size):m_size(size) {}
+        TransportHeader(int32_t size):m_size(size) {}
         int getSize() {
             return m_size;
         };
@@ -108,7 +108,7 @@ namespace dglnet {
 
             Message* msg;
             {
-                boost::archive::binary_iarchive archive(iArchiveStream);
+                eos::portable_iarchive archive(iArchiveStream);
                 archive >> msg;
             }
 
@@ -126,11 +126,11 @@ namespace dglnet {
         boost::asio::streambuf* stream = new boost::asio::streambuf;        
         {
             std::ostream oArchiveStream(stream);
-            boost::archive::binary_oarchive archive(oArchiveStream);
+            eos::portable_oarchive archive(oArchiveStream);
             archive << msg; 
         }
 
-        TransportHeader* header = new TransportHeader(stream->size());
+        TransportHeader* header = new TransportHeader(static_cast<int32_t>(stream->size()));
 
         m_WriteQueue.push_back(std::pair<TransportHeader*, boost::asio::streambuf*>(header, stream));
 
