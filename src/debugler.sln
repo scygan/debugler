@@ -35,6 +35,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "source-highlight", "externa
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Installer", "Installer\Installer.vdproj", "{55ABEC8C-2C4B-4216-AC6D-C62A7A8F5D77}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLLoader", "DGLLoader\DGLLoader.vcxproj", "{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF} = {B8B2B603-0DAD-4C84-B375-091A5C36D6FF}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -96,6 +101,14 @@ Global
 		{55ABEC8C-2C4B-4216-AC6D-C62A7A8F5D77}.Debug|x64.ActiveCfg = Debug
 		{55ABEC8C-2C4B-4216-AC6D-C62A7A8F5D77}.Release|Win32.ActiveCfg = Release
 		{55ABEC8C-2C4B-4216-AC6D-C62A7A8F5D77}.Release|x64.ActiveCfg = Release
+		{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}.Debug|Win32.Build.0 = Debug|Win32
+		{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}.Debug|x64.ActiveCfg = Debug|x64
+		{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}.Debug|x64.Build.0 = Debug|x64
+		{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}.Release|Win32.ActiveCfg = Release|Win32
+		{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}.Release|Win32.Build.0 = Release|Win32
+		{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}.Release|x64.ActiveCfg = Release|x64
+		{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

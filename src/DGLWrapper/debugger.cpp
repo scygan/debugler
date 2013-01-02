@@ -3,7 +3,7 @@
 
 #include"debugger.h"
 #include <boost/interprocess/sync/named_semaphore.hpp>
-#include "os.h"
+#include "DGLCommon\os.h"
 
 boost::shared_ptr<DGLDebugController> g_Controller;
 DGLGLState g_DGLGLState;

@@ -17,10 +17,9 @@
 #include "dglgui.h"
 
 #include <boost/interprocess/sync/named_semaphore.hpp>
+#include <boost/interprocess/ipc/message_queue.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread/thread.hpp>
-
-#include "CompleteInject.h"
 
 /**
  * Macros indentifying entity, that stores & loads QSettings
@@ -440,37 +439,62 @@ void DGLMainWindow::createToolBars() {
      if (m_RunDialog.exec() == QDialog::Accepted) {
 
          try {
-
-             //get IsWow64Process function
-             typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
-             LPFN_ISWOW64PROCESS fnIsWow64Process = 
-                 fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress(
-                 GetModuleHandle(TEXT("kernel32")),"IsWow64Process");
-             BOOL isWow;
-
-             //check if windows is 64-bit (we need it later to inject proper version of wrapper)
-             bool isWindows64bit = false;
-
-#ifdef _WIN64
-             //if we are a 64 bit app, windows is definitely 64 bit
-             isWindows64bit = true;
-#else
-             //we are 32-bit application. Check if we are in Wow64 mode
-             if (fnIsWow64Process && fnIsWow64Process(GetCurrentProcess(),&isWow) && isWow) {
-                 //if we are in Wow64 mode, windows is 64 bit
-                 isWindows64bit = true;
+             DWORD binaryType;
+             if (!GetBinaryTypeA(m_RunDialog.getExecutable().c_str(), &binaryType)) {
+                 throw std::runtime_error("Getting binary file type failed");
              }
-#endif
-                          
+             
+             std::string loaderPath;
+             char* wrapperRelativePath;
+             switch (binaryType) {
+                case SCS_32BIT_BINARY:
+                    loaderPath = "DGLLoader.exe";
+                    wrapperRelativePath = "DGLWrapper/OpenGL32.dll";
+                    break;
+                case SCS_64BIT_BINARY:
+                    loaderPath = "DGLLoader64.exe";
+                    wrapperRelativePath = "DGLWrapper64/OpenGL32.dll";
+                    break;
+                default:
+                    throw std::runtime_error("Unsupported PE binary format");
+             }
+
+             //get wrapper path
+             QByteArray baPath = QDir::toNativeSeparators(QFileInfo(wrapperRelativePath).absoluteFilePath()).toUtf8();
+             std::string wrapperPath = baPath.constData();
+
              //randomize connection port
              srand(GetTickCount());
              int port = rand() % (0xffff - 1024) + 1024;
              std::stringstream portStr;  portStr << port;
 
-             //set environment variables - child process will inherit these
+             //set environment variables - child processes will inherit these
+
+             //debugging port
              SetEnvironmentVariableA("dgl_port", portStr.str().c_str());
-             std::string semName = "sem_" + portStr.str();
-             SetEnvironmentVariableA("dgl_semaphore", semName.c_str());
+
+             //semaphore triggered by loader (when done loading)
+             std::string semNameLoader = "sem_loader_" + portStr.str();
+             SetEnvironmentVariableA("dgl_loader_semaphore", semNameLoader.c_str());
+             boost::interprocess::named_semaphore semLoader(boost::interprocess::create_only, semNameLoader.c_str(), 0);
+
+             //semaphore triggered by opengl32.dll (when OpenGL is first used and server is ready)
+             std::string semNameOpenGL = "sem_" + portStr.str();
+             SetEnvironmentVariableA("dgl_semaphore", semNameOpenGL.c_str());
+             boost::interprocess::named_semaphore semOpenGL(boost::interprocess::create_only, semNameOpenGL.c_str(), 0);
+
+
+             //message queue for getting loader error
+             struct {
+                 uint32_t status;
+                 char message[1000];
+             } IPCMessage;
+
+             std::string messageQueueName = "queue_" + portStr.str();
+             SetEnvironmentVariableA("dgl_loader_mqueue", messageQueueName.c_str());
+             boost::interprocess::message_queue loaderMQueue(boost::interprocess::create_only, messageQueueName.c_str(), 
+                 1, sizeof(IPCMessage));
+
 
              //prepare some structures for CreateProcess output
              STARTUPINFOA startupInfo;
@@ -479,64 +503,67 @@ void DGLMainWindow::createToolBars() {
              PROCESS_INFORMATION processInformation; 
              memset(&processInformation, 0, sizeof(processInformation));
 
-             //try run process (suspended - will not run user thread)
+             //run loader process
+
+             std::string arguments = 
+                 "\"" + loaderPath + "\" " +
+                 "\"" + wrapperPath + "\" " +
+                 "\"" + m_RunDialog.getExecutable() + "\" " +
+                 "\"" + m_RunDialog.getCommandLineArgs() + "\" ";
 
              if (CreateProcessA(
-                 (LPSTR)m_RunDialog.getExecutable().c_str(),
-                 (LPSTR)m_RunDialog.getCommandLineArgs().c_str(),
+                 (LPSTR)loaderPath.c_str(),
+                 (LPSTR)arguments.c_str(),
                  NULL, 
                  NULL,
                  FALSE, 
-                 CREATE_SUSPENDED,
+                 0,
                  NULL,
                  m_RunDialog.getPath().c_str(),
                  &startupInfo, 
                  &processInformation) == 0 ) {
 
-                     throw std::runtime_error("Cannot create process");
+                     throw std::runtime_error("Cannot create loader process");
              }
 
-             char* wrapperRelativePath = "DGLWrapper/OpenGL32.dll";
 
-             //check if process is 64 bit
-             if (isWindows64bit && fnIsWow64Process && fnIsWow64Process(processInformation.hProcess,&isWow) && !isWow) {
-                 //windows is 64 bit, process is not in Wow64 mode, so process is 64 bit. This implies usage of 64 bit wrapper
-                 wrapperRelativePath = "DGLWrapper64/OpenGL32.dll";
-             }
-
-             //get wrapper path
-             QByteArray baPath = QDir::toNativeSeparators(QFileInfo(wrapperRelativePath).absoluteFilePath()).toUtf8();
-             const char* wrapperPath = baPath.constData();
-             
-             //process is running, but is suspended (user thread not started, some DLLMain-s may be run by now)
-
-             //inject thread with wrapper library loading code, run through DLLMain and InitializeThread() function
-
-             HANDLE thread = Inject(processInformation.hProcess, wrapperPath, "InitializeThread");
-
-             //wait for remote thread to end - wait for library to load and InitializeThread() to return
-
-             WaitForSingleObject(thread, INFINITE); 
 
              {
-                 //create named IPC semaphore. Application will post it, when server is created (and when OpenGL is first used)
+                 //Wait for loader to finish
 
-                 boost::interprocess::named_semaphore sem(boost::interprocess::create_only, semName.c_str(), 0);
+                 bool timeout; 
+                 //boost::posix_time::ptime p = boost::get_system_time() + boost::posix_time::milliseconds(5000);
+                 while ((timeout = !semLoader.timed_wait(boost::get_system_time() + boost::posix_time::milliseconds(5000)))) {
 
-                 //resume process - now user thread is running
-                 //whole OpenGL should be wrapped by now
-
-                 if (ResumeThread(processInformation.hThread) == -1) {
-                     throw std::runtime_error("Cannot resume process");
+                     //5 seconds is enough. it ususally means that this application is not using OpenGL at all..
+                     if (QMessageBox::question(this, tr("Timeout"), tr("The debugger has waited 5 seconds for loader to load application. Wait another 5s?"),
+                         QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
+                             break;
+                     }
                  }
+                 if (timeout) {
+                     throw std::runtime_error("Timed out waiting for loader");
+                 }
+             }
 
+             unsigned int rcvSize, prio;
+             loaderMQueue.receive(&IPCMessage, sizeof(IPCMessage), rcvSize, prio);
+             assert(sizeof(IPCMessage) ==  rcvSize);
+
+             if (IPCMessage.status != EXIT_SUCCESS) {
+                 throw std::runtime_error(IPCMessage.message);
+             }
+
+             //application is loaded now
+                       
+             {
                  //Wait for application to startup connection server
                  //this may take some time, as we cannot do it on start (cannot setup socket from DLLMain())
                  //we basically wait here for application to call WGL
 
                  bool timeout; 
                  //boost::posix_time::ptime p = boost::get_system_time() + boost::posix_time::milliseconds(5000);
-                 while ((timeout = !sem.timed_wait(boost::get_system_time() + boost::posix_time::milliseconds(5000)))) {
+                 while ((timeout = !semOpenGL.timed_wait(boost::get_system_time() + boost::posix_time::milliseconds(5000)))) {
 
                      //5 seconds is enough. it ususally means that this application is not using OpenGL at all..
                      if (QMessageBox::question(this, tr("Timeout"), tr("The debugger has waited 5 seconds for application to use OpenGL. Wait another 5s?"),

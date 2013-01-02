@@ -16,19 +16,25 @@
         "Entry"
         {
         "MsmKey" = "8:_0FF50AD5B395961DAD2EBA7144B7A66C"
-        "OwnerKey" = "8:_525DE70E72054CFEAE2693303582A805"
+        "OwnerKey" = "8:_500388235C814430ADA133071ADF15C9"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_0FF50AD5B395961DAD2EBA7144B7A66C"
-        "OwnerKey" = "8:_500388235C814430ADA133071ADF15C9"
+        "OwnerKey" = "8:_525DE70E72054CFEAE2693303582A805"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_2176ACDEA8ADC2D5040BA7E89AC67C38"
         "OwnerKey" = "8:_EF5514578FFA4B77B958F574324FC428"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_46D7E7FEB4544395BFBC954905F0C6CE"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -40,6 +46,12 @@
         "Entry"
         {
         "MsmKey" = "8:_525DE70E72054CFEAE2693303582A805"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5F1DE5D457724848A3DC56DBB91740DE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -59,6 +71,18 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_525DE70E72054CFEAE2693303582A805"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_5F1DE5D457724848A3DC56DBB91740DE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_46D7E7FEB4544395BFBC954905F0C6CE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -318,7 +342,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Debugler"
         "ProductCode" = "8:{1DFAE185-E52E-40C5-90B8-14C3A838F260}"
-        "PackageCode" = "8:{2801F743-8922-487E-B44B-2566D4708EE8}"
+        "PackageCode" = "8:{0330B3AF-A6FD-4556-8232-039802AAE3F8}"
         "UpgradeCode" = "8:{7DA79E05-4B7B-4671-A35D-45688442DE81}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -911,6 +935,34 @@
         }
         "ProjectOutput"
         {
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_46D7E7FEB4544395BFBC954905F0C6CE"
+            {
+            "SourcePath" = "8:"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_6ED3F8A906794F70B4A0502F54897A22"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:Release|Win32"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_500388235C814430ADA133071ADF15C9"
             {
             "SourcePath" = "8:..\\..\\build\\Win32\\Release\\DGLWrapper\\OpenGL32.dll"
@@ -962,6 +1014,34 @@
             "OutputConfiguration" = "8:Release|x64"
             "OutputGroupCanonicalName" = "8:Built"
             "OutputProjectGuid" = "8:{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_5F1DE5D457724848A3DC56DBB91740DE"
+            {
+            "SourcePath" = "8:"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_6ED3F8A906794F70B4A0502F54897A22"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:Release|x64"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {

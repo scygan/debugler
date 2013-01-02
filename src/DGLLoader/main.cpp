@@ -1,0 +1,183 @@
+
+#pragma warning(disable : 4996) 
+
+#include <windows.h>
+#include <cstdlib>
+#include <stdexcept>
+#include <string>
+#include <cstdio>
+#include <stdint.h>
+
+#include "CompleteInject/CompleteInject.h"
+
+#include <boost/interprocess/sync/named_semaphore.hpp>
+#include <boost/interprocess/ipc/message_queue.hpp>
+
+#include "DGLCommon/os.h"
+
+bool isProcess64Bit(HANDLE hProcess) {
+    //get IsWow64Process function
+    typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+    LPFN_ISWOW64PROCESS fnIsWow64Process = 
+        fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress(
+        GetModuleHandle(TEXT("kernel32")),"IsWow64Process");
+    BOOL isWow;
+
+    //check if windows is 64-bit 
+    bool isWindows64bit = false;
+
+#ifdef _WIN64
+    //if we are a 64 bit app, windows is definitely 64 bit
+    isWindows64bit = true;
+#else
+    //we are 32-bit application. Check if we are in Wow64 mode
+    if (fnIsWow64Process && fnIsWow64Process(GetCurrentProcess(),&isWow) && isWow) {
+        //if we are in Wow64 mode, windows is 64 bit
+        isWindows64bit = true;
+    }
+#endif
+
+    //check if process is 64 bit
+    if (isWindows64bit && fnIsWow64Process && fnIsWow64Process(hProcess, &isWow) && !isWow) {
+        //windows is 64 bit, process is not in Wow64 mode, so process is 64 bit. This implies usage of 64 bit wrapper
+        return true;
+    }
+    return false;
+}
+
+
+int main(int argc, char** argv) {
+
+    struct {
+        uint32_t status;
+        char message[1000];
+    } IPCMessage;
+    IPCMessage.message[0] = 0;
+    IPCMessage.status = EXIT_SUCCESS;
+
+
+    try {
+        if (argc < 3) {
+            throw std::runtime_error("Loader called with wrong arguments. Usage: DGLLoader.exe executable wrapper [arguments]");
+        }
+
+        char* executable = argv[2];
+        char* wrapperPath = argv[1];
+        std::string arguments = executable; 
+        for (int i = 3; i < argc; i++) {
+            arguments += " ";
+            arguments += argv[i];
+        }
+
+        char path[MAX_PATH];
+        if (!GetCurrentDirectory(MAX_PATH, path)) {
+            throw std::runtime_error("GetCurrentDirectory failed");
+        }
+
+        printf("Executable: %s\nPath: %s\nArguments: %s\nWrapper: %s\n\n\n", executable, path, arguments.c_str(), wrapperPath);
+
+        //prepare some structures for CreateProcess output
+        STARTUPINFOA startupInfo;
+        memset(&startupInfo, 0, sizeof(startupInfo));
+        startupInfo.cb = sizeof(startupInfo);
+        PROCESS_INFORMATION processInformation; 
+        memset(&processInformation, 0, sizeof(processInformation));
+
+        //try run process (suspended - will not run user thread)
+
+        if (CreateProcessA(
+            executable,
+            (LPSTR)arguments.c_str(),
+            NULL, 
+            NULL,
+            FALSE, 
+            CREATE_SUSPENDED,
+            NULL,
+            path,
+            &startupInfo, 
+            &processInformation) == 0 ) {
+
+                throw std::runtime_error("Cannot create process");
+        }
+
+#ifdef _WIN64
+        if (!isProcess64Bit(processInformation.hProcess)) {
+            throw std::runtime_error("Incompatible loader version: used 64bit, but process is not 64bit");
+        }
+#else
+        if (isProcess64Bit(processInformation.hProcess)) {
+            throw std::runtime_error("Incompatible loader version: used 32bit, but process is not 32bit");
+        }
+#endif
+
+
+        //process is running, but is suspended (user thread not started, some DLLMain-s may be run by now)
+
+        //inject thread with wrapper library loading code, run through DLLMain and InitializeThread() function
+
+        HANDLE thread = Inject(processInformation.hProcess, wrapperPath, "InitializeThread");
+
+        //wait for remote thread to end - wait for library to load and InitializeThread() to return
+
+        WaitForSingleObject(thread, INFINITE); 
+
+
+        //resume process - now user thread is running
+        //whole OpenGL should be wrapped by now
+
+        if (ResumeThread(processInformation.hThread) == -1) {
+            throw std::runtime_error("Cannot resume process");
+        }
+
+    } catch (const std::runtime_error& e) {
+
+        IPCMessage.status = EXIT_FAILURE;
+
+        //generic, GetLastError() aware error printer
+
+        if ( DWORD lastError = GetLastError()) {
+
+            char* errorText;
+            FormatMessageA(
+                FORMAT_MESSAGE_FROM_SYSTEM
+                |FORMAT_MESSAGE_ALLOCATE_BUFFER
+                |FORMAT_MESSAGE_IGNORE_INSERTS,  
+                NULL,
+                GetLastError(),
+                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                (LPSTR)&errorText,
+                0,
+                NULL);
+
+            _snprintf(IPCMessage.message, 1000, "%s: %s\n", e.what(), errorText);
+
+            LocalFree(errorText);
+
+        } else {
+            _snprintf(IPCMessage.message, 1000, "%s\n", e.what());
+        }
+    }
+
+
+    printf(IPCMessage.message);
+
+    std::string queue = Os::getEnv("dgl_loader_mqueue");
+    if (queue.length()) {
+        boost::interprocess::message_queue mQueue(boost::interprocess::open_only, queue.c_str());
+        mQueue.send(&IPCMessage, sizeof(IPCMessage), 0);
+    }
+
+
+    std::string semaphore = Os::getEnv("dgl_loader_semaphore");
+    if (semaphore.length()) {
+
+        //this is a rather dirty WA for local debugging
+        //we fire given semaphore, when we are ready for connection (now!)
+
+        boost::interprocess::named_semaphore sem(boost::interprocess::open_only, semaphore.c_str());
+        sem.post();
+
+    }
+
+    return IPCMessage.status;
+}
