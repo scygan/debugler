@@ -440,7 +440,28 @@ void DGLMainWindow::createToolBars() {
      if (m_RunDialog.exec() == QDialog::Accepted) {
 
          try {
-             
+
+             //get IsWow64Process function
+             typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+             LPFN_ISWOW64PROCESS fnIsWow64Process = 
+                 fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress(
+                 GetModuleHandle(TEXT("kernel32")),"IsWow64Process");
+             BOOL isWow;
+
+             //check if windows is 64-bit (we need it later to inject proper version of wrapper)
+             bool isWindows64bit = false;
+
+#ifdef _WIN64
+             //if we are a 64 bit app, windows is definitely 64 bit
+             isWindows64bit = true;
+#else
+             //we are 32-bit application. Check if we are in Wow64 mode
+             if (fnIsWow64Process && fnIsWow64Process(GetCurrentProcess(),&isWow) && isWow) {
+                 //if we are in Wow64 mode, windows is 64 bit
+                 isWindows64bit = true;
+             }
+#endif
+                          
              //randomize connection port
              srand(GetTickCount());
              int port = rand() % (0xffff - 1024) + 1024;
@@ -450,10 +471,6 @@ void DGLMainWindow::createToolBars() {
              SetEnvironmentVariableA("dgl_port", portStr.str().c_str());
              std::string semName = "sem_" + portStr.str();
              SetEnvironmentVariableA("dgl_semaphore", semName.c_str());
-
-             //get wrapper path
-             QByteArray baPath = QDir::toNativeSeparators(QFileInfo("DGLWrapper/OpenGL32.dll").absoluteFilePath()).toUtf8();
-             const char* wrapperPath = baPath.constData();
 
              //prepare some structures for CreateProcess output
              STARTUPINFOA startupInfo;
@@ -478,6 +495,18 @@ void DGLMainWindow::createToolBars() {
 
                      throw std::runtime_error("Cannot create process");
              }
+
+             char* wrapperRelativePath = "DGLWrapper/OpenGL32.dll";
+
+             //check if process is 64 bit
+             if (isWindows64bit && fnIsWow64Process && fnIsWow64Process(processInformation.hProcess,&isWow) && !isWow) {
+                 //windows is 64 bit, process is not in Wow64 mode, so process is 64 bit. This implies usage of 64 bit wrapper
+                 wrapperRelativePath = "DGLWrapper64/OpenGL32.dll";
+             }
+
+             //get wrapper path
+             QByteArray baPath = QDir::toNativeSeparators(QFileInfo(wrapperRelativePath).absoluteFilePath()).toUtf8();
+             const char* wrapperPath = baPath.constData();
              
              //process is running, but is suspended (user thread not started, some DLLMain-s may be run by now)
 
@@ -556,7 +585,7 @@ void DGLMainWindow::createToolBars() {
          }
      }
  }
-
+ 
  void DGLMainWindow::disconnect() {
 
      // call DGLcontroller to terminate it's connection

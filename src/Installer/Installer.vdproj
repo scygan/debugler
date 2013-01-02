@@ -16,43 +16,61 @@
         "Entry"
         {
         "MsmKey" = "8:_0FF50AD5B395961DAD2EBA7144B7A66C"
-        "OwnerKey" = "8:_738C4C5140564289AF72F466C59FD88B"
+        "OwnerKey" = "8:_525DE70E72054CFEAE2693303582A805"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_0FF50AD5B395961DAD2EBA7144B7A66C"
+        "OwnerKey" = "8:_500388235C814430ADA133071ADF15C9"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_2176ACDEA8ADC2D5040BA7E89AC67C38"
-        "OwnerKey" = "8:_AA3A664DB62A48CBB9CD176050423FF8"
+        "OwnerKey" = "8:_EF5514578FFA4B77B958F574324FC428"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_738C4C5140564289AF72F466C59FD88B"
+        "MsmKey" = "8:_500388235C814430ADA133071ADF15C9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_525DE70E72054CFEAE2693303582A805"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_A079D00BDDB27A8279903F17E192D14A"
-        "OwnerKey" = "8:_AA3A664DB62A48CBB9CD176050423FF8"
+        "OwnerKey" = "8:_EF5514578FFA4B77B958F574324FC428"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_AA3A664DB62A48CBB9CD176050423FF8"
+        "MsmKey" = "8:_EF5514578FFA4B77B958F574324FC428"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_738C4C5140564289AF72F466C59FD88B"
+        "OwnerKey" = "8:_525DE70E72054CFEAE2693303582A805"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_AA3A664DB62A48CBB9CD176050423FF8"
+        "OwnerKey" = "8:_EF5514578FFA4B77B958F574324FC428"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_500388235C814430ADA133071ADF15C9"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -138,6 +156,14 @@
         {
             "LaunchCondition"
             {
+                "{A06ECF26-33A3-4562-8140-9B0E340D4F24}:_A4BF21B596894ECF9BA73E45CE880DC7"
+                {
+                "Name" = "8:.NET Framework"
+                "Message" = "8:[VSDNETMSG]"
+                "FrameworkVersion" = "8:.NETFramework,Version=v4.0,Profile=Client"
+                "AllowLaterVersions" = "11:FALSE"
+                "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=131000"
+                }
             }
         }
         "File"
@@ -229,6 +255,17 @@
                         {
                         }
                     }
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_E26563A11B084931915C73B0A1B7CD13"
+                    {
+                    "Name" = "8:DGLWrapper64"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_5BCFB71AF87E40479FE4D87A1A9F2D8D"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
             "{1525181F-901A-416C-8A58-119130FE478E}:_88CF4C27E3244684B5A0C7898F5EBC95"
@@ -281,7 +318,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Debugler"
         "ProductCode" = "8:{1DFAE185-E52E-40C5-90B8-14C3A838F260}"
-        "PackageCode" = "8:{C4BE778E-E1A1-44AC-AE77-18F5D1846855}"
+        "PackageCode" = "8:{2801F743-8922-487E-B44B-2566D4708EE8}"
         "UpgradeCode" = "8:{7DA79E05-4B7B-4671-A35D-45688442DE81}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -461,7 +498,7 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_85229FBD82DB4A72BD12C08A73784394"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_835A82C6EC514074A122A32CE474EAD2"
             {
             "Name" = "8:Debugler GUI"
             "Arguments" = "8:"
@@ -469,7 +506,7 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_AA3A664DB62A48CBB9CD176050423FF8"
+            "Target" = "8:_EF5514578FFA4B77B958F574324FC428"
             "Folder" = "8:_C11F9DCAA80F48AA87BA37F3C85EBD09"
             "WorkingFolder" = "8:_6ED3F8A906794F70B4A0502F54897A22"
             "Icon" = "8:"
@@ -874,7 +911,119 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_5418385EBEB0437388F5E1935CB0F679"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_500388235C814430ADA133071ADF15C9"
+            {
+            "SourcePath" = "8:..\\..\\build\\Win32\\Release\\DGLWrapper\\OpenGL32.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_BFF30F0D96274B51BD29F5F93C5C5860"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:Release|Win32"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_525DE70E72054CFEAE2693303582A805"
+            {
+            "SourcePath" = "8:..\\..\\build\\x64\\Release\\DGLWrapper\\OpenGL32.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_E26563A11B084931915C73B0A1B7CD13"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:Release|x64"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_81B5CA06FD4445F2A1AE2D5E07915DE3"
+            {
+            "SourcePath" = "8:"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_E26563A11B084931915C73B0A1B7CD13"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:Release|x64"
+            "OutputGroupCanonicalName" = "8:Symbols"
+            "OutputProjectGuid" = "8:{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_EF5514578FFA4B77B958F574324FC428"
+            {
+            "SourcePath" = "8:..\\..\\build\\Win32\\Release\\DGLGUI.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_6ED3F8A906794F70B4A0502F54897A22"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:Release|Win32"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{28B3A2F3-8E6F-4D4C-B29F-BF6180067E26}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F79D4726836146808B0E864CADAC2596"
             {
             "SourcePath" = "8:"
             "TargetName" = "8:"
@@ -894,65 +1043,9 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
+            "OutputConfiguration" = "8:Release|Win32"
             "OutputGroupCanonicalName" = "8:Symbols"
             "OutputProjectGuid" = "8:{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-            }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_738C4C5140564289AF72F466C59FD88B"
-            {
-            "SourcePath" = "8:..\\..\\build\\Release\\DGLWrapper\\OpenGL32.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_BFF30F0D96274B51BD29F5F93C5C5860"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
-            "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-            }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_AA3A664DB62A48CBB9CD176050423FF8"
-            {
-            "SourcePath" = "8:..\\..\\build\\Release\\DGLGUI.exe"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_6ED3F8A906794F70B4A0502F54897A22"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
-            "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{28B3A2F3-8E6F-4D4C-B29F-BF6180067E26}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {
