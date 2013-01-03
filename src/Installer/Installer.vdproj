@@ -76,25 +76,25 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_5F1DE5D457724848A3DC56DBB91740DE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_46D7E7FEB4544395BFBC954905F0C6CE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_EF5514578FFA4B77B958F574324FC428"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_5F1DE5D457724848A3DC56DBB91740DE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_500388235C814430ADA133071ADF15C9"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_46D7E7FEB4544395BFBC954905F0C6CE"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -342,7 +342,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Debugler"
         "ProductCode" = "8:{1DFAE185-E52E-40C5-90B8-14C3A838F260}"
-        "PackageCode" = "8:{0330B3AF-A6FD-4556-8232-039802AAE3F8}"
+        "PackageCode" = "8:{78F90FB5-67D6-4038-888B-395AB1C66590}"
         "UpgradeCode" = "8:{7DA79E05-4B7B-4671-A35D-45688442DE81}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -1021,7 +1021,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_5F1DE5D457724848A3DC56DBB91740DE"
             {
-            "SourcePath" = "8:"
+            "SourcePath" = "8:..\\..\\build\\x64\\Release\\DGLLoader64.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_6ED3F8A906794F70B4A0502F54897A22"
