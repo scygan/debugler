@@ -665,7 +665,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
                 DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), tex->getName());
 
                 DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &width);
-                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &height);
+                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_HEIGHT, &height);
                 DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), lastTexture);
 
             } else if (type == GL_RENDERBUFFER) {
