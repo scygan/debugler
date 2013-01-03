@@ -86,15 +86,13 @@ extern "C" __declspec(dllexport) void InitializeThread() {
 
     TracerBase::SetNext<ImmediateModeTracer>(glBegin_Call);
     TracerBase::SetNext<ImmediateModeTracer>(glEnd_Call);
-    
-    g_Controller = boost::make_shared<DGLDebugController>();
 }
 
 /**
  * DGLwrapper routine called on library unload
  */
 void TearDown() {
-    g_Controller.reset();
+    _g_Controller.reset();
 }
 
 /**

@@ -5,7 +5,17 @@
 #include <boost/interprocess/sync/named_semaphore.hpp>
 #include "DGLCommon\os.h"
 
-boost::shared_ptr<DGLDebugController> g_Controller;
+boost::shared_ptr<DGLDebugController> _g_Controller;
+
+DGLDebugController* getController() {
+    if (!_g_Controller.get()) {
+        _g_Controller = boost::make_shared<DGLDebugController>();
+    }
+    return _g_Controller.get();
+};
+
+
+
 DGLGLState g_DGLGLState;
 DGLConfiguration g_Config;
 
@@ -215,7 +225,7 @@ void DGLDebugController::doHandleDisconnect(const std::string&) {
     //it is better to die here, than allow app to run uncontrolled.
 
     //this destroys "this"!
-    g_Controller.reset();
+    _g_Controller.reset();
     Os::terminate();
 }
 
@@ -234,7 +244,7 @@ dglnet::Server& DGLDebugController::getServer() {
         
 
         int portNum = atoi(port.c_str());
-        boost::shared_ptr<dglnet::Server> srv = boost::make_shared<dglnet::Server>(portNum, g_Controller.get());
+        boost::shared_ptr<dglnet::Server> srv = boost::make_shared<dglnet::Server>(portNum, this);
         
         std::string semaphore = Os::getEnv("dgl_semaphore");
         if (semaphore.length()) {
@@ -248,7 +258,7 @@ dglnet::Server& DGLDebugController::getServer() {
         }
                         
         srv->accept();
-        g_Controller->connect(srv);
+        connect(srv);
 
     }
     return *m_Server;

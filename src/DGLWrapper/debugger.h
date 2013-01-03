@@ -322,7 +322,12 @@ private:
 /** 
  *  Global controller object instance
  */
-extern boost::shared_ptr<DGLDebugController> g_Controller;
+extern boost::shared_ptr<DGLDebugController> _g_Controller;
+
+/** 
+ *  Global controller object instance getter
+ */
+DGLDebugController* getController();
 
 /** 
  *  Global state object instance

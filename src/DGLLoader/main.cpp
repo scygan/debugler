@@ -10,8 +10,8 @@
 
 #include "CompleteInject/CompleteInject.h"
 
+#include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/sync/named_semaphore.hpp>
-#include <boost/interprocess/ipc/message_queue.hpp>
 
 #include "DGLCommon/os.h"
 
@@ -46,15 +46,17 @@ bool isProcess64Bit(HANDLE hProcess) {
 }
 
 
+struct IPCMessage {
+    IPCMessage(uint32_t s):status(s) { message[0] = 0; };
+    uint32_t status;
+    char message[1000];
+};
+
+
 int main(int argc, char** argv) {
 
-    struct {
-        uint32_t status;
-        char message[1000];
-    } IPCMessage;
-    IPCMessage.message[0] = 0;
-    IPCMessage.status = EXIT_SUCCESS;
-
+    IPCMessage default(EXIT_SUCCESS);
+    IPCMessage* ipcMessage = &default;    
 
     try {
         if (argc < 3) {
@@ -131,7 +133,7 @@ int main(int argc, char** argv) {
 
     } catch (const std::runtime_error& e) {
 
-        IPCMessage.status = EXIT_FAILURE;
+        ipcMessage->status = EXIT_FAILURE;
 
         //generic, GetLastError() aware error printer
 
@@ -149,24 +151,26 @@ int main(int argc, char** argv) {
                 0,
                 NULL);
 
-            _snprintf(IPCMessage.message, 1000, "%s: %s\n", e.what(), errorText);
+            _snprintf(ipcMessage->message, 1000, "%s: %s\n", e.what(), errorText);
 
             LocalFree(errorText);
 
         } else {
-            _snprintf(IPCMessage.message, 1000, "%s\n", e.what());
+            _snprintf(ipcMessage->message, 1000, "%s\n", e.what());
         }
     }
 
 
-    printf(IPCMessage.message);
+    printf(ipcMessage->message);
 
-    std::string queue = Os::getEnv("dgl_loader_mqueue");
-    if (queue.length()) {
-        boost::interprocess::message_queue mQueue(boost::interprocess::open_only, queue.c_str());
-        mQueue.send(&IPCMessage, sizeof(IPCMessage), 0);
+
+    std::string shmemName = Os::getEnv("dgl_loader_shmem");
+    if (shmemName.length()) {
+        boost::interprocess::shared_memory_object shobj(boost::interprocess::open_only, shmemName.c_str(), boost::interprocess::read_write);
+        boost::interprocess::mapped_region region(shobj, boost::interprocess::read_write);
+        std::memset(region.get_address(), 0, region.get_size());
+        memcpy(region.get_address(), ipcMessage, sizeof(IPCMessage));
     }
-
 
     std::string semaphore = Os::getEnv("dgl_loader_semaphore");
     if (semaphore.length()) {
@@ -179,5 +183,5 @@ int main(int argc, char** argv) {
 
     }
 
-    return IPCMessage.status;
+    return ipcMessage->status;
 }

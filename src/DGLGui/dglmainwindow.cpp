@@ -17,7 +17,7 @@
 #include "dglgui.h"
 
 #include <boost/interprocess/sync/named_semaphore.hpp>
-#include <boost/interprocess/ipc/message_queue.hpp>
+#include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread/thread.hpp>
 
@@ -432,6 +432,13 @@ void DGLMainWindow::createToolBars() {
      }
  }
 
+ struct IPCMessage {
+     IPCMessage(uint32_t s):status(s) { message[0] = 0; };
+     uint32_t status;
+     char message[1000];
+ };
+
+
  void DGLMainWindow::runDialog() {
 
      //execute connection dialog to obtain connection parameters
@@ -484,17 +491,14 @@ void DGLMainWindow::createToolBars() {
              boost::interprocess::named_semaphore semOpenGL(boost::interprocess::create_only, semNameOpenGL.c_str(), 0);
 
 
-             //message queue for getting loader error
-             struct {
-                 uint32_t status;
-                 char message[1000];
-             } IPCMessage;
+             //shmem for getting loader error
 
-             std::string messageQueueName = "queue_" + portStr.str();
-             SetEnvironmentVariableA("dgl_loader_mqueue", messageQueueName.c_str());
-             boost::interprocess::message_queue loaderMQueue(boost::interprocess::create_only, messageQueueName.c_str(), 
-                 1, sizeof(IPCMessage));
-
+             std::string shmemName = "shmem_" + portStr.str();
+             SetEnvironmentVariableA("dgl_loader_shmem", shmemName.c_str());
+             boost::interprocess::shared_memory_object shobj(boost::interprocess::create_only, shmemName.c_str(), boost::interprocess::read_write);
+             shobj.truncate(sizeof(IPCMessage));
+             boost::interprocess::mapped_region region(shobj, boost::interprocess::read_write);
+             IPCMessage* ipcMessage = (IPCMessage*)region.get_address();
 
              //prepare some structures for CreateProcess output
              STARTUPINFOA startupInfo;
@@ -546,12 +550,8 @@ void DGLMainWindow::createToolBars() {
                  }
              }
 
-             unsigned int rcvSize, prio;
-             loaderMQueue.receive(&IPCMessage, sizeof(IPCMessage), rcvSize, prio);
-             assert(sizeof(IPCMessage) ==  rcvSize);
-
-             if (IPCMessage.status != EXIT_SUCCESS) {
-                 throw std::runtime_error(IPCMessage.message);
+             if (ipcMessage->status != EXIT_SUCCESS) {
+                 throw std::runtime_error(ipcMessage->message);
              }
 
              //application is loaded now
