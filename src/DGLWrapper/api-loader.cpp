@@ -13,6 +13,8 @@
 #endif
 #include "gl-wrappers.h"
 
+#include <DGLCommon/os.h>
+
 //here direct pointers are kept (pointers to entrypoints exposed by underlying OpenGL32 implementation
 //use DIRECT_CALL(name) to call one of these pointers
 void* g_DirectPointers[Entrypoints_NUM];
@@ -94,7 +96,13 @@ void LoadOpenGLLibrary() {
         if (g_DirectPointers[i]) {
             //this entrypoint was loaded from OpenGL32.dll, detour it!
             void * hookPtr = getWrapperPointer(i);
-            Mhook_SetHook(&(PVOID&)g_DirectPointers[i], hookPtr);
+            if (!Mhook_SetHook(&(PVOID&)g_DirectPointers[i], hookPtr)) {
+                std::string error = "Cannot load OpenGL32.dll funcion ";
+                error += GetEntryPointName(i);
+                error += "().";
+                MessageBox(0, error.c_str(), "Cannot hook library", MB_OK | MB_ICONSTOP);
+                Os::terminate();
+            }
         }
     }
 #endif
