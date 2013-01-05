@@ -18,5 +18,12 @@
         <file>highlight/todo.lang</file>
         <file>highlight/url.lang</file>
         <file>highlight/xml.lang</file>
+        <file>icons/buffer.png</file>
+        <file>icons/context.png</file>
+        <file>icons/fbo.png</file>
+        <file>icons/framebuffer.png</file>
+        <file>icons/shader.png</file>
+        <file>icons/textures.png</file>
+        <file>icons/program.png</file>
     </qresource>
 </RCC>

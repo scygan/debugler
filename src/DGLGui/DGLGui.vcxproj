@@ -747,6 +747,13 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <None Include="icons\buffer.png" />
+    <None Include="icons\context.png" />
+    <None Include="icons\fbo.png" />
+    <None Include="icons\framebuffer.png" />
+    <None Include="icons\shader.png" />
+    <None Include="icons\shader_object.png" />
+    <None Include="icons\textures.png" />
     <None Include="res\checkbox.png" />
     <None Include="res\darkorange.stylesheet" />
     <None Include="res\default.stylesheet" />

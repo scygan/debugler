@@ -17,16 +17,6 @@ public:
 };
 
 
-class DGLTextureWidget: public QClickableTreeWidgetItem {
-public:
-    DGLTextureWidget();
-    DGLTextureWidget(dglnet::ContextObjectNameTarget name);
-    virtual void handleDoubleClick(DglController*);
-private:
-    dglnet::ContextObjectNameTarget m_name;
-};
-
-
 class DGLTreeView : public QDockWidget {
     Q_OBJECT
 

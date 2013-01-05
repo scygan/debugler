@@ -39,21 +39,29 @@ void DGLTreeView::setConnected(bool connected) {
 
 void QClickableTreeWidgetItem::handleDoubleClick(DglController*) {}
 
-DGLTextureWidget::DGLTextureWidget():m_name(0) {}
+class DGLTextureWidget: public QClickableTreeWidgetItem {
+public:
+    DGLTextureWidget():m_name(0) {}
 
-DGLTextureWidget::DGLTextureWidget(dglnet::ContextObjectNameTarget name):m_name(name) {
-    setText(0, QString("Texture ") + QString::number(name.m_Name) + QString::fromStdString(" (" + GetTextureTargetName(name.m_Target) + ")"));
-}
+    DGLTextureWidget(dglnet::ContextObjectNameTarget name, QString iconPath):m_name(name) {
+        setText(0, QString("Texture ") + QString::number(name.m_Name) + QString::fromStdString(" (" + GetTextureTargetName(name.m_Target) + ")"));
+        setIcon(0, QIcon(iconPath));
+    }
 
-void DGLTextureWidget::handleDoubleClick(DglController* controller) {
-    controller->getViewRouter()->show(m_name.m_Name, DGLResource::ObjectTypeTexture);
-}
+    virtual void handleDoubleClick(DglController* controller) {
+        controller->getViewRouter()->show(m_name.m_Name, DGLResource::ObjectTypeTexture);
+    }
+
+private:
+    dglnet::ContextObjectNameTarget m_name;
+};
 
 class DGLBufferWidget: public QClickableTreeWidgetItem {
 public:
     DGLBufferWidget() {}
-    DGLBufferWidget(dglnet::ContextObjectName name):m_name(name) {
+    DGLBufferWidget(dglnet::ContextObjectName name, QString iconPath):m_name(name) {
         setText(0, QString("Buffer ") + QString::number(name.m_Name));
+        setIcon(0, QIcon(iconPath));
     }
     void handleDoubleClick(DglController* controller) {
         controller->getViewRouter()->show(m_name.m_Name, DGLResource::ObjectTypeBuffer);
@@ -65,7 +73,7 @@ private:
 class DGLFBOWidget: public QClickableTreeWidgetItem {
 public:
     DGLFBOWidget() {}
-    DGLFBOWidget(dglnet::ContextObjectName name):m_name(name) {
+    DGLFBOWidget(dglnet::ContextObjectName name, QString iconPath):m_name(name) {
         setText(0, QString("FBO ") + QString::number(name.m_Name));
     }
     void handleDoubleClick(DglController* controller) {
@@ -78,8 +86,9 @@ private:
 class DGLShaderWidget: public QClickableTreeWidgetItem {
 public:
     DGLShaderWidget() {}
-    DGLShaderWidget(dglnet::ContextObjectNameTarget name):m_name(name) {
+    DGLShaderWidget(dglnet::ContextObjectNameTarget name, QString iconPath):m_name(name) {
         setText(0, QString("Shader ") + QString::number(name.m_Name) + QString::fromStdString(" (" + GetShaderStageName(name.m_Target) + ")"));
+        setIcon(0, QIcon(iconPath));
     }
     void handleDoubleClick(DglController* controller) {
         controller->getViewRouter()->show(m_name.m_Name, DGLResource::ObjectTypeShader, m_name.m_Target);
@@ -91,8 +100,9 @@ private:
 class DGLProgramWidget: public QClickableTreeWidgetItem {
 public:
     DGLProgramWidget() {}
-    DGLProgramWidget(dglnet::ContextObjectName name):m_name(name) {
+    DGLProgramWidget(dglnet::ContextObjectName name, QString iconPath):m_name(name) {
         setText(0, QString(" Shader Program ") + QString::number(name.m_Name));
+        setIcon(0, QIcon(iconPath));
     }
     void handleDoubleClick(DglController* controller) {
         controller->getViewRouter()->show(m_name.m_Name, DGLResource::ObjectTypeProgram);
@@ -105,7 +115,7 @@ private:
 class DGLFramebufferWidget: public QClickableTreeWidgetItem {
 public:
     DGLFramebufferWidget() {}
-    DGLFramebufferWidget(dglnet::ContextObjectName type):m_type(type) {
+    DGLFramebufferWidget(dglnet::ContextObjectName type, QString iconPath):m_type(type) {
         std::string name = "unknown";
         switch (type.m_Name) {
             case GL_FRONT_RIGHT:
@@ -118,6 +128,7 @@ public:
                 name = "Back buffer"; break;
         }
         setText(0, QString(name.c_str()));
+        setIcon(0, QIcon(iconPath));
     }
     void handleDoubleClick(DglController* controller) {
         controller->getViewRouter()->show(m_type.m_Name, DGLResource::ObjectTypeFramebuffer);
@@ -128,14 +139,15 @@ public:
 template<class ObjType>
 class DGLObjectNodeWidget: public QClickableTreeWidgetItem {
 public:
-    DGLObjectNodeWidget(QString header) {
+    DGLObjectNodeWidget(QString header, QString iconPath):m_IconPath(iconPath) {
         setText(0, header);
+        setIcon(0, QIcon(iconPath));
     }
     template<typename T>
     void update(const std::set<T>& names) {
         for (std::set<T>::iterator i = names.begin(); i != names.end(); i++) {
             if (m_Childs.find(i->m_Name) == m_Childs.end()) {
-                m_Childs[i->m_Name] = ObjType(*i);
+                m_Childs[i->m_Name] = ObjType(*i, m_IconPath);
                 addChild(&m_Childs[i->m_Name]);
             }
         }
@@ -151,17 +163,25 @@ public:
     }
 private:
     std::map<uint, ObjType> m_Childs;
+    QString m_IconPath;
 };
 
 class DGLCtxTreeWidget: public QClickableTreeWidgetItem  {
 public:
-    DGLCtxTreeWidget():m_TextureNode("Textures"), m_BufferNode("Vertex Buffers"), m_FBONode("Framebuffer objects"), m_ShaderNode("Shaders"), m_ProgramNode("Shader Programs"), m_FramebufferNode("Frame Buffers")  {
+    DGLCtxTreeWidget():
+          m_TextureNode("Textures", ":/icons/texture.png"),
+          m_BufferNode("Vertex Buffers", ":/icons/buffer.png"),
+          m_FBONode("Framebuffer objects", ":/icons/fbo.png"),
+          m_ShaderNode("Shaders", ":/icons/shader.png"),
+          m_ProgramNode("Shader Programs", ":/icons/program.png"),
+          m_FramebufferNode("Frame Buffers", ":/icons/framebuffer.png")  {
         addChild(&m_TextureNode);
         addChild(&m_BufferNode);
         addChild(&m_FBONode);
         addChild(&m_ShaderNode);
         addChild(&m_ProgramNode);
         addChild(&m_FramebufferNode);
+        setIcon(0, QIcon(":/icons/context.png"));
     }
     uint getId() { return m_Id; }
 

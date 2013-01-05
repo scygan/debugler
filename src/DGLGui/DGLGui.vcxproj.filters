@@ -39,6 +39,9 @@
     <Filter Include="ComleteInject">
       <UniqueIdentifier>{f58f9574-793c-41f5-ad16-cba0f9569892}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\icons">
+      <UniqueIdentifier>{f0d93f8c-e7f3-4ca1-a5ec-7f8e9cda441f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -400,6 +403,27 @@
     </None>
     <None Include="res\default.stylesheet">
       <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\buffer.png">
+      <Filter>Resource Files\icons</Filter>
+    </None>
+    <None Include="icons\context.png">
+      <Filter>Resource Files\icons</Filter>
+    </None>
+    <None Include="icons\fbo.png">
+      <Filter>Resource Files\icons</Filter>
+    </None>
+    <None Include="icons\framebuffer.png">
+      <Filter>Resource Files\icons</Filter>
+    </None>
+    <None Include="icons\shader.png">
+      <Filter>Resource Files\icons</Filter>
+    </None>
+    <None Include="icons\shader_object.png">
+      <Filter>Resource Files\icons</Filter>
+    </None>
+    <None Include="icons\textures.png">
+      <Filter>Resource Files\icons</Filter>
     </None>
   </ItemGroup>
 </Project>
