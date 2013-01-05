@@ -1,7 +1,7 @@
 #include "dgltextureview.h"
 #include "dglgui.h"
 
-DGLTextureViewItem::DGLTextureViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
+DGLTextureViewItem::DGLTextureViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent), m_CurrentFace(0), m_CurrentLevel(0) {
     m_Ui.setupUi(this);
     
     m_PixelRectangleScene = new DGLPixelRectangleScene();
@@ -14,10 +14,14 @@ DGLTextureViewItem::DGLTextureViewItem(uint name, DGLResourceManager* resManager
 
     m_Ui.horizontalSlider_LOD->setDisabled(true);
 
-    CONNASSERT(connect(m_Ui.horizontalSlider_LOD,SIGNAL(sliderMoved(int)),this,SLOT(sliderMoved(int))));
+    CONNASSERT(connect(m_Ui.horizontalSlider_LOD,SIGNAL(sliderMoved(int)),this,SLOT(levelSliderMoved(int))));
+    CONNASSERT(connect(m_Ui.comboBoxCM,SIGNAL(currentIndexChanged(int)),this,SLOT(faceComboChanged(int))));
 
     CONNASSERT(connect(m_Listener,SIGNAL(update(const DGLResource&)),this,SLOT(update(const DGLResource&))));
     CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
+
+    m_Ui.labelCM->hide();
+    m_Ui.comboBoxCM->hide();
 }
 
 void DGLTextureViewItem::error(const std::string& message) {
@@ -27,21 +31,66 @@ void DGLTextureViewItem::error(const std::string& message) {
 
 void DGLTextureViewItem::update(const DGLResource& res) {
     const DGLResourceTexture* resource = dynamic_cast<const DGLResourceTexture*>(&res);
-    
-    m_Levels = resource->m_Levels;
-    
-    m_Ui.horizontalSlider_LOD->setRange(0, m_Levels.size() - 1);
-    m_Ui.horizontalSlider_LOD->setValue(0);
-    sliderMoved(0);
-    m_Ui.horizontalSlider_LOD->setEnabled(true);
+
+    m_FacesLevels = resource->m_FacesLevels;
+
+    if (m_FacesLevels.size()) {
+        
+        if (m_FacesLevels.size() > 1) {
+            //texture has faces
+            m_Ui.labelCM->show();
+            m_Ui.comboBoxCM->show();
+
+            m_CurrentFace = min(m_CurrentFace, (m_FacesLevels.size() - 1));
+
+        } else {
+            m_Ui.labelCM->hide();
+            m_Ui.comboBoxCM->hide();
+            m_CurrentFace = 0;
+        }
+
+        m_Ui.comboBoxCM->setCurrentIndex(m_CurrentFace);
+        m_Ui.horizontalSlider_LOD->setRange(0, m_FacesLevels[m_CurrentFace].size() - 1);
+        m_Ui.horizontalSlider_LOD->setEnabled(true);
+
+        internalUpdate();
+
+    } else {
+        error("Texture empty");
+    }
 }
 
-void DGLTextureViewItem::sliderMoved(int value) {
-    if (value >= 0 && value < m_Levels.size()) {
-        m_PixelRectangleScene->setPixelRectangle(&m_Levels[value]);
-    } else {
-        m_PixelRectangleScene->setText("Unknown LOD");
-    }    
+void DGLTextureViewItem::faceComboChanged(int value) {
+    uint uvalue = value;
+    if (uvalue != m_CurrentFace && uvalue < m_FacesLevels.size()) {
+        m_CurrentFace = uvalue;
+        internalUpdate();
+    }
+}
+
+void DGLTextureViewItem::levelSliderMoved(int value) {
+    uint uvalue = value;
+    if (uvalue != m_CurrentLevel && uvalue < m_FacesLevels[m_CurrentFace].size()) {
+        m_CurrentLevel = uvalue;
+        internalUpdate();
+    }
+}
+
+void DGLTextureViewItem::internalUpdate() {
+
+    //validate m_CurrentFace
+    if (m_CurrentFace >= m_FacesLevels.size()) {
+         m_PixelRectangleScene->setText("Selected texture face does not exists");
+         return;
+    }
+
+    //validate m_CurrentLevel
+    if (m_CurrentLevel >= m_FacesLevels[m_CurrentFace].size()) {
+        m_PixelRectangleScene->setText("Selected texture level does not exists");
+        return;
+    }
+    
+    m_PixelRectangleScene->setPixelRectangle(&m_FacesLevels[m_CurrentFace][m_CurrentLevel]);
 }
 
 

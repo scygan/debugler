@@ -163,11 +163,11 @@ class DGLResourceTexture: public DGLResource {
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
         ar & boost::serialization::base_object<DGLResource>(*this);
-        ar & m_Levels;
+        ar & m_FacesLevels;
     }
 
 public:
-    std::vector<DGLPixelRectangle> m_Levels;
+    std::vector<std::vector<DGLPixelRectangle>> m_FacesLevels;
 };
 
 class DGLResourceBuffer: public DGLResource {

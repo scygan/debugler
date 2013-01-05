@@ -27,15 +27,21 @@ public:
 private slots:
     void error(const std::string& message);
     void update(const DGLResource& res);
-    void sliderMoved(int value);
+    void levelSliderMoved(int value);
+    void faceComboChanged(int value);
 
 private: 
+
+    void internalUpdate();
+
     Ui::DGLTextureViewItem m_Ui;
     DGLPixelRectangleScene* m_PixelRectangleScene;
     boost::shared_ptr<DGLPixelRectangleView> m_PixelRectangleView;
-    std::vector<DGLPixelRectangle> m_Levels;
+    std::vector<std::vector<DGLPixelRectangle>> m_FacesLevels;
 
     DGLResourceListener* m_Listener;
+
+    uint m_CurrentLevel, m_CurrentFace;
 };
 
 #endif // DGLTEXTUREVIEW_H

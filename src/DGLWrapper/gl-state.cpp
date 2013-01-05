@@ -88,6 +88,23 @@ GLenum GLTextureObj::getTarget() {
     return m_Target;
 }
 
+GLenum GLTextureObj::getTextureLevelTarget(int face) {
+    if (m_Target == GL_TEXTURE_CUBE_MAP) {
+        GLenum cubeMapFaces[] = {
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+            GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+            GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+        };
+        assert(face < sizeof(cubeMapFaces)/sizeof(cubeMapFaces[0]));
+        return cubeMapFaces[face];
+    } else {
+        return getTarget();
+    }
+}
+
 GLBufferObj::GLBufferObj(GLuint name):GLObj(name),m_Target(0) {}
 
 void GLBufferObj::setTarget(GLenum target) {
@@ -369,7 +386,11 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
     GLTextureObj* tex = ensureTexture(name);
     if (tex->getTarget() == 0) {
         throw std::runtime_error("Texture target is unknown");
-    } else if (tex->getTarget() != GL_TEXTURE_2D) {
+    } else if (tex->getTarget() != GL_TEXTURE_1D &&
+               tex->getTarget() != GL_TEXTURE_2D &&
+               tex->getTarget() != GL_TEXTURE_RECTANGLE &&
+               tex->getTarget() != GL_TEXTURE_1D_ARRAY && 
+               tex->getTarget() != GL_TEXTURE_CUBE_MAP) {
         throw std::runtime_error("Texture target is unsupported");
     }
 
@@ -380,66 +401,98 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
     //rebind texture, so we can access it
     GLint lastTexture = 0;
     switch (tex->getTarget()) {
-    case GL_TEXTURE_2D:
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D, &lastTexture);
-        break;
-    default:
-        assert(0);
+        case GL_TEXTURE_1D:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_1D, &lastTexture);
+            break;
+        case GL_TEXTURE_2D:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D, &lastTexture);
+            break;
+        case GL_TEXTURE_RECTANGLE:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_RECTANGLE, &lastTexture);
+            break;
+        case GL_TEXTURE_1D_ARRAY:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_1D_ARRAY, &lastTexture);
+            break;
+        case GL_TEXTURE_CUBE_MAP:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_CUBE_MAP, &lastTexture);
+            break;
+        default:
+            assert(0);
     }
     if (lastTexture != tex->getName()) {
         DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), tex->getName());
     }
 
-    for (int level = 0; true; level++) {
-        DGLPixelRectangle texLevel;
-        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &texLevel.m_Width);
-        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_HEIGHT, &texLevel.m_Height);
-        if (!texLevel.m_Width || !texLevel.m_Height || DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
-            break;
-        
-        GLint rgba[4] = {0, 0, 0, 0};
-        GLint stencil = 0, depth = 0;
-        
-        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_RED_SIZE, &rgba[0]);
-        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_GREEN_SIZE, &rgba[1]);
-        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_BLUE_SIZE, &rgba[2]);
-        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_ALPHA_SIZE, &rgba[3]);
-        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_STENCIL_SIZE, &stencil);
-        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_DEPTH_SIZE, &depth);
+    if (tex->getTarget() == GL_TEXTURE_CUBE_MAP) {
+        resource->m_FacesLevels.resize(6);
+    } else {
+        resource->m_FacesLevels.resize(1);
+    }
 
-        GLenum colorFormats[4] = { GL_RED, GL_RG, GL_RGB, GL_BGRA }; //last element is BGRA intentionally (viewer will handle DX format faster)
+    for (size_t face = 0; face < resource->m_FacesLevels.size(); face++) {
+        for (int level = 0; true; level++) {
 
-        GLenum format = 0;
-        texLevel.m_Channels = 0;
-        for (int i = 0; i < 4; i++) {
-            if (rgba[i]) {
-                texLevel.m_Channels = i + 1;
-                format = colorFormats[i];
+            GLenum levelTarget = tex->getTextureLevelTarget(face);
+
+            DGLPixelRectangle texLevel;
+
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_WIDTH, &texLevel.m_Width);
+            if (tex->getTarget() == GL_TEXTURE_1D) {
+                texLevel.m_Height = 1;
+            } else {
+                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_HEIGHT, &texLevel.m_Height);
+            }
+            if (!texLevel.m_Width || !texLevel.m_Height || DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
+                break;
+         
+            GLint rgba[4] = {0, 0, 0, 0};
+            GLint stencil = 0, depth = 0;
+
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_RED_SIZE, &rgba[0]);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_GREEN_SIZE, &rgba[1]);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_BLUE_SIZE, &rgba[2]);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_ALPHA_SIZE, &rgba[3]);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_STENCIL_SIZE, &stencil);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_DEPTH_SIZE, &depth);
+
+            GLenum colorFormats[4] = { GL_RED, GL_RG, GL_RGB, GL_BGRA }; //last element is BGRA intentionally (viewer will handle DX format faster)
+
+            GLenum format = 0;
+            texLevel.m_Channels = 0;
+            for (int i = 0; i < 4; i++) {
+                if (rgba[i]) {
+                    texLevel.m_Channels = i + 1;
+                    format = colorFormats[i];
+                }
+            }
+            if (!format) {
+                // not a color texture
+                if (depth) {
+                    format = GL_DEPTH_COMPONENT; texLevel.m_Channels = 1;
+                }
+                if (stencil) {
+                    format = GL_STENCIL_INDEX; texLevel.m_Channels = 1;
+                }
+                if (stencil && depth) {
+                    format = GL_DEPTH_STENCIL; texLevel.m_Channels = 2;
+                }
+            }
+
+            queryCheckError();
+
+            if (!format) {
+                throw std::runtime_error("Checked texture red, green, blue, alpha, stencil and depth size - all are 0. Unrecognized format.");
+            }
+
+            resource->m_FacesLevels[face].push_back(texLevel);
+
+            {
+                DGLPixelRectangle* texLevelToRead = &resource->m_FacesLevels[face].back();
+                texLevelToRead->m_Pixels.resize(texLevel.m_Width * texLevel.m_Height * texLevel.m_Channels);
+                if (texLevelToRead->m_Pixels.size())
+                    DIRECT_CALL_CHK(glGetTexImage)(levelTarget, level, format, GL_UNSIGNED_BYTE, &texLevelToRead->m_Pixels[0]);
             }
         }
-        if (!format) {
-            // not a color texture
-            if (depth) {
-                format = GL_DEPTH_COMPONENT; texLevel.m_Channels = 1;
-            }
-            if (stencil) {
-                format = GL_STENCIL_INDEX; texLevel.m_Channels = 1;
-            }
-            if (stencil && depth) {
-                format = GL_DEPTH_STENCIL; texLevel.m_Channels = 2;
-            }
-        }
-
-        queryCheckError();
-
-        if (!format) {
-            throw std::runtime_error("Checked texture red, green, blue, alpha, stencil and depth size - all are 0. Unrecognized format.");
-        }
-
-        texLevel.m_Pixels.resize(texLevel.m_Width * texLevel.m_Height * texLevel.m_Channels);
-        if (texLevel.m_Pixels.size())
-            DIRECT_CALL_CHK(glGetTexImage)(tex->getTarget(), level, format, GL_UNSIGNED_BYTE, &texLevel.m_Pixels[0]);
-        resource->m_Levels.push_back(texLevel);
     }
 
     //restore state
@@ -1135,7 +1188,6 @@ DGLResourceState::StateItem GLContext::getStateIsEnabled(const char* name, GLenu
     }                                          
     return ret;
 }
-
 
 boost::shared_ptr<DGLResource> GLContext::queryState(GLuint name) {
 

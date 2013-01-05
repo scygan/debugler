@@ -21,11 +21,32 @@ private:
 
 class GLTextureObj: public GLObj {
 public:
+    /**
+     * Ctor
+     */
     GLTextureObj(GLuint name);
+    
     GLTextureObj() {}
+
+    /**
+     * Get texture target (it is detected usually on glBindTexture())
+     */
     void setTarget(GLenum);
+
+    /**
+     * Get texture target
+     */
     GLenum getTarget();
+    
+    /**
+     * Get texture level target from texture target and face
+     */
+    GLenum getTextureLevelTarget(int face);
 private:
+
+    /**
+     * Texture target. Must be cached here - not retrievable by GL API
+     */
     GLenum m_Target;
 };
 
@@ -241,6 +262,7 @@ private:
      * Get state element (using glIsEnabled)
      */
     DGLResourceState::StateItem getStateIsEnabled(const char* name, GLenum value);
+
 };
 
 } //namespace
