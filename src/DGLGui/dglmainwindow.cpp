@@ -16,6 +16,8 @@
 #include "dglstateview.h"
 #include "dglgui.h"
 
+#include "resource.h"
+
 #include <boost/interprocess/sync/named_semaphore.hpp>
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -50,6 +52,11 @@ struct DGLColorScheme {
 
 DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags) {
+
+    HICON hIcon = (HICON)LoadImage( GetModuleHandle( nullptr ), MAKEINTRESOURCE( IDI_ICON1 ), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_LOADTRANSPARENT );
+    setWindowIcon( QIcon( QPixmap::fromWinHICON( hIcon ) ) );
+    DestroyIcon( hIcon );
+
 
     //load designer UI 
     

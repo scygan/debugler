@@ -25,5 +25,6 @@
         <file>icons/shader.png</file>
         <file>icons/textures.png</file>
         <file>icons/program.png</file>
+        <file>debugler.ico</file>
     </qresource>
 </RCC>

@@ -123,7 +123,7 @@ DGLShaderViewItem::DGLShaderViewItem(uint name, DGLResourceManager* resManager, 
 
     m_Ui.verticalLayout->insertWidget(0, m_GLSLEditor);
     m_Ui.verticalLayout->setStretch(0, 4);
-    m_Ui.verticalLayout->setStretch(1, 1);
+    m_Ui.verticalLayout->setStretch(2, 1);
 
     m_Highlighter = boost::make_shared<srchiliteqt::Qt4SyntaxHighlighter>(m_Ui.checkBox_Highlight->isChecked()?m_GLSLEditor->document():NULL);
     m_Highlighter->init("glsl.lang");
