@@ -3,6 +3,11 @@
 
 #include <string>
 
+class OsIcon {
+public:
+    virtual void * get() = 0;
+};
+
 class OsStatusPresenter {
 public:
     virtual void setStatus(const std::string message) = 0;
@@ -17,8 +22,9 @@ public:
 
     static void terminate();
 
-
     static OsStatusPresenter* createStatusPresenter();
+
+    static OsIcon* createIcon();
 };
 
 

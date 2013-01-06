@@ -16,7 +16,7 @@
 #include "dglstateview.h"
 #include "dglgui.h"
 
-#include "resource.h"
+#include <DGLCommon/os.h>
 
 #include <boost/interprocess/sync/named_semaphore.hpp>
 #include <boost/interprocess/managed_shared_memory.hpp>
@@ -53,10 +53,8 @@ struct DGLColorScheme {
 DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags) {
 
-    HICON hIcon = (HICON)LoadImage( GetModuleHandle( nullptr ), MAKEINTRESOURCE( IDI_ICON1 ), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_LOADTRANSPARENT );
-    setWindowIcon( QIcon( QPixmap::fromWinHICON( hIcon ) ) );
-    DestroyIcon( hIcon );
-
+    boost::shared_ptr<OsIcon> icon(Os::createIcon());
+    setWindowIcon(QIcon(QPixmap::fromWinHICON((HICON)icon->get())));
 
     //load designer UI 
     

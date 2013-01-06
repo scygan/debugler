@@ -416,9 +416,6 @@
     <None Include="icons\textures.png">
       <Filter>Resource Files\qrc-sources\icons</Filter>
     </None>
-    <None Include="debugler.ico">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="res\checkbox.png">
       <Filter>Resource Files\qrc-sources</Filter>
     </None>
@@ -434,10 +431,5 @@
     <None Include="res\handle.png">
       <Filter>Resource Files\qrc-sources</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="dglgui.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>

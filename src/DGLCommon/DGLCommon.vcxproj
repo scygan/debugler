@@ -118,11 +118,18 @@
     <ClInclude Include="gl-headers.h" />
     <ClInclude Include="gl-types.h" />
     <ClInclude Include="os.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gl-serialized.cpp" />
     <ClCompile Include="gl-types.cpp" />
     <ClCompile Include="os.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="dglcommon.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="debugler.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

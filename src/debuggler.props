@@ -11,7 +11,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLNet;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\external\boost\stage\lib\$(Platform);$(SolutionDir)\..\build\$(Platform)\$(Configuration)\srchiliteqt;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\source-highlight;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLNet;$(SolutionDir)\..\dump\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\external\boost\stage\lib\$(Platform);$(SolutionDir)\..\build\$(Platform)\$(Configuration)\srchiliteqt;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\source-highlight;</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>..;../external/boost/;../boost;../external/</AdditionalIncludeDirectories>

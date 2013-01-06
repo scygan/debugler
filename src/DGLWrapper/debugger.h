@@ -6,6 +6,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/circular_buffer.hpp>
 #include <DGLCommon/dglconfiguration.h>
+#include <DGLCommon/os.h>
 
 #include "gl-state.h"
 
@@ -310,6 +311,11 @@ private:
      * Call history object
      */
     CallHistory m_CallHistory;
+
+    /**
+     * Status presenter (baloon presenter)
+     */
+    boost::shared_ptr<OsStatusPresenter> m_presenter;
 };
 
 /** 

@@ -5,6 +5,25 @@
 #include <Windows.h>
 #include <Psapi.h>
 
+#include "resource.h"
+
+class OsIconImpl: public OsIcon {
+public:
+    OsIconImpl() {
+        m_Icon = (HICON)LoadImage( GetModuleHandle( nullptr ), MAKEINTRESOURCE( IDI_ICON1 ), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_LOADTRANSPARENT );
+    }
+
+    ~OsIconImpl() {
+        DestroyIcon(m_Icon);
+    }
+
+    virtual void * get()  {
+        return m_Icon;
+    }
+private:
+    HICON m_Icon;
+};
+
 class OsStatusPresenterImpl: public OsStatusPresenter {
 public:
     OsStatusPresenterImpl() {
@@ -13,6 +32,8 @@ public:
         m_niData.hWnd = GetDesktopWindow();
         m_niData.uID = 0xdeb091e4;
         m_niData.uTimeout = 5000; //deprecated on Vista
+        m_niData.hIcon = (HICON)m_Icon.get();
+        m_niData.uFlags = NIF_ICON;
 
         std::string process = Os::getProcessName();
         memcpy(m_niData.szInfoTitle,  process.c_str(), process.length() + 1);
@@ -31,6 +52,7 @@ public:
     }
 private: 
     NOTIFYICONDATA m_niData;
+    OsIconImpl m_Icon;
 };
 
 
@@ -63,4 +85,8 @@ void Os::terminate() {
 
 OsStatusPresenter* Os::createStatusPresenter() {
     return new OsStatusPresenterImpl();
+}
+
+OsIcon*  Os::createIcon() {
+    return new OsIconImpl();    
 }

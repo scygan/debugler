@@ -3,7 +3,6 @@
 
 #include"debugger.h"
 #include <boost/interprocess/sync/named_semaphore.hpp>
-#include "DGLCommon\os.h"
 
 boost::shared_ptr<DGLDebugController> _g_Controller;
 
@@ -215,6 +214,8 @@ void DGLDebugController::doHandleDisconnect(const std::string&) {
     //we have got disconnected from the client
     //it is better to die here, than allow app to run uncontrolled.
 
+    m_presenter->setStatus(Os::getProcessName() + ": terminating");
+
     //this destroys "this"!
     _g_Controller.reset();
     Os::terminate();
@@ -247,12 +248,17 @@ dglnet::Server& DGLDebugController::getServer() {
             sem.post();
 
         }
+
+        m_presenter = boost::shared_ptr<OsStatusPresenter>(Os::createStatusPresenter());
+        m_presenter->setStatus(Os::getProcessName() + ": wating for debugger on port " + port + ".");
                         
         m_Server->accept();
         
         dglnet::HelloMessage hello(Os::getProcessName());
 
         m_Server->sendMessage(&hello);
+
+        m_presenter->setStatus(Os::getProcessName() + ": debugger connected.");
 
     }
     return *m_Server;
