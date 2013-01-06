@@ -147,6 +147,7 @@ void DglController::disconnectServer() {
     m_Connected = false;
     m_NotifierRead.reset();
     m_NotifierWrite.reset();
+    newStatus("Disconnected.");
 }
 
 bool DglController::isConnected() {
@@ -177,6 +178,7 @@ void DglController::debugInterrupt() {
     assert(isConnected());
     dglnet::ContinueBreakMessage message(true);
     m_DglClient->sendMessage(&message);
+    newStatus("Interrupting...");
 }
 
 void DglController::debugStep() {
@@ -185,6 +187,7 @@ void DglController::debugStep() {
     assert(isConnected());
     dglnet::ContinueBreakMessage message(dglnet::ContinueBreakMessage::STEP_CALL);
     m_DglClient->sendMessage(&message);
+    newStatus("Running...");
 }
 
 void DglController::debugStepDrawCall() {
@@ -193,6 +196,7 @@ void DglController::debugStepDrawCall() {
     assert(isConnected());
     dglnet::ContinueBreakMessage message(dglnet::ContinueBreakMessage::STEP_DRAW_CALL);
     m_DglClient->sendMessage(&message);
+    newStatus("Running...");
 }
 
 void DglController::debugStepFrame() {
@@ -201,6 +205,7 @@ void DglController::debugStepFrame() {
     assert(isConnected());
     dglnet::ContinueBreakMessage message(dglnet::ContinueBreakMessage::STEP_FRAME);
     m_DglClient->sendMessage(&message);
+    newStatus("Running...");
 }
 
 void DglController::onSetStatus(std::string str) {
@@ -238,6 +243,7 @@ void DglController::doHandle(const dglnet::BreakedCallMessage & msg) {
 
     m_ResourceManager.emitQueries();
 
+    newStatus("Breaked execution.");
 }
 
 void DglController::doHandle(const dglnet::CallTraceMessage& msg) {
