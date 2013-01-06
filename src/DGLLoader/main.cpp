@@ -53,6 +53,23 @@ struct IPCMessage {
 };
 
 
+std::string getWrapperPath() {
+
+#ifdef _WIN64
+    std::string ret = "DGLWrapper64\\OpenGL32.dll";
+#else
+    std::string ret = "DGLWrapper\\OpenGL32.dll";
+#endif
+        
+    char fileName[MAX_PATH];
+    if (!GetModuleFileName(NULL, fileName, MAX_PATH)) {
+        return ret;
+    }
+    std::string tmp = fileName;
+    size_t splitPoint=tmp.find_last_of("/\\");
+    return tmp.substr(0, splitPoint) + "\\" + ret;
+}
+
 int main(int argc, char** argv) {
 
     IPCMessage default(EXIT_SUCCESS);
@@ -63,10 +80,9 @@ int main(int argc, char** argv) {
             throw std::runtime_error("Loader called with wrong arguments. Usage: DGLLoader.exe executable wrapper [arguments]");
         }
 
-        char* executable = argv[2];
-        char* wrapperPath = argv[1];
+        char* executable = argv[1];
         std::string arguments = executable; 
-        for (int i = 3; i < argc; i++) {
+        for (int i = 2; i < argc; i++) {
             arguments += " ";
             arguments += argv[i];
         }
@@ -76,7 +92,9 @@ int main(int argc, char** argv) {
             throw std::runtime_error("GetCurrentDirectory failed");
         }
 
-        printf("Executable: %s\nPath: %s\nArguments: %s\nWrapper: %s\n\n\n", executable, path, arguments.c_str(), wrapperPath);
+        std::string wrapperPath = getWrapperPath();
+
+        printf("Executable: %s\nPath: %s\nArguments: %s\nWrapper: %s\n\n\n", executable, path, arguments.c_str(), wrapperPath.c_str());
 
         //prepare some structures for CreateProcess output
         STARTUPINFOA startupInfo;
@@ -117,7 +135,7 @@ int main(int argc, char** argv) {
 
         //inject thread with wrapper library loading code, run through DLLMain and InitializeThread() function
 
-        HANDLE thread = Inject(processInformation.hProcess, wrapperPath, "InitializeThread");
+        HANDLE thread = Inject(processInformation.hProcess, wrapperPath.c_str(), "InitializeThread");
 
         //wait for remote thread to end - wait for library to load and InitializeThread() to return
 

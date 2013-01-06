@@ -342,7 +342,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Debugler"
         "ProductCode" = "8:{1DFAE185-E52E-40C5-90B8-14C3A838F260}"
-        "PackageCode" = "8:{78F90FB5-67D6-4038-888B-395AB1C66590}"
+        "PackageCode" = "8:{8071C54C-0BEF-4099-8D45-9AF96F76AF60}"
         "UpgradeCode" = "8:{7DA79E05-4B7B-4671-A35D-45688442DE81}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -528,12 +528,12 @@
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
+            "IconIndex" = "3:102"
             "Transitive" = "11:FALSE"
             "Target" = "8:_EF5514578FFA4B77B958F574324FC428"
             "Folder" = "8:_C11F9DCAA80F48AA87BA37F3C85EBD09"
             "WorkingFolder" = "8:_6ED3F8A906794F70B4A0502F54897A22"
-            "Icon" = "8:"
+            "Icon" = "8:_EF5514578FFA4B77B958F574324FC428"
             "Feature" = "8:"
             }
         }
@@ -937,7 +937,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_46D7E7FEB4544395BFBC954905F0C6CE"
             {
-            "SourcePath" = "8:"
+            "SourcePath" = "8:..\\..\\build\\Win32\\Release\\DGLLoader.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_6ED3F8A906794F70B4A0502F54897A22"

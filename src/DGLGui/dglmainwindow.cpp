@@ -459,23 +459,16 @@ void DGLMainWindow::createToolBars() {
              }
              
              std::string loaderPath;
-             char* wrapperRelativePath;
              switch (binaryType) {
                 case SCS_32BIT_BINARY:
                     loaderPath = "DGLLoader.exe";
-                    wrapperRelativePath = "DGLWrapper/OpenGL32.dll";
                     break;
                 case SCS_64BIT_BINARY:
                     loaderPath = "DGLLoader64.exe";
-                    wrapperRelativePath = "DGLWrapper64/OpenGL32.dll";
                     break;
                 default:
                     throw std::runtime_error("Unsupported PE binary format");
              }
-
-             //get wrapper path
-             QByteArray baPath = QDir::toNativeSeparators(QFileInfo(wrapperRelativePath).absoluteFilePath()).toUtf8();
-             std::string wrapperPath = baPath.constData();
 
              //randomize connection port
              srand(GetTickCount());
@@ -518,7 +511,6 @@ void DGLMainWindow::createToolBars() {
 
              std::string arguments = 
                  "\"" + loaderPath + "\" " +
-                 "\"" + wrapperPath + "\" " +
                  "\"" + m_RunDialog.getExecutable() + "\" " +
                  "\"" + m_RunDialog.getCommandLineArgs() + "\" ";
 
