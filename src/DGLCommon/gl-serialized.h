@@ -263,7 +263,7 @@ class DGLResourceProgram: public DGLResource {
 public:
 
     struct Uniform {
-        uint32_t m_type;
+        uint32_t m_type, m_rowSize;
         int32_t m_location;
         std::string m_name;
         std::vector<AnyValue> m_value;
@@ -276,6 +276,7 @@ public:
             ar & m_name;
             ar & m_value;
             ar & m_supportedType;
+            ar & m_rowSize;
         }
     };
 

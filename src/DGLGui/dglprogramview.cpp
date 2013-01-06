@@ -10,7 +10,7 @@ DGLProgramViewItem::DGLProgramViewItem(uint name, DGLResourceManager* resManager
     m_Label = new QLabel(this);
     m_Ui.verticalLayout_2->addWidget(m_Label);
     m_Ui.tableWidgetUniforms->setRowCount(1);
-    m_Ui.tableWidgetUniforms->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+    m_Ui.tableWidgetUniforms->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(0, new QTableWidgetItem("name"));
     m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(1, new QTableWidgetItem("type"));
     m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(2, new QTableWidgetItem("value"));
@@ -76,7 +76,9 @@ void DGLProgramViewItem::update(const DGLResource& res) {
             std::stringstream valStream; 
             valStream << std::showpoint;
             for (int j = 0; j < resource->m_Uniforms[i].m_value.size(); j++) {
-                if (j)
+                if (j % resource->m_Uniforms[i].m_rowSize == 0)
+                    valStream << std::endl;
+                else if (j)
                     valStream << ", ";
                 resource->m_Uniforms[i].m_value[j].writeToSS(valStream);
             }

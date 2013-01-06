@@ -861,155 +861,51 @@ boost::shared_ptr<DGLResource> GLContext::queryProgram(GLuint name) {
                 int typeSize;
                 switch (type) {
                 case GL_FLOAT:
-                    typeSize = 1;
-                    baseType = GL_FLOAT;
-                    break;
                 case GL_FLOAT_VEC2:
-                    typeSize = 2;
-                    baseType = GL_FLOAT;
-                    break;
                 case GL_FLOAT_VEC3:
-                    typeSize = 3;
-                    baseType = GL_FLOAT;
-                    break;
                 case GL_FLOAT_VEC4:
-                    typeSize = 4;
-                    baseType = GL_FLOAT;
-                    break;
                 case GL_FLOAT_MAT2:
-                    typeSize = 4;
-                    baseType = GL_FLOAT;
-                    break;
                 case GL_FLOAT_MAT3:
-                    typeSize = 9;
-                    baseType = GL_FLOAT;
-                    break;
                 case GL_FLOAT_MAT4:
-                    typeSize = 16;
-                    baseType = GL_FLOAT;
-                    break;
                 case GL_FLOAT_MAT2x3:
-                    typeSize = 6;
-                    baseType = GL_FLOAT;
-                    break;
                 case GL_FLOAT_MAT2x4:
-                    typeSize = 8;
-                    baseType = GL_FLOAT;
-                    break;
                 case GL_FLOAT_MAT3x2:
-                    typeSize = 6;
-                    baseType = GL_FLOAT;
-                    break;
                 case GL_FLOAT_MAT3x4:
-                    typeSize = 12;
-                    baseType = GL_FLOAT;
-                    break;
                 case GL_FLOAT_MAT4x2:
-                    typeSize = 8;
-                    baseType = GL_FLOAT;
-                    break;
                 case GL_FLOAT_MAT4x3:
-                    typeSize = 12;
                     baseType = GL_FLOAT;
                     break;
                 case GL_DOUBLE:
-                    typeSize = 1;
-                    baseType = GL_DOUBLE;
-                    break;
                 case GL_DOUBLE_VEC2:
-                    typeSize = 2;
-                    baseType = GL_DOUBLE;
-                    break;
                 case GL_DOUBLE_VEC3:
-                    typeSize = 3;
-                    baseType = GL_DOUBLE;
-                    break;
                 case GL_DOUBLE_VEC4:
-                    typeSize = 4;
-                    baseType = GL_DOUBLE;
-                    break;
                 case GL_DOUBLE_MAT2:
-                    typeSize = 4;
-                    baseType = GL_DOUBLE;
-                    break;
                 case GL_DOUBLE_MAT3:
-                    typeSize = 9;
-                    baseType = GL_DOUBLE;
-                    break;
                 case GL_DOUBLE_MAT4:
-                    typeSize = 16;
-                    baseType = GL_DOUBLE;
-                    break;
                 case GL_DOUBLE_MAT2x3:
-                    typeSize = 6;
-                    baseType = GL_DOUBLE;
-                    break;
                 case GL_DOUBLE_MAT2x4:
-                    typeSize = 8;
-                    baseType = GL_DOUBLE;
-                    break;
                 case GL_DOUBLE_MAT3x2:
-                    typeSize = 6;
-                    baseType = GL_DOUBLE;
-                    break;
                 case GL_DOUBLE_MAT3x4:
-                    typeSize = 12;
-                    baseType = GL_DOUBLE;
-                    break;
                 case GL_DOUBLE_MAT4x2:
-                    typeSize = 8;
-                    baseType = GL_DOUBLE;
-                    break;
                 case GL_DOUBLE_MAT4x3:
-                    typeSize = 12;
                     baseType = GL_DOUBLE;
                     break;
                 case GL_INT:
-                    typeSize = 1;
-                    baseType = GL_INT;
-                    break;
                 case GL_INT_VEC2:
-                    typeSize = 2;
-                    baseType = GL_INT;
-                    break;
                 case GL_INT_VEC3:
-                    typeSize = 3;
-                    baseType = GL_INT;
-                    break;
                 case GL_INT_VEC4:
-                    typeSize = 4;
                     baseType = GL_INT;
                     break;
                 case GL_UNSIGNED_INT:
-                    typeSize = 1;
-                    baseType = GL_UNSIGNED_INT;
-                    break;
                 case GL_UNSIGNED_INT_VEC2:
-                    typeSize = 2;
-                    baseType = GL_UNSIGNED_INT;
-                    break;
                 case GL_UNSIGNED_INT_VEC3:
-                    typeSize = 3;
-                    baseType = GL_UNSIGNED_INT;
-                    break;
                 case GL_UNSIGNED_INT_VEC4:
-                    typeSize = 4;
                     baseType = GL_UNSIGNED_INT;
                     break;
                 case GL_BOOL:
-                    typeSize = 1;
-                    baseType = GL_BOOL;
-                    break;
                 case GL_BOOL_VEC2:
-                    typeSize = 2;
-                    baseType = GL_BOOL;
-                    break;
                 case GL_BOOL_VEC3:
-                    typeSize = 3;
-                    baseType = GL_BOOL;
-                    break;
                 case GL_BOOL_VEC4:
-                    typeSize = 4;
                     baseType = GL_BOOL;
                     break;
                 default:
@@ -1017,6 +913,87 @@ boost::shared_ptr<DGLResource> GLContext::queryProgram(GLuint name) {
                 }
 
                 if (uniform.m_supportedType) {
+                    switch (type) {
+                    case GL_FLOAT:
+                    case GL_DOUBLE:
+                    case GL_INT:
+                    case GL_UNSIGNED_INT:
+                    case GL_BOOL:
+                        typeSize = 1;
+                        uniform.m_rowSize = 1;
+                        break;
+                    case GL_FLOAT_VEC2:
+                    case GL_DOUBLE_VEC2:
+                    case GL_INT_VEC2:
+                    case GL_UNSIGNED_INT_VEC2:
+                    case GL_BOOL_VEC2:
+                        typeSize = 2;
+                        uniform.m_rowSize = 2;
+                        break;
+                    case GL_FLOAT_VEC3:
+                    case GL_DOUBLE_VEC3:
+                    case GL_INT_VEC3:
+                    case GL_UNSIGNED_INT_VEC3:
+                    case GL_BOOL_VEC3:
+                        typeSize = 3;
+                        uniform.m_rowSize = 3;
+                        break;
+                    case GL_FLOAT_VEC4:
+                    case GL_DOUBLE_VEC4:
+                    case GL_INT_VEC4:
+                    case GL_UNSIGNED_INT_VEC4:
+                    case GL_BOOL_VEC4:
+                        typeSize = 4;
+                        uniform.m_rowSize = 4;
+                        break;
+                    case GL_FLOAT_MAT2:
+                    case GL_DOUBLE_MAT2:
+                        typeSize = 4;
+                        uniform.m_rowSize = 2;
+                        break;
+                    case GL_FLOAT_MAT3:
+                    case GL_DOUBLE_MAT3:
+                        typeSize = 9;
+                        uniform.m_rowSize = 3;
+                        break;
+                    case GL_FLOAT_MAT4:
+                    case GL_DOUBLE_MAT4:
+                        typeSize = 16;
+                        uniform.m_rowSize = 4;
+                        break;
+                    case GL_FLOAT_MAT2x3:
+                    case GL_DOUBLE_MAT2x3:
+                        typeSize = 6;
+                        uniform.m_rowSize = 3;
+                        break;
+                    case GL_FLOAT_MAT2x4:
+                    case GL_DOUBLE_MAT2x4:
+                        typeSize = 8;
+                        uniform.m_rowSize = 4;
+                        break;
+                    case GL_FLOAT_MAT3x2:
+                    case GL_DOUBLE_MAT3x2:
+                        typeSize = 6;
+                        uniform.m_rowSize = 2;
+                        break;
+                    case GL_FLOAT_MAT3x4:
+                    case GL_DOUBLE_MAT3x4:
+                        typeSize = 12;
+                        uniform.m_rowSize = 4;
+                        break;
+                    case GL_FLOAT_MAT4x2:
+                    case GL_DOUBLE_MAT4x2:
+                        typeSize = 8;
+                        uniform.m_rowSize = 2;
+                        break;
+                    case GL_FLOAT_MAT4x3:
+                    case GL_DOUBLE_MAT4x3:
+                        typeSize = 12;
+                        uniform.m_rowSize = 3;
+                        break;
+                    default:
+                        assert(0);
+                    }
 
                     //size is 1 for scalars and > 1 for arrays of uniform scalars (see glGetActiveUniform)
 
