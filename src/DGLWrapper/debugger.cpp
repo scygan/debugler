@@ -211,15 +211,6 @@ DGLDebugController::~DGLDebugController() {
     }
 }
 
-void DGLDebugController::connect(boost::shared_ptr<dglnet::Server> srv) {
-    m_Server = srv;
-    
-    std::string currentProcessName = "<unknown>";
-
-    dglnet::HelloMessage hello(Os::getProcessName());
-    srv->sendMessage(&hello);
-}
-
 void DGLDebugController::doHandleDisconnect(const std::string&) {
     //we have got disconnected from the client
     //it is better to die here, than allow app to run uncontrolled.
@@ -244,7 +235,7 @@ dglnet::Server& DGLDebugController::getServer() {
         
 
         int portNum = atoi(port.c_str());
-        boost::shared_ptr<dglnet::Server> srv = boost::make_shared<dglnet::Server>(portNum, this);
+        m_Server = boost::make_shared<dglnet::Server>(portNum, this);
         
         std::string semaphore = Os::getEnv("dgl_semaphore");
         if (semaphore.length()) {
@@ -257,8 +248,11 @@ dglnet::Server& DGLDebugController::getServer() {
 
         }
                         
-        srv->accept();
-        connect(srv);
+        m_Server->accept();
+        
+        dglnet::HelloMessage hello(Os::getProcessName());
+
+        m_Server->sendMessage(&hello);
 
     }
     return *m_Server;

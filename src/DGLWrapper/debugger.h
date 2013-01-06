@@ -247,13 +247,6 @@ public:
     ~DGLDebugController();
 
     /** 
-     * Called when new connection is made in initialization process
-     *
-     * @arg1 newly conencted server object
-     */
-    void connect(boost::shared_ptr<dglnet::Server>);
-
-    /** 
      * Handler of disconnection
      * 
      * disconnection is always fatal - we should not continue apllication without gui. 
