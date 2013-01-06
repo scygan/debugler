@@ -10,6 +10,8 @@
 #include "detours/detours.h"
 #endif
 
+#include <DGLCommon/os.h>
+
 /**
  * DGLwrapper routine called just after DLLinjection
  */
@@ -109,6 +111,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
                 return TRUE;
             }
 #endif
+            Os::setCurrentModuleHandle(hModule);
             Initialize();
             break;
         case DLL_THREAD_ATTACH:

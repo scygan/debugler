@@ -25,6 +25,10 @@ public:
     static OsStatusPresenter* createStatusPresenter();
 
     static OsIcon* createIcon();
+
+    static void setCurrentModuleHandle(void * handle);
+private:
+    static void* m_CurrentHandle;
 };
 
 

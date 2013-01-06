@@ -9,8 +9,8 @@
 
 class OsIconImpl: public OsIcon {
 public:
-    OsIconImpl() {
-        m_Icon = (HICON)LoadImage( GetModuleHandle( nullptr ), MAKEINTRESOURCE( IDI_ICON1 ), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_LOADTRANSPARENT );
+    OsIconImpl(void* moduleHandle) {
+        m_Icon = (HICON)LoadImage((HMODULE)moduleHandle, MAKEINTRESOURCE( IDI_ICON1 ), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_LOADTRANSPARENT );
     }
 
     ~OsIconImpl() {
@@ -20,13 +20,14 @@ public:
     virtual void * get()  {
         return m_Icon;
     }
+    static void* m_Handle;
 private:
     HICON m_Icon;
 };
 
 class OsStatusPresenterImpl: public OsStatusPresenter {
 public:
-    OsStatusPresenterImpl() {
+    OsStatusPresenterImpl(void* moduleHandle):m_Icon(moduleHandle) {
         memset(&m_niData, 0, sizeof(m_niData));
         m_niData.cbSize = sizeof(m_niData);
         m_niData.hWnd = GetDesktopWindow();
@@ -84,9 +85,21 @@ void Os::terminate() {
 }
 
 OsStatusPresenter* Os::createStatusPresenter() {
-    return new OsStatusPresenterImpl();
+    if (!m_CurrentHandle) {
+        m_CurrentHandle = GetModuleHandle(NULL);
+    }
+    return new OsStatusPresenterImpl(m_CurrentHandle);
 }
 
 OsIcon*  Os::createIcon() {
-    return new OsIconImpl();    
+    if (!m_CurrentHandle) {
+        m_CurrentHandle = GetModuleHandle(NULL);
+    }
+    return new OsIconImpl(m_CurrentHandle);    
 }
+
+void Os::setCurrentModuleHandle(void * handle) {
+    m_CurrentHandle = handle;
+}
+
+void* Os::m_CurrentHandle = NULL;

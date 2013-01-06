@@ -432,7 +432,7 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
     for (size_t face = 0; face < resource->m_FacesLevels.size(); face++) {
         for (int level = 0; true; level++) {
 
-            GLenum levelTarget = tex->getTextureLevelTarget(face);
+            GLenum levelTarget = tex->getTextureLevelTarget((int)face);
 
             DGLPixelRectangle texLevel;
 

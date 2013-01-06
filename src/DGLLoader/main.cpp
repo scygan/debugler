@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
     IPCMessage* ipcMessage = &default;    
 
     try {
-        if (argc < 3) {
+        if (argc < 2) {
             throw std::runtime_error("Loader called with wrong arguments. Usage: DGLLoader.exe executable wrapper [arguments]");
         }
 
