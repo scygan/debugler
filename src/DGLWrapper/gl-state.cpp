@@ -668,31 +668,38 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
         GLint maxColorAttachments; 
         DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
 
+        std::vector<GLenum> attachments(maxColorAttachments);
         for (int i = 0; i < maxColorAttachments; i++) {
+            attachments[i] = GL_COLOR_ATTACHMENT0 + i;
+        }
+        attachments.push_back(GL_DEPTH_ATTACHMENT);
+        attachments.push_back(GL_STENCIL_ATTACHMENT);
+
+        for (size_t i = 0; i < attachments.size(); i++) {
             GLint type, name;
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i],
                 GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
             if (type != GL_TEXTURE && type != GL_RENDERBUFFER)
                 continue;
 
-            resource->m_Attachments.push_back(DGLResourceFBO::FBOAttachment(GL_COLOR_ATTACHMENT0 + i));
+            resource->m_Attachments.push_back(DGLResourceFBO::FBOAttachment(attachments[i]));
 
             GLint rgba[4] = {0, 0, 0, 0};
             GLint stencil = 0, depth = 0;
 
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i],
                 GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
                 GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &rgba[0]);
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
                 GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, &rgba[1]);
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
                 GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, &rgba[2]);
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
                 GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &rgba[3]);
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
                 GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &stencil);
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
                 GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &depth);
 
             queryCheckError();
@@ -710,7 +717,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
                 }
 
                 GLint level;
-                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, 
+                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
                     GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, &level);
 
                 GLint lastTexture;
@@ -768,8 +775,8 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
                 resource->m_Attachments.back().m_PixelRectangle.m_Height * 
                 resource->m_Attachments.back().m_PixelRectangle.m_Channels
                 );
-
-            DIRECT_CALL_CHK(glReadBuffer)(GL_COLOR_ATTACHMENT0 + i);
+            if (attachments[i] != GL_DEPTH_ATTACHMENT && attachments[i] != GL_STENCIL_ATTACHMENT)
+                DIRECT_CALL_CHK(glReadBuffer)(attachments[i]); 
             if (resource->m_Attachments.back().m_PixelRectangle.m_Pixels.size())
                 DIRECT_CALL_CHK(glReadPixels)(0, 0, resource->m_Attachments.back().m_PixelRectangle.m_Width,
                     resource->m_Attachments.back().m_PixelRectangle.m_Height,
