@@ -67,10 +67,10 @@ namespace dglnet {
         m_Abort = true;
         try {
             m_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+            m_socket.close();
+            m_io_service.stop();
+            m_io_service.run();
         } catch( ... ) {}
-        m_socket.close();
-        m_io_service.stop();
-        m_io_service.run();
     }
     
     void Transport::poll() {
