@@ -436,6 +436,10 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
 
             DGLPixelRectangle texLevel;
 
+            GLint internalFormat;
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
+            texLevel.m_InternalFormat = internalFormat;
+
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_WIDTH, &texLevel.m_Width);
             if (tex->getTarget() == GL_TEXTURE_1D) {
                 texLevel.m_Height = 1;
@@ -604,6 +608,9 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
     //save state
     GLint currentBuffer; 
     {
+        //we cannot reliably get internalformat for default framebuffer
+        resource->m_PixelRectangle.m_InternalFormat = 0;
+
         DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &currentBuffer);
         state_setters::DefaultPBO defPBO;
         state_setters::CurrentFramebuffer currentFramebuffer(0);
@@ -726,6 +733,11 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
 
                 DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &width);
                 DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_HEIGHT, &height);
+
+                GLint internalFormat;
+                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
+                resource->m_Attachments.back().m_PixelRectangle.m_InternalFormat = internalFormat;
+
                 DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), lastTexture);
 
             } else if (type == GL_RENDERBUFFER) {
@@ -738,6 +750,11 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
                 DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, name);
                 DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &width);
                 DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
+
+                GLint internalFormat;
+                DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_INTERNAL_FORMAT, &internalFormat);
+                resource->m_Attachments.back().m_PixelRectangle.m_InternalFormat = internalFormat;
+
                 DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, lastRenderBuffer);
             }
 

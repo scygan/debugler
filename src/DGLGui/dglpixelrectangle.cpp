@@ -54,6 +54,18 @@ void DGLPixelRectangleView::onMouseLeft() {
     m_Ui->widgetColor->setPalette(pal);
 }
 
+void DGLPixelRectangleView::updateFormatSizeInfo(const DGLPixelRectangle* pixelRectangle) {
+    if (pixelRectangle) {
+        std::ostringstream formatSize;
+        if (pixelRectangle->m_InternalFormat)
+            formatSize << GetGLEnumName(pixelRectangle->m_InternalFormat) << " ";
+        formatSize << "(" << pixelRectangle->m_Width << "x" << pixelRectangle->m_Height << ")";
+        m_Ui->labelFormatSize->setText(QString::fromStdString(formatSize.str()));
+    } else {
+        m_Ui->labelFormatSize->clear();
+    }
+}
+
 DGLPixelRectangleViewWidget::DGLPixelRectangleViewWidget(QWidget* parent, DGLPixelRectangleScene* scene):QGraphicsView(parent), m_Scene(scene) {
     QPixmap* tile = new QPixmap(128, 128);
     tile->fill(Qt::white);

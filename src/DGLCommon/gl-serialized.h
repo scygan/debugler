@@ -151,9 +151,11 @@ class DGLPixelRectangle {
         ar & m_Height;
         ar & m_Channels;
         ar & m_Pixels;
+        ar & m_InternalFormat;
     }
 public:
     int32_t m_Width, m_Height, m_Channels;
+    uint32_t m_InternalFormat;
     std::vector<int8_t> m_Pixels;
 };
 

@@ -24,11 +24,13 @@ private:
     DGLPixelRectangleScene* m_Scene;
 };
 
+class DGLPixelRectangle;
 
 class DGLPixelRectangleView: public QGraphicsView {
     Q_OBJECT
 public:
     DGLPixelRectangleView(QWidget* parent, DGLPixelRectangleScene* scene);
+    void updateFormatSizeInfo(const DGLPixelRectangle* pixelRectangle);
 private slots:
     void onMouseOver(const QPoint& pos, const QColor& color, int numChannels);
     void onMouseLeft();
@@ -37,9 +39,6 @@ private:
     DGLPixelRectangleViewWidget m_ViewWidget;
 };
 
-
-
-class DGLPixelRectangle;
 class QGraphicsPixmapItem;
 
 class DGLPixelRectangleScene: public QObject {

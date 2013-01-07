@@ -20,11 +20,13 @@ DGLFramebufferViewItem::DGLFramebufferViewItem(uint name, DGLResourceManager* re
 
 void DGLFramebufferViewItem::error(const std::string& message) {
     m_PixelRectangleScene->setText(message);
+    m_PixelRectangleView->updateFormatSizeInfo(NULL);
 }
 
 void DGLFramebufferViewItem::update(const DGLResource& res) {
     const DGLResourceFramebuffer* resource = dynamic_cast<const DGLResourceFramebuffer*>(&res);
     m_PixelRectangleScene->setPixelRectangle(&resource->m_PixelRectangle);
+    m_PixelRectangleView->updateFormatSizeInfo(&resource->m_PixelRectangle);
 }
 
 DGLFramebufferView::DGLFramebufferView(QWidget* parrent, DglController* controller):DGLTabbedView(parrent, controller) {

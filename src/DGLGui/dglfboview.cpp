@@ -26,6 +26,7 @@ void DGLFBOViewItem::error(const std::string& message) {
     m_Ui.m_AttListWidget->clear();
     m_PixelRectangleScene->setText(message);
     m_Error = true;
+    m_PixelRectangleView->updateFormatSizeInfo(NULL);
 }
 
 void DGLFBOViewItem::update(const DGLResource& res) {
@@ -50,6 +51,7 @@ void DGLFBOViewItem::showAttachment(int id) {
         m_PixelRectangleScene->setText(errorMsg);
     } else {
         m_PixelRectangleScene->setPixelRectangle(&m_Attachments[id].m_PixelRectangle);
+        m_PixelRectangleView->updateFormatSizeInfo((&m_Attachments[id].m_PixelRectangle));
     }
 }
 

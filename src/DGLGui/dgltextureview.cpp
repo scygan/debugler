@@ -27,6 +27,7 @@ DGLTextureViewItem::DGLTextureViewItem(uint name, DGLResourceManager* resManager
 void DGLTextureViewItem::error(const std::string& message) {
     m_PixelRectangleScene->setText(message);
     m_Ui.horizontalSlider_LOD->setDisabled(true);
+    m_PixelRectangleView->updateFormatSizeInfo(NULL);
 }
 
 void DGLTextureViewItem::update(const DGLResource& res) {
@@ -91,6 +92,7 @@ void DGLTextureViewItem::internalUpdate() {
     }
     
     m_PixelRectangleScene->setPixelRectangle(&m_FacesLevels[m_CurrentFace][m_CurrentLevel]);
+    m_PixelRectangleView->updateFormatSizeInfo(&m_FacesLevels[m_CurrentFace][m_CurrentLevel]);
 }
 
 
