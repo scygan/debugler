@@ -67,7 +67,7 @@ private:
     QSize m_ImageSize;
     float m_Scale;
     QPoint m_Pos;
-    size_t m_PixelSize, m_Channels;
+    size_t m_PixelSize, m_RowSize, m_Channels;
 };
 
 

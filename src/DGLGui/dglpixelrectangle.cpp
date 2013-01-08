@@ -89,7 +89,7 @@ void DGLPixelRectangleViewWidget::resizeEvent (QResizeEvent * event) {
 
 void DGLPixelRectangleViewWidget::mouseMoveEvent ( QMouseEvent * event ) {
         
-    QPoint pos = QPoint(((event->posF() - QPointF(m_Scene->getPos())) / m_Scene->getScale()).toPoint());
+    QPoint pos(((event->posF() - QPointF(m_Scene->getPos())) / m_Scene->getScale() - QPointF(0.5, 0.5)).toPoint());
     if (pos.x() >= 0 && pos.y() >= 0 && pos.x() < m_Scene->getImageSize().width() && pos.y() < m_Scene->getImageSize().height()) {
         emit onMouseOver(pos, m_Scene->getColor(pos.x(), pos.y()), m_Scene->getNumChannels());
     } else {
@@ -124,17 +124,27 @@ void DGLPixelRectangleScene::setPixelRectangle(const DGLPixelRectangle* pixelRec
 
     if (pixelRectangle->m_Channels == 2) {
         //special case: recompute buffer to be 4 element
-        m_PixelData.resize(pixelRectangle->m_Pixels.size() * 2, 0);
-        for (size_t i = 0; i < pixelRectangle->m_Pixels.size(); i+=2) {
-            m_PixelData[2 * i + 0] =  pixelRectangle->m_Pixels[i + 0];
-            m_PixelData[2 * i + 1] = pixelRectangle->m_Pixels[i + 1];
+
+        //the new buffer size should not need alignment
+        assert (pixelRectangle->m_Width * 2 % 4 == 0);
+
+        m_PixelData.resize(pixelRectangle->m_Width * pixelRectangle->m_Height * 2, 0);
+
+        for (int y = 0; y < pixelRectangle->m_Height; y++) {
+            for (int x = 0; x < pixelRectangle->m_Width; x++) {
+                int idxOrig = pixelRectangle->m_RowBytes * y + x * 2;
+                int idxNew = 2 * (pixelRectangle->m_Width + x * 2);
+                m_PixelData[idxNew + 0] = pixelRectangle->m_Pixels[idxOrig + 0];
+                m_PixelData[idxNew + 1] = pixelRectangle->m_Pixels[idxOrig + 1];
+            }
         }
-        m_ImageSize.setHeight(m_PixelData.size() / 4 / pixelRectangle->m_Width);
+        m_RowSize = pixelRectangle->m_Width * 4;
+        m_ImageSize.setHeight(m_PixelData.size() / m_RowSize);
     } else {
         //normal case, use buffer untouched
         m_PixelData = std::vector<uchar>(pixelRectangle->m_Pixels.begin(), pixelRectangle->m_Pixels.end());
-
-        m_ImageSize.setHeight(m_PixelData.size() / pixelRectangle->m_Channels / pixelRectangle->m_Width);
+        m_RowSize = pixelRectangle->m_RowBytes;
+        m_ImageSize.setHeight(m_PixelData.size() / m_RowSize);
     }
 
     assert(m_ImageSize.height() == pixelRectangle->m_Height);
@@ -190,7 +200,7 @@ const QPoint& DGLPixelRectangleScene::getPos() {
 }
 
 QColor DGLPixelRectangleScene::getColor(int x, int y) {
-    int idx = (y * m_ImageSize.width() + x) * m_PixelSize;
+    int idx = y * m_RowSize + x * m_PixelSize;
 
     int r = 0, g = 0, b = 0, a = 255;
 

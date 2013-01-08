@@ -57,6 +57,11 @@ namespace state_setters {
                 DIRECT_CALL_CHK(glPixelStorei)(m_Targets[i], m_SavedState[i]);
             }
         }
+    public:
+        int getAligned(int x) {
+            int a = m_State[7];
+            return (x + a - 1) & (-a);
+        }
     private:
         static const GLenum m_Targets[STATE_SIZE]; 
         static GLint m_SavedState[STATE_SIZE];
@@ -64,7 +69,7 @@ namespace state_setters {
     };
     const GLenum PixelStoreAlignment::m_Targets[STATE_SIZE] = {GL_PACK_SWAP_BYTES, GL_PACK_LSB_FIRST, GL_PACK_ROW_LENGTH, GL_PACK_IMAGE_HEIGHT, GL_PACK_SKIP_ROWS,
         GL_PACK_SKIP_PIXELS, GL_PACK_SKIP_IMAGES, GL_PACK_ALIGNMENT};
-    const GLint PixelStoreAlignment::m_State[STATE_SIZE] =  {GL_FALSE, GL_FALSE, 0, 0, 0, 0, 0, 1 };
+    const GLint PixelStoreAlignment::m_State[STATE_SIZE] =  {GL_FALSE, GL_FALSE, 0, 0, 0, 0, 0, 4 };
     GLint PixelStoreAlignment::m_SavedState[STATE_SIZE];
 };
 #undef STATE_SIZE
@@ -492,7 +497,11 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
 
             {
                 DGLPixelRectangle* texLevelToRead = &resource->m_FacesLevels[face].back();
-                texLevelToRead->m_Pixels.resize(texLevel.m_Width * texLevel.m_Height * texLevel.m_Channels);
+
+                //align to pixelstore
+                texLevelToRead->m_RowBytes = defAlignment.getAligned(texLevelToRead->m_Width * texLevelToRead->m_Channels);
+
+                texLevelToRead->m_Pixels.resize(texLevelToRead->m_Height * texLevelToRead->m_RowBytes);
                 if (texLevelToRead->m_Pixels.size())
                     DIRECT_CALL_CHK(glGetTexImage)(levelTarget, level, format, GL_UNSIGNED_BYTE, &texLevelToRead->m_Pixels[0]);
             }
@@ -648,7 +657,9 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
             }
         }       
 
-        resource->m_PixelRectangle.m_Pixels.resize(resource->m_PixelRectangle.m_Width * resource->m_PixelRectangle.m_Height * resource->m_PixelRectangle.m_Channels);
+        resource->m_PixelRectangle.m_RowBytes = defAlignment.getAligned(resource->m_PixelRectangle.m_Width * resource->m_PixelRectangle.m_Channels);
+
+        resource->m_PixelRectangle.m_Pixels.resize(resource->m_PixelRectangle.m_Height * resource->m_PixelRectangle.m_RowBytes);
         if (resource->m_PixelRectangle.m_Pixels.size())
             DIRECT_CALL_CHK(glReadPixels)(0, 0, resource->m_PixelRectangle.m_Width, resource->m_PixelRectangle.m_Height, format, GL_UNSIGNED_BYTE, &resource->m_PixelRectangle.m_Pixels[0]);
     }
@@ -779,18 +790,16 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
                 if (stencil) {
                     format = GL_STENCIL_INDEX; resource->m_Attachments.back().m_PixelRectangle.m_Channels = 1;
                 }
-                if (stencil && depth) {
-                    format = GL_DEPTH_STENCIL; resource->m_Attachments.back().m_PixelRectangle.m_Channels = 2;
-                }
             }
 
             resource->m_Attachments.back().m_PixelRectangle.m_Width = width;
             resource->m_Attachments.back().m_PixelRectangle.m_Height = height;
 
+            resource->m_Attachments.back().m_PixelRectangle.m_RowBytes = defAlignment.getAligned(width * resource->m_Attachments.back().m_PixelRectangle.m_Channels);
+
             resource->m_Attachments.back().m_PixelRectangle.m_Pixels.resize(
-                resource->m_Attachments.back().m_PixelRectangle.m_Width * 
-                resource->m_Attachments.back().m_PixelRectangle.m_Height * 
-                resource->m_Attachments.back().m_PixelRectangle.m_Channels
+                resource->m_Attachments.back().m_PixelRectangle.m_RowBytes * 
+                resource->m_Attachments.back().m_PixelRectangle.m_Height
                 );
             if (attachments[i] != GL_DEPTH_ATTACHMENT && attachments[i] != GL_STENCIL_ATTACHMENT)
                 DIRECT_CALL_CHK(glReadBuffer)(attachments[i]); 
