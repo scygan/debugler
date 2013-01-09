@@ -296,31 +296,35 @@ void DGLDebugController::doHandle(const dglnet::QueryResourceMessage& msg) {
             if (!ctx) {
                 throw std::runtime_error("No OpenGL Context present, cannot issue query");
             }
+            if (msg.m_ResourceQueries[i].m_ObjectName.m_Context && 
+                ctx->getId() != msg.m_ResourceQueries[i].m_ObjectName.m_Context) {
+                throw std::runtime_error("Object's parent context is not current now, cannot issue query");
+            }
             ctx->startQuery();
             switch (msg.m_ResourceQueries[i].m_Type) {
                 case DGLResource::ObjectTypeBuffer:
-                    res = ctx->queryBuffer(msg.m_ResourceQueries[i].m_ObjectId);
+                    res = ctx->queryBuffer(msg.m_ResourceQueries[i].m_ObjectName.m_Name);
                     break;
                 case DGLResource::ObjectTypeFramebuffer:
-                    res = ctx->queryFramebuffer(msg.m_ResourceQueries[i].m_ObjectId);
+                    res = ctx->queryFramebuffer(msg.m_ResourceQueries[i].m_ObjectName.m_Name);
                     break;
                 case DGLResource::ObjectTypeFBO:
-                    res = ctx->queryFBO(msg.m_ResourceQueries[i].m_ObjectId);
+                    res = ctx->queryFBO(msg.m_ResourceQueries[i].m_ObjectName.m_Name);
                     break;
                 case DGLResource::ObjectTypeTexture:
-                    res = ctx->queryTexture(msg.m_ResourceQueries[i].m_ObjectId);
+                    res = ctx->queryTexture(msg.m_ResourceQueries[i].m_ObjectName.m_Name);
                     break;
                 case DGLResource::ObjectTypeShader:
-                    res = ctx->queryShader(msg.m_ResourceQueries[i].m_ObjectId);
+                    res = ctx->queryShader(msg.m_ResourceQueries[i].m_ObjectName.m_Name);
                     break;
                 case DGLResource::ObjectTypeProgram:
-                    res = ctx->queryProgram(msg.m_ResourceQueries[i].m_ObjectId);
+                    res = ctx->queryProgram(msg.m_ResourceQueries[i].m_ObjectName.m_Name);
                     break;
                 case DGLResource::ObjectTypeGPU:
-                    res = ctx->queryGPU(msg.m_ResourceQueries[i].m_ObjectId);
+                    res = ctx->queryGPU(msg.m_ResourceQueries[i].m_ObjectName.m_Name);
                     break;
                 case DGLResource::ObjectTypeState:
-                    res = ctx->queryState(msg.m_ResourceQueries[i].m_ObjectId);
+                    res = ctx->queryState(msg.m_ResourceQueries[i].m_ObjectName.m_Name);
                     break;
                 default:
                     throw std::runtime_error("Invalid object type requested");

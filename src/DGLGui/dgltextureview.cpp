@@ -1,7 +1,7 @@
 #include "dgltextureview.h"
 #include "dglgui.h"
 
-DGLTextureViewItem::DGLTextureViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent), m_CurrentFace(0), m_CurrentLevel(0) {
+DGLTextureViewItem::DGLTextureViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent), m_CurrentFace(0), m_CurrentLevel(0) {
     m_Ui.setupUi(this);
     
     m_PixelRectangleScene = new DGLPixelRectangleScene();
@@ -100,15 +100,15 @@ DGLTextureView::DGLTextureView(QWidget* parrent, DglController* controller):DGLT
     setupNames("Textures", "DGLTextureView");
    	
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showTexture(uint)), this, SLOT(showTexture(uint))));
+    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showTexture(uint, uint)), this, SLOT(showTexture(uint, uint))));
         
 }
 
-void DGLTextureView::showTexture(uint name) {
-    ensureTabDisplayed(name);
+void DGLTextureView::showTexture(uint ctx, uint name) {
+    ensureTabDisplayed(ctx, name);
 }
 
-DGLTabbedViewItem* DGLTextureView::createTab(uint id) {
+DGLTabbedViewItem* DGLTextureView::createTab(const ContextObjectName& id) {
     return new DGLTextureViewItem(id, m_ResourceManager, this);
 }
 

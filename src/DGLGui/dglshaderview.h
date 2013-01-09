@@ -11,10 +11,10 @@ public:
     DGLShaderView(QWidget* parrent, DglController* controller);
 
     public slots:
-        void showShader(uint, uint);
+        void showShader(uint, uint, uint);
 
 private:
-        virtual DGLTabbedViewItem* createTab(uint id);
+        virtual DGLTabbedViewItem* createTab(const ContextObjectName& id);
         virtual QString getTabName(uint id, uint target);
 };
 

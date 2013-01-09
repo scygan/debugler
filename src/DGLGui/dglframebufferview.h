@@ -12,17 +12,17 @@ public:
     DGLFramebufferView(QWidget* parrent, DglController* controller);
 
     public slots:
-        void showFramebuffer(uint);
+        void showFramebuffer(uint ctx, uint bufferEnum);
 
 private:
-        virtual DGLTabbedViewItem* createTab(uint id);
+        virtual DGLTabbedViewItem* createTab(const ContextObjectName& id);
         virtual QString getTabName(uint id, uint target);
 };
 
 class DGLFramebufferViewItem: public DGLTabbedViewItem {
     Q_OBJECT
 public:
-    DGLFramebufferViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent);
+    DGLFramebufferViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
 
 private slots:
     void error(const std::string& message);

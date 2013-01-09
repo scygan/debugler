@@ -12,17 +12,17 @@ public:
     DGLTextureView(QWidget* parrent, DglController* controller);
 
 public slots:
-    void showTexture(uint);
+    void showTexture(uint ctx, uint name);
 
 private:
-    virtual DGLTabbedViewItem* createTab(uint id);
+    virtual DGLTabbedViewItem* createTab(const ContextObjectName& id);
     virtual QString getTabName(uint id, uint target);
 };
 
 class DGLTextureViewItem: public DGLTabbedViewItem {
     Q_OBJECT
 public:
-    DGLTextureViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent);
+    DGLTextureViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
 
 private slots:
     void error(const std::string& message);

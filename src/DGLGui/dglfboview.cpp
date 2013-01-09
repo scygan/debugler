@@ -4,7 +4,7 @@
 #include "ui_dglfboviewitem.h"
 
 
-DGLFBOViewItem::DGLFBOViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent),m_Error(false) {
+DGLFBOViewItem::DGLFBOViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent),m_Error(false) {
     m_Ui.setupUi(this);
     m_PixelRectangleScene = new DGLPixelRectangleScene();
     m_PixelRectangleView = boost::make_shared<DGLPixelRectangleView>(this, m_PixelRectangleScene);
@@ -60,14 +60,14 @@ DGLFBOView::DGLFBOView(QWidget* parrent, DglController* controller):DGLTabbedVie
     setupNames("Framebuffer Objects", "DGLFBOView");
 
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showFBO(uint)), this, SLOT(showFBO(uint))));
+    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showFBO(uint, uint)), this, SLOT(showFBO(uint, uint))));
 }
 
-void DGLFBOView::showFBO(uint bufferEnum) {
-    ensureTabDisplayed(bufferEnum);
+void DGLFBOView::showFBO(uint ctx, uint bufferEnum) {
+    ensureTabDisplayed(ctx, bufferEnum);
 }
 
-DGLTabbedViewItem* DGLFBOView::createTab(uint id) {
+DGLTabbedViewItem* DGLFBOView::createTab(const ContextObjectName& id) {
     return new DGLFBOViewItem(id, m_ResourceManager, this);
 }
 

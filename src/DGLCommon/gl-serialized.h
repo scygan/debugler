@@ -354,4 +354,25 @@ public:
     std::vector<StateItem> m_Items;
 };
 
+class ContextObjectName {
+public:
+    ContextObjectName();
+    ContextObjectName(uint32_t context, uint32_t name, uint32_t target = 0);
+    virtual ~ContextObjectName();
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & m_Name;
+        ar & m_Context;
+        ar & m_Target;
+    }
+
+    virtual bool operator==(const ContextObjectName&rhs) const;
+
+    virtual bool operator<(const ContextObjectName&rhs) const;
+
+    uint32_t m_Name;
+    uint32_t m_Context;
+    uint32_t m_Target;
+};
+
 #endif

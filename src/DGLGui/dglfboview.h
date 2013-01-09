@@ -8,7 +8,7 @@
 class DGLFBOViewItem: public DGLTabbedViewItem {
     Q_OBJECT
 public:
-    DGLFBOViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent);
+    DGLFBOViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
 
 private slots:
     void error(const std::string& message);
@@ -33,10 +33,10 @@ public:
     DGLFBOView(QWidget* parrent, DglController* controller);
 
     public slots:
-        void showFBO(uint);
+        void showFBO(uint ctx, uint name);
 
 private:
-        virtual DGLTabbedViewItem* createTab(uint id);
+        virtual DGLTabbedViewItem* createTab(const ContextObjectName& id);
         virtual QString getTabName(uint id, uint target);
 };
 

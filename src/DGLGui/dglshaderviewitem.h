@@ -10,7 +10,7 @@ class DGLGLSLEditor;
 class DGLShaderViewItem: public DGLTabbedViewItem {
     Q_OBJECT
 public:
-    DGLShaderViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent);
+    DGLShaderViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
 
 private slots:
     void update(const DGLResource& res);

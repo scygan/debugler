@@ -1,7 +1,7 @@
 #include "dglbufferview.h"
 #include "dglgui.h"
 
-DGLBufferViewItem::DGLBufferViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
+DGLBufferViewItem::DGLBufferViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
     m_Editor = new QHexEdit(this);
     m_Label = new QLabel(this);
     m_VerticalLayout = new QVBoxLayout(this);
@@ -33,14 +33,14 @@ DGLBufferView::DGLBufferView(QWidget* parrent, DglController* controller):DGLTab
     setupNames("Vertex Buffers", "DGLBufferView");
 
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showBuffer(uint)), this, SLOT(showBuffer(uint))));
+    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showBuffer(uint, uint)), this, SLOT(showBuffer(uint, uint))));
 }
 
-void DGLBufferView::showBuffer(uint name) {
-    ensureTabDisplayed(name);
+void DGLBufferView::showBuffer(uint ctx, uint name) {
+    ensureTabDisplayed(ctx, name);
 }
 
-DGLTabbedViewItem* DGLBufferView::createTab(uint id) {
+DGLTabbedViewItem* DGLBufferView::createTab(const ContextObjectName& id) {
     return new DGLBufferViewItem(id, m_ResourceManager, this);
 }
 

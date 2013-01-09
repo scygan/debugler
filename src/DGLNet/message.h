@@ -55,37 +55,6 @@ public:
     virtual ~Message() {}
 };
 
-class ContextObjectName {
-public:
-    ContextObjectName() {}
-    ContextObjectName(uint32_t name):m_Name(name) {}
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & m_Name;
-    }
-
-    bool operator<(const ContextObjectName&rhs) const {
-        return m_Name < rhs.m_Name;
-    }
-
-    uint32_t m_Name;
-};
-
-class ContextObjectNameTarget: public ContextObjectName {
-public:
-    ContextObjectNameTarget() {}
-    ContextObjectNameTarget(uint32_t name, uint32_t target = 0):ContextObjectName(name), m_Target(target) {}
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<ContextObjectName>(*this);
-        ar & m_Target;
-    }
-
-    uint32_t m_Target;
-};
-
 class ContextReport {
     friend class boost::serialization::access;
 
@@ -103,9 +72,9 @@ public:
     ContextReport() {}
     ContextReport(int32_t id):m_Id(id) {}
     int32_t m_Id;
-    std::set<ContextObjectNameTarget> m_TextureSpace;
+    std::set<ContextObjectName> m_TextureSpace;
     std::set<ContextObjectName> m_BufferSpace;
-    std::set<ContextObjectNameTarget> m_ShaderSpace;
+    std::set<ContextObjectName> m_ShaderSpace;
     std::set<ContextObjectName> m_ProgramSpace;
     std::set<ContextObjectName> m_FBOSpace;
     std::set<ContextObjectName> m_FramebufferSpace;
@@ -287,13 +256,14 @@ public:
         template<class Archive>
         void serialize(Archive & ar, const unsigned int version) {
             ar & m_Type;
-            ar & m_ObjectId;
+            ar & m_ObjectName;
             ar & m_ListenerId;
         }
 
     public:
         DGLResource::ObjectType m_Type;
-        uint32_t m_ObjectId, m_ListenerId;
+        uint32_t m_ListenerId;
+        ContextObjectName m_ObjectName;
     };
 
     std::vector<ResourceQuery> m_ResourceQueries;

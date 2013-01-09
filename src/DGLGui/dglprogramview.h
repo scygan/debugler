@@ -12,10 +12,10 @@ public:
     DGLProgramView(QWidget* parrent, DglController* controller);
 
     public slots:
-        void showProgram(uint);
+        void showProgram(uint ctx, uint name);
 
 private:
-        virtual DGLTabbedViewItem* createTab(uint id);
+        virtual DGLTabbedViewItem* createTab(const ContextObjectName& id);
         virtual QString getTabName(uint id, uint target);
 
 };
@@ -23,7 +23,7 @@ private:
 class DGLProgramViewItem: public DGLTabbedViewItem {
     Q_OBJECT
 public:
-    DGLProgramViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent);
+    DGLProgramViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
 
 private slots:
     void error(const std::string& message);

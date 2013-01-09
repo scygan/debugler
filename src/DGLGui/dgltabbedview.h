@@ -10,12 +10,12 @@
 
 class DGLTabbedViewItem: public QWidget {
 public:
-    DGLTabbedViewItem(uint objId, QWidget* parrent);
+    DGLTabbedViewItem(ContextObjectName, QWidget* parrent);
 
-    uint getObjId();
+    const ContextObjectName& getObjName();
 
 private: 
-    uint m_ObjId;
+    ContextObjectName m_ObjectName;
 };
 
 class DGLTabbedView : public QDockWidget {
@@ -32,15 +32,15 @@ public:
         void closeTab(int);
 
 protected:
-    void ensureTabDisplayed(uint id, uint target = 0);
-    DGLTabbedViewItem* getTab(uint id);
+    void ensureTabDisplayed(uint ctxid, uint id, uint target = 0);
+    DGLTabbedViewItem* getTab(const ContextObjectName& id);
     void setupNames(char* title, char* objName);
 
     DGLResourceManager* m_ResourceManager;
 
     DglController* m_Controller;
 private: 
-    virtual DGLTabbedViewItem* createTab(uint id) = 0;
+    virtual DGLTabbedViewItem* createTab(const ContextObjectName& id) = 0;
     virtual QString getTabName(uint id, uint target) = 0;
     QTabWidget m_TabWidget;    
 };

@@ -3,8 +3,8 @@
 
 
 
-DGLResourceListener::DGLResourceListener(uint listenerId, uint objectId, DGLResource::ObjectType type, DGLResourceManager* manager):
-m_ListenerId(listenerId), m_ObjectId(objectId), m_ObjectType(type), m_Manager(manager), m_RefCount(0) {
+DGLResourceListener::DGLResourceListener(uint listenerId, ContextObjectName objectName, DGLResource::ObjectType type, DGLResourceManager* manager):
+m_ListenerId(listenerId), m_ObjectName(objectName), m_ObjectType(type), m_Manager(manager), m_RefCount(0) {
     m_Manager->registerListener(this);
 }
 
@@ -19,7 +19,7 @@ void DGLResourceManager::emitQueries() {
     for (std::multimap<uint, DGLResourceListener*>::iterator i = m_Listeners.begin(); i != m_Listeners.end(); i++) {
         dglnet::QueryResourceMessage::ResourceQuery query;
         query.m_ListenerId = i->first;
-        query.m_ObjectId = i->second->m_ObjectId;
+        query.m_ObjectName = i->second->m_ObjectName;
         query.m_Type = i->second->m_ObjectType;
         queries.m_ResourceQueries.push_back(query);
     }
@@ -54,13 +54,13 @@ void DGLResourceManager::handleResourceMessage(const dglnet::ResourceMessage& ms
     }
 }
 
-DGLResourceListener* DGLResourceManager::createListener(uint objectId, DGLResource::ObjectType type) {
+DGLResourceListener* DGLResourceManager::createListener(ContextObjectName name, DGLResource::ObjectType type) {
     for (std::multimap<uint, DGLResourceListener*>::iterator i = m_Listeners.begin(); i != m_Listeners.end(); i++) {
-        if (i->second->m_ObjectId == objectId && i->second->m_ObjectType == type) {
-            return new DGLResourceListener(i->second->m_ListenerId, objectId, type, this);
+        if (i->second->m_ObjectName == name && i->second->m_ObjectType == type) {
+            return new DGLResourceListener(i->second->m_ListenerId, name, type, this);
         }
     }
-    return new DGLResourceListener(m_MaxListenerId++, objectId, type, this);
+    return new DGLResourceListener(m_MaxListenerId++, name, type, this);
 }
 
 void DGLResourceManager::registerListener(DGLResourceListener* listener) {
@@ -69,7 +69,7 @@ void DGLResourceManager::registerListener(DGLResourceListener* listener) {
     dglnet::QueryResourceMessage queries;
     dglnet::QueryResourceMessage::ResourceQuery query;
     query.m_ListenerId = listener->m_ListenerId;
-    query.m_ObjectId = listener->m_ObjectId;
+    query.m_ObjectName = listener->m_ObjectName;
     query.m_Type = listener->m_ObjectType;
     queries.m_ResourceQueries.push_back(query);
     m_Controller->sendMessage(&queries);
@@ -85,26 +85,25 @@ void DGLResourceManager::unregisterListener(DGLResourceListener* listener) {
     }
 }
 
-void DGLViewRouter::show(uint name, DGLResource::ObjectType type, uint target) {
+void DGLViewRouter::show(const ContextObjectName& name, DGLResource::ObjectType type) {
     switch (type) {
         case DGLResource::ObjectTypeBuffer:
-            emit showBuffer(name);
+            emit showBuffer(name.m_Context, name.m_Name);
             break;
         case DGLResource::ObjectTypeFramebuffer:
-            emit showFramebuffer(name);
+            emit showFramebuffer(name.m_Context, name.m_Name);
             break;
         case DGLResource::ObjectTypeFBO:
-            emit showFBO(name);
+            emit showFBO(name.m_Context, name.m_Name);
             break;
         case DGLResource::ObjectTypeTexture:
-            emit showTexture(name);
+            emit showTexture(name.m_Context, name.m_Name);
             break;
         case DGLResource::ObjectTypeShader:
-            assert(target);
-            emit showShader(name, target);
+            emit showShader(name.m_Context, name.m_Name, name.m_Target);
             break;
         case DGLResource::ObjectTypeProgram:
-            emit showProgram(name);
+            emit showProgram(name.m_Context, name.m_Name);
             break;
     }
 }

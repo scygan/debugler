@@ -3,7 +3,7 @@
 
 
 
-DGLFramebufferViewItem::DGLFramebufferViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
+DGLFramebufferViewItem::DGLFramebufferViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
     m_Ui.setupUi(this);
     m_PixelRectangleScene = new DGLPixelRectangleScene();
     m_PixelRectangleView = boost::make_shared<DGLPixelRectangleView>(this, m_PixelRectangleScene);
@@ -33,14 +33,14 @@ DGLFramebufferView::DGLFramebufferView(QWidget* parrent, DglController* controll
     setupNames("Frame Buffers", "DGLFramebufferView");
 
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showFramebuffer(uint)), this, SLOT(showFramebuffer(uint))));
+    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showFramebuffer(uint, uint)), this, SLOT(showFramebuffer(uint, uint))));
 }
 
-void DGLFramebufferView::showFramebuffer(uint bufferEnum) {
-    ensureTabDisplayed(bufferEnum);
+void DGLFramebufferView::showFramebuffer(uint ctx, uint bufferEnum) {
+    ensureTabDisplayed(ctx, bufferEnum);
 }
 
-DGLTabbedViewItem* DGLFramebufferView::createTab(uint id) {
+DGLTabbedViewItem* DGLFramebufferView::createTab(const ContextObjectName& id) {
     return new DGLFramebufferViewItem(id, m_ResourceManager, this);
 }
 

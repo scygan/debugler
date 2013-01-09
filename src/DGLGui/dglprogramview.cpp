@@ -4,7 +4,7 @@
 #include "dglshaderviewitem.h"
 
 
-DGLProgramViewItem::DGLProgramViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent), m_ResourceManager(resManager) {
+DGLProgramViewItem::DGLProgramViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent), m_ResourceManager(resManager) {
     m_Ui.setupUi(this);
 
     m_Label = new QLabel(this);
@@ -45,12 +45,12 @@ void DGLProgramViewItem::update(const DGLResource& res) {
         bool found = false;
         for (int j = 0; j < m_Ui.tabWidget->count(); j++) {
             DGLShaderViewItem* widget = dynamic_cast<DGLShaderViewItem*>(m_Ui.tabWidget->widget(j)); 
-            if (widget && widget->getObjId() == resource->m_AttachedShaders[i].first) {
+            if (widget && widget->getObjName().m_Name == resource->m_AttachedShaders[i].first) {
                 found = true; break;
             }
         }
         if (!found) {
-            DGLShaderViewItem* newTab = new DGLShaderViewItem(resource->m_AttachedShaders[i].first, m_ResourceManager, this);
+            DGLShaderViewItem* newTab = new DGLShaderViewItem(ContextObjectName(getObjName().m_Context, resource->m_AttachedShaders[i].first), m_ResourceManager, this);
             m_Ui.tabWidget->addTab(newTab, QString::fromStdString(GetShaderStageName(resource->m_AttachedShaders[i].second))
                 + QString(" Shader ") + QString::number(resource->m_AttachedShaders[i].first));
         }
@@ -97,14 +97,14 @@ DGLProgramView::DGLProgramView(QWidget* parrent, DglController* controller):DGLT
     setupNames("Shader Programs", "DGLProgramView");
 
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showProgram(uint)), this, SLOT(showProgram(uint))));
+    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showProgram(uint, uint)), this, SLOT(showProgram(uint, uint))));
 }
 
-void DGLProgramView::showProgram(uint name) {
-    ensureTabDisplayed(name);
+void DGLProgramView::showProgram(uint ctx, uint name) {
+    ensureTabDisplayed(ctx, name);
 }
 
-DGLTabbedViewItem* DGLProgramView::createTab(uint id) {
+DGLTabbedViewItem* DGLProgramView::createTab(const ContextObjectName& id) {
     return new DGLProgramViewItem(id, m_ResourceManager, this);
 }
 

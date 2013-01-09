@@ -54,7 +54,7 @@ void DGLGPUView::setConnected(bool connected) {
         setWidget(m_Ui->frame);
         setLayout(m_Ui->verticalLayout);
         
-        m_Listener = m_Controller->getResourceManager()->createListener(0, DGLResource::ObjectTypeGPU);
+        m_Listener = m_Controller->getResourceManager()->createListener(ContextObjectName(), DGLResource::ObjectTypeGPU);
         m_Listener->setParent(m_Ui->groupBox);
 
         CONNASSERT(connect(m_Listener,SIGNAL(update(const DGLResource&)),this,SLOT(update(const DGLResource&))));

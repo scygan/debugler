@@ -199,35 +199,35 @@ dglnet::ContextReport GLContext::describe() {
     dglnet::ContextReport ret(m_Id);
     for (std::map<GLuint, GLTextureObj>::iterator i = m_Textures.begin(); 
         i != m_Textures.end(); i++) {
-            ret.m_TextureSpace.insert(dglnet::ContextObjectNameTarget(i->second.getName(), i->second.getTarget()));
+            ret.m_TextureSpace.insert(ContextObjectName(m_Id, i->second.getName(), i->second.getTarget()));
     }
     for (std::map<GLuint, GLBufferObj>::iterator i = m_Buffers.begin(); 
         i != m_Buffers.end(); i++) {
-            ret.m_BufferSpace.insert(i->second.getName());
+            ret.m_BufferSpace.insert(ContextObjectName(m_Id, i->second.getName()));
     }
     for (std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.begin(); 
         i != m_Shaders.end(); i++) {
-            ret.m_ShaderSpace.insert(dglnet::ContextObjectNameTarget(i->second.getName(), i->second.getTarget()));
+            ret.m_ShaderSpace.insert(ContextObjectName(m_Id, i->second.getName(), i->second.getTarget()));
     }
     for (std::map<GLuint, GLProgramObj>::iterator i = m_Programs.begin(); 
         i != m_Programs.end(); i++) {
-            ret.m_ProgramSpace.insert(i->second.getName());
+            ret.m_ProgramSpace.insert(ContextObjectName(m_Id, i->second.getName()));
     }
     for (std::map<GLuint, GLFBObj>::iterator i = m_FBOs.begin(); 
         i != m_FBOs.end(); i++) {
-            ret.m_FBOSpace.insert(i->second.getName());
+            ret.m_FBOSpace.insert(ContextObjectName(m_Id, i->second.getName()));
     }
     if (m_NativeSurface) {
         if (m_NativeSurface->isStereo()) {
             if (m_NativeSurface->isDoubleBuffered()) {
-                ret.m_FramebufferSpace.insert(GL_BACK_RIGHT);
+                ret.m_FramebufferSpace.insert(ContextObjectName(m_Id, GL_BACK_RIGHT));
             }
-            ret.m_FramebufferSpace.insert(GL_FRONT_RIGHT);
+            ret.m_FramebufferSpace.insert(ContextObjectName(m_Id, GL_FRONT_RIGHT));
         }
         if (m_NativeSurface->isDoubleBuffered()) {
-            ret.m_FramebufferSpace.insert(GL_BACK);
+            ret.m_FramebufferSpace.insert(ContextObjectName(m_Id, GL_BACK));
         }
-        ret.m_FramebufferSpace.insert(GL_FRONT);
+        ret.m_FramebufferSpace.insert(ContextObjectName(m_Id, GL_FRONT));
     }
     return ret;
 }

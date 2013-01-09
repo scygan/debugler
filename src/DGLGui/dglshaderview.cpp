@@ -111,7 +111,7 @@ void DGLGLSLEditor::lineNumberAreaPaintEvent(QPaintEvent *event) {
 }
 
 
-DGLShaderViewItem::DGLShaderViewItem(uint name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
+DGLShaderViewItem::DGLShaderViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
     m_Ui.setupUi(this);
     m_GLSLEditor = new DGLGLSLEditor(this);
 
@@ -172,14 +172,14 @@ DGLShaderView::DGLShaderView(QWidget* parrent, DglController* controller):DGLTab
     setupNames("Shaders", "DGLShaderView");
 
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showShader(uint, uint)), this, SLOT(showShader(uint, uint))));
+    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showShader(uint, uint, uint)), this, SLOT(showShader(uint, uint, uint))));
 }
 
-void DGLShaderView::showShader(uint name, uint target) {
-    ensureTabDisplayed(name, target);
+void DGLShaderView::showShader(uint ctx, uint name, uint target) {
+    ensureTabDisplayed(ctx, name, target);
 }
 
-DGLTabbedViewItem* DGLShaderView::createTab(uint id) {
+DGLTabbedViewItem* DGLShaderView::createTab(const ContextObjectName& id) {
     return new DGLShaderViewItem(id, m_ResourceManager, this);
 }
 

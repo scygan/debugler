@@ -16,7 +16,7 @@ class DGLResourceListener: public QObject {
 public:
     Q_OBJECT
 
-    DGLResourceListener(uint listenerId, uint objectId, DGLResource::ObjectType type, DGLResourceManager* manager);
+    DGLResourceListener(uint listenerId, ContextObjectName objectName, DGLResource::ObjectType type, DGLResourceManager* manager);
 
     ~DGLResourceListener();
 
@@ -25,10 +25,11 @@ signals:
     void error(const std::string&);
     void invalidate();
 private:
-    uint m_ListenerId, m_ObjectId;
+    uint m_ListenerId;
     DGLResourceManager* m_Manager;
     DGLResource::ObjectType m_ObjectType;
     uint m_RefCount;
+    ContextObjectName m_ObjectName;
 };
 
 
@@ -44,7 +45,7 @@ public:
 
     void handleResourceMessage(const dglnet::ResourceMessage& msg);
 
-    DGLResourceListener* createListener(uint objectId, DGLResource::ObjectType type);
+    DGLResourceListener* createListener(ContextObjectName name, DGLResource::ObjectType type);
 
 private:
     void registerListener(DGLResourceListener* listener);
@@ -102,14 +103,14 @@ private:
 class DGLViewRouter:public QObject {
     Q_OBJECT
 public:
-    void show(uint name, DGLResource::ObjectType type, uint target = 0);
+    void show(const ContextObjectName& name, DGLResource::ObjectType type);
 signals:
-    void showTexture(uint name);
-    void showBuffer(uint name);
-    void showFramebuffer(uint bufferEnum);
-    void showFBO(uint name);
-    void showShader(uint name, uint target);
-    void showProgram(uint name);
+    void showTexture(uint ctx, uint name);
+    void showBuffer(uint ctx, uint name);
+    void showFramebuffer(uint ctx, uint bufferEnum);
+    void showFBO(uint ctx, uint name);
+    void showShader(uint ctx, uint name, uint target);
+    void showProgram(uint ctx, uint name);
 };
 
 /** 
