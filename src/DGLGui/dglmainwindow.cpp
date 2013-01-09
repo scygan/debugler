@@ -451,6 +451,13 @@ void DGLMainWindow::createToolBars() {
      if (m_RunDialog.exec() == QDialog::Accepted) {
 
          try {
+
+             QProgressDialog progress("Starting debugging session (waiting for application to try use OpenGL)...", "Cancel", 0, 1, this);
+             progress.setWindowModality(Qt::WindowModal);
+             progress.setValue(0);
+
+             QProgressBar*  bar = new QProgressBar(&progress); progress.setBar(bar); bar->setMaximum(0); bar->setMinimum(0); bar->setValue(-1);
+
              DWORD binaryType;
              if (!GetBinaryTypeA(m_RunDialog.getExecutable().c_str(), &binaryType)) {
                  throw std::runtime_error("Getting binary file type failed");
@@ -527,20 +534,15 @@ void DGLMainWindow::createToolBars() {
                      throw std::runtime_error("Cannot create loader process");
              }
 
-
-
              {
                  //Wait for loader to finish
 
                  bool timeout; 
                  //boost::posix_time::ptime p = boost::get_system_time() + boost::posix_time::milliseconds(5000);
-                 while ((timeout = !semLoader.timed_wait(boost::get_system_time() + boost::posix_time::milliseconds(5000)))) {
-
-                     //5 seconds is enough. it ususally means that this application is not using OpenGL at all..
-                     if (QMessageBox::question(this, tr("Timeout"), tr("The debugger has waited 5 seconds for loader to load application. Wait another 5s?"),
-                         QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
-                             break;
-                     }
+                 while ((timeout = !semLoader.timed_wait(boost::get_system_time() + boost::posix_time::milliseconds(10)))) {
+                     QApplication::processEvents();
+                     if (progress.wasCanceled())
+                         break;
                  }
                  if (timeout) {
                      throw std::runtime_error("Timed out waiting for loader");
@@ -560,13 +562,10 @@ void DGLMainWindow::createToolBars() {
 
                  bool timeout; 
                  //boost::posix_time::ptime p = boost::get_system_time() + boost::posix_time::milliseconds(5000);
-                 while ((timeout = !semOpenGL.timed_wait(boost::get_system_time() + boost::posix_time::milliseconds(5000)))) {
-
-                     //5 seconds is enough. it ususally means that this application is not using OpenGL at all..
-                     if (QMessageBox::question(this, tr("Timeout"), tr("The debugger has waited 5 seconds for application to use OpenGL. Wait another 5s?"),
-                         QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
+                 while ((timeout = !semOpenGL.timed_wait(boost::get_system_time() + boost::posix_time::milliseconds(10)))) {
+                     QApplication::processEvents();
+                     if (progress.wasCanceled())
                          break;
-                     }
                  }
                  if (timeout) {
                      throw std::runtime_error("Timed out waiting for application to use OpenGL");
