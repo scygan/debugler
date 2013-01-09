@@ -69,15 +69,8 @@ void DGLGLState::bindContext(uint32_t ctxId, uint32_t NativeSurfaceId) {
     if (current && ctxId == current->getId())
         return;
     
-    if (current) {
-        current->use(false);
-        if (current->isDeleted()) {
-            deleteContext(current->getId());
-        }
-    }
     if (ctxId) {
         m_Current.reset(&(*(ensureContext(ctxId)->second)));
-        getCurrent()->use(true);
         
         dglState::NativeSurface* NativeSurface = getCurrent()->getNativeSurface();
         if (!NativeSurface || NativeSurface->getId() != NativeSurfaceId) {
@@ -91,11 +84,11 @@ void DGLGLState::bindContext(uint32_t ctxId, uint32_t NativeSurfaceId) {
 
 void DGLGLState::deleteContext(uint32_t id) {
     boost::lock_guard<boost::mutex> quard(m_ContextListMutex);
-    ContextListIter i = ensureContext(id, false);
-    if (i->second->lazyDelete()) {
-        m_ContextList.erase(i);
+    if (getCurrent() && getCurrent()->getId() == id) {
+        bindContext(0, 0);
     }
-}
+    m_ContextList.erase(id);
+ }
 
 std::vector<dglnet::ContextReport> DGLGLState::describe() {
     boost::lock_guard<boost::mutex> quard(m_ContextListMutex);

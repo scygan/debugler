@@ -193,7 +193,7 @@ GLenum GLFBObj::getTarget() {
     return m_Target;
 }
 
-GLContext::GLContext(uint32_t id):m_Id(id), m_InUse(false), m_Deleted(false), m_NativeSurface(NULL), m_EverUsed(false), m_HasNVXMemoryInfo(false), m_HasDebugOutput(false), m_InImmediateMode(false)  {}
+GLContext::GLContext(uint32_t id):m_Id(id), m_NativeSurface(NULL), m_HasNVXMemoryInfo(false), m_HasDebugOutput(false), m_InImmediateMode(false)  {}
 
 dglnet::ContextReport GLContext::describe() {
     dglnet::ContextReport ret(m_Id);
@@ -230,23 +230,6 @@ dglnet::ContextReport GLContext::describe() {
         ret.m_FramebufferSpace.insert(ContextObjectName(m_Id, GL_FRONT));
     }
     return ret;
-}
-
-void GLContext::use(bool inUse) {
-    m_InUse = inUse;
-    if (!m_EverUsed) {
-        firstUse();
-        m_EverUsed = true;
-    }
-}
-
-bool GLContext::lazyDelete() {
-    m_Deleted = true;
-    return !m_InUse;
-}
-
-bool GLContext::isDeleted() {
-    return m_Deleted;
 }
 
 NativeSurface* GLContext::getNativeSurface() {
@@ -322,10 +305,12 @@ GLenum GLContext::peekError() {
     GLenum ret = DIRECT_CALL_CHK(glGetError)();
     if (ret != GL_NO_ERROR && m_PokedErrorQueue.size() < 1000) {
         GLenum error = ret;
+        int retries = 16;
         do {
             m_PokedErrorQueue.push(error);
             error = DIRECT_CALL_CHK(glGetError)();
-        } while (error != GL_NO_ERROR);
+            retries --;
+        } while (error != GL_NO_ERROR && retries);
     }
     return ret;
 }
@@ -1078,10 +1063,20 @@ boost::shared_ptr<DGLResource> GLContext::queryGPU(GLuint name) {
     // Forgot about:
     //GL_EXTENSIONS
     
-    resource->m_Renderer = (const char*)DIRECT_CALL_CHK(glGetString)(GL_RENDERER);
-    resource->m_Vendor   = (const char*)DIRECT_CALL_CHK(glGetString)(GL_VENDOR);
-    resource->m_Version  = (const char*)DIRECT_CALL_CHK(glGetString)(GL_VERSION);
-    resource->m_GLSL  = (const char*)DIRECT_CALL_CHK(glGetString)(GL_SHADING_LANGUAGE_VERSION);
+    const char* value;
+
+    if ((value = (const char*)DIRECT_CALL_CHK(glGetString)(GL_RENDERER)) != NULL) {
+        resource->m_Renderer = value;
+    }
+    if ((value = (const char*)DIRECT_CALL_CHK(glGetString)(GL_VENDOR)) != NULL) {
+        resource->m_Vendor = value;
+    }
+    if ((value = (const char*)DIRECT_CALL_CHK(glGetString)(GL_VERSION)) != NULL) {
+        resource->m_Version = value;
+    }
+    if ((value = (const char*)DIRECT_CALL_CHK(glGetString)(GL_SHADING_LANGUAGE_VERSION)) != NULL) {
+        resource->m_GLSL = value;
+    }
 
     resource->m_hasNVXGPUMemoryInfo = m_HasNVXMemoryInfo;
     if (resource->m_hasNVXGPUMemoryInfo = m_HasNVXMemoryInfo) {

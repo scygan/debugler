@@ -143,10 +143,6 @@ public:
 
     dglnet::ContextReport describe();
 
-    void use(bool);
-    bool lazyDelete();
-    bool isDeleted();
-
     NativeSurface* getNativeSurface();
     void setNativeSurface(NativeSurface*);
 
@@ -199,8 +195,6 @@ private:
      * WGL or other native API context ID
      */
     int32_t m_Id;
-
-    bool m_InUse, m_Deleted, m_EverUsed;
 
     /**
      * Handle to native surface (drawable)
