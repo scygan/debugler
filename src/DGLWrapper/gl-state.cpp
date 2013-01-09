@@ -320,7 +320,7 @@ GLenum GLContext::peekError() {
     if (m_InImmediateMode) return NO_ERROR; //we cannot get erros after glBegin()
 
     GLenum ret = DIRECT_CALL_CHK(glGetError)();
-    if (ret != GL_NO_ERROR) {
+    if (ret != GL_NO_ERROR && m_PokedErrorQueue.size() < 1000) {
         GLenum error = ret;
         do {
             m_PokedErrorQueue.push(error);
