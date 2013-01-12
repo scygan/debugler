@@ -6,6 +6,8 @@
 
 #include <boost/variant.hpp>
 #include <boost/variant/get.hpp>
+#include <boost/serialization/binary_object.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <vector>
 
@@ -147,18 +149,51 @@ class DGLPixelRectangle {
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
-        ar & m_Width;
-        ar & m_Height;
-        ar & m_Channels;
-        ar & m_RowBytes;
-        ar & m_Pixels;
-        ar & m_InternalFormat;
+        //m_StorageSize is size of underlying object now (on both load() and save())
+        ar & boost::serialization::binary_object(m_Storage, m_Height * m_RowBytes);
     }
 public:
+    DGLPixelRectangle(int32_t width, int32_t height, int32_t rowBytes, int32_t channels, uint32_t iFormat);
+    DGLPixelRectangle(const DGLPixelRectangle& rhs);
+    ~DGLPixelRectangle();
+
     int32_t m_Width, m_Height, m_Channels, m_RowBytes;
     uint32_t m_InternalFormat;
-    std::vector<int8_t> m_Pixels;
+
+    void* getPtr() const;
+    size_t getSize() const;
+
+private:
+    void* m_Storage;
 };
+
+namespace boost { namespace serialization {
+    template<class Archive>
+    inline void save_construct_data(
+        Archive & ar, const DGLPixelRectangle * t, const unsigned int file_version) {
+            // save data required to construct instance
+            ar << t->m_Width;
+            ar << t->m_Height;
+            ar << t->m_RowBytes;
+            ar << t->m_Channels;
+            ar << t->m_InternalFormat;
+    }
+
+    template<class Archive>
+    inline void load_construct_data(
+        Archive & ar, DGLPixelRectangle * t, const unsigned int file_version) {
+            // retrieve data from archive required to construct new instance
+            int32_t width, height, rowBytes, channels;
+            uint32_t iformat;
+            ar >> width;
+            ar >> height;
+            ar >> rowBytes;
+            ar >> channels;
+            ar >> iformat;
+            // invoke inplace constructor
+            ::new(t)DGLPixelRectangle(width, height, rowBytes, channels, iformat);
+    }
+}}
 
 class DGLResourceTexture: public DGLResource {
     friend class boost::serialization::access;
@@ -170,7 +205,7 @@ class DGLResourceTexture: public DGLResource {
     }
 
 public:
-    std::vector<std::vector<DGLPixelRectangle>> m_FacesLevels;
+    std::vector<std::vector<boost::shared_ptr<DGLPixelRectangle>>> m_FacesLevels;
 };
 
 class DGLResourceBuffer: public DGLResource {
@@ -197,7 +232,7 @@ class DGLResourceFramebuffer: public DGLResource {
 
 public:
 
-    DGLPixelRectangle m_PixelRectangle;
+    boost::shared_ptr<DGLPixelRectangle> m_PixelRectangle;
 };
 
 class DGLResourceFBO: public DGLResource {
@@ -227,7 +262,7 @@ public:
         void error(std::string msg);
         bool isOk(std::string& error) const;
 
-        DGLPixelRectangle m_PixelRectangle;
+        boost::shared_ptr<DGLPixelRectangle> m_PixelRectangle;
         uint32_t m_Id;
     private:
         bool m_Ok;

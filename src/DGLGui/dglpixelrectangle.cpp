@@ -115,12 +115,14 @@ void DGLPixelRectangleScene::setPixelRectangle(const DGLPixelRectangle* pixelRec
 
     m_Item = NULL;
 
-    if (!(pixelRectangle->m_Width && pixelRectangle->m_Pixels.size())) {
+    if (!pixelRectangle->getPtr()) {
         setText("Texture empty");
         return;
     }
 
     m_Channels = pixelRectangle->m_Channels;
+
+    uchar* pixels = static_cast<uchar*>(pixelRectangle->getPtr());
 
     if (pixelRectangle->m_Channels == 2) {
         //special case: recompute buffer to be 4 element
@@ -134,15 +136,15 @@ void DGLPixelRectangleScene::setPixelRectangle(const DGLPixelRectangle* pixelRec
             for (int x = 0; x < pixelRectangle->m_Width; x++) {
                 int idxOrig = pixelRectangle->m_RowBytes * y + x * 2;
                 int idxNew = 2 * (pixelRectangle->m_Width + x * 2);
-                m_PixelData[idxNew + 0] = pixelRectangle->m_Pixels[idxOrig + 0];
-                m_PixelData[idxNew + 1] = pixelRectangle->m_Pixels[idxOrig + 1];
+                m_PixelData[idxNew + 0] = pixels[idxOrig + 0];
+                m_PixelData[idxNew + 1] = pixels[idxOrig + 1];
             }
         }
         m_RowSize = pixelRectangle->m_Width * 4;
         m_ImageSize.setHeight(m_PixelData.size() / m_RowSize);
     } else {
         //normal case, use buffer untouched
-        m_PixelData = std::vector<uchar>(pixelRectangle->m_Pixels.begin(), pixelRectangle->m_Pixels.end());
+        m_PixelData = std::vector<uchar>(pixels, pixels + pixelRectangle->getSize());
         m_RowSize = pixelRectangle->m_RowBytes;
         m_ImageSize.setHeight(m_PixelData.size() / m_RowSize);
     }

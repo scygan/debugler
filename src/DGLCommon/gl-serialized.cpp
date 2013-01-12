@@ -114,3 +114,34 @@ bool ContextObjectName::operator<(const ContextObjectName&rhs) const {
         return true;
     return false;
 }
+
+DGLPixelRectangle::DGLPixelRectangle(int32_t width, int32_t height, int32_t rowBytes, int32_t channels, uint32_t iFormat):m_Width(width),
+    m_Height(height), m_RowBytes(rowBytes), m_Channels(channels), m_Storage(NULL), m_InternalFormat(iFormat) {
+        if (m_Height * m_RowBytes) {
+            m_Storage = malloc(m_Height * m_RowBytes);
+        }
+}
+
+DGLPixelRectangle::DGLPixelRectangle(const DGLPixelRectangle& rhs):m_Width(rhs.m_Width), m_Height(rhs.m_Height), m_RowBytes(rhs.m_RowBytes), m_Channels(rhs.m_Channels), m_InternalFormat(rhs.m_InternalFormat){
+    if (rhs.getPtr()) {
+        m_Storage = malloc(m_Height * m_RowBytes);
+        memcpy(m_Storage, rhs.getPtr(), m_Height * m_RowBytes);
+    } else {
+        m_Storage = NULL;
+    }
+}
+
+DGLPixelRectangle::~DGLPixelRectangle() {
+    if (m_Storage) {
+        free(m_Storage);
+        m_Storage = NULL;
+    }
+}
+
+void* DGLPixelRectangle::getPtr() const {
+    return m_Storage;
+}
+
+size_t DGLPixelRectangle::getSize() const {
+    return m_Height * m_RowBytes;
+}

@@ -422,21 +422,20 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
     for (size_t face = 0; face < resource->m_FacesLevels.size(); face++) {
         for (int level = 0; true; level++) {
 
-            GLenum levelTarget = tex->getTextureLevelTarget((int)face);
+            GLint height, width;
 
-            DGLPixelRectangle texLevel;
+            GLenum levelTarget = tex->getTextureLevelTarget((int)face);
 
             GLint internalFormat;
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
-            texLevel.m_InternalFormat = internalFormat;
 
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_WIDTH, &texLevel.m_Width);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_WIDTH, &width);
             if (tex->getTarget() == GL_TEXTURE_1D) {
-                texLevel.m_Height = 1;
+                height = 1;
             } else {
-                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_HEIGHT, &texLevel.m_Height);
+                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_HEIGHT, &height);
             }
-            if (!texLevel.m_Width || !texLevel.m_Height || DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
+            if (!width || !height || DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
                 break;
          
             GLint rgba[4] = {0, 0, 0, 0};
@@ -452,23 +451,23 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
             GLenum colorFormats[4] = { GL_RED, GL_RG, GL_RGB, GL_BGRA }; //last element is BGRA intentionally (viewer will handle DX format faster)
 
             GLenum format = 0;
-            texLevel.m_Channels = 0;
+            int channels = 0;
             for (int i = 0; i < 4; i++) {
                 if (rgba[i]) {
-                    texLevel.m_Channels = i + 1;
+                    channels = i + 1;
                     format = colorFormats[i];
                 }
             }
             if (!format) {
                 // not a color texture
                 if (depth) {
-                    format = GL_DEPTH_COMPONENT; texLevel.m_Channels = 1;
+                    format = GL_DEPTH_COMPONENT; channels = 1;
                 }
                 if (stencil) {
-                    format = GL_STENCIL_INDEX; texLevel.m_Channels = 1;
+                    format = GL_STENCIL_INDEX; channels = 1;
                 }
                 if (stencil && depth) {
-                    format = GL_DEPTH_STENCIL; texLevel.m_Channels = 2;
+                    format = GL_DEPTH_STENCIL; channels = 2;
                 }
             }
 
@@ -478,17 +477,11 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
                 throw std::runtime_error("Checked texture red, green, blue, alpha, stencil and depth size - all are 0. Unrecognized format.");
             }
 
-            resource->m_FacesLevels[face].push_back(texLevel);
-
-            {
-                DGLPixelRectangle* texLevelToRead = &resource->m_FacesLevels[face].back();
-
-                //align to pixelstore
-                texLevelToRead->m_RowBytes = defAlignment.getAligned(texLevelToRead->m_Width * texLevelToRead->m_Channels);
-
-                texLevelToRead->m_Pixels.resize(texLevelToRead->m_Height * texLevelToRead->m_RowBytes);
-                if (texLevelToRead->m_Pixels.size())
-                    DIRECT_CALL_CHK(glGetTexImage)(levelTarget, level, format, GL_UNSIGNED_BYTE, &texLevelToRead->m_Pixels[0]);
+            resource->m_FacesLevels[face].push_back(boost::make_shared<DGLPixelRectangle>(width, height, defAlignment.getAligned(width * channels), channels, internalFormat));
+            
+            GLvoid* ptr;
+            if ((ptr = resource->m_FacesLevels[face].back()->getPtr()) != NULL) {
+                DIRECT_CALL_CHK(glGetTexImage)(levelTarget, level, format, GL_UNSIGNED_BYTE, ptr);
             }
         }
     }
@@ -602,9 +595,8 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
     //save state
     GLint currentBuffer; 
     {
-        //we cannot reliably get internalformat for default framebuffer
-        resource->m_PixelRectangle.m_InternalFormat = 0;
-
+        
+        
         DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &currentBuffer);
         state_setters::DefaultPBO defPBO;
         state_setters::CurrentFramebuffer currentFramebuffer(0);
@@ -618,35 +610,35 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
 
         GLenum format = 0;
 
-
-        resource->m_PixelRectangle.m_Width = m_NativeSurface->getWidth();
-        resource->m_PixelRectangle.m_Height = m_NativeSurface->getHeight();
-
-        resource->m_PixelRectangle.m_Channels = 0;
+        int channels = 0;
         for (int i = 0; i < 4; i++) {
             if (m_NativeSurface->getRGBASizes()[i]) {
-                resource->m_PixelRectangle.m_Channels = i + 1;
+                channels = i + 1;
                 format = colorFormats[i];
             }
         }
         if (!format) {
             // not a color texture
             if (m_NativeSurface->getDepthSize()) {
-                format = GL_DEPTH_COMPONENT; resource->m_PixelRectangle.m_Channels = 1;
+                format = GL_DEPTH_COMPONENT; channels = 1;
             }
             if (m_NativeSurface->getStencilSize()) {
-                format = GL_STENCIL_INDEX; resource->m_PixelRectangle.m_Channels = 1;
+                format = GL_STENCIL_INDEX; channels = 1;
             }
             if (m_NativeSurface->getStencilSize() && m_NativeSurface->getDepthSize()) {
-                format = GL_DEPTH_STENCIL; resource->m_PixelRectangle.m_Channels = 2;
+                format = GL_DEPTH_STENCIL; channels = 2;
             }
         }       
 
-        resource->m_PixelRectangle.m_RowBytes = defAlignment.getAligned(resource->m_PixelRectangle.m_Width * resource->m_PixelRectangle.m_Channels);
+        int width = m_NativeSurface->getWidth();
+        int height = m_NativeSurface->getHeight();
 
-        resource->m_PixelRectangle.m_Pixels.resize(resource->m_PixelRectangle.m_Height * resource->m_PixelRectangle.m_RowBytes);
-        if (resource->m_PixelRectangle.m_Pixels.size())
-            DIRECT_CALL_CHK(glReadPixels)(0, 0, resource->m_PixelRectangle.m_Width, resource->m_PixelRectangle.m_Height, format, GL_UNSIGNED_BYTE, &resource->m_PixelRectangle.m_Pixels[0]);
+        //we cannot reliably get internalformat for default framebuffer, so it is 0 here.
+        resource->m_PixelRectangle = boost::make_shared<DGLPixelRectangle>(width, height, defAlignment.getAligned(width * channels), channels, 0);
+
+        GLvoid* ptr;
+        if ((ptr = resource->m_PixelRectangle->getPtr()) != NULL)
+            DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, format, GL_UNSIGNED_BYTE, ptr);
     }
         
     //restore state
@@ -707,7 +699,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
 
             queryCheckError();
 
-            GLint width, height;
+            GLint width, height, internalFormat;
             if (type == GL_TEXTURE) {
                 if (!DIRECT_CALL_CHK(glIsTexture)(name)) {
                     resource->m_Attachments.back().error("Attached texture object does not exist");
@@ -730,9 +722,8 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
                 DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &width);
                 DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_HEIGHT, &height);
 
-                GLint internalFormat;
+                
                 DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
-                resource->m_Attachments.back().m_PixelRectangle.m_InternalFormat = internalFormat;
 
                 DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), lastTexture);
 
@@ -749,7 +740,6 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
 
                 GLint internalFormat;
                 DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_INTERNAL_FORMAT, &internalFormat);
-                resource->m_Attachments.back().m_PixelRectangle.m_InternalFormat = internalFormat;
 
                 DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, lastRenderBuffer);
             }
@@ -760,38 +750,33 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
 
             GLenum format = 0;
            
-            resource->m_Attachments.back().m_PixelRectangle.m_Channels = 0;
+            int channels = 0;
             for (int j = 0; j < 4; j++) {
                 if (rgba[j]) {
-                    resource->m_Attachments.back().m_PixelRectangle.m_Channels = j + 1;
+                    channels = j + 1;
                     format = colorFormats[j];
                 }
             }
             if (!format) {
                 // not a color texture
                 if (depth) {
-                    format = GL_DEPTH_COMPONENT; resource->m_Attachments.back().m_PixelRectangle.m_Channels = 1;
+                    format = GL_DEPTH_COMPONENT; channels = 1;
                 }
                 if (stencil) {
-                    format = GL_STENCIL_INDEX; resource->m_Attachments.back().m_PixelRectangle.m_Channels = 1;
+                    format = GL_STENCIL_INDEX; channels = 1;
                 }
             }
 
-            resource->m_Attachments.back().m_PixelRectangle.m_Width = width;
-            resource->m_Attachments.back().m_PixelRectangle.m_Height = height;
-
-            resource->m_Attachments.back().m_PixelRectangle.m_RowBytes = defAlignment.getAligned(width * resource->m_Attachments.back().m_PixelRectangle.m_Channels);
-
-            resource->m_Attachments.back().m_PixelRectangle.m_Pixels.resize(
-                resource->m_Attachments.back().m_PixelRectangle.m_RowBytes * 
-                resource->m_Attachments.back().m_PixelRectangle.m_Height
-                );
             if (attachments[i] != GL_DEPTH_ATTACHMENT && attachments[i] != GL_STENCIL_ATTACHMENT)
                 DIRECT_CALL_CHK(glReadBuffer)(attachments[i]); 
-            if (resource->m_Attachments.back().m_PixelRectangle.m_Pixels.size())
-                DIRECT_CALL_CHK(glReadPixels)(0, 0, resource->m_Attachments.back().m_PixelRectangle.m_Width,
-                    resource->m_Attachments.back().m_PixelRectangle.m_Height,
-                    format, GL_UNSIGNED_BYTE, &resource->m_Attachments.back().m_PixelRectangle.m_Pixels[0]);
+
+            resource->m_Attachments.back().m_PixelRectangle = boost::make_shared<DGLPixelRectangle>(width,
+                height, defAlignment.getAligned(width * channels), channels, internalFormat);
+
+            GLvoid* ptr = resource->m_Attachments.back().m_PixelRectangle->getPtr();
+            if (ptr) {
+                DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, format, GL_UNSIGNED_BYTE, ptr);
+            }
         }
     }
     //restore state
