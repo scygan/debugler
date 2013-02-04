@@ -240,7 +240,7 @@ GLDataType g_DataTypes[] = {
     { GL_UNSIGNED_INT_2_10_10_10_REV,      4, true,  blt::blitFunc<blt::blitUNORM2101010_REV>, extract::extractUNORM2101010_REV, 4 },
     { GL_UNSIGNED_SHORT_5_6_5,             2, true,  blt::blitFunc<blt::blitUNORM565>,         extract::extractUNORM565, 3         },
     { GL_UNSIGNED_INT_24_8,                4, true,  blt::blitFunc<blt::blitUNORM24_8>,        extract::extractUNORM24_8, 2        },
-    { GL_FLOAT_32_UNSIGNED_INT_24_8_REV,   4, true,  blt::blitFunc<blt::blitF32_UNORM24_8>,    extract::extractF32_UNORM24_8, 2    },
+    { GL_FLOAT_32_UNSIGNED_INT_24_8_REV,   8, true,  blt::blitFunc<blt::blitF32_UNORM24_8>,    extract::extractF32_UNORM24_8, 2    },
 };
 
 GLDataFormat g_DataFormats[] = {
@@ -253,6 +253,7 @@ GLDataFormat g_DataFormats[] = {
     { GL_RGB_INTEGER,     3  },
     { GL_RGBA_INTEGER,    4  },
     { GL_DEPTH_COMPONENT, 1  },
+    { GL_STENCIL_INDEX,   1  },
     { GL_DEPTH_STENCIL,   2  },
 };
 
@@ -436,6 +437,22 @@ DGLPixelTransfer::DGLPixelTransfer(std::vector<GLint> _rgbaSizes, std::vector<GL
                 return;
             }
 
+            if (depthStencilSizes[0] != 0 && depthStencilSizes[1] == 0) {
+
+                m_DataFormat = GLFormats::getDataFormat(GL_DEPTH_COMPONENT);
+                m_DataType = GLFormats::getDataType(GL_FLOAT);
+
+            } else if (depthStencilSizes[0] == 0 && depthStencilSizes[1] != 0) {
+
+                m_DataFormat = GLFormats::getDataFormat(GL_STENCIL_INDEX);
+                m_DataType = GLFormats::getDataType(GL_UNSIGNED_BYTE);
+
+            } else {
+
+                m_DataFormat = GLFormats::getDataFormat(GL_DEPTH_STENCIL);
+                m_DataType = GLFormats::getDataType(GL_UNSIGNED_INT_24_8);
+
+            }
         }
     } else {
         m_DataFormat = GLFormats::getDataFormat(internalFormatDesr->dataFormat);
@@ -464,7 +481,7 @@ unsigned int DGLPixelTransfer::getPixelSize() {
         return 0;
     } else {
         if (m_DataType->packed) {
-            return m_DataType->components * m_DataType->byteSize;
+            return m_DataType->byteSize;
         } else {
             return m_DataFormat->components * m_DataType->byteSize;
         }
@@ -514,7 +531,7 @@ void DGLBlitterBase::doBlit() {
 
     int srcPixelSize = 0;
     if (m_DataType->packed) {
-        srcPixelSize = m_DataType->components * m_DataType->byteSize;
+        srcPixelSize = m_DataType->byteSize;
     } else {
         srcPixelSize =  m_DataFormat->components * m_DataType->byteSize;
     }  
@@ -542,7 +559,7 @@ std::vector<AnyValue> DGLBlitterBase::describePixel(unsigned int x, unsigned int
 
     int srcPixelSize = 0;
     if (m_DataType->packed) {
-        srcPixelSize = m_DataType->components * m_DataType->byteSize;
+        srcPixelSize = m_DataType->byteSize;
     } else {
         srcPixelSize =  m_DataFormat->components * m_DataType->byteSize;
     }  

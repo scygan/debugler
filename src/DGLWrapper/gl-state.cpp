@@ -634,11 +634,13 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
         attachments.push_back(GL_DEPTH_ATTACHMENT);
         attachments.push_back(GL_STENCIL_ATTACHMENT);
 
+		queryCheckError();
+
         for (size_t i = 0; i < attachments.size(); i++) {
             GLint type, name;
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i],
                 GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
-            if (type != GL_TEXTURE && type != GL_RENDERBUFFER)
+            if ((type != GL_TEXTURE && type != GL_RENDERBUFFER) || DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
                 continue;
 
             resource->m_Attachments.push_back(DGLResourceFBO::FBOAttachment(attachments[i]));
@@ -702,11 +704,12 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
                 DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &width);
                 DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
 
-                GLint internalFormat;
                 DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_INTERNAL_FORMAT, &internalFormat);
 
                 DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, lastRenderBuffer);
-            }
+            } else {
+				continue;
+			}
 
             queryCheckError();
 
