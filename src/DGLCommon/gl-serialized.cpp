@@ -24,7 +24,7 @@ const std::vector<AnyValue>& CalledEntryPoint::getArgs() const{
 
 class AnyValueWriter: public boost::static_visitor<void> {
 public:
-    AnyValueWriter(std::stringstream& stream):m_Stream(&stream) {}
+    AnyValueWriter(std::ostringstream& stream):m_Stream(&stream) {}
 
     void operator()(signed long long i) const { (*m_Stream) << i; }
     void operator()(unsigned long long i) const { (*m_Stream) << i; }
@@ -48,15 +48,15 @@ public:
         (*m_Stream) << GetGLEnumName(i.get());
     }
 
-    std::stringstream * m_Stream;
+    std::ostringstream * m_Stream;
 };
 
-void AnyValue::writeToSS(std::stringstream& out) const {
+void AnyValue::writeToSS(std::ostringstream& out) const {
     boost::apply_visitor(AnyValueWriter(out), m_value);
 }
 
 std::string CalledEntryPoint::toString() const {
-    std::stringstream ret;
+    std::ostringstream ret;
     ret << GetEntryPointName(m_entryp) << "(" << std::showpoint;
 
     for (size_t i = 0; i < m_args.size(); i++) {
@@ -115,14 +115,16 @@ bool ContextObjectName::operator<(const ContextObjectName&rhs) const {
     return false;
 }
 
-DGLPixelRectangle::DGLPixelRectangle(int32_t width, int32_t height, int32_t rowBytes, int32_t channels, uint32_t iFormat):m_Width(width),
-    m_Height(height), m_RowBytes(rowBytes), m_Channels(channels), m_Storage(NULL), m_InternalFormat(iFormat) {
+DGLPixelRectangle::DGLPixelRectangle(int32_t width, int32_t height, int32_t rowBytes, uint32_t glFormat, uint32_t glType, uint32_t iFormat):m_Width(width),
+    m_Height(height), m_RowBytes(rowBytes), m_GLFormat(glFormat), m_GLType(glType), m_InternalFormat(iFormat), m_Storage(NULL) {
+
         if (m_Height * m_RowBytes) {
             m_Storage = malloc(m_Height * m_RowBytes);
         }
 }
 
-DGLPixelRectangle::DGLPixelRectangle(const DGLPixelRectangle& rhs):m_Width(rhs.m_Width), m_Height(rhs.m_Height), m_RowBytes(rhs.m_RowBytes), m_Channels(rhs.m_Channels), m_InternalFormat(rhs.m_InternalFormat){
+DGLPixelRectangle::DGLPixelRectangle(const DGLPixelRectangle& rhs):m_Width(rhs.m_Width), m_Height(rhs.m_Height),
+    m_RowBytes(rhs.m_RowBytes), m_GLFormat(rhs.m_GLFormat), m_GLType(rhs.m_GLType), m_InternalFormat(rhs.m_InternalFormat){
     if (rhs.getPtr()) {
         m_Storage = malloc(m_Height * m_RowBytes);
         memcpy(m_Storage, rhs.getPtr(), m_Height * m_RowBytes);

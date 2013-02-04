@@ -6,6 +6,8 @@
 #include "pointers.h"
 #include "api-loader.h"
 
+#include "DGLCommon/gl-formats.h"
+
 namespace dglState {
 
 namespace state_setters {
@@ -438,50 +440,26 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
             if (!width || !height || DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
                 break;
          
-            GLint rgba[4] = {0, 0, 0, 0};
-            GLint stencil = 0, depth = 0;
+            std::vector<GLint> rgbaSizes(4, 0);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_RED_SIZE, &rgbaSizes[0]);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_GREEN_SIZE, &rgbaSizes[1]);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_BLUE_SIZE, &rgbaSizes[2]);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_ALPHA_SIZE, &rgbaSizes[3]);
 
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_RED_SIZE, &rgba[0]);
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_GREEN_SIZE, &rgba[1]);
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_BLUE_SIZE, &rgba[2]);
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_ALPHA_SIZE, &rgba[3]);
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_STENCIL_SIZE, &stencil);
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_DEPTH_SIZE, &depth);
-
-            GLenum colorFormats[4] = { GL_RED, GL_RG, GL_RGB, GL_BGRA }; //last element is BGRA intentionally (viewer will handle DX format faster)
-
-            GLenum format = 0;
-            int channels = 0;
-            for (int i = 0; i < 4; i++) {
-                if (rgba[i]) {
-                    channels = i + 1;
-                    format = colorFormats[i];
-                }
-            }
-            if (!format) {
-                // not a color texture
-                if (depth) {
-                    format = GL_DEPTH_COMPONENT; channels = 1;
-                }
-                if (stencil) {
-                    format = GL_STENCIL_INDEX; channels = 1;
-                }
-                if (stencil && depth) {
-                    format = GL_DEPTH_STENCIL; channels = 2;
-                }
-            }
+            std::vector<GLint> deptStencilSizes(2, 0);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_DEPTH_SIZE, &deptStencilSizes[0]);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_STENCIL_SIZE, &deptStencilSizes[1]);
 
             queryCheckError();
 
-            if (!format) {
-                throw std::runtime_error("Checked texture red, green, blue, alpha, stencil and depth size - all are 0. Unrecognized format.");
-            }
+            DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, internalFormat);
 
-            resource->m_FacesLevels[face].push_back(boost::make_shared<DGLPixelRectangle>(width, height, defAlignment.getAligned(width * channels), channels, internalFormat));
+            resource->m_FacesLevels[face].push_back(boost::make_shared<DGLPixelRectangle>(width, height, defAlignment.getAligned(width * transfer.getPixelSize()),
+                transfer.getFormat(), transfer.getType(), internalFormat));
             
             GLvoid* ptr;
             if ((ptr = resource->m_FacesLevels[face].back()->getPtr()) != NULL) {
-                DIRECT_CALL_CHK(glGetTexImage)(levelTarget, level, format, GL_UNSIGNED_BYTE, ptr);
+                DIRECT_CALL_CHK(glGetTexImage)(levelTarget, level, transfer.getFormat(), transfer.getType(), ptr);
             }
         }
     }
@@ -606,39 +584,24 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
         DIRECT_CALL_CHK(glReadBuffer)(bufferEnum);
 
 
-        GLenum colorFormats[4] = { GL_RED, GL_RG, GL_RGB, GL_BGRA }; //last element is BGRA intentionally (viewer will handle DX format faster)
+        std::vector<GLint> rgbaSizes(m_NativeSurface->getRGBASizes(), m_NativeSurface->getRGBASizes() + 4);
+        std::vector<GLint> deptStencilSizes;
 
-        GLenum format = 0;
-
-        int channels = 0;
-        for (int i = 0; i < 4; i++) {
-            if (m_NativeSurface->getRGBASizes()[i]) {
-                channels = i + 1;
-                format = colorFormats[i];
-            }
-        }
-        if (!format) {
-            // not a color texture
-            if (m_NativeSurface->getDepthSize()) {
-                format = GL_DEPTH_COMPONENT; channels = 1;
-            }
-            if (m_NativeSurface->getStencilSize()) {
-                format = GL_STENCIL_INDEX; channels = 1;
-            }
-            if (m_NativeSurface->getStencilSize() && m_NativeSurface->getDepthSize()) {
-                format = GL_DEPTH_STENCIL; channels = 2;
-            }
-        }       
+        deptStencilSizes.push_back(m_NativeSurface->getDepthSize());
+        deptStencilSizes.push_back(m_NativeSurface->getStencilSize());
 
         int width = m_NativeSurface->getWidth();
         int height = m_NativeSurface->getHeight();
 
         //we cannot reliably get internalformat for default framebuffer, so it is 0 here.
-        resource->m_PixelRectangle = boost::make_shared<DGLPixelRectangle>(width, height, defAlignment.getAligned(width * channels), channels, 0);
+        DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, 0);
+
+        resource->m_PixelRectangle = boost::make_shared<DGLPixelRectangle>(width, height, defAlignment.getAligned(width * transfer.getPixelSize()),
+            transfer.getFormat(), transfer.getType(), 0);
 
         GLvoid* ptr;
         if ((ptr = resource->m_PixelRectangle->getPtr()) != NULL)
-            DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, format, GL_UNSIGNED_BYTE, ptr);
+            DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, transfer.getFormat(), transfer.getType(), ptr);
     }
         
     //restore state
@@ -679,23 +642,23 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
 
             resource->m_Attachments.push_back(DGLResourceFBO::FBOAttachment(attachments[i]));
 
-            GLint rgba[4] = {0, 0, 0, 0};
-            GLint stencil = 0, depth = 0;
-
+            std::vector<GLint> rgbaSizes(4, 0);
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i],
                 GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
-                GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &rgba[0]);
+                GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &rgbaSizes[0]);
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
-                GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, &rgba[1]);
+                GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, &rgbaSizes[1]);
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
-                GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, &rgba[2]);
+                GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, &rgbaSizes[2]);
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
-                GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &rgba[3]);
+                GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &rgbaSizes[3]);
+
+            std::vector<GLint> deptStencilSizes(2, 0);
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
-                GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &stencil);
+                GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &deptStencilSizes[0]);
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
-                GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &depth);
+                GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &deptStencilSizes[1]);
 
             queryCheckError();
 
@@ -746,36 +709,18 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
 
             queryCheckError();
 
-            GLenum colorFormats[4] = { GL_RED, GL_RG, GL_RGB, GL_BGRA }; //last element is BGRA intentionally (viewer will handle DX format faster)
-
-            GLenum format = 0;
-           
-            int channels = 0;
-            for (int j = 0; j < 4; j++) {
-                if (rgba[j]) {
-                    channels = j + 1;
-                    format = colorFormats[j];
-                }
-            }
-            if (!format) {
-                // not a color texture
-                if (depth) {
-                    format = GL_DEPTH_COMPONENT; channels = 1;
-                }
-                if (stencil) {
-                    format = GL_STENCIL_INDEX; channels = 1;
-                }
-            }
-
             if (attachments[i] != GL_DEPTH_ATTACHMENT && attachments[i] != GL_STENCIL_ATTACHMENT)
                 DIRECT_CALL_CHK(glReadBuffer)(attachments[i]); 
 
+            DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, internalFormat);
+
             resource->m_Attachments.back().m_PixelRectangle = boost::make_shared<DGLPixelRectangle>(width,
-                height, defAlignment.getAligned(width * channels), channels, internalFormat);
+                height, defAlignment.getAligned(width * transfer.getPixelSize()), 
+                transfer.getFormat(), transfer.getType(), internalFormat);
 
             GLvoid* ptr = resource->m_Attachments.back().m_PixelRectangle->getPtr();
             if (ptr) {
-                DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, format, GL_UNSIGNED_BYTE, ptr);
+                DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, transfer.getFormat(), transfer.getType(), ptr);
             }
         }
     }

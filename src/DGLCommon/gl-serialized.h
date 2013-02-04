@@ -81,7 +81,7 @@ public:
     //for function pointers const qualifier is meaningless, so we need specific overload to resolve ambiguity
     void get(PROC& v) const { v = (PROC)boost::get<PtrWrap<const void*>>(m_value); }
 
-    void writeToSS(std::stringstream& out) const;
+    void writeToSS(std::ostringstream& out) const;
 
 private:
     boost::variant<signed long long, unsigned long long, signed long, unsigned long, unsigned int, signed int, unsigned short, signed short, unsigned char, signed char, float, double,
@@ -153,12 +153,22 @@ class DGLPixelRectangle {
         ar & boost::serialization::binary_object(m_Storage, m_Height * m_RowBytes);
     }
 public:
-    DGLPixelRectangle(int32_t width, int32_t height, int32_t rowBytes, int32_t channels, uint32_t iFormat);
+    /**
+     * Ctor
+     *
+     * @param width real width of pixel rectangle
+     * @param height real height of pixel rectangle
+     * @param rowBytes byte with of pixel rectangle (including alignment)
+     * @param glFormat GL data format of sent data
+     * @param glType GL data type of sent data
+     * @param iFormat storage internal format (for informational purposes only)
+     */
+    DGLPixelRectangle(int32_t width, int32_t height, int32_t rowBytes, uint32_t glFormat, uint32_t glType, uint32_t iFormat);
     DGLPixelRectangle(const DGLPixelRectangle& rhs);
     ~DGLPixelRectangle();
 
-    int32_t m_Width, m_Height, m_Channels, m_RowBytes;
-    uint32_t m_InternalFormat;
+    int32_t m_Width, m_Height, m_RowBytes;
+    uint32_t  m_GLFormat, m_GLType, m_InternalFormat;
 
     void* getPtr() const;
     size_t getSize() const;
@@ -175,7 +185,8 @@ namespace boost { namespace serialization {
             ar << t->m_Width;
             ar << t->m_Height;
             ar << t->m_RowBytes;
-            ar << t->m_Channels;
+            ar << t->m_GLFormat;
+            ar << t->m_GLType;
             ar << t->m_InternalFormat;
     }
 
@@ -183,15 +194,16 @@ namespace boost { namespace serialization {
     inline void load_construct_data(
         Archive & ar, DGLPixelRectangle * t, const unsigned int file_version) {
             // retrieve data from archive required to construct new instance
-            int32_t width, height, rowBytes, channels;
+            int32_t width, height, rowBytes, glFormat, glType;
             uint32_t iformat;
             ar >> width;
             ar >> height;
             ar >> rowBytes;
-            ar >> channels;
+            ar >> glFormat;
+            ar >> glType;
             ar >> iformat;
             // invoke inplace constructor
-            ::new(t)DGLPixelRectangle(width, height, rowBytes, channels, iformat);
+            ::new(t)DGLPixelRectangle(width, height, rowBytes, glFormat, glType, iformat);
     }
 }}
 

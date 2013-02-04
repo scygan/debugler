@@ -30,7 +30,7 @@ void DGLStateView::update(const DGLResource& res) {
     }    
 
     for (size_t i = 0; i < resource->m_Items.size(); i++) {
-        std::stringstream valStream;
+        std::ostringstream valStream;
         valStream << std::showpoint;
         for (int j = 0; j < resource->m_Items[i].m_Values.size(); j++) {
             if (j)

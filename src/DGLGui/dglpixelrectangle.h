@@ -5,41 +5,41 @@
 #include <QGraphicsView>
 
 #include "ui_dglpixelrectangleview.h"
+#include "DGLCommon/gl-formats.h"
 
-class DGLPixelRectangleScene;
-
-class DGLPixelRectangleViewWidget: public QGraphicsView {
+class DGLPixRectQGraphicsView: public QGraphicsView {
     Q_OBJECT
 public:
-    DGLPixelRectangleViewWidget(QWidget* parent, DGLPixelRectangleScene* scene);
+    DGLPixRectQGraphicsView::DGLPixRectQGraphicsView(QWidget* parent);
 signals:
     void resized(const QSize&);
-    void onMouseOver(const QPoint& pos, const QColor& color, int numChannels);
+    void onMouseOver(const QPoint&);
     void onMouseLeft();
 
 private:
-    virtual void resizeEvent (QResizeEvent * event);
-    virtual void mouseMoveEvent ( QMouseEvent * event );
-    virtual void leaveEvent ( QEvent * event );
-    DGLPixelRectangleScene* m_Scene;
+    void DGLPixRectQGraphicsView::resizeEvent (QResizeEvent * event);
+    void DGLPixRectQGraphicsView::mouseMoveEvent ( QMouseEvent * event );
+    void DGLPixRectQGraphicsView::leaveEvent ( QEvent * event );
 };
 
-class DGLPixelRectangle;
 
-class DGLPixelRectangleView: public QGraphicsView {
+class DGLPixelRectangleScene;
+
+class DGLPixelRectangleView: public QWidget {
     Q_OBJECT
 public:
     DGLPixelRectangleView(QWidget* parent, DGLPixelRectangleScene* scene);
     void updateFormatSizeInfo(const DGLPixelRectangle* pixelRectangle);
 private slots:
-    void onMouseOver(const QPoint& pos, const QColor& color, int numChannels);
+    void onMouseOver(const QPoint& pos);
     void onMouseLeft();
 private:
     Ui::DGLPixelRectangleView* m_Ui;
-    DGLPixelRectangleViewWidget m_ViewWidget;
+    DGLPixRectQGraphicsView m_GraphicsView;
+    DGLPixelRectangleScene* m_Scene;
 };
 
-class QGraphicsPixmapItem;
+class DGLPixelRectangleBlitter;
 
 class DGLPixelRectangleScene: public QObject {
     Q_OBJECT
@@ -47,27 +47,30 @@ public:
     DGLPixelRectangleScene();
 
     void setText(const std::string& message);
-    void setPixelRectangle(const DGLPixelRectangle* pixelRectangle);
+    void setPixelRectangle(const DGLPixelRectangle& pixelRectangle);
+
+    QPoint translate(const QPoint&);
+    bool inside(const QPoint&);
+    std::pair<QColor, std::vector<AnyValue> > getColor(const QPoint&);
+
     QGraphicsScene* getScene();
-    float getScale();
-    const QPoint& getPos();
-    const QSize& getImageSize();
-    QColor getColor(int x, int y);
-    int getNumChannels();
 
 public slots:
     void resize(const QSize&);
 
 private:
     void doRecalcSizes();
-
-    std::vector<uchar> m_PixelData;
     QGraphicsScene m_Scene;
     QGraphicsPixmapItem * m_Item;
-    QSize m_ImageSize;
+    QImage m_Image;
     float m_Scale;
     QPoint m_Pos;
-    size_t m_PixelSize, m_RowSize, m_Channels;
+
+    void blittedImage(const QImage& image);
+
+    boost::shared_ptr<DGLPixelRectangleBlitter> m_Blitter;
+
+    friend class DGLPixelRectangleBlitter;
 };
 
 

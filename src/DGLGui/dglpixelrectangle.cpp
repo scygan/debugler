@@ -6,12 +6,75 @@
 #include <QResizeEvent>
 #include <sstream>
 
+#include <boost/make_shared.hpp>
+
 #include "dglgui.h"
 
-DGLPixelRectangleView::DGLPixelRectangleView(QWidget* parent, DGLPixelRectangleScene* scene):m_ViewWidget(parent, scene) {
+
+DGLPixRectQGraphicsView::DGLPixRectQGraphicsView(QWidget* parent):QGraphicsView(parent) {
+    QPixmap* tile = new QPixmap(128, 128);
+    tile->fill(Qt::white);
+    QPainter pt(tile);
+    QColor color(230, 230, 230);
+    pt.fillRect(0, 0, 64, 64, color);
+    pt.fillRect(64, 64, 64, 64, color);
+    pt.end();
+    QBrush *brush = new QBrush(*tile);
+    setBackgroundBrush(*brush);
+    setMouseTracking(true);
+}
+
+void DGLPixRectQGraphicsView::resizeEvent (QResizeEvent * event) {
+    emit resized(event->size());
+}
+void DGLPixRectQGraphicsView::mouseMoveEvent ( QMouseEvent * event ) {
+    emit onMouseOver(event->pos());
+    QGraphicsView::mouseMoveEvent(event);
+}
+void DGLPixRectQGraphicsView::leaveEvent ( QEvent * event ) {
+    emit onMouseLeft();
+}
+
+
+class DGLPixelRectangleBlitter: public DGLBlitterBase {
+public:
+    DGLPixelRectangleBlitter::DGLPixelRectangleBlitter(DGLPixelRectangleScene* scene):m_Scene(scene) {}
+private:
+    void DGLPixelRectangleBlitter::sink(int width, int height, OutputFormat format, void* data) {
+        QImage::Format qtFormat;
+        switch (format) {
+        case _GL_BGRA32:
+            qtFormat =  QImage::Format_ARGB32;
+            break;
+        case _GL_RGBX32:
+            qtFormat = QImage::Format_RGB888;
+            break;
+        case _GL_MONO8:
+            qtFormat = QImage::Format_Indexed8;
+            break;
+        case _LAST:
+        default:
+            assert(0);
+            return;
+        }
+        m_Image = QImage(static_cast<uchar*>(data), width, height, qtFormat);
+        if (format == _GL_MONO8 ) {
+            for(int i=0;i<256;++i) {
+                m_Image.setColor(i, qRgb(i,i,i));
+            }
+        }
+
+        m_Scene->blittedImage(m_Image);
+    }
+    DGLPixelRectangleScene* m_Scene;
+    QImage m_Image;
+};
+
+
+DGLPixelRectangleView::DGLPixelRectangleView(QWidget* parent, DGLPixelRectangleScene* scene):m_Scene(scene),m_GraphicsView(parent) {
     m_Ui = new Ui::DGLPixelRectangleView();
     m_Ui->setupUi(this);
-    m_Ui->verticalLayout->insertWidget(0, &m_ViewWidget);
+    m_Ui->verticalLayout->insertWidget(0, &m_GraphicsView);
     m_Ui->widgetColor->setStyleSheet("QWidget{background-color: palette(background);}");
     
     QPalette pal;
@@ -21,30 +84,40 @@ DGLPixelRectangleView::DGLPixelRectangleView(QWidget* parent, DGLPixelRectangleS
 
     m_Ui->widgetColor->setAutoFillBackground(true);
 
-    CONNASSERT(connect(&m_ViewWidget, SIGNAL(onMouseOver(const QPoint&, const QColor&, int)), this, SLOT(onMouseOver(const QPoint&, const QColor&, int))));
-    CONNASSERT(connect(&m_ViewWidget, SIGNAL(onMouseLeft()), this, SLOT(onMouseLeft())));
+    //process Mouse events ourselves
+    CONNASSERT(connect(&m_GraphicsView, SIGNAL(onMouseOver(QPoint)), this, SLOT(onMouseOver(QPoint))));
+    CONNASSERT(connect(&m_GraphicsView, SIGNAL(onMouseLeft()), this, SLOT(onMouseLeft())));
+
+    //pass resize events directly to scene for size recalc
+    CONNASSERT(connect(&m_GraphicsView, SIGNAL(resized(const QSize&)), scene, SLOT(resize(const QSize&))));
+
+    m_GraphicsView.setScene(scene->getScene());
 }
 
-void DGLPixelRectangleView::onMouseOver(const QPoint& pos, const QColor& color, int numChannels) {
-    std::ostringstream tmp;
-    tmp << "(" << pos.x() << ", " << pos.y() << ") = [";
-    if (numChannels) {
-        tmp << color.red();
-        if (numChannels > 1) {
-            tmp << ", " << color.green();
-            if (numChannels > 2) {
-                tmp << ", " << color.blue();
-                if (numChannels > 3) {
-                    tmp << ", " << color.alpha();
-                }
+void DGLPixelRectangleView::onMouseOver(const QPoint& barePos) {
+    QPoint pos = m_Scene->translate(barePos);
+    if (m_Scene->inside(pos)) {
+
+        std::pair<QColor, std::vector<AnyValue> > currColor = m_Scene->getColor(pos);
+
+        std::ostringstream tmp;
+        tmp << "(" << pos.x() << ", " << pos.y() << ") = [";
+        for (size_t i = 0; i < currColor.second.size(); i++) {
+            currColor.second[i].writeToSS(tmp);
+            if (i != currColor.second.size() - 1) {
+                tmp << ", ";
             }
         }
+        tmp << "]";
+        
+        m_Ui->labelColorText->setText(QString::fromStdString(tmp.str()));
+        QPalette pal;
+        pal.setColor(m_Ui->widgetColor->backgroundRole(), QColor(currColor.first));
+        m_Ui->widgetColor->setPalette(pal);
+        
+    } else {
+        onMouseLeft();
     }
-    tmp << "]";
-    m_Ui->labelColorText->setText(QString::fromStdString(tmp.str()));
-    QPalette pal;
-    pal.setColor(m_Ui->widgetColor->backgroundRole(), QColor(color));
-    m_Ui->widgetColor->setPalette(pal);
 }
 
 void DGLPixelRectangleView::onMouseLeft() {
@@ -66,44 +139,7 @@ void DGLPixelRectangleView::updateFormatSizeInfo(const DGLPixelRectangle* pixelR
     }
 }
 
-DGLPixelRectangleViewWidget::DGLPixelRectangleViewWidget(QWidget* parent, DGLPixelRectangleScene* scene):QGraphicsView(parent), m_Scene(scene) {
-    QPixmap* tile = new QPixmap(128, 128);
-    tile->fill(Qt::white);
-    QPainter pt(tile);
-    QColor color(230, 230, 230);
-    pt.fillRect(0, 0, 64, 64, color);
-    pt.fillRect(64, 64, 64, 64, color);
-    pt.end();
-    QBrush *brush = new QBrush(*tile);
-    setBackgroundBrush(*brush);
-    setScene(scene->getScene());
-
-    setMouseTracking(true);
-
-    CONNASSERT(connect(this, SIGNAL(resized(const QSize&)), scene, SLOT(resize(const QSize&))));
-}
-
-void DGLPixelRectangleViewWidget::resizeEvent (QResizeEvent * event) {
-    emit resized(event->size());
-}
-
-void DGLPixelRectangleViewWidget::mouseMoveEvent ( QMouseEvent * event ) {
-        
-    QPoint pos(((event->posF() - QPointF(m_Scene->getPos())) / m_Scene->getScale() - QPointF(0.5, 0.5)).toPoint());
-    if (pos.x() >= 0 && pos.y() >= 0 && pos.x() < m_Scene->getImageSize().width() && pos.y() < m_Scene->getImageSize().height()) {
-        emit onMouseOver(pos, m_Scene->getColor(pos.x(), pos.y()), m_Scene->getNumChannels());
-    } else {
-        emit onMouseLeft();
-    }
-    
-    QGraphicsView::mouseMoveEvent(event);
-}
-
-void DGLPixelRectangleViewWidget::leaveEvent ( QEvent * event ) {
-    emit onMouseLeft();
-}
-
-DGLPixelRectangleScene::DGLPixelRectangleScene():m_Item(NULL) {}
+DGLPixelRectangleScene::DGLPixelRectangleScene():m_Item(NULL), m_Blitter(boost::make_shared<DGLPixelRectangleBlitter>(this)) {}
 
 void DGLPixelRectangleScene::setText(const std::string& message) {
     m_Item = NULL;
@@ -111,147 +147,56 @@ void DGLPixelRectangleScene::setText(const std::string& message) {
     m_Scene.addText(message.c_str());
 }
 
-void DGLPixelRectangleScene::setPixelRectangle(const DGLPixelRectangle* pixelRectangle) {
+void DGLPixelRectangleScene::setPixelRectangle(const DGLPixelRectangle& pixelRectangle) {
 
     m_Item = NULL;
 
-    if (!pixelRectangle->getPtr()) {
-        setText("Texture empty");
+    if (!pixelRectangle.getPtr()) {
+        setText("No pixels");
         return;
     }
 
-    m_Channels = pixelRectangle->m_Channels;
+    m_Blitter->blit(pixelRectangle.m_Width, pixelRectangle.m_Height, pixelRectangle.m_RowBytes,
+        pixelRectangle.m_GLFormat, pixelRectangle.m_GLType, pixelRectangle.getPtr());
+}
 
-    uchar* pixels = static_cast<uchar*>(pixelRectangle->getPtr());
+QPoint DGLPixelRectangleScene::translate(const QPoint& pos) {
+    return QPoint(((QPointF(pos) - QPointF(m_Pos)) / m_Scale - QPointF(0.5, 0.5)).toPoint());
+}
 
-    if (pixelRectangle->m_Channels == 2) {
-        //special case: recompute buffer to be 4 element
+std::pair<QColor, std::vector<AnyValue> > DGLPixelRectangleScene::getColor(const QPoint& pos) {
+    std::pair<QColor, std::vector<AnyValue> > ret;
+    ret.first =  m_Image.pixel(pos.x(), pos.y());
+    ret.second = m_Blitter->describePixel(pos.x(), pos.y());
+    return ret;
+}
 
-        //the new buffer size should not need alignment
-        assert (pixelRectangle->m_Width * 2 % 4 == 0);
-
-        m_PixelData.resize(pixelRectangle->m_Width * pixelRectangle->m_Height * 2, 0);
-
-        for (int y = 0; y < pixelRectangle->m_Height; y++) {
-            for (int x = 0; x < pixelRectangle->m_Width; x++) {
-                int idxOrig = pixelRectangle->m_RowBytes * y + x * 2;
-                int idxNew = 2 * (pixelRectangle->m_Width + x * 2);
-                m_PixelData[idxNew + 0] = pixels[idxOrig + 0];
-                m_PixelData[idxNew + 1] = pixels[idxOrig + 1];
-            }
-        }
-        m_RowSize = pixelRectangle->m_Width * 4;
-        m_ImageSize.setHeight(m_PixelData.size() / m_RowSize);
-    } else {
-        //normal case, use buffer untouched
-        m_PixelData = std::vector<uchar>(pixels, pixels + pixelRectangle->getSize());
-        m_RowSize = pixelRectangle->m_RowBytes;
-        m_ImageSize.setHeight(m_PixelData.size() / m_RowSize);
-    }
-
-    assert(m_ImageSize.height() == pixelRectangle->m_Height);
-    m_ImageSize.setWidth(pixelRectangle->m_Width);
-
-    QImage::Format format = QImage::Format_Invalid;         
-    switch (pixelRectangle->m_Channels) {
-    case 4:
-        format = QImage::Format_ARGB32;
-        m_PixelSize = 4;
-        break;
-    case 3:
-        format = QImage::Format_RGB888;
-        m_PixelSize = 3;
-        break;
-    case 2:
-        format = QImage::Format_RGB32; //we have recomputed buffer, so we can use 32-bit non-alpha format
-        m_PixelSize = 4;
-        break;
-    case 1:
-        format = QImage::Format_Indexed8;
-        m_PixelSize = 1;
-        break;
-    default:
-        assert(0);
-    }    
-
-    QImage image(&m_PixelData[0], m_ImageSize.width(), m_ImageSize.height(), format);
-
-    if (pixelRectangle->m_Channels == 1) {
-        //this is special case: we do not want to re-compute buffer, so we use color indices to emulate GL_R8 texture
-        for(int i=0;i<256;++i) {
-            image.setColor(i, qRgb(i,i,i));
-        }
-    }
-
-    m_Scene.clear();
-    m_Item = m_Scene.addPixmap(QPixmap::fromImage(image));
-
-    doRecalcSizes();
+void DGLPixelRectangleScene::blittedImage(const QImage& image) {
+   m_Scene.clear();
+   m_Image = image;
+   m_Item = m_Scene.addPixmap(QPixmap::fromImage(image));
+   doRecalcSizes();
 }
 
 QGraphicsScene* DGLPixelRectangleScene::getScene() {
     return &m_Scene;
 }
 
-float DGLPixelRectangleScene::getScale() {
-    return m_Scale;
-}
-
-const QPoint& DGLPixelRectangleScene::getPos() {
-    return m_Pos;
-}
-
-QColor DGLPixelRectangleScene::getColor(int x, int y) {
-    int idx = y * m_RowSize + x * m_PixelSize;
-
-    int r = 0, g = 0, b = 0, a = 255;
-
-    if (idx + m_PixelSize <= m_PixelData.size()) {
-       switch (m_Channels) {
-           case 4:
-               r = m_PixelData[idx + 2];
-               g = m_PixelData[idx + 1];
-               b = m_PixelData[idx + 0];
-               a = m_PixelData[idx + 3];
-               break;
-           case 3:
-               r = m_PixelData[idx + 0];
-               g = m_PixelData[idx + 1];
-               b = m_PixelData[idx + 2];
-               break;
-           case 2:
-               r = m_PixelData[idx + 0];
-               g = m_PixelData[idx + 1];
-               break;
-           case 1:
-               r = m_PixelData[idx];
-               g = m_PixelData[idx];
-               b = m_PixelData[idx];
-               break;
-       }
-    }
-
-    return QColor(r, g, b, a);
-}
-
-int DGLPixelRectangleScene::getNumChannels() {
-    return m_Channels;
-}
 
 void DGLPixelRectangleScene::resize(const QSize& size) {
     m_Scene.setSceneRect(0, 0, size.width(), size.height());
     doRecalcSizes();
 }
 
-const QSize& DGLPixelRectangleScene::getImageSize() {
-    return m_ImageSize;
+bool DGLPixelRectangleScene::inside(const QPoint& pos) {
+    return pos.x() >= 0 && pos.y() >= 0 && pos.x() < m_Image.size().width() && pos.y() < m_Image.size().height();
 }
 
 void DGLPixelRectangleScene::doRecalcSizes() {
     if (!m_Item) return;
 
-    m_Scale = min(m_Scene.sceneRect().width() / m_ImageSize.width(),
-        m_Scene.sceneRect().height() / m_ImageSize.height());
+    m_Scale = min(m_Scene.sceneRect().width() / m_Image.size().width(),
+        m_Scene.sceneRect().height() / m_Image.size().height());
 
     //rescale
     m_Item->setScale(m_Scale);

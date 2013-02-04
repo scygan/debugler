@@ -50,7 +50,7 @@ void DGLFBOViewItem::showAttachment(int id) {
     if (!m_Attachments[id].isOk(errorMsg)) {
         m_PixelRectangleScene->setText(errorMsg);
     } else {
-        m_PixelRectangleScene->setPixelRectangle(m_Attachments[id].m_PixelRectangle.get());
+        m_PixelRectangleScene->setPixelRectangle(*m_Attachments[id].m_PixelRectangle.get());
         m_PixelRectangleView->updateFormatSizeInfo((m_Attachments[id].m_PixelRectangle.get()));
     }
 }

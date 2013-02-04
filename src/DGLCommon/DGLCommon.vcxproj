@@ -126,6 +126,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="dglconfiguration.h" />
+    <ClInclude Include="gl-formats.h" />
     <ClInclude Include="gl-serialized.h" />
     <ClInclude Include="gl-headers.h" />
     <ClInclude Include="gl-types.h" />
@@ -133,6 +134,7 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="gl-formats.cpp" />
     <ClCompile Include="gl-serialized.cpp" />
     <ClCompile Include="gl-types.cpp" />
     <ClCompile Include="os.cpp" />

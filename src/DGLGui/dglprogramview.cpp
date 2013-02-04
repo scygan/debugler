@@ -73,7 +73,7 @@ void DGLProgramViewItem::update(const DGLResource& res) {
         m_Ui.tableWidgetUniforms->setItem(i, 1, item);
 
         if (resource->m_Uniforms[i].m_supportedType) {
-            std::stringstream valStream; 
+            std::ostringstream valStream; 
             valStream << std::showpoint;
             for (int j = 0; j < resource->m_Uniforms[i].m_value.size(); j++) {
                 if (j % resource->m_Uniforms[i].m_rowSize == 0)

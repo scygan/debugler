@@ -33,6 +33,7 @@ private:
     DGLPixelRectangleScene* m_PixelRectangleScene;
     boost::shared_ptr<DGLPixelRectangleView> m_PixelRectangleView;
     DGLResourceListener* m_Listener;
+    boost::shared_ptr<DGLPixelRectangle> m_PixelRectangle;
 };
 
 #endif //DGLFRAMEBUFFERVIEW_H
