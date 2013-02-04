@@ -640,7 +640,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
             GLint type, name;
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i],
                 GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
-            if ((type != GL_TEXTURE && type != GL_RENDERBUFFER) || DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
+            if (DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR || (type != GL_TEXTURE && type != GL_RENDERBUFFER))
                 continue;
 
             resource->m_Attachments.push_back(DGLResourceFBO::FBOAttachment(attachments[i]));
