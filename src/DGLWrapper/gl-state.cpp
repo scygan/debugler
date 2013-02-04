@@ -630,6 +630,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
         for (int i = 0; i < maxColorAttachments; i++) {
             attachments[i] = GL_COLOR_ATTACHMENT0 + i;
         }
+		attachments.push_back(GL_DEPTH_STENCIL_ATTACHMENT);
         attachments.push_back(GL_DEPTH_ATTACHMENT);
         attachments.push_back(GL_STENCIL_ATTACHMENT);
 
@@ -709,7 +710,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
 
             queryCheckError();
 
-            if (attachments[i] != GL_DEPTH_ATTACHMENT && attachments[i] != GL_STENCIL_ATTACHMENT)
+            if (attachments[i] != GL_DEPTH_ATTACHMENT && attachments[i] != GL_STENCIL_ATTACHMENT && attachments[i] != GL_DEPTH_STENCIL_ATTACHMENT)
                 DIRECT_CALL_CHK(glReadBuffer)(attachments[i]); 
 
             DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, internalFormat);
@@ -722,6 +723,12 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
             if (ptr) {
                 DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, transfer.getFormat(), transfer.getType(), ptr);
             }
+
+			if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
+				//we have succesfully read GL_DEPTH_STENCIL_ATTACHMENT attachment. 
+				//WA for buggy drivers: do not try to read DEPTH and STENCIL attachments if DEPTH_STENCIL is used
+				break;
+			}
         }
     }
     //restore state
