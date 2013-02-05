@@ -125,6 +125,13 @@ inline void blitF32_UNORM24_8(const void* inVoid, int components, float* out) {
     out[0] = *reinterpret_cast<const float*>(&inCast[0]);
 }
 
+inline void blitUNORM332(const void* inVoid, int components, float* out) {
+    const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
+    out[2] = (inCast[0]  & 0x3) / float(0x3);
+    out[1] = ((inCast[0]  & (0x7 << 2)) >> 2) / float(0x7);
+    out[0] = ((inCast[0]  & (0x7 << 5)) >> 5) / float(0x7);
+}
+
 template<void(*blitConversion)(const void*, int, float*)>
 static void blitFunc(DGLBlitterBase::OutputFormat outFormat, int width, int height, const void * src, void* dst, int srcStride, int dstStride, int srcPixelSize, int dstPixelSize, int srcComponents) {
     for (int y = 0; y < height; y++) {            
@@ -224,6 +231,15 @@ std::vector<AnyValue> extractF32_UNORM24_8(const void* inVoid, int components) {
     return ret;
 }
 
+std::vector<AnyValue> extractUNORM332(const void* inVoid, int components) {
+    std::vector<AnyValue> ret(3);
+    const uint8_t* inCast = reinterpret_cast<const uint8_t*>(inVoid);
+    ret[2] = inCast[0]  & 0x3;
+    ret[1] = (inCast[0]  & (0x7 << 2)) >> 2;
+    ret[0] = (inCast[0]  & (0x7 << 5)) >> 5;
+    return ret;
+}
+
 } //namespace extract
 
 
@@ -235,12 +251,13 @@ GLDataType g_DataTypes[] = {
     { GL_UNSIGNED_INT,                     4, false, blt::blitFunc<blt::blitUNORM32>,          extract::extract<uint32_t>          },
     { GL_INT,                              4, false, blt::blitFunc<blt::blitSNORM32>,          extract::extract<int32_t>           },
     { GL_FLOAT,                            4, false, blt::blitFunc<blt::blitFLOAT32>,          extract::extract<float>             },
-    { GL_UNSIGNED_SHORT_4_4_4_4,           2, true,  blt::blitFunc<blt::blitUNORM4444>,        extract::extractUNORM4444, 4        },
-    { GL_UNSIGNED_SHORT_5_5_5_1,           2, true,  blt::blitFunc<blt::blitUNORM5551>,        extract::extractUNORM5551, 4        },
+    { GL_UNSIGNED_SHORT_4_4_4_4,           2, true,  blt::blitFunc<blt::blitUNORM4444>,        extract::extractUNORM4444,        4 },
+    { GL_UNSIGNED_SHORT_5_5_5_1,           2, true,  blt::blitFunc<blt::blitUNORM5551>,        extract::extractUNORM5551,        4 },
     { GL_UNSIGNED_INT_2_10_10_10_REV,      4, true,  blt::blitFunc<blt::blitUNORM2101010_REV>, extract::extractUNORM2101010_REV, 4 },
-    { GL_UNSIGNED_SHORT_5_6_5,             2, true,  blt::blitFunc<blt::blitUNORM565>,         extract::extractUNORM565, 3         },
-    { GL_UNSIGNED_INT_24_8,                4, true,  blt::blitFunc<blt::blitUNORM24_8>,        extract::extractUNORM24_8, 2        },
-    { GL_FLOAT_32_UNSIGNED_INT_24_8_REV,   8, true,  blt::blitFunc<blt::blitF32_UNORM24_8>,    extract::extractF32_UNORM24_8, 2    },
+    { GL_UNSIGNED_SHORT_5_6_5,             2, true,  blt::blitFunc<blt::blitUNORM565>,         extract::extractUNORM565,         3 },
+    { GL_UNSIGNED_INT_24_8,                4, true,  blt::blitFunc<blt::blitUNORM24_8>,        extract::extractUNORM24_8,        2 },
+    { GL_FLOAT_32_UNSIGNED_INT_24_8_REV,   8, true,  blt::blitFunc<blt::blitF32_UNORM24_8>,    extract::extractF32_UNORM24_8,    2 },
+    { GL_UNSIGNED_BYTE_3_3_2,              1, true,  blt::blitFunc<blt::blitUNORM332>,         extract::extractUNORM332,         2 },
 };
 
 GLDataFormat g_DataFormats[] = {
@@ -255,109 +272,156 @@ GLDataFormat g_DataFormats[] = {
     { GL_DEPTH_COMPONENT, 1  },
     { GL_STENCIL_INDEX,   1  },
     { GL_DEPTH_STENCIL,   2  },
+    { GL_ALPHA,           1  },
+    { GL_LUMINANCE,       1  },
+    { GL_LUMINANCE_ALPHA, 2  },
 };
 
 struct GLInternalFormat g_InternalFormats[] = {
     //available on ES3.0
-    { GL_RGBA8,          GL_RGBA,         GL_UNSIGNED_BYTE                      },
-    { GL_RGB5_A1,        GL_RGBA,         GL_UNSIGNED_BYTE                      },
-    { GL_RGBA4,          GL_RGBA,         GL_UNSIGNED_BYTE                      },
-    { GL_SRGB8_ALPHA8,   GL_RGBA,         GL_UNSIGNED_BYTE                      },
-    { GL_RGBA8_SNORM,    GL_RGBA,         GL_BYTE                               },
-    { GL_RGBA4,          GL_RGBA,         GL_UNSIGNED_SHORT_4_4_4_4             },
-    { GL_RGB5_A1,        GL_RGBA,         GL_UNSIGNED_SHORT_5_5_5_1             },
-    { GL_RGB10_A2,       GL_RGBA,         GL_UNSIGNED_INT_2_10_10_10_REV        },
-    { GL_RGB5_A1,        GL_RGBA,         GL_UNSIGNED_INT_2_10_10_10_REV        },
-    //we get this one of GL_FLOAT                                                 
-    //{ GL_RGBA16F,        GL_RGBA,         GL_HALF_FLOAT                         },
-    { GL_RGBA16F,        GL_RGBA,         GL_FLOAT                              },
-    { GL_RGBA32F,        GL_RGBA,         GL_FLOAT                              },
-    { GL_RGBA8UI,        GL_RGBA_INTEGER, GL_UNSIGNED_BYTE                      },
-    { GL_RGBA8I,         GL_RGBA_INTEGER, GL_BYTE                               },
-    { GL_RGBA16UI,       GL_RGBA_INTEGER, GL_UNSIGNED_SHORT                     },
-    { GL_RGBA16I,        GL_RGBA_INTEGER, GL_SHORT                              },
-    { GL_RGBA32UI,       GL_RGBA_INTEGER, GL_UNSIGNED_INT                       },
-    { GL_RGBA32I,        GL_RGBA_INTEGER, GL_INT                                },
-    { GL_RGB10_A2UI,     GL_RGBA_INTEGER, GL_UNSIGNED_INT_2_10_10_10_REV        },
-    //we get this one as packed 5_6_5, so no conversion occurs                    
-    //{ GL_RGB565,         GL_RGB,          GL_UNSIGNED_BYTE                      },
-    { GL_RGB8,           GL_RGB,          GL_UNSIGNED_BYTE                      },
-    { GL_SRGB8,          GL_RGB,          GL_UNSIGNED_BYTE                      },
-    { GL_RGB8_SNORM,     GL_RGB,          GL_BYTE                               },
-    { GL_RGB565,         GL_RGB,          GL_UNSIGNED_SHORT_5_6_5               },
-    //following 2 are too cumbersome (we get them as GL_FLOAT)                    
-    //{ GL_R11F_G11F_B10F, GL_RGB,          GL_UNSIGNED_INT_10F_11F_11F_REV       },
-    //{ GL_RGB9_E5,        GL_RGB,          GL_UNSIGNED_INT_5_9_9_9_REV           },
-    //we get following three as GL_FLOATS                                         
-    //{ GL_RGB16F,         GL_RGB,          GL_HALF_FLOAT                         },
-    //{ GL_R11F_G11F_B10F, GL_RGB,          GL_HALF_FLOAT                         },
-    //{ GL_RGB9_E5,        GL_RGB,          GL_HALF_FLOAT                         },
-    { GL_RGB16F,         GL_RGB,          GL_FLOAT                              },
-    { GL_RGB32F,         GL_RGB,          GL_FLOAT                              },
-    { GL_R11F_G11F_B10F, GL_RGB,          GL_FLOAT                              },
-    { GL_RGB9_E5,        GL_RGB,          GL_FLOAT                              },
-    { GL_RGB8UI,         GL_RGB_INTEGER,  GL_UNSIGNED_BYTE                      },
-    { GL_RGB8I,          GL_RGB_INTEGER,  GL_BYTE                               },
-    { GL_RGB16UI,        GL_RGB_INTEGER,  GL_UNSIGNED_SHORT                     },
-    { GL_RGB16I,         GL_RGB_INTEGER,  GL_SHORT                              },
-
-    { GL_RGB32UI,        GL_RGB_INTEGER, GL_UNSIGNED_INT                        },       
-    { GL_RGB32I,         GL_RGB_INTEGER, GL_INT                                 },        
-    { GL_RG8,            GL_RG,          GL_UNSIGNED_BYTE                       },                    
-    { GL_RG8_SNORM,      GL_RG,          GL_BYTE                                },
-    //We use GL_FLOATS for this one
-    //{ GL_RG16F,          GL_RG,          GL_HALF_FLOAT                          },                  
-    { GL_RG32F,          GL_RG,          GL_FLOAT                               },                  
-    { GL_RG16F,          GL_RG,          GL_FLOAT                               },                  
-    { GL_RG8UI,          GL_RG_INTEGER,  GL_UNSIGNED_BYTE                       },          
-    { GL_RG8I,           GL_RG_INTEGER,  GL_BYTE                                },           
-    { GL_RG16UI,         GL_RG_INTEGER,  GL_UNSIGNED_SHORT                      },         
-    { GL_RG16I,          GL_RG_INTEGER,  GL_SHORT                               },          
-    { GL_RG32UI,         GL_RG_INTEGER,  GL_UNSIGNED_INT                        },         
-    { GL_RG32I,          GL_RG_INTEGER,  GL_INT                                 },          
-    { GL_R8,             GL_RED,         GL_UNSIGNED_BYTE                       },                    
-    { GL_R8_SNORM,       GL_RED,         GL_BYTE                                },  
-    //We use GL_FLOATS for this one
-    //{ GL_R16F,           GL_RED,         GL_HALF_FLOAT                          },                  
-    { GL_R32F,           GL_RED,         GL_FLOAT                               },                  
-    { GL_R16F,           GL_RED,         GL_FLOAT                               },                  
-    { GL_R8UI,           GL_RED_INTEGER, GL_UNSIGNED_BYTE                       },          
-    { GL_R8I,            GL_RED_INTEGER, GL_BYTE                                },           
-    { GL_R16UI,          GL_RED_INTEGER, GL_UNSIGNED_SHORT                      },         
-    { GL_R16I,           GL_RED_INTEGER, GL_SHORT                               },          
-    { GL_R32UI,          GL_RED_INTEGER, GL_UNSIGNED_INT                        },         
-    { GL_R32I,           GL_RED_INTEGER, GL_INT                                 },          
+    { GL_RGBA8,          GL_RGBA,         GL_UNSIGNED_BYTE                         },
+    { GL_RGB5_A1,        GL_RGBA,         GL_UNSIGNED_BYTE                         },
+    { GL_RGBA4,          GL_RGBA,         GL_UNSIGNED_BYTE                         },
+    { GL_SRGB8_ALPHA8,   GL_RGBA,         GL_UNSIGNED_BYTE                         },
+    { GL_RGBA8_SNORM,    GL_RGBA,         GL_BYTE                                  },
+    { GL_RGBA4,          GL_RGBA,         GL_UNSIGNED_SHORT_4_4_4_4                },
+    { GL_RGB5_A1,        GL_RGBA,         GL_UNSIGNED_SHORT_5_5_5_1                },
+    { GL_RGB10_A2,       GL_RGBA,         GL_UNSIGNED_INT_2_10_10_10_REV           },
+    { GL_RGB5_A1,        GL_RGBA,         GL_UNSIGNED_INT_2_10_10_10_REV           },
+    //we get this one of GL_FLOAT                                                    
+    //{ GL_RGBA16F,        GL_RGBA,         GL_HALF_FLOAT                          },
+    { GL_RGBA16F,        GL_RGBA,         GL_FLOAT                                 },
+    { GL_RGBA32F,        GL_RGBA,         GL_FLOAT                                 },
+    { GL_RGBA8UI,        GL_RGBA_INTEGER, GL_UNSIGNED_BYTE                         },
+    { GL_RGBA8I,         GL_RGBA_INTEGER, GL_BYTE                                  },
+    { GL_RGBA16UI,       GL_RGBA_INTEGER, GL_UNSIGNED_SHORT                        },
+    { GL_RGBA16I,        GL_RGBA_INTEGER, GL_SHORT                                 },
+    { GL_RGBA32UI,       GL_RGBA_INTEGER, GL_UNSIGNED_INT                          },
+    { GL_RGBA32I,        GL_RGBA_INTEGER, GL_INT                                   },
+    { GL_RGB10_A2UI,     GL_RGBA_INTEGER, GL_UNSIGNED_INT_2_10_10_10_REV           },
+    //we get this one as packed 5_6_5, so no conversion occurs                       
+    //{ GL_RGB565,         GL_RGB,          GL_UNSIGNED_BYTE                       },
+    { GL_RGB8,           GL_RGB,          GL_UNSIGNED_BYTE                         },
+    { GL_SRGB8,          GL_RGB,          GL_UNSIGNED_BYTE                         },
+    { GL_RGB8_SNORM,     GL_RGB,          GL_BYTE                                  },
+    { GL_RGB565,         GL_RGB,          GL_UNSIGNED_SHORT_5_6_5                  },
+    //following 2 are too cumbersome (we get them as GL_FLOAT)                       
+    //{ GL_R11F_G11F_B10F, GL_RGB,          GL_UNSIGNED_INT_10F_11F_11F_REV        },
+    //{ GL_RGB9_E5,        GL_RGB,          GL_UNSIGNED_INT_5_9_9_9_REV            },
+    //we get following three as GL_FLOAT                                           
+    //{ GL_RGB16F,         GL_RGB,          GL_HALF_FLOAT                          },
+    //{ GL_R11F_G11F_B10F, GL_RGB,          GL_HALF_FLOAT                          },
+    //{ GL_RGB9_E5,        GL_RGB,          GL_HALF_FLOAT                          },
+    { GL_RGB16F,         GL_RGB,          GL_FLOAT                                 },
+    { GL_RGB32F,         GL_RGB,          GL_FLOAT                                 },
+    { GL_R11F_G11F_B10F, GL_RGB,          GL_FLOAT                                 },
+    { GL_RGB9_E5,        GL_RGB,          GL_FLOAT                                 },
+    { GL_RGB8UI,         GL_RGB_INTEGER,  GL_UNSIGNED_BYTE                         },
+    { GL_RGB8I,          GL_RGB_INTEGER,  GL_BYTE                                  },
+    { GL_RGB16UI,        GL_RGB_INTEGER,  GL_UNSIGNED_SHORT                        },
+    { GL_RGB16I,         GL_RGB_INTEGER,  GL_SHORT                                 },
+                                                                                  
+    { GL_RGB32UI,        GL_RGB_INTEGER, GL_UNSIGNED_INT                           },       
+    { GL_RGB32I,         GL_RGB_INTEGER, GL_INT                                    },        
+    { GL_RG8,            GL_RG,          GL_UNSIGNED_BYTE                          },                    
+    { GL_RG8_SNORM,      GL_RG,          GL_BYTE                                   },
+    //We use GL_FLOATS for this one                                               
+    //{ GL_RG16F,          GL_RG,          GL_HALF_FLOAT                           },                  
+    { GL_RG32F,          GL_RG,          GL_FLOAT                                  },                  
+    { GL_RG16F,          GL_RG,          GL_FLOAT                                  },                  
+    { GL_RG8UI,          GL_RG_INTEGER,  GL_UNSIGNED_BYTE                          },          
+    { GL_RG8I,           GL_RG_INTEGER,  GL_BYTE                                   },           
+    { GL_RG16UI,         GL_RG_INTEGER,  GL_UNSIGNED_SHORT                         },         
+    { GL_RG16I,          GL_RG_INTEGER,  GL_SHORT                                  },          
+    { GL_RG32UI,         GL_RG_INTEGER,  GL_UNSIGNED_INT                           },         
+    { GL_RG32I,          GL_RG_INTEGER,  GL_INT                                    },          
+    { GL_R8,             GL_RED,         GL_UNSIGNED_BYTE                          },                    
+    { GL_R8_SNORM,       GL_RED,         GL_BYTE                                   },  
+    //We use GL_FLOATS for this one                                               
+    //{ GL_R16F,           GL_RED,         GL_HALF_FLOAT                           },                  
+    { GL_R32F,           GL_RED,         GL_FLOAT                                  },                  
+    { GL_R16F,           GL_RED,         GL_FLOAT                                  },                  
+    { GL_R8UI,           GL_RED_INTEGER, GL_UNSIGNED_BYTE                          },          
+    { GL_R8I,            GL_RED_INTEGER, GL_BYTE                                   },           
+    { GL_R16UI,          GL_RED_INTEGER, GL_UNSIGNED_SHORT                         },         
+    { GL_R16I,           GL_RED_INTEGER, GL_SHORT                                  },          
+    { GL_R32UI,          GL_RED_INTEGER, GL_UNSIGNED_INT                           },         
+    { GL_R32I,           GL_RED_INTEGER, GL_INT                                    },          
     { GL_DEPTH_COMPONENT16,  GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT                 },
     { GL_DEPTH_COMPONENT24,  GL_DEPTH_COMPONENT, GL_UNSIGNED_INT                   },
     { GL_DEPTH_COMPONENT16,  GL_DEPTH_COMPONENT, GL_UNSIGNED_INT                   },
     { GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT                          },
     { GL_DEPTH24_STENCIL8,   GL_DEPTH_STENCIL,   GL_UNSIGNED_INT_24_8              },
     { GL_DEPTH32F_STENCIL8,  GL_DEPTH_STENCIL,   GL_FLOAT_32_UNSIGNED_INT_24_8_REV },
-    { GL_RGBA,            GL_RGBA,            GL_UNSIGNED_BYTE                  },
-    //{ GL_RGBA,            GL_RGBA,            GL_UNSIGNED_SHORT_4_4_4_4         },
-    //{ GL_RGBA,            GL_RGBA,            GL_UNSIGNED_SHORT_5_5_5_1         },
-    { GL_RGB,             GL_RGB,             GL_UNSIGNED_BYTE                  },
-    //{ GL_RGB,             GL_RGB,             GL_UNSIGNED_SHORT_5_6_5           },
-    { GL_LUMINANCE_ALPHA, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE                  },
-    { GL_LUMINANCE,       GL_LUMINANCE,       GL_UNSIGNED_BYTE                  },
-    { GL_ALPHA,           GL_ALPHA,           GL_UNSIGNED_BYTE                  },
+    { GL_RGBA,            GL_RGBA,            GL_UNSIGNED_BYTE                     },
+    //{ GL_RGBA,            GL_RGBA,            GL_UNSIGNED_SHORT_4_4_4_4          },
+    //{ GL_RGBA,            GL_RGBA,            GL_UNSIGNED_SHORT_5_5_5_1          },
+    { GL_RGB,             GL_RGB,             GL_UNSIGNED_BYTE                     },
+    //{ GL_RGB,             GL_RGB,             GL_UNSIGNED_SHORT_5_6_5            },
+    { GL_LUMINANCE_ALPHA, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE                     },
+    { GL_LUMINANCE,       GL_LUMINANCE,       GL_UNSIGNED_BYTE                     },
+    { GL_ALPHA,           GL_ALPHA,           GL_UNSIGNED_BYTE                     },
 
     //DT GL only (TODO)
 
-    //GL_RGBA16, 
-    //GL_RGB10_A2
-    //GL_RG16
-    //GL_R16
-    //ALPHA8
-    //GL_RGBA16_SNORM
-    //GL_RGB16_SNORM
-    //GL_RGB16
-    //RG16_SNORM
-    //R16_SNORM
+    { GL_RGBA16,          GL_RGBA,            GL_UNSIGNED_SHORT                    },
+    { GL_RGB16,           GL_RGB,             GL_UNSIGNED_SHORT                    },
+    { GL_RG16,            GL_RG,              GL_UNSIGNED_SHORT                    },
+    { GL_R16,             GL_RED,             GL_UNSIGNED_SHORT                    },
 
-    //(TODO!)
+    { GL_R3_G3_B2,        GL_RGB,             GL_UNSIGNED_BYTE_3_3_2               },
 
+    { GL_RGB4,              GL_RGBA,          GL_UNSIGNED_SHORT_4_4_4_4            }, //RGBA instead of RGB
+    { GL_RGB5,              GL_RGBA,          GL_UNSIGNED_SHORT_5_5_5_1            }, //RGBA instead of RGB
+    { GL_RGB10,             GL_RGBA,          GL_UNSIGNED_INT_2_10_10_10_REV       }, //RGBA instead of RGB
+    //Cannot reliably support this. fallback to floats or ubytes...
+    //{ GL_RGB12,           GL_RGB,           ?                                    },
 
+    //Cannot reliably support this. fallback to floats or ubytes...                
+    //{ GL_RGBA2, GL_RGBA, ?                                                       },  
+    //Cannot reliably support this. fallback to floats or ubytes...                
+    //{ GL_RGBA12, GL_RGBA, ?                                                      },  
+
+    { GL_RGBA16_SNORM,      GL_RGBA,            GL_SHORT                           },
+    { GL_RGB16_SNORM,       GL_RGB,             GL_SHORT                           },
+    { GL_RG16_SNORM,        GL_RG,              GL_SHORT                           },
+    { GL_R16_SNORM,         GL_RED,             GL_SHORT                           },
+
+    { GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT                    },
+
+    { GL_ALPHA,            GL_ALPHA,            GL_UNSIGNED_BYTE                   },
+    
+    //Cannot reliably support this. fallback to floats or ubytes...
+    { GL_ALPHA4,           GL_ALPHA,            GL_FLOAT                           },
+    { GL_ALPHA8,           GL_ALPHA,            GL_UNSIGNED_BYTE                   },
+    { GL_ALPHA12,          GL_ALPHA,            GL_FLOAT                           },
+    { GL_ALPHA16,          GL_ALPHA,            GL_UNSIGNED_SHORT                  },
+
+    { GL_LUMINANCE,           GL_LUMINANCE,          GL_UNSIGNED_BYTE              },
+    { GL_LUMINANCE4,          GL_LUMINANCE,          GL_FLOAT                      },
+    { GL_LUMINANCE8,          GL_LUMINANCE,          GL_UNSIGNED_BYTE              },
+    { GL_LUMINANCE12,         GL_LUMINANCE,          GL_FLOAT                      },
+    { GL_LUMINANCE16,         GL_LUMINANCE,          GL_UNSIGNED_SHORT             },
+    { GL_LUMINANCE_ALPHA,     GL_LUMINANCE_ALPHA,    GL_UNSIGNED_BYTE              },
+    { GL_LUMINANCE4_ALPHA4,   GL_LUMINANCE_ALPHA,    GL_FLOAT                      },
+    { GL_LUMINANCE6_ALPHA2,   GL_LUMINANCE_ALPHA,    GL_FLOAT                      },
+    { GL_LUMINANCE8_ALPHA8,   GL_LUMINANCE_ALPHA,    GL_UNSIGNED_BYTE              },
+    { GL_LUMINANCE12_ALPHA4,  GL_LUMINANCE_ALPHA,    GL_FLOAT                      },
+    { GL_LUMINANCE12_ALPHA12, GL_LUMINANCE_ALPHA,    GL_FLOAT                      },
+    { GL_LUMINANCE16_ALPHA16, GL_LUMINANCE_ALPHA,    GL_UNSIGNED_SHORT             },
+
+    { GL_SLUMINANCE,          GL_LUMINANCE,          GL_UNSIGNED_BYTE              },
+    { GL_SLUMINANCE8,         GL_LUMINANCE,          GL_UNSIGNED_BYTE              },
+    { GL_SLUMINANCE_ALPHA,    GL_LUMINANCE_ALPHA,    GL_UNSIGNED_BYTE              },
+    { GL_SLUMINANCE8_ALPHA8,  GL_LUMINANCE_ALPHA,    GL_UNSIGNED_BYTE              },
+
+    { GL_INTENSITY,           GL_ALPHA,              GL_UNSIGNED_BYTE              },
+    { GL_INTENSITY4,          GL_ALPHA,              GL_FLOAT                      },
+    { GL_INTENSITY8,          GL_ALPHA,              GL_UNSIGNED_BYTE              },
+    { GL_INTENSITY12,         GL_ALPHA,              GL_FLOAT                      },
+    { GL_INTENSITY16,         GL_ALPHA,              GL_UNSIGNED_SHORT             },
+
+    { GL_STENCIL_INDEX8,      GL_STENCIL_INDEX,      GL_UNSIGNED_BYTE              },
 
 };
 
@@ -522,8 +586,12 @@ void DGLBlitterBase::doBlit() {
         case GL_RGBA_INTEGER:
             outputFormat = _GL_BGRA32; break;
         case GL_DEPTH_COMPONENT:
+        case GL_STENCIL_INDEX:
+        case GL_ALPHA:
+        case GL_LUMINANCE:
             outputFormat = _GL_MONO8; break;
         case GL_DEPTH_STENCIL:
+        case GL_LUMINANCE_ALPHA:
             outputFormat = _GL_RGBX32; break;
         default:
         assert(0);
