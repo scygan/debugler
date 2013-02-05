@@ -44,6 +44,18 @@ namespace state_setters {
         GLint m_ReadFBO, m_DrawFBO;
     };
 
+    class ReadBuffer {
+    public:
+        ReadBuffer() {
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &m_ReadBuffer);
+        }
+        ~ReadBuffer() {
+            DIRECT_CALL_CHK(glReadBuffer)(m_ReadBuffer);
+        }
+    private:
+        GLint m_ReadBuffer;
+    };
+
     class PixelStoreAlignment {
 #define STATE_SIZE 8
     public:
@@ -570,43 +582,34 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
     if (!m_NativeSurface) {
         throw std::runtime_error("Buffer does not exist");
     }
-    //save state
-    GLint currentBuffer; 
-    {
-        
-        
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &currentBuffer);
-        state_setters::DefaultPBO defPBO;
-        state_setters::CurrentFramebuffer currentFramebuffer(0);
-        state_setters::PixelStoreAlignment defAlignment;
+    state_setters::ReadBuffer readBuffer;
+    state_setters::DefaultPBO defPBO;
+    state_setters::CurrentFramebuffer currentFramebuffer(0);
+    state_setters::PixelStoreAlignment defAlignment;
 
-        //read the buffer
-        DIRECT_CALL_CHK(glReadBuffer)(bufferEnum);
+    //read the buffer
+    DIRECT_CALL_CHK(glReadBuffer)(bufferEnum);
 
 
-        std::vector<GLint> rgbaSizes(m_NativeSurface->getRGBASizes(), m_NativeSurface->getRGBASizes() + 4);
-        std::vector<GLint> deptStencilSizes;
+    std::vector<GLint> rgbaSizes(m_NativeSurface->getRGBASizes(), m_NativeSurface->getRGBASizes() + 4);
+    std::vector<GLint> deptStencilSizes;
 
-        deptStencilSizes.push_back(m_NativeSurface->getDepthSize());
-        deptStencilSizes.push_back(m_NativeSurface->getStencilSize());
+    deptStencilSizes.push_back(m_NativeSurface->getDepthSize());
+    deptStencilSizes.push_back(m_NativeSurface->getStencilSize());
 
-        int width = m_NativeSurface->getWidth();
-        int height = m_NativeSurface->getHeight();
+    int width = m_NativeSurface->getWidth();
+    int height = m_NativeSurface->getHeight();
 
-        //we cannot reliably get internalformat for default framebuffer, so it is 0 here.
-        DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, 0);
+    //we cannot reliably get internalformat for default framebuffer, so it is 0 here.
+    DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, 0);
 
-        resource->m_PixelRectangle = boost::make_shared<DGLPixelRectangle>(width, height, defAlignment.getAligned(width * transfer.getPixelSize()),
-            transfer.getFormat(), transfer.getType(), 0);
+    resource->m_PixelRectangle = boost::make_shared<DGLPixelRectangle>(width, height, defAlignment.getAligned(width * transfer.getPixelSize()),
+        transfer.getFormat(), transfer.getType(), 0);
 
-        GLvoid* ptr;
-        if ((ptr = resource->m_PixelRectangle->getPtr()) != NULL)
-            DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, transfer.getFormat(), transfer.getType(), ptr);
-    }
-        
-    //restore state
-    DIRECT_CALL_CHK(glReadBuffer)(currentBuffer);
-
+    GLvoid* ptr;
+    if ((ptr = resource->m_PixelRectangle->getPtr()) != NULL)
+        DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, transfer.getFormat(), transfer.getType(), ptr);
+       
     return ret;
 }
 
@@ -615,39 +618,145 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
     DGLResourceFBO* resource;
     boost::shared_ptr<DGLResource> ret (resource = new DGLResourceFBO());
  
-    //save state
-    GLint currentBuffer; 
-    DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &currentBuffer);
-    {
-        state_setters::DefaultPBO defPBO;
-        state_setters::CurrentFramebuffer currentFBO(name);
-        state_setters::PixelStoreAlignment defAlignment;
+    state_setters::ReadBuffer readBuffer;
+    state_setters::DefaultPBO defPBO;
+    state_setters::CurrentFramebuffer currentFBO(name);
+    state_setters::PixelStoreAlignment defAlignment;
 
-        GLint maxColorAttachments; 
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
+    //get maximum number of color attachments
+    GLint maxColorAttachments; 
+    DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
 
-        std::vector<GLenum> attachments(maxColorAttachments);
-        for (int i = 0; i < maxColorAttachments; i++) {
-            attachments[i] = GL_COLOR_ATTACHMENT0 + i;
+    //fill table with color attachments to look for
+    std::vector<GLenum> attachments(maxColorAttachments);
+    for (int i = 0; i < maxColorAttachments; i++) {
+        attachments[i] = GL_COLOR_ATTACHMENT0 + i;
+    }
+
+    //additionally we will check some non-color attachments
+       
+    //it is crucial, that depth_stencil is checked first (we will break is succeed)
+	attachments.push_back(GL_DEPTH_STENCIL_ATTACHMENT);
+
+    //if depth_stencil fails, we will also check these:
+    attachments.push_back(GL_DEPTH_ATTACHMENT);
+    attachments.push_back(GL_STENCIL_ATTACHMENT);
+
+	queryCheckError();
+
+    for (size_t i = 0; i < attachments.size(); i++) {
+            
+        //check attached object type
+        GLint type;
+        DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i],
+            GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
+            
+        if (DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR) {
+            //sometimes the query above may fail, for example when asking about
+            //depth_stencil attachment, when depth attachment != stencil attachment
+            continue;
         }
-		attachments.push_back(GL_DEPTH_STENCIL_ATTACHMENT);
-        attachments.push_back(GL_DEPTH_ATTACHMENT);
-        attachments.push_back(GL_STENCIL_ATTACHMENT);
 
-		queryCheckError();
+        if (type != GL_TEXTURE && type != GL_RENDERBUFFER) {
+            //no object attached:  skip
+            continue;
+        }
 
-        for (size_t i = 0; i < attachments.size(); i++) {
-            GLint type, name;
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i],
-                GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
-            if (DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR || (type != GL_TEXTURE && type != GL_RENDERBUFFER))
+        //it looks, like there is an attachment. Add it to returned list
+        resource->m_Attachments.push_back(DGLResourceFBO::FBOAttachment(attachments[i]));
+
+        //query attached object name
+        GLint name;
+        DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i],
+            GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
+        
+        //now look for the attached object and query internal format and dimensions
+        GLint width, height, internalFormat;
+        if (type == GL_TEXTURE) {
+
+            if (!DIRECT_CALL_CHK(glIsTexture)(name)) {
+                resource->m_Attachments.back().error("Attached texture object does not exist");
                 continue;
+            }
 
-            resource->m_Attachments.push_back(DGLResourceFBO::FBOAttachment(attachments[i]));
+            GLTextureObj* tex = ensureTexture(name);
 
-            std::vector<GLint> rgbaSizes(4, 0);
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i],
-                GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
+            GLenum bindableTarget, binding;
+
+            switch (tex->getTarget()) {
+                case GL_TEXTURE_1D:
+                    bindableTarget = tex->getTarget();
+                    binding = GL_TEXTURE_BINDING_1D;
+                    break;
+                case GL_TEXTURE_2D:
+                    bindableTarget = tex->getTarget();
+                    binding = GL_TEXTURE_BINDING_2D;
+                    break;
+                case GL_TEXTURE_RECTANGLE:
+                    bindableTarget = tex->getTarget();
+                    binding = GL_TEXTURE_BINDING_RECTANGLE;
+                    break;
+
+                case GL_TEXTURE_CUBE_MAP_POSITIVE_X:
+                case GL_TEXTURE_CUBE_MAP_NEGATIVE_X:
+                case GL_TEXTURE_CUBE_MAP_POSITIVE_Y:
+                case GL_TEXTURE_CUBE_MAP_NEGATIVE_Y:
+                case GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
+                case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
+                    bindableTarget = GL_TEXTURE_CUBE_MAP;
+                    binding = GL_TEXTURE_BINDING_CUBE_MAP;
+
+                case GL_TEXTURE_3D:
+                    bindableTarget = tex->getTarget();
+                    binding = GL_TEXTURE_BINDING_3D;
+                    break;
+
+                case GL_TEXTURE_2D_MULTISAMPLE: //Not supported for now
+                default:
+                    resource->m_Attachments.back().error("Attached texture target is not supported");
+                    continue;
+            }
+
+            GLint level;
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
+                GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, &level);
+
+            GLint lastTexture;
+            DIRECT_CALL_CHK(glGetIntegerv)(binding, &lastTexture);
+            DIRECT_CALL_CHK(glBindTexture)(bindableTarget, tex->getName());
+
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &width);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_HEIGHT, &height);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
+
+            DIRECT_CALL_CHK(glBindTexture)(bindableTarget, lastTexture);
+
+        } else if (type == GL_RENDERBUFFER) {
+            if (!DIRECT_CALL_CHK(glIsRenderbuffer)(name)) {
+                resource->m_Attachments.back().error("Attached renderbuffer object does not exist");
+                continue;
+            }
+            GLint lastRenderBuffer;
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_RENDERBUFFER_BINDING, &lastRenderBuffer);
+            DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, name);
+
+            DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &width);
+            DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
+            DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_INTERNAL_FORMAT, &internalFormat);
+
+            DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, lastRenderBuffer);
+        }
+
+        //there should be no errors. Otherwise something nasty happened
+        queryCheckError();
+
+
+        std::vector<GLint> rgbaSizes(4, 0);
+        std::vector<GLint> deptStencilSizes(2, 0);
+
+        if (attachments[i] >= GL_COLOR_ATTACHMENT0 &&
+            attachments[i] < GL_COLOR_ATTACHMENT0 + (GLenum)maxColorAttachments) {
+                
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
                 GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &rgbaSizes[0]);
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
@@ -657,85 +766,50 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
                 GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &rgbaSizes[3]);
 
-            std::vector<GLint> deptStencilSizes(2, 0);
+        } else if (attachments[i] == GL_DEPTH_ATTACHMENT) {
+
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
+                GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &deptStencilSizes[0]);
+
+        } else if (attachments[i] == GL_STENCIL_ATTACHMENT) {
+
+            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
+                GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &deptStencilSizes[1]);
+
+        } else if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
+
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
                 GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &deptStencilSizes[0]);
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
                 GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &deptStencilSizes[1]);
 
-            queryCheckError();
-
-            GLint width, height, internalFormat;
-            if (type == GL_TEXTURE) {
-                if (!DIRECT_CALL_CHK(glIsTexture)(name)) {
-                    resource->m_Attachments.back().error("Attached texture object does not exist");
-                    continue;
-                }
-
-                GLTextureObj* tex = ensureTexture(name);
-                if (tex->getTarget() != GL_TEXTURE_2D) {
-                    resource->m_Attachments.back().error("Attached texture target is not supported");
-                }
-
-                GLint level;
-                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
-                    GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, &level);
-
-                GLint lastTexture;
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D, &lastTexture);
-                DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), tex->getName());
-
-                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &width);
-                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_HEIGHT, &height);
-
-                
-                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
-
-                DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), lastTexture);
-
-            } else if (type == GL_RENDERBUFFER) {
-                if (!DIRECT_CALL_CHK(glIsRenderbuffer)(name)) {
-                    resource->m_Attachments.back().error("Attached renderbuffer object does not exist");
-                    continue;
-                }
-                GLint lastRenderBuffer;
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_RENDERBUFFER_BINDING, &lastRenderBuffer);
-                DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, name);
-                DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &width);
-                DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
-
-                DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_INTERNAL_FORMAT, &internalFormat);
-
-                DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, lastRenderBuffer);
-            } else {
-				continue;
-			}
-
-            queryCheckError();
-
-            if (attachments[i] != GL_DEPTH_ATTACHMENT && attachments[i] != GL_STENCIL_ATTACHMENT && attachments[i] != GL_DEPTH_STENCIL_ATTACHMENT)
-                DIRECT_CALL_CHK(glReadBuffer)(attachments[i]); 
-
-            DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, internalFormat);
-
-            resource->m_Attachments.back().m_PixelRectangle = boost::make_shared<DGLPixelRectangle>(width,
-                height, defAlignment.getAligned(width * transfer.getPixelSize()), 
-                transfer.getFormat(), transfer.getType(), internalFormat);
-
-            GLvoid* ptr = resource->m_Attachments.back().m_PixelRectangle->getPtr();
-            if (ptr) {
-                DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, transfer.getFormat(), transfer.getType(), ptr);
-            }
-
-			if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
-				//we have succesfully read GL_DEPTH_STENCIL_ATTACHMENT attachment. 
-				//WA for buggy drivers: do not try to read DEPTH and STENCIL attachments if DEPTH_STENCIL is used
-				break;
-			}
         }
+          
+        //there should be no errors. Otherwise something nasty happened
+        queryCheckError();
+
+        if (attachments[i] != GL_DEPTH_ATTACHMENT && attachments[i] != GL_STENCIL_ATTACHMENT && attachments[i] != GL_DEPTH_STENCIL_ATTACHMENT) {
+            //select color attachment 
+            DIRECT_CALL_CHK(glReadBuffer)(attachments[i]); 
+        }
+
+        DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, internalFormat);
+
+        resource->m_Attachments.back().m_PixelRectangle = boost::make_shared<DGLPixelRectangle>(width,
+            height, defAlignment.getAligned(width * transfer.getPixelSize()), 
+            transfer.getFormat(), transfer.getType(), internalFormat);
+
+        GLvoid* ptr = resource->m_Attachments.back().m_PixelRectangle->getPtr();
+        if (ptr) {
+            DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, transfer.getFormat(), transfer.getType(), ptr);
+        }
+
+		if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
+			//we have succesfully read GL_DEPTH_STENCIL_ATTACHMENT attachment. 
+			//WA for buggy drivers: do not try to read DEPTH and STENCIL attachments if DEPTH_STENCIL is used
+			break;
+		}
     }
-    //restore state
-    DIRECT_CALL_CHK(glReadBuffer)(currentBuffer);
 
     return ret;
 }

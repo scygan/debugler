@@ -77,7 +77,6 @@ public:
     unsigned int getPixelSize();
 
 private:
-    bool m_IsValid;
     GLDataFormat* m_DataFormat;
     GLDataType* m_DataType;
 };

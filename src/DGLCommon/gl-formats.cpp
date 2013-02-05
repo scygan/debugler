@@ -455,7 +455,7 @@ GLDataType* GLFormats::getDataType(GLenum dataType) {
 
 
 
-DGLPixelTransfer::DGLPixelTransfer(std::vector<GLint> _rgbaSizes, std::vector<GLint> _depthStencilSizes, GLenum internalFormat):m_IsValid(true) {
+DGLPixelTransfer::DGLPixelTransfer(std::vector<GLint> _rgbaSizes, std::vector<GLint> _depthStencilSizes, GLenum internalFormat):m_DataFormat(NULL),m_DataType(NULL) {
 
     //try recongnize used internalformat
     GLInternalFormat* internalFormatDesr = GLFormats::getInternalFormat(internalFormat);
@@ -484,7 +484,6 @@ DGLPixelTransfer::DGLPixelTransfer(std::vector<GLint> _rgbaSizes, std::vector<GL
                 m_DataFormat = GLFormats::getDataFormat(GL_RED);
             } else {
                 //the buffer is probably empty.
-                m_IsValid = false; 
                 return;
             }
 
@@ -497,7 +496,6 @@ DGLPixelTransfer::DGLPixelTransfer(std::vector<GLint> _rgbaSizes, std::vector<GL
 
             if (depthStencilSizes[0] == 0 && depthStencilSizes[1] == 0) {
                 //the buffer is probably empty.
-                m_IsValid = false;
                 return;
             }
 
@@ -522,21 +520,23 @@ DGLPixelTransfer::DGLPixelTransfer(std::vector<GLint> _rgbaSizes, std::vector<GL
         m_DataFormat = GLFormats::getDataFormat(internalFormatDesr->dataFormat);
         m_DataType = GLFormats::getDataType(internalFormatDesr->dataType);
     }
-
-    m_IsValid = m_DataFormat && m_DataType;
 } 
 
 
 bool DGLPixelTransfer::isValid() {
-    return m_IsValid;
+    return m_DataFormat && m_DataType;;
 }
 
 
 GLenum DGLPixelTransfer::getFormat() {
+    if (!isValid())
+        throw std::runtime_error("DGLPixelTransfer::getFormat called, but pixel transfer is not valid.");
     return m_DataFormat->format;
 }
 
 GLenum DGLPixelTransfer::getType() {
+    if (!isValid())
+        throw std::runtime_error("DGLPixelTransfer::getFormat called, but pixel transfer is not valid.");
     return m_DataType->type;
 }
 
