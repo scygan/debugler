@@ -17,7 +17,18 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QListWidget" name="leftListWidget"/>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QLineEdit" name="lineSearch">
+         <property name="text">
+          <string>Type to search....</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="leftListWidget"/>
+       </item>
+      </layout>
      </item>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -90,8 +101,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>278</x>
-     <y>253</y>
+     <x>523</x>
+     <y>496</y>
     </hint>
     <hint type="destinationlabel">
      <x>96</x>
@@ -106,12 +117,28 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>369</x>
-     <y>253</y>
+     <x>604</x>
+     <y>496</y>
     </hint>
     <hint type="destinationlabel">
      <x>179</x>
      <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineSearch</sender>
+   <signal>returnPressed()</signal>
+   <receiver>addButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>148</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>316</x>
+     <y>155</y>
     </hint>
    </hints>
   </connection>

@@ -26,6 +26,7 @@ DGLBreakPointDialog::DGLBreakPointDialog(DglController * controller):m_Controlle
 
     CONNASSERT(connect(m_Ui.addButton, SIGNAL(clicked()), this, SLOT(addBreakPoint())));
     CONNASSERT(connect(m_Ui.deleteButton, SIGNAL(clicked()), this, SLOT(deleteBreakPoint())));
+    CONNASSERT(connect(m_Ui.lineSearch, SIGNAL(textChanged(QString)), this, SLOT(searchBreakPoint(QString))));
 }
 
 DGLBreakPointDialog::~DGLBreakPointDialog() {}
@@ -65,5 +66,15 @@ void DGLBreakPointDialog::deleteBreakPoint() {
     QList<QListWidgetItem*> list = m_Ui.rightListWidget->selectedItems();
     for (uint i = 0; i < list.count(); i++) {
         delete list.at(i);
+    }
+}
+
+void DGLBreakPointDialog::searchBreakPoint(const QString& prefix) {
+    if (prefix.length()) {
+        for (uint j = 0; j < m_Ui.leftListWidget->count(); j++) {
+            m_Ui.leftListWidget->item(j)->setSelected(m_Ui.leftListWidget->item(j)->text().startsWith(prefix));
+        }
+    } else {
+        m_Ui.leftListWidget->selectionModel()->clearSelection();
     }
 }

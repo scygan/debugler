@@ -18,6 +18,7 @@ public:
 public slots:
     void addBreakPoint();
     void deleteBreakPoint();
+    void searchBreakPoint(const QString&);
 
 private:
     Ui_BreakPointDialog m_Ui;
