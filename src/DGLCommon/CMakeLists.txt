@@ -1,0 +1,42 @@
+set(dglcommon_SOURCES 
+    gl-formats.cpp gl-serialized.cpp
+    gl-types.cpp os.cpp 
+    )
+
+
+
+set(codegen_in ${CMAKE_CURRENT_SOURCE_DIR}/../codegen/input)
+set(codegen_out ${CMAKE_CURRENT_BINARY_DIR}/../codegen/)
+
+set(codegen_GENERATED
+    ${codegen_out}/nonExtTypedefs.inl
+    ${codegen_out}/wrappers.inl
+    ${codegen_out}/functionList.inl
+    ${codegen_out}/enum.inl
+)
+add_custom_command(
+    OUTPUT ${codegen_GENERATED}
+    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/../codegen/codegen.py 
+        ${codegen_in} ${codegen_out}
+    MAIN_DEPENDENCY ../codegen/input/glext.h
+    DEPENDS
+        ${CMAKE_CURRENT_SOURCE_DIR}/../codegen/codegen.py
+        ${codegen_in}/GL.h
+        ${codegen_in}/glext.h
+        ${codegen_in}/wgl-notrace.h
+        ${codegen_in}/wgl.h
+        ${codegen_in}/wglext-partial.h
+        ${codegen_in}/wglext.h 
+    COMMENT "Generating code from GL headers"
+    VERBATIM
+    )
+
+include_directories(
+    ..
+    ${CMAKE_CURRENT_BINARY_DIR}/..
+    )
+
+add_library(dglcommon
+    ${dglcommon_SOURCES}
+    ${codegen_GENERATED}
+)
