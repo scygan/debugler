@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 import os
 import re
+import sys
 from sets import Set
 
-outputDir = "../../dump/codegen/"
+inputDir  = sys.argv[1]
+outputDir = sys.argv[2]
 
 if not os.path.exists(outputDir):
 	os.makedirs(outputDir)
@@ -32,7 +34,7 @@ def parse(file, genNonExtTypedefs = False, skipTrace = False):
 			print >> enumFile, "#endif"
 		coarseFunctionMatch = re.match("^([a-zA-Z0-9]*) (.*) (WINAPI|APIENTRY) ([a-zA-Z0-9]*) \((.*)\)(.*)$", line)
 		if coarseFunctionMatch: 
-			print coarseFunctionMatch.groups()
+			#print coarseFunctionMatch.groups()
 			functionRetType = coarseFunctionMatch.group(2)
 			functionName = coarseFunctionMatch.group(4)
 			print functionName
@@ -47,7 +49,7 @@ def parse(file, genNonExtTypedefs = False, skipTrace = False):
 			else:
 				for attribute in functionAttrs:
 					attributeMatch = re.match("^[ ]*(const|CONST|)[ ]*(struct|)[ ]*([a-zA-Z0-9_]*)[ ]*(\*?)[ ]*(const|CONST|)[ ]*(\*?)[ ]*([a-zA-Z0-9_]*)$", attribute)
-					print attributeMatch.groups()
+					#print attributeMatch.groups()
 					attributeName = attributeMatch.group(7)
 					
 					if attributeName == "":
@@ -135,11 +137,11 @@ print >> defFile, "LIBRARY opengl32.dll"
 print >> defFile, "EXPORTS"
 
 			
-wglFile = open("input/wgl.h", "r").readlines()
-wglextFile = open("input/wglext-partial.h", "r").readlines()
-glFile = open("input/GL.h", "r").readlines()
-glextFile = open("input/glext.h", "r").readlines()
-wglNoTraceFile = open("input/wgl-notrace.h", "r").readlines()
+wglFile = open(inputDir + "/wgl.h", "r").readlines()
+wglextFile = open(inputDir + "/wglext-partial.h", "r").readlines()
+glFile = open(inputDir + "/GL.h", "r").readlines()
+glextFile = open(inputDir + "/glext.h", "r").readlines()
+wglNoTraceFile = open(inputDir + "/wgl-notrace.h", "r").readlines()
 
 parse(wglFile)
 parse(wglextFile)

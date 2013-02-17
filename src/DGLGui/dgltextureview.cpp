@@ -42,7 +42,7 @@ void DGLTextureViewItem::update(const DGLResource& res) {
             m_Ui.labelCM->show();
             m_Ui.comboBoxCM->show();
 
-            m_CurrentFace = min(m_CurrentFace, (m_FacesLevels.size() - 1));
+            m_CurrentFace = std::min(m_CurrentFace, static_cast<uint>(m_FacesLevels.size() - 1));
 
         } else {
             m_Ui.labelCM->hide();

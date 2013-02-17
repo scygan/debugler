@@ -2,7 +2,7 @@
 #define DGLMAINWINDOW_H
 
 #include <QtGui/QMainWindow>
-#include <QtGui/QListWIdget>
+#include <QtGui/QListWidget>
 #include <QSignalMapper>
 
 #include "ui_dglmainwindow.h"

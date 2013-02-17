@@ -1,8 +1,8 @@
 #ifndef GL_FORMATS_H
 #define GL_FORMATS_H
 
-#include <DGLcommon/gl-headers.h>
-#include <DGLcommon/gl-serialized.h>
+#include <DGLCommon/gl-headers.h>
+#include <DGLCommon/gl-serialized.h>
 
 #include <vector>
 

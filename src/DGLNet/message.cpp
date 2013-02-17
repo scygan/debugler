@@ -1,5 +1,7 @@
 #include "message.h"
 
+#include <stdexcept>
+
 namespace dglnet {
 
     void MessageHandler::doHandle(const HelloMessage&) {

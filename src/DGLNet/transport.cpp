@@ -149,13 +149,13 @@ namespace dglnet {
             buffers[2 * i + 1] = m_WriteQueue[i].second->data();
         }
 
-        std::vector<std::pair<TransportHeader*, boost::asio::streambuf*>> sentData;
+        std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> > sentData;
         std::swap(m_WriteQueue, sentData);
         boost::asio::async_write(m_socket, buffers, boost::bind(&Transport::onWrite, shared_from_this(),
                 sentData, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
     }
 
-    void Transport::onWrite(std::vector<std::pair<TransportHeader*, boost::asio::streambuf*>> sentData, const boost::system::error_code &ec, std::size_t bytes_transferred) {
+    void Transport::onWrite(std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> > sentData, const boost::system::error_code &ec, std::size_t bytes_transferred) {
         for (size_t i = 0; i < sentData.size(); i++) {
             delete sentData[i].first;
             delete sentData[i].second;

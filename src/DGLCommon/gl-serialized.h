@@ -11,6 +11,8 @@
 
 #include <vector>
 
+typedef int (*FUNC_PTR) ();
+
 //Pointers that are serialized by value must be wrapped with this class
 template <typename T>
 class PtrWrap {
@@ -29,7 +31,7 @@ public:
     PtrWrap(TCast v):m_value((T)v) {}
 
     template<typename TBase>
-    operator TBase*() const {return static_cast<TBase*>(m_value);}
+    operator TBase*() const {return reinterpret_cast<TBase*>(m_value);}
 private:
     T m_value;
 };
@@ -43,7 +45,7 @@ class GLenumWrap {
     }
 
 public:
-    GLenumWrap():m_value(NULL) {}
+    GLenumWrap():m_value(0) {}
 
     GLenumWrap(uint64_t v):m_value(v) {}
 
@@ -75,11 +77,11 @@ public:
     template<typename T>
     void get(T& v) const { v = boost::get<T>(m_value); }
     template<typename TBase>
-    void get(const TBase*& v) const { v = (const TBase*)boost::get<PtrWrap<const void*>>(m_value); }
+    void get(const TBase*& v) const { v = (const TBase*)boost::get<PtrWrap<const void*> >(m_value); }
     template<typename TBase>
-    void get(TBase*& v) const { v = (TBase*)boost::get<PtrWrap<void*>>(m_value); }
+    void get(TBase*& v) const { v = (TBase*)boost::get<PtrWrap<void*> >(m_value); }
     //for function pointers const qualifier is meaningless, so we need specific overload to resolve ambiguity
-    void get(PROC& v) const { v = (PROC)boost::get<PtrWrap<const void*>>(m_value); }
+    void get(FUNC_PTR& v) const { v = (FUNC_PTR)boost::get<PtrWrap<const void*> >(m_value); }
 
     void writeToSS(std::ostringstream& out) const;
 
@@ -150,7 +152,8 @@ class DGLPixelRectangle {
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
         //m_StorageSize is size of underlying object now (on both load() and save())
-        ar & boost::serialization::binary_object(m_Storage, m_Height * m_RowBytes);
+        boost::serialization::binary_object bo(m_Storage, m_Height * m_RowBytes);
+        ar & bo;
     }
 public:
     /**
@@ -217,7 +220,7 @@ class DGLResourceTexture: public DGLResource {
     }
 
 public:
-    std::vector<std::vector<boost::shared_ptr<DGLPixelRectangle>>> m_FacesLevels;
+    std::vector<std::vector<boost::shared_ptr<DGLPixelRectangle> > > m_FacesLevels;
 };
 
 class DGLResourceBuffer: public DGLResource {
@@ -331,7 +334,7 @@ public:
     };
 
     std::pair<std::string, uint32_t> mLinkStatus;
-    std::vector<std::pair<uint32_t, uint32_t>> m_AttachedShaders;
+    std::vector<std::pair<uint32_t, uint32_t> > m_AttachedShaders;
     std::vector<Uniform> m_Uniforms;
 };
 

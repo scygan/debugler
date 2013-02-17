@@ -65,7 +65,7 @@ DGLTabbedViewItem* DGLTabbedView::getTab(const ContextObjectName& id) {
     return NULL;
 }
 
-void DGLTabbedView::setupNames(char* title, char* objName) {
+void DGLTabbedView::setupNames(const char* title, const char* objName) {
     setObjectName(objName);
     setWindowTitle(title);
 }

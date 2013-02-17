@@ -31,14 +31,14 @@ private:
 
     void onReadHeader(TransportHeader* header, const boost::system::error_code &ec);
     void onReadArchive(boost::asio::streambuf* stream, const boost::system::error_code &ec);
-    void onWrite(std::vector<std::pair<TransportHeader*, boost::asio::streambuf*>>, const boost::system::error_code &ec, std::size_t bytes_transferred);
+    void onWrite(std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> >, const boost::system::error_code &ec, std::size_t bytes_transferred);
     
     
     void onMessage(const Message& msg);
 
     MessageHandler* m_messageHandler;
 
-    std::vector<std::pair<TransportHeader*, boost::asio::streambuf*>> m_WriteQueue;
+    std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> > m_WriteQueue;
     bool m_WriteReady;
     bool m_Abort;
 

@@ -136,7 +136,7 @@ public:
     ContextObjectName m_type;
 };
 
-template<class ObjType>
+template<typename ObjType>
 class DGLObjectNodeWidget: public QClickableTreeWidgetItem {
 public:
     DGLObjectNodeWidget(uint ctxId, QString header, QString iconPath):m_CtxId(ctxId),m_IconPath(iconPath) {
@@ -145,20 +145,23 @@ public:
     }
     template<typename T>
     void update(const std::set<T>& names) {
-        for (std::set<T>::iterator i = names.begin(); i != names.end(); i++) {
+        typedef typename std::set<T>::iterator set_iter;
+        for (set_iter i = names.begin(); i != names.end(); i++) {
             if (m_Childs.find(i->m_Name) == m_Childs.end()) {
                 m_Childs[i->m_Name] = ObjType(*i, m_IconPath);
                 addChild(&m_Childs[i->m_Name]);
             }
         }
-        std::map<uint, ObjType>::iterator i = m_Childs.begin();
+
+        typedef typename std::map<uint, ObjType>::iterator map_iter;
+        map_iter i = m_Childs.begin();
         while (i != m_Childs.end()) {
+            map_iter next = i; next++;
             if (names.find(T(m_CtxId, i->first)) == names.end()) {
                 removeChild(&(i->second));
-                i = m_Childs.erase(i);
-            } else {
-                i++;
+                m_Childs.erase(i);
             }
+            i = next;
         }
     }
 private:

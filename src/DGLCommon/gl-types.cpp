@@ -6,18 +6,18 @@
 
 namespace {
 #define FUNCTION_LIST_ELEMENT(name, type) #name,
-    char* g_EntrypointNames[] = {
-#include "../../dump/codegen/functionList.inl"
+    const char* g_EntrypointNames[] = {
+#include "codegen/functionList.inl"
         ""
     };
 #undef FUNCTION_LIST_ELEMENT
 
 #define ENUM_LIST_ELEMENT(value) {#value, value},
-    struct {
-        char* name; 
+    struct GLEnum {
+        const char* name; 
         uint64_t value;
     }  g_GLEnums[] = {
-#include "../../dump/codegen/enum.inl"
+#include "codegen/enum.inl"
         { NULL, 0 }
     };
 #undef ENUM_LIST_ELEMENT
@@ -45,7 +45,7 @@ namespace {
     }
 }
 
-char* GetEntryPointName(Entrypoint entryp) {
+const char* GetEntryPointName(Entrypoint entryp) {
     return g_EntrypointNames[entryp];
 }
 

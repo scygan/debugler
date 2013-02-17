@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include <cstring>
 
 CalledEntryPoint::CalledEntryPoint(Entrypoint entryp, int numArgs):m_entryp(entryp), m_SavedArgsCount(0), m_glError(GL_NO_ERROR) {
     m_args.resize(numArgs);
@@ -39,10 +40,10 @@ public:
     void operator()(float f) const { (*m_Stream) << f; }
     void operator()(double d) const { (*m_Stream) << d; }
     void operator()(PtrWrap<void*> i) const {
-        (*m_Stream) << std::hex << "0x" << reinterpret_cast<int>((const void*)i) << std::dec;
+        (*m_Stream) << std::hex << "0x" << (const void*)i << std::dec;
     }
     void operator()(PtrWrap<const void*> i) const {
-        (*m_Stream) << std::hex << "0x" << reinterpret_cast<int>((const void*)i) << std::dec;
+        (*m_Stream) << std::hex << "0x" << (const void*)i << std::dec;
     }
     void operator()(GLenumWrap i) const {
         (*m_Stream) << GetGLEnumName(i.get());

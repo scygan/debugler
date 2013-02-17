@@ -1,4 +1,4 @@
-#include "DGLStateView.h"
+#include "dglstateview.h"
 #include "dglgui.h"
 
 #include <set>

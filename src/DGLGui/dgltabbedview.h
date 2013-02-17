@@ -34,7 +34,7 @@ public:
 protected:
     void ensureTabDisplayed(uint ctxid, uint id, uint target = 0);
     DGLTabbedViewItem* getTab(const ContextObjectName& id);
-    void setupNames(char* title, char* objName);
+    void setupNames(const char* title, const char* objName);
 
     DGLResourceManager* m_ResourceManager;
 

@@ -1,14 +1,12 @@
 find_package(Qt4 REQUIRED)
 
-
 set(dglgui_SOURCES 
     dglbreakpointdialog.cpp dglbufferview.cpp  dglconnectdialog.cpp
     dglcontoller.cpp dglfboview.cpp dglframebufferview.cpp
     dglgpuview.cpp dglmainwindow.cpp dglpixelrectangle.cpp
     dglprogramview.cpp dglrundialog.cpp dglshaderview.cpp
     dglstateview.cpp dgltabbedview.cpp dgltextureview.cpp
-#    dgltraceview.cpp dgltreeview.cpp main.cpp
-    dgltraceview.cpp main.cpp
+    dgltraceview.cpp dgltreeview.cpp main.cpp
     )
 
 set(dglgui_HEADERS
@@ -59,4 +57,8 @@ add_executable(dglgui
     ${dglgui_RESOURCES_RCC}
 )
 
-target_link_libraries(dglgui ${QT_LIBRARIES} dglcommon dglnet)
+add_dependencies(dglgui Boost)
+
+get_property(Boost_LIBRARIES GLOBAL PROPERTY Boost_LIBRARIES)
+
+target_link_libraries(dglgui ${Boost_LIBRARIES} QHexEdit srchiliteqt dglcommon dglnet ${QT_LIBRARIES})

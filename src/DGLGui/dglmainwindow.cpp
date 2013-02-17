@@ -33,7 +33,8 @@
  * Macros for QSettings variable names
  */
 #define STRINGIFY(X) #X
-#define DGL_SETTINGS(X) STRINGIFY(widgets/##X)
+#define SLASHIFY(X,Y) STRINGIFY(X/Y)
+#define DGL_SETTINGS(X) SLASHIFY(widgets, X)
 #define DGL_GEOMETRY_SETTINGS DGL_SETTINGS(geometry)
 #define DGL_WINDOW_STATE_SETTINGS DGL_SETTINGS(windowState)
 #define DGL_ColorScheme_SETTINGS DGL_SETTINGS(ColorScheme)
@@ -43,8 +44,8 @@
  * Array of available main window color settings
  */
 struct DGLColorScheme {
-    char* name; /**< Display name */
-    char* file; /**< Resource file name wyth styleshet */
+    const char* name; /**< Display name */
+    const char* file; /**< Resource file name wyth styleshet */
 } dglColorSchemes[DGLNUM_COLOR_SCHEMES] = {
     { "Default",     ":/res/default.stylesheet"   },
     { "Dark Orange", ":/res/darkorange.stylesheet"},
@@ -54,7 +55,11 @@ DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags) {
 
     boost::shared_ptr<OsIcon> icon(Os::createIcon());
+#ifdef _WIN32
     setWindowIcon(QIcon(QPixmap::fromWinHICON((HICON)icon->get())));
+#else
+#warning: no window icon on non-windows
+#endif
 
     //load designer UI 
     
@@ -444,6 +449,11 @@ void DGLMainWindow::createToolBars() {
  };
 
 
+void DGLMainWindow::runDialog() {
+    throw std::runtime_error("Not implemented");
+}
+
+#ifdef _WIN32
  void DGLMainWindow::runDialog() {
 
      //execute connection dialog to obtain connection parameters
@@ -608,6 +618,7 @@ void DGLMainWindow::createToolBars() {
          }
      }
  }
+#endif
  
  void DGLMainWindow::disconnect() {
 

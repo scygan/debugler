@@ -1,4 +1,4 @@
-#include <dglpixelrectangle.h>
+#include "dglpixelrectangle.h"
 #include <DGLCommon/gl-serialized.h>
 
 #include <QGraphicsView>
@@ -38,9 +38,9 @@ void DGLPixRectQGraphicsView::leaveEvent ( QEvent * event ) {
 
 class DGLPixelRectangleBlitter: public DGLBlitterBase {
 public:
-    DGLPixelRectangleBlitter::DGLPixelRectangleBlitter(DGLPixelRectangleScene* scene):m_Scene(scene) {}
+    DGLPixelRectangleBlitter(DGLPixelRectangleScene* scene):m_Scene(scene) {}
 private:
-    void DGLPixelRectangleBlitter::sink(int width, int height, OutputFormat format, void* data) {
+    void sink(int width, int height, OutputFormat format, void* data) {
         QImage::Format qtFormat;
         switch (format) {
         case _GL_BGRA32:
@@ -195,7 +195,7 @@ bool DGLPixelRectangleScene::inside(const QPoint& pos) {
 void DGLPixelRectangleScene::doRecalcSizes() {
     if (!m_Item) return;
 
-    m_Scale = min(m_Scene.sceneRect().width() / m_Image.size().width(),
+    m_Scale = std::min(m_Scene.sceneRect().width() / m_Image.size().width(),
         m_Scene.sceneRect().height() / m_Image.size().height());
 
     //rescale

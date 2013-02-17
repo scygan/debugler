@@ -10,16 +10,16 @@
 class DGLPixRectQGraphicsView: public QGraphicsView {
     Q_OBJECT
 public:
-    DGLPixRectQGraphicsView::DGLPixRectQGraphicsView(QWidget* parent);
+    DGLPixRectQGraphicsView(QWidget* parent);
 signals:
     void resized(const QSize&);
     void onMouseOver(const QPoint&);
     void onMouseLeft();
 
 private:
-    void DGLPixRectQGraphicsView::resizeEvent (QResizeEvent * event);
-    void DGLPixRectQGraphicsView::mouseMoveEvent ( QMouseEvent * event );
-    void DGLPixRectQGraphicsView::leaveEvent ( QEvent * event );
+    void resizeEvent (QResizeEvent * event);
+    void mouseMoveEvent ( QMouseEvent * event );
+    void leaveEvent ( QEvent * event );
 };
 
 

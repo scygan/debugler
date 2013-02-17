@@ -1,13 +1,13 @@
 #ifndef _GL_TYPES_H
 #define _GL_TYPES_H
 
-#include <DGLcommon/gl-headers.h>
+#include<DGLCommon/gl-headers.h>
 #include<string>
 
 
 #define FUNCTION_LIST_ELEMENT(name, type) name##_Call,
 enum Entrypoints {
-    #include "../../dump/codegen/functionList.inl"
+    #include "codegen/functionList.inl"
     Entrypoints_NUM
 
 };
@@ -19,7 +19,7 @@ enum Entrypoints {
 typedef int Entrypoint;
 
 
-char* GetEntryPointName(Entrypoint entryp);
+const char* GetEntryPointName(Entrypoint entryp);
 Entrypoint GetEntryPointEnum(const char* name);
 std::string GetGLEnumName(uint64_t glEnum);
 

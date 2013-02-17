@@ -1,5 +1,6 @@
 #include "os.h"
 
+#ifdef _WIN32
 
 #include <vector>
 #include <Windows.h>
@@ -13,7 +14,7 @@ public:
         m_Icon = (HICON)LoadImage((HMODULE)moduleHandle, MAKEINTRESOURCE( IDI_ICON1 ), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_LOADTRANSPARENT );
     }
 
-    ~OsIconImpl() {
+    virtual ~OsIconImpl() {
         DestroyIcon(m_Icon);
     }
 
@@ -103,3 +104,24 @@ void Os::setCurrentModuleHandle(void * handle) {
 }
 
 void* Os::m_CurrentHandle = NULL;
+
+#else
+
+#include <stdexcept> //remove me
+
+class OsIconImpl: public OsIcon {
+public:
+    OsIconImpl() {}
+    virtual ~OsIconImpl() {}
+
+    virtual void * get()  {
+        //need to actually implement window icon here
+        throw std::runtime_error("Not implemented");
+    }
+};
+
+OsIcon*  Os::createIcon() {
+    return new OsIconImpl();
+}
+
+#endif
