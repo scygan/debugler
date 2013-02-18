@@ -329,6 +329,7 @@
     <ClCompile Include="dglmainwindow.cpp" />
     <ClCompile Include="dglpixelrectangle.cpp" />
     <ClCompile Include="dglprogramview.cpp" />
+    <ClCompile Include="dglresourcefs.cpp" />
     <ClCompile Include="dglrundialog.cpp" />
     <ClCompile Include="dglshaderview.cpp" />
     <ClCompile Include="dglstateview.cpp" />
@@ -422,6 +423,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dglresourcefs.h" />
     <ClInclude Include="resource.h" />
     <CustomBuild Include="dglstateview.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>

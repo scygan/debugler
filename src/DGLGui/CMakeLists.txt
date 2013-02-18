@@ -6,7 +6,7 @@ set(dglgui_SOURCES
     dglgpuview.cpp dglmainwindow.cpp dglpixelrectangle.cpp
     dglprogramview.cpp dglrundialog.cpp dglshaderview.cpp
     dglstateview.cpp dgltabbedview.cpp dgltextureview.cpp
-    dgltraceview.cpp dgltreeview.cpp main.cpp
+    dgltraceview.cpp dgltreeview.cpp dglresourcefs.cpp main.cpp
     )
 
 set(dglgui_HEADERS
