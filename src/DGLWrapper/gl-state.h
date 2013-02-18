@@ -185,6 +185,12 @@ public:
      */
     void setImmediateMode(bool);
 
+    /**
+     * Called to tell ctx when if is bound to current thread
+     */
+    void bound();
+
+
 private:
     void queryCheckError();
     
@@ -257,6 +263,10 @@ private:
      */
     DGLResourceState::StateItem getStateIsEnabled(const char* name, GLenum value);
 
+    /**
+     * True if ctx was ever bound, false otherwise
+     */
+    bool m_EverBound;
 };
 
 } //namespace

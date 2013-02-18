@@ -77,6 +77,8 @@ void DGLGLState::bindContext(uint32_t ctxId, uint32_t NativeSurfaceId) {
             getCurrent()->setNativeSurface(&(*(ensureSurface(NativeSurfaceId)->second)));
         }
 
+        getCurrent()->bound();
+
     } else {
         m_Current.release();
     }

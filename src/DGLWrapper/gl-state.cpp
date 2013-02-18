@@ -56,6 +56,35 @@ namespace state_setters {
         GLint m_ReadBuffer;
     };
 
+    class DrawBuffers {
+    public:
+        DrawBuffers() {
+            GLint maxDrawBuffers;
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_DRAW_BUFFERS, &maxDrawBuffers);
+            m_DrawBuffers.resize(maxDrawBuffers);
+            for (GLint i = 0; i < maxDrawBuffers; i++) {
+                DIRECT_CALL_CHK(glGetIntegerv)(GL_DRAW_BUFFER0 + i, &m_DrawBuffers[i]);
+            }
+        }
+        ~DrawBuffers() {
+            DIRECT_CALL_CHK(glDrawBuffers)(m_DrawBuffers.size(), reinterpret_cast<GLenum*>(&m_DrawBuffers[0]));
+        }
+    private:
+        std::vector<GLint> m_DrawBuffers;        
+    };
+
+    class RenderBuffer {
+    public:
+        RenderBuffer() {
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_RENDERBUFFER_BINDING, &m_RenderBuffer);
+        }
+        ~RenderBuffer() {
+            DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, m_RenderBuffer);
+        }
+    private:
+        GLint m_RenderBuffer;
+    };
+
     class PixelStoreAlignment {
 #define STATE_SIZE 8
     public:
@@ -207,7 +236,7 @@ GLenum GLFBObj::getTarget() {
     return m_Target;
 }
 
-GLContext::GLContext(uint32_t id):m_Id(id), m_NativeSurface(NULL), m_HasNVXMemoryInfo(false), m_HasDebugOutput(false), m_InImmediateMode(false)  {}
+GLContext::GLContext(uint32_t id):m_Id(id), m_NativeSurface(NULL), m_HasNVXMemoryInfo(false), m_HasDebugOutput(false), m_InImmediateMode(false),m_EverBound(false)  {}
 
 dglnet::ContextReport GLContext::describe() {
     dglnet::ContextReport ret(m_Id);
@@ -374,6 +403,13 @@ bool GLContext::endQuery(std::string& message) {
 
 void GLContext::setImmediateMode(bool immed) {
     m_InImmediateMode = immed;
+}
+
+void GLContext::bound() {
+    if (!m_EverBound) {
+        m_EverBound = true;
+        firstUse();
+    }
 }
 
 boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
@@ -619,6 +655,8 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
     boost::shared_ptr<DGLResource> ret (resource = new DGLResourceFBO());
  
     state_setters::ReadBuffer readBuffer;
+    state_setters::DrawBuffers drawBuffers; //we may touch draw buffer when downsampling MSAA buffers
+    state_setters::RenderBuffer renderBuffer;
     state_setters::DefaultPBO defPBO;
     state_setters::CurrentFramebuffer currentFBO(name);
     state_setters::PixelStoreAlignment defAlignment;
@@ -666,20 +704,20 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
         resource->m_Attachments.push_back(DGLResourceFBO::FBOAttachment(attachments[i]));
 
         //query attached object name
-        GLint name;
+        GLint attmntName;
         DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i],
-            GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &name);
+            GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &attmntName);
         
         //now look for the attached object and query internal format and dimensions
-        GLint width, height, internalFormat;
+        GLint width, height, internalFormat, samples = 0;
         if (type == GL_TEXTURE) {
 
-            if (!DIRECT_CALL_CHK(glIsTexture)(name)) {
+            if (!DIRECT_CALL_CHK(glIsTexture)(attmntName)) {
                 resource->m_Attachments.back().error("Attached texture object does not exist");
                 continue;
             }
 
-            GLTextureObj* tex = ensureTexture(name);
+            GLTextureObj* tex = ensureTexture(attmntName);
 
             GLenum bindableTarget, binding;
 
@@ -710,8 +748,11 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
                     bindableTarget = tex->getTarget();
                     binding = GL_TEXTURE_BINDING_3D;
                     break;
-
-                case GL_TEXTURE_2D_MULTISAMPLE: //Not supported for now
+                case GL_TEXTURE_2D_MULTISAMPLE:
+                    bindableTarget = tex->getTarget();
+                    binding = GL_TEXTURE_BINDING_2D_MULTISAMPLE;
+                    samples = 1;
+                    break;
                 default:
                     resource->m_Attachments.back().error("Attached texture target is not supported");
                     continue;
@@ -728,21 +769,23 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &width);
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_HEIGHT, &height);
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_SAMPLES, &samples);
 
             DIRECT_CALL_CHK(glBindTexture)(bindableTarget, lastTexture);
 
         } else if (type == GL_RENDERBUFFER) {
-            if (!DIRECT_CALL_CHK(glIsRenderbuffer)(name)) {
+            if (!DIRECT_CALL_CHK(glIsRenderbuffer)(attmntName)) {
                 resource->m_Attachments.back().error("Attached renderbuffer object does not exist");
                 continue;
             }
             GLint lastRenderBuffer;
             DIRECT_CALL_CHK(glGetIntegerv)(GL_RENDERBUFFER_BINDING, &lastRenderBuffer);
-            DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, name);
+            DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, attmntName);
 
             DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &width);
             DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
             DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_INTERNAL_FORMAT, &internalFormat);
+            DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_SAMPLES, &samples);
 
             DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, lastRenderBuffer);
         }
@@ -788,20 +831,75 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
         //there should be no errors. Otherwise something nasty happened
         queryCheckError();
 
-        if (attachments[i] != GL_DEPTH_ATTACHMENT && attachments[i] != GL_STENCIL_ATTACHMENT && attachments[i] != GL_DEPTH_STENCIL_ATTACHMENT) {
-            //select color attachment 
-            DIRECT_CALL_CHK(glReadBuffer)(attachments[i]); 
-        }
-
         DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, internalFormat);
 
         resource->m_Attachments.back().m_PixelRectangle = boost::make_shared<DGLPixelRectangle>(width,
             height, defAlignment.getAligned(width * transfer.getPixelSize()), 
             transfer.getFormat(), transfer.getType(), internalFormat);
 
+       
+
+        GLuint downsampledFBO = 0, downsampledRBO = 0;
+        if (samples) {
+            //this is a multisample render target. We must downsample it before reading
+
+            //create renderbuffer for downsampling
+            DIRECT_CALL_CHK(glGenRenderbuffers)(1, &downsampledRBO);
+            DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, downsampledRBO);
+            DIRECT_CALL_CHK(glRenderbufferStorage)(GL_RENDERBUFFER, internalFormat, width, height);
+
+            //create framebuffer used for downsampling, set it as draw
+            DIRECT_CALL_CHK(glGenFramebuffers)(1, &downsampledFBO);
+            DIRECT_CALL_CHK(glBindFramebuffer)(GL_DRAW_FRAMEBUFFER, downsampledFBO);
+            DIRECT_CALL_CHK(glFramebufferRenderbuffer)(GL_DRAW_FRAMEBUFFER, attachments[i], GL_RENDERBUFFER, downsampledRBO);
+
+            GLint blitMask = 0;
+
+            if (attachments[i] != GL_DEPTH_ATTACHMENT && attachments[i] != GL_STENCIL_ATTACHMENT && attachments[i] != GL_DEPTH_STENCIL_ATTACHMENT) {
+                //select buffers for downsampling
+                DIRECT_CALL_CHK(glReadBuffer)(attachments[i]); 
+                DIRECT_CALL_CHK(glDrawBuffer)(attachments[i]); 
+
+                blitMask |= GL_COLOR_BUFFER_BIT;
+            } else {
+                switch (attachments[i]) {
+                    case GL_DEPTH_ATTACHMENT:
+                        blitMask |= GL_DEPTH_BUFFER_BIT;
+                        break;
+                    case GL_STENCIL_ATTACHMENT:
+                        blitMask |= GL_STENCIL_BUFFER_BIT;
+                        break;
+                    case GL_DEPTH_STENCIL_ATTACHMENT:
+                        blitMask |= GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
+                        break;
+                }
+            }
+
+            //downsample
+            DIRECT_CALL_CHK(glBlitFramebuffer)(0, 0, width, height, 0, 0, width, height, blitMask, GL_NEAREST);
+
+            //set downsampled fbo as read, to allow glReadPixels read from it
+            DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, downsampledFBO);
+        }
+
+        if (attachments[i] != GL_DEPTH_ATTACHMENT && attachments[i] != GL_STENCIL_ATTACHMENT && attachments[i] != GL_DEPTH_STENCIL_ATTACHMENT) {
+            //select color attachment 
+            DIRECT_CALL_CHK(glReadBuffer)(attachments[i]); 
+        }
+
         GLvoid* ptr = resource->m_Attachments.back().m_PixelRectangle->getPtr();
         if (ptr) {
             DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, transfer.getFormat(), transfer.getType(), ptr);
+        }
+
+        if (samples) {
+            //restore state to point to original multisampled FBO            
+            DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, 0);
+            DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, name);
+
+            //delete objects used for downsampling
+            DIRECT_CALL_CHK(glDeleteRenderbuffers)(1, &downsampledRBO);
+            DIRECT_CALL_CHK(glDeleteFramebuffers)(1, &downsampledFBO);
         }
 
 		if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
