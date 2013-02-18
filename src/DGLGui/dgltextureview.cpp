@@ -1,6 +1,8 @@
 #include "dgltextureview.h"
 #include "dglgui.h"
 
+#undef min
+
 DGLTextureViewItem::DGLTextureViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent), m_CurrentFace(0), m_CurrentLevel(0) {
     m_Ui.setupUi(this);
     

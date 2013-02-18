@@ -448,12 +448,12 @@ void DGLMainWindow::createToolBars() {
      char message[1000];
  };
 
+#ifndef _WIN32
+ void DGLMainWindow::runDialog() {
+     throw std::runtime_error("Not implemented");
+ }
 
-void DGLMainWindow::runDialog() {
-    throw std::runtime_error("Not implemented");
-}
-
-#ifdef _WIN32
+#else
  void DGLMainWindow::runDialog() {
 
      //execute connection dialog to obtain connection parameters
