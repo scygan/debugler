@@ -472,7 +472,7 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
     for (size_t face = 0; face < resource->m_FacesLevels.size(); face++) {
         for (int level = 0; true; level++) {
 
-            GLint height, width;
+            GLint height, width, samples;
 
             GLenum levelTarget = tex->getTextureLevelTarget((int)face);
 
@@ -493,6 +493,8 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_GREEN_SIZE, &rgbaSizes[1]);
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_BLUE_SIZE, &rgbaSizes[2]);
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_ALPHA_SIZE, &rgbaSizes[3]);
+            
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_SAMPLES, &samples);
 
             std::vector<GLint> deptStencilSizes(2, 0);
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_DEPTH_SIZE, &deptStencilSizes[0]);
@@ -503,7 +505,7 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
             DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, internalFormat);
 
             resource->m_FacesLevels[face].push_back(boost::make_shared<DGLPixelRectangle>(width, height, defAlignment.getAligned(width * transfer.getPixelSize()),
-                transfer.getFormat(), transfer.getType(), internalFormat));
+                transfer.getFormat(), transfer.getType(), internalFormat, samples));
             
             GLvoid* ptr;
             if ((ptr = resource->m_FacesLevels[face].back()->getPtr()) != NULL) {
@@ -640,7 +642,8 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
     DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, 0);
 
     resource->m_PixelRectangle = boost::make_shared<DGLPixelRectangle>(width, height, defAlignment.getAligned(width * transfer.getPixelSize()),
-        transfer.getFormat(), transfer.getType(), 0);
+        transfer.getFormat(), transfer.getType(), 0, 0);
+#pragma message ( "GLContext::queryFramebuffer: query MSAA" )
 
     GLvoid* ptr;
     if ((ptr = resource->m_PixelRectangle->getPtr()) != NULL)
@@ -835,7 +838,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
 
         resource->m_Attachments.back().m_PixelRectangle = boost::make_shared<DGLPixelRectangle>(width,
             height, defAlignment.getAligned(width * transfer.getPixelSize()), 
-            transfer.getFormat(), transfer.getType(), internalFormat);
+            transfer.getFormat(), transfer.getType(), internalFormat, samples);
 
        
 

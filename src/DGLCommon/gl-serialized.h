@@ -166,11 +166,11 @@ public:
      * @param glType GL data type of sent data
      * @param iFormat storage internal format (for informational purposes only)
      */
-    DGLPixelRectangle(int32_t width, int32_t height, int32_t rowBytes, uint32_t glFormat, uint32_t glType, uint32_t iFormat);
+    DGLPixelRectangle(int32_t width, int32_t height, int32_t rowBytes, uint32_t glFormat, uint32_t glType, uint32_t iFormat, int32_t samples);
     DGLPixelRectangle(const DGLPixelRectangle& rhs);
     ~DGLPixelRectangle();
 
-    int32_t m_Width, m_Height, m_RowBytes;
+    int32_t m_Width, m_Height, m_RowBytes, m_Samples;
     uint32_t  m_GLFormat, m_GLType, m_InternalFormat;
 
     void* getPtr() const;
@@ -191,13 +191,14 @@ namespace boost { namespace serialization {
             ar << t->m_GLFormat;
             ar << t->m_GLType;
             ar << t->m_InternalFormat;
+            ar << t->m_Samples;
     }
 
     template<class Archive>
     inline void load_construct_data(
         Archive & ar, DGLPixelRectangle * t, const unsigned int file_version) {
             // retrieve data from archive required to construct new instance
-            int32_t width, height, rowBytes, glFormat, glType;
+            int32_t width, height, rowBytes, glFormat, glType, samples;
             uint32_t iformat;
             ar >> width;
             ar >> height;
@@ -205,8 +206,9 @@ namespace boost { namespace serialization {
             ar >> glFormat;
             ar >> glType;
             ar >> iformat;
+            ar >> samples;
             // invoke inplace constructor
-            ::new(t)DGLPixelRectangle(width, height, rowBytes, glFormat, glType, iformat);
+            ::new(t)DGLPixelRectangle(width, height, rowBytes, glFormat, glType, iformat, samples);
     }
 }}
 

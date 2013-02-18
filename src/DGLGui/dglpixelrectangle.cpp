@@ -133,7 +133,10 @@ void DGLPixelRectangleView::updateFormatSizeInfo(const DGLPixelRectangle* pixelR
         std::ostringstream formatSize;
         if (pixelRectangle->m_InternalFormat)
             formatSize << GetGLEnumName(pixelRectangle->m_InternalFormat) << " ";
-        formatSize << "(" << pixelRectangle->m_Width << "x" << pixelRectangle->m_Height << ")";
+        formatSize << "(" << pixelRectangle->m_Width << "x" << pixelRectangle->m_Height << ") ";
+        if (pixelRectangle->m_Samples) {
+            formatSize << "MSAA: " << pixelRectangle->m_Samples; 
+        }
         m_Ui->labelFormatSize->setText(QString::fromStdString(formatSize.str()));
     } else {
         m_Ui->labelFormatSize->clear();

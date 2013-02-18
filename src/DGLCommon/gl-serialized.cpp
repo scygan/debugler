@@ -116,8 +116,8 @@ bool ContextObjectName::operator<(const ContextObjectName&rhs) const {
     return false;
 }
 
-DGLPixelRectangle::DGLPixelRectangle(int32_t width, int32_t height, int32_t rowBytes, uint32_t glFormat, uint32_t glType, uint32_t iFormat):m_Width(width),
-    m_Height(height), m_RowBytes(rowBytes), m_GLFormat(glFormat), m_GLType(glType), m_InternalFormat(iFormat), m_Storage(NULL) {
+DGLPixelRectangle::DGLPixelRectangle(int32_t width, int32_t height, int32_t rowBytes, uint32_t glFormat, uint32_t glType, uint32_t iFormat, int32_t samples):m_Width(width),
+    m_Height(height), m_RowBytes(rowBytes), m_GLFormat(glFormat), m_GLType(glType), m_InternalFormat(iFormat), m_Samples(samples), m_Storage(NULL) {
 
         if (m_Height * m_RowBytes) {
             m_Storage = malloc(m_Height * m_RowBytes);
@@ -125,7 +125,7 @@ DGLPixelRectangle::DGLPixelRectangle(int32_t width, int32_t height, int32_t rowB
 }
 
 DGLPixelRectangle::DGLPixelRectangle(const DGLPixelRectangle& rhs):m_Width(rhs.m_Width), m_Height(rhs.m_Height),
-    m_RowBytes(rhs.m_RowBytes), m_GLFormat(rhs.m_GLFormat), m_GLType(rhs.m_GLType), m_InternalFormat(rhs.m_InternalFormat){
+    m_RowBytes(rhs.m_RowBytes), m_GLFormat(rhs.m_GLFormat), m_GLType(rhs.m_GLType), m_InternalFormat(rhs.m_InternalFormat), m_Samples(rhs.m_Samples) {
     if (rhs.getPtr()) {
         m_Storage = malloc(m_Height * m_RowBytes);
         memcpy(m_Storage, rhs.getPtr(), m_Height * m_RowBytes);
