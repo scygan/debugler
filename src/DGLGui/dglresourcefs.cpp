@@ -1,8 +1,20 @@
-#include <dglresourcefs.h>
+#include "dglresourcefs.h"
 
 #include<stdexcept>
+#include<cerrno>
 
 #include<QFile>
+
+#undef fopen
+#undef fclose
+#undef fwrite
+#undef fread
+#undef ferror
+#undef getc
+#undef clearerr
+#undef fileno
+
+
 
 namespace dglfs {
 
