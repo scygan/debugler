@@ -67,7 +67,7 @@ namespace state_setters {
             }
         }
         ~DrawBuffers() {
-            DIRECT_CALL_CHK(glDrawBuffers)(m_DrawBuffers.size(), reinterpret_cast<GLenum*>(&m_DrawBuffers[0]));
+            DIRECT_CALL_CHK(glDrawBuffers)(static_cast<GLsizei>(m_DrawBuffers.size()), reinterpret_cast<GLenum*>(&m_DrawBuffers[0]));
         }
     private:
         std::vector<GLint> m_DrawBuffers;        
