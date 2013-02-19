@@ -6,6 +6,8 @@
 #include <windows.h>
 #endif
 
+#include <codegen/input/egl.h>
+#include <codegen/input/eglext.h>
 #include <GL/gl.h>
 #include <codegen/input/glext.h>
 

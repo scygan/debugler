@@ -27,6 +27,8 @@ add_custom_command(
         ${codegen_in}/wgl.h
         ${codegen_in}/wglext-partial.h
         ${codegen_in}/wglext.h 
+		${codegen_in}/egl.h 
+		${codegen_in}/eglext.h 
     COMMENT "Generating code from GL headers"
     VERBATIM
     )

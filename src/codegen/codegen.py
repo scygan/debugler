@@ -32,7 +32,7 @@ def parse(file, genNonExtTypedefs = False, skipTrace = False):
 			print >> enumFile, "#ifdef GL" + enumMatch.group(1)
 			print >> enumFile, "	ENUM_LIST_ELEMENT(GL" + enumMatch.group(1) + ")"
 			print >> enumFile, "#endif"
-		coarseFunctionMatch = re.match("^([a-zA-Z0-9]*) (.*) (WINAPI|APIENTRY) ([a-zA-Z0-9]*) \((.*)\)(.*)$", line)
+		coarseFunctionMatch = re.match("^([a-zA-Z0-9]*) (.*) (WINAPI|APIENTRY|EGLAPIENTRY) ([a-zA-Z0-9]*) ?\((.*)\)(.*)$", line)
 		if coarseFunctionMatch: 
 			#print coarseFunctionMatch.groups()
 			functionRetType = coarseFunctionMatch.group(2)
@@ -142,12 +142,16 @@ wglextFile = open(inputDir + "/wglext-partial.h", "r").readlines()
 glFile = open(inputDir + "/GL.h", "r").readlines()
 glextFile = open(inputDir + "/glext.h", "r").readlines()
 wglNoTraceFile = open(inputDir + "/wgl-notrace.h", "r").readlines()
+eglFile = open(inputDir + "/egl.h", "r").readlines()
+eglextFile = open(inputDir + "/eglext.h", "r").readlines()
 
 parse(wglFile)
 parse(wglextFile)
 parse(glFile, True)
 parse(glextFile)
 parse(wglNoTraceFile, False, True)
+parse(eglFile, True)
+parse(eglextFile)
 
 
 
