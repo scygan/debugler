@@ -7,9 +7,7 @@ DGLTextureViewItem::DGLTextureViewItem(ContextObjectName name, DGLResourceManage
     m_Ui.setupUi(this);
     
     m_PixelRectangleScene = new DGLPixelRectangleScene();
-    m_PixelRectangleView = boost::make_shared<DGLPixelRectangleView>(this, m_PixelRectangleScene);
-    m_PixelRectangleView->setMinimumSize(QSize(400, 320));
-    m_Ui.verticalLayout->insertWidget(0, m_PixelRectangleView.get());
+    m_Ui.m_PixelRectangleView->setScene(m_PixelRectangleScene);
 
     m_Listener = resManager->createListener(name, DGLResource::ObjectTypeTexture);
     m_Listener->setParent(this);
@@ -29,7 +27,7 @@ DGLTextureViewItem::DGLTextureViewItem(ContextObjectName name, DGLResourceManage
 void DGLTextureViewItem::error(const std::string& message) {
     m_PixelRectangleScene->setText(message);
     m_Ui.horizontalSlider_LOD->setDisabled(true);
-    m_PixelRectangleView->updateFormatSizeInfo(NULL);
+    m_Ui.m_PixelRectangleView->updateFormatSizeInfo(NULL);
 }
 
 void DGLTextureViewItem::update(const DGLResource& res) {
@@ -94,7 +92,7 @@ void DGLTextureViewItem::internalUpdate() {
     }
     
     m_PixelRectangleScene->setPixelRectangle(*m_FacesLevels[m_CurrentFace][m_CurrentLevel].get());
-    m_PixelRectangleView->updateFormatSizeInfo(m_FacesLevels[m_CurrentFace][m_CurrentLevel].get());
+    m_Ui.m_PixelRectangleView->updateFormatSizeInfo(m_FacesLevels[m_CurrentFace][m_CurrentLevel].get());
 }
 
 

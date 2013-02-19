@@ -6,10 +6,7 @@
 DGLFramebufferViewItem::DGLFramebufferViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
     m_Ui.setupUi(this);
     m_PixelRectangleScene = new DGLPixelRectangleScene();
-    m_PixelRectangleView = boost::make_shared<DGLPixelRectangleView>(this, m_PixelRectangleScene);
-    m_PixelRectangleView->setMinimumSize(QSize(400, 320));
-    m_Ui.verticalLayout->addWidget(m_PixelRectangleView.get());    
-    
+    m_Ui.m_PixelRectangleView->setScene(m_PixelRectangleScene);  
 
     m_Listener = resManager->createListener(name, DGLResource::ObjectTypeFramebuffer);
     m_Listener->setParent(this);
@@ -20,14 +17,14 @@ DGLFramebufferViewItem::DGLFramebufferViewItem(ContextObjectName name, DGLResour
 
 void DGLFramebufferViewItem::error(const std::string& message) {
     m_PixelRectangleScene->setText(message);
-    m_PixelRectangleView->updateFormatSizeInfo(NULL);
+    m_Ui.m_PixelRectangleView->updateFormatSizeInfo(NULL);
 }
 
 void DGLFramebufferViewItem::update(const DGLResource& res) {
     const DGLResourceFramebuffer* resource = dynamic_cast<const DGLResourceFramebuffer*>(&res);
     m_PixelRectangle = resource->m_PixelRectangle;
     m_PixelRectangleScene->setPixelRectangle(*m_PixelRectangle);
-    m_PixelRectangleView->updateFormatSizeInfo(m_PixelRectangle.get());
+    m_Ui.m_PixelRectangleView->updateFormatSizeInfo(m_PixelRectangle.get());
 }
 
 DGLFramebufferView::DGLFramebufferView(QWidget* parrent, DglController* controller):DGLTabbedView(parrent, controller) {

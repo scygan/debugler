@@ -7,12 +7,7 @@
 DGLFBOViewItem::DGLFBOViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent),m_Error(false) {
     m_Ui.setupUi(this);
     m_PixelRectangleScene = new DGLPixelRectangleScene();
-    m_PixelRectangleView = boost::make_shared<DGLPixelRectangleView>(this, m_PixelRectangleScene);
-    m_PixelRectangleView->setMinimumSize(QSize(400, 320));
-    m_Ui.verticalLayout->addWidget(m_PixelRectangleView.get());    
-
-    //internal
-    CONNASSERT(connect(m_Ui.m_AttListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(showAttachment(int))));
+    m_Ui.m_pixelRectangleView->setScene(m_PixelRectangleScene);
 
     m_Listener = resManager->createListener(name, DGLResource::ObjectTypeFBO);
     m_Listener->setParent(this);
@@ -26,7 +21,7 @@ void DGLFBOViewItem::error(const std::string& message) {
     m_Ui.m_AttListWidget->clear();
     m_PixelRectangleScene->setText(message);
     m_Error = true;
-    m_PixelRectangleView->updateFormatSizeInfo(NULL);
+    m_Ui.m_pixelRectangleView->updateFormatSizeInfo(NULL);
 }
 
 void DGLFBOViewItem::update(const DGLResource& res) {
@@ -51,7 +46,7 @@ void DGLFBOViewItem::showAttachment(int id) {
         m_PixelRectangleScene->setText(errorMsg);
     } else {
         m_PixelRectangleScene->setPixelRectangle(*m_Attachments[id].m_PixelRectangle.get());
-        m_PixelRectangleView->updateFormatSizeInfo((m_Attachments[id].m_PixelRectangle.get()));
+        m_Ui.m_pixelRectangleView->updateFormatSizeInfo((m_Attachments[id].m_PixelRectangle.get()));
     }
 }
 

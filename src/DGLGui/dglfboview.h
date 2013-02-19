@@ -18,7 +18,6 @@ private slots:
 private: 
     Ui_DGLFBOViewItem m_Ui;
     DGLPixelRectangleScene* m_PixelRectangleScene;
-    boost::shared_ptr<DGLPixelRectangleView> m_PixelRectangleView;
     std::vector<DGLResourceFBO::FBOAttachment> m_Attachments;
     bool m_Error; 
     DGLResourceListener* m_Listener;

@@ -28,7 +28,8 @@ class DGLPixelRectangleScene;
 class DGLPixelRectangleView: public QWidget {
     Q_OBJECT
 public:
-    DGLPixelRectangleView(QWidget* parent, DGLPixelRectangleScene* scene);
+    DGLPixelRectangleView(QWidget* parent);
+    void setScene(DGLPixelRectangleScene* scene);
     void updateFormatSizeInfo(const DGLPixelRectangle* pixelRectangle);
 private slots:
     void onMouseOver(const QPoint& pos);

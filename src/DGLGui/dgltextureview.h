@@ -36,7 +36,6 @@ private:
 
     Ui::DGLTextureViewItem m_Ui;
     DGLPixelRectangleScene* m_PixelRectangleScene;
-    boost::shared_ptr<DGLPixelRectangleView> m_PixelRectangleView;
     std::vector<std::vector<boost::shared_ptr<DGLPixelRectangle> > > m_FacesLevels;
 
     DGLResourceListener* m_Listener;

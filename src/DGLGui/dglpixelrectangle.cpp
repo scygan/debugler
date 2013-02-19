@@ -72,7 +72,7 @@ private:
 };
 
 
-DGLPixelRectangleView::DGLPixelRectangleView(QWidget* parent, DGLPixelRectangleScene* scene):m_Scene(scene),m_GraphicsView(parent) {
+DGLPixelRectangleView::DGLPixelRectangleView(QWidget* parent):m_Scene(NULL),m_GraphicsView(parent) {
     m_Ui = new Ui::DGLPixelRectangleView();
     m_Ui->setupUi(this);
     m_Ui->verticalLayout->insertWidget(0, &m_GraphicsView);
@@ -88,6 +88,10 @@ DGLPixelRectangleView::DGLPixelRectangleView(QWidget* parent, DGLPixelRectangleS
     //process Mouse events ourselves
     CONNASSERT(connect(&m_GraphicsView, SIGNAL(onMouseOver(QPoint)), this, SLOT(onMouseOver(QPoint))));
     CONNASSERT(connect(&m_GraphicsView, SIGNAL(onMouseLeft()), this, SLOT(onMouseLeft())));
+}
+
+void DGLPixelRectangleView::setScene(DGLPixelRectangleScene *scene) {
+    m_Scene = scene;
 
     //pass resize events directly to scene for size recalc
     CONNASSERT(connect(&m_GraphicsView, SIGNAL(resized(const QSize&)), scene, SLOT(resize(const QSize&))));

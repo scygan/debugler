@@ -13,8 +13,27 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout"/>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="DGLPixelRectangleView" name="m_PixelRectangleView" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>400</width>
+       <height>320</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DGLPixelRectangleView</class>
+   <extends>QWidget</extends>
+   <header>dglpixelrectangle.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
