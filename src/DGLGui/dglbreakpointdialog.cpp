@@ -23,10 +23,6 @@ DGLBreakPointDialog::DGLBreakPointDialog(DglController * controller):m_Controlle
     for (std::set<Entrypoint>::iterator i = currentBreakPoints.begin(); i != currentBreakPoints.end(); i++) {
         new DGLBreakPointDialogItem(*i, m_Ui.rightListWidget);
     }
-
-    CONNASSERT(connect(m_Ui.addButton, SIGNAL(clicked()), this, SLOT(addBreakPoint())));
-    CONNASSERT(connect(m_Ui.deleteButton, SIGNAL(clicked()), this, SLOT(deleteBreakPoint())));
-    CONNASSERT(connect(m_Ui.lineSearch, SIGNAL(textChanged(QString)), this, SLOT(searchBreakPoint(QString))));
 }
 
 DGLBreakPointDialog::~DGLBreakPointDialog() {}
@@ -71,9 +67,23 @@ void DGLBreakPointDialog::deleteBreakPoint() {
 
 void DGLBreakPointDialog::searchBreakPoint(const QString& prefix) {
     if (prefix.length()) {
+        QItemSelection selection;
+
+        bool first = true;
+
         for (uint j = 0; j < m_Ui.leftListWidget->count(); j++) {
-            m_Ui.leftListWidget->item(j)->setSelected(m_Ui.leftListWidget->item(j)->text().startsWith(prefix));
+            QListWidgetItem* item = m_Ui.leftListWidget->item(j);
+            if (item->text().startsWith(prefix)) {
+                QModelIndex idx = m_Ui.leftListWidget->model()->index(j, 0);
+                selection.select(idx, idx);
+
+                if (first) {
+                    first = false; 
+                    m_Ui.leftListWidget->scrollToItem(item);
+                }
+            }
         }
+        m_Ui.leftListWidget->selectionModel()->select(selection, QItemSelectionModel::ClearAndSelect);
     } else {
         m_Ui.leftListWidget->selectionModel()->clearSelection();
     }

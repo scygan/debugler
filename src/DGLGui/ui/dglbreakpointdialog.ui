@@ -20,8 +20,8 @@
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <widget class="QLineEdit" name="lineSearch">
-         <property name="text">
-          <string>Type to search....</string>
+         <property name="placeholderText">
+          <string>Type to search...</string>
          </property>
         </widget>
        </item>
@@ -92,6 +92,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>leftListWidget</tabstop>
+  <tabstop>addButton</tabstop>
+  <tabstop>deleteButton</tabstop>
+  <tabstop>rightListWidget</tabstop>
+  <tabstop>lineSearch</tabstop>
+  <tabstop>okButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -105,8 +114,8 @@
      <y>496</y>
     </hint>
     <hint type="destinationlabel">
-     <x>96</x>
-     <y>254</y>
+     <x>377</x>
+     <y>485</y>
     </hint>
    </hints>
   </connection>
@@ -121,8 +130,8 @@
      <y>496</y>
     </hint>
     <hint type="destinationlabel">
-     <x>179</x>
-     <y>282</y>
+     <x>312</x>
+     <y>467</y>
     </hint>
    </hints>
   </connection>
@@ -142,5 +151,90 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>leftListWidget</sender>
+   <signal>currentRowChanged(int)</signal>
+   <receiver>lineSearch</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>114</x>
+     <y>140</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>119</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>BreakPointDialog</sender>
+   <signal>finished(int)</signal>
+   <receiver>lineSearch</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>58</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>145</x>
+     <y>19</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addButton</sender>
+   <signal>clicked()</signal>
+   <receiver>BreakPointDialog</receiver>
+   <slot>addBreakPoint()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>283</x>
+     <y>152</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>291</x>
+     <y>218</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>deleteButton</sender>
+   <signal>clicked()</signal>
+   <receiver>BreakPointDialog</receiver>
+   <slot>deleteBreakPoint()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>308</x>
+     <y>324</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>396</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineSearch</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>BreakPointDialog</receiver>
+   <slot>searchBreakPoint(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>172</x>
+     <y>25</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>280</x>
+     <y>85</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>addBreakPoint()</slot>
+  <slot>deleteBreakPoint()</slot>
+  <slot>searchBreakPoint(QString)</slot>
+ </slots>
 </ui>
