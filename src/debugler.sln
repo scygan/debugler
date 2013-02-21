@@ -46,7 +46,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "external", "external", "{A9
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{BC0B380D-40D6-4DB2-A1E8-390B684490BC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLCommonUT", "tests\DGLCommonUT\DGLCommonUT\DGLCommonUT.vcxproj", "{09FC62AB-3D0A-46AC-BBB4-CB34A0E3CD29}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UT", "tests\UT\UT.vcxproj", "{09FC62AB-3D0A-46AC-BBB4-CB34A0E3CD29}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

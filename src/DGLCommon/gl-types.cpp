@@ -8,7 +8,7 @@ namespace {
 #define FUNCTION_LIST_ELEMENT(name, type) #name,
     const char* g_EntrypointNames[] = {
 #include "codegen/functionList.inl"
-        ""
+        "<unknown>"
     };
 #undef FUNCTION_LIST_ELEMENT
 

@@ -62,7 +62,7 @@ namespace {
 
         const char* null = NULL;
         //null
-        EXPECT_EQ(GetEntryPointName(NO_ENTRYPOINT), null);
+        EXPECT_EQ(std::string(GetEntryPointName(NO_ENTRYPOINT)), "<unknown>");
     }
 
     TEST_F(DGLCommonUT, codegen_entryp_names) {
