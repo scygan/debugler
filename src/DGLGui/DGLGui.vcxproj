@@ -328,6 +328,7 @@
     <ClCompile Include="dglgpuview.cpp" />
     <ClCompile Include="dglmainwindow.cpp" />
     <ClCompile Include="dglpixelrectangle.cpp" />
+    <ClCompile Include="dglprocess.cpp" />
     <ClCompile Include="dglprogramview.cpp" />
     <ClCompile Include="dglresourcefs.cpp" />
     <ClCompile Include="dglrundialog.cpp" />
@@ -423,6 +424,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dglprocess.h" />
     <ClInclude Include="dglresourcefs.h" />
     <ClInclude Include="resource.h" />
     <CustomBuild Include="dglstateview.h">

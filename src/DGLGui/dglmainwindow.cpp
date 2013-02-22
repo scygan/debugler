@@ -15,13 +15,11 @@
 #include "dglgpuview.h"
 #include "dglstateview.h"
 #include "dglgui.h"
+#include "dglprocess.h"
 
 #include <DGLCommon/os.h>
 
-#include <boost/interprocess/sync/named_semaphore.hpp>
-#include <boost/interprocess/managed_shared_memory.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread/thread.hpp>
+
 
 /**
  * Macros indentifying entity, that stores & loads QSettings
@@ -442,18 +440,6 @@ void DGLMainWindow::createToolBars() {
      }
  }
 
- struct IPCMessage {
-     IPCMessage(uint32_t s):status(s) { message[0] = 0; };
-     uint32_t status;
-     char message[1000];
- };
-
-#ifndef _WIN32
- void DGLMainWindow::runDialog() {
-     throw std::runtime_error("Not implemented");
- }
-
-#else
  void DGLMainWindow::runDialog() {
 
      //execute connection dialog to obtain connection parameters
@@ -468,125 +454,30 @@ void DGLMainWindow::createToolBars() {
 
              QProgressBar*  bar = new QProgressBar(&progress); progress.setBar(bar); bar->setMaximum(0); bar->setMinimum(0); bar->setValue(-1);
 
-             DWORD binaryType;
-             if (!GetBinaryTypeA(m_RunDialog.getExecutable().c_str(), &binaryType)) {
-                 throw std::runtime_error("Getting binary file type failed");
-             }
-             
-             std::string loaderPath;
-             switch (binaryType) {
-                case SCS_32BIT_BINARY:
-                    loaderPath = "DGLLoader.exe";
-                    break;
-                case SCS_64BIT_BINARY:
-                    loaderPath = "DGLLoader64.exe";
-                    break;
-                default:
-                    throw std::runtime_error("Unsupported PE binary format");
-             }
 
              //randomize connection port
              srand(GetTickCount());
              int port = rand() % (0xffff - 1024) + 1024;
-             std::stringstream portStr;  portStr << port;
 
-             //set environment variables - child processes will inherit these
+             boost::shared_ptr<DGLProcess> process(DGLProcess::Create(
+                 m_RunDialog.getExecutable(),
+                 m_RunDialog.getPath(),
+                 m_RunDialog.getCommandLineArgs(), port));         
 
-             //debugging port
-             SetEnvironmentVariableA("dgl_port", portStr.str().c_str());
-
-             //semaphore triggered by loader (when done loading)
-             std::string semNameLoader = "sem_loader_" + portStr.str();
-             SetEnvironmentVariableA("dgl_loader_semaphore", semNameLoader.c_str());
-             boost::interprocess::named_semaphore semLoader(boost::interprocess::create_only, semNameLoader.c_str(), 0);
-
-             //semaphore triggered by opengl32.dll (when OpenGL is first used and server is ready)
-             std::string semNameOpenGL = "sem_" + portStr.str();
-             SetEnvironmentVariableA("dgl_semaphore", semNameOpenGL.c_str());
-             boost::interprocess::named_semaphore semOpenGL(boost::interprocess::create_only, semNameOpenGL.c_str(), 0);
-
-
-             //shmem for getting loader error
-
-             std::string shmemName = "shmem_" + portStr.str();
-             SetEnvironmentVariableA("dgl_loader_shmem", shmemName.c_str());
-             boost::interprocess::shared_memory_object shobj(boost::interprocess::create_only, shmemName.c_str(), boost::interprocess::read_write);
-             shobj.truncate(sizeof(IPCMessage));
-             boost::interprocess::mapped_region region(shobj, boost::interprocess::read_write);
-             IPCMessage* ipcMessage = (IPCMessage*)region.get_address();
-
-             //prepare some structures for CreateProcess output
-             STARTUPINFOA startupInfo;
-             memset(&startupInfo, 0, sizeof(startupInfo));
-             startupInfo.cb = sizeof(startupInfo);
-             PROCESS_INFORMATION processInformation; 
-             memset(&processInformation, 0, sizeof(processInformation));
-
-             //run loader process
-
-             std::string arguments = 
-                 "\"" + loaderPath + "\" " +
-                 "\"" + m_RunDialog.getExecutable() + "\" " +
-                 "\"" + m_RunDialog.getCommandLineArgs() + "\" ";
-
-             if (CreateProcessA(
-                 (LPSTR)loaderPath.c_str(),
-                 (LPSTR)arguments.c_str(),
-                 NULL, 
-                 NULL,
-                 FALSE, 
-                 0,
-                 NULL,
-                 m_RunDialog.getPath().c_str(),
-                 &startupInfo, 
-                 &processInformation) == 0 ) {
-
-                     throw std::runtime_error("Cannot create loader process");
+             bool timeout; 
+             while ((timeout = !process->waitReady(10))) {
+                 QApplication::processEvents();
+                 if (progress.wasCanceled())
+                     break;
              }
-
-             {
-                 //Wait for loader to finish
-
-                 bool timeout; 
-                 //boost::posix_time::ptime p = boost::get_system_time() + boost::posix_time::milliseconds(5000);
-                 while ((timeout = !semLoader.timed_wait(boost::get_system_time() + boost::posix_time::milliseconds(10)))) {
-                     QApplication::processEvents();
-                     if (progress.wasCanceled())
-                         break;
-                 }
-                 if (timeout) {
-                     throw std::runtime_error("Timed out waiting for loader");
-                 }
-             }
-
-             if (ipcMessage->status != EXIT_SUCCESS) {
-                 throw std::runtime_error(ipcMessage->message);
-             }
-
-             //application is loaded now
-                       
-             {
-                 //Wait for application to startup connection server
-                 //this may take some time, as we cannot do it on start (cannot setup socket from DLLMain())
-                 //we basically wait here for application to call WGL
-
-                 bool timeout; 
-                 //boost::posix_time::ptime p = boost::get_system_time() + boost::posix_time::milliseconds(5000);
-                 while ((timeout = !semOpenGL.timed_wait(boost::get_system_time() + boost::posix_time::milliseconds(10)))) {
-                     QApplication::processEvents();
-                     if (progress.wasCanceled())
-                         break;
-                 }
-                 if (timeout) {
-                     throw std::runtime_error("Timed out waiting for application to use OpenGL");
-                 }
+             if (timeout) {
+                 throw std::runtime_error("Timed out waiting for application to use OpenGL");
              }
 
              //application should be running server by now, connect to it and begin debugging
 
-             std::string host = "127.0.0.1";
-
-             m_controller.connectServer(host, portStr.str());
+             std::ostringstream portStr; portStr << port;
+             m_controller.connectServer("127.0.0.1", portStr.str());
 
          } catch (const std::runtime_error& err) {
 
@@ -618,7 +509,6 @@ void DGLMainWindow::createToolBars() {
          }
      }
  }
-#endif
  
  void DGLMainWindow::disconnect() {
 

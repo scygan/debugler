@@ -203,9 +203,6 @@
     <ClCompile Include="dglpixelrectangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\external\QHexEdit\commands.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_qhexedit.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -240,6 +237,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dglresourcefs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\QHexEdit\commands.cpp">
+      <Filter>QHexEdit</Filter>
+    </ClCompile>
+    <ClCompile Include="dglprocess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -397,6 +400,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dglresourcefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dglprocess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
