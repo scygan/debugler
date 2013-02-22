@@ -52,6 +52,8 @@ struct DGLColorScheme {
 DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags) {
 
+    Q_INIT_RESOURCE(dglmainwindow);
+
     boost::shared_ptr<OsIcon> icon(Os::createIcon());
 #ifdef _WIN32
     setWindowIcon(QIcon(QPixmap::fromWinHICON((HICON)icon->get())));

@@ -13,11 +13,6 @@
       <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
       <Extensions>ui</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
-      <Extensions>qrc;*</Extensions>
-      <ParseFiles>false</ParseFiles>
-    </Filter>
     <Filter Include="Generated Files">
       <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
       <Extensions>moc;h;cpp</Extensions>
@@ -39,17 +34,19 @@
     <Filter Include="ComleteInject">
       <UniqueIdentifier>{f58f9574-793c-41f5-ad16-cba0f9569892}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
     <Filter Include="Resource Files\qrc-sources">
-      <UniqueIdentifier>{41f21760-156e-4ee0-b818-9d01b08b6213}</UniqueIdentifier>
+      <UniqueIdentifier>{b68c485a-f2fb-4f39-83b6-2a1ca85c2813}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\qrc-sources\icons">
-      <UniqueIdentifier>{f0d93f8c-e7f3-4ca1-a5ec-7f8e9cda441f}</UniqueIdentifier>
+      <UniqueIdentifier>{fbd8aa72-167a-4f00-b557-d712e5827bc6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dglmainwindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -58,9 +55,6 @@
     </ClCompile>
     <ClCompile Include="dglcontoller.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\qrc_dglmainwindow.cpp">
-      <Filter>Generated Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dgltraceview.cpp">
       <Filter>Generated Files\Debug</Filter>
@@ -245,6 +239,9 @@
     <ClCompile Include="dglprocess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\qrc_dglmainwindow.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">
@@ -407,6 +404,21 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\checkbox.png">
+      <Filter>Resource Files\qrc-sources</Filter>
+    </None>
+    <None Include="res\darkorange.stylesheet">
+      <Filter>Resource Files\qrc-sources</Filter>
+    </None>
+    <None Include="res\default.stylesheet">
+      <Filter>Resource Files\qrc-sources</Filter>
+    </None>
+    <None Include="res\down_arrow.png">
+      <Filter>Resource Files\qrc-sources</Filter>
+    </None>
+    <None Include="res\handle.png">
+      <Filter>Resource Files\qrc-sources</Filter>
+    </None>
     <None Include="icons\buffer.png">
       <Filter>Resource Files\qrc-sources\icons</Filter>
     </None>
@@ -427,21 +439,6 @@
     </None>
     <None Include="icons\textures.png">
       <Filter>Resource Files\qrc-sources\icons</Filter>
-    </None>
-    <None Include="res\checkbox.png">
-      <Filter>Resource Files\qrc-sources</Filter>
-    </None>
-    <None Include="res\darkorange.stylesheet">
-      <Filter>Resource Files\qrc-sources</Filter>
-    </None>
-    <None Include="res\default.stylesheet">
-      <Filter>Resource Files\qrc-sources</Filter>
-    </None>
-    <None Include="res\down_arrow.png">
-      <Filter>Resource Files\qrc-sources</Filter>
-    </None>
-    <None Include="res\handle.png">
-      <Filter>Resource Files\qrc-sources</Filter>
     </None>
   </ItemGroup>
 </Project>
