@@ -19,7 +19,8 @@ namespace {
             SetCurrentDirectory("..");
             DGLProcess* process = DGLProcess::Create(
                 "C:\\Python27\\python.exe", "..", "..\\..\\src\\tests\\samples\\simple.py", 8888);
-            
+            while (!process->waitReady(100)) {}
+            delete process;
         }
 
         virtual ~LiveTest() {
@@ -85,6 +86,7 @@ namespace {
         while (!(msg = messageHandlerStub.getLastMessage()) && !messageHandlerStub.mDisconnected) {
             client->run_one();
         }
+        if (messageHandlerStub.mDisconnected) printf("Failing test, disconnection reason: %s\n", messageHandlerStub.mDisconnectedReason);
         ASSERT_FALSE(messageHandlerStub.mDisconnected);
         ASSERT_TRUE(msg != NULL);
         dglnet::HelloMessage * hello = dynamic_cast<dglnet::HelloMessage*>(msg);

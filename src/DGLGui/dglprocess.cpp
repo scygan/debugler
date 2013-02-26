@@ -26,7 +26,7 @@ public:
         m_PortStr(boost::lexical_cast<std::string>(port)), m_SemLoaderStr("sem_loader_" + m_PortStr),
         m_SemOpenGLStr("sem_" + m_PortStr),
         m_SemLoader(boost::interprocess::open_or_create, m_SemLoaderStr.c_str(), 0),
-        m_SemOpenGL(boost::interprocess::open_or_create, m_SemOpenGLStr.c_str(), 0)
+        m_SemOpenGL(boost::interprocess::open_or_create, m_SemOpenGLStr.c_str(), 0),m_Loaded(false)
     {
         try {
             DWORD binaryType;
@@ -142,8 +142,9 @@ public:
         if (m_Loaded) {
             return waitOpenGL(msec);
         } else {
-            return waitLoader(msec);
-        }
+            m_Loaded = waitLoader(msec);
+            return false;
+         }
     }
 
 
