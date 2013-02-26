@@ -482,32 +482,8 @@ void DGLMainWindow::createToolBars() {
              m_controller.connectServer("127.0.0.1", portStr.str());
 
          } catch (const std::runtime_error& err) {
-
-             //generic, GetLastError() aware error printer
- 
-             if ( DWORD lastError = GetLastError()) {
-
-                 char* errorText;
-                 FormatMessageA(
-                     FORMAT_MESSAGE_FROM_SYSTEM
-                     |FORMAT_MESSAGE_ALLOCATE_BUFFER
-                     |FORMAT_MESSAGE_IGNORE_INSERTS,  
-                     NULL,
-                     GetLastError(),
-                     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                     (LPSTR)&errorText,
-                     0,
-                     NULL);
-
-                 QMessageBox::critical(NULL, "Fatal Error",
-                     QString::fromStdString(err.what()) + ": " +  errorText);
-
-                 LocalFree(errorText);
-
-             } else {
-                 QMessageBox::critical(NULL, "Fatal Error",
-                     QString::fromStdString(err.what()));
-             }
+            QMessageBox::critical(NULL, tr("Fatal Error"),
+                QString::fromStdString(err.what()));
          }
      }
  }

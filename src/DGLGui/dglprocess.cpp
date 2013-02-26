@@ -25,17 +25,17 @@ public:
     DGLProcessImpl(std::string exec, std::string path, std::string args, int port):
         m_PortStr(boost::lexical_cast<std::string>(port)), m_SemLoaderStr("sem_loader_" + m_PortStr),
         m_SemOpenGLStr("sem_" + m_PortStr),
-        m_SemLoader(boost::interprocess::create_only, m_SemLoaderStr.c_str(), 0),
-        m_SemOpenGL(boost::interprocess::create_only, m_SemOpenGLStr.c_str(), 0)
+        m_SemLoader(boost::interprocess::open_or_create, m_SemLoaderStr.c_str(), 0),
+        m_SemOpenGL(boost::interprocess::open_or_create, m_SemOpenGLStr.c_str(), 0)
     {
+        try {
+            DWORD binaryType;
+            if (!GetBinaryTypeA(exec.c_str(), &binaryType)) {
+                throw std::runtime_error("Getting binary file type failed");
+            }
 
-        DWORD binaryType;
-        if (!GetBinaryTypeA(exec.c_str(), &binaryType)) {
-            throw std::runtime_error("Getting binary file type failed");
-        }
-
-        std::string loaderPath;
-        switch (binaryType) {
+            std::string loaderPath;
+            switch (binaryType) {
             case SCS_32BIT_BINARY:
                 loaderPath = "DGLLoader.exe";
                 break;
@@ -44,60 +44,79 @@ public:
                 break;
             default:
                 throw std::runtime_error("Unsupported PE binary format");
-        }
+            }
 
-        std::stringstream portStr;  portStr << port;
+            std::stringstream portStr;  portStr << port;
 
-        //set environment variables - child processes will inherit these
+            //set environment variables - child processes will inherit these
 
-        //debugging port
-        SetEnvironmentVariableA("dgl_port", portStr.str().c_str());
+            //debugging port
+            SetEnvironmentVariableA("dgl_port", portStr.str().c_str());
 
-        //semaphore triggered by loader (when done loading)
-        SetEnvironmentVariableA("dgl_loader_semaphore", m_SemLoaderStr.c_str());
+            //semaphore triggered by loader (when done loading)
+            SetEnvironmentVariableA("dgl_loader_semaphore", m_SemLoaderStr.c_str());
 
-        //semaphore triggered by opengl32.dll (when OpenGL is first used and server is ready)
-        SetEnvironmentVariableA("dgl_semaphore", m_SemOpenGLStr.c_str());
-        
+            //semaphore triggered by opengl32.dll (when OpenGL is first used and server is ready)
+            SetEnvironmentVariableA("dgl_semaphore", m_SemOpenGLStr.c_str());
 
-        //shmem for getting loader error
-        std::string shmemName = "shmem_" + portStr.str();
-        SetEnvironmentVariableA("dgl_loader_shmem", shmemName.c_str());
-        m_ShObj = boost::interprocess::shared_memory_object(boost::interprocess::create_only, shmemName.c_str(), boost::interprocess::read_write);
-        m_ShObj.truncate(sizeof(IPCMessage));
-        m_MappedRegion = boost::interprocess::mapped_region(m_ShObj, boost::interprocess::read_write);
-       
 
-        //prepare some structures for CreateProcess output
-        STARTUPINFOA startupInfo;
-        memset(&startupInfo, 0, sizeof(startupInfo));
-        startupInfo.cb = sizeof(startupInfo);
-        PROCESS_INFORMATION processInformation; 
-        memset(&processInformation, 0, sizeof(processInformation));
+            //shmem for getting loader error
+            std::string shmemName = "shmem_" + portStr.str();
+            SetEnvironmentVariableA("dgl_loader_shmem", shmemName.c_str());
+            m_ShObj = boost::interprocess::shared_memory_object(boost::interprocess::open_or_create, shmemName.c_str(), boost::interprocess::read_write);
+            m_ShObj.truncate(sizeof(IPCMessage));
+            m_MappedRegion = boost::interprocess::mapped_region(m_ShObj, boost::interprocess::read_write);
 
-        //run loader process
 
-        std::string arguments = 
-            "\"" + loaderPath + "\" " +
-            "\"" + exec + "\" " +
-            "\"" + args + "\" ";
+            //prepare some structures for CreateProcess output
+            STARTUPINFOA startupInfo;
+            memset(&startupInfo, 0, sizeof(startupInfo));
+            startupInfo.cb = sizeof(startupInfo);
+            PROCESS_INFORMATION processInformation; 
+            memset(&processInformation, 0, sizeof(processInformation));
 
-        if (CreateProcessA(
-            (LPSTR)loaderPath.c_str(),
-            (LPSTR)arguments.c_str(),
-            NULL, 
-            NULL,
-            FALSE, 
-            0,
-            NULL,
-            path.c_str(),
-            &startupInfo, 
-            &processInformation) == 0 ) {
+            //run loader process
 
-                throw std::runtime_error("Cannot create loader process");
+            std::string arguments = 
+                "\"" + loaderPath + "\" " +
+                "\"" + exec + "\" " +
+                "\"" + args + "\" ";
+
+            if (CreateProcessA(
+                (LPSTR)loaderPath.c_str(),
+                (LPSTR)arguments.c_str(),
+                NULL, 
+                NULL,
+                FALSE, 
+                0,
+                NULL,
+                path.c_str(),
+                &startupInfo, 
+                &processInformation) == 0 ) {
+
+                    throw std::runtime_error("Cannot create loader process");
+            }
+        } catch (const std::runtime_error& err) {
+            if ( DWORD lastError = GetLastError()) {
+                char* errorText;
+                FormatMessageA(
+                    FORMAT_MESSAGE_FROM_SYSTEM
+                    |FORMAT_MESSAGE_ALLOCATE_BUFFER
+                    |FORMAT_MESSAGE_IGNORE_INSERTS,  
+                    NULL,
+                    GetLastError(),
+                    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                    (LPSTR)&errorText,
+                    0,
+                    NULL);
+                std::ostringstream message;
+                message <<  err.what() << ": " << errorText;
+                throw std::runtime_error(message.str());
+            } else {
+                throw err;    
+            }
         }
     };
-
 
     bool waitOpenGL(int msec) {
         return m_SemOpenGL.timed_wait(boost::get_system_time() + boost::posix_time::milliseconds(msec));
