@@ -1,8 +1,7 @@
 
 #include "gtest/gtest.h"
 
-#include <DGLCommon/gl-types.h>
-#include <DGLCommon/gl-formats.h>
+#include <DGLGUI/dglprocess.h>
 
 namespace {
 
@@ -13,7 +12,8 @@ namespace {
         // is empty.
 
         LiveTest() {
-            // You can do set-up work for each test here.
+            DGLProcess process();
+            
         }
 
         virtual ~LiveTest() {

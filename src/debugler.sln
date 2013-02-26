@@ -140,7 +140,6 @@ Global
 		{DA1E89A2-A0A1-44B3-B295-72ED4B8E5CF4}.Release|Win32.ActiveCfg = Release|Win32
 		{DA1E89A2-A0A1-44B3-B295-72ED4B8E5CF4}.Release|Win32.Build.0 = Release|Win32
 		{DA1E89A2-A0A1-44B3-B295-72ED4B8E5CF4}.Release|x64.ActiveCfg = Release|x64
-		{DA1E89A2-A0A1-44B3-B295-72ED4B8E5CF4}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
