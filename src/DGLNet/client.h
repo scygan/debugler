@@ -27,6 +27,7 @@ private:
     boost::shared_ptr<Client> shared_from_this();
 
     IController* m_controller;
+    boost::asio::ip::tcp::resolver m_Resolver;
 };
 
 }//namespace dglnet

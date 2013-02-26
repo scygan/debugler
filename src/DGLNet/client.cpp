@@ -6,12 +6,11 @@
 
 namespace dglnet {
 
-    Client::Client(IController* controller, MessageHandler* handler):Transport(handler),m_controller(controller) {}
+    Client::Client(IController* controller, MessageHandler* handler):Transport(handler),m_controller(controller), m_Resolver(m_io_service) {}
 
     void Client::connectServer(std::string host, std::string port) {
-        boost::asio::ip::tcp::resolver resolver(m_io_service); 
         boost::asio::ip::tcp::resolver::query query(host, port);
-        resolver.async_resolve(query, boost::bind(&Client::onResolve, shared_from_this(),
+        m_Resolver.async_resolve(query, boost::bind(&Client::onResolve, shared_from_this(),
             boost::asio::placeholders::error,
             boost::asio::placeholders::iterator));
         m_controller->onSetStatus("Looking up server...");
