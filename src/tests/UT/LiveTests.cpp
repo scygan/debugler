@@ -6,17 +6,19 @@
 #include <DGLNet/client.h>
 
 #include <windows.h>
+#include <boost/thread/thread.hpp> 
 
 namespace {
 
-    // The fixture for testing class Foo.
     class LiveTest : public ::testing::Test {
     protected:
-        // You can remove any or all of the following functions if its body
-        // is empty.
 
         LiveTest() {
-            SetCurrentDirectory("..");
+            if (once) {
+                SetCurrentDirectory("..");
+                once = false;
+            } 
+            
             DGLProcess* process = DGLProcess::Create(
                 "C:\\Python27\\python.exe", "..", "..\\..\\src\\tests\\samples\\simple.py", 8888);
             while (!process->waitReady(100)) {}
@@ -24,24 +26,15 @@ namespace {
         }
 
         virtual ~LiveTest() {
-            // You can do clean-up work that doesn't throw exceptions here.
         }
 
-        // If the constructor and destructor are not enough for setting up
-        // and cleaning up each test, you can define the following methods:
+        virtual void SetUp() {}
 
-        virtual void SetUp() {
-            // Code here will be called immediately after the constructor (right
-            // before each test).
-        }
+        virtual void TearDown() {}
 
-        virtual void TearDown() {
-            // Code here will be called immediately after each test (right
-            // before the destructor).
-        }
-
-        // Objects declared here can be used by all tests in the test case for Foo.
+        static bool once;
     };
+    bool LiveTest::once = true;
 
 
     namespace stubs {
@@ -86,12 +79,48 @@ namespace {
         while (!(msg = messageHandlerStub.getLastMessage()) && !messageHandlerStub.mDisconnected) {
             client->run_one();
         }
-        if (messageHandlerStub.mDisconnected) printf("Failing test, disconnection reason: %s\n", messageHandlerStub.mDisconnectedReason);
         ASSERT_FALSE(messageHandlerStub.mDisconnected);
         ASSERT_TRUE(msg != NULL);
         dglnet::HelloMessage * hello = dynamic_cast<dglnet::HelloMessage*>(msg);
         ASSERT_TRUE(hello != NULL);
         EXPECT_EQ(hello->m_ProcessName, "python.exe");
+        client->abort();
+        EXPECT_TRUE(client.unique());
+    }
+
+    TEST_F(LiveTest, continue_break) {
+        stubs::Controller controllerStub;
+        stubs::MessageHandler messageHandlerStub;
+        boost::shared_ptr<dglnet::Client> client(new dglnet::Client(&controllerStub, &messageHandlerStub));
+        client->connectServer("127.0.0.1", "8888");
+        dglnet::Message* msg;
+        while (!(msg = messageHandlerStub.getLastMessage()) && !messageHandlerStub.mDisconnected) {
+            client->run_one();
+        }
+        ASSERT_TRUE(msg != NULL);
+        dglnet::HelloMessage * hello = dynamic_cast<dglnet::HelloMessage*>(msg);
+        ASSERT_TRUE(hello != NULL);
+        
+        while (!dynamic_cast<dglnet::BreakedCallMessage*>(msg)) {
+            while (!(msg = messageHandlerStub.getLastMessage()) && !messageHandlerStub.mDisconnected) {
+                client->run_one();
+            }
+        }
+        {
+            dglnet::ContinueBreakMessage continueMsg(false);
+            client->sendMessage(&continueMsg);
+        }
+        boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+        {
+            dglnet::ContinueBreakMessage continueMsg(true);
+            client->sendMessage(&continueMsg);
+        }
+        while (!dynamic_cast<dglnet::BreakedCallMessage*>(msg)) {
+            while (!(msg = messageHandlerStub.getLastMessage()) && !messageHandlerStub.mDisconnected) {
+                client->run_one();
+            }
+        }
+        client->abort();
     }
 
     

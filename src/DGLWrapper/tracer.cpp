@@ -69,7 +69,7 @@ RetValue DefaultTracer::Pre(const CalledEntryPoint& call) {
     getController()->getServer().lock();
 
     //do a fast non-blocking poll to get "interrupt" message, etc.."
-    getController()->getServer().poll();
+    getController()->poll();
 
     //check if any break is pending
     if (getController()->getBreakState().mayBreakAt(call.getEntrypoint())) {
@@ -81,7 +81,7 @@ RetValue DefaultTracer::Pre(const CalledEntryPoint& call) {
     
     while (getController()->getBreakState().isBreaked()) {
         //iterate block & loop until someone unbreaks us
-        getController()->getServer().run_one();
+        getController()->run_one();
     }
 
     //now there should be no breaks

@@ -6,7 +6,7 @@
 
 namespace dglnet {
 
-    Client::Client(IController* controller, MessageHandler* handler):Transport(handler),m_controller(controller), m_Resolver(m_io_service) {}
+    Client::Client(IController* controller, MessageHandler* handler):Transport(handler),m_controller(controller), m_Resolver(*m_io_service) {}
 
     void Client::connectServer(std::string host, std::string port) {
         boost::asio::ip::tcp::resolver::query query(host, port);
@@ -17,14 +17,14 @@ namespace dglnet {
     }
 
     int64_t Client::getSocketFD() {
-        return m_socket.native_handle();
+        return m_socket->native_handle();
     }
 
     void Client::onResolve(const boost::system::error_code& err,
         boost::asio::ip::tcp::resolver::iterator endpoint_iterator) {
         
         if (!err) {
-            m_socket.async_connect(*endpoint_iterator, boost::bind(&Client::onConnect, shared_from_this(),
+            m_socket->async_connect(*endpoint_iterator, boost::bind(&Client::onConnect, shared_from_this(),
                 boost::asio::placeholders::error));
             m_controller->onSetStatus("Connecting...");
             m_controller->onSocket();

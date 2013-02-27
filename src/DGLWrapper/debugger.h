@@ -243,6 +243,11 @@ class DGLDebugController: public dglnet::MessageHandler {
 public:
 
     /**
+     * Ctor
+     */
+    DGLDebugController();
+
+    /**
      * Dtor
      */
     ~DGLDebugController();
@@ -264,6 +269,17 @@ public:
      * Getter for connected server object
      */
     dglnet::Server& getServer();
+
+    /** 
+     * Run one event on associated server;
+     */
+    void run_one();
+    
+    /** 
+     * Poll events on associated server;
+     */
+    void poll();
+
 
     /** 
      * Getter for break state object
@@ -316,6 +332,17 @@ private:
      * Status presenter (baloon presenter)
      */
     boost::shared_ptr<OsStatusPresenter> m_presenter;
+
+    /**
+     * True if served notified disconnection and it's destruction is pending
+     */
+    bool m_Disconnected;
+
+    /**
+     * Application abnormal terminator
+     */
+    void tearDown();
+
 };
 
 /** 

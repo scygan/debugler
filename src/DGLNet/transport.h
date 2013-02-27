@@ -16,8 +16,8 @@ public:
     void run_one();
     void abort();
 protected:
-    boost::asio::io_service m_io_service;
-    boost::asio::ip::tcp::socket m_socket;
+    boost::asio::io_service* m_io_service;
+    boost::asio::ip::tcp::socket* m_socket;
     
     void read();
     void notifyDisconnect(const std::string& why = "");

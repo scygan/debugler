@@ -198,6 +198,8 @@ void CallHistory::setDebugOutput(const std::string& message) {
     m_cb.back().setDebugOutput(message);
 }
 
+DGLDebugController::DGLDebugController():m_Disconnected(false) {}
+
 DGLDebugController::~DGLDebugController() {
     if (m_Server) {
         m_Server->abort();
@@ -206,14 +208,8 @@ DGLDebugController::~DGLDebugController() {
 }
 
 void DGLDebugController::doHandleDisconnect(const std::string&) {
-    //we have got disconnected from the client
-    //it is better to die here, than allow app to run uncontrolled.
-
-    m_presenter->setStatus(Os::getProcessName() + ": terminating");
-
-    //this destroys "this"!
-    _g_Controller.reset();
-    Os::terminate();
+    //we have got disconnected from the client. Mark this in controller state and return, so io_service can be freed later
+    m_Disconnected = true;
 }
 
 dglnet::Server& DGLDebugController::getServer() {
@@ -258,6 +254,31 @@ dglnet::Server& DGLDebugController::getServer() {
     }
     return *m_Server;
 }
+
+void DGLDebugController::run_one() {
+    getServer().run_one();
+    if (m_Disconnected) {
+        tearDown();
+    }
+}
+
+void DGLDebugController::poll() {
+    getServer().poll();
+    if (m_Disconnected) {
+        tearDown();        
+    }
+}
+
+void DGLDebugController::tearDown() {
+    //it is better to die here, than allow app to run uncontrolled.
+
+    m_presenter->setStatus(Os::getProcessName() + ": terminating");
+
+    //this destroys "this"!
+    _g_Controller.reset();
+    Os::terminate();
+}
+
 
 BreakState& DGLDebugController::getBreakState() {
     return m_BreakState;
