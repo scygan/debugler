@@ -64,9 +64,26 @@ namespace {
                 mLastMessage = NULL;
                 return ret;
             }
+
             dglnet::Message* mLastMessage;
             bool mDisconnected; std::string mDisconnectedReason;
         };
+    }
+
+    namespace utils {
+        template<typename T>
+        T* receiveMessage(dglnet::Transport* transport, stubs::MessageHandler& handler) {
+            dglnet::Message* msg = NULL; 
+            do {
+                transport->run_one();
+            } while (!handler.mDisconnected && !(msg = handler.getLastMessage()));
+            EXPECT_EQ(false, handler.mDisconnected);
+            if (!msg || !dynamic_cast<T*>(msg)) {
+                return NULL;
+            }
+            return dynamic_cast<T*>(msg);
+        }
+
     }
 
 
@@ -75,15 +92,9 @@ namespace {
         stubs::MessageHandler messageHandlerStub;
         boost::shared_ptr<dglnet::Client> client(new dglnet::Client(&controllerStub, &messageHandlerStub));
         client->connectServer("127.0.0.1", "8888");
-        dglnet::Message* msg;
-        while (!(msg = messageHandlerStub.getLastMessage()) && !messageHandlerStub.mDisconnected) {
-            client->run_one();
-        }
-        ASSERT_FALSE(messageHandlerStub.mDisconnected);
-        ASSERT_TRUE(msg != NULL);
-        dglnet::HelloMessage * hello = dynamic_cast<dglnet::HelloMessage*>(msg);
+        dglnet::HelloMessage * hello = utils::receiveMessage<dglnet::HelloMessage>(client.get(), messageHandlerStub);
         ASSERT_TRUE(hello != NULL);
-        EXPECT_EQ(hello->m_ProcessName, "python.exe");
+        EXPECT_EQ("python.exe", hello->m_ProcessName);
         client->abort();
         EXPECT_TRUE(client.unique());
     }
@@ -93,33 +104,67 @@ namespace {
        stubs::MessageHandler messageHandlerStub;
        boost::shared_ptr<dglnet::Client> client(new dglnet::Client(&controllerStub, &messageHandlerStub));
        client->connectServer("127.0.0.1", "8888");
-       dglnet::Message* msg;
-       while (!(msg = messageHandlerStub.getLastMessage()) && !messageHandlerStub.mDisconnected) {
-           client->run_one();
-       }
-       ASSERT_TRUE(msg != NULL);
-       dglnet::HelloMessage * hello = dynamic_cast<dglnet::HelloMessage*>(msg);
-       ASSERT_TRUE(hello != NULL);
-       
-       while (!dynamic_cast<dglnet::BreakedCallMessage*>(msg)) {
-           while (!(msg = messageHandlerStub.getLastMessage()) && !messageHandlerStub.mDisconnected) {
-               client->run_one();
+
+       utils::receiveMessage<dglnet::HelloMessage>(client.get(), messageHandlerStub);
+       dglnet::BreakedCallMessage* breaked = utils::receiveMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+       ASSERT_TRUE(breaked != NULL);
+
+       EXPECT_EQ(wglGetCurrentContext_Call, breaked->m_entryp.getEntrypoint());
+       EXPECT_EQ(0, breaked->m_TraceSize);
+       EXPECT_EQ(0, breaked->m_CtxReports.size());
+       EXPECT_EQ(0, breaked->m_CurrentCtx);
+
+       do {
+           {
+               dglnet::ContinueBreakMessage continueMsg(false);
+               client->sendMessage(&continueMsg);
            }
+           boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+           {
+               dglnet::ContinueBreakMessage continueMsg(true);
+               client->sendMessage(&continueMsg);
+           }
+
+           breaked = utils::receiveMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+           ASSERT_TRUE(breaked != NULL);
+       } while (!breaked->m_CurrentCtx);       
+       EXPECT_NE(0, breaked->m_TraceSize);
+       EXPECT_EQ(1, breaked->m_CtxReports.size());
+       EXPECT_NE(0, breaked->m_CurrentCtx);
+       client->abort();
+   }
+
+   TEST_F(LiveTest, breakpoint) {
+       stubs::Controller controllerStub;
+       stubs::MessageHandler messageHandlerStub;
+       boost::shared_ptr<dglnet::Client> client(new dglnet::Client(&controllerStub, &messageHandlerStub));
+       client->connectServer("127.0.0.1", "8888");
+
+       utils::receiveMessage<dglnet::HelloMessage>(client.get(), messageHandlerStub);
+       dglnet::BreakedCallMessage* breaked = utils::receiveMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+       ASSERT_TRUE(breaked != NULL);
+
+       EXPECT_EQ(wglGetCurrentContext_Call, breaked->m_entryp.getEntrypoint());
+       EXPECT_EQ(0, breaked->m_TraceSize);
+       EXPECT_EQ(0, breaked->m_CtxReports.size());
+       EXPECT_EQ(0, breaked->m_CurrentCtx);
+
+       {
+           std::set<Entrypoint> breakpoints;
+           breakpoints.insert(glDrawArrays_Call);
+           dglnet::SetBreakPointsMessage breakPointMessage(breakpoints);
+           client->sendMessage(&breakPointMessage);
        }
        {
            dglnet::ContinueBreakMessage continueMsg(false);
            client->sendMessage(&continueMsg);
        }
-       boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-       {
-           dglnet::ContinueBreakMessage continueMsg(true);
-           client->sendMessage(&continueMsg);
-       }
-       while (!dynamic_cast<dglnet::BreakedCallMessage*>(msg)) {
-           while (!(msg = messageHandlerStub.getLastMessage()) && !messageHandlerStub.mDisconnected) {
-               client->run_one();
-           }
-       }
+
+       breaked = utils::receiveMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+       ASSERT_TRUE(breaked != NULL);
+        
+       EXPECT_EQ(glDrawArrays_Call, breaked->m_entryp.getEntrypoint());
+
        client->abort();
    }
 
