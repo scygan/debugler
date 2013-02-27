@@ -75,6 +75,10 @@ public:
             PROCESS_INFORMATION processInformation; 
             memset(&processInformation, 0, sizeof(processInformation));
 
+
+            char absolutePath[MAX_PATH];
+            _fullpath(absolutePath, path.c_str(), MAX_PATH);
+
             //run loader process
 
             std::string arguments = 
@@ -90,7 +94,7 @@ public:
                 FALSE, 
                 0,
                 NULL,
-                path.c_str(),
+                absolutePath,
                 &startupInfo, 
                 &processInformation) == 0 ) {
 
