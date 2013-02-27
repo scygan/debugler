@@ -328,7 +328,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Debugler"
         "ProductCode" = "8:{1DFAE185-E52E-40C5-90B8-14C3A838F260}"
-        "PackageCode" = "8:{0921924A-22A1-4C20-B094-8F9A66987ABC}"
+        "PackageCode" = "8:{0D810DD2-3951-49E0-8BA3-9633B1D9C863}"
         "UpgradeCode" = "8:{7DA79E05-4B7B-4671-A35D-45688442DE81}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
