@@ -57,7 +57,7 @@ namespace dglnet {
         int32_t m_size;
     };
 
-    Transport::Transport(MessageHandler* handler):m_io_service(new boost::asio::io_service()),m_socket(new boost::asio::ip::tcp::socket(*m_io_service)),m_messageHandler(handler),m_WriteReady(true),m_Abort(false) {}
+    Transport::Transport(MessageHandler* handler):m_socket(m_io_service),m_messageHandler(handler),m_WriteReady(true),m_Abort(false) {}
 
     Transport::~Transport() {
         if (!m_Abort) abort();
@@ -66,26 +66,23 @@ namespace dglnet {
     void Transport::abort() {
         m_Abort = true;
         try {
-            m_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-            m_socket->close();
-            m_io_service->stop();
-            m_io_service->run();
-            delete m_socket;
-            delete m_io_service;
+            m_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+            m_socket.close();
+            while (m_io_service.run_one()) {}
         } catch( ... ) {}
     }
     
     void Transport::poll() {
-        while (m_io_service->poll());
+        while (m_io_service.poll());
     }
 
     void Transport::run_one() {
-        m_io_service->run_one();
+        m_io_service.run_one();
     }
 
     void Transport::read() {
         TransportHeader* header = new TransportHeader();
-        boost::asio::async_read(*m_socket, boost::asio::buffer(header, sizeof(TransportHeader)), boost::bind(&Transport::onReadHeader, shared_from_this(), header,
+        boost::asio::async_read(m_socket, boost::asio::buffer(header, sizeof(TransportHeader)), boost::bind(&Transport::onReadHeader, shared_from_this(), header,
             boost::asio::placeholders::error));
     }
 
@@ -95,7 +92,7 @@ namespace dglnet {
         } else {
             boost::asio::streambuf*  stream = new boost::asio::streambuf;
             stream->prepare(header->getSize());
-            boost::asio::async_read(*m_socket, *stream, boost::asio::transfer_exactly(header->getSize()), boost::bind(&Transport::onReadArchive, shared_from_this(),
+            boost::asio::async_read(m_socket, *stream, boost::asio::transfer_exactly(header->getSize()), boost::bind(&Transport::onReadArchive, shared_from_this(),
                 stream, boost::asio::placeholders::error));
         }
         delete header;
@@ -153,7 +150,7 @@ namespace dglnet {
 
         std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> > sentData;
         std::swap(m_WriteQueue, sentData);
-        boost::asio::async_write(*m_socket, buffers, boost::bind(&Transport::onWrite, shared_from_this(),
+        boost::asio::async_write(m_socket, buffers, boost::bind(&Transport::onWrite, shared_from_this(),
                 sentData, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
     }
 

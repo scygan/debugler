@@ -88,40 +88,40 @@ namespace {
         EXPECT_TRUE(client.unique());
     }
 
-    TEST_F(LiveTest, continue_break) {
-        stubs::Controller controllerStub;
-        stubs::MessageHandler messageHandlerStub;
-        boost::shared_ptr<dglnet::Client> client(new dglnet::Client(&controllerStub, &messageHandlerStub));
-        client->connectServer("127.0.0.1", "8888");
-        dglnet::Message* msg;
-        while (!(msg = messageHandlerStub.getLastMessage()) && !messageHandlerStub.mDisconnected) {
-            client->run_one();
-        }
-        ASSERT_TRUE(msg != NULL);
-        dglnet::HelloMessage * hello = dynamic_cast<dglnet::HelloMessage*>(msg);
-        ASSERT_TRUE(hello != NULL);
-        
-        while (!dynamic_cast<dglnet::BreakedCallMessage*>(msg)) {
-            while (!(msg = messageHandlerStub.getLastMessage()) && !messageHandlerStub.mDisconnected) {
-                client->run_one();
-            }
-        }
-        {
-            dglnet::ContinueBreakMessage continueMsg(false);
-            client->sendMessage(&continueMsg);
-        }
-        boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-        {
-            dglnet::ContinueBreakMessage continueMsg(true);
-            client->sendMessage(&continueMsg);
-        }
-        while (!dynamic_cast<dglnet::BreakedCallMessage*>(msg)) {
-            while (!(msg = messageHandlerStub.getLastMessage()) && !messageHandlerStub.mDisconnected) {
-                client->run_one();
-            }
-        }
-        client->abort();
-    }
+   TEST_F(LiveTest, continue_break) {
+       stubs::Controller controllerStub;
+       stubs::MessageHandler messageHandlerStub;
+       boost::shared_ptr<dglnet::Client> client(new dglnet::Client(&controllerStub, &messageHandlerStub));
+       client->connectServer("127.0.0.1", "8888");
+       dglnet::Message* msg;
+       while (!(msg = messageHandlerStub.getLastMessage()) && !messageHandlerStub.mDisconnected) {
+           client->run_one();
+       }
+       ASSERT_TRUE(msg != NULL);
+       dglnet::HelloMessage * hello = dynamic_cast<dglnet::HelloMessage*>(msg);
+       ASSERT_TRUE(hello != NULL);
+       
+       while (!dynamic_cast<dglnet::BreakedCallMessage*>(msg)) {
+           while (!(msg = messageHandlerStub.getLastMessage()) && !messageHandlerStub.mDisconnected) {
+               client->run_one();
+           }
+       }
+       {
+           dglnet::ContinueBreakMessage continueMsg(false);
+           client->sendMessage(&continueMsg);
+       }
+       boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+       {
+           dglnet::ContinueBreakMessage continueMsg(true);
+           client->sendMessage(&continueMsg);
+       }
+       while (!dynamic_cast<dglnet::BreakedCallMessage*>(msg)) {
+           while (!(msg = messageHandlerStub.getLastMessage()) && !messageHandlerStub.mDisconnected) {
+               client->run_one();
+           }
+       }
+       client->abort();
+   }
 
     
 
