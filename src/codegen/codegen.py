@@ -145,11 +145,11 @@ wglNoTraceFile = open(inputDir + "/wgl-notrace.h", "r").readlines()
 eglFile = open(inputDir + "/egl.h", "r").readlines()
 eglextFile = open(inputDir + "/eglext.h", "r").readlines()
 
-parse(wglFile)
+parse(wglFile, True)
 parse(wglextFile)
 parse(glFile, True)
 parse(glextFile)
-parse(wglNoTraceFile, False, True)
+parse(wglNoTraceFile, True, True)
 parse(eglFile, True)
 parse(eglextFile)
 
