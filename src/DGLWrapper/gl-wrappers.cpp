@@ -9,7 +9,7 @@ extern "C" {
 };
 
 
-#define FUNCTION_LIST_ELEMENT(name, type) &name,
+#define FUNCTION_LIST_ELEMENT(name, type, library) &name,
 void * wrapperPtrs[] = {
     #include "../../dump/codegen/functionList.inl"
     NULL

@@ -6,7 +6,7 @@
 #include "DGLWrapper.h"
 #include <boost/make_shared.hpp>
 
-#ifndef _WIN64
+#ifdef USE_DETOURS
 #include "detours/detours.h"
 #endif
 
@@ -28,7 +28,7 @@ extern "C" __declspec(dllexport) void InitializeThread() {
  void Initialize(void) {
     
     //load system GL libraries (& initialize entrypoint tables)
-    LoadOpenGLLibrary();
+    LoadOpenGLLibrary("opengl32.dll", LIBRARY_WGL | LIBRARY_GL);
 
     //set default tracer for all entrypoints (std debugging routines)
     SetAllTracers<DefaultTracer>();
@@ -112,7 +112,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
             if (once) return TRUE;
             once = true;
             
-#ifndef _WIN64
+#ifdef USE_DETOURS
             if (DetourIsHelperProcess()) {
                 return TRUE;
             }

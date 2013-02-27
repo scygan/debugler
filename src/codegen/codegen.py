@@ -17,7 +17,7 @@ defFile = open(outputDir + "OpenGL32.def", "w")
 enumFile = open(outputDir + "enum.inl", "w")
 
 
-functionList = []
+functions = dict()
 
 def isPointer(type):
 	pointers = [ "*", "PROC", "LPCSTR", "HGLRC", "HDC", "LPPIXELFORMATDESCRIPTOR", "LPLAYERPLANEDESCRIPTOR", "LPGLYPHMETRICSFLOAT", "GLsync" ]
@@ -25,7 +25,7 @@ def isPointer(type):
 		return True
 	return False
 	
-def parse(file, genNonExtTypedefs = False, skipTrace = False):
+def parse(file, library, genNonExtTypedefs = False, skipTrace = False):
 	for line in file:
 		enumMatch = re.match("^#define GL([a-zA-Z0-9_]*) (.*)0x(.*)$", line)
 		if enumMatch and not "_LINE_BIT" in enumMatch.group(1):
@@ -85,23 +85,29 @@ def parse(file, genNonExtTypedefs = False, skipTrace = False):
 				if functionAttrNames != "":
 					functionAttrNames = functionAttrNames + ", "
 				functionAttrNames += attr
-			
 
-			functionList.append(functionName)
+			if functionName in functions:
+				functions[functionName] += " | " + library
+				continue #no further processing of function
+			else:
+			    functions[functionName] = library
 
+				
 			functionPFNType = "PFN" + functionName.upper() + "PROC"
 			
 			print >> wrappersFile, "extern \"C\" DGLWRAPPER_API " + functionRetType + " APIENTRY " + functionName + "(" + functionAttrDecls + ") {"
 			print >> wrappersFile, "    assert(POINTER(" + functionName + "));"
-			print >> wrappersFile, "	CalledEntryPoint call( " + functionName + "_Call, " + str(len(functionAttrNamesList)) + ");"
+			
+			if not skipTrace:
+				print >> wrappersFile, "	CalledEntryPoint call( " + functionName + "_Call, " + str(len(functionAttrNamesList)) + ");"
 
-			i = 0
-			while i < len(functionAttrNamesList):
-				if "GLenum" in functionAttrDeclList[i] and not "*" in functionAttrDeclList[i]:
-					print >> wrappersFile, "	call << GLenumWrap(" + functionAttrNamesList[i] + ");"
-				else:
-					print >> wrappersFile, "	call << " + functionAttrNamesList[i] + ";"
-				i+=1
+				i = 0
+				while i < len(functionAttrNamesList):
+					if "GLenum" in functionAttrDeclList[i] and not "*" in functionAttrDeclList[i]:
+						print >> wrappersFile, "	call << GLenumWrap(" + functionAttrNamesList[i] + ");"
+					else:
+						print >> wrappersFile, "	call << " + functionAttrNamesList[i] + ";"
+					i+=1
 			
 			print >> wrappersFile, "    RetValue retVal;"
 			
@@ -145,17 +151,17 @@ wglNoTraceFile = open(inputDir + "/wgl-notrace.h", "r").readlines()
 eglFile = open(inputDir + "/egl.h", "r").readlines()
 eglextFile = open(inputDir + "/eglext.h", "r").readlines()
 
-parse(wglFile, True)
-parse(wglextFile)
-parse(glFile, True)
-parse(glextFile)
-parse(wglNoTraceFile, True, True)
-parse(eglFile, True)
-parse(eglextFile)
+parse(wglFile, "LIBRARY_WGL", True)
+parse(wglextFile, "0")
+parse(glFile, "LIBRARY_GL", True)
+parse(glextFile, "0")
+parse(wglNoTraceFile, "LIBRARY_WGL", True, True)
+parse(eglFile, "LIBRARY_EGL", True)
+parse(eglextFile, "0")
 
 
 
-for functionName in sorted(functionList):
-	functionPFNType = "PFN" + functionName.upper() + "PROC"						
-	print >> functionListFile, "FUNCTION_LIST_ELEMENT(" + functionName + ", " + functionPFNType + ")"
+for function, library in sorted(functions.items()):
+	functionPFNType = "PFN" + function.upper() + "PROC"						
+	print >> functionListFile, "FUNCTION_LIST_ELEMENT(" + function + ", " + functionPFNType + ", " + library + ")"
 

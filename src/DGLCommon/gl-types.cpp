@@ -5,7 +5,7 @@
 #include<sstream>
 
 namespace {
-#define FUNCTION_LIST_ELEMENT(name, type) #name,
+#define FUNCTION_LIST_ELEMENT(name, type, library) #name,
     const char* g_EntrypointNames[] = {
 #include "codegen/functionList.inl"
         "<unknown>"

@@ -5,7 +5,7 @@
 #include<string>
 
 
-#define FUNCTION_LIST_ELEMENT(name, type) name##_Call,
+#define FUNCTION_LIST_ELEMENT(name, type, library) name##_Call,
 enum Entrypoints {
     #include "codegen/functionList.inl"
     Entrypoints_NUM
