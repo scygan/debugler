@@ -3,6 +3,7 @@
 
 #include <DGLCommon/gl-types.h>
 #include <DGLCommon/gl-formats.h>
+#include <DGLCommon/os.h>
 
 namespace {
 
@@ -88,6 +89,13 @@ namespace {
         DGLPixelTransfer rgba8(rgbaSizes, dsSizes, 0);
         EXPECT_EQ(rgba8.getFormat(), GL_RGB);
         EXPECT_EQ(rgba8.getType(), GL_FLOAT);
+    }
+
+
+    TEST_F(DGLCommonUT, os_env) {
+        EXPECT_EQ("", Os::getEnv("test_name"));
+        Os::setEnv("test_name", "test_value");
+        EXPECT_EQ("test_value", Os::getEnv("test_name"));
     }
 
 

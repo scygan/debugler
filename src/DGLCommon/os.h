@@ -20,6 +20,8 @@ public:
 
     static std::string getEnv(const char* variable);
 
+    static void setEnv(const char* variable, const char* value);
+
     static void terminate();
 
     static OsStatusPresenter* createStatusPresenter();

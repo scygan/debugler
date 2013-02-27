@@ -51,18 +51,18 @@ public:
             //set environment variables - child processes will inherit these
 
             //debugging port
-            SetEnvironmentVariableA("dgl_port", portStr.str().c_str());
+            Os::setEnv("dgl_port", portStr.str().c_str());
 
             //semaphore triggered by loader (when done loading)
-            SetEnvironmentVariableA("dgl_loader_semaphore", m_SemLoaderStr.c_str());
+            Os::setEnv("dgl_loader_semaphore", m_SemLoaderStr.c_str());
 
             //semaphore triggered by opengl32.dll (when OpenGL is first used and server is ready)
-            SetEnvironmentVariableA("dgl_semaphore", m_SemOpenGLStr.c_str());
+            Os::setEnv("dgl_semaphore", m_SemOpenGLStr.c_str());
 
 
             //shmem for getting loader error
             std::string shmemName = "shmem_" + portStr.str();
-            SetEnvironmentVariableA("dgl_loader_shmem", shmemName.c_str());
+            Os::setEnv("dgl_loader_shmem", shmemName.c_str());
             m_ShObj = boost::interprocess::shared_memory_object(boost::interprocess::open_or_create, shmemName.c_str(), boost::interprocess::read_write);
             m_ShObj.truncate(sizeof(IPCMessage));
             m_MappedRegion = boost::interprocess::mapped_region(m_ShObj, boost::interprocess::read_write);

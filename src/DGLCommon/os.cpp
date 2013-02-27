@@ -74,10 +74,14 @@ std::string Os::getProcessName() {
 
 std::string Os::getEnv(const char* variable) {
     char ret[100];
-    if (GetEnvironmentVariableA(variable, ret, sizeof(ret)) != 0) {
+    if (GetEnvironmentVariable(variable, ret, sizeof(ret)) != 0) {
         return ret;
     }
     return "";
+}
+
+void Os::setEnv(const char* variable, const char* value) {
+    SetEnvironmentVariable(variable, value);
 }
 
 
