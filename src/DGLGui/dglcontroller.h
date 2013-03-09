@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTimer>
 #include <QSocketNotifier>
+#include <QtGui>
 
 #include "DGLNet/client.h"
 #include "DGLCommon/dglconfiguration.h"
