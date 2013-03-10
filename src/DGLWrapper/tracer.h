@@ -22,6 +22,9 @@ private:
     bool m_isSet;
 };
 
+class TracerBase;
+extern boost::shared_ptr<TracerBase> g_Tracers[NUM_ENTRYPOINTS];
+
 class TracerBase {
 public:
     virtual ~TracerBase() {}
@@ -116,9 +119,6 @@ class ImmediateModeTracer: public TracerBase {
 class FBOTracer: public TracerBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
-
-
-extern boost::shared_ptr<TracerBase> g_Tracers[NUM_ENTRYPOINTS];
 
 template<typename Tracer>
 void SetAllTracers() {

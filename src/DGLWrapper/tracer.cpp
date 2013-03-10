@@ -153,6 +153,7 @@ RetValue GetProcAddressTracer::Pre(const CalledEntryPoint& call) {
 }
 
 void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
+#ifdef _WIN32
     HGLRC ctx;
     HDC device;
     BOOL retBool;
@@ -180,6 +181,9 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             }
             break;
     }
+#else
+#pragma message "ContextTracer::Post not implemented"
+#endif
     PrevPost(call, ret);
 }
 
@@ -190,6 +194,7 @@ RetValue DebugContextTracer::Pre(const CalledEntryPoint& call) {
 
     if (ret.isSet()) return ret;
 
+#ifdef _WIN32
     HDC hdc;
     HGLRC sharedCtx = NULL;
     const int *attribList = NULL;
@@ -249,6 +254,9 @@ RetValue DebugContextTracer::Pre(const CalledEntryPoint& call) {
         DIRECT_CALL_CHK(wglDeleteContext)(tmpCtx);
         anyContextPresent = true;
     }
+#else
+#pragma warning "DebugContextTracer::Pre not implemented"
+#endif
     return ret;
 }
 

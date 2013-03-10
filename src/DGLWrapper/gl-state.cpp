@@ -2,6 +2,8 @@
 
 #include <boost/make_shared.hpp>
 #include <string>
+#include <cstring>
+#include <stdexcept>
 
 #include "pointers.h"
 #include "api-loader.h"
@@ -343,7 +345,7 @@ std::pair<bool, GLenum> GLContext::getPokedError() {
 
 GLenum GLContext::peekError() {
 
-    if (m_InImmediateMode) return NO_ERROR; //we cannot get erros after glBegin()
+    if (m_InImmediateMode) return GL_NO_ERROR; //we cannot get erros after glBegin()
 
     GLenum ret = DIRECT_CALL_CHK(glGetError)();
     if (ret != GL_NO_ERROR && m_PokedErrorQueue.size() < 1000) {
@@ -1703,6 +1705,7 @@ void GLContext::firstUse() {
 }
 
 NativeSurface::NativeSurface(uint32_t id):m_Id(id) {
+#ifdef _WIN32
     HDC hdc = reinterpret_cast<HDC>(id);
     int i = DIRECT_CALL_CHK(wglGetPixelFormat)(hdc);
     PIXELFORMATDESCRIPTOR  pfd;
@@ -1720,6 +1723,9 @@ NativeSurface::NativeSurface(uint32_t id):m_Id(id) {
     GetClientRect(WindowFromDC(hdc), &rc);
     m_Width = rc.right - rc.left;
     m_Height = rc.bottom - rc.top;
+#else
+#pragma messages NativeSurface::NativeSurface not implemented
+#endif
 }
 
 

@@ -84,6 +84,16 @@ void Os::setEnv(const char* variable, const char* value) {
     SetEnvironmentVariable(variable, value);
 }
 
+void Os::fatal(const std::string message) {
+#ifdef _WIN32        
+        MessageBox(0, "Fatal error", msg.c_str(), MB_OK | MB_ICONSTOP);
+
+#else
+        fprintf(stderr, "Error: %s\n", msg.c_str());
+#endif
+        exit(EXIT_FAILURE);
+    }
+}
 
 void Os::terminate() {
     TerminateProcess(GetCurrentProcess(), 0);

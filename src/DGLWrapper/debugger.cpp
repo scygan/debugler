@@ -30,7 +30,7 @@ DGLGLState::ContextListIter DGLGLState::ensureContext(uint32_t id, bool lock) {
     ContextListIter i = m_ContextList.find(id);
     if (i == m_ContextList.end()) {
         i = m_ContextList.insert(
-                std::pair<uint32_t, boost::shared_ptr<dglState::GLContext>> (
+                std::pair<uint32_t, boost::shared_ptr<dglState::GLContext> > (
                     id, boost::make_shared<dglState::GLContext>(id)
                     )
             ).first;
@@ -48,7 +48,7 @@ DGLGLState::SurfaceListIter DGLGLState::ensureSurface(uint32_t id, bool lock) {
     SurfaceListIter i = m_SurfaceList.find(id);
     if (i == m_SurfaceList.end()) {
         i = m_SurfaceList.insert(
-            std::pair<uint32_t, boost::shared_ptr<dglState::NativeSurface>> (
+            std::pair<uint32_t, boost::shared_ptr<dglState::NativeSurface> > (
             id, boost::make_shared<dglState::NativeSurface>(id)
             )
             ).first;
@@ -175,7 +175,7 @@ void CallHistory::query(const dglnet::QueryCallTraceMessage& query, dglnet::Call
         return; //queried non existent elements
 
     //trim query to sane range:
-    size_t endOffset = min(query.m_EndOffset,m_cb.size());
+    size_t endOffset = std::min((size_t)query.m_EndOffset,m_cb.size());
 
     boost::circular_buffer<CalledEntryPoint>::iterator begin, end;
     end = m_cb.end() - startOffset;

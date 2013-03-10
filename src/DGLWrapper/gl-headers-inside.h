@@ -2,6 +2,8 @@
 #define GL_HEADERS_INSIDE_H
 
 #include "DGLWrapper.h"
+
+#ifdef _WIN32
 #undef NOGDI
 //include GL from the GL implementation "perspective" - all GL funcs are locally implemented
 #define NOGDI
@@ -9,9 +11,12 @@
 #include <Windows.h>
 #undef WINGDIAPI
 #define WINGDIAPI DGLWRAPPER_API
+#endif
 
 #include "DGLCommon/gl-headers.h"
 
+#ifdef _WIN32
+#pragma message Remove me?
 /* Pixel format descriptor */
 typedef struct tagPIXELFORMATDESCRIPTOR
 {
@@ -89,5 +94,7 @@ typedef struct _GLYPHMETRICSFLOAT {
     FLOAT       gmfCellIncX;
     FLOAT       gmfCellIncY;
 } GLYPHMETRICSFLOAT, *PGLYPHMETRICSFLOAT, FAR *LPGLYPHMETRICSFLOAT;
+
+#endif
 
 #endif
