@@ -5,13 +5,18 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <string>
+#include <vector>
+#include <sstream>
 #include <cstdio>
 #include <stdint.h>
+
 
 #include "CompleteInject/CompleteInject.h"
 
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/sync/named_semaphore.hpp>
+
+#include <boost/program_options.hpp>
 
 #include "DGLCommon/os.h"
 
@@ -70,21 +75,57 @@ std::string getWrapperPath() {
     return tmp.substr(0, splitPoint) + "\\" + ret;
 }
 
+namespace po = boost::program_options;
+using namespace std;
+
 int main(int argc, char** argv) {
 
     IPCMessage default(EXIT_SUCCESS);
     IPCMessage* ipcMessage = &default;    
 
     try {
-        if (argc < 2) {
-            throw std::runtime_error("Loader called with wrong arguments. Usage: DGLLoader.exe executable wrapper [arguments]");
+
+        po::options_description desc("Allowed options");
+        desc.add_options()
+            ("help,h", "produce help message")
+            ("egl", "use egl mode");
+
+        po::options_description mandatory("Mandatory options");
+        mandatory.add_options()
+            ("execute", po::value< vector<string> >()->composing(), "command to execute");        
+
+        po::positional_options_description p;
+        p.add("execute", -1);
+
+        po::options_description all; 
+        all.add(desc).add(mandatory);
+
+        po::variables_map vm;
+        po::store(po::command_line_parser(argc, argv).
+            options(all).positional(p).run(), vm);
+        po::notify(vm);
+
+        if (vm.count("help")) {
+            std::ostringstream out;
+            out << desc << "\n" << mandatory << "\n";
+            throw std::runtime_error(out.str());
         }
 
-        char* executable = argv[1];
+        if (vm.count("egl")) {
+
+        }
+
+        if (!vm.count("execute")) {
+            std::ostringstream out;
+            out << "Nothing to execute.\n" << desc << "\n" << mandatory << "\n";
+            throw std::runtime_error(out.str());
+        }
+
+        const char* executable = vm["execute"].as< vector<string> >()[0].c_str();
         std::string arguments = executable; 
-        for (int i = 2; i < argc; i++) {
+        for (size_t i = 1; i < vm["execute"].as< vector<string> >().size(); i++) {
             arguments += " ";
-            arguments += argv[i];
+            arguments += vm["execute"].as< vector<string> >()[i];
         }
 
         char path[MAX_PATH];
@@ -148,8 +189,7 @@ int main(int argc, char** argv) {
         if (ResumeThread(processInformation.hThread) == -1) {
             throw std::runtime_error("Cannot resume process");
         }
-
-    } catch (const std::runtime_error& e) {
+    } catch (const std::exception& e) {
 
         ipcMessage->status = EXIT_FAILURE;
 
