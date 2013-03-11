@@ -458,7 +458,6 @@ void DGLMainWindow::createToolBars() {
 
 
              //randomize connection port
-             srand(GetTickCount());
              int port = rand() % (0xffff - 1024) + 1024;
 
              boost::shared_ptr<DGLProcess> process(DGLProcess::Create(

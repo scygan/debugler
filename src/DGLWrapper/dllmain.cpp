@@ -12,23 +12,18 @@
 
 #include <DGLCommon/os.h>
 
-/**
- * DGLwrapper routine called just after DLLinjection
- */
-extern "C" __declspec(dllexport) void InitializeThread() {
-
-    //this is called from remotely - created thread started right after dll injection
-
-    // empty.
-}
-     
+    
 /**
  * DGLwrapper routine called on library load
  */
  void Initialize(void) {
     
     //load system GL libraries (& initialize entrypoint tables)
+#ifdef _WIN32
     LoadOpenGLLibrary("opengl32.dll", LIBRARY_WGL | LIBRARY_GL);
+#else
+    LoadOpenGLLibrary("libGL.so.1", LIBRARY_GL);
+#endif
 
     //set default tracer for all entrypoints (std debugging routines)
     SetAllTracers<DefaultTracer>();
@@ -91,12 +86,33 @@ extern "C" __declspec(dllexport) void InitializeThread() {
 }
 
 /**
+ * DGLwrapper routine called just after DLLinjection
+ */
+extern "C" APIENTRY void InitializeThread() {
+
+    //this is called from remotely created thread started right after dll injection
+
+    // empty.
+}
+
+/**
  * DGLwrapper routine called on library unload
  */
 void TearDown() {
     _g_Controller.reset();
 }
 
+
+
+#ifndef _WIN32
+void __attribute__ ((constructor)) DGLWrapperLoad(void) {
+    Initialize();
+}
+
+void __attribute__ ((destructor)) DGLWrapperUnload(void) {
+    TearDown();
+}
+#else
 
 bool once = false;
 
@@ -129,4 +145,4 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     }
     return TRUE;
 }
-
+#endif

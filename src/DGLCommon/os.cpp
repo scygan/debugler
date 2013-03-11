@@ -84,6 +84,10 @@ void Os::setEnv(const char* variable, const char* value) {
     SetEnvironmentVariable(variable, value);
 }
 
+void Os::fatal(const std::string& message) {
+    fprintf(stderr, "Error: %s\n", msg.c_str());
+    exit(EXIT_FAILURE);
+}
 
 void Os::terminate() {
     TerminateProcess(GetCurrentProcess(), 0);
@@ -111,6 +115,8 @@ void* Os::m_CurrentHandle = NULL;
 
 #else
 
+#include <cstdio>
+#include <cstdlib>
 #include <stdexcept> //remove me
 
 class OsIconImpl: public OsIcon {
@@ -127,5 +133,11 @@ public:
 OsIcon*  Os::createIcon() {
     return new OsIconImpl();
 }
+
+void Os::fatal(const std::string& message) {
+    fprintf(stderr, "Error: %s\n", message.c_str());
+    exit(EXIT_FAILURE);
+}
+
 
 #endif

@@ -3,7 +3,7 @@
 
 #include <QDockWidget>
 #include <QTreeWidget>
-
+#include <QtGui>
 
 #include "DGLCommon//gl-types.h"
 

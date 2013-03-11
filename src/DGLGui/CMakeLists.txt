@@ -6,7 +6,8 @@ set(dglgui_SOURCES
     dglgpuview.cpp dglmainwindow.cpp dglpixelrectangle.cpp
     dglprogramview.cpp dglrundialog.cpp dglshaderview.cpp
     dglstateview.cpp dgltabbedview.cpp dgltextureview.cpp
-    dgltraceview.cpp dgltreeview.cpp dglresourcefs.cpp main.cpp
+    dgltraceview.cpp dgltreeview.cpp dglresourcefs.cpp 
+    dglprocess.cpp main.cpp
     )
 
 set(dglgui_HEADERS
@@ -16,7 +17,7 @@ set(dglgui_HEADERS
     dglpixelrectangle.h dglprogramview.h dglrundialog.h
     dglshaderview.h dglshaderviewitem.h dglstateview.h
     dgltabbedview.h dgltextureview.h dgltraceview.h
-    dgltreeview.h
+    dgltreeview.h dglprocess.h
     )
 
 set(dglgui_FORMS
@@ -47,6 +48,7 @@ include(${QT_USE_FILE})
 include_directories(
     ../external/source-highlight-3.1.7/lib
     ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
     )
 add_definitions(${QT_DEFINITIONS})
 

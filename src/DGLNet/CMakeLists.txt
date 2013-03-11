@@ -6,4 +6,5 @@ set(dglnet_SOURCES
 add_library(dglnet
     ${dglnet_SOURCES}
 )
+set_property(TARGET dglnet PROPERTY COMPILE_FLAGS "-fPIC")
 

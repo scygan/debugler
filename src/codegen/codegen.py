@@ -94,7 +94,7 @@ def parse(file, library, genNonExtTypedefs = False, skipTrace = False):
 
 				
 			functionPFNType = "PFN" + functionName.upper() + "PROC"
-			
+			print >> wrappersFile, "#ifdef HAVE_" + library
 			print >> wrappersFile, "extern \"C\" DGLWRAPPER_API " + functionRetType + " APIENTRY " + functionName + "(" + functionAttrDecls + ") {"
 			print >> wrappersFile, "    assert(POINTER(" + functionName + "));"
 			
@@ -133,10 +133,15 @@ def parse(file, library, genNonExtTypedefs = False, skipTrace = False):
 				print >> wrappersFile, "    " + functionRetType + " tmp;  retVal.get(tmp); return tmp;"
 
 			print >> wrappersFile, "}"
+			print >> wrappersFile, "#endif"
 
 			if genNonExtTypedefs:
+				print >> nonExtTypedefs, "#ifdef HAVE_" + library
 				print >> nonExtTypedefs, "typedef " + functionRetType + " (APIENTRYP " + functionPFNType + ")(" + functionAttrList + ");"
-			
+				print >> nonExtTypedefs, "#else"
+				print >> nonExtTypedefs, "typedef void * " +  functionPFNType + ";"
+				print >> nonExtTypedefs, "#endif"
+		
 			print >> defFile, "  " + functionName
 
 print >> defFile, "LIBRARY opengl32.dll"
@@ -152,12 +157,12 @@ eglFile = open(inputDir + "/egl.h", "r").readlines()
 eglextFile = open(inputDir + "/eglext.h", "r").readlines()
 
 parse(wglFile, "LIBRARY_WGL", True)
-parse(wglextFile, "0")
+parse(wglextFile, "LIBRARY_WGL_EXT")
 parse(glFile, "LIBRARY_GL", True)
-parse(glextFile, "0")
+parse(glextFile, "LIBRARY_GL_EXT")
 parse(wglNoTraceFile, "LIBRARY_WGL", True, True)
 parse(eglFile, "LIBRARY_EGL", True)
-parse(eglextFile, "0")
+parse(eglextFile, "LIBRARY_EGL_EXT")
 
 
 

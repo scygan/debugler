@@ -8,9 +8,9 @@
 
 #include <DGLCommon/os.h>
 
-#include <windows.h>
-
 #ifdef _WIN32
+
+#include <windows.h>
 
 class DGLProcessImpl: public DGLProcess {
 
@@ -164,6 +164,7 @@ public:
 #else
 
 class DGLProcessImpl: public DGLProcess {
+    public:
     DGLProcessImpl(std::string cmd, std::string path, std::string args, int port) {}
 
     virtual bool waitReady(int msec) {
