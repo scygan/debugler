@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
         }
 
         if (vm.count("egl")) {
-
+            Os::setEnv("dgl_mode", "egl");
         }
 
         if (!vm.count("execute")) {

@@ -18,12 +18,25 @@
  */
  void Initialize(void) {
     
+    std::string dgl_mode = Os::getEnv("dgl_mode");
+
     //load system GL libraries (& initialize entrypoint tables)
+    if (dgl_mode == "egl" ) {
 #ifdef _WIN32
-    LoadOpenGLLibrary("opengl32.dll", LIBRARY_WGL | LIBRARY_GL);
+        LoadOpenGLLibrary("libEGL.dll", LIBRARY_EGL);
 #else
-    LoadOpenGLLibrary("libGL.so.1", LIBRARY_GL);
+        LoadOpenGLLibrary("libEGL.so.1", LIBRARY_EGL);
 #endif
+    } else {
+        
+#ifdef _WIN32
+        LoadOpenGLLibrary("opengl32.dll", LIBRARY_WGL | LIBRARY_GL);
+#else
+        LoadOpenGLLibrary("libGL.so.1", LIBRARY_GL);
+#endif
+    }
+
+   
 
     //set default tracer for all entrypoints (std debugging routines)
     SetAllTracers<DefaultTracer>();
