@@ -42,3 +42,4 @@ add_library(dglcommon
     ${dglcommon_SOURCES}
     ${codegen_GENERATED}
 )
+set_property(TARGET dglcommon PROPERTY COMPILE_FLAGS "-fPIC")

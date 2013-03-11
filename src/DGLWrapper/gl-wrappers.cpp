@@ -5,7 +5,7 @@
 #include "gl-wrappers.h"
 
 extern "C" {
-#include "../../dump/codegen/wrappers.inl"
+#include "codegen/wrappers.inl"
 };
 
 
@@ -13,7 +13,7 @@ extern "C" {
 #define FUNCTION_LIST_ELEMENT_SUPPORTED(name, type) (void*)&name,
 #define FUNCTION_LIST_ELEMENT_UNSUPPORTED(name, type) NULL,
 void * wrapperPtrs[] = {
-    #include "../../dump/codegen/functionList.inl"
+    #include "codegen/functionList.inl"
     NULL
 };
 #undef FUNCTION_LIST_ELEMENT

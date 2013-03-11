@@ -28,7 +28,7 @@
 //use DIRECT_CALL(name) to call one of these pointers
 LoadedPointer g_DirectPointers[Entrypoints_NUM] = {
 #define FUNCTION_LIST_ELEMENT(name, type, library) { NULL, library},
-    #include "../../dump/codegen/functionList.inl"
+    #include "codegen/functionList.inl"
 #undef FUNCTION_LIST_ELEMENT
 };
 

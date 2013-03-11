@@ -22,7 +22,7 @@ public:
 
     static void setEnv(const char* variable, const char* value);
 
-    static void fatal(const std::string message);
+    static void fatal(const std::string& message);
 
     static void terminate();
 

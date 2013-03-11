@@ -1,7 +1,7 @@
 #include <DGLCommon/gl-headers.h>
 #include <DGLCommon/gl-types.h>
 
-#include "../../dump/codegen/nonExtTypedefs.inl"
+#include "codegen/nonExtTypedefs.inl"
 
 //these crazy macros are sometimes used to split FUNCTION_LIST_ELEMENT(..., library) into UNCTION_LIST_ELEMENT_SUPPORTED and UNCTION_LIST_ELEMENT_UNSUPPORTED
 #ifdef HAVE_LIBRARY_GL
@@ -43,7 +43,7 @@
 #define FUNCTION_LIST_ELEMENT(name, type, library) FUNCTION_LIST_ELEMENT_##library(name, type)
 #define FUNCTION_LIST_ELEMENT_SUPPORTED(name, type) typedef type POINTER_TYPE(name);
 #define FUNCTION_LIST_ELEMENT_UNSUPPORTED(name, type) typedef void* POINTER_TYPE(name);
-#include "../../dump/codegen/functionList.inl"
+#include "codegen/functionList.inl"
 #undef FUNCTION_LIST_ELEMENT
 #undef FUNCTION_LIST_ELEMENT_SUPPORTED
 #undef FUNCTION_LIST_ELEMENT_UNSUPPORTED

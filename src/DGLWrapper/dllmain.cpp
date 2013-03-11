@@ -19,7 +19,11 @@
  void Initialize(void) {
     
     //load system GL libraries (& initialize entrypoint tables)
+#ifdef _WIN32
     LoadOpenGLLibrary("opengl32.dll", LIBRARY_WGL | LIBRARY_GL);
+#else
+    LoadOpenGLLibrary("libGL.so.1", LIBRARY_GL);
+#endif
 
     //set default tracer for all entrypoints (std debugging routines)
     SetAllTracers<DefaultTracer>();
