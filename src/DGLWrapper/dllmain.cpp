@@ -88,7 +88,7 @@
 /**
  * DGLwrapper routine called just after DLLinjection
  */
-extern "C" APIENTRY void InitializeThread() {
+extern "C" DGLWRAPPER_API void InitializeThread() {
 
     //this is called from remotely created thread started right after dll injection
 
@@ -101,7 +101,6 @@ extern "C" APIENTRY void InitializeThread() {
 void TearDown() {
     _g_Controller.reset();
 }
-
 
 
 #ifndef _WIN32

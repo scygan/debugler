@@ -4,6 +4,8 @@
 #include"debugger.h"
 #include <boost/interprocess/sync/named_semaphore.hpp>
 
+#undef min
+
 boost::shared_ptr<DGLDebugController> _g_Controller;
 
 DGLDebugController* getController() {
@@ -175,7 +177,7 @@ void CallHistory::query(const dglnet::QueryCallTraceMessage& query, dglnet::Call
         return; //queried non existent elements
 
     //trim query to sane range:
-    size_t endOffset = std::min((size_t)query.m_EndOffset,m_cb.size());
+    size_t endOffset = std::min(static_cast<size_t>(query.m_EndOffset),m_cb.size());
 
     boost::circular_buffer<CalledEntryPoint>::iterator begin, end;
     end = m_cb.end() - startOffset;

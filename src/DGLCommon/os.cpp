@@ -85,7 +85,7 @@ void Os::setEnv(const char* variable, const char* value) {
 }
 
 void Os::fatal(const std::string& message) {
-    fprintf(stderr, "Error: %s\n", msg.c_str());
+    fprintf(stderr, "Error: %s\n", message.c_str());
     exit(EXIT_FAILURE);
 }
 

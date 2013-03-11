@@ -56,6 +56,8 @@ void* LoadOpenGLExtPointer(Entrypoint entryp) {
 void LoadOpenGLLibrary(const char* libraryName, int libraryFlags) {
 
     std::vector<std::string> libSearchPath;
+    
+    void* openGLLibraryHandle = NULL;
 
 #ifdef _WIN32
     char buffer[1000];
@@ -80,7 +82,6 @@ void LoadOpenGLLibrary(const char* libraryName, int libraryFlags) {
     libSearchPath.push_back("");
 #endif
 
-    void* openGLLibraryHandle = NULL;
     for (size_t i = 0; i < libSearchPath.size() && !openGLLibraryHandle; i++) {
 #ifdef _WIN32
         openGLLibraryHandle = (void*)LoadLibrary((libSearchPath[i] + libraryName).c_str());
