@@ -20,7 +20,7 @@ namespace {
             } 
             
             DGLProcess* process = DGLProcess::Create(
-                "C:\\Python27\\python.exe", "..", "..\\..\\src\\tests\\samples\\simple.py", 8888);
+                "C:\\Python27\\python.exe", "..", "..\\..\\src\\tests\\samples\\simple.py", 8888, false);
             while (!process->waitReady(100)) {}
             delete process;
         }

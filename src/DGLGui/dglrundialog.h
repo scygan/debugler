@@ -14,6 +14,7 @@ public:
     std::string getExecutable();
     std::string getCommandLineArgs();
     std::string getPath();
+    bool getModeEGL();
 
 private slots:
     void updatePath();

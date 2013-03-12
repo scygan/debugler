@@ -22,7 +22,7 @@ class DGLProcessImpl: public DGLProcess {
 
 public:
 
-    DGLProcessImpl(std::string exec, std::string path, std::string args, int port):
+    DGLProcessImpl(std::string exec, std::string path, std::string args, int port, bool modeEGL):
         m_PortStr(boost::lexical_cast<std::string>(port)), m_SemLoaderStr("sem_loader_" + m_PortStr),
         m_SemOpenGLStr("sem_" + m_PortStr),
         m_SemLoader(boost::interprocess::open_or_create, m_SemLoaderStr.c_str(), 0),
@@ -81,8 +81,14 @@ public:
 
             //run loader process
 
+            std::string switches;
+            if (modeEGL) {
+                switches += "--egl ";
+            }
+
             std::string arguments = 
                 "\"" + loaderPath + "\" " +
+                switches + 
                 "\"" + exec + "\" " +
                 "\"" + args + "\" ";
 
@@ -165,7 +171,7 @@ public:
 
 class DGLProcessImpl: public DGLProcess {
     public:
-    DGLProcessImpl(std::string cmd, std::string path, std::string args, int port) {}
+    DGLProcessImpl(std::string cmd, std::string path, std::string args, int port, bool modeEGL) {}
 
     virtual bool waitReady(int msec) {
         return true;
@@ -176,6 +182,6 @@ class DGLProcessImpl: public DGLProcess {
 
 
 
-DGLProcess* DGLProcess::Create(std::string exec, std::string path, std::string args, int port) {
-    return new DGLProcessImpl(exec, path, args, port);
+DGLProcess* DGLProcess::Create(std::string exec, std::string path, std::string args, int port, bool modeEGL) {
+    return new DGLProcessImpl(exec, path, args, port, modeEGL);
 }

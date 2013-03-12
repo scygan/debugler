@@ -463,7 +463,8 @@ void DGLMainWindow::createToolBars() {
              boost::shared_ptr<DGLProcess> process(DGLProcess::Create(
                  m_RunDialog.getExecutable(),
                  m_RunDialog.getPath(),
-                 m_RunDialog.getCommandLineArgs(), port));         
+                 m_RunDialog.getCommandLineArgs(), port, 
+                 m_RunDialog.getModeEGL()));         
 
              bool timeout; 
              while ((timeout = !process->waitReady(10))) {

@@ -7,6 +7,10 @@
 
 DGLRunDialog::DGLRunDialog() {
     m_ui.setupUi(this);
+
+#ifndef _WIN32
+    m_ui.radioButton_ModeWGLGLX->setText("GLX");
+#endif
     
     CONNASSERT(connect(m_ui.lineEdit_Executable, SIGNAL(editingFinished()),this,SLOT(updatePath())));
     CONNASSERT(connect(m_ui.toolButton_Exec, SIGNAL(clicked()),this,SLOT(browseExecutable())));
@@ -26,6 +30,10 @@ std::string DGLRunDialog::getCommandLineArgs() {
 
 std::string DGLRunDialog::getPath() {
     return m_ui.lineEdit_Path->text().toStdString();
+}
+
+bool DGLRunDialog::getModeEGL() {
+    return m_ui.radioButton_ModeEGL->isChecked() && !m_ui.radioButton_ModeWGLGLX->isChecked();
 }
 
 void DGLRunDialog::updatePath() {
