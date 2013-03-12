@@ -16,7 +16,6 @@
 #include "DGLCommon/gl-headers.h"
 
 #ifdef _WIN32
-#pragma message("Remove me?")
 /* Pixel format descriptor */
 typedef struct tagPIXELFORMATDESCRIPTOR
 {

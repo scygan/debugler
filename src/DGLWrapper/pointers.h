@@ -3,7 +3,7 @@
 
 #include "codegen/nonExtTypedefs.inl"
 
-//these crazy macros are sometimes used to split FUNCTION_LIST_ELEMENT(..., library) into UNCTION_LIST_ELEMENT_SUPPORTED and UNCTION_LIST_ELEMENT_UNSUPPORTED
+//these crazy macros are sometimes used to split FUNCTION_LIST_ELEMENT(..., library) into FUNCTION_LIST_ELEMENT_SUPPORTED and FUNCTION_LIST_ELEMENT_UNSUPPORTED
 #ifdef HAVE_LIBRARY_GL
 #define FUNCTION_LIST_ELEMENT_LIBRARY_GL(name, type) FUNCTION_LIST_ELEMENT_SUPPORTED(name, type)
 #else
