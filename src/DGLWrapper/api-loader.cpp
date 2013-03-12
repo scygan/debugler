@@ -77,6 +77,7 @@ void LoadOpenGLLibrary(const char* libraryName, int libraryFlags) {
     libSearchPath.push_back("C:\\Windows\\SysWOW64\\");
 #endif
     libSearchPath.push_back("C:\\Windows\\System32\\");
+    libSearchPath.push_back(".");
 #else 
     //on non-windows we rely on system to find libraries
     libSearchPath.push_back("");

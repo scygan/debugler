@@ -61,9 +61,9 @@ struct IPCMessage {
 std::string getWrapperPath() {
 
 #ifdef _WIN64
-    std::string ret = "DGLWrapper64\\OpenGL32.dll";
+    std::string ret = "DGLWrapper64\\DGLWrapper.dll";
 #else
-    std::string ret = "DGLWrapper\\OpenGL32.dll";
+    std::string ret = "DGLWrapper\\DGLWrapper.dll";
 #endif
         
     char fileName[MAX_PATH];
