@@ -4,6 +4,7 @@ enum LibraryFlags {
     LIBRARY_WGL = 1,
     LIBRARY_EGL = 2,
     LIBRARY_GL  = 4,
+    LIBRARY_ES2 = 8,
 
     LIBRARY_GL_EXT = 0,
     LIBRARY_EGL_EXT = 0,

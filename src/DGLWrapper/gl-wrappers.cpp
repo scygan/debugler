@@ -9,16 +9,14 @@ extern "C" {
 };
 
 
-#define FUNCTION_LIST_ELEMENT(name, type, library) FUNCTION_LIST_ELEMENT_##library(name, type)
-#define FUNCTION_LIST_ELEMENT_SUPPORTED(name, type) (void*)&name,
-#define FUNCTION_LIST_ELEMENT_UNSUPPORTED(name, type) NULL,
+#define FUNC_LIST_ELEM_SUPPORTED(name, type, library) (void*)&name,
+#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library) NULL,
 void * wrapperPtrs[] = {
     #include "codegen/functionList.inl"
     NULL
 };
-#undef FUNCTION_LIST_ELEMENT
-#undef FUNCTION_LIST_ELEMENT_SUPPORTED
-#undef FUNCTION_LIST_ELEMENT_UNSUPPORTED
+#undef FUNC_LIST_ELEM_SUPPORTED
+#undef FUNC_LIST_ELEM_NOT_SUPPORTED
 
 
 void* getWrapperPointer(Entrypoint entryp) {

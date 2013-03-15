@@ -66,33 +66,62 @@ dglState::GLContext* DGLGLState::getCurrent() {
 }
 
 void DGLGLState::bindContext(uint32_t ctxId, uint32_t NativeSurfaceId) {
-    dglState::GLContext* current = getCurrent();
 
-    if (current && ctxId == current->getId())
-        return;
-    
-    if (ctxId) {
-        m_Current.reset(&(*(ensureContext(ctxId)->second)));
-        
-        dglState::NativeSurface* NativeSurface = getCurrent()->getNativeSurface();
-        if (!NativeSurface || NativeSurface->getId() != NativeSurfaceId) {
-            getCurrent()->setNativeSurface(&(*(ensureSurface(NativeSurfaceId)->second)));
+    dglState::GLContext* currentCtx = getCurrent();
+    dglState::GLContext* newCtx = NULL;
+
+    if (currentCtx && currentCtx->getId() == ctxId) {
+        newCtx = currentCtx;
+    } else if (ctxId) {
+        newCtx = &(*(ensureContext(ctxId)->second));
+    }
+
+    if (currentCtx != newCtx) {
+        if (newCtx) {
+            m_Current.reset(newCtx);
+            newCtx->bound();
+        } else {
+            m_Current.release();
         }
 
-        getCurrent()->bound();
-
-    } else {
-        m_Current.release();
+        if (currentCtx) {
+            if (currentCtx->unboundMayDelete()) {
+                deleteContext(currentCtx->getId());
+            }
+        }
     }
+    
+    if (getCurrent()) {
+        if (getCurrent()->getNativeReadSurface() == NULL && NativeSurfaceId != 0) {
+
+            getCurrent()->setNativeReadSurface(&(*(ensureSurface(NativeSurfaceId)->second)));
+
+        } else if (getCurrent()->getNativeReadSurface() != NULL && NativeSurfaceId == 0) {
+
+            getCurrent()->setNativeReadSurface(NULL);
+
+        } else if (getCurrent()->getNativeReadSurface() != NULL && getCurrent()->getNativeReadSurface()->getId() != NativeSurfaceId) {
+
+            getCurrent()->setNativeReadSurface(&(*(ensureSurface(NativeSurfaceId)->second)));
+
+        }
+    }    
 }
 
 void DGLGLState::deleteContext(uint32_t id) {
-    boost::lock_guard<boost::mutex> quard(m_ContextListMutex);
+    boost::lock_guard<boost::mutex> guard(m_ContextListMutex);
     if (getCurrent() && getCurrent()->getId() == id) {
         bindContext(0, 0);
     }
     m_ContextList.erase(id);
  }
+
+void DGLGLState::lazyDeleteContext(uint32_t id) {
+    dglState::GLContext* ctx = &(*(ensureContext(id)->second));
+    if (ctx->markForDeletionMayDelete()) {
+        deleteContext(id);
+    }
+}
 
 std::vector<dglnet::ContextReport> DGLGLState::describe() {
     boost::lock_guard<boost::mutex> quard(m_ContextListMutex);

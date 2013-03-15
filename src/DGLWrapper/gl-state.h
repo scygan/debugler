@@ -143,8 +143,8 @@ public:
 
     dglnet::ContextReport describe();
 
-    NativeSurface* getNativeSurface();
-    void setNativeSurface(NativeSurface*);
+    NativeSurface* getNativeReadSurface();
+    void setNativeReadSurface(NativeSurface*);
 
     GLTextureObj* ensureTexture(GLuint name);
     void deleteTexture(GLuint name);
@@ -190,6 +190,18 @@ public:
      */
     void bound();
 
+    /**
+     * Called to tell ctx when it is lazy deleted.
+     * returns true, if no longer used
+     */
+    bool markForDeletionMayDelete();
+
+    /**
+     * Called to tell ctx when if is unbound from current thread.
+     * returns true, if context was marked for deletion and no longer used
+     */
+    bool unboundMayDelete();
+
 
 private:
     void queryCheckError();
@@ -205,7 +217,7 @@ private:
     /**
      * Handle to native surface (drawable)
      */
-    NativeSurface* m_NativeSurface;
+    NativeSurface* m_NativeReadSurface;
 
     /**
      * Queue for errors poked from glGetError(), not yet delivered to application
@@ -267,6 +279,16 @@ private:
      * True if ctx was ever bound, false otherwise
      */
     bool m_EverBound;
+
+    /** 
+     * Number of threads this context is bound to
+     */
+    int m_RefCount;
+
+    /** 
+     * True if deletion is pending
+     */
+    bool m_ToBeDeleted;
 };
 
 } //namespace

@@ -5,12 +5,14 @@
 #include<sstream>
 
 namespace {
-#define FUNCTION_LIST_ELEMENT(name, type, library) #name,
+#define FUNC_LIST_ELEM_SUPPORTED(name, type, library) #name,
+#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library) FUNC_LIST_ELEM_SUPPORTED(name, type, library)
     const char* g_EntrypointNames[] = {
 #include "codegen/functionList.inl"
         "<unknown>"
     };
-#undef FUNCTION_LIST_ELEMENT
+#undef FUNC_LIST_ELEM_SUPPORTED
+#undef FUNC_LIST_ELEM_NOT_SUPPORTED
 
 #define ENUM_LIST_ELEMENT(value) {#value, value},
     struct GLEnum {

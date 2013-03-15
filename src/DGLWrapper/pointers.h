@@ -3,50 +3,15 @@
 
 #include "codegen/nonExtTypedefs.inl"
 
-//these crazy macros are sometimes used to split FUNCTION_LIST_ELEMENT(..., library) into FUNCTION_LIST_ELEMENT_SUPPORTED and FUNCTION_LIST_ELEMENT_UNSUPPORTED
-#ifdef HAVE_LIBRARY_GL
-#define FUNCTION_LIST_ELEMENT_LIBRARY_GL(name, type) FUNCTION_LIST_ELEMENT_SUPPORTED(name, type)
-#else
-#define FUNCTION_LIST_ELEMENT_LIBRARY_GL(name, type) FUNCTION_LIST_ELEMENT_UNSUPPORTED(name, type)
-#endif
-#ifdef HAVE_LIBRARY_GL_EXT
-#define FUNCTION_LIST_ELEMENT_LIBRARY_GL_EXT(name, type) FUNCTION_LIST_ELEMENT_SUPPORTED(name, type)
-#else
-#define FUNCTION_LIST_ELEMENT_LIBRARY_GL_EXT(name, type) FUNCTION_LIST_ELEMENT_UNSUPPORTED(name, type)
-#endif
-#ifdef HAVE_LIBRARY_EGL
-#define FUNCTION_LIST_ELEMENT_LIBRARY_EGL(name, type) FUNCTION_LIST_ELEMENT_SUPPORTED(name, type)
-#else
-#define FUNCTION_LIST_ELEMENT_LIBRARY_EGL(name, type) FUNCTION_LIST_ELEMENT_UNSUPPORTED(name, type)
-#endif
-#ifdef HAVE_LIBRARY_EGL_EXT
-#define FUNCTION_LIST_ELEMENT_LIBRARY_EGL_EXT(name, type) FUNCTION_LIST_ELEMENT_SUPPORTED(name, type)
-#else
-#define FUNCTION_LIST_ELEMENT_LIBRARY_EGL_EXT(name, type) FUNCTION_LIST_ELEMENT_UNSUPPORTED(name, type)
-#endif
-#ifdef HAVE_LIBRARY_WGL
-#define FUNCTION_LIST_ELEMENT_LIBRARY_WGL(name, type) FUNCTION_LIST_ELEMENT_SUPPORTED(name, type)
-#else
-#define FUNCTION_LIST_ELEMENT_LIBRARY_WGL(name, type) FUNCTION_LIST_ELEMENT_UNSUPPORTED(name, type)
-#endif
-#ifdef HAVE_LIBRARY_WGL_EXT
-#define FUNCTION_LIST_ELEMENT_LIBRARY_WGL_EXT(name, type) FUNCTION_LIST_ELEMENT_SUPPORTED(name, type)
-#else
-#define FUNCTION_LIST_ELEMENT_LIBRARY_WGL_EXT(name, type) FUNCTION_LIST_ELEMENT_UNSUPPORTED(name, type)
-#endif
-
-
 //POINTER_TYPE(X) returns type of function pointer for entrypoint X. The actual definitions are generated from codegen output
 //For entrypoints unsupported on given platform bare void* is returned. 
 #define POINTER_TYPE(X) X##_Type
 
-#define FUNCTION_LIST_ELEMENT(name, type, library) FUNCTION_LIST_ELEMENT_##library(name, type)
-#define FUNCTION_LIST_ELEMENT_SUPPORTED(name, type) typedef type POINTER_TYPE(name);
-#define FUNCTION_LIST_ELEMENT_UNSUPPORTED(name, type) typedef void* POINTER_TYPE(name);
+#define FUNC_LIST_ELEM_SUPPORTED(name, type, library) typedef type POINTER_TYPE(name);
+#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library) typedef void* POINTER_TYPE(name);
 #include "codegen/functionList.inl"
-#undef FUNCTION_LIST_ELEMENT
-#undef FUNCTION_LIST_ELEMENT_SUPPORTED
-#undef FUNCTION_LIST_ELEMENT_UNSUPPORTED
+#undef FUNC_LIST_ELEM_SUPPORTED
+#undef FUNC_LIST_ELEM_NOT_SUPPORTED
 
 //DIRECT_CALL(X) can be used to directly call entrypoint X, like DIRECT_CALL(glEnable)(GL_BLEND).
 #define DIRECT_CALL(X) (*(POINTER_TYPE(X))POINTER(X))

@@ -238,7 +238,7 @@ GLenum GLFBObj::getTarget() {
     return m_Target;
 }
 
-GLContext::GLContext(uint32_t id):m_Id(id), m_NativeSurface(NULL), m_HasNVXMemoryInfo(false), m_HasDebugOutput(false), m_InImmediateMode(false),m_EverBound(false)  {}
+GLContext::GLContext(uint32_t id):m_Id(id), m_NativeReadSurface(NULL), m_HasNVXMemoryInfo(false), m_HasDebugOutput(false), m_InImmediateMode(false),m_EverBound(false), m_RefCount(0), m_ToBeDeleted(false)  {}
 
 dglnet::ContextReport GLContext::describe() {
     dglnet::ContextReport ret(m_Id);
@@ -262,14 +262,14 @@ dglnet::ContextReport GLContext::describe() {
         i != m_FBOs.end(); i++) {
             ret.m_FBOSpace.insert(ContextObjectName(m_Id, i->second.getName()));
     }
-    if (m_NativeSurface) {
-        if (m_NativeSurface->isStereo()) {
-            if (m_NativeSurface->isDoubleBuffered()) {
+    if (m_NativeReadSurface) {
+        if (m_NativeReadSurface->isStereo()) {
+            if (m_NativeReadSurface->isDoubleBuffered()) {
                 ret.m_FramebufferSpace.insert(ContextObjectName(m_Id, GL_BACK_RIGHT));
             }
             ret.m_FramebufferSpace.insert(ContextObjectName(m_Id, GL_FRONT_RIGHT));
         }
-        if (m_NativeSurface->isDoubleBuffered()) {
+        if (m_NativeReadSurface->isDoubleBuffered()) {
             ret.m_FramebufferSpace.insert(ContextObjectName(m_Id, GL_BACK));
         }
         ret.m_FramebufferSpace.insert(ContextObjectName(m_Id, GL_FRONT));
@@ -277,12 +277,12 @@ dglnet::ContextReport GLContext::describe() {
     return ret;
 }
 
-NativeSurface* GLContext::getNativeSurface() {
-    return m_NativeSurface;
+NativeSurface* GLContext::getNativeReadSurface() {
+    return m_NativeReadSurface;
 }
 
-void GLContext::setNativeSurface(NativeSurface* surface) {
-    m_NativeSurface = surface;
+void GLContext::setNativeReadSurface(NativeSurface* surface) {
+    m_NativeReadSurface = surface;
 }
 
 GLTextureObj* GLContext::ensureTexture(GLuint name) {
@@ -412,6 +412,18 @@ void GLContext::bound() {
         m_EverBound = true;
         firstUse();
     }
+    m_RefCount++;
+}
+
+ bool GLContext::markForDeletionMayDelete() {
+     m_ToBeDeleted = true;
+     return m_RefCount <= 0;
+ }
+
+bool GLContext::unboundMayDelete() {
+    m_RefCount--;
+    assert(m_RefCount >= 0);
+    return m_ToBeDeleted && m_RefCount <= 0;
 }
 
 boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
@@ -619,7 +631,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
     DGLResourceFramebuffer* resource;
     boost::shared_ptr<DGLResource> ret (resource = new DGLResourceFramebuffer);
 
-    if (!m_NativeSurface) {
+    if (!m_NativeReadSurface) {
         throw std::runtime_error("Buffer does not exist");
     }
     state_setters::ReadBuffer readBuffer;
@@ -631,14 +643,14 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
     DIRECT_CALL_CHK(glReadBuffer)(bufferEnum);
 
 
-    std::vector<GLint> rgbaSizes(m_NativeSurface->getRGBASizes(), m_NativeSurface->getRGBASizes() + 4);
+    std::vector<GLint> rgbaSizes(m_NativeReadSurface->getRGBASizes(), m_NativeReadSurface->getRGBASizes() + 4);
     std::vector<GLint> deptStencilSizes;
 
-    deptStencilSizes.push_back(m_NativeSurface->getDepthSize());
-    deptStencilSizes.push_back(m_NativeSurface->getStencilSize());
+    deptStencilSizes.push_back(m_NativeReadSurface->getDepthSize());
+    deptStencilSizes.push_back(m_NativeReadSurface->getStencilSize());
 
-    int width = m_NativeSurface->getWidth();
-    int height = m_NativeSurface->getHeight();
+    int width = m_NativeReadSurface->getWidth();
+    int height = m_NativeReadSurface->getHeight();
 
     //we cannot reliably get internalformat for default framebuffer, so it is 0 here.
     DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, 0);

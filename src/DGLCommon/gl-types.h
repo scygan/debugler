@@ -5,13 +5,15 @@
 #include<string>
 
 
-#define FUNCTION_LIST_ELEMENT(name, type, library) name##_Call,
+#define FUNC_LIST_ELEM_SUPPORTED(name, type, library) name##_Call,
+#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library) FUNC_LIST_ELEM_SUPPORTED(name, type, library)
 enum Entrypoints {
     #include "codegen/functionList.inl"
     Entrypoints_NUM
 
 };
-#undef FUNCTION_LIST_ELEMENT
+#undef FUNC_LIST_ELEM_SUPPORTED
+#undef FUNC_LIST_ELEM_NOT_SUPPORTED
 
 #define NUM_ENTRYPOINTS Entrypoints_NUM
 #define NO_ENTRYPOINT Entrypoints_NUM

@@ -27,9 +27,11 @@
 //here direct pointers are kept (pointers to entrypoints exposed by underlying OpenGL32 implementation
 //use DIRECT_CALL(name) to call one of these pointers
 LoadedPointer g_DirectPointers[Entrypoints_NUM] = {
-#define FUNCTION_LIST_ELEMENT(name, type, library) { NULL, library},
+#define FUNC_LIST_ELEM_SUPPORTED(name, type, library) { NULL, library},
+#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library) FUNC_LIST_ELEM_SUPPORTED(name, type, library)
     #include "codegen/functionList.inl"
-#undef FUNCTION_LIST_ELEMENT
+#undef FUNC_LIST_ELEM_SUPPORTED
+#undef FUNC_LIST_ELEM_NOT_SUPPORTED
 };
 
 void * LoadOpenGLPointer(void * openGLLibraryHandle, const char* name) {

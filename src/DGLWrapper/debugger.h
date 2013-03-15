@@ -58,9 +58,14 @@ public:
     void bindContext(uint32_t id, uint32_t hdc);
 
     /**
-     * Method deleting ctx object by given id (should be called when deleted by application (may be still used)
+     * Method deleting ctx object by given id (should be called when deleted by application)
      */
     void deleteContext(uint32_t id);
+
+    /**
+     * Method deleting ctx object by given id (should be called when deleted by application). Does not immediately delete when bound
+     */
+    void lazyDeleteContext(uint32_t id);
 
     /**
      * Getter for shourt context state report

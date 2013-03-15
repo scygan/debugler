@@ -157,12 +157,21 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     HGLRC ctx;
     HDC device;
     BOOL retBool;
-   
+    EGLBoolean eglBool;
+    EGLSurface eglReadSurface;
+    EGLContext eglCtx;
+
     switch (call.getEntrypoint()) {
         case wglCreateContext_Call:
             ret.get(ctx);
             if (NULL != ctx) {
                 g_DGLGLState.ensureContext(reinterpret_cast<int32_t>(ctx));
+            }
+            break;
+        case eglCreateContext_Call:
+            ret.get(eglCtx);
+            if (NULL != eglCtx) {
+                g_DGLGLState.ensureContext(reinterpret_cast<int32_t>(eglCtx));
             }
             break;
         case wglMakeCurrent_Call:
@@ -173,6 +182,14 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 g_DGLGLState.bindContext(reinterpret_cast<uint32_t>(ctx), reinterpret_cast<uint32_t>(device));
             }
             break;
+        case eglMakeCurrent_Call:
+            ret.get(eglBool);
+            if (eglBool) {
+                call.getArgs()[2].get(eglReadSurface);
+                call.getArgs()[3].get(eglCtx);
+                g_DGLGLState.bindContext(reinterpret_cast<uint32_t>(eglCtx), reinterpret_cast<uint32_t>(eglReadSurface));
+            }
+            break;
         case wglDeleteContext_Call:
             ret.get(retBool);
             if (retBool) {
@@ -180,6 +197,18 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 g_DGLGLState.deleteContext(reinterpret_cast<int32_t>(ctx));
             }
             break;
+        case eglDestroyContext_Call:
+            ret.get(eglBool);
+            if (eglBool) {
+                call.getArgs()[1].get(eglCtx);
+                g_DGLGLState.lazyDeleteContext(reinterpret_cast<int32_t>(eglCtx));
+            }
+            break;
+        case eglReleaseThread_Call:
+            ret.get(eglBool);
+            if (eglBool) {
+                g_DGLGLState.bindContext(0, 0);
+            }
     }
 #else
 #pragma message "ContextTracer::Post not implemented"
