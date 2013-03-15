@@ -5,6 +5,7 @@
 #include "tracer.h"
 #include "DGLWrapper.h"
 #include <boost/make_shared.hpp>
+#include <boost/interprocess/sync/named_semaphore.hpp>
 
 #ifdef USE_DETOURS
 #include "detours/detours.h"
@@ -98,14 +99,57 @@
     TracerBase::SetNext<ImmediateModeTracer>(glEnd_Call);
 }
 
+
+class ThreadWatcher {
+public:
+    ThreadWatcher():m_ThreadCount(0) {}
+
+    void addThread() {
+        boost::lock_guard<boost::mutex> lock(m_ThreadCountLock);
+        m_ThreadCount++;
+    }
+
+    void deleteThread() {
+        boost::lock_guard<boost::mutex> lock(m_ThreadCountLock);
+        m_ThreadCount--;
+        if (m_ThreadCount < 1) {
+            m_LoaderThreadLock.unlock();
+        }
+    }
+
+    void lockLoaderThread() {
+        m_LoaderThreadLock.lock();
+        m_LoaderThreadLock.lock();
+    }
+private: 
+    boost::mutex m_LoaderThreadLock, m_ThreadCountLock;
+    int m_ThreadCount;
+} g_ThreadWatcher;
+
 /**
  * DGLwrapper routine called just after DLLinjection
  */
-extern "C" DGLWRAPPER_API void InitializeThread() {
+extern "C" DGLWRAPPER_API void LoaderThread() {
 
     //this is called from remotely created thread started right after dll injection
 
-    // empty.
+    //Workaround for ARM Mali OpenGL ES wrapper on Windows: 
+    //do not exit remote loader thread before app tear down
+    //  Normally we would just return from this (empty) function causing loader
+    //  thread to exit (leaving app in suspended state - no user threads). 
+    //  This would also cause DLL_THREAD_DETACH on all recently loaded DLLs. Unfortunately
+    //  this causes CreateWindowEx() to fail later in eglInitialize(), propably because
+    //  RegisterClass was called in this thread (sic!) from DLLMain.
+    //Fix: lock this thread until application finishes
+
+    //tell the loader we are done, so it can resume application
+    std::string remoteThreadSemaphoreStr = Os::getEnv("dgl_remote_thread_semaphore");
+    boost::interprocess::named_semaphore remoteThreadSemaphore(boost::interprocess::open_only, remoteThreadSemaphoreStr.c_str());
+    remoteThreadSemaphore.post();
+
+    
+    //wait for application exit (all threads but this exit);
+    g_ThreadWatcher.lockLoaderThread();
 }
 
 /**
@@ -126,8 +170,6 @@ void __attribute__ ((destructor)) DGLWrapperUnload(void) {
 }
 #else
 
-bool once = false;
-
 /**
  * Main entrypoint of DGLwrapper library
  */
@@ -137,9 +179,6 @@ BOOL APIENTRY DllMain( HMODULE hModule,
                      ) {
     switch (ul_reason_for_call) {
         case DLL_PROCESS_ATTACH:
-            if (once) return TRUE;
-            once = true;
-            
 #ifdef USE_DETOURS
             if (DetourIsHelperProcess()) {
                 return TRUE;
@@ -149,7 +188,10 @@ BOOL APIENTRY DllMain( HMODULE hModule,
             Initialize();
             break;
         case DLL_THREAD_ATTACH:
+            g_ThreadWatcher.addThread();
+            break;
         case DLL_THREAD_DETACH:
+            g_ThreadWatcher.deleteThread();
             break;
         case DLL_PROCESS_DETACH:
             TearDown();

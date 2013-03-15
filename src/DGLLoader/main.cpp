@@ -15,7 +15,9 @@
 
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/sync/named_semaphore.hpp>
-
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp> 
 #include <boost/program_options.hpp>
 
 #include "DGLCommon/os.h"
@@ -137,6 +139,13 @@ int main(int argc, char** argv) {
 
         printf("Executable: %s\nPath: %s\nArguments: %s\nWrapper: %s\n\n\n", executable, path, arguments.c_str(), wrapperPath.c_str());
 
+        //Workaround fo ARM Mali OpenGL ES wrapper on Windows: see LoaderThread() for description
+        //as we do not return from LoaderThread() immediately, we need a semaphore to know when to resume application
+        std::ostringstream remoteThreadSemaphoreStr;
+        remoteThreadSemaphoreStr << boost::uuids::random_generator()();
+        Os::setEnv("dgl_remote_thread_semaphore", remoteThreadSemaphoreStr.str().c_str());
+        boost::interprocess::named_semaphore remoteThreadSemaphore(boost::interprocess::open_or_create, remoteThreadSemaphoreStr.str().c_str(), 0);
+
         //prepare some structures for CreateProcess output
         STARTUPINFOA startupInfo;
         memset(&startupInfo, 0, sizeof(startupInfo));
@@ -171,17 +180,15 @@ int main(int argc, char** argv) {
         }
 #endif
 
-
         //process is running, but is suspended (user thread not started, some DLLMain-s may be run by now)
 
         //inject thread with wrapper library loading code, run through DLLMain and InitializeThread() function
 
-        HANDLE thread = Inject(processInformation.hProcess, wrapperPath.c_str(), "InitializeThread");
+        HANDLE thread = Inject(processInformation.hProcess, wrapperPath.c_str(), "LoaderThread");
 
-        //wait for remote thread to end - wait for library to load and InitializeThread() to return
+        //wait for loader thread to finish dll inject
 
-        WaitForSingleObject(thread, INFINITE); 
-
+        remoteThreadSemaphore.wait();
 
         //resume process - now user thread is running
         //whole OpenGL should be wrapped by now
@@ -189,6 +196,7 @@ int main(int argc, char** argv) {
         if (ResumeThread(processInformation.hThread) == -1) {
             throw std::runtime_error("Cannot resume process");
         }
+
     } catch (const std::exception& e) {
 
         ipcMessage->status = EXIT_FAILURE;
@@ -218,9 +226,7 @@ int main(int argc, char** argv) {
         }
     }
 
-
     printf(ipcMessage->message);
-
 
     std::string shmemName = Os::getEnv("dgl_loader_shmem");
     if (shmemName.length()) {
@@ -232,13 +238,8 @@ int main(int argc, char** argv) {
 
     std::string semaphore = Os::getEnv("dgl_loader_semaphore");
     if (semaphore.length()) {
-
-        //this is a rather dirty WA for local debugging
-        //we fire given semaphore, when we are ready for connection (now!)
-
         boost::interprocess::named_semaphore sem(boost::interprocess::open_only, semaphore.c_str());
         sem.post();
-
     }
 
     return ipcMessage->status;
