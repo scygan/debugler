@@ -85,6 +85,12 @@ std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
 #else
             return "libGL.so.1";
 #endif
+        case LIBRARY_ES2:
+#ifdef _WIN32
+            return "libGLESv2.dll";
+#else
+            return "libGLESv2.so.1";
+#endif
         default:
             assert(!"unknown library");
             throw std::runtime_error("Unknown GL library name");

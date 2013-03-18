@@ -48,6 +48,7 @@
     TracerBase::SetNext<ContextTracer>(eglMakeCurrent_Call);
     TracerBase::SetNext<ContextTracer>(eglDestroyContext_Call);
     TracerBase::SetNext<ContextTracer>(eglReleaseThread_Call);
+	TracerBase::SetNext<ContextTracer>(eglBindAPI_Call);
 
     TracerBase::SetNext<DebugContextTracer>(wglCreateContext_Call);
     TracerBase::SetNext<DebugContextTracer>(wglCreateContextAttribsARB_Call);

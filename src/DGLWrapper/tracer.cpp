@@ -74,8 +74,8 @@ RetValue DefaultTracer::Pre(const CalledEntryPoint& call) {
     //check if any break is pending
     if (getController()->getBreakState().mayBreakAt(call.getEntrypoint())) {
         //we just hit a break;
-        dglState::GLContext* ctx = g_DGLGLState.getCurrent();
-        dglnet::BreakedCallMessage callStateMessage(call, (uint32_t)getController()->getCallHistory().size(), ctx?ctx->getId():0, g_DGLGLState.describe());
+        dglState::GLContext* ctx = gc;
+        dglnet::BreakedCallMessage callStateMessage(call, (uint32_t)getController()->getCallHistory().size(), ctx?ctx->getId():0, DGLDisplayState::describeAll());
         getController()->getServer().sendMessage(&callStateMessage);
     }
     
@@ -97,7 +97,7 @@ void DefaultTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     getController()->getServer().lock();
 
     GLenum error;
-    if (dglState::GLContext* ctx = g_DGLGLState.getCurrent()) {
+    if (dglState::GLContext* ctx = gc) {
 
         bool hasDebugOutput = ctx->hasDebugOutput();
         if (hasDebugOutput) {
@@ -105,7 +105,7 @@ void DefaultTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             getController()->getBreakState().setBreakAtDebugOutput();
         }
 
-        if ((error = g_DGLGLState.getCurrent()->peekError()) != GL_NO_ERROR) {
+        if ((error = gc->peekError()) != GL_NO_ERROR) {
             getController()->getCallHistory().setError(error);
             getController()->getBreakState().setBreakAtGLError(error);
         }
@@ -123,8 +123,8 @@ RetValue GLGetErrorTracer::Pre(const CalledEntryPoint& call) {
     
     if (ret.isSet()) return ret;
 
-    if (g_DGLGLState.getCurrent() && call.getEntrypoint() == glGetError_Call) {
-        std::pair<bool, GLenum> pokedError = g_DGLGLState.getCurrent()->getPokedError();
+    if (gc && call.getEntrypoint() == glGetError_Call) {
+        std::pair<bool, GLenum> pokedError = gc->getPokedError();
         if (pokedError.first) {
             ret = pokedError.second;
         }
@@ -160,18 +160,33 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     EGLBoolean eglBool;
     EGLSurface eglReadSurface;
     EGLContext eglCtx;
+    EGLDisplay eglDpy;
+    GLenumWrap enumWrapped;
 
     switch (call.getEntrypoint()) {
         case wglCreateContext_Call:
             ret.get(ctx);
             if (NULL != ctx) {
-                g_DGLGLState.ensureContext(reinterpret_cast<int32_t>(ctx));
+                DGLDisplayState::default()->ensureContext(reinterpret_cast<int32_t>(ctx));
+            }
+            break;
+        case eglBindAPI_Call:
+            ret.get(eglBool);
+            if (eglBool) {
+                call.getArgs()[0].get(enumWrapped);
+                DGLThreadState::get()->bindEGLApi(enumWrapped);
             }
             break;
         case eglCreateContext_Call:
             ret.get(eglCtx);
             if (NULL != eglCtx) {
-                g_DGLGLState.ensureContext(reinterpret_cast<int32_t>(eglCtx));
+                call.getArgs()[0].get(eglDpy);
+                if (DGLThreadState::get()->getEGLApi() == EGL_OPENGL_ES_API) {
+                    g_ApiLoader.loadLibrary(LIBRARY_ES2);
+                } else if (DGLThreadState::get()->getEGLApi() == EGL_OPENGL_API) {
+                    g_ApiLoader.loadLibrary(LIBRARY_GL);
+                }
+                DGLDisplayState::get((uint32_t)eglDpy)->ensureContext(reinterpret_cast<int32_t>(eglCtx));
             }
             break;
         case wglMakeCurrent_Call:
@@ -179,35 +194,53 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             if (retBool) {
                 call.getArgs()[0].get(device);
                 call.getArgs()[1].get(ctx);
-                g_DGLGLState.bindContext(reinterpret_cast<uint32_t>(ctx), reinterpret_cast<uint32_t>(device));
+
+                dglState::NativeSurfaceBase* surface = NULL;
+                if (device) {
+                    surface = DGLDisplayState::default()->ensureSurface<dglState::NativeSurfaceWGL>
+                        ((uint32_t)device)->second.get();
+                }
+
+                DGLThreadState::get()->bindContext(DGLDisplayState::default(), 
+                    reinterpret_cast<uint32_t>(ctx), surface);
             }
             break;
         case eglMakeCurrent_Call:
             ret.get(eglBool);
             if (eglBool) {
+                call.getArgs()[0].get(eglDpy);
                 call.getArgs()[2].get(eglReadSurface);
                 call.getArgs()[3].get(eglCtx);
-                g_DGLGLState.bindContext(reinterpret_cast<uint32_t>(eglCtx), reinterpret_cast<uint32_t>(eglReadSurface));
+
+                dglState::NativeSurfaceBase* surface = NULL;
+                if (eglReadSurface) {
+                    surface = DGLDisplayState::get((uint32_t)eglDpy)->ensureSurface<dglState::NativeSurfaceEGL>
+                        ((uint32_t)eglReadSurface)->second.get();
+                }
+                DGLThreadState::get()->bindContext(
+                    DGLDisplayState::get((uint32_t)eglDpy), 
+                    reinterpret_cast<uint32_t>(eglCtx), surface);
             }
             break;
         case wglDeleteContext_Call:
             ret.get(retBool);
             if (retBool) {
                 call.getArgs()[0].get(ctx);
-                g_DGLGLState.deleteContext(reinterpret_cast<int32_t>(ctx));
+                DGLDisplayState::default()->deleteContext(reinterpret_cast<int32_t>(ctx));
             }
             break;
         case eglDestroyContext_Call:
+            call.getArgs()[0].get(eglDpy);
             ret.get(eglBool);
             if (eglBool) {
                 call.getArgs()[1].get(eglCtx);
-                g_DGLGLState.lazyDeleteContext(reinterpret_cast<int32_t>(eglCtx));
+                DGLDisplayState::get((uint32_t)eglDpy)->lazyDeleteContext(reinterpret_cast<int32_t>(eglCtx));
             }
             break;
         case eglReleaseThread_Call:
             ret.get(eglBool);
             if (eglBool) {
-                g_DGLGLState.bindContext(0, 0);
+                DGLThreadState::get()->release();
             }
     }
 #else
@@ -291,7 +324,7 @@ RetValue DebugContextTracer::Pre(const CalledEntryPoint& call) {
 
 void TextureTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
-    if (g_DGLGLState.getCurrent()) {
+    if (gc) {
 
         if (entrp == glGenTextures_Call || entrp == glGenTexturesEXT_Call) {
             GLsizei n = 0;
@@ -301,7 +334,7 @@ void TextureTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[1].get(names);
 
             for (GLsizei i = 0; i < n; i++) {
-                g_DGLGLState.getCurrent()->ensureTexture(names[i]);
+                gc->ensureTexture(names[i]);
             }
         } else if (entrp == glDeleteTextures_Call || entrp == glDeleteTexturesEXT_Call) {
             GLsizei n = 0;
@@ -311,14 +344,14 @@ void TextureTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[1].get(names);
 
             for (GLsizei i = 0; i < n; i++) {
-                g_DGLGLState.getCurrent()->deleteTexture(names[i]);
+                gc->deleteTexture(names[i]);
             }
         } else if (entrp == glBindTexture_Call || entrp == glBindTextureEXT_Call) {
             GLenumWrap target;
             call.getArgs()[0].get(target);
             GLuint name;
             call.getArgs()[1].get(name);
-            g_DGLGLState.getCurrent()->ensureTexture(name)->setTarget(target);
+            gc->ensureTexture(name)->setTarget(target);
         }
     }
     PrevPost(call, ret);
@@ -326,7 +359,7 @@ void TextureTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
 void BufferTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
-    if (g_DGLGLState.getCurrent()) {
+    if (gc) {
 
         if (entrp == glGenBuffers_Call || entrp ==  glGenBuffersARB_Call) {
             GLsizei n = 0;
@@ -336,7 +369,7 @@ void BufferTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[1].get(names);
 
             for (GLsizei i = 0; i < n; i++) {
-                g_DGLGLState.getCurrent()->ensureBuffer(names[i]);
+                gc->ensureBuffer(names[i]);
             }
         } else if (entrp == glDeleteBuffers_Call || entrp == glDeleteBuffersARB_Call) {
             GLsizei n = 0;
@@ -346,7 +379,7 @@ void BufferTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[1].get(names);
 
             for (GLsizei i = 0; i < n; i++) {
-                g_DGLGLState.getCurrent()->deleteBuffer(names[i]);
+                gc->deleteBuffer(names[i]);
             }
         } else if (entrp == glBindBuffer_Call || entrp == glBindBufferARB_Call) {
             GLenumWrap target;
@@ -354,7 +387,7 @@ void BufferTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             GLuint name;
             call.getArgs()[1].get(name);
             if (name) {
-                g_DGLGLState.getCurrent()->ensureBuffer(name)->setTarget(target);
+                gc->ensureBuffer(name)->setTarget(target);
             }
         }
     }
@@ -370,11 +403,11 @@ RetValue ProgramTracer::Pre(const CalledEntryPoint& call) {
         DIRECT_CALL(glGetIntegerv)(GL_CURRENT_PROGRAM, &currentProgramName);
         
         if (currentProgramName) {
-            dglState::GLProgramObj* currentProgram = g_DGLGLState.getCurrent()->ensureProgram(currentProgramName);
+            dglState::GLProgramObj* currentProgram = gc->ensureProgram(currentProgramName);
 
             currentProgram->use(false);
             if (currentProgram->mayDelete()) {
-                g_DGLGLState.getCurrent()->deleteProgram(currentProgramName);
+                gc->deleteProgram(currentProgramName);
             }
         }
     }
@@ -384,22 +417,22 @@ RetValue ProgramTracer::Pre(const CalledEntryPoint& call) {
 void ProgramTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
 
-    if (g_DGLGLState.getCurrent()) {
+    if (gc) {
         GLuint name;
         if (entrp == glCreateProgram_Call || entrp == glCreateProgramObjectARB_Call) {
 
             ret.get(name);
 
-            g_DGLGLState.getCurrent()->ensureProgram(name);
+            gc->ensureProgram(name);
 
         } else if (entrp == glDeleteProgram_Call || entrp == glDeleteObjectARB_Call) {
 
             call.getArgs()[0].get(name);
 
-            dglState::GLProgramObj* program = g_DGLGLState.getCurrent()->ensureProgram(name);
+            dglState::GLProgramObj* program = gc->ensureProgram(name);
             program->markDeleted();
             if (program->mayDelete()) {
-                g_DGLGLState.getCurrent()->deleteProgram(name);
+                gc->deleteProgram(name);
             }
 
         } else if (entrp == glUseProgram_Call || entrp == glUseProgramObjectARB_Call) {
@@ -407,7 +440,7 @@ void ProgramTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[0].get(name);
 
             if (name != 0) {
-                g_DGLGLState.getCurrent()->ensureProgram(name)->use(true);
+                gc->ensureProgram(name)->use(true);
             }
         } else if (entrp == glLinkProgram_Call) {
 
@@ -438,7 +471,7 @@ void ProgramTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
 
-    if (g_DGLGLState.getCurrent()) {
+    if (gc) {
         GLuint name;
         if (entrp == glCreateShader_Call || entrp == glCreateShaderObjectARB_Call) {
 
@@ -449,13 +482,13 @@ void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             GLenumWrap target;
             call.getArgs()[0].get(target);
 
-            g_DGLGLState.getCurrent()->ensureShader(name)->setTarget(target);
+            gc->ensureShader(name)->setTarget(target);
 
         } else if (entrp == glDeleteShader_Call || entrp == glDeleteObjectARB_Call) {
 
             call.getArgs()[0].get(name);
 
-            dglState::GLShaderObj* shader = g_DGLGLState.getCurrent()->ensureShader(name);
+            dglState::GLShaderObj* shader = gc->ensureShader(name);
             shader->markDeleted();
 
         } else if (entrp == glShaderSource_Call || entrp == glShaderSourceARB_Call) {
@@ -479,7 +512,7 @@ void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 }
             }
 
-            g_DGLGLState.getCurrent()->ensureShader(name)->setSources(sources);
+            gc->ensureShader(name)->setSources(sources);
 
 
         } else if (entrp == glCompileShader_Call) {
@@ -499,7 +532,7 @@ void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 infoLog.resize(actualLength);
             }
 
-            g_DGLGLState.getCurrent()->ensureShader(name)->setCompilationStatus(infoLog, compileStatus);
+            gc->ensureShader(name)->setCompilationStatus(infoLog, compileStatus);
 
             if (compileStatus != GL_TRUE) {
                 getController()->getBreakState().setBreakAtCompilerError();
@@ -522,7 +555,7 @@ void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 infoLog.resize(actualLength);
             }
 
-            g_DGLGLState.getCurrent()->ensureShader(name)->setCompilationStatus(infoLog, compileStatus);
+            gc->ensureShader(name)->setCompilationStatus(infoLog, compileStatus);
 
             if (compileStatus != GL_TRUE) {
                 getController()->getBreakState().setBreakAtCompilerError();
@@ -532,20 +565,20 @@ void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             GLuint prog, shad;
             call.getArgs()[0].get(prog);
             call.getArgs()[1].get(shad);
-            g_DGLGLState.getCurrent()->ensureProgram(prog)->attachShader(g_DGLGLState.getCurrent()->ensureShader(shad));
+            gc->ensureProgram(prog)->attachShader(gc->ensureShader(shad));
         }
     }
     PrevPost(call, ret);
 }
 
 void ImmediateModeTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
-    if (g_DGLGLState.getCurrent()) {
+    if (gc) {
         switch (call.getEntrypoint()) {
             case glBegin_Call:
-                g_DGLGLState.getCurrent()->setImmediateMode(true);
+                gc->setImmediateMode(true);
                 break;
             case glEnd_Call:
-                g_DGLGLState.getCurrent()->setImmediateMode(false);
+                gc->setImmediateMode(false);
                 break;
         }
     }
@@ -555,7 +588,7 @@ void ImmediateModeTracer::Post(const CalledEntryPoint& call, const RetValue& ret
 
 void FBOTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
-    if (g_DGLGLState.getCurrent()) {
+    if (gc) {
 
         if (entrp == glGenFramebuffers_Call || entrp == glGenFramebuffersEXT_Call) {
             GLsizei n = 0;
@@ -565,7 +598,7 @@ void FBOTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[1].get(names);
 
             for (GLsizei i = 0; i < n; i++) {
-                g_DGLGLState.getCurrent()->ensureFBO(names[i]);
+                gc->ensureFBO(names[i]);
             }
         } else if (entrp == glDeleteFramebuffers_Call || entrp == glDeleteFramebuffersEXT_Call) {
             GLsizei n = 0;
@@ -575,7 +608,7 @@ void FBOTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[1].get(names);
 
             for (GLsizei i = 0; i < n; i++) {
-                g_DGLGLState.getCurrent()->deleteFBO(names[i]);
+                gc->deleteFBO(names[i]);
             }
         } else if (entrp == glBindFramebuffer_Call || entrp == glBindFramebufferEXT_Call) {
             GLenumWrap target;
@@ -583,7 +616,7 @@ void FBOTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             GLuint name;
             call.getArgs()[1].get(name);
             if (name) {
-                g_DGLGLState.getCurrent()->ensureFBO(name)->setTarget(target);
+                gc->ensureFBO(name)->setTarget(target);
             }
         }
     }

@@ -15,17 +15,25 @@ DGLDebugController* getController() {
     return _g_Controller.get();
 };
 
-
-
-DGLGLState g_DGLGLState;
 DGLConfiguration g_Config;
 
-template<typename T>
-void nop(T*) {}
+DGLDisplayState* DGLDisplayState::default() {
+    return get(0);
+}
 
-DGLGLState::DGLGLState():m_Current(&nop<dglState::GLContext>), m_CurrentSurface(&nop<dglState::NativeSurface>) {};
+DGLDisplayState* DGLDisplayState::get(uint32_t dpy) {
+    boost::lock_guard<boost::mutex> lock(s_DisplaysMutex);
 
-DGLGLState::ContextListIter DGLGLState::ensureContext(uint32_t id, bool lock) {
+    std::map<uint32_t, boost::shared_ptr<DGLDisplayState> >::iterator i = s_Displays.find(dpy);
+
+    if (i == s_Displays.end()) {
+        i = s_Displays.insert(std::pair<uint32_t, boost::shared_ptr<DGLDisplayState> > (
+            dpy, boost::make_shared<DGLDisplayState>())).first;
+    }
+    return i->second.get();
+}
+
+DGLDisplayState::ContextListIter DGLDisplayState::ensureContext(uint32_t id, bool lock) {
     if (lock) {
         m_ContextListMutex.lock();
     }
@@ -43,15 +51,16 @@ DGLGLState::ContextListIter DGLGLState::ensureContext(uint32_t id, bool lock) {
     return i;
 }
 
-DGLGLState::SurfaceListIter DGLGLState::ensureSurface(uint32_t id, bool lock) {
+template<typename NativeSurfaceType>
+DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface(uint32_t id, bool lock) {
     if (lock) {
         m_SurfaceListMutex.lock();
     }
     SurfaceListIter i = m_SurfaceList.find(id);
     if (i == m_SurfaceList.end()) {
         i = m_SurfaceList.insert(
-            std::pair<uint32_t, boost::shared_ptr<dglState::NativeSurface> > (
-            id, boost::make_shared<dglState::NativeSurface>(id)
+            std::pair<uint32_t, boost::shared_ptr<dglState::NativeSurfaceBase> > (
+            id, boost::make_shared<NativeSurfaceType>(id)
             )
             ).first;
     }
@@ -61,76 +70,111 @@ DGLGLState::SurfaceListIter DGLGLState::ensureSurface(uint32_t id, bool lock) {
     return i;
 }
 
-dglState::GLContext* DGLGLState::getCurrent() {
-    return m_Current.get();
-}
+template DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface<dglState::NativeSurfaceWGL>(uint32_t id, bool lock);
+template DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface<dglState::NativeSurfaceEGL>(uint32_t id, bool lock);
 
-void DGLGLState::bindContext(uint32_t ctxId, uint32_t NativeSurfaceId) {
-
-    dglState::GLContext* currentCtx = getCurrent();
-    dglState::GLContext* newCtx = NULL;
-
-    if (currentCtx && currentCtx->getId() == ctxId) {
-        newCtx = currentCtx;
-    } else if (ctxId) {
-        newCtx = &(*(ensureContext(ctxId)->second));
-    }
-
-    if (currentCtx != newCtx) {
-        if (newCtx) {
-            m_Current.reset(newCtx);
-            newCtx->bound();
-        } else {
-            m_Current.release();
-        }
-
-        if (currentCtx) {
-            if (currentCtx->unboundMayDelete()) {
-                deleteContext(currentCtx->getId());
-            }
-        }
-    }
-    
-    if (getCurrent()) {
-        if (getCurrent()->getNativeReadSurface() == NULL && NativeSurfaceId != 0) {
-
-            getCurrent()->setNativeReadSurface(&(*(ensureSurface(NativeSurfaceId)->second)));
-
-        } else if (getCurrent()->getNativeReadSurface() != NULL && NativeSurfaceId == 0) {
-
-            getCurrent()->setNativeReadSurface(NULL);
-
-        } else if (getCurrent()->getNativeReadSurface() != NULL && getCurrent()->getNativeReadSurface()->getId() != NativeSurfaceId) {
-
-            getCurrent()->setNativeReadSurface(&(*(ensureSurface(NativeSurfaceId)->second)));
-
-        }
-    }    
-}
-
-void DGLGLState::deleteContext(uint32_t id) {
+void DGLDisplayState::deleteContext(uint32_t id) {
     boost::lock_guard<boost::mutex> guard(m_ContextListMutex);
-    if (getCurrent() && getCurrent()->getId() == id) {
-        bindContext(0, 0);
+    if (gc && gc->getId() == id) {
+        DGLThreadState::get()->bindContext(this, 0, 0);
     }
     m_ContextList.erase(id);
  }
 
-void DGLGLState::lazyDeleteContext(uint32_t id) {
+void DGLDisplayState::lazyDeleteContext(uint32_t id) {
     dglState::GLContext* ctx = &(*(ensureContext(id)->second));
     if (ctx->markForDeletionMayDelete()) {
         deleteContext(id);
     }
 }
 
-std::vector<dglnet::ContextReport> DGLGLState::describe() {
+std::vector<dglnet::ContextReport> DGLDisplayState::describe() {
     boost::lock_guard<boost::mutex> quard(m_ContextListMutex);
+
     std::vector<dglnet::ContextReport> ret(m_ContextList.size());
     int j = 0;
     for (ContextListIter i = m_ContextList.begin(); i != m_ContextList.end(); i++) {
         ret[j++] = i->second->describe();
     }
     return ret;
+}
+
+std::vector<dglnet::ContextReport> DGLDisplayState::describeAll() {
+    std::vector<dglnet::ContextReport> ret;
+
+    boost::lock_guard<boost::mutex> quard(s_DisplaysMutex);
+
+    for (std::map<uint32_t, boost::shared_ptr<DGLDisplayState> >::iterator i = s_Displays.begin(); 
+        i != s_Displays.end(); i++) {
+
+        std::vector<dglnet::ContextReport> partialReport = i->second->describe();
+        
+        std::copy(partialReport.begin(), partialReport.end(), std::back_inserter(ret));
+    }
+    return ret;    
+}
+
+std::map<uint32_t, boost::shared_ptr<DGLDisplayState> > DGLDisplayState::s_Displays;
+
+boost::mutex DGLDisplayState::s_DisplaysMutex;
+
+DGLThreadState::DGLThreadState():m_Current(NULL), m_EGLApi(EGL_OPENGL_ES_API) {}
+
+void DGLThreadState::release() {
+    s_CurrentThreadState.reset(NULL);
+}
+
+DGLThreadState* DGLThreadState::get() {
+    DGLThreadState* ret = s_CurrentThreadState.get();
+    if (!ret) {
+        s_CurrentThreadState.reset(ret = new DGLThreadState());
+    }
+    return ret;
+}
+
+boost::thread_specific_ptr<DGLThreadState> DGLThreadState::s_CurrentThreadState;
+
+dglState::GLContext* DGLThreadState::getCurrentCtx() {
+    return m_Current;
+}
+
+void DGLThreadState::bindContext(DGLDisplayState* dpy, uint32_t ctxId, dglState::NativeSurfaceBase* readSurface) {
+
+    dglState::GLContext* currentCtx = gc;
+    dglState::GLContext* newCtx = NULL;
+
+    if (currentCtx && currentCtx->getId() == ctxId) {
+        newCtx = currentCtx;
+    } else if (ctxId) {
+        newCtx = &(*(dpy->ensureContext(ctxId)->second));
+    }
+
+    if (currentCtx != newCtx) {
+        if (newCtx) {
+            m_Current = newCtx;
+            newCtx->bound();
+        } else {
+            m_Current = NULL;
+        }
+
+        if (currentCtx) {
+            if (currentCtx->unboundMayDelete()) {
+                dpy->deleteContext(currentCtx->getId());
+            }
+        }
+    }
+    
+    if (gc) {
+        gc->setNativeReadSurface(readSurface);
+    }    
+}
+
+void DGLThreadState::bindEGLApi(EGLenum api) {
+    m_EGLApi = api;
+}
+
+EGLenum DGLThreadState::getEGLApi() {
+    return m_EGLApi;
 }
 
 BreakState::BreakState():m_break(true),m_StepModeEnabled(false) {}
@@ -333,7 +377,7 @@ void DGLDebugController::doHandle(const dglnet::QueryCallTraceMessage& msg) {
 }
 
 void DGLDebugController::doHandle(const dglnet::QueryResourceMessage& msg) {
-    dglState::GLContext* ctx = g_DGLGLState.getCurrent();
+    dglState::GLContext* ctx = gc;
     for (size_t i = 0; i <  msg.m_ResourceQueries.size(); i++) {
         boost::shared_ptr<DGLResource> res;
 

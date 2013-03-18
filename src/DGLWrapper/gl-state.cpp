@@ -238,7 +238,7 @@ GLenum GLFBObj::getTarget() {
     return m_Target;
 }
 
-GLContext::GLContext(uint32_t id):m_Id(id), m_NativeReadSurface(NULL), m_HasNVXMemoryInfo(false), m_HasDebugOutput(false), m_InImmediateMode(false),m_EverBound(false), m_RefCount(0), m_ToBeDeleted(false)  {}
+GLContext::GLContext(uint32_t id): m_Id(id), m_NativeReadSurface(NULL), m_HasNVXMemoryInfo(false), m_HasDebugOutput(false), m_InImmediateMode(false),m_EverBound(false), m_RefCount(0), m_ToBeDeleted(false)  {}
 
 dglnet::ContextReport GLContext::describe() {
     dglnet::ContextReport ret(m_Id);
@@ -277,11 +277,11 @@ dglnet::ContextReport GLContext::describe() {
     return ret;
 }
 
-NativeSurface* GLContext::getNativeReadSurface() {
+NativeSurfaceBase* GLContext::getNativeReadSurface() {
     return m_NativeReadSurface;
 }
 
-void GLContext::setNativeReadSurface(NativeSurface* surface) {
+void GLContext::setNativeReadSurface(NativeSurfaceBase* surface) {
     m_NativeReadSurface = surface;
 }
 
@@ -1716,7 +1716,13 @@ void GLContext::firstUse() {
     }
 }
 
-NativeSurface::NativeSurface(uint32_t id):m_Id(id) {
+NativeSurfaceBase::NativeSurfaceBase(uint32_t id):m_Id(id) {}
+
+uint32_t NativeSurfaceBase::getId() {
+    return m_Id;
+}
+
+NativeSurfaceWGL::NativeSurfaceWGL(uint32_t id):NativeSurfaceBase(id) {
 #ifdef _WIN32
     HDC hdc = reinterpret_cast<HDC>(id);
     int i = DIRECT_CALL_CHK(wglGetPixelFormat)(hdc);
@@ -1740,39 +1746,65 @@ NativeSurface::NativeSurface(uint32_t id):m_Id(id) {
 #endif
 }
 
-
-uint32_t NativeSurface::getId() {
-    return m_Id;
-}
-
-bool NativeSurface::isDoubleBuffered() {
+bool NativeSurfaceWGL::isDoubleBuffered() {
     return m_DoubleBuffered;
 }
 
-bool NativeSurface::isStereo() {
+bool NativeSurfaceWGL::isStereo() {
     return m_Stereo;
 }
 
-int* NativeSurface::getRGBASizes() {
+int* NativeSurfaceWGL::getRGBASizes() {
     return m_RGBASizes;
 }
 
-int NativeSurface::getStencilSize() {
+int NativeSurfaceWGL::getStencilSize() {
     return m_StencilSize;
 }
 
-int NativeSurface::getDepthSize() {
+int NativeSurfaceWGL::getDepthSize() {
     return m_DepthSize;
 }
 
 
-int NativeSurface::getWidth() {
+int NativeSurfaceWGL::getWidth() {
     return m_Width;
 }
 
-int NativeSurface::getHeight() {
+int NativeSurfaceWGL::getHeight() {
     return m_Height;
 }
 
+NativeSurfaceEGL::NativeSurfaceEGL(uint32_t id):NativeSurfaceBase(id) {}
+
+bool NativeSurfaceEGL::isDoubleBuffered() {
+    return true;
+}
+
+bool NativeSurfaceEGL::isStereo() {
+    return true;
+}
+
+int* NativeSurfaceEGL::getRGBASizes() {
+    int s[] = {8,8,8,8};
+    return s;
+}
+
+int NativeSurfaceEGL::getStencilSize() {
+    return 8;
+}
+
+int NativeSurfaceEGL::getDepthSize() {
+    return 8;
+}
+
+
+int NativeSurfaceEGL::getWidth() {
+    return 1;
+}
+
+int NativeSurfaceEGL::getHeight() {
+    return 1;
+}
 
 } //namespace dglState

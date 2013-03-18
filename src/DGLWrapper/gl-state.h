@@ -8,6 +8,8 @@
 #include <queue>
 #include <boost/shared_ptr.hpp>
 
+class DGLDisplayState;
+
 namespace dglState {
 
 class GLObj {
@@ -109,26 +111,55 @@ private:
 };
 
 //Native platform interface surface. HDC on windows
-class NativeSurface {
+class NativeSurfaceBase {
 public:
-    NativeSurface(uint32_t);
+    NativeSurfaceBase(uint32_t);
     uint32_t getId();
-    bool isDoubleBuffered();
-    bool isStereo();
+    virtual bool isDoubleBuffered() = 0;
+    virtual bool isStereo() = 0;
 
-    int* getRGBASizes();
-    int getStencilSize();
-    int getDepthSize();
+    virtual int* getRGBASizes() = 0;
+    virtual int getStencilSize() = 0;
+    virtual int getDepthSize() = 0;
 
-    int getWidth(); 
-    int getHeight(); 
+    virtual int getWidth() = 0;
+    virtual int getHeight() = 0;
+    virtual ~NativeSurfaceBase() {}
 private:
     uint32_t m_Id;
+};
+
+class NativeSurfaceWGL: public NativeSurfaceBase {
+public:
+    NativeSurfaceWGL(uint32_t);
+    virtual bool isDoubleBuffered();
+    virtual bool isStereo();
+
+    virtual int* getRGBASizes();
+    virtual int getStencilSize();
+    virtual int getDepthSize();
+
+    virtual int getWidth(); 
+    virtual int getHeight(); 
+private:
     int m_Width, m_Height;
     bool m_Stereo, m_DoubleBuffered;
     int m_RGBASizes[4];
     int m_DepthSize, m_StencilSize;
+};
 
+class NativeSurfaceEGL: public NativeSurfaceBase {
+public:
+    NativeSurfaceEGL(uint32_t);
+    virtual bool isDoubleBuffered();
+    virtual bool isStereo();
+
+    virtual int* getRGBASizes();
+    virtual int getStencilSize();
+    virtual int getDepthSize();
+
+    virtual int getWidth(); 
+    virtual int getHeight(); 
 };
 
 class GLContext {
@@ -143,8 +174,8 @@ public:
 
     dglnet::ContextReport describe();
 
-    NativeSurface* getNativeReadSurface();
-    void setNativeReadSurface(NativeSurface*);
+    NativeSurfaceBase* getNativeReadSurface();
+    void setNativeReadSurface(NativeSurfaceBase*);
 
     GLTextureObj* ensureTexture(GLuint name);
     void deleteTexture(GLuint name);
@@ -207,7 +238,7 @@ private:
     void queryCheckError();
     
 
-    void firstUse();       
+    void firstUse();
 
     /**
      * WGL or other native API context ID
@@ -217,7 +248,7 @@ private:
     /**
      * Handle to native surface (drawable)
      */
-    NativeSurface* m_NativeReadSurface;
+    NativeSurfaceBase* m_NativeReadSurface;
 
     /**
      * Queue for errors poked from glGetError(), not yet delivered to application
