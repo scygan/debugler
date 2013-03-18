@@ -1,6 +1,8 @@
 #include <DGLCommon/gl-types.h>
 
-enum LibraryFlags {
+#include <map>
+
+enum ApiLibrary {
     LIBRARY_WGL = 1,
     LIBRARY_EGL = 2,
     LIBRARY_GL  = 4,
@@ -9,12 +11,30 @@ enum LibraryFlags {
     LIBRARY_GL_EXT = 0,
     LIBRARY_EGL_EXT = 0,
     LIBRARY_WGL_EXT = 0,
+    LIBRARY_NONE = 0
 };
 
-void LoadOpenGLLibrary (const char* libraryName, int libraryFlags);
+class APILoader {
+public:
+    APILoader::APILoader();
 
-void* LoadOpenGLExtPointer(Entrypoint entryp);
+    void loadLibrary(ApiLibrary apiLibrary);
+    void* loadExtPointer(Entrypoint entryp);
+    void* ensurePointer(Entrypoint entryp);
+private:
 
-void* EnsurePointer(Entrypoint entryp);
+    typedef void* LoadedLib;
+
+    void* loadGLPointer(LoadedLib library, Entrypoint entryp);
+
+    std::string getLibraryName(ApiLibrary apiLibrary);
+
+    std::map<std::string, LoadedLib> m_LoadedLibraries;
+
+    ApiLibrary m_GlueLibrary;
+};
+
+extern APILoader g_ApiLoader;
+
 
 

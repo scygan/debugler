@@ -20,7 +20,7 @@
 //DIRECT_CALL_CHECKED(X) can be used call entrypoint X with NULL-checking, like DIRECT_CALL_CHK(glEnable)(GL_BLEND).
 //will throw exception on NULL
 #define DIRECT_CALL_CHK(X) (*(POINTER_TYPE(X))POINTER_CHECKED(X))
-#define POINTER_CHECKED(X) EnsurePointer(X##_Call)
+#define POINTER_CHECKED(X) g_ApiLoader.ensurePointer(X##_Call)
 
 
 struct LoadedPointer {

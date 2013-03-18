@@ -147,7 +147,7 @@ RetValue GetProcAddressTracer::Pre(const CalledEntryPoint& call) {
         return ret; 
     }
     //we recognize this entrypoint, load if nessesary and return address to  wrapper
-    LoadOpenGLExtPointer(entryp);
+    g_ApiLoader.loadExtPointer(entryp);
     ret = (const void *)getWrapperPointer(entryp);
     return ret;
 }

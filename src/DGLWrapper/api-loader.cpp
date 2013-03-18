@@ -34,67 +34,112 @@ LoadedPointer g_DirectPointers[Entrypoints_NUM] = {
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED
 };
 
-void * LoadOpenGLPointer(void * openGLLibraryHandle, const char* name) {
+APILoader::APILoader():m_GlueLibrary(LIBRARY_NONE) {}
+
+void* APILoader::loadGLPointer(LoadedLib library, Entrypoint entryp) {
 #ifdef _WIN32
-    return GetProcAddress((HINSTANCE)openGLLibraryHandle, name);
+    return GetProcAddress((HINSTANCE)library, GetEntryPointName(entryp));
 #else
-    return dlsym(openGLLibraryHandle, name);
+    return dlsym(library, name);
 #endif
 }
 
-void* LoadOpenGLExtPointer(Entrypoint entryp) {
+void* APILoader::loadExtPointer(Entrypoint entryp) {
     if (!g_DirectPointers[entryp].ptr) {
+
+        if (!m_GlueLibrary) {
+            throw std::runtime_error("Trying to call *GetProcAdress, but no glue library loaded");
+        }
+
+        void * ptr = NULL;
+
+        switch (m_GlueLibrary) {
 #ifdef _WIN32        
-        return g_DirectPointers[entryp].ptr = DIRECT_CALL(wglGetProcAddress)(GetEntryPointName(entryp));
-#else
-        assert(!"not implemented"); 
-        return NULL;
+        case LIBRARY_WGL:
+            ptr  = DIRECT_CALL(wglGetProcAddress)(GetEntryPointName(entryp));
+            break;
 #endif
-    } else {
-        return g_DirectPointers[entryp].ptr;
-    }    
+        case LIBRARY_EGL:
+            ptr = DIRECT_CALL(eglGetProcAddress)(GetEntryPointName(entryp));
+            break;
+        default:
+            assert(!"unknown glue library");
+        }
+        g_DirectPointers[entryp].ptr = ptr;
+    }
+    return g_DirectPointers[entryp].ptr;
 }
 
-void LoadOpenGLLibrary(const char* libraryName, int libraryFlags) {
+std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
+    switch (apiLibrary) {
+        case LIBRARY_EGL:
+#ifdef _WIN32
+            return "libEGL.dll";
+#else
+            return "libEGL.so.1";
+#endif
+        case LIBRARY_GL:
+        case LIBRARY_WGL:
+#ifdef _WIN32
+            return "opengl32.dll";
+#else
+            return "libGL.so.1";
+#endif
+        default:
+            assert(!"unknown library");
+            throw std::runtime_error("Unknown GL library name");
+    }
+}
 
-    std::vector<std::string> libSearchPath;
-    
-    void* openGLLibraryHandle = NULL;
+void APILoader::loadLibrary(ApiLibrary apiLibrary) {
+
+    std::string libraryName = getLibraryName(apiLibrary);
+
+    if (m_LoadedLibraries.find(libraryName) == m_LoadedLibraries.end()) {
+        std::vector<std::string> libSearchPath;
+
+        LoadedLib openGLLibraryHandle = NULL;
 
 #ifdef _WIN32
-    char buffer[1000];
+        char buffer[1000];
 #ifndef _WIN64
-    if (GetSystemWow64Directory(buffer, sizeof(buffer)) > 0) {
-        //we are running 32bit app on 64 bit windows
-        libSearchPath.push_back(buffer);
-    }
-#endif
-    if (!openGLLibraryHandle) {
-        if (GetSystemDirectory(buffer, sizeof(buffer)) > 0) {
-            //we are running on native system (32 on 32 or 64 on 64)
+        if (GetSystemWow64Directory(buffer, sizeof(buffer)) > 0) {
+            //we are running 32bit app on 64 bit windows
             libSearchPath.push_back(buffer);
         }
-    }
+#endif
+        if (!openGLLibraryHandle) {
+            if (GetSystemDirectory(buffer, sizeof(buffer)) > 0) {
+                //we are running on native system (32 on 32 or 64 on 64)
+                libSearchPath.push_back(buffer);
+            }
+        }
 #ifndef _WIN64
-    libSearchPath.push_back("C:\\Windows\\SysWOW64\\");
+        libSearchPath.push_back("C:\\Windows\\SysWOW64\\");
 #endif
-    libSearchPath.push_back("C:\\Windows\\System32\\");
-    libSearchPath.push_back(".");
+        libSearchPath.push_back("C:\\Windows\\System32\\");
+        libSearchPath.push_back(".");
 #endif
-    libSearchPath.push_back("");
+        libSearchPath.push_back("");
 
-    for (size_t i = 0; i < libSearchPath.size() && !openGLLibraryHandle; i++) {
+        for (size_t i = 0; i < libSearchPath.size() && !openGLLibraryHandle; i++) {
 #ifdef _WIN32
-        openGLLibraryHandle = (void*)LoadLibrary((libSearchPath[i] + libraryName).c_str());
+            openGLLibraryHandle = (LoadedLib)LoadLibrary((libSearchPath[i] + libraryName).c_str());
 #else
-        openGLLibraryHandle = dlopen((libSearchPath[i] + libraryName).c_str(), RTLD_NOW);
+            openGLLibraryHandle = dlopen((libSearchPath[i] + libraryName).c_str(), RTLD_NOW);
 #endif
+        }
+
+        if (!openGLLibraryHandle) {
+            std::string msg = std::string("Cannot load ") + libraryName + "  system library";
+            Os::fatal(msg);
+        } else {
+            m_LoadedLibraries[libraryName] = openGLLibraryHandle;
+        }
     }
-    
-    if (!openGLLibraryHandle) {
-        std::string msg = std::string("Cannot load ") + libraryName + "  system library";
-        Os::fatal(msg);
-    }
+
+    LoadedLib library = m_LoadedLibraries[libraryName];
+
 
     //we use MS Detours only on win32, on x64 mHook is used
 #ifdef USE_DETOURS
@@ -107,8 +152,8 @@ void LoadOpenGLLibrary(const char* libraryName, int libraryFlags) {
     //application will always call us. 
     for (int i = 0; i < Entrypoints_NUM; i++) {
 
-        if (g_DirectPointers[i].libraryMask & libraryFlags) {
-            g_DirectPointers[i].ptr = LoadOpenGLPointer(openGLLibraryHandle, GetEntryPointName(i));
+        if (g_DirectPointers[i].libraryMask & apiLibrary) {
+            g_DirectPointers[i].ptr = loadGLPointer(library, i);
         }
 
         if (g_DirectPointers[i].ptr) {
@@ -131,12 +176,12 @@ void LoadOpenGLLibrary(const char* libraryName, int libraryFlags) {
 #ifdef USE_DETOURS
     DetourTransactionCommit();
 #endif
-
+    if (apiLibrary == LIBRARY_EGL || apiLibrary == LIBRARY_WGL)
+        m_GlueLibrary = apiLibrary;
 }
 
-
-void* EnsurePointer(Entrypoint entryp) {
-    if (g_DirectPointers[entryp].ptr || LoadOpenGLExtPointer(entryp)) {
+void* APILoader::ensurePointer(Entrypoint entryp) {
+    if (g_DirectPointers[entryp].ptr || loadExtPointer(entryp)) {
         return g_DirectPointers[entryp].ptr;
     } else {
         std::string error = "Operation aborted, because the ";
@@ -147,3 +192,4 @@ void* EnsurePointer(Entrypoint entryp) {
 }
 
 
+APILoader g_ApiLoader;
