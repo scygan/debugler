@@ -5,6 +5,9 @@
 #include <DGLCommon/gl-formats.h>
 #include <DGLCommon/os.h>
 
+#include <DGLWrapper/api-loader.h>
+#include <DGLWrapper/pointers.h>
+
 namespace {
 
     // The fixture for testing class Foo.
@@ -39,11 +42,11 @@ namespace {
 
     // Smoke test all inputs of codegen has been parsed to functionList
     TEST_F(DGLCommonUT, codegen_entryps) {
-        //gl.h
+        //gl.h + gl2.h
         EXPECT_EQ(GetEntryPointName(glEnable_Call), "glEnable");
-
+        
         //glext.h
-        EXPECT_EQ(GetEntryPointName(glDrawArraysInstanced_Call), "glDrawArraysInstanced");
+        EXPECT_EQ(GetEntryPointName(glDrawArraysInstancedBaseInstance_Call), "glDrawArraysInstancedBaseInstance");
         EXPECT_EQ(GetEntryPointName(glDrawArraysInstancedARB_Call), "glDrawArraysInstancedARB");
 
         //wgl
@@ -58,12 +61,54 @@ namespace {
         //egl.h
         EXPECT_EQ(GetEntryPointName(eglBindAPI_Call), "eglBindAPI");
 
+        EXPECT_EQ(GetEntryPointName(eglCreateContext_Call), "eglCreateContext");
+        EXPECT_EQ(GetEntryPointName(eglMakeCurrent_Call), "eglMakeCurrent");
+        EXPECT_EQ(GetEntryPointName(eglGetProcAddress_Call), "eglGetProcAddress_Call");
+
         //eglext.h
         EXPECT_EQ(GetEntryPointName(eglCreateImageKHR_Call), "eglCreateImageKHR");
 
         const char* null = NULL;
         //null
         EXPECT_EQ(std::string(GetEntryPointName(NO_ENTRYPOINT)), "<unknown>");
+    }
+
+    TEST_F(DGLCommonUT, codegen_libraries) {
+        //gl.h + gl2.h
+        EXPECT_EQ(LIBRARY_GL | LIBRARY_ES2, g_DirectPointers[glEnable_Call].libraryMask);
+
+        //all ES2 entryps are should be shared with GL or GL_EXT
+        for (int i = 0; i < NUM_ENTRYPOINTS; i++) {
+            if (g_DirectPointers[i].libraryMask & LIBRARY_ES2) {
+                EXPECT_GT(g_DirectPointers[i].libraryMask & (LIBRARY_GL | LIBRARY_GL_EXT), 0);
+            }
+        }
+
+        //glext.h
+        EXPECT_EQ(LIBRARY_GL, g_DirectPointers[glDrawArraysInstancedBaseInstance_Call].libraryMask);
+        EXPECT_EQ(LIBRARY_GL, g_DirectPointers[glDrawArraysInstancedARB_Call].libraryMask);
+
+        //wgl
+        EXPECT_EQ(LIBRARY_WGL, g_DirectPointers[wglCreateContext_Call].libraryMask);
+
+        //wgl-notrace
+        EXPECT_EQ(LIBRARY_WGL, g_DirectPointers[wglSetPixelFormat_Call].libraryMask);
+
+        //wglext.h
+        EXPECT_EQ(LIBRARY_WGL_EXT, g_DirectPointers[wglCreateContextAttribsARB_Call].libraryMask);
+
+        //egl.h
+        EXPECT_EQ(LIBRARY_EGL, g_DirectPointers[eglBindAPI_Call].libraryMask);
+
+        EXPECT_EQ(LIBRARY_EGL, g_DirectPointers[eglCreateContext_Call].libraryMask);
+        EXPECT_EQ(LIBRARY_EGL, g_DirectPointers[eglMakeCurrent_Call].libraryMask);
+        EXPECT_EQ(LIBRARY_EGL, g_DirectPointers[eglGetProcAddress_Call].libraryMask);
+
+        //eglext.h
+        EXPECT_EQ(LIBRARY_EGL_EXT, g_DirectPointers[eglCreateImageKHR_Call].libraryMask);
+
+
+        EXPECT_EQ(0, g_DirectPointers[NUM_ENTRYPOINTS].libraryMask);
     }
 
     TEST_F(DGLCommonUT, codegen_entryp_names) {
