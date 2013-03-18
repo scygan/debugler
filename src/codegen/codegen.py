@@ -124,8 +124,6 @@ def parse(path, library, genNonExtTypedefs = False, skipTrace = False):
 			else:
 			    entrypoints[entryPointName] = Entrypoint(library, genNonExtTypedefs, skipTrace, retType, paramNames, paramDeclList)
 
-
-print >> defFile, "LIBRARY opengl32.dll"
 print >> defFile, "EXPORTS"
 
 parse(inputDir + "/GL.h", "LIBRARY_GL", True)
