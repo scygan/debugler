@@ -240,7 +240,7 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
         case eglReleaseThread_Call:
             ret.get(eglBool);
             if (eglBool) {
-                DGLThreadState::get()->release();
+                DGLThreadState::release();
             }
     }
 #else
