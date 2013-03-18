@@ -61,12 +61,9 @@ def parse(path, library, genNonExtTypedefs = False, skipTrace = False):
 	
 	#merge expressions spanning multiple lines
 	expressions = []
-	paranthesisCount = 0
 	currentExpression = ""
 	for line in lines:
-		paranthesisCount += line.count('(')
-		paranthesisCount -= line.count(')')
-		if paranthesisCount == 0:
+		if '#' in line or ';' in line or '/*' in line or '*/' in line: 
 			expressions.append(currentExpression + line.strip())
 			currentExpression = ""
 		else:
