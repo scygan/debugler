@@ -105,11 +105,6 @@ private:
     static boost::mutex s_DisplaysMutex;
 };
 
-
-class DGLThreadState;
-
-
-
 /**
 * Class aggregating all thread-specific state
 */
