@@ -8,9 +8,9 @@ enum ApiLibrary {
     LIBRARY_GL  = 4,
     LIBRARY_ES2 = 8,
 
-    LIBRARY_GL_EXT = 0,
-    LIBRARY_EGL_EXT = 0,
-    LIBRARY_WGL_EXT = 0,
+    LIBRARY_GL_EXT = 16,
+    LIBRARY_EGL_EXT = 32,
+    LIBRARY_WGL_EXT = 64,
     LIBRARY_NONE = 0
 };
 
