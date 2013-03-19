@@ -301,11 +301,7 @@ void GLContextVersion::fill() {
 
     int vOffset = -1;
     if (m_Type == DT) {
-        if (version.substr(0, strlen("OpenGL ")) == "OpenGL ") {
-            vOffset = (int)strlen("OpenGL ");
-        } else {
-            assert(!"unrecognized GL_VERSION string");
-        }
+        vOffset = 0;
     } else if (m_Type == ES) {
         if (version.substr(0, strlen("OpenGL ES ")) == "OpenGL ES ") {
             vOffset = (int)strlen("OpenGL ES ");
@@ -316,7 +312,7 @@ void GLContextVersion::fill() {
         }
     }
 
-    if (vOffset > 0 && vOffset + 2 <= (int)version.length()) {
+    if (vOffset >= 0 && vOffset + 2 <= (int)version.length()) {
 
         char buf[] = {0, 0};
         buf[0] = version[vOffset];
