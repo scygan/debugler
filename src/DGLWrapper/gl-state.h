@@ -165,7 +165,6 @@ public:
 class GLContext {
 public:
     GLContext(uint32_t id);
-    bool m_deleted;
     std::map<GLuint, GLTextureObj> m_Textures;
     std::map<GLuint, GLBufferObj> m_Buffers;
     std::map<GLuint, GLProgramObj> m_Programs;
