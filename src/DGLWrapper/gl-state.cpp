@@ -273,11 +273,11 @@ bool GLContextVersion::check(Type type, int majorVersion, int minorVersion) {
     if (!m_Filled)
         fill(); 
 
-    if (majorVersion < m_MajorVersion) {
+    if (majorVersion > m_MajorVersion) {
         return false;
     }
 
-    if (majorVersion == m_MajorVersion && minorVersion < m_MinorVersion) {
+    if (majorVersion == m_MajorVersion && minorVersion > m_MinorVersion) {
         return false;
     }
 
@@ -323,6 +323,8 @@ void GLContextVersion::fill() {
     } else {
         assert(!"cannot reliable detect OpenGL version");
     }
+
+    m_Filled = true;
 }
 
 
