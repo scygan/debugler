@@ -120,7 +120,8 @@ namespace call_sets {
     Entrypoint frameDelims[] = {
          wglSwapBuffers_Call,
          wglSwapLayerBuffers_Call,
-         wglSwapMultipleBuffers_Call
+         wglSwapMultipleBuffers_Call,
+         eglSwapBuffers_Call,
     };
     Entrypoint drawCalls[] = {
         glDrawElements_Call,
