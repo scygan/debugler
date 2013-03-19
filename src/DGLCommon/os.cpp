@@ -85,6 +85,7 @@ void Os::setEnv(const char* variable, const char* value) {
 }
 
 void Os::fatal(const std::string& message) {
+    MessageBox(0, message.c_str(), "Fatal debugger error", MB_OK | MB_ICONSTOP);
     fprintf(stderr, "Error: %s\n", message.c_str());
     exit(EXIT_FAILURE);
 }

@@ -3,6 +3,12 @@
 
 #include <string>
 
+#ifdef _WIN32
+#define NO_RETURN __declspec(noreturn) 
+#else
+#define NO_RETURN __attribute__((noreturn))
+#endif
+
 class OsIcon {
 public:
     virtual void * get() = 0;
@@ -22,9 +28,9 @@ public:
 
     static void setEnv(const char* variable, const char* value);
 
-    static void fatal(const std::string& message);
+    NO_RETURN static void fatal(const std::string& message);
 
-    static void terminate();
+    NO_RETURN static void terminate();
 
     static OsStatusPresenter* createStatusPresenter();
 

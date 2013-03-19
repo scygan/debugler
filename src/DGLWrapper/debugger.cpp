@@ -66,8 +66,7 @@ DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface(uint32_t id, boo
     if (i == m_SurfaceList.end()) {
         i = m_SurfaceList.insert(
             std::pair<uint32_t, boost::shared_ptr<dglState::NativeSurfaceBase> > (
-            id, boost::make_shared<NativeSurfaceType>(this, id)
-            )
+            id, boost::make_shared<NativeSurfaceType>(this, id))
             ).first;
     }
     if (lock) {
@@ -75,9 +74,21 @@ DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface(uint32_t id, boo
     }
     return i;
 }
-
+//only WGL!
 template DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface<dglState::NativeSurfaceWGL>(uint32_t id, bool lock);
-template DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface<dglState::NativeSurfaceEGL>(uint32_t id, bool lock);
+
+DGLDisplayState::SurfaceListIter DGLDisplayState::getSurface(uint32_t id) {
+    boost::lock_guard<boost::mutex> guard(m_SurfaceListMutex);
+    return m_SurfaceList.find(id);
+}
+
+template<typename NativeSurfaceType>
+void DGLDisplayState::addSurface(uint32_t id, uint32_t pixfmt) {
+    boost::lock_guard<boost::mutex> guard(m_SurfaceListMutex);
+    m_SurfaceList[id] =  boost::make_shared<NativeSurfaceType>(this, pixfmt, id);
+}
+//only EGL!
+template void DGLDisplayState::addSurface<dglState::NativeSurfaceEGL>(uint32_t id, uint32_t pixfmt);
 
 void DGLDisplayState::deleteContext(uint32_t id) {
     boost::lock_guard<boost::mutex> guard(m_ContextListMutex);

@@ -150,7 +150,11 @@ private:
 
 class NativeSurfaceEGL: public NativeSurfaceBase {
 public:
-    NativeSurfaceEGL(const DGLDisplayState* dpy, uint32_t id);
+    /**
+     * Ctor
+     */
+    NativeSurfaceEGL(const DGLDisplayState* dpy, uint32_t pixfmt, uint32_t id);
+
     virtual bool isDoubleBuffered();
     virtual bool isStereo();
 
@@ -161,8 +165,6 @@ public:
     virtual int getWidth(); 
     virtual int getHeight();
 private:
-    void fill();
-    bool m_Filled;
     int m_RGBASizes[4];
     int m_DepthSize, m_StencilSize;
     const DGLDisplayState* m_Dpy;

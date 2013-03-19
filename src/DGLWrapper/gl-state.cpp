@@ -50,10 +50,16 @@ namespace state_setters {
     class ReadBuffer {
     public:
         ReadBuffer() {
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &m_ReadBuffer);
+#pragma message("enable this on es3 when es3 is supported")
+            if (/*gc->getVersion().check(GLContextVersion::ES, 3) || */gc->getVersion().check(GLContextVersion::DT)) {
+                DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &m_ReadBuffer);
+            }
         }
         ~ReadBuffer() {
-            DIRECT_CALL_CHK(glReadBuffer)(m_ReadBuffer);
+#pragma message("enable this on es3 when es3 is supported")
+            if (/*gc->getVersion().check(GLContextVersion::ES, 3) || */gc->getVersion().check(GLContextVersion::DT)) {
+                DIRECT_CALL_CHK(glReadBuffer)(m_ReadBuffer);
+            }
         }
     private:
         GLint m_ReadBuffer;
@@ -277,7 +283,7 @@ void GLContextVersion::fill() {
     std::string version = cVersion;
 
     int vOffset = -1;
-    if (m_Type = DT) {
+    if (m_Type == DT) {
         if (version.substr(0, strlen("OpenGL ")) == "OpenGL ") {
             vOffset = strlen("OpenGL ");
         } else {
@@ -285,7 +291,8 @@ void GLContextVersion::fill() {
         }
     } else if (m_Type == ES) {
         if (version.substr(0, strlen("OpenGL ES ")) == "OpenGL ES ") {
-        } if (version.substr(0, strlen("OpenGL ES-")) == "OpenGL ES-") {
+            vOffset = strlen("OpenGL ES ");
+        } else if (version.substr(0, strlen("OpenGL ES-")) == "OpenGL ES-") {
             vOffset = strlen("OpenGL ES-");
         } else {
             assert(!"unrecognized GL_VERSION string");
@@ -296,9 +303,9 @@ void GLContextVersion::fill() {
 
         char buf[] = {0, 0};
         buf[0] = version[vOffset];
-        m_MinorVersion = atoi(buf);
+        m_MajorVersion = atoi(buf);
         assert(version[vOffset + 1] == '.');
-        buf[0] = version[vOffset] + 2;
+        buf[0] = version[vOffset + 2];
         m_MinorVersion = atoi(buf);
     } else {
         assert(!"cannot reliable detect OpenGL version");
@@ -718,7 +725,8 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
     state_setters::PixelStoreAlignment defAlignment;
 
     //select read buffer
-    if (m_Version.check(GLContextVersion::ES, 3) || m_Version.check(GLContextVersion::DT)) {
+#pragma message("enable this on es3 when es3 is supported")
+    if (/*m_Version.check(GLContextVersion::ES, 3) || */m_Version.check(GLContextVersion::DT)) {
         DIRECT_CALL_CHK(glReadBuffer)(bufferEnum);
     }
 
@@ -1408,7 +1416,8 @@ boost::shared_ptr<DGLResource> GLContext::queryState(GLuint name) {
     DGLResourceState* resource;
     boost::shared_ptr<DGLResource> ret (resource = new DGLResourceState);
 
-
+    if (!gc->getVersion().check(GLContextVersion::DT))
+        return ret; //not really supported on non-DT
 
 #define STATE_INTEGERV(NAME, LENGTH) resource->m_Items.push_back(getStateIntegerv(#NAME, NAME, LENGTH))
 #define STATE_INTEGER64V(NAME, LENGTH) resource->m_Items.push_back(getStateInteger64v(#NAME, NAME, LENGTH))
@@ -1859,7 +1868,22 @@ int NativeSurfaceWGL::getHeight() {
     return m_Height;
 }
 
-NativeSurfaceEGL::NativeSurfaceEGL(const DGLDisplayState* dpy, uint32_t id):m_Dpy(dpy),m_Filled(false),NativeSurfaceBase(id) {}
+NativeSurfaceEGL::NativeSurfaceEGL(const DGLDisplayState* dpy, uint32_t pixfmt, uint32_t id):m_Dpy(dpy),NativeSurfaceBase(id) {
+    EGLBoolean ret = EGL_TRUE;
+
+    EGLDisplay eglDpy = reinterpret_cast<EGLDisplay>(m_Dpy->getId());
+    EGLConfig config = reinterpret_cast<EGLConfig>(pixfmt);
+
+    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(eglDpy, config, EGL_RED_SIZE,     &m_RGBASizes[0]);
+    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(eglDpy, config, EGL_GREEN_SIZE,   &m_RGBASizes[1]);
+    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(eglDpy, config, EGL_BLUE_SIZE,    &m_RGBASizes[2]);
+    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(eglDpy, config, EGL_ALPHA_SIZE,   &m_RGBASizes[3]);
+    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(eglDpy, config, EGL_DEPTH_SIZE,   &m_DepthSize);
+    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(eglDpy, config, EGL_STENCIL_SIZE, &m_StencilSize);
+    if (!ret) {
+        throw std::runtime_error("eglGetConfigAttrib failed during native surface pixelformat discovery");
+    }
+}
 
 bool NativeSurfaceEGL::isDoubleBuffered() {
     return true;
@@ -1869,65 +1893,15 @@ bool NativeSurfaceEGL::isStereo() {
     return false;
 }
 
-void NativeSurfaceEGL::fill() {
-    EGLint configID;
-    EGLBoolean ret;
-
-    EGLSurface surface = reinterpret_cast<EGLSurface>(m_Id);
-    EGLDisplay dpy = reinterpret_cast<EGLDisplay>(m_Dpy->getId());
-
-    ret = DIRECT_CALL_CHK(eglQuerySurface)(dpy, surface, EGL_CONFIG_ID, &configID);
-    if (!ret) {
-        throw std::runtime_error("eglQuerySurface failed");
-    }
-
-    EGLint attribList[] = {
-        EGL_CONFIG_ID,
-        configID,
-        EGL_NONE, 
-        EGL_NONE
-    };
-
-    EGLConfig config;
-    EGLint numConfigs;
-    ret = DIRECT_CALL_CHK(eglChooseConfig)(dpy, attribList, &config, 1, &numConfigs);
-    if (!ret || numConfigs == 0) {
-       throw std::runtime_error("eglChooseConfig failed");
-    }
-
-    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(dpy, config, EGL_RED_SIZE,     &m_RGBASizes[0]);
-    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(dpy, config, EGL_GREEN_SIZE,   &m_RGBASizes[1]);
-    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(dpy, config, EGL_BLUE_SIZE,    &m_RGBASizes[2]);
-    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(dpy, config, EGL_ALPHA_SIZE,   &m_RGBASizes[3]);
-    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(dpy, config, EGL_DEPTH_SIZE,   &m_DepthSize);
-    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(dpy, config, EGL_STENCIL_SIZE, &m_StencilSize);
-    if (!ret) {
-        throw std::runtime_error("eglGetConfigAttrib failed");
-    }
-    
-
-
-    m_Filled = true;
-}
-
-
 int* NativeSurfaceEGL::getRGBASizes() {
-    if (!m_Filled)
-        fill();
     return m_RGBASizes;
 }
 
-
-
 int NativeSurfaceEGL::getStencilSize() {
-    if (!m_Filled)
-        fill();
     return m_StencilSize;
 }
 
 int NativeSurfaceEGL::getDepthSize() {
-    if (!m_Filled)
-        fill();
     return m_DepthSize;
 }
 
@@ -1940,7 +1914,7 @@ int NativeSurfaceEGL::getWidth() {
 
     ret = DIRECT_CALL_CHK(eglQuerySurface)(dpy, surface, EGL_WIDTH, &width);
     if (!ret) {
-        throw std::runtime_error("eglQuerySurface failed");
+        throw std::runtime_error("eglQuerySurface failed during native surface pixelformat discovery");
     }
     return width;
 }
@@ -1954,7 +1928,7 @@ int NativeSurfaceEGL::getHeight() {
 
     ret = DIRECT_CALL_CHK(eglQuerySurface)(dpy, surface, EGL_WIDTH, &height);
     if (!ret) {
-        throw std::runtime_error("eglQuerySurface failed");
+        throw std::runtime_error("eglQuerySurface failed during native surface pixelformat discovery");
     }
     return height;
 }

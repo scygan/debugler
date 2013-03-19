@@ -173,8 +173,7 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary) {
                 std::string error = "Cannot load OpenGL32.dll funcion ";
                 error += GetEntryPointName(i);
                 error += "().";
-                MessageBox(0, error.c_str(), "Cannot hook library", MB_OK | MB_ICONSTOP);
-                Os::terminate();
+                Os::fatal(error);
             }
 #endif
         }

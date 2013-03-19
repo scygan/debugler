@@ -85,6 +85,10 @@ class GetProcAddressTracer: public TracerBase {
     virtual RetValue Pre(const CalledEntryPoint&); 
 };
 
+class SurfaceTracer: public TracerBase {
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+};
+
 class ContextTracer: public TracerBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };

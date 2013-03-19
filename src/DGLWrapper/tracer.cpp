@@ -25,7 +25,11 @@ RetValue TracerBase::DoPre(const CalledEntryPoint& call) {
         //If we dont catch it here, we will deadlock later, or likely get into infinite recursion.
         return RetValue();
     } else {
-        return Pre(call);
+        try {
+            return Pre(call);
+        } catch (const std::exception& e) {
+            Os::fatal(e.what());
+        }
     }
 }
 
@@ -34,7 +38,11 @@ void TracerBase::DoPost(const CalledEntryPoint& call, const RetValue& ret) {
     (*m_ThreadedInfiniteRecursionGuard.get())--;
 
     if (*m_ThreadedInfiniteRecursionGuard.get() == 0) {
-        Post(call, ret);
+        try {
+            Post(call, ret);
+        } catch (const std::exception& e) {
+            Os::fatal(e.what());
+        }
     }
 }
 
@@ -152,6 +160,21 @@ RetValue GetProcAddressTracer::Pre(const CalledEntryPoint& call) {
     return ret;
 }
 
+void SurfaceTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
+
+    EGLSurface surface;
+    ret.get(surface);
+    if (surface != EGL_NO_SURFACE) {
+        EGLDisplay dpy;
+        call.getArgs()[0].get(dpy);
+        EGLConfig config;     
+        call.getArgs()[1].get(config);
+        
+        DGLDisplayState::get(reinterpret_cast<uint32_t>(dpy))->addSurface<dglState::NativeSurfaceEGL>(
+            reinterpret_cast<uint32_t>(surface), reinterpret_cast<uint32_t>(config));
+    }
+}
+
 void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 #ifdef _WIN32
     HGLRC ctx;
@@ -222,8 +245,7 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
                 dglState::NativeSurfaceBase* surface = NULL;
                 if (eglReadSurface) {
-                    surface = DGLDisplayState::get((uint32_t)eglDpy)->ensureSurface<dglState::NativeSurfaceEGL>
-                        ((uint32_t)eglReadSurface)->second.get();
+                    surface = DGLDisplayState::get((uint32_t)eglDpy)->getSurface((uint32_t)eglReadSurface)->second.get();
                 }
                 DGLThreadState::get()->bindContext(
                     DGLDisplayState::get((uint32_t)eglDpy), 

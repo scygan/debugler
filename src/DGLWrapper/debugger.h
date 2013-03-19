@@ -57,10 +57,21 @@ public:
     ContextListIter ensureContext(dglState::GLContextVersion version, uint32_t id, bool lock = true);
 
     /**
-     * Getter for native surface object by given id (created if not exist)
+     * Getter for native surface object by given id (created if not exist). Not usable for EGL
      */
     template<typename NativeSurfaceType>
     SurfaceListIter ensureSurface(uint32_t id, bool lock = true);
+
+    /**
+     * Getter for native surface object by given id
+     */
+    SurfaceListIter getSurface(uint32_t id);
+
+    /**
+     * Add surface by given id and pixelformat. Not usable on WGL
+     */
+    template<typename NativeSurfaceType>
+    void addSurface(uint32_t id, uint32_t pixfmt);
 
     /**
      * Method deleting ctx object by given id (should be called when deleted by application)
