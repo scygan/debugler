@@ -100,29 +100,46 @@ namespace state_setters {
         PixelStoreAlignment() {
             //dump and set pixel store state
             for (int i = 0; i < STATE_SIZE; i++) {
-                DIRECT_CALL_CHK(glGetIntegerv)(m_Targets[i], &m_SavedState[i]);
-                DIRECT_CALL_CHK(glPixelStorei)(m_Targets[i], m_State[i]);
+                if (gc->getVersion().check(GLContextVersion::DT) ||
+                        s_StateTable[i].m_ES3 && gc->getVersion().check(GLContextVersion::ES, 3)) {
+                    DIRECT_CALL_CHK(glGetIntegerv)(s_StateTable[i].m_Target, &s_StateTable[i].m_SavedState);
+                    DIRECT_CALL_CHK(glPixelStorei)(s_StateTable[i].m_Target, s_StateTable[i].m_State);
+                }
             }
         }
         ~PixelStoreAlignment() {
             for (int i = 0; i < STATE_SIZE; i++) {
-                DIRECT_CALL_CHK(glPixelStorei)(m_Targets[i], m_SavedState[i]);
+                if (gc->getVersion().check(GLContextVersion::DT) ||
+                        s_StateTable[i].m_ES3 && gc->getVersion().check(GLContextVersion::ES, 3)) {
+                    DIRECT_CALL_CHK(glPixelStorei)(s_StateTable[i].m_Target, s_StateTable[i].m_SavedState);
+                }
             }
         }
     public:
         int getAligned(int x) {
-            int a = m_State[7];
+            int a = s_StateTable[7].m_State;
             return (x + a - 1) & (-a);
         }
     private:
-        static const GLenum m_Targets[STATE_SIZE]; 
-        static GLint m_SavedState[STATE_SIZE];
-        static const GLint m_State[STATE_SIZE];
+
+        static struct StateEntry {
+            const GLenum m_Target;
+            const GLint m_State;
+            const bool m_ES3;
+            GLint m_SavedState;
+        } s_StateTable[STATE_SIZE];
     };
-    const GLenum PixelStoreAlignment::m_Targets[STATE_SIZE] = {GL_PACK_SWAP_BYTES, GL_PACK_LSB_FIRST, GL_PACK_ROW_LENGTH, GL_PACK_IMAGE_HEIGHT, GL_PACK_SKIP_ROWS,
-        GL_PACK_SKIP_PIXELS, GL_PACK_SKIP_IMAGES, GL_PACK_ALIGNMENT};
-    const GLint PixelStoreAlignment::m_State[STATE_SIZE] =  {GL_FALSE, GL_FALSE, 0, 0, 0, 0, 0, 4 };
-    GLint PixelStoreAlignment::m_SavedState[STATE_SIZE];
+    
+    PixelStoreAlignment::StateEntry PixelStoreAlignment::s_StateTable[STATE_SIZE] = {
+        { GL_PACK_SWAP_BYTES,   GL_FALSE, false },
+        { GL_PACK_LSB_FIRST,    GL_FALSE, false },
+        { GL_PACK_ROW_LENGTH,   0,        true },
+        { GL_PACK_IMAGE_HEIGHT, 0,        false },
+        { GL_PACK_SKIP_ROWS,    0,        true },
+        { GL_PACK_SKIP_PIXELS,  0,        true },
+        { GL_PACK_SKIP_IMAGES,  0,        false },
+        { GL_PACK_ALIGNMENT,    4,        true },
+    };
 };
 #undef STATE_SIZE
 
@@ -723,7 +740,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
     state_setters::DefaultPBO defPBO;
     state_setters::CurrentFramebuffer currentFramebuffer(0);
     state_setters::PixelStoreAlignment defAlignment;
-
+    
     //select read buffer
 #pragma message("enable this on es3 when es3 is supported")
     if (/*m_Version.check(GLContextVersion::ES, 3) || */m_Version.check(GLContextVersion::DT)) {
@@ -750,7 +767,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
     GLvoid* ptr;
     if ((ptr = resource->m_PixelRectangle->getPtr()) != NULL)
         DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, transfer.getFormat(), transfer.getType(), ptr);
-       
+
     return ret;
 }
 
