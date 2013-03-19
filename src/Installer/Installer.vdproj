@@ -348,7 +348,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Debugler"
         "ProductCode" = "8:{1DFAE185-E52E-40C5-90B8-14C3A838F260}"
-        "PackageCode" = "8:{C6F78ADD-0E84-4F88-BB5E-59E82BA85F45}"
+        "PackageCode" = "8:{F05821A3-2D5F-47E5-AE5D-7A0EE6B73C9A}"
         "UpgradeCode" = "8:{7DA79E05-4B7B-4671-A35D-45688442DE81}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -971,7 +971,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_500388235C814430ADA133071ADF15C9"
             {
-            "SourcePath" = "8:..\\..\\build\\Win32\\Release\\DGLWrapper\\OpenGL32.dll"
+            "SourcePath" = "8:..\\..\\build\\Win32\\Release\\DGLWrapper\\DGLWrapper.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_BFF30F0D96274B51BD29F5F93C5C5860"
@@ -999,7 +999,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_525DE70E72054CFEAE2693303582A805"
             {
-            "SourcePath" = "8:..\\..\\build\\x64\\Release\\DGLWrapper\\OpenGL32.dll"
+            "SourcePath" = "8:..\\..\\build\\x64\\Release\\DGLWrapper\\DGLWrapper.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E26563A11B084931915C73B0A1B7CD13"

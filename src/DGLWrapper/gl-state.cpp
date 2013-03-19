@@ -1943,7 +1943,7 @@ int NativeSurfaceEGL::getHeight() {
     EGLSurface surface = reinterpret_cast<EGLSurface>(m_Id);
     EGLDisplay dpy = reinterpret_cast<EGLDisplay>(m_Dpy->getId());
 
-    ret = DIRECT_CALL_CHK(eglQuerySurface)(dpy, surface, EGL_WIDTH, &height);
+    ret = DIRECT_CALL_CHK(eglQuerySurface)(dpy, surface, EGL_HEIGHT, &height);
     if (!ret) {
         throw std::runtime_error("eglQuerySurface failed during native surface pixelformat discovery");
     }
