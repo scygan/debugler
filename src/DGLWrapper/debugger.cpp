@@ -17,6 +17,12 @@ DGLDebugController* getController() {
 
 DGLConfiguration g_Config;
 
+DGLDisplayState::DGLDisplayState(uint32_t id):m_Id(id) {}
+
+uint32_t DGLDisplayState::getId() const {
+    return m_Id;
+}
+
 DGLDisplayState* DGLDisplayState::default() {
     return get(0);
 }
@@ -28,12 +34,12 @@ DGLDisplayState* DGLDisplayState::get(uint32_t dpy) {
 
     if (i == s_Displays.end()) {
         i = s_Displays.insert(std::pair<uint32_t, boost::shared_ptr<DGLDisplayState> > (
-            dpy, boost::make_shared<DGLDisplayState>())).first;
+            dpy, boost::make_shared<DGLDisplayState>(dpy))).first;
     }
     return i->second.get();
 }
 
-DGLDisplayState::ContextListIter DGLDisplayState::ensureContext(uint32_t id, bool lock) {
+DGLDisplayState::ContextListIter DGLDisplayState::ensureContext(dglState::GLContextVersion version, uint32_t id, bool lock /* = true */) {
     if (lock) {
         m_ContextListMutex.lock();
     }
@@ -41,7 +47,7 @@ DGLDisplayState::ContextListIter DGLDisplayState::ensureContext(uint32_t id, boo
     if (i == m_ContextList.end()) {
         i = m_ContextList.insert(
                 std::pair<uint32_t, boost::shared_ptr<dglState::GLContext> > (
-                    id, boost::make_shared<dglState::GLContext>(id)
+                    id, boost::make_shared<dglState::GLContext>(version, id)
                     )
             ).first;
     }
@@ -60,7 +66,7 @@ DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface(uint32_t id, boo
     if (i == m_SurfaceList.end()) {
         i = m_SurfaceList.insert(
             std::pair<uint32_t, boost::shared_ptr<dglState::NativeSurfaceBase> > (
-            id, boost::make_shared<NativeSurfaceType>(id)
+            id, boost::make_shared<NativeSurfaceType>(this, id)
             )
             ).first;
     }
@@ -82,7 +88,7 @@ void DGLDisplayState::deleteContext(uint32_t id) {
  }
 
 void DGLDisplayState::lazyDeleteContext(uint32_t id) {
-    dglState::GLContext* ctx = &(*(ensureContext(id)->second));
+    dglState::GLContext* ctx = &(*(ensureContext(dglState::GLContextVersion::UNSUPPORTED, id)->second));
     if (ctx->markForDeletionMayDelete()) {
         deleteContext(id);
     }
@@ -146,7 +152,7 @@ void DGLThreadState::bindContext(DGLDisplayState* dpy, uint32_t ctxId, dglState:
     if (currentCtx && currentCtx->getId() == ctxId) {
         newCtx = currentCtx;
     } else if (ctxId) {
-        newCtx = &(*(dpy->ensureContext(ctxId)->second));
+        newCtx = &(*(dpy->ensureContext(dglState::GLContextVersion::UNSUPPORTED, ctxId)->second));
     }
 
     if (currentCtx != newCtx) {

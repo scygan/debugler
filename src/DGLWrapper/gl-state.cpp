@@ -7,6 +7,7 @@
 
 #include "pointers.h"
 #include "api-loader.h"
+#include "debugger.h"
 
 #include "DGLCommon/gl-formats.h"
 
@@ -238,7 +239,75 @@ GLenum GLFBObj::getTarget() {
     return m_Target;
 }
 
-GLContext::GLContext(uint32_t id): m_Id(id), m_NativeReadSurface(NULL), m_HasNVXMemoryInfo(false), m_HasDebugOutput(false), m_InImmediateMode(false),m_EverBound(false), m_RefCount(0), m_ToBeDeleted(false)  {}
+GLContextVersion::GLContextVersion(Type type):m_Type(type),m_Filled(false) {}
+
+bool GLContextVersion::check(Type type, int majorVersion, int minorVersion) {
+
+    if (type != m_Type) {
+        return false;
+    }
+
+    if (!m_Filled)
+        fill(); 
+
+    if (majorVersion < m_MajorVersion) {
+        return false;
+    }
+
+    if (majorVersion == m_MajorVersion && minorVersion < m_MinorVersion) {
+        return false;
+    }
+
+    return true;
+}
+
+void GLContextVersion::fill() {
+    //It is safe to assume OpenGL ES 1.1 / OpenGL 1.1 is supported, if version string 
+    //parsing fails.
+    m_MajorVersion = m_MinorVersion = 1;
+
+    const char* cVersion = reinterpret_cast<const char*>(DIRECT_CALL_CHK(glGetString)(GL_VERSION));
+
+    assert(cVersion);
+
+    if (cVersion == NULL) {
+        return;
+    }
+
+    std::string version = cVersion;
+
+    int vOffset = -1;
+    if (m_Type = DT) {
+        if (version.substr(0, strlen("OpenGL ")) == "OpenGL ") {
+            vOffset = strlen("OpenGL ");
+        } else {
+            assert(!"unrecognized GL_VERSION string");
+        }
+    } else if (m_Type == ES) {
+        if (version.substr(0, strlen("OpenGL ES ")) == "OpenGL ES ") {
+        } if (version.substr(0, strlen("OpenGL ES-")) == "OpenGL ES-") {
+            vOffset = strlen("OpenGL ES-");
+        } else {
+            assert(!"unrecognized GL_VERSION string");
+        }
+    }
+
+    if (vOffset > 0 && vOffset + 2 <= (int)version.length()) {
+
+        char buf[] = {0, 0};
+        buf[0] = version[vOffset];
+        m_MinorVersion = atoi(buf);
+        assert(version[vOffset + 1] == '.');
+        buf[0] = version[vOffset] + 2;
+        m_MinorVersion = atoi(buf);
+    } else {
+        assert(!"cannot reliable detect OpenGL version");
+    }
+}
+
+
+GLContext::GLContext(GLContextVersion version, uint32_t id): m_Version(version), m_Id(id), m_NativeReadSurface(NULL), m_HasNVXMemoryInfo(false),
+    m_HasDebugOutput(false), m_InImmediateMode(false),m_EverBound(false), m_RefCount(0), m_ToBeDeleted(false)  {}
 
 dglnet::ContextReport GLContext::describe() {
     dglnet::ContextReport ret(m_Id);
@@ -375,6 +444,11 @@ const std::string& GLContext::popDebugOutput() {
 }
 
 void GLContext::startQuery() {
+
+    if (m_Version.check(GLContextVersion::UNSUPPORTED)) {
+        throw std::runtime_error("Context version is not supported");
+    }
+
     peekError();
     if (m_InImmediateMode) {
         throw std::runtime_error("OpenGL is currently in immediate mode (after glBegin,  before glEnd) - cannot issue query");
@@ -424,6 +498,10 @@ bool GLContext::unboundMayDelete() {
     m_RefCount--;
     assert(m_RefCount >= 0);
     return m_ToBeDeleted && m_RefCount <= 0;
+}
+
+GLContextVersion& GLContext::getVersion() {
+    return m_Version;
 }
 
 boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
@@ -639,8 +717,10 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
     state_setters::CurrentFramebuffer currentFramebuffer(0);
     state_setters::PixelStoreAlignment defAlignment;
 
-    //read the buffer
-    DIRECT_CALL_CHK(glReadBuffer)(bufferEnum);
+    //select read buffer
+    if (m_Version.check(GLContextVersion::ES, 3) || m_Version.check(GLContextVersion::DT)) {
+        DIRECT_CALL_CHK(glReadBuffer)(bufferEnum);
+    }
 
 
     std::vector<GLint> rgbaSizes(m_NativeReadSurface->getRGBASizes(), m_NativeReadSurface->getRGBASizes() + 4);
@@ -1350,7 +1430,11 @@ boost::shared_ptr<DGLResource> GLContext::queryState(GLuint name) {
     STATE_ISENABLED(GL_PRIMITIVE_RESTART);
     STATE_INTEGERV(GL_PRIMITIVE_RESTART_INDEX, 1);
     STATE_INTEGERV(GL_VIEWPORT, 4);
-    STATE_DOUBLEV(GL_DEPTH_RANGE, 2);
+    if (gc->getVersion().check(GLContextVersion::DT)) {
+        STATE_DOUBLEV(GL_DEPTH_RANGE, 2);
+    } else  {
+        STATE_FLOATV(GL_DEPTH_RANGE, 2);
+    }
     STATE_ISENABLED(GL_CLIP_DISTANCE0);
     STATE_ISENABLED(GL_CLIP_DISTANCE1);
     STATE_ISENABLED(GL_CLIP_DISTANCE2);
@@ -1722,7 +1806,7 @@ uint32_t NativeSurfaceBase::getId() {
     return m_Id;
 }
 
-NativeSurfaceWGL::NativeSurfaceWGL(uint32_t id):NativeSurfaceBase(id) {
+NativeSurfaceWGL::NativeSurfaceWGL(const DGLDisplayState*, uint32_t id):NativeSurfaceBase(id) {
 #ifdef _WIN32
     HDC hdc = reinterpret_cast<HDC>(id);
     int i = DIRECT_CALL_CHK(wglGetPixelFormat)(hdc);
@@ -1775,36 +1859,104 @@ int NativeSurfaceWGL::getHeight() {
     return m_Height;
 }
 
-NativeSurfaceEGL::NativeSurfaceEGL(uint32_t id):NativeSurfaceBase(id) {}
+NativeSurfaceEGL::NativeSurfaceEGL(const DGLDisplayState* dpy, uint32_t id):m_Dpy(dpy),m_Filled(false),NativeSurfaceBase(id) {}
 
 bool NativeSurfaceEGL::isDoubleBuffered() {
     return true;
 }
 
 bool NativeSurfaceEGL::isStereo() {
-    return true;
+    return false;
 }
+
+void NativeSurfaceEGL::fill() {
+    EGLint configID;
+    EGLBoolean ret;
+
+    EGLSurface surface = reinterpret_cast<EGLSurface>(m_Id);
+    EGLDisplay dpy = reinterpret_cast<EGLDisplay>(m_Dpy->getId());
+
+    ret = DIRECT_CALL_CHK(eglQuerySurface)(dpy, surface, EGL_CONFIG_ID, &configID);
+    if (!ret) {
+        throw std::runtime_error("eglQuerySurface failed");
+    }
+
+    EGLint attribList[] = {
+        EGL_CONFIG_ID,
+        configID,
+        EGL_NONE, 
+        EGL_NONE
+    };
+
+    EGLConfig config;
+    EGLint numConfigs;
+    ret = DIRECT_CALL_CHK(eglChooseConfig)(dpy, attribList, &config, 1, &numConfigs);
+    if (!ret || numConfigs == 0) {
+       throw std::runtime_error("eglChooseConfig failed");
+    }
+
+    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(dpy, config, EGL_RED_SIZE,     &m_RGBASizes[0]);
+    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(dpy, config, EGL_GREEN_SIZE,   &m_RGBASizes[1]);
+    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(dpy, config, EGL_BLUE_SIZE,    &m_RGBASizes[2]);
+    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(dpy, config, EGL_ALPHA_SIZE,   &m_RGBASizes[3]);
+    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(dpy, config, EGL_DEPTH_SIZE,   &m_DepthSize);
+    ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(dpy, config, EGL_STENCIL_SIZE, &m_StencilSize);
+    if (!ret) {
+        throw std::runtime_error("eglGetConfigAttrib failed");
+    }
+    
+
+
+    m_Filled = true;
+}
+
 
 int* NativeSurfaceEGL::getRGBASizes() {
-    int s[] = {8,8,8,8};
-    return s;
+    if (!m_Filled)
+        fill();
+    return m_RGBASizes;
 }
 
+
+
 int NativeSurfaceEGL::getStencilSize() {
-    return 8;
+    if (!m_Filled)
+        fill();
+    return m_StencilSize;
 }
 
 int NativeSurfaceEGL::getDepthSize() {
-    return 8;
+    if (!m_Filled)
+        fill();
+    return m_DepthSize;
 }
 
-
 int NativeSurfaceEGL::getWidth() {
-    return 1;
+    EGLint width;
+    EGLBoolean ret;
+
+    EGLSurface surface = reinterpret_cast<EGLSurface>(m_Id);
+    EGLDisplay dpy = reinterpret_cast<EGLDisplay>(m_Dpy->getId());
+
+    ret = DIRECT_CALL_CHK(eglQuerySurface)(dpy, surface, EGL_WIDTH, &width);
+    if (!ret) {
+        throw std::runtime_error("eglQuerySurface failed");
+    }
+    return width;
 }
 
 int NativeSurfaceEGL::getHeight() {
-    return 1;
+    EGLint height;
+    EGLBoolean ret;
+    
+    EGLSurface surface = reinterpret_cast<EGLSurface>(m_Id);
+    EGLDisplay dpy = reinterpret_cast<EGLDisplay>(m_Dpy->getId());
+
+    ret = DIRECT_CALL_CHK(eglQuerySurface)(dpy, surface, EGL_WIDTH, &height);
+    if (!ret) {
+        throw std::runtime_error("eglQuerySurface failed");
+    }
+    return height;
 }
 
 } //namespace dglState

@@ -41,6 +41,7 @@
 
     TracerBase::SetNext<GLGetErrorTracer>(glGetError_Call);
     TracerBase::SetNext<GetProcAddressTracer>(wglGetProcAddress_Call);
+
     TracerBase::SetNext<ContextTracer>(wglCreateContext_Call);
     TracerBase::SetNext<ContextTracer>(wglMakeCurrent_Call);
     TracerBase::SetNext<ContextTracer>(wglDeleteContext_Call);

@@ -32,6 +32,16 @@ class DGLDisplayState {
     typedef std::map<uint32_t, boost::shared_ptr<dglState::NativeSurfaceBase> >::iterator SurfaceListIter;
 public:
     /**
+     * Ctor
+     */
+    DGLDisplayState(uint32_t id);
+
+    /**
+     * Native id getter
+     */
+    uint32_t getId() const;
+
+    /**
      * Getter for default display on display-less configurations (like WGL).
      */
     static DGLDisplayState* default();
@@ -44,7 +54,7 @@ public:
     /**
      * Getter for ctx object by given id (created if not exist)
      */
-    ContextListIter ensureContext(uint32_t id, bool lock = true);
+    ContextListIter ensureContext(dglState::GLContextVersion version, uint32_t id, bool lock = true);
 
     /**
      * Getter for native surface object by given id (created if not exist)
@@ -103,6 +113,11 @@ private:
      *  Mutex guarding s_Displays
      */ 
     static boost::mutex s_DisplaysMutex;
+
+    /**
+     * Display ID as seen from native API
+     */
+    uint32_t m_Id;
 };
 
 /**

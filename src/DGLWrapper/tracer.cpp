@@ -167,7 +167,7 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
         case wglCreateContext_Call:
             ret.get(ctx);
             if (NULL != ctx) {
-                DGLDisplayState::default()->ensureContext(reinterpret_cast<int32_t>(ctx));
+                DGLDisplayState::default()->ensureContext(dglState::GLContextVersion::DT, reinterpret_cast<int32_t>(ctx));
             }
             break;
         case eglBindAPI_Call:
@@ -182,11 +182,19 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             if (NULL != eglCtx) {
                 call.getArgs()[0].get(eglDpy);
                 if (DGLThreadState::get()->getEGLApi() == EGL_OPENGL_ES_API) {
+
                     g_ApiLoader.loadLibrary(LIBRARY_ES2);
+
+                    DGLDisplayState::get((uint32_t)eglDpy)->ensureContext(
+                        dglState::GLContextVersion::ES, reinterpret_cast<int32_t>(eglCtx));
+
                 } else if (DGLThreadState::get()->getEGLApi() == EGL_OPENGL_API) {
                     g_ApiLoader.loadLibrary(LIBRARY_GL);
+
+                    DGLDisplayState::get((uint32_t)eglDpy)->ensureContext(
+                        dglState::GLContextVersion::DT, reinterpret_cast<int32_t>(eglCtx));
                 }
-                DGLDisplayState::get((uint32_t)eglDpy)->ensureContext(reinterpret_cast<int32_t>(eglCtx));
+                
             }
             break;
         case wglMakeCurrent_Call:

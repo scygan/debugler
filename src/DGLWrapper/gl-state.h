@@ -125,13 +125,13 @@ public:
     virtual int getWidth() = 0;
     virtual int getHeight() = 0;
     virtual ~NativeSurfaceBase() {}
-private:
+protected:
     uint32_t m_Id;
 };
 
 class NativeSurfaceWGL: public NativeSurfaceBase {
 public:
-    NativeSurfaceWGL(uint32_t);
+    NativeSurfaceWGL(const DGLDisplayState* dpy, uint32_t id);
     virtual bool isDoubleBuffered();
     virtual bool isStereo();
 
@@ -150,7 +150,7 @@ private:
 
 class NativeSurfaceEGL: public NativeSurfaceBase {
 public:
-    NativeSurfaceEGL(uint32_t);
+    NativeSurfaceEGL(const DGLDisplayState* dpy, uint32_t id);
     virtual bool isDoubleBuffered();
     virtual bool isStereo();
 
@@ -159,12 +159,37 @@ public:
     virtual int getDepthSize();
 
     virtual int getWidth(); 
-    virtual int getHeight(); 
+    virtual int getHeight();
+private:
+    void fill();
+    bool m_Filled;
+    int m_RGBASizes[4];
+    int m_DepthSize, m_StencilSize;
+    const DGLDisplayState* m_Dpy;
+};
+
+class GLContextVersion {
+public:
+    enum Type {
+        DT, 
+        ES,
+        UNSUPPORTED,
+    };
+    GLContextVersion(Type type);
+
+    bool check(Type type, int majorVersion = 0, int minorVersion = 0);
+
+private:
+    void fill();
+    bool m_Filled;
+    int m_MajorVersion;
+    int m_MinorVersion;
+    Type m_Type;
 };
 
 class GLContext {
 public:
-    GLContext(uint32_t id);
+    GLContext(GLContextVersion version, uint32_t id);
     std::map<GLuint, GLTextureObj> m_Textures;
     std::map<GLuint, GLBufferObj> m_Buffers;
     std::map<GLuint, GLProgramObj> m_Programs;
@@ -232,12 +257,21 @@ public:
      */
     bool unboundMayDelete();
 
+    /**
+     * Getter for context version
+     */
+    GLContextVersion& getVersion();
 
 private:
     void queryCheckError();
     
 
     void firstUse();
+
+    /**
+     * API version of underlying GL context
+     */
+    GLContextVersion m_Version;
 
     /**
      * WGL or other native API context ID
