@@ -302,15 +302,15 @@ void GLContextVersion::fill() {
     int vOffset = -1;
     if (m_Type == DT) {
         if (version.substr(0, strlen("OpenGL ")) == "OpenGL ") {
-            vOffset = strlen("OpenGL ");
+            vOffset = (int)strlen("OpenGL ");
         } else {
             assert(!"unrecognized GL_VERSION string");
         }
     } else if (m_Type == ES) {
         if (version.substr(0, strlen("OpenGL ES ")) == "OpenGL ES ") {
-            vOffset = strlen("OpenGL ES ");
+            vOffset = (int)strlen("OpenGL ES ");
         } else if (version.substr(0, strlen("OpenGL ES-")) == "OpenGL ES-") {
-            vOffset = strlen("OpenGL ES-");
+            vOffset = (int)strlen("OpenGL ES-");
         } else {
             assert(!"unrecognized GL_VERSION string");
         }
