@@ -13,6 +13,9 @@
 #define WINGDIAPI DGLWRAPPER_API
 #endif
 
+//override some dllimports from Khronos headers do dllexports
+#define EGLAPI DGLWRAPPER_API
+
 #include "DGLCommon/gl-headers.h"
 
 #ifdef _WIN32
