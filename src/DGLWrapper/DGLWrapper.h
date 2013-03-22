@@ -6,11 +6,7 @@
 // defined with this macro as being exported.
 
 #ifdef _WIN32
-#ifdef DGLWRAPPER_EXPORTS
 #define DGLWRAPPER_API __declspec(dllexport)
-#else
-#define DGLWRAPPER_API __declspec(dllimport)
-#endif
 #else
 #define DGLWRAPPER_API 
 #endif

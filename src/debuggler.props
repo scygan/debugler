@@ -11,18 +11,18 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLNet;$(SolutionDir)\..\dump\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\external\boost\stage\lib\$(Platform);$(SolutionDir)\..\build\$(Platform)\$(Configuration)\srchiliteqt;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\source-highlight;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\gtest;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLGUI;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLNet;$(SolutionDir)\..\dump\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\srchiliteqt;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\source-highlight;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\gtest;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLGUI;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\libboost_program_options;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\libboost_serialization;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\libboost_system;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\libboost_thread;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\libboost_regexp;</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)/external/boost/;$(SolutionDir)/boost;$(SolutionDir)/external/;$(SolutionDir)/external/gtest/include;$(SolutionDir)/../dump/;$(SolutionDir)/glheaders/</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WIN32_WINNT=0x0501</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BOOST_ALL_NO_LIB;BOOST_ALL_COMPILE_IN_PLACE;BOOST_THREAD_BUILD_LIB;_WIN32_WINNT=0x0501</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Lib>
       <AdditionalDependencies>
       </AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLNet;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\external\boost\stage\lib\$(Platform);$(SolutionDir)\..\build\$(Platform)\$(Configuration)\srchiliteqt;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\source-highlight;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLGUI</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLNet;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\srchiliteqt;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\source-highlight;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLGUI</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup />
