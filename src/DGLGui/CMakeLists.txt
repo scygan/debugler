@@ -61,6 +61,4 @@ add_executable(dglgui
 
 add_dependencies(dglgui Boost)
 
-get_property(Boost_LIBRARIES GLOBAL PROPERTY Boost_LIBRARIES)
-
-target_link_libraries(dglgui ${Boost_LIBRARIES} QHexEdit srchiliteqt dglcommon dglnet ${QT_LIBRARIES})
+target_link_libraries(dglgui -Wl,--whole-archive boost_system boost_serialization boost_regexp -Wl,--no-whole-archive QHexEdit srchiliteqt dglcommon dglnet ${QT_LIBRARIES})
