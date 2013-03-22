@@ -116,8 +116,6 @@ namespace {
         //eglext.h
         EXPECT_EQ(LIBRARY_EGL_EXT, ut_PointerLibraries[eglCreateImageKHR_Call]);
 
-
-        EXPECT_EQ(0, ut_PointerLibraries[NUM_ENTRYPOINTS]);
     }
 
     TEST_F(DGLCommonUT, codegen_entryp_names) {
