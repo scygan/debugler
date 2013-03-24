@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
 
         po::options_description mandatory("Mandatory options");
         mandatory.add_options()
-            ("execute", po::value< vector<string> >()->composing(), "command to execute");        
+            ("execute", po::value< vector<string> >()->composing(), "command to execute. Use -- top supply additional args.");        
 
         po::positional_options_description p;
         p.add("execute", -1);

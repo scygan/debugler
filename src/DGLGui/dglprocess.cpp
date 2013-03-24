@@ -90,7 +90,7 @@ public:
                 "\"" + loaderPath + "\" " +
                 switches + 
                 "\"" + exec + "\" " +
-                "\"" + args + "\" ";
+                "-- " + args;
 
             if (CreateProcessA(
                 (LPSTR)loaderPath.c_str(),
