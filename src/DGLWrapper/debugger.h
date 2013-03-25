@@ -24,64 +24,64 @@ class DGLDisplayState {
     /**
      * Iterator for container of all GL context state objects
      */
-    typedef std::map<uint32_t, boost::shared_ptr<dglState::GLContext> >::iterator ContextListIter;
+    typedef std::map<opaque_id_t, boost::shared_ptr<dglState::GLContext> >::iterator ContextListIter;
 
     /**
      * Iterator for container of all native surfaces
      */
-    typedef std::map<uint32_t, boost::shared_ptr<dglState::NativeSurfaceBase> >::iterator SurfaceListIter;
+    typedef std::map<opaque_id_t, boost::shared_ptr<dglState::NativeSurfaceBase> >::iterator SurfaceListIter;
 public:
     /**
      * Ctor
      */
-    DGLDisplayState(uint32_t id);
+    DGLDisplayState(opaque_id_t id);
 
     /**
      * Native id getter
      */
-    uint32_t getId() const;
+    opaque_id_t getId() const;
 
     /**
      * Getter for default display on display-less configurations (like WGL).
      */
-    static DGLDisplayState* default();
+    static DGLDisplayState* defDpy();
 
     /**
      * Getter for specific display on display-able configurations (like EGL, GLX).
      */
-    static DGLDisplayState* get(uint32_t dpy);
+    static DGLDisplayState* get(opaque_id_t dpy);
 
     /**
      * Getter for ctx object by given id (created if not exist)
      */
-    ContextListIter ensureContext(dglState::GLContextVersion version, uint32_t id, bool lock = true);
+    ContextListIter ensureContext(dglState::GLContextVersion version, opaque_id_t id, bool lock = true);
 
     /**
      * Getter for native surface object by given id (created if not exist). Not usable for EGL
      */
     template<typename NativeSurfaceType>
-    SurfaceListIter ensureSurface(uint32_t id, bool lock = true);
+    SurfaceListIter ensureSurface(opaque_id_t id, bool lock = true);
 
     /**
      * Getter for native surface object by given id
      */
-    SurfaceListIter getSurface(uint32_t id);
+    SurfaceListIter getSurface(opaque_id_t id);
 
     /**
      * Add surface by given id and pixelformat. Not usable on WGL
      */
     template<typename NativeSurfaceType>
-    void addSurface(uint32_t id, uint32_t pixfmt);
+    void addSurface(opaque_id_t id, opaque_id_t pixfmt);
 
     /**
      * Method deleting ctx object by given id (should be called when deleted by application)
      */
-    void deleteContext(uint32_t id);
+    void deleteContext(opaque_id_t id);
 
     /**
      * Method deleting ctx object by given id (should be called when deleted by application). Does not immediately delete when bound
      */
-    void lazyDeleteContext(uint32_t id);
+    void lazyDeleteContext(opaque_id_t id);
 
     /**
      * Getter for short context state report
@@ -98,12 +98,12 @@ private:
     /**
      * Container of all GL context state objects
      */
-    std::map<uint32_t, boost::shared_ptr<dglState::GLContext> > m_ContextList;
+    std::map<opaque_id_t, boost::shared_ptr<dglState::GLContext> > m_ContextList;
 
     /**
      * Container of  all native surfaces
      */
-    std::map<uint32_t, boost::shared_ptr<dglState::NativeSurfaceBase> > m_SurfaceList;
+    std::map<opaque_id_t, boost::shared_ptr<dglState::NativeSurfaceBase> > m_SurfaceList;
 
     /**
      * Mutex for context container operations
@@ -118,7 +118,7 @@ private:
     /**
      *  Collection of all displays
      */
-    static std::map<uint32_t, boost::shared_ptr<DGLDisplayState> > s_Displays;
+    static std::map<opaque_id_t, boost::shared_ptr<DGLDisplayState> > s_Displays;
 
     /**
      *  Mutex guarding s_Displays
@@ -128,7 +128,7 @@ private:
     /**
      * Display ID as seen from native API
      */
-    uint32_t m_Id;
+    opaque_id_t m_Id;
 };
 
 /**
@@ -145,7 +145,7 @@ public:
     /**
      * Setter for current context (should be called just after *MakeCurrent-like calls).
      */
-    void bindContext(DGLDisplayState* dpy, uint32_t id, dglState::NativeSurfaceBase* readSurface);
+    void bindContext(DGLDisplayState* dpy, opaque_id_t id, dglState::NativeSurfaceBase* readSurface);
 
     /**
      * Getter for current context (should be called just after *MakeCurrent-like calls).

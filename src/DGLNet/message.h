@@ -70,8 +70,8 @@ class ContextReport {
     }
 public:
     ContextReport() {}
-    ContextReport(int32_t id):m_Id(id) {}
-    int32_t m_Id;
+    ContextReport(opaque_id_t id):m_Id(id) {}
+    opaque_id_t m_Id;
     std::set<ContextObjectName> m_TextureSpace;
     std::set<ContextObjectName> m_BufferSpace;
     std::set<ContextObjectName> m_ShaderSpace;
@@ -132,13 +132,13 @@ class BreakedCallMessage: public Message {
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
 
 public:
-    BreakedCallMessage(CalledEntryPoint entryp, uint32_t traceSize, uint32_t currentCtx, std::vector<ContextReport> ctxReports):m_entryp(entryp), m_TraceSize(traceSize), m_CurrentCtx(currentCtx), m_CtxReports(ctxReports) {}
+    BreakedCallMessage(CalledEntryPoint entryp, value_t traceSize, opaque_id_t currentCtx, std::vector<ContextReport> ctxReports):m_entryp(entryp), m_TraceSize(traceSize), m_CurrentCtx(currentCtx), m_CtxReports(ctxReports) {}
     BreakedCallMessage() {}
 
     CalledEntryPoint m_entryp;
-    uint32_t m_TraceSize;
+    value_t m_TraceSize;
     std::vector<ContextReport> m_CtxReports;
-    uint32_t m_CurrentCtx;
+    opaque_id_t m_CurrentCtx;
 };
 
 class ContinueBreakMessage: public Message {
@@ -188,10 +188,10 @@ class QueryCallTraceMessage: public Message {
 
 public:
     QueryCallTraceMessage(){}
-    QueryCallTraceMessage(int32_t startOffset, int32_t endOffset):m_StartOffset(startOffset), m_EndOffset(endOffset) {}
+    QueryCallTraceMessage(value_t startOffset, value_t endOffset):m_StartOffset(startOffset), m_EndOffset(endOffset) {}
 
-    uint32_t m_StartOffset;
-    uint32_t m_EndOffset;
+    value_t m_StartOffset;
+    value_t m_EndOffset;
 };
 
 class CallTraceMessage: public Message {
@@ -210,7 +210,7 @@ public:
     CallTraceMessage(){}
     CallTraceMessage(const std::vector<CalledEntryPoint>& trace, int start):m_Trace(trace), m_StartOffset(start) {}
 
-    uint32_t m_StartOffset;
+    value_t m_StartOffset;
     std::vector<CalledEntryPoint> m_Trace;
 };
 
@@ -262,7 +262,7 @@ public:
 
     public:
         DGLResource::ObjectType m_Type;
-        uint32_t m_ListenerId;
+        value_t m_ListenerId;
         ContextObjectName m_ObjectName;
     };
 
@@ -284,7 +284,7 @@ class ResourceMessage: public StatusMessage {
 public:
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
 
-    uint32_t m_ListenerId;
+    value_t m_ListenerId;
     boost::shared_ptr<DGLResource> m_Resource;
 };
 

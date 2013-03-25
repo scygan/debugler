@@ -17,7 +17,7 @@ namespace {
 #define ENUM_LIST_ELEMENT(value) {#value, value},
     struct GLEnum {
         const char* name; 
-        uint64_t value;
+        gl_t value;
     }  g_GLEnums[] = {
 #include "codegen/enum.inl"
         { NULL, 0 }
@@ -25,7 +25,7 @@ namespace {
 #undef ENUM_LIST_ELEMENT
 
     std::map<std::string, Entrypoint> g_EntryPointNameToEnum;
-    std::map<uint64_t, std::string> g_GLEnumValueToName;
+    std::map<gl_t, std::string> g_GLEnumValueToName;
     
     void ensureEnumMapIntialized() {
         if (!g_EntryPointNameToEnum.size()) {
@@ -59,9 +59,9 @@ Entrypoint GetEntryPointEnum(const char* name) {
     return ret->second;
 }
 
-std::string GetGLEnumName(uint64_t glEnum) {
+std::string GetGLEnumName(gl_t glEnum) {
     ensureEnumMapIntialized();
-    std::map<uint64_t, std::string>::iterator ret = g_GLEnumValueToName.find(glEnum);
+    std::map<gl_t, std::string>::iterator ret = g_GLEnumValueToName.find(glEnum);
     if (ret == g_GLEnumValueToName.end()) {
         std::ostringstream tmp; 
         tmp << "0x" << std::hex << glEnum;
@@ -70,7 +70,7 @@ std::string GetGLEnumName(uint64_t glEnum) {
     return ret->second;
 }
 
-std::string GetShaderStageName(uint64_t glEnum) {
+std::string GetShaderStageName(gl_t glEnum) {
     switch (glEnum) {
         case GL_VERTEX_SHADER:
             return "Vertex";
@@ -87,7 +87,7 @@ std::string GetShaderStageName(uint64_t glEnum) {
     }
 }
 
-std::string GetTextureTargetName(uint64_t glEnum) {
+std::string GetTextureTargetName(gl_t glEnum) {
     switch (glEnum) {
     case GL_TEXTURE_1D:
         return "1D";

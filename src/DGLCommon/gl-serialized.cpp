@@ -10,7 +10,7 @@ CalledEntryPoint::CalledEntryPoint(Entrypoint entryp, int numArgs):m_entryp(entr
 
 Entrypoint CalledEntryPoint::getEntrypoint() const { return m_entryp; }
 
-void CalledEntryPoint::setError(uint32_t error) {
+void CalledEntryPoint::setError(gl_t error) {
     m_glError = error;
 }
 
@@ -80,7 +80,7 @@ const std::string& CalledEntryPoint::getDebugOutput() const {
 }
 
 
-DGLResourceFBO::FBOAttachment::FBOAttachment(uint32_t id):m_Ok(true),m_Id(id) {}
+DGLResourceFBO::FBOAttachment::FBOAttachment(gl_t id):m_Ok(true),m_Id(id) {}
 
 void DGLResourceFBO::FBOAttachment::error(std::string msg) {
     m_Ok = false;
@@ -93,7 +93,7 @@ bool DGLResourceFBO::FBOAttachment::isOk(std::string& msg) const {
 }
 
 ContextObjectName::ContextObjectName():m_Context(0), m_Name(0), m_Target(0) {}
-ContextObjectName::ContextObjectName(uint32_t context, uint32_t name, uint32_t target):m_Name(name),m_Context(context),m_Target(target) {}
+ContextObjectName::ContextObjectName(opaque_id_t context, gl_t name, gl_t target):m_Name(name),m_Context(context),m_Target(target) {}
 ContextObjectName::~ContextObjectName() {}
 
  bool ContextObjectName::operator==(const ContextObjectName&rhs) const {
@@ -116,7 +116,7 @@ bool ContextObjectName::operator<(const ContextObjectName&rhs) const {
     return false;
 }
 
-DGLPixelRectangle::DGLPixelRectangle(int32_t width, int32_t height, int32_t rowBytes, uint32_t glFormat, uint32_t glType, uint32_t iFormat, int32_t samples):m_Width(width),
+DGLPixelRectangle::DGLPixelRectangle(value_t width, value_t height, value_t rowBytes, gl_t glFormat, gl_t glType, gl_t iFormat, value_t samples):m_Width(width),
     m_Height(height), m_RowBytes(rowBytes), m_GLFormat(glFormat), m_GLType(glType), m_InternalFormat(iFormat), m_Samples(samples), m_Storage(NULL) {
 
         if (m_Height * m_RowBytes) {

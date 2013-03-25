@@ -47,12 +47,12 @@ class GLenumWrap {
 public:
     GLenumWrap():m_value(0) {}
 
-    GLenumWrap(uint64_t v):m_value(v) {}
+    GLenumWrap(gl_t v):m_value(v) {}
 
-    uint64_t get() { return m_value; }
+    gl_t get() { return m_value; }
     operator GLenum() const { return static_cast<GLenum>(m_value); }
 private:
-    uint64_t m_value;
+    gl_t m_value;
 };
 
 
@@ -105,7 +105,7 @@ public:
     CalledEntryPoint() {}
     CalledEntryPoint(Entrypoint, int numArgs);
     Entrypoint getEntrypoint() const;
-    void setError(uint32_t error);
+    void setError(gl_t error);
     void setDebugOutput(const std::string& message);
 
     const std::vector<AnyValue>& getArgs() const;
@@ -120,7 +120,7 @@ public:
 private: 
     std::vector<AnyValue> m_args;
     Entrypoint m_entryp;
-    int32_t m_glError;
+    gl_t m_glError;
     std::string m_DebugOutput;
     int m_SavedArgsCount;
 };
@@ -166,12 +166,12 @@ public:
      * @param glType GL data type of sent data
      * @param iFormat storage internal format (for informational purposes only)
      */
-    DGLPixelRectangle(int32_t width, int32_t height, int32_t rowBytes, uint32_t glFormat, uint32_t glType, uint32_t iFormat, int32_t samples);
+    DGLPixelRectangle(value_t width, value_t height, value_t rowBytes, gl_t glFormat, gl_t glType, gl_t iFormat, value_t samples);
     DGLPixelRectangle(const DGLPixelRectangle& rhs);
     ~DGLPixelRectangle();
 
-    int32_t m_Width, m_Height, m_RowBytes, m_Samples;
-    uint32_t  m_GLFormat, m_GLType, m_InternalFormat;
+    value_t m_Width, m_Height, m_RowBytes, m_Samples;
+    gl_t  m_GLFormat, m_GLType, m_InternalFormat;
 
     void* getPtr() const;
     size_t getSize() const;
@@ -198,8 +198,8 @@ namespace boost { namespace serialization {
     inline void load_construct_data(
         Archive & ar, DGLPixelRectangle * t, const unsigned int file_version) {
             // retrieve data from archive required to construct new instance
-            int32_t width, height, rowBytes, glFormat, glType, samples;
-            uint32_t iformat;
+            value_t width, height, rowBytes, glFormat, glType, samples;
+            gl_t iformat;
             ar >> width;
             ar >> height;
             ar >> rowBytes;
@@ -274,13 +274,13 @@ public:
         }
     public:
         FBOAttachment() {}
-        FBOAttachment(uint32_t id);
+        FBOAttachment(gl_t id);
 
         void error(std::string msg);
         bool isOk(std::string& error) const;
 
         boost::shared_ptr<DGLPixelRectangle> m_PixelRectangle;
-        uint32_t m_Id;
+        gl_t m_Id;
     private:
         bool m_Ok;
         std::string m_ErrorMsg;
@@ -301,7 +301,7 @@ class DGLResourceShader: public DGLResource {
 
 public:
     std::vector<std::string> m_Sources;
-    std::pair<std::string, uint32_t> m_CompileStatus;
+    std::pair<std::string, gl_t> m_CompileStatus;
 };
 
 class DGLResourceProgram: public DGLResource {
@@ -318,8 +318,8 @@ class DGLResourceProgram: public DGLResource {
 public:
 
     struct Uniform {
-        uint32_t m_type, m_rowSize;
-        int32_t m_location;
+        gl_t m_type;
+        value_t m_rowSize, m_location;
         std::string m_name;
         std::vector<AnyValue> m_value;
         bool m_supportedType;
@@ -335,8 +335,8 @@ public:
         }
     };
 
-    std::pair<std::string, uint32_t> mLinkStatus;
-    std::vector<std::pair<uint32_t, uint32_t> > m_AttachedShaders;
+    std::pair<std::string, gl_t> mLinkStatus;
+    std::vector<std::pair<gl_t, gl_t> > m_AttachedShaders;
     std::vector<Uniform> m_Uniforms;
 };
 
@@ -365,11 +365,11 @@ class DGLResourceGPU: public DGLResource {
             ar & memInfoEvictedMem;
         }
 
-        int32_t memInfoDedidactedVidMem;
-        int32_t memInfoTotalAvailMem;
-        int32_t memInfoCurrentAvailVidMem;
-        int32_t memInfoEvictionCount;
-        int32_t memInfoEvictedMem;
+        value_t memInfoDedidactedVidMem;
+        value_t memInfoTotalAvailMem;
+        value_t memInfoCurrentAvailVidMem;
+        value_t memInfoEvictionCount;
+        value_t memInfoEvictedMem;
     };
 
 
@@ -409,7 +409,7 @@ public:
 class ContextObjectName {
 public:
     ContextObjectName();
-    ContextObjectName(uint32_t context, uint32_t name, uint32_t target = 0);
+    ContextObjectName(opaque_id_t context, gl_t name, gl_t target = 0);
     virtual ~ContextObjectName();
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
@@ -422,9 +422,9 @@ public:
 
     virtual bool operator<(const ContextObjectName&rhs) const;
 
-    uint32_t m_Name;
-    uint32_t m_Context;
-    uint32_t m_Target;
+    gl_t m_Name;
+    opaque_id_t m_Context;
+    gl_t m_Target;
 };
 
 #endif

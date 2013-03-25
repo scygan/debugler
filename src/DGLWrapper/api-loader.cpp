@@ -40,7 +40,7 @@ void* APILoader::loadGLPointer(LoadedLib library, Entrypoint entryp) {
 #ifdef _WIN32
     return GetProcAddress((HINSTANCE)library, GetEntryPointName(entryp));
 #else
-    return dlsym(library, name);
+    return dlsym(library, GetEntryPointName(entryp));
 #endif
 }
 
@@ -60,7 +60,7 @@ void* APILoader::loadExtPointer(Entrypoint entryp) {
             break;
 #endif
         case LIBRARY_EGL:
-            ptr = DIRECT_CALL(eglGetProcAddress)(GetEntryPointName(entryp));
+            ptr = (void*)DIRECT_CALL(eglGetProcAddress)(GetEntryPointName(entryp));
             break;
         default:
             assert(!"unknown glue library");

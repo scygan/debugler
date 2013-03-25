@@ -49,12 +49,12 @@ namespace dglnet {
     class TransportHeader {
     public:
         TransportHeader() {}
-        TransportHeader(int32_t size):m_size(size) {}
+        TransportHeader(value_t size):m_size(size) {}
         int getSize() {
             return m_size;
         };
     private:
-        int32_t m_size;
+        value_t m_size;
     };
 
     Transport::Transport(MessageHandler* handler):m_socket(m_io_service),m_messageHandler(handler),m_WriteReady(true),m_Abort(false) {}
@@ -129,7 +129,7 @@ namespace dglnet {
             archive << msg; 
         }
 
-        TransportHeader* header = new TransportHeader(static_cast<int32_t>(stream->size()));
+        TransportHeader* header = new TransportHeader(static_cast<value_t>(stream->size()));
 
         m_WriteQueue.push_back(std::pair<TransportHeader*, boost::asio::streambuf*>(header, stream));
 

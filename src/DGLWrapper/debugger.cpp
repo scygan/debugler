@@ -17,36 +17,36 @@ DGLDebugController* getController() {
 
 DGLConfiguration g_Config;
 
-DGLDisplayState::DGLDisplayState(uint32_t id):m_Id(id) {}
+DGLDisplayState::DGLDisplayState(opaque_id_t id):m_Id(id) {}
 
-uint32_t DGLDisplayState::getId() const {
+opaque_id_t DGLDisplayState::getId() const {
     return m_Id;
 }
 
-DGLDisplayState* DGLDisplayState::default() {
+DGLDisplayState* DGLDisplayState::defDpy() {
     return get(0);
 }
 
-DGLDisplayState* DGLDisplayState::get(uint32_t dpy) {
+DGLDisplayState* DGLDisplayState::get(opaque_id_t dpy) {
     boost::lock_guard<boost::mutex> lock(s_DisplaysMutex);
 
-    std::map<uint32_t, boost::shared_ptr<DGLDisplayState> >::iterator i = s_Displays.find(dpy);
+    std::map<opaque_id_t, boost::shared_ptr<DGLDisplayState> >::iterator i = s_Displays.find(dpy);
 
     if (i == s_Displays.end()) {
-        i = s_Displays.insert(std::pair<uint32_t, boost::shared_ptr<DGLDisplayState> > (
+        i = s_Displays.insert(std::pair<opaque_id_t, boost::shared_ptr<DGLDisplayState> > (
             dpy, boost::make_shared<DGLDisplayState>(dpy))).first;
     }
     return i->second.get();
 }
 
-DGLDisplayState::ContextListIter DGLDisplayState::ensureContext(dglState::GLContextVersion version, uint32_t id, bool lock /* = true */) {
+DGLDisplayState::ContextListIter DGLDisplayState::ensureContext(dglState::GLContextVersion version, opaque_id_t id, bool lock /* = true */) {
     if (lock) {
         m_ContextListMutex.lock();
     }
     ContextListIter i = m_ContextList.find(id);
     if (i == m_ContextList.end()) {
         i = m_ContextList.insert(
-                std::pair<uint32_t, boost::shared_ptr<dglState::GLContext> > (
+                std::pair<opaque_id_t, boost::shared_ptr<dglState::GLContext> > (
                     id, boost::make_shared<dglState::GLContext>(version, id)
                     )
             ).first;
@@ -58,14 +58,14 @@ DGLDisplayState::ContextListIter DGLDisplayState::ensureContext(dglState::GLCont
 }
 
 template<typename NativeSurfaceType>
-DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface(uint32_t id, bool lock) {
+DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface(opaque_id_t id, bool lock) {
     if (lock) {
         m_SurfaceListMutex.lock();
     }
     SurfaceListIter i = m_SurfaceList.find(id);
     if (i == m_SurfaceList.end()) {
         i = m_SurfaceList.insert(
-            std::pair<uint32_t, boost::shared_ptr<dglState::NativeSurfaceBase> > (
+            std::pair<opaque_id_t, boost::shared_ptr<dglState::NativeSurfaceBase> > (
             id, boost::make_shared<NativeSurfaceType>(this, id))
             ).first;
     }
@@ -75,22 +75,22 @@ DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface(uint32_t id, boo
     return i;
 }
 //only WGL!
-template DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface<dglState::NativeSurfaceWGL>(uint32_t id, bool lock);
+template DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface<dglState::NativeSurfaceWGL>(opaque_id_t id, bool lock);
 
-DGLDisplayState::SurfaceListIter DGLDisplayState::getSurface(uint32_t id) {
+DGLDisplayState::SurfaceListIter DGLDisplayState::getSurface(opaque_id_t id) {
     boost::lock_guard<boost::mutex> guard(m_SurfaceListMutex);
     return m_SurfaceList.find(id);
 }
 
 template<typename NativeSurfaceType>
-void DGLDisplayState::addSurface(uint32_t id, uint32_t pixfmt) {
+void DGLDisplayState::addSurface(opaque_id_t id, opaque_id_t pixfmt) {
     boost::lock_guard<boost::mutex> guard(m_SurfaceListMutex);
     m_SurfaceList[id] =  boost::make_shared<NativeSurfaceType>(this, pixfmt, id);
 }
 //only EGL!
-template void DGLDisplayState::addSurface<dglState::NativeSurfaceEGL>(uint32_t id, uint32_t pixfmt);
+template void DGLDisplayState::addSurface<dglState::NativeSurfaceEGL>(opaque_id_t id, opaque_id_t pixfmt);
 
-void DGLDisplayState::deleteContext(uint32_t id) {
+void DGLDisplayState::deleteContext(opaque_id_t id) {
     boost::lock_guard<boost::mutex> guard(m_ContextListMutex);
     if (gc && gc->getId() == id) {
         DGLThreadState::get()->bindContext(this, 0, 0);
@@ -98,7 +98,7 @@ void DGLDisplayState::deleteContext(uint32_t id) {
     m_ContextList.erase(id);
  }
 
-void DGLDisplayState::lazyDeleteContext(uint32_t id) {
+void DGLDisplayState::lazyDeleteContext(opaque_id_t id) {
     dglState::GLContext* ctx = &(*(ensureContext(dglState::GLContextVersion::UNSUPPORTED, id)->second));
     if (ctx->markForDeletionMayDelete()) {
         deleteContext(id);
@@ -121,7 +121,7 @@ std::vector<dglnet::ContextReport> DGLDisplayState::describeAll() {
 
     boost::lock_guard<boost::mutex> quard(s_DisplaysMutex);
 
-    for (std::map<uint32_t, boost::shared_ptr<DGLDisplayState> >::iterator i = s_Displays.begin(); 
+    for (std::map<opaque_id_t, boost::shared_ptr<DGLDisplayState> >::iterator i = s_Displays.begin(); 
         i != s_Displays.end(); i++) {
 
         std::vector<dglnet::ContextReport> partialReport = i->second->describe();
@@ -131,7 +131,7 @@ std::vector<dglnet::ContextReport> DGLDisplayState::describeAll() {
     return ret;    
 }
 
-std::map<uint32_t, boost::shared_ptr<DGLDisplayState> > DGLDisplayState::s_Displays;
+std::map<opaque_id_t, boost::shared_ptr<DGLDisplayState> > DGLDisplayState::s_Displays;
 
 boost::mutex DGLDisplayState::s_DisplaysMutex;
 
@@ -155,7 +155,7 @@ dglState::GLContext* DGLThreadState::getCurrentCtx() {
     return m_Current;
 }
 
-void DGLThreadState::bindContext(DGLDisplayState* dpy, uint32_t ctxId, dglState::NativeSurfaceBase* readSurface) {
+void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId, dglState::NativeSurfaceBase* readSurface) {
 
     dglState::GLContext* currentCtx = gc;
     dglState::GLContext* newCtx = NULL;

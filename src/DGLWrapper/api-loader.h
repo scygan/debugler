@@ -16,7 +16,7 @@ enum ApiLibrary {
 
 class APILoader {
 public:
-    APILoader::APILoader();
+    APILoader();
 
     void loadLibrary(ApiLibrary apiLibrary);
     void* loadExtPointer(Entrypoint entryp);

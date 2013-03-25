@@ -328,7 +328,7 @@ void GLContextVersion::fill() {
 }
 
 
-GLContext::GLContext(GLContextVersion version, uint32_t id): m_Version(version), m_Id(id), m_NativeReadSurface(NULL), m_HasNVXMemoryInfo(false),
+GLContext::GLContext(GLContextVersion version, opaque_id_t id): m_Version(version), m_Id(id), m_NativeReadSurface(NULL), m_HasNVXMemoryInfo(false),
     m_HasDebugOutput(false), m_InImmediateMode(false),m_EverBound(false), m_RefCount(0), m_ToBeDeleted(false)  {}
 
 dglnet::ContextReport GLContext::describe() {
@@ -1061,7 +1061,7 @@ boost::shared_ptr<DGLResource> GLContext::queryProgram(GLuint name) {
 
     std::set<GLShaderObj*> attachedShaders = program->getAttachedShaders();
     for (std::set<GLShaderObj*>::iterator i = attachedShaders.begin(); i != attachedShaders.end(); i++) {
-        resource->m_AttachedShaders.push_back(std::pair<uint32_t, uint32_t>((*i)->getName(), (*i)->getTarget()));
+        resource->m_AttachedShaders.push_back(std::pair<gl_t, gl_t>((*i)->getName(), (*i)->getTarget()));
     }
 
     GLint linkStatus, infoLogLength; 
@@ -1081,7 +1081,7 @@ boost::shared_ptr<DGLResource> GLContext::queryProgram(GLuint name) {
         }
     }       
 
-    resource->mLinkStatus = std::pair<std::string, uint32_t>(infoLog, linkStatus);
+    resource->mLinkStatus = std::pair<std::string, gl_t>(infoLog, linkStatus);
 
     if (resource->mLinkStatus.second) {
 
@@ -1796,7 +1796,7 @@ void GLContext::markShaderDeleted(GLuint name) {
 }
 
 
-int32_t GLContext::getId() {
+opaque_id_t GLContext::getId() {
     return m_Id;
 }
 
@@ -1824,13 +1824,13 @@ void GLContext::firstUse() {
     }
 }
 
-NativeSurfaceBase::NativeSurfaceBase(uint32_t id):m_Id(id) {}
+NativeSurfaceBase::NativeSurfaceBase(opaque_id_t id):m_Id(id) {}
 
-uint32_t NativeSurfaceBase::getId() {
+opaque_id_t NativeSurfaceBase::getId() {
     return m_Id;
 }
 
-NativeSurfaceWGL::NativeSurfaceWGL(const DGLDisplayState*, uint32_t id):NativeSurfaceBase(id) {
+NativeSurfaceWGL::NativeSurfaceWGL(const DGLDisplayState*, opaque_id_t id):NativeSurfaceBase(id) {
 #ifdef _WIN32
     HDC hdc = reinterpret_cast<HDC>(id);
     int i = DIRECT_CALL_CHK(wglGetPixelFormat)(hdc);
@@ -1883,7 +1883,7 @@ int NativeSurfaceWGL::getHeight() {
     return m_Height;
 }
 
-NativeSurfaceEGL::NativeSurfaceEGL(const DGLDisplayState* dpy, uint32_t pixfmt, uint32_t id):m_Dpy(dpy),NativeSurfaceBase(id) {
+NativeSurfaceEGL::NativeSurfaceEGL(const DGLDisplayState* dpy, opaque_id_t pixfmt, opaque_id_t id):m_Dpy(dpy),NativeSurfaceBase(id) {
     EGLBoolean ret = EGL_TRUE;
 
     EGLDisplay eglDpy = reinterpret_cast<EGLDisplay>(m_Dpy->getId());

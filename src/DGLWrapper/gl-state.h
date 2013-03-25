@@ -113,8 +113,8 @@ private:
 //Native platform interface surface. HDC on windows
 class NativeSurfaceBase {
 public:
-    NativeSurfaceBase(uint32_t);
-    uint32_t getId();
+    NativeSurfaceBase(opaque_id_t);
+    opaque_id_t getId();
     virtual bool isDoubleBuffered() = 0;
     virtual bool isStereo() = 0;
 
@@ -126,12 +126,12 @@ public:
     virtual int getHeight() = 0;
     virtual ~NativeSurfaceBase() {}
 protected:
-    uint32_t m_Id;
+    opaque_id_t m_Id;
 };
 
 class NativeSurfaceWGL: public NativeSurfaceBase {
 public:
-    NativeSurfaceWGL(const DGLDisplayState* dpy, uint32_t id);
+    NativeSurfaceWGL(const DGLDisplayState* dpy, opaque_id_t id);
     virtual bool isDoubleBuffered();
     virtual bool isStereo();
 
@@ -153,7 +153,7 @@ public:
     /**
      * Ctor
      */
-    NativeSurfaceEGL(const DGLDisplayState* dpy, uint32_t pixfmt, uint32_t id);
+    NativeSurfaceEGL(const DGLDisplayState* dpy, opaque_id_t pixfmt, opaque_id_t id);
 
     virtual bool isDoubleBuffered();
     virtual bool isStereo();
@@ -191,7 +191,7 @@ private:
 
 class GLContext {
 public:
-    GLContext(GLContextVersion version, uint32_t id);
+    GLContext(GLContextVersion version, opaque_id_t id);
     std::map<GLuint, GLTextureObj> m_Textures;
     std::map<GLuint, GLBufferObj> m_Buffers;
     std::map<GLuint, GLProgramObj> m_Programs;
@@ -223,7 +223,7 @@ public:
     boost::shared_ptr<DGLResource> queryGPU(GLuint name);
     boost::shared_ptr<DGLResource> queryState(GLuint name);
 
-    int32_t getId();
+    opaque_id_t getId();
 
     std::pair<bool, GLenum> getPokedError();
     GLenum peekError();
@@ -278,7 +278,7 @@ private:
     /**
      * WGL or other native API context ID
      */
-    int32_t m_Id;
+    opaque_id_t m_Id;
 
     /**
      * Handle to native surface (drawable)
