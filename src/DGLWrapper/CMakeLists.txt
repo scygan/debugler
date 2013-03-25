@@ -10,8 +10,4 @@ add_library(dglwrapper SHARED
     ${dglwrapper_SOURCES}
 )
 
-add_dependencies(dglwrapper Boost)
-
-get_property(Boost_LIBRARIES GLOBAL PROPERTY Boost_LIBRARIES)
-
-target_link_libraries(dglwrapper ${Boost_LIBRARIES} -Wl,--whole-archive dglcommon dglnet -Wl,--no-whole-archive dl)
+target_link_libraries(dglwrapper -Wl,--whole-archive boost_serialization boost_system dglcommon dglnet -Wl,--no-whole-archive dl)
