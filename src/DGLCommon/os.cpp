@@ -119,6 +119,7 @@ void* Os::m_CurrentHandle = NULL;
 #include <cstdio>
 #include <cstdlib>
 #include <stdexcept> //remove me
+#include <unistd.h>
 
 class OsIconImpl: public OsIcon {
 public:
@@ -151,5 +152,35 @@ std::string Os::getEnv(const char* variable) {
     }
     return "";
 }
+
+std::string Os::getProcessName() {
+    std::string ret = "<unknown>";
+    size_t linknamelen;
+    char cmdline[256] = {0};
+    const char* file =  "/proc/self/exe";
+    linknamelen = readlink(file, cmdline, sizeof(cmdline) / sizeof(*cmdline) - 1);
+    cmdline[linknamelen + 1] = 0;
+    return cmdline;
+}
+
+void Os::terminate() {
+    _exit(0);
+}
+
+class OsStatusPresenterImpl: public OsStatusPresenter {
+public:
+    virtual void setStatus(const std::string message) {
+        printf("DGLWrapper: %s\n", message.c_str());
+    }
+    virtual ~OsStatusPresenterImpl() {}
+private:
+};
+
+
+
+OsStatusPresenter* Os::createStatusPresenter() {
+    return new OsStatusPresenterImpl();
+}
+
 
 #endif
