@@ -71,7 +71,7 @@ std::string CalledEntryPoint::toString() const {
     return ret.str();;
 }
 
-GLenum CalledEntryPoint::getError() const {
+gl_t CalledEntryPoint::getError() const {
     return m_glError;
 }
 

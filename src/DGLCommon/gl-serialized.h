@@ -115,7 +115,7 @@ public:
         m_SavedArgsCount++;
     }
     std::string toString() const;
-    GLenum getError() const;
+    gl_t getError() const;
     const std::string& getDebugOutput() const;
 private: 
     std::vector<AnyValue> m_args;
