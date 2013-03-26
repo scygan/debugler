@@ -214,14 +214,14 @@ public:
     GLShaderObj* ensureShader(GLuint name);
     void markShaderDeleted(GLuint name);
 
-    boost::shared_ptr<DGLResource> queryTexture(GLuint name);
-    boost::shared_ptr<DGLResource> queryBuffer(GLuint name);
-    boost::shared_ptr<DGLResource> queryFramebuffer(GLuint bufferEnum);
-    boost::shared_ptr<DGLResource> queryFBO(GLuint name);
-    boost::shared_ptr<DGLResource> queryShader(GLuint name);
-    boost::shared_ptr<DGLResource> queryProgram(GLuint name);
-    boost::shared_ptr<DGLResource> queryGPU(GLuint name);
-    boost::shared_ptr<DGLResource> queryState(GLuint name);
+    boost::shared_ptr<DGLResource> queryTexture(gl_t name);
+    boost::shared_ptr<DGLResource> queryBuffer(gl_t name);
+    boost::shared_ptr<DGLResource> queryFramebuffer(gl_t bufferEnum);
+    boost::shared_ptr<DGLResource> queryFBO(gl_t name);
+    boost::shared_ptr<DGLResource> queryShader(gl_t name);
+    boost::shared_ptr<DGLResource> queryProgram(gl_t name);
+    boost::shared_ptr<DGLResource> queryGPU(gl_t name);
+    boost::shared_ptr<DGLResource> queryState(gl_t name);
 
     opaque_id_t getId();
 

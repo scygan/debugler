@@ -526,7 +526,9 @@ GLContextVersion& GLContext::getVersion() {
     return m_Version;
 }
 
-boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
+boost::shared_ptr<DGLResource> GLContext::queryTexture(gl_t _name) {
+
+    GLuint name = static_cast<GLuint>(_name);
 
     DGLResourceTexture* resource;
     boost::shared_ptr<DGLResource> ret (resource = new DGLResourceTexture());
@@ -635,7 +637,9 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(GLuint name) {
     return ret;
 }
 
-boost::shared_ptr<DGLResource> GLContext::queryBuffer(GLuint name) {
+boost::shared_ptr<DGLResource> GLContext::queryBuffer(gl_t _name) {
+
+    GLuint name = static_cast<GLuint>(_name);
 
     DGLResourceBuffer* resource;
     boost::shared_ptr<DGLResource> ret (resource = new DGLResourceBuffer());
@@ -727,7 +731,10 @@ boost::shared_ptr<DGLResource> GLContext::queryBuffer(GLuint name) {
     return ret;
 }
 
-boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
+boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(gl_t _bufferEnum) {
+
+    GLuint bufferEnum = static_cast<GLuint>(_bufferEnum);
+
     DGLResourceFramebuffer* resource;
     boost::shared_ptr<DGLResource> ret (resource = new DGLResourceFramebuffer);
 
@@ -769,7 +776,9 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(GLuint bufferEnum) {
     return ret;
 }
 
-boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
+boost::shared_ptr<DGLResource> GLContext::queryFBO(gl_t _name) {
+
+    GLuint name = static_cast<GLuint>(_name);
 
     DGLResourceFBO* resource;
     boost::shared_ptr<DGLResource> ret (resource = new DGLResourceFBO());
@@ -1032,7 +1041,9 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(GLuint name) {
     return ret;
 }
 
-boost::shared_ptr<DGLResource> GLContext::queryShader(GLuint name) {
+boost::shared_ptr<DGLResource> GLContext::queryShader(gl_t _name) {
+
+    GLuint name = static_cast<GLuint>(_name);
 
     DGLResourceShader* resource;
     boost::shared_ptr<DGLResource> ret (resource = new DGLResourceShader);
@@ -1048,7 +1059,9 @@ boost::shared_ptr<DGLResource> GLContext::queryShader(GLuint name) {
     return ret;
 }
 
-boost::shared_ptr<DGLResource> GLContext::queryProgram(GLuint name) {
+boost::shared_ptr<DGLResource> GLContext::queryProgram(gl_t _name) {
+
+    GLuint name = static_cast<GLuint>(_name);
 
     DGLResourceProgram* resource;
     boost::shared_ptr<DGLResource> ret (resource = new DGLResourceProgram);
@@ -1287,7 +1300,7 @@ boost::shared_ptr<DGLResource> GLContext::queryProgram(GLuint name) {
 
 
 
-boost::shared_ptr<DGLResource> GLContext::queryGPU(GLuint name) {
+boost::shared_ptr<DGLResource> GLContext::queryGPU(gl_t name) {
 
     DGLResourceGPU* resource;
     boost::shared_ptr<DGLResource> ret (resource = new DGLResourceGPU);
@@ -1426,7 +1439,7 @@ DGLResourceState::StateItem GLContext::getStateIsEnabled(const char* name, GLenu
     return ret;
 }
 
-boost::shared_ptr<DGLResource> GLContext::queryState(GLuint name) {
+boost::shared_ptr<DGLResource> GLContext::queryState(gl_t) {
 
     DGLResourceState* resource;
     boost::shared_ptr<DGLResource> ret (resource = new DGLResourceState);
