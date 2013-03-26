@@ -23,6 +23,8 @@
 #ifdef _WIN32
     #define HAVE_LIBRARY_WGL
     #define HAVE_LIBRARY_WGL_EXT
+#else
+    #define HAVE_LIBRARY_GLX
 #endif
 
 

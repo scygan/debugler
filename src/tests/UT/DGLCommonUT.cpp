@@ -66,6 +66,7 @@ namespace {
 
         //eglext.h
         ASSERT_STREQ(GetEntryPointName(eglCreateImageKHR_Call), "eglCreateImageKHR");
+        ASSERT_STREQ(GetEntryPointName(eglQuerySurfacePointerANGLE_Call), "eglQuerySurfacePointerANGLE");
 
         const char* null = NULL;
         //null

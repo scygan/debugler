@@ -77,7 +77,7 @@ def parse(path, library, genNonExtTypedefs = False, skipTrace = False):
 			print >> enumFile, "#ifdef GL" + enumMatch.group(1)
 			print >> enumFile, "	ENUM_LIST_ELEMENT(GL" + enumMatch.group(1) + ")"
 			print >> enumFile, "#endif"
-		coarseFunctionMatch = re.match("^([a-zA-Z0-9_]*) (.*) (WINAPI|APIENTRY|EGLAPIENTRY|GL_APIENTRY) ([a-zA-Z0-9]*) ?\((.*)\)(.*)$", line)
+		coarseFunctionMatch = re.match("^([a-zA-Z0-9_]*) (.*?) (WINAPI|APIENTRY|EGLAPIENTRY|GL_APIENTRY|) ?((?:w?e?gl)[a-zA-Z0-9]*) ?\((.*)\)(.*)$", line)
 		if coarseFunctionMatch: 
 			#print coarseFunctionMatch.groups()
 			retType = coarseFunctionMatch.group(2)
@@ -93,7 +93,8 @@ def parse(path, library, genNonExtTypedefs = False, skipTrace = False):
 				paramDeclList = [ entrypointParamsStr ]
 			else:
 				for param in entrypointParams:
-					paramMatch = re.match("^[ ]*(const|CONST|)[ ]*(struct|)[ ]*([a-zA-Z0-9_]*)[ ]*(\*?)[ ]*(const|CONST|)[ ]*(\*?)[ ]*([a-zA-Z0-9_]*) *$", param)
+					#print param
+					paramMatch = re.match("^[ ]*(const|CONST|)[ ]*(struct|)[ ]*((?:unsigned )?[a-zA-Z0-9_]*)[ ]*(\*?)[ ]*(const|CONST|)[ ]*(\*?)[ ]*([a-zA-Z0-9_]*) *$", param)
 					#print paramMatch.groups()
 					paramName = paramMatch.group(7)
 					
@@ -138,6 +139,7 @@ parse(inputDir + "/wglext-partial.h", "LIBRARY_WGL_EXT")
 parse(inputDir + "/egl.h", "LIBRARY_EGL", True)
 parse(inputDir + "/eglext.h", "LIBRARY_EGL_EXT")
 
+parse(inputDir + "/glx.h", "LIBRARY_GLX", True)
 
 #writeout files:
 for name, entrypoint in sorted(entrypoints.items()):
@@ -201,5 +203,6 @@ for name, entrypoint in sorted(entrypoints.items()):
 		print >> nonExtTypedefs, "#endif"
 		
 #def file for DLL symbols export
-	print >> defFile, "  " + name
+	if "LIBRARY_GL" in entrypoint.libraries.split('|') or "LIBRARY_WGL" in entrypoint.libraries.split('|'):
+		print >> defFile, "  " + name
 

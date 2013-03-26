@@ -11,6 +11,8 @@ enum ApiLibrary {
     LIBRARY_GL_EXT = 16,
     LIBRARY_EGL_EXT = 32,
     LIBRARY_WGL_EXT = 64,
+
+    LIBRARY_GLX = 128,
     LIBRARY_NONE = 0
 };
 

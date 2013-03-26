@@ -29,6 +29,8 @@
     } else {
 #ifdef _WIN32
         g_ApiLoader.loadLibrary(LIBRARY_WGL);
+#else
+        g_ApiLoader.loadLibrary(LIBRARY_GLX);
 #endif
         g_ApiLoader.loadLibrary(LIBRARY_GL);
     }
