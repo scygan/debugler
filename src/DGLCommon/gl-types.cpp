@@ -82,6 +82,8 @@ std::string GetShaderStageName(gl_t glEnum) {
             return "Geometry";
         case GL_FRAGMENT_SHADER:
             return "Fragment";
+        case GL_COMPUTE_SHADER:
+            return "Compute";
         default:
             return GetGLEnumName(glEnum).c_str();
     }
