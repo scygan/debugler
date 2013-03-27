@@ -1820,17 +1820,30 @@ void APIENTRY debugOutputCallback(GLenum source, GLenum type, GLuint id, GLenum 
 
 void GLContext::firstUse() {
     GLint maxExtensions; 
-    DIRECT_CALL_CHK(glGetIntegerv)(GL_NUM_EXTENSIONS, &maxExtensions);
+    
+    std::vector<std::string> exts;
     
     bool debugOutputSupported = false;
-
-    for (int i = 0; i < maxExtensions; i++) {
-        const char* ext = (char*)DIRECT_CALL_CHK(glGetStringi)(GL_EXTENSIONS, i);
-        if (strcmp("GL_ARB_debug_output", ext) == 0)
-            debugOutputSupported = true;
-        if (strcmp("GL_NVX_gpu_memory_info", ext) == 0)
-            m_HasNVXMemoryInfo = true;
+    if (gc->getVersion().check(GLContextVersion::DT, 3) || gc->getVersion().check(GLContextVersion::ES, 3)) {
+        DIRECT_CALL_CHK(glGetIntegerv)(GL_NUM_EXTENSIONS, &maxExtensions);
+        exts.resize(maxExtensions);
+        for (int i = 0; i < maxExtensions; i++) {
+            exts[i] = (char*)DIRECT_CALL_CHK(glGetStringi)(GL_EXTENSIONS, i);
+        }
+    } else {
+        std::string allExts = (char*)DIRECT_CALL_CHK(glGetString)(GL_EXTENSIONS);
+        std::copy(std::istream_iterator<std::string>(std::istringstream(allExts)),
+            std::istream_iterator<std::string>(),
+            std::back_inserter<std::vector<std::string> >(exts));
     }
+
+    for (size_t i = 0; i < exts.size(); i++) {
+        if (strcmp("GL_ARB_debug_output", exts[i].c_str()) == 0)
+            debugOutputSupported = true;
+        if (strcmp("GL_NVX_gpu_memory_info", exts[i].c_str()) == 0)
+            m_HasNVXMemoryInfo = true;
+    }   
+    
     if (debugOutputSupported) {
         DIRECT_CALL_CHK(glEnable)(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
         DIRECT_CALL_CHK(glDebugMessageCallbackARB)(debugOutputCallback, this);
