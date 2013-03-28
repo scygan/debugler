@@ -536,7 +536,14 @@ void ShaderTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             const GLint* length;
             call.getArgs()[0].get(name);
             call.getArgs()[1].get(count);
-            call.getArgs()[2].get(string);
+            if (entrp == glShaderSourceARB_Call) {
+                const GLcharARB * *stringArb;
+                call.getArgs()[2].get(stringArb);
+                string = stringArb;
+            } else {
+                call.getArgs()[2].get(string);
+            }
+            
             call.getArgs()[3].get(length);
 
             std::vector<std::string> sources(count);
