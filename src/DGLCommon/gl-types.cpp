@@ -163,7 +163,8 @@ namespace call_sets {
         glDrawRangeElements_Call,
         glDrawRangeElementsBaseVertex_Call,
         glDrawRangeElementsEXT_Call,
-        glMultiDrawRangeElementArrayAPPLE_Call
+        glMultiDrawRangeElementArrayAPPLE_Call,
+        glEnd_Call,
     };
 
     std::set<Entrypoint> drawCallSet(&drawCalls[0], &drawCalls[sizeof(drawCalls)/sizeof(drawCalls[0])]);
