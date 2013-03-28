@@ -588,7 +588,7 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(gl_t _name) {
     for (size_t face = 0; face < resource->m_FacesLevels.size(); face++) {
         for (int level = 0; true; level++) {
 
-            GLint height, width, samples;
+            GLint height, width, samples = 0;
 
             GLenum levelTarget = tex->getTextureLevelTarget((int)face);
 
@@ -609,12 +609,17 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(gl_t _name) {
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_GREEN_SIZE, &rgbaSizes[1]);
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_BLUE_SIZE, &rgbaSizes[2]);
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_ALPHA_SIZE, &rgbaSizes[3]);
-            
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_SAMPLES, &samples);
+
+            if (gc->getVersion().check(GLContextVersion::DT, 3, 2)) {
+                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_SAMPLES, &samples);
+            }
 
             std::vector<GLint> deptStencilSizes(2, 0);
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_DEPTH_SIZE, &deptStencilSizes[0]);
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_STENCIL_SIZE, &deptStencilSizes[1]);
+            
+            if (gc->getVersion().check(GLContextVersion::DT, 3)) { 
+                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_STENCIL_SIZE, &deptStencilSizes[1]);
+            }
 
             queryCheckError();
 
@@ -1370,7 +1375,13 @@ DGLResourceState::StateItem GLContext::getStateInteger64v(const char* name, GLen
     ret.m_Name = name;
     std::vector<GLint64> val(length, 0);
 
-    DIRECT_CALL_CHK(glGetInteger64v)(value, &val[0]);
+    if (gc->getVersion().check(GLContextVersion::DT, 3, 2) || gc->getVersion().check(GLContextVersion::ES, 3)) {
+        DIRECT_CALL_CHK(glGetInteger64v)(value, &val[0]);
+    } else {
+        std::vector<GLint> valInt(length, 0);
+        DIRECT_CALL_CHK(glGetIntegerv)(value, &valInt[0]);
+        std::copy(valInt.begin(), valInt.end(), val.begin());
+    }    
 
     if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {
         ret.m_Values.resize(val.size());
