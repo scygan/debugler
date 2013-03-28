@@ -341,17 +341,13 @@ RetValue DebugContextTracer::Pre(const CalledEntryPoint& call) {
         DIRECT_CALL_CHK(wglMakeCurrent)(hdc, tmpCtx);
     }
 
-	{
-		try {
-			ret = DIRECT_CALL_CHK(wglCreateContextAttribsARB)(hdc, sharedCtx, &newAttribList[0]);
-		} catch (const std::runtime_error&) {
-			//exception was thrown - wglCreateContextAttribsARB is not avaliable. 
-			//do nothing - ret value is still not set, it will be set in standard wrapper function
-		}    
-	}
-	
+    //call wglCreateContextAttribsARB only if supported by implementation. Otherwise do nothing - ctx will be created in wrapper function
+    if (POINTER(wglCreateContextAttribsARB) || g_ApiLoader.loadExtPointer(wglCreateContextAttribsARB_Call)) {
+        ret = DIRECT_CALL_CHK(wglCreateContextAttribsARB)(hdc, sharedCtx, &newAttribList[0]);
+    }	
 
     if (!anyContextPresent) {
+        //unwind dummy ctx
         DIRECT_CALL_CHK(wglMakeCurrent)(NULL, NULL);
         DIRECT_CALL_CHK(wglDeleteContext)(tmpCtx);
         anyContextPresent = true;
