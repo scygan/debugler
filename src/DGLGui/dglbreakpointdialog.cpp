@@ -79,7 +79,7 @@ void DGLBreakPointDialog::searchBreakPoint(const QString& prefix) {
 
                 if (first) {
                     first = false; 
-                    m_Ui.leftListWidget->scrollToItem(item);
+                    m_Ui.leftListWidget->scrollToItem(item, QAbstractItemView::PositionAtTop);
                 }
             }
         }
