@@ -146,17 +146,27 @@ RetValue GetProcAddressTracer::Pre(const CalledEntryPoint& call) {
 
     if (ret.isSet()) return ret;
 
-    Entrypoint entryp;
+    //get entrypoint name
     const char* entrpName; call.getArgs()[0].get(entrpName);
-    entryp = GetEntryPointEnum(entrpName);
+
+    //translate entrypoint to debugger enum
+    Entrypoint entryp = GetEntryPointEnum(entrpName);
     if (entryp == NO_ENTRYPOINT) {
-        //we do not support this entrypoint
+        //entrypoint not supported by debugger. retult of native *GetProcAddress
+        //will be passed to application, making a hole in trace.
+
         //TODO: add partial support for unknown entrypoints
-        return ret; 
+        return ret;
     }
-    //we recognize this entrypoint, load if nessesary and return address to  wrapper
-    g_ApiLoader.loadExtPointer(entryp);
-    ret = (const void *)getWrapperPointer(entryp);
+    //Load and get address of entrypoint implementation
+    void * entrypImpl =  g_ApiLoader.loadExtPointer(entryp);
+    if (entrypImpl) {
+        //entrypoint supported by implementation, return address of wrapper to application
+        ret = (const void *)getWrapperPointer(entryp);
+    } else {
+        //entrypoint unsupported by implementation, return NULL to application
+        ret = (const void*) NULL;
+    }
     return ret;
 }
 
