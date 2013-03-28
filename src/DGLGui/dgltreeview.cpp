@@ -173,7 +173,7 @@ private:
 class DGLCtxTreeWidget: public QClickableTreeWidgetItem  {
 public:
     DGLCtxTreeWidget(uint ctxId):m_Id(ctxId),
-          m_TextureNode(ctxId, "Textures", ":/icons/texture.png"),
+          m_TextureNode(ctxId, "Textures", ":/icons/textures.png"),
           m_BufferNode(ctxId, "Vertex Buffers", ":/icons/buffer.png"),
           m_FBONode(ctxId, "Framebuffer objects", ":/icons/fbo.png"),
           m_ShaderNode(ctxId, "Shaders", ":/icons/shader.png"),
