@@ -132,6 +132,25 @@ void DGLPixelRectangleView::onMouseLeft() {
     m_Ui->widgetColor->setPalette(pal);
 }
 
+void DGLPixelRectangleView::showChannelR(bool show) {
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_R, show?1.0:0.0, 0.0);
+}
+void DGLPixelRectangleView::showChannelG(bool show) {
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_G, show?1.0:0.0, 0.0);
+}
+void DGLPixelRectangleView::showChannelB(bool show) {
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_B, show?1.0:0.0, 0.0);
+}
+void DGLPixelRectangleView::showChannelA(bool show) {
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_A, show?1.0:0.0, show?0.0:1.0);
+}
+void DGLPixelRectangleView::showChannelD(bool show) {
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_D, show?1.0:0.0, 0.0);
+}
+void DGLPixelRectangleView::showChannelS(bool show) {
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_S, show?1.0:0.0, 0.0);
+}
+
 void DGLPixelRectangleView::updateFormatSizeInfo(const DGLPixelRectangle* pixelRectangle) {
     if (pixelRectangle) {
         std::ostringstream formatSize;
@@ -190,6 +209,9 @@ QGraphicsScene* DGLPixelRectangleScene::getScene() {
     return &m_Scene;
 }
 
+DGLPixelRectangleBlitter* DGLPixelRectangleScene::getBlitter() {
+    return m_Blitter.get();
+}
 
 void DGLPixelRectangleScene::resize(const QSize& size) {
     m_Scene.setSceneRect(0, 0, size.width(), size.height());

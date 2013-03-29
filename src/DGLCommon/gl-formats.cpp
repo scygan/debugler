@@ -133,7 +133,7 @@ inline void blitUNORM332(const void* inVoid, int components, float* out) {
 }
 
 template<void(*blitConversion)(const void*, int, float*)>
-static void blitFunc(DGLBlitterBase::OutputFormat outFormat, int width, int height, const void * src, void* dst, int srcStride, int dstStride, int srcPixelSize, int dstPixelSize, int srcComponents) {
+static void blitFunc(DGLBlitterBase::OutputFormat outFormat, int width, int height, const void * src, void* dst, int srcStride, int dstStride, int srcPixelSize, int dstPixelSize, int srcComponents, std::pair<float, float>* scaleBias) {
     for (int y = 0; y < height; y++) {            
         const unsigned char* srcPtr = (const unsigned char*)src + y * srcStride;
         unsigned char* dstPtr = (unsigned char*)dst + y * dstStride;
@@ -145,16 +145,16 @@ static void blitFunc(DGLBlitterBase::OutputFormat outFormat, int width, int heig
             int out;
 
             if ((out = DGLBlitterBase::outputOffsets[outFormat][0]) >= 0)
-                dstPtr[out] = static_cast<unsigned char>(MAX(MIN(temp[0], 1.0f), 0.0f) * 255.0f);
+                dstPtr[out] = static_cast<unsigned char>(MAX(MIN(temp[0] * scaleBias[out].first + scaleBias[out].second, 1.0f), 0.0f) * 255.0f);
 
             if ((out = DGLBlitterBase::outputOffsets[outFormat][1]) >= 0)
-                dstPtr[out] = static_cast<unsigned char>(MAX(MIN(temp[1], 1.0f), 0.0f) * 255.0f);
+                dstPtr[out] = static_cast<unsigned char>(MAX(MIN(temp[1] * scaleBias[out].first + scaleBias[out].second, 1.0f), 0.0f) * 255.0f);
 
             if ((out = DGLBlitterBase::outputOffsets[outFormat][2]) >= 0)
-                dstPtr[out] = static_cast<unsigned char>(MAX(MIN(temp[2], 1.0f), 0.0f) * 255.0f);
+                dstPtr[out] = static_cast<unsigned char>(MAX(MIN(temp[2] * scaleBias[out].first + scaleBias[out].second, 1.0f), 0.0f) * 255.0f);
 
             if ((out = DGLBlitterBase::outputOffsets[outFormat][3]) >= 0)
-                dstPtr[out] = static_cast<unsigned char>(MAX(MIN(temp[3], 1.0f), 0.0f) * 255.0f);
+                dstPtr[out] = static_cast<unsigned char>(MAX(MIN(temp[3] * scaleBias[out].first + scaleBias[out].second, 1.0f), 0.0f) * 255.0f);
 
             dstPtr += dstPixelSize;               
             srcPtr += srcPixelSize;               
@@ -552,6 +552,11 @@ unsigned int DGLPixelTransfer::getPixelSize() {
     }
 }
 
+DGLBlitterBase::DGLBlitterBase() {
+    for (size_t i = 0; i < sizeof(m_ChannelScaleBiases)/sizeof(m_ChannelScaleBiases[0]); i++) {
+        m_ChannelScaleBiases[i] = std::pair<float, float>(1.0, 0.0);
+    }
+}
 
 void DGLBlitterBase::blit(unsigned int width, unsigned int height, unsigned int rowBytes, GLenum format, GLenum type, const void* data) {
 
@@ -570,9 +575,22 @@ void DGLBlitterBase::blit(unsigned int width, unsigned int height, unsigned int 
     doBlit();
 }
 
+void  DGLBlitterBase::setChannelScale(Channel channel, float scale, float bias) {
+    m_ChannelScaleBiases[channel] = std::pair<float, float>(scale, bias);
+    if (m_DataFormat && m_DataType) {
+        doBlit();
+    }
+}
+
 void DGLBlitterBase::doBlit() {
     
     OutputFormat outputFormat = _GL_RGBX32;
+    std::pair<float, float> channelSBs[4] = {
+        std::pair<float, float>(1.0, 0.0),
+        std::pair<float, float>(1.0, 0.0),
+        std::pair<float, float>(1.0, 0.0),
+        std::pair<float, float>(1.0, 0.0)
+    };
 
     switch (m_DataFormat->format) {
         case GL_RED:
@@ -581,22 +599,44 @@ void DGLBlitterBase::doBlit() {
         case GL_RED_INTEGER:
         case GL_RG_INTEGER:
         case GL_RGB_INTEGER:
-            outputFormat = _GL_RGBX32; break;
+            outputFormat = _GL_RGBX32;
+            channelSBs[0] = m_ChannelScaleBiases[CHANNEL_R];
+            channelSBs[1] = m_ChannelScaleBiases[CHANNEL_G];
+            channelSBs[2] = m_ChannelScaleBiases[CHANNEL_B];
+            break;
         case GL_RGBA:
         case GL_RGBA_INTEGER:
-            outputFormat = _GL_BGRA32; break;
+            outputFormat = _GL_BGRA32;
+            channelSBs[0] = m_ChannelScaleBiases[CHANNEL_B];
+            channelSBs[1] = m_ChannelScaleBiases[CHANNEL_G];
+            channelSBs[2] = m_ChannelScaleBiases[CHANNEL_R];
+            channelSBs[3] = m_ChannelScaleBiases[CHANNEL_A];
+            break;
         case GL_DEPTH_COMPONENT:
+            outputFormat = _GL_MONO8;
+            channelSBs[0] = m_ChannelScaleBiases[CHANNEL_D];
+            break;
         case GL_STENCIL_INDEX:
+            channelSBs[0] = m_ChannelScaleBiases[CHANNEL_S];
+            outputFormat = _GL_MONO8;
+            break;
         case GL_ALPHA:
+            channelSBs[0] = m_ChannelScaleBiases[CHANNEL_A];
+            outputFormat = _GL_MONO8;
+            break;
         case GL_LUMINANCE:
             outputFormat = _GL_MONO8; break;
         case GL_DEPTH_STENCIL:
+            outputFormat = _GL_RGBX32;
+            channelSBs[0] = m_ChannelScaleBiases[CHANNEL_D];
+            channelSBs[1] = m_ChannelScaleBiases[CHANNEL_S];
+            break;
         case GL_LUMINANCE_ALPHA:
             outputFormat = _GL_RGBX32; break;
         default:
         assert(0);
     }
-
+    
     int srcPixelSize = 0;
     if (m_DataType->packed) {
         srcPixelSize = m_DataType->byteSize;
@@ -614,7 +654,7 @@ void DGLBlitterBase::doBlit() {
     if (outputData.size() < size_t(targetRowBytes * m_Height))
         outputData = std::vector<char>(targetRowBytes * m_Height);
 
-    m_DataType->blitFunc(outputFormat, m_Width, m_Height, m_SrcData, &outputData[0], m_SrcStride, targetRowBytes, srcPixelSize, dstPixelSize, m_DataFormat->components);
+    m_DataType->blitFunc(outputFormat, m_Width, m_Height, m_SrcData, &outputData[0], m_SrcStride, targetRowBytes, srcPixelSize, dstPixelSize, m_DataFormat->components, channelSBs);
 
     sink(m_Width, m_Height, outputFormat, &outputData[0]);
 }

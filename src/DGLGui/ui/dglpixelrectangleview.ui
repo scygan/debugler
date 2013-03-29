@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>396</width>
     <height>300</height>
    </rect>
   </property>
@@ -16,13 +16,6 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="labelColorText">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
      <item>
       <widget class="QWidget" name="widgetColor" native="true">
        <property name="sizePolicy">
@@ -49,17 +42,177 @@
       </widget>
      </item>
      <item>
+      <widget class="QLabel" name="labelColorText">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>375</width>
          <height>20</height>
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="channelButtonR">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>23</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>R</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="channelButtonB">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>23</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>B</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="channelButtonG">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>23</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>G</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="channelButtonA">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>23</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>A</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="channelButtonD">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>23</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>D</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="channelButtonS">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>23</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>S</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QLabel" name="labelFormatSize">
@@ -73,5 +226,110 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>channelButtonR</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>DGLPixelRectangleView</receiver>
+   <slot>showChannelR(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>219</x>
+     <y>144</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>219</x>
+     <y>181</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>channelButtonG</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>DGLPixelRectangleView</receiver>
+   <slot>showChannelG(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>249</x>
+     <y>151</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>181</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>channelButtonB</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>DGLPixelRectangleView</receiver>
+   <slot>showChannelB(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>281</x>
+     <y>150</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>281</x>
+     <y>182</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>channelButtonA</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>DGLPixelRectangleView</receiver>
+   <slot>showChannelA(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>310</x>
+     <y>153</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>310</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>channelButtonD</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>DGLPixelRectangleView</receiver>
+   <slot>showChannelD(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>333</x>
+     <y>149</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>333</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>channelButtonS</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>DGLPixelRectangleView</receiver>
+   <slot>showChannelS(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>365</x>
+     <y>160</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>365</x>
+     <y>187</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>showChannelR(bool)</slot>
+  <slot>showChannelG(bool)</slot>
+  <slot>showChannelB(bool)</slot>
+  <slot>showChannelA(bool)</slot>
+  <slot>showChannelD(bool)</slot>
+  <slot>showChannelS(bool)</slot>
+ </slots>
 </ui>

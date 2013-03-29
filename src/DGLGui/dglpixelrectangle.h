@@ -34,6 +34,12 @@ public:
 private slots:
     void onMouseOver(const QPoint& pos);
     void onMouseLeft();
+    void showChannelR(bool);
+    void showChannelG(bool);
+    void showChannelB(bool);
+    void showChannelA(bool);
+    void showChannelD(bool);
+    void showChannelS(bool);
 private:
     Ui::DGLPixelRectangleView* m_Ui;
     DGLPixRectQGraphicsView m_GraphicsView;
@@ -55,6 +61,8 @@ public:
     std::pair<QColor, std::vector<AnyValue> > getColor(const QPoint&);
 
     QGraphicsScene* getScene();
+
+    DGLPixelRectangleBlitter* getBlitter();
 
 public slots:
     void resize(const QSize&);
