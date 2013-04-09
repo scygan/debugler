@@ -215,8 +215,30 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             if (NULL != eglCtx) {
                 call.getArgs()[0].get(eglDpy);
                 if (DGLThreadState::get()->getEGLApi() == EGL_OPENGL_ES_API) {
+                    EGLint const* attribList;
+                    call.getArgs()[3].get(attribList);
 
-                    g_ApiLoader.loadLibrary(LIBRARY_ES2);
+                    ApiLibrary lib = LIBRARY_ES2;
+
+                    if (attribList) {
+                        for (int i = 0; attribList[i] != EGL_NONE; i += 2) {
+                            if (attribList[i] == EGL_CONTEXT_CLIENT_VERSION) {
+                                switch (attribList[i + 1]) {
+                                    case 2: 
+                                        lib = LIBRARY_ES2;
+                                        break;
+                                    case 3:
+                                        lib = LIBRARY_ES3;
+                                        break;
+                                    default:
+                                        assert(0);
+                                        return;
+                                }
+                            }
+                        }
+                    }
+
+                    g_ApiLoader.loadLibrary(lib);
 
                     DGLDisplayState::get((opaque_id_t)eglDpy)->ensureContext(
                         dglState::GLContextVersion::ES, reinterpret_cast<opaque_id_t>(eglCtx));

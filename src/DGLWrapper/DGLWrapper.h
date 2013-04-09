@@ -20,6 +20,8 @@
 #define HAVE_LIBRARY_GL_EXT
 #define HAVE_LIBRARY_EGL
 #define HAVE_LIBRARY_EGL_EXT
+#define HAVE_LIBRARY_ES2
+#define HAVE_LIBRARY_ES3
 #ifdef _WIN32
     #define HAVE_LIBRARY_WGL
     #define HAVE_LIBRARY_WGL_EXT

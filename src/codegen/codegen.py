@@ -131,6 +131,7 @@ parse(inputDir + "/GL.h", "LIBRARY_GL", True)
 parse(inputDir + "/glext.h", "LIBRARY_GL_EXT")
 
 parse(inputDir + "/gl2.h", "LIBRARY_ES2", True)
+parse(inputDir + "/gl3.h", "LIBRARY_ES3", True)
 
 parse(inputDir + "/wgl.h", "LIBRARY_WGL", True)
 parse(inputDir + "/wgl-notrace.h", "LIBRARY_WGL", True, True)

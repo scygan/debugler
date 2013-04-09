@@ -30,6 +30,7 @@ add_custom_command(
 		${codegen_in}/egl.h 
 		${codegen_in}/eglext.h 
 		${codegen_in}/gl2.h
+		${codegen_in}/gl3.h
 		${codegen_in}/glx.h
     COMMENT "Generating code from GL headers"
     VERBATIM

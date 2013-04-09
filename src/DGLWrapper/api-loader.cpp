@@ -86,6 +86,7 @@ std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
             return "libGL.so.1";
 #endif
         case LIBRARY_ES2:
+        case LIBRARY_ES3:
 #ifdef _WIN32
             return "libGLESv2.dll";
 #else
