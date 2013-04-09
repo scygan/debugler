@@ -107,18 +107,19 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary) {
 
         LoadedLib openGLLibraryHandle = NULL;
 
+        libSearchPath.push_back("");
 #ifdef _WIN32
         char buffer[1000];
 #ifndef _WIN64
         if (GetSystemWow64Directory(buffer, sizeof(buffer)) > 0) {
             //we are running 32bit app on 64 bit windows
-            libSearchPath.push_back(buffer);
+            libSearchPath.push_back(buffer + std::string("\\"));
         }
 #endif
         if (!openGLLibraryHandle) {
             if (GetSystemDirectory(buffer, sizeof(buffer)) > 0) {
                 //we are running on native system (32 on 32 or 64 on 64)
-                libSearchPath.push_back(buffer);
+                libSearchPath.push_back(buffer + std::string("\\"));
             }
         }
 #ifndef _WIN64
@@ -127,7 +128,6 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary) {
         libSearchPath.push_back("C:\\Windows\\System32\\");
         libSearchPath.push_back(".");
 #endif
-        libSearchPath.push_back("");
 
         for (size_t i = 0; i < libSearchPath.size() && !openGLLibraryHandle; i++) {
 #ifdef _WIN32
