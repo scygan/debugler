@@ -555,26 +555,7 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(gl_t _name) {
     state_setters::PixelStoreAlignment defAlignment;
 
     //rebind texture, so we can access it
-    GLint lastTexture = 0;
-    switch (tex->getTarget()) {
-        case GL_TEXTURE_1D:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_1D, &lastTexture);
-            break;
-        case GL_TEXTURE_2D:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D, &lastTexture);
-            break;
-        case GL_TEXTURE_RECTANGLE:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_RECTANGLE, &lastTexture);
-            break;
-        case GL_TEXTURE_1D_ARRAY:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_1D_ARRAY, &lastTexture);
-            break;
-        case GL_TEXTURE_CUBE_MAP:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_CUBE_MAP, &lastTexture);
-            break;
-        default:
-            assert(0);
-    }
+    GLint lastTexture = getBoundTexture(tex->getTarget());
     if (lastTexture != tex->getName()) {
         DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), tex->getName());
     }
@@ -853,20 +834,17 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(gl_t _name) {
 
             GLTextureObj* tex = ensureTexture(attmntName);
 
-            GLenum bindableTarget, binding;
+            GLenum bindableTarget;
 
             switch (tex->getTarget()) {
                 case GL_TEXTURE_1D:
                     bindableTarget = tex->getTarget();
-                    binding = GL_TEXTURE_BINDING_1D;
                     break;
                 case GL_TEXTURE_2D:
                     bindableTarget = tex->getTarget();
-                    binding = GL_TEXTURE_BINDING_2D;
                     break;
                 case GL_TEXTURE_RECTANGLE:
                     bindableTarget = tex->getTarget();
-                    binding = GL_TEXTURE_BINDING_RECTANGLE;
                     break;
 
                 case GL_TEXTURE_CUBE_MAP_POSITIVE_X:
@@ -876,15 +854,12 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(gl_t _name) {
                 case GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
                 case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
                     bindableTarget = GL_TEXTURE_CUBE_MAP;
-                    binding = GL_TEXTURE_BINDING_CUBE_MAP;
-
+                    break;
                 case GL_TEXTURE_3D:
                     bindableTarget = tex->getTarget();
-                    binding = GL_TEXTURE_BINDING_3D;
                     break;
                 case GL_TEXTURE_2D_MULTISAMPLE:
                     bindableTarget = tex->getTarget();
-                    binding = GL_TEXTURE_BINDING_2D_MULTISAMPLE;
                     samples = 1;
                     break;
                 default:
@@ -896,8 +871,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(gl_t _name) {
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
                 GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, &level);
 
-            GLint lastTexture;
-            DIRECT_CALL_CHK(glGetIntegerv)(binding, &lastTexture);
+            GLint lastTexture = getBoundTexture(tex->getTarget());
             DIRECT_CALL_CHK(glBindTexture)(bindableTarget, tex->getName());
 
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &width);
@@ -1448,6 +1422,34 @@ DGLResourceState::StateItem GLContext::getStateIsEnabled(const char* name, GLenu
         ret.m_Values.resize(1, val);
     }                                          
     return ret;
+}
+
+GLuint GLContext::getBoundTexture(GLenum target) {
+    //WA for buggy ARM Mali OpenGL ES 3.0 emulator, where to really much data is returned from glGetIntegerv
+    // It was measured that bug is causing to overwrite 192*4 bytes of memory.
+    GLint lastTexture[192];
+
+    switch (target) {
+        case GL_TEXTURE_1D:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_1D, lastTexture);
+            break;
+        case GL_TEXTURE_2D:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D, lastTexture);
+            break;
+        case GL_TEXTURE_RECTANGLE:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_RECTANGLE, lastTexture);
+            break;
+        case GL_TEXTURE_1D_ARRAY:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_1D_ARRAY, lastTexture);
+            break;
+        case GL_TEXTURE_CUBE_MAP:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_CUBE_MAP, lastTexture);
+            break;
+        default:
+            assert(0);
+    }
+
+    return lastTexture[0];
 }
 
 boost::shared_ptr<DGLResource> GLContext::queryState(gl_t) {
