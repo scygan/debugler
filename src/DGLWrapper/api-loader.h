@@ -32,6 +32,7 @@ private:
     std::string getLibraryName(ApiLibrary apiLibrary);
 
     std::map<std::string, LoadedLib> m_LoadedLibraries;
+    int m_LoadedApiLibraries;
 
     ApiLibrary m_GlueLibrary;
 };

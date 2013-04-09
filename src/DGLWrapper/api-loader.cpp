@@ -34,7 +34,7 @@ LoadedPointer g_DirectPointers[Entrypoints_NUM] = {
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED
 };
 
-APILoader::APILoader():m_GlueLibrary(LIBRARY_NONE) {}
+APILoader::APILoader():m_GlueLibrary(LIBRARY_NONE), m_LoadedApiLibraries(LIBRARY_NONE) {}
 
 void* APILoader::loadGLPointer(LoadedLib library, Entrypoint entryp) {
 #ifdef _WIN32
@@ -157,10 +157,17 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary) {
     // we will now detour (hook) them all, so g_DirectPointers will still lead to original opengl32.dll, but
     //application will always call us. 
     for (int i = 0; i < Entrypoints_NUM; i++) {
-
-        if (g_DirectPointers[i].libraryMask & apiLibrary) {
-            g_DirectPointers[i].ptr = loadGLPointer(library, i);
+        if (!(g_DirectPointers[i].libraryMask & apiLibrary)) {
+            //Do not load - entrypoint does not belong to currently loaded API
+            continue;
         }
+
+        if (m_LoadedApiLibraries & g_DirectPointers[i].libraryMask) {
+            //Do not load - entrypoint belongs to already loaded API
+            continue;
+        }
+
+        g_DirectPointers[i].ptr = loadGLPointer(library, i);
 
         if (g_DirectPointers[i].ptr) {
             //this entrypoint was loaded from OpenGL32.dll, detour it!
@@ -183,6 +190,8 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary) {
 #endif
     if (apiLibrary == LIBRARY_EGL || apiLibrary == LIBRARY_WGL)
         m_GlueLibrary = apiLibrary;
+
+    m_LoadedApiLibraries |= apiLibrary;
 }
 
 void* APILoader::ensurePointer(Entrypoint entryp) {
