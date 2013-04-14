@@ -32,9 +32,9 @@
 
 //binary interception method
 #ifdef _WIN32
-    #ifdef _WIN64
+//    #ifdef _WIN64
         #define USE_MHOOK
-    #else
-        #define USE_DETOURS
-    #endif
+//    #else
+//        #define USE_DETOURS
+//    #endif
 #endif
