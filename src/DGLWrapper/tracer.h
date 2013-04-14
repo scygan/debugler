@@ -85,9 +85,11 @@ class GetProcAddressTracer: public TracerBase {
     virtual RetValue Pre(const CalledEntryPoint&); 
 };
 
+#ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
 class SurfaceTracer: public TracerBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
+#endif
 
 class ContextTracer: public TracerBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);

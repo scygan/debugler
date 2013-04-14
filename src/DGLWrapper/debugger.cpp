@@ -79,6 +79,10 @@ template DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface<dglStat
 #ifdef HAVE_LIBRARY_GLX
 template DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface<dglState::NativeSurfaceGLX>(opaque_id_t id, bool lock);
 #endif
+#ifndef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
+template DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface<dglState::NativeSurfaceEGL>(opaque_id_t id, bool lock);
+#endif
+
 
 DGLDisplayState::SurfaceListIter DGLDisplayState::getSurface(opaque_id_t id) {
     boost::lock_guard<boost::mutex> guard(m_SurfaceListMutex);
@@ -90,8 +94,10 @@ void DGLDisplayState::addSurface(opaque_id_t id, opaque_id_t pixfmt) {
     boost::lock_guard<boost::mutex> guard(m_SurfaceListMutex);
     m_SurfaceList[id] =  boost::make_shared<NativeSurfaceType>(this, pixfmt, id);
 }
+#ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
 //only EGL (needs pixfmt as query fails on some implementations)
 template void DGLDisplayState::addSurface<dglState::NativeSurfaceEGL>(opaque_id_t id, opaque_id_t pixfmt);
+#endif
 
 void DGLDisplayState::deleteContext(opaque_id_t id) {
     boost::lock_guard<boost::mutex> guard(m_ContextListMutex);

@@ -319,7 +319,7 @@ void GLContextVersion::fill() {
         buf[0] = version[vOffset + 2];
         m_MinorVersion = atoi(buf);
     } else {
-        assert(!"cannot reliable detect OpenGL version");
+        assert(!"cannot reliably detect OpenGL version");
     }
 
     m_Filled = true;
@@ -1422,9 +1422,13 @@ DGLResourceState::StateItem GLContext::getStateIsEnabled(const char* name, GLenu
 }
 
 GLuint GLContext::getBoundTexture(GLenum target) {
+#ifdef WA_ARM_MALI_EMU_GETTERS_OVERFLOW
     //WA for buggy ARM Mali OpenGL ES 3.0 emulator, where to really much data is returned from glGetIntegerv
     // It was measured that bug is causing to overwrite 192*4 bytes of memory.
     GLint lastTexture[192];
+#else
+    GLint lastTexture[1];
+#endif
 
     switch (target) {
         case GL_TEXTURE_1D:
@@ -1454,8 +1458,10 @@ boost::shared_ptr<DGLResource> GLContext::queryState(gl_t) {
     DGLResourceState* resource;
     boost::shared_ptr<DGLResource> ret (resource = new DGLResourceState);
 
+#ifdef WA_ES_QUERY_STATE
     if (!gc->getVersion().check(GLContextVersion::DT))
         return ret; //not really supported on non-DT
+#endif
 
 #define STATE_INTEGERV(NAME, LENGTH) resource->m_Items.push_back(getStateIntegerv(#NAME, NAME, LENGTH))
 #define STATE_INTEGER64V(NAME, LENGTH) resource->m_Items.push_back(getStateInteger64v(#NAME, NAME, LENGTH))
@@ -1866,9 +1872,8 @@ NativeSurfaceBase::NativeSurfaceBase(opaque_id_t id):m_Id(id) {}
 opaque_id_t NativeSurfaceBase::getId() {
     return m_Id;
 }
-
+#ifdef HAVE_LIBRARY_WGL
 NativeSurfaceWGL::NativeSurfaceWGL(const DGLDisplayState*, opaque_id_t id):NativeSurfaceBase(id) {
-#ifdef _WIN32
     HDC hdc = reinterpret_cast<HDC>(id);
     int i = DIRECT_CALL_CHK(wglGetPixelFormat)(hdc);
     PIXELFORMATDESCRIPTOR  pfd;
@@ -1886,9 +1891,6 @@ NativeSurfaceWGL::NativeSurfaceWGL(const DGLDisplayState*, opaque_id_t id):Nativ
     GetClientRect(WindowFromDC(hdc), &rc);
     m_Width = rc.right - rc.left;
     m_Height = rc.bottom - rc.top;
-#else
-#pragma messages NativeSurface::NativeSurface not implemented
-#endif
 }
 
 bool NativeSurfaceWGL::isDoubleBuffered() {
@@ -1919,7 +1921,7 @@ int NativeSurfaceWGL::getWidth() {
 int NativeSurfaceWGL::getHeight() {
     return m_Height;
 }
-
+#endif
 NativeSurfaceEGL::NativeSurfaceEGL(const DGLDisplayState* dpy, opaque_id_t pixfmt, opaque_id_t id):m_Dpy(dpy),NativeSurfaceBase(id) {
     EGLBoolean ret = EGL_TRUE;
 

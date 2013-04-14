@@ -170,6 +170,7 @@ RetValue GetProcAddressTracer::Pre(const CalledEntryPoint& call) {
     return ret;
 }
 
+#ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
 void SurfaceTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
     EGLSurface surface;
@@ -184,6 +185,7 @@ void SurfaceTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             reinterpret_cast<opaque_id_t>(surface), reinterpret_cast<opaque_id_t>(config));
     }
 }
+#endif
 
 void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 #ifdef HAVE_LIBRARY_WGL
@@ -339,7 +341,11 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
                 dglState::NativeSurfaceBase* surface = NULL;
                 if (eglReadSurface) {
+#ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
                     surface = DGLDisplayState::get((opaque_id_t)eglDpy)->getSurface((opaque_id_t)eglReadSurface)->second.get();
+#else
+                    surface = DGLDisplayState::get((opaque_id_t)eglDpy)->ensureSurface((opaque_id_t)eglReadSurface)->second.get();
+#endif
                 }
                 DGLThreadState::get()->bindContext(
                     DGLDisplayState::get((opaque_id_t)eglDpy), 

@@ -38,3 +38,5 @@
 //        #define USE_DETOURS
 //    #endif
 #endif
+
+#include <DGLCommon/wa.h>

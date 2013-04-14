@@ -44,9 +44,11 @@
     TracerBase::SetNext<GLGetErrorTracer>(glGetError_Call);
     TracerBase::SetNext<GetProcAddressTracer>(wglGetProcAddress_Call);
 
+#ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
 	TracerBase::SetNext<SurfaceTracer>(eglCreateWindowSurface_Call);
 	TracerBase::SetNext<SurfaceTracer>(eglCreatePixmapSurface_Call);
 	TracerBase::SetNext<SurfaceTracer>(eglCreatePbufferSurface_Call);
+#endif    
 
     TracerBase::SetNext<ContextTracer>(wglCreateContext_Call);
     TracerBase::SetNext<ContextTracer>(wglCreateContextAttribsARB_Call);
@@ -114,7 +116,7 @@
     TracerBase::SetNext<ImmediateModeTracer>(glEnd_Call);
 }
 
-
+#ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
 class ThreadWatcher {
 public:
     ThreadWatcher():m_ThreadCount(0) {}
@@ -140,12 +142,13 @@ private:
     boost::mutex m_LoaderThreadLock, m_ThreadCountLock;
     int m_ThreadCount;
 } g_ThreadWatcher;
+#endif
 
 /**
  * DGLwrapper routine called just after DLLinjection
  */
 extern "C" DGLWRAPPER_API void LoaderThread() {
-
+#ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
     //this is called from remotely created thread started right after dll injection
 
     //Workaround for ARM Mali OpenGL ES wrapper on Windows: 
@@ -165,6 +168,7 @@ extern "C" DGLWRAPPER_API void LoaderThread() {
     
     //wait for application exit (all threads but this exit);
     g_ThreadWatcher.lockLoaderThread();
+#endif
 }
 
 /**
@@ -203,10 +207,14 @@ BOOL APIENTRY DllMain( HMODULE hModule,
             Initialize();
             break;
         case DLL_THREAD_ATTACH:
+#ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
             g_ThreadWatcher.addThread();
+#endif            
             break;
         case DLL_THREAD_DETACH:
+#ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
             g_ThreadWatcher.deleteThread();
+#endif
             break;
         case DLL_PROCESS_DETACH:
             TearDown();

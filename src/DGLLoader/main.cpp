@@ -21,6 +21,8 @@
 #include <boost/program_options.hpp>
 
 #include "DGLCommon/os.h"
+#include <DGLCommon/wa.h>
+
 
 bool isProcess64Bit(HANDLE hProcess) {
     //get IsWow64Process function
@@ -139,12 +141,14 @@ int main(int argc, char** argv) {
 
         printf("Executable: %s\nPath: %s\nArguments: %s\nWrapper: %s\n\n\n", executable, path, arguments.c_str(), wrapperPath.c_str());
 
+#ifdef  WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
         //Workaround fo ARM Mali OpenGL ES wrapper on Windows: see LoaderThread() for description
         //as we do not return from LoaderThread() immediately, we need a semaphore to know when to resume application
         std::ostringstream remoteThreadSemaphoreStr;
         remoteThreadSemaphoreStr << boost::uuids::random_generator()();
         Os::setEnv("dgl_remote_thread_semaphore", remoteThreadSemaphoreStr.str().c_str());
         boost::interprocess::named_semaphore remoteThreadSemaphore(boost::interprocess::open_or_create, remoteThreadSemaphoreStr.str().c_str(), 0);
+#endif
 
         //prepare some structures for CreateProcess output
         STARTUPINFOA startupInfo;
@@ -187,8 +191,11 @@ int main(int argc, char** argv) {
         HANDLE thread = Inject(processInformation.hProcess, wrapperPath.c_str(), "LoaderThread");
 
         //wait for loader thread to finish dll inject
-
+#ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
         remoteThreadSemaphore.wait();
+#else
+        WaitForSingleObject(thread, INFINITE);
+#endif
 
         //resume process - now user thread is running
         //whole OpenGL should be wrapped by now
