@@ -488,7 +488,7 @@ DGLPixelTransfer::DGLPixelTransfer(std::vector<GLint> _rgbaSizes, std::vector<GL
             }
             int minSize = 0; 
             for (int i = 0; i < 4; i++) {
-                minSize = min(minSize, rgbaSizes[i]);
+                minSize = MIN(minSize, rgbaSizes[i]);
             }
             if (minSize > 16) {
                 m_DataType = GLFormats::getDataType(GL_UNSIGNED_INT);
