@@ -68,6 +68,9 @@ namespace {
         ASSERT_STREQ(GetEntryPointName(eglCreateImageKHR_Call), "eglCreateImageKHR");
         ASSERT_STREQ(GetEntryPointName(eglQuerySurfacePointerANGLE_Call), "eglQuerySurfacePointerANGLE");
 
+        //glx.h
+        ASSERT_STREQ(GetEntryPointName(glXChooseFBConfig_Call), "glXChooseFBConfig");
+
         const char* null = NULL;
         //null
         ASSERT_STREQ(GetEntryPointName(NO_ENTRYPOINT), "<unknown>");
@@ -116,6 +119,9 @@ namespace {
 
         //eglext.h
         EXPECT_EQ(LIBRARY_EGL_EXT, ut_PointerLibraries[eglCreateImageKHR_Call]);
+
+        //glx.h
+        EXPECT_EQ(LIBRARY_GLX, ut_PointerLibraries[glXChooseFBConfig_Call]);
 
     }
 

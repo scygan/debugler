@@ -77,10 +77,11 @@ def parse(path, library, genNonExtTypedefs = False, skipTrace = False):
 			print >> enumFile, "#ifdef GL" + enumMatch.group(1)
 			print >> enumFile, "	ENUM_LIST_ELEMENT(GL" + enumMatch.group(1) + ")"
 			print >> enumFile, "#endif"
-		coarseFunctionMatch = re.match("^([a-zA-Z0-9_]*) (.*?) (WINAPI|APIENTRY|EGLAPIENTRY|GL_APIENTRY|) ?((?:w?e?gl)[a-zA-Z0-9]*) ?\((.*)\)(.*)$", line)
+		coarseFunctionMatch = re.match("^([a-zA-Z0-9_]*) (.*? (?:\*)?)(WINAPI|APIENTRY|EGLAPIENTRY|GL_APIENTRY|) ?((?:w?e?gl)[a-zA-Z0-9]*) ?\((.*)\)(.*)$", line)
 		if coarseFunctionMatch: 
 			#print coarseFunctionMatch.groups()
-			retType = coarseFunctionMatch.group(2)
+			#print line
+			retType = coarseFunctionMatch.group(2).strip()
 			entryPointName = coarseFunctionMatch.group(4)
 			print entryPointName
 			entrypointParamsStr = coarseFunctionMatch.group(5)
