@@ -486,9 +486,17 @@ DGLPixelTransfer::DGLPixelTransfer(std::vector<GLint> _rgbaSizes, std::vector<GL
                 //the buffer is probably empty.
                 return;
             }
-
-            //for now assume floats. Later we can check bit sizes and choose some UNORM.
-            m_DataType = GLFormats::getDataType(GL_FLOAT);
+            int minSize = 0; 
+            for (int i = 0; i < 4; i++) {
+                minSize = min(minSize, rgbaSizes[i]);
+            }
+            if (minSize > 16) {
+                m_DataType = GLFormats::getDataType(GL_UNSIGNED_INT);
+            } else if (minSize > 8) {
+                m_DataType = GLFormats::getDataType(GL_UNSIGNED_SHORT);
+            } else {
+                m_DataType = GLFormats::getDataType(GL_UNSIGNED_BYTE);
+            }
 
         } else {
             std::vector<GLint> depthStencilSizes(_depthStencilSizes);
@@ -554,7 +562,7 @@ unsigned int DGLPixelTransfer::getPixelSize() {
 
 DGLBlitterBase::DGLBlitterBase() {
     for (size_t i = 0; i < sizeof(m_ChannelScaleBiases)/sizeof(m_ChannelScaleBiases[0]); i++) {
-        m_ChannelScaleBiases[i] = std::pair<float, float>(1.0, 0.0);
+        m_ChannelScaleBiases[i] = std::pair<float, float>(1.0f, 0.0f);
     }
 }
 
@@ -586,10 +594,10 @@ void DGLBlitterBase::doBlit() {
     
     OutputFormat outputFormat = _GL_RGBX32;
     std::pair<float, float> channelSBs[4] = {
-        std::pair<float, float>(1.0, 0.0),
-        std::pair<float, float>(1.0, 0.0),
-        std::pair<float, float>(1.0, 0.0),
-        std::pair<float, float>(1.0, 0.0)
+        std::pair<float, float>(1.0f, 0.0f),
+        std::pair<float, float>(1.0f, 0.0f),
+        std::pair<float, float>(1.0f, 0.0f),
+        std::pair<float, float>(1.0f, 0.0f)
     };
 
     switch (m_DataFormat->format) {
