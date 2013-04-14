@@ -89,7 +89,7 @@ def parse(path, library, genNonExtTypedefs = False, skipTrace = False):
 			paramDeclList = []
 					
 			implicitParamCount = 0
-			if entrypointParamsStr == "VOID" or entrypointParamsStr == "void":
+			if entrypointParamsStr.strip() == "VOID" or entrypointParamsStr.strip() == "void":
 				paramDeclList = [ entrypointParamsStr ]
 			else:
 				for param in entrypointParams:
