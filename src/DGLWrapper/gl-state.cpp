@@ -1842,7 +1842,8 @@ void GLContext::firstUse() {
         }
     } else {
         std::string allExts = (char*)DIRECT_CALL_CHK(glGetString)(GL_EXTENSIONS);
-        std::copy(std::istream_iterator<std::string>(std::istringstream(allExts)),
+        std::istringstream allExtsStream(allExts);
+        std::copy(std::istream_iterator<std::string>(allExtsStream),
             std::istream_iterator<std::string>(),
             std::back_inserter<std::vector<std::string> >(exts));
     }
@@ -1983,5 +1984,91 @@ int NativeSurfaceEGL::getHeight() {
     }
     return height;
 }
+
+#ifdef HAVE_LIBRARY_GLX
+
+NativeSurfaceGLX::NativeSurfaceGLX(const DGLDisplayState* _dpy, opaque_id_t id):m_Dpy(_dpy),NativeSurfaceBase(id) {
+    
+    GLXDrawable drawable = static_cast<GLXDrawable>(m_Id);
+    Display* dpy = reinterpret_cast<Display*>(m_Dpy->getId());
+
+    unsigned int fbConfigID;
+    DIRECT_CALL_CHK(glXQueryDrawable)(dpy, drawable, GLX_FBCONFIG_ID, &fbConfigID);
+
+    int screen = DefaultScreen(dpy);
+
+    const int attribList[] = {GLX_FBCONFIG_ID, fbConfigID, None, None};
+    int nElements;
+    GLXFBConfig* config = DIRECT_CALL_CHK(glXChooseFBConfig)(dpy, screen, attribList, &nElements); 
+
+    assert(nElements == 1);
+
+    if (nElements < 1) { 
+        throw std::runtime_error("glXChooseFBConfig failed during native surface fbconfig discovery");
+    }
+
+    int ret = Success;
+    
+    ret |= DIRECT_CALL_CHK(glXGetFBConfigAttrib)(dpy, *config, GLX_RED_SIZE,   &m_RGBASizes[0]);
+    ret |= DIRECT_CALL_CHK(glXGetFBConfigAttrib)(dpy, *config, GLX_GREEN_SIZE, &m_RGBASizes[1]);
+    ret |= DIRECT_CALL_CHK(glXGetFBConfigAttrib)(dpy, *config, GLX_BLUE_SIZE,  &m_RGBASizes[2]);
+    ret |= DIRECT_CALL_CHK(glXGetFBConfigAttrib)(dpy, *config, GLX_ALPHA_SIZE, &m_RGBASizes[3]);
+
+    ret |= DIRECT_CALL_CHK(glXGetFBConfigAttrib)(dpy, *config, GLX_DEPTH_SIZE,   &m_DepthSize);
+    ret |= DIRECT_CALL_CHK(glXGetFBConfigAttrib)(dpy, *config, GLX_STENCIL_SIZE, &m_StencilSize);
+
+    int val;
+    ret |= DIRECT_CALL_CHK(glXGetFBConfigAttrib)(dpy, *config, GLX_DOUBLEBUFFER, &val); m_DoubleBuffered = val;
+
+    ret |= DIRECT_CALL_CHK(glXGetFBConfigAttrib)(dpy, *config, GLX_STEREO, &val); m_Stereo = val;
+ 
+    if (ret != Success) {
+       throw std::runtime_error("eglGetConfigAttrib failed during native surface pixelformat discovery");
+    }
+
+    XFree(config);
+}
+
+bool NativeSurfaceGLX::isDoubleBuffered() {
+    return true;
+}
+
+bool NativeSurfaceGLX::isStereo() {
+    return false;
+}
+
+int* NativeSurfaceGLX::getRGBASizes() {
+    return m_RGBASizes;
+}
+
+int NativeSurfaceGLX::getStencilSize() {
+    return m_StencilSize;
+}
+
+int NativeSurfaceGLX::getDepthSize() {
+    return m_DepthSize;
+}
+
+int NativeSurfaceGLX::getWidth() {
+    unsigned int width;
+
+    GLXDrawable drawable = static_cast<GLXDrawable>(m_Id);
+    Display* dpy = reinterpret_cast<Display*>(m_Dpy->getId());
+
+    DIRECT_CALL_CHK(glXQueryDrawable)(dpy, drawable, GLX_WIDTH, &width);
+    return width;
+}
+
+int NativeSurfaceGLX::getHeight() {
+    unsigned int height;
+
+    GLXDrawable drawable = static_cast<GLXDrawable>(m_Id);
+    Display* dpy = reinterpret_cast<Display*>(m_Dpy->getId());
+
+    DIRECT_CALL_CHK(glXQueryDrawable)(dpy, drawable, GLX_HEIGHT, &height);
+    return height;
+}
+
+#endif
 
 } //namespace dglState

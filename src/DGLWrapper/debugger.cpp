@@ -74,8 +74,11 @@ DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface(opaque_id_t id, 
     }
     return i;
 }
-//only WGL!
+//only WGL + GLX
 template DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface<dglState::NativeSurfaceWGL>(opaque_id_t id, bool lock);
+#ifdef HAVE_LIBRARY_GLX
+template DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface<dglState::NativeSurfaceGLX>(opaque_id_t id, bool lock);
+#endif
 
 DGLDisplayState::SurfaceListIter DGLDisplayState::getSurface(opaque_id_t id) {
     boost::lock_guard<boost::mutex> guard(m_SurfaceListMutex);
@@ -87,7 +90,7 @@ void DGLDisplayState::addSurface(opaque_id_t id, opaque_id_t pixfmt) {
     boost::lock_guard<boost::mutex> guard(m_SurfaceListMutex);
     m_SurfaceList[id] =  boost::make_shared<NativeSurfaceType>(this, pixfmt, id);
 }
-//only EGL!
+//only EGL (needs pixfmt as query fails on some implementations)
 template void DGLDisplayState::addSurface<dglState::NativeSurfaceEGL>(opaque_id_t id, opaque_id_t pixfmt);
 
 void DGLDisplayState::deleteContext(opaque_id_t id) {

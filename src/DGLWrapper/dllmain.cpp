@@ -49,8 +49,17 @@
 	TracerBase::SetNext<SurfaceTracer>(eglCreatePbufferSurface_Call);
 
     TracerBase::SetNext<ContextTracer>(wglCreateContext_Call);
+    TracerBase::SetNext<ContextTracer>(wglCreateContextAttribsARB_Call);
     TracerBase::SetNext<ContextTracer>(wglMakeCurrent_Call);
     TracerBase::SetNext<ContextTracer>(wglDeleteContext_Call);
+
+    TracerBase::SetNext<ContextTracer>(glXCreateContext_Call);
+    TracerBase::SetNext<ContextTracer>(glXCreateNewContext_Call);
+
+//    TracerBase::SetNext<ContextTracer>(glXCreateContextAttribsARB_Call); //TODO: no glxext .yet
+    TracerBase::SetNext<ContextTracer>(glXMakeCurrent_Call);
+    TracerBase::SetNext<ContextTracer>(glXDestroyContext_Call);
+
     TracerBase::SetNext<ContextTracer>(eglCreateContext_Call);
     TracerBase::SetNext<ContextTracer>(eglMakeCurrent_Call);
     TracerBase::SetNext<ContextTracer>(eglDestroyContext_Call);

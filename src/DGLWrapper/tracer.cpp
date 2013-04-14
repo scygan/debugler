@@ -186,23 +186,101 @@ void SurfaceTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
 }
 
 void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
-#ifdef _WIN32
+#ifdef HAVE_LIBRARY_WGL
     HGLRC ctx;
     HDC device;
     BOOL retBool;
+#endif    
+#ifdef HAVE_LIBRARY_GLX
+    GLXContext ctx;
+    GLXDrawable drawable;
+    Display* dpy;
+    Bool retBool;
+#endif
     EGLBoolean eglBool;
     EGLSurface eglReadSurface;
     EGLContext eglCtx;
     EGLDisplay eglDpy;
     GLenumWrap enumWrapped;
 
-    switch (call.getEntrypoint()) {
+    Entrypoint entryp = call.getEntrypoint();
+
+    switch (entryp) {
+#ifdef HAVE_LIBRARY_WGL
         case wglCreateContext_Call:
+        case wglCreateContextAttribsARB_Call:
             ret.get(ctx);
             if (NULL != ctx) {
                 DGLDisplayState::defDpy()->ensureContext(dglState::GLContextVersion::DT, reinterpret_cast<opaque_id_t>(ctx));
             }
             break;
+        case wglMakeCurrent_Call:
+            ret.get(retBool);
+            if (retBool) {
+                call.getArgs()[0].get(device);
+                call.getArgs()[1].get(ctx);
+
+                dglState::NativeSurfaceBase* surface = NULL;
+                if (device) {
+                    surface = DGLDisplayState::defDpy()->ensureSurface<dglState::NativeSurfaceWGL>
+                        ((opaque_id_t)device)->second.get();
+                }
+
+                DGLThreadState::get()->bindContext(DGLDisplayState::defDpy(), 
+                    reinterpret_cast<opaque_id_t>(ctx), surface);
+            }
+            break;
+        case wglDeleteContext_Call:
+            ret.get(retBool);
+            if (retBool) {
+                call.getArgs()[0].get(ctx);
+                DGLDisplayState::defDpy()->deleteContext(reinterpret_cast<opaque_id_t>(ctx));
+            }
+            break;
+#endif
+#ifdef HAVE_LIBRARY_GLX
+//      case glXCreateContextAttribsARB_Call:  TODO: no glxext yet.
+        case glXCreateContext_Call:
+        case glXCreateNewContext_Call:
+            ret.get(ctx);
+            if (ctx) {
+                call.getArgs()[0].get(dpy);
+                DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy))->ensureContext(
+                        dglState::GLContextVersion::DT, reinterpret_cast<opaque_id_t>(ctx));
+            }
+            break;
+        case glXMakeCurrent_Call:
+        case glXMakeContextCurrent_Call:
+            ret.get(retBool);
+            if (retBool) {
+                call.getArgs()[0].get(dpy);
+
+                if (entryp == glXMakeCurrent_Call) {
+
+                    call.getArgs()[1].get(drawable);
+                    call.getArgs()[2].get(ctx);
+
+                } else if (entryp == glXMakeContextCurrent_Call) {
+
+                    call.getArgs()[2].get(drawable); //read drawable
+                    call.getArgs()[3].get(ctx);
+                }
+                                
+                dglState::NativeSurfaceBase* surface = NULL;
+                if (drawable) {
+                    surface = DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy))->ensureSurface<dglState::NativeSurfaceGLX>
+                        ((opaque_id_t)drawable)->second.get();
+                }
+                DGLThreadState::get()->bindContext(DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy)), 
+                    reinterpret_cast<opaque_id_t>(ctx), surface);
+            }
+            break;
+        case glXDestroyContext_Call:
+            call.getArgs()[0].get(dpy);
+            call.getArgs()[0].get(ctx);
+            DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy))->lazyDeleteContext(reinterpret_cast<opaque_id_t>(ctx));
+            break;
+#endif
         case eglBindAPI_Call:
             ret.get(eglBool);
             if (eglBool) {
@@ -252,22 +330,6 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 
             }
             break;
-        case wglMakeCurrent_Call:
-            ret.get(retBool);
-            if (retBool) {
-                call.getArgs()[0].get(device);
-                call.getArgs()[1].get(ctx);
-
-                dglState::NativeSurfaceBase* surface = NULL;
-                if (device) {
-                    surface = DGLDisplayState::defDpy()->ensureSurface<dglState::NativeSurfaceWGL>
-                        ((opaque_id_t)device)->second.get();
-                }
-
-                DGLThreadState::get()->bindContext(DGLDisplayState::defDpy(), 
-                    reinterpret_cast<opaque_id_t>(ctx), surface);
-            }
-            break;
         case eglMakeCurrent_Call:
             ret.get(eglBool);
             if (eglBool) {
@@ -284,13 +346,6 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
                     reinterpret_cast<opaque_id_t>(eglCtx), surface);
             }
             break;
-        case wglDeleteContext_Call:
-            ret.get(retBool);
-            if (retBool) {
-                call.getArgs()[0].get(ctx);
-                DGLDisplayState::defDpy()->deleteContext(reinterpret_cast<opaque_id_t>(ctx));
-            }
-            break;
         case eglDestroyContext_Call:
             call.getArgs()[0].get(eglDpy);
             ret.get(eglBool);
@@ -304,10 +359,8 @@ void ContextTracer::Post(const CalledEntryPoint& call, const RetValue& ret) {
             if (eglBool) {
                 DGLThreadState::release();
             }
+            break;
     }
-#else
-#pragma message "ContextTracer::Post not implemented"
-#endif
     PrevPost(call, ret);
 }
 
@@ -318,7 +371,7 @@ RetValue DebugContextTracer::Pre(const CalledEntryPoint& call) {
 
     if (ret.isSet()) return ret;
 
-#ifdef _WIN32
+#ifdef HAVE_LIBRARY_WGL
     HDC hdc;
     HGLRC sharedCtx = NULL;
     const int *attribList = NULL;

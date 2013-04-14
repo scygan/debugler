@@ -148,6 +148,29 @@ private:
     int m_DepthSize, m_StencilSize;
 };
 
+class NativeSurfaceGLX: public NativeSurfaceBase {
+public:
+    /**
+     * Ctor
+     */
+    NativeSurfaceGLX(const DGLDisplayState* dpy, opaque_id_t id);
+
+    virtual bool isDoubleBuffered();
+    virtual bool isStereo();
+
+    virtual int* getRGBASizes();
+    virtual int getStencilSize();
+    virtual int getDepthSize();
+
+    virtual int getWidth(); 
+    virtual int getHeight();
+private:
+    int m_RGBASizes[4];
+    int m_DepthSize, m_StencilSize;
+    const DGLDisplayState* m_Dpy;
+    bool m_Stereo, m_DoubleBuffered;
+};
+
 class NativeSurfaceEGL: public NativeSurfaceBase {
 public:
     /**
