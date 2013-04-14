@@ -16,6 +16,9 @@
 
 #ifdef _WIN32
 #include <codegen/input/wglext.h>
+#else
+#include <codegen/input/glx.h>
+//#include <codegen/input/glxext.h>
 #endif
 
 #endif
