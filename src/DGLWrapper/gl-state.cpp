@@ -50,14 +50,12 @@ namespace state_setters {
     class ReadBuffer {
     public:
         ReadBuffer() {
-#pragma message("enable this on es3 when es3 is supported")
-            if (/*gc->getVersion().check(GLContextVersion::ES, 3) || */gc->getVersion().check(GLContextVersion::DT)) {
+            if (gc->getVersion().check(GLContextVersion::ES, 3) || gc->getVersion().check(GLContextVersion::DT)) {
                 DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &m_ReadBuffer);
             }
         }
         ~ReadBuffer() {
-#pragma message("enable this on es3 when es3 is supported")
-            if (/*gc->getVersion().check(GLContextVersion::ES, 3) || */gc->getVersion().check(GLContextVersion::DT)) {
+            if (gc->getVersion().check(GLContextVersion::ES, 3) || gc->getVersion().check(GLContextVersion::DT)) {
                 DIRECT_CALL_CHK(glReadBuffer)(m_ReadBuffer);
             }
         }
@@ -733,8 +731,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(gl_t _bufferEnum) {
     state_setters::PixelStoreAlignment defAlignment;
     
     //select read buffer
-#pragma message("enable this on es3 when es3 is supported")
-    if (/*m_Version.check(GLContextVersion::ES, 3) || */m_Version.check(GLContextVersion::DT)) {
+    if (m_Version.check(GLContextVersion::ES, 3) || m_Version.check(GLContextVersion::DT)) {
         DIRECT_CALL_CHK(glReadBuffer)(bufferEnum);
     }
 
