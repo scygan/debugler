@@ -80,6 +80,7 @@ std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
 #endif
         case LIBRARY_GL:
         case LIBRARY_WGL:
+        case LIBRARY_GLX:
 #ifdef _WIN32
             return "opengl32.dll";
 #else
