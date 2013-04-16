@@ -189,7 +189,7 @@ for name, entrypoint in sorted(entrypoints.items()):
 	print >> wrappersFile, "    RetValue retVal;"
 	
 	if not entrypoint.skipTrace:
-		print >> wrappersFile, "    retVal = g_Tracers[" + name + "_Call]->DoPre(call);"
+		print >> wrappersFile, "    retVal = g_Actions[" + name + "_Call]->DoPre(call);"
 
 	print >> wrappersFile, "    if (!retVal.isSet()) {"
 	if entrypoint.retType != "void":
@@ -200,10 +200,10 @@ for name, entrypoint in sorted(entrypoints.items()):
 	
 	if not entrypoint.skipTrace:
 		if entrypoint.retType != "void":
-			print >> wrappersFile, "    g_Tracers[" + name + "_Call]->DoPost(call, retVal);"
+			print >> wrappersFile, "    g_Actions[" + name + "_Call]->DoPost(call, retVal);"
 			
 		else:
-			print >> wrappersFile, "    g_Tracers[" + name + "_Call]->DoPost(call);"
+			print >> wrappersFile, "    g_Actions[" + name + "_Call]->DoPost(call);"
 		
 
 	if entrypoint.retType != "void":
