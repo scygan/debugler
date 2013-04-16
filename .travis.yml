@@ -1,14 +1,14 @@
 language: cpp
 branches:
-	only:
-		- master
+  only:
+    - master
 notifications:
-	recipients:
-		- debugler@gmail.com
-	email:
-		on_success: change
-		on_failure: always
+  recipients:
+    - debugler@gmail.com
+  email:
+    on_success: change
+    on_failure: always
 compiler:
-	- gcc
+    - gcc
 
 script: mkdir build && cd build && cmake ../src && make
