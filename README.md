@@ -27,31 +27,36 @@ Needed:
    * Unpack, edit qt-everywhere-opensource-src-4.8.4\mkspecs\win32-msvc2010:
 
    * Replace 
-   ```
-   QMAKE_CFLAGS_RELEASE    = -O2 -MD
-   QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO += -O2 -MD -Zi
-   QMAKE_CFLAGS_DEBUG      = -Zi -MDd
-   ```
+   
+```
+QMAKE_CFLAGS_RELEASE    = -O2 -MD
+QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO += -O2 -MD -Zi
+QMAKE_CFLAGS_DEBUG      = -Zi -MDd
+```
+
    with
-   ```
-   QMAKE_CFLAGS_RELEASE    = -O2 -MT
-   QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO += -O2 -MT -Zi
-   QMAKE_CFLAGS_DEBUG      = -Zi -MTd
-   ```
+   
+```
+QMAKE_CFLAGS_RELEASE    = -O2 -MT
+QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO += -O2 -MT -Zi
+QMAKE_CFLAGS_DEBUG      = -Zi -MTd
+```
+
    * Build:
-   ```
-   "c:\Program Files (x86)\Microsoft Visual Studio 10.0\vc\vcvarsall.bat"
-   cd qt-everywhere-opensource-src-4.8.4
-   configure.exe -debug-and-release -platform win32-msvc2010 -no-qt3support -fast
-   nmake
-   ```
+   
+```
+"c:\Program Files (x86)\Microsoft Visual Studio 10.0\vc\vcvarsall.bat"
+cd qt-everywhere-opensource-src-4.8.4
+configure.exe -debug-and-release -platform win32-msvc2010 -no-qt3support -fast
+nmake
+```
 
  * Set <b>QTDIR</b> environment variable to location of <b>qt-everywhere-opensource-src-4.8.4</b> directory
 
  * Run 
-  ```
-  src\built.bat
-  ```
+```
+src\built.bat
+```
  * Installer is build in <b>src\built.bat</b> directory
 
 ####Running unit tests
@@ -59,9 +64,9 @@ Needed:
  * Install python setup tools: https://pypi.python.org/pypi/setuptools/
 
  * Install required modules:
-  ```
-  C:\Python27\scripts\easy_install pyopengl
-  ```
+```
+C:\Python27\scripts\easy_install pyopengl
+```
  * Test python install by running <b>debugler\src\tests\samples\simple.py</b>
    On my machine i had this problem: http://stackoverflow.com/questions/10188595/pyopengl-typeerror-nonetype-object-is-not-callable
    Resolved by copying missing DLLs as described
