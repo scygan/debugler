@@ -26,6 +26,10 @@ CalledEntryPoint::CalledEntryPoint(Entrypoint entryp, int numArgs):m_entryp(entr
 
 Entrypoint CalledEntryPoint::getEntrypoint() const { return m_entryp; }
 
+void CalledEntryPoint::setRetVal(const RetValue& ret) {
+    m_retVal = ret;
+}
+
 void CalledEntryPoint::setError(gl_t error) {
     m_glError = error;
 }
@@ -84,7 +88,17 @@ std::string CalledEntryPoint::toString() const {
     }
 
     ret << ")";
+
+    if (m_retVal.isSet()) {
+        ret << " = ";
+        m_retVal.writeToSS(ret);
+    }
+
     return ret.str();;
+}
+
+const RetValue& CalledEntryPoint::getRetVal() const {
+    return m_retVal;
 }
 
 gl_t CalledEntryPoint::getError() const {

@@ -106,12 +106,33 @@ private:
         PtrWrap<void*>, PtrWrap<const void*>, GLenumWrap> m_value;
 };
 
+class RetValue: public AnyValue {
+public: 
+    RetValue():m_isSet(false) {}
+
+    RetValue(const RetValue& v):AnyValue(*static_cast<const AnyValue*>(&v)),m_isSet(v.isSet()) {}
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<AnyValue>(*this);;
+        ar & m_isSet;
+    }
+
+    template<typename T>
+    RetValue(T v):AnyValue(v),m_isSet(true) {}
+
+    bool isSet() const { return m_isSet; }   
+private: 
+    bool m_isSet;
+};
+
 class CalledEntryPoint {
     friend class boost::serialization::access;
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
         ar & m_args;
+        ar & m_retVal;
         ar & m_entryp;
         ar & m_glError;
         ar & m_DebugOutput;
@@ -121,6 +142,7 @@ public:
     CalledEntryPoint() {}
     CalledEntryPoint(Entrypoint, int numArgs);
     Entrypoint getEntrypoint() const;
+    void setRetVal(const RetValue& ret);
     void setError(gl_t error);
     void setDebugOutput(const std::string& message);
 
@@ -131,10 +153,12 @@ public:
         m_SavedArgsCount++;
     }
     std::string toString() const;
+    const RetValue& getRetVal() const;
     gl_t getError() const;
     const std::string& getDebugOutput() const;
 private: 
     std::vector<AnyValue> m_args;
+    RetValue m_retVal;
     Entrypoint m_entryp;
     gl_t m_glError;
     std::string m_DebugOutput;

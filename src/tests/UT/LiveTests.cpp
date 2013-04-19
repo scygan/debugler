@@ -84,6 +84,22 @@ namespace {
             return dynamic_cast<T*>(msg);
         }
 
+        template<typename T>
+        T* receiveUntilMessage(dglnet::Transport* transport, stubs::MessageHandler& handler) {
+            dglnet::Message* msg = NULL; 
+            do {
+                transport->run_one();
+                if (!handler.mDisconnected) {
+                    msg = handler.getLastMessage();
+                }
+            } while (!handler.mDisconnected && (!msg || !(dynamic_cast<T*>(msg))));
+            EXPECT_EQ(false, handler.mDisconnected);
+            if (!msg || !dynamic_cast<T*>(msg)) {
+                return NULL;
+            }
+            return dynamic_cast<T*>(msg);
+        }
+
     }
 
 
@@ -164,6 +180,99 @@ namespace {
        ASSERT_TRUE(breaked != NULL);
         
        EXPECT_EQ(glDrawArrays_Call, breaked->m_entryp.getEntrypoint());
+
+       client->abort();
+   }
+
+
+   TEST_F(LiveTest, entryp_retvals) {
+       stubs::Controller controllerStub;
+       stubs::MessageHandler messageHandlerStub;
+       boost::shared_ptr<dglnet::Client> client(new dglnet::Client(&controllerStub, &messageHandlerStub));
+       client->connectServer("127.0.0.1", "8888");
+
+       dglnet::BreakedCallMessage* breaked = utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+       ASSERT_TRUE(breaked != NULL);
+              
+       {
+           //set breakpoints && disable other breaking stuff
+           std::set<Entrypoint> breakpoints;
+           breakpoints.insert(wglCreateContext_Call);
+           breakpoints.insert(glGetError_Call);
+           breakpoints.insert(glCreateShader_Call);
+           dglnet::SetBreakPointsMessage breakPointMessage(breakpoints);
+           client->sendMessage(&breakPointMessage);
+
+           dglnet::ConfigurationMessage config(DGLConfiguration(false, false, false));
+           client->sendMessage(&config);
+       }
+       {
+           //continue
+           dglnet::ContinueBreakMessage continueMsg(false);
+           client->sendMessage(&continueMsg);
+       }
+
+       bool wglCreateContext_done = false;
+       bool glGetError_done = false;
+       bool glCreateShader_done = false;
+
+       while (!wglCreateContext_done || !glGetError_done || !glCreateShader_done) {
+           breaked = utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+           ASSERT_TRUE(breaked != NULL);
+
+           {
+               //we should be breaked on one of earlier breakpoints
+               ASSERT_TRUE(
+                   breaked->m_entryp.getEntrypoint() == wglCreateContext_Call ||
+                   breaked->m_entryp.getEntrypoint() == glGetError_Call ||
+                   breaked->m_entryp.getEntrypoint() == glCreateShader_Call
+                   );
+               
+               {
+                   //advance one call
+                   dglnet::ContinueBreakMessage step(dglnet::ContinueBreakMessage::STEP_CALL);
+                   client->sendMessage(&step);
+                   ASSERT_TRUE(utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub) != NULL);
+               }
+               
+               {
+                   //query callTrace with one entryp
+                   dglnet::QueryCallTraceMessage queryCallTrace(0, 1);
+                   client->sendMessage(&queryCallTrace);
+               }
+
+               dglnet::CallTraceMessage* callTrace = utils::receiveUntilMessage<dglnet::CallTraceMessage>(client.get(), messageHandlerStub);
+               ASSERT_TRUE(callTrace != NULL);
+
+               HGLRC ctx;
+               GLenum error;
+               GLuint shader;
+
+               switch (callTrace->m_Trace[0].getEntrypoint()) {
+                   case wglCreateContext_Call:
+                       wglCreateContext_done = true;
+                       callTrace->m_Trace[0].getRetVal().get(ctx);
+                       EXPECT_TRUE(ctx != NULL);
+                       break;
+                   case glGetError_Call:
+                       glGetError_done = true;
+                       callTrace->m_Trace[0].getRetVal().get(error);
+                       EXPECT_EQ(GL_NO_ERROR, error);
+                       break;
+                   case glCreateShader_Call:
+                       glCreateShader_done = true;
+                       callTrace->m_Trace[0].getRetVal().get(shader);
+                       EXPECT_TRUE(shader != 0);
+                       break;
+                   default:
+                       ASSERT_TRUE(!"breaked at wrong entryp");
+               }
+
+               //continue execution
+               dglnet::ContinueBreakMessage continueMsg(false);
+               client->sendMessage(&continueMsg);
+           }
+       }
 
        client->abort();
    }

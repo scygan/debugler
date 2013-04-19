@@ -21,23 +21,6 @@
 #include <boost/thread/tss.hpp>
 #include <vector>
 
-
-
-
-class RetValue: public AnyValue {
-public: 
-   RetValue():m_isSet(false) {}
-
-   RetValue(const RetValue& v):AnyValue(*static_cast<const AnyValue*>(&v)),m_isSet(v.isSet()) {}
-
-   template<typename T>
-   RetValue(T v):AnyValue(v),m_isSet(true) {}
-
-   bool isSet() const { return m_isSet; }   
-private: 
-    bool m_isSet;
-};
-
 class ActionBase;
 extern boost::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];
 

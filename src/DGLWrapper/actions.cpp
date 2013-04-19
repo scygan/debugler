@@ -120,20 +120,26 @@ RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
 void DefaultAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     getController()->getServer().lock();
 
+	CallHistory& history = getController()->getCallHistory();
+
     GLenum error;
     if (dglState::GLContext* ctx = gc) {
 
         bool hasDebugOutput = ctx->hasDebugOutput();
         if (hasDebugOutput) {
-            getController()->getCallHistory().setDebugOutput(ctx->popDebugOutput());
+            history.setDebugOutput(ctx->popDebugOutput());
             getController()->getBreakState().setBreakAtDebugOutput();
         }
 
         if ((error = gc->peekError()) != GL_NO_ERROR) {
-            getController()->getCallHistory().setError(error);
+            history.setError(error);
             getController()->getBreakState().setBreakAtGLError(error);
         }
-    }    
+    }
+
+	if (ret.isSet()) {
+		history.setRetVal(ret);    
+	}
     
     getController()->getServer().unlock();
     

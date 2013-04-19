@@ -322,6 +322,11 @@ public:
     size_t size();
 
     /** 
+     * Set return value of last GL call
+     */
+    void setRetVal(const RetValue& ret);
+
+    /** 
      * set GL error on last called entrypoint
      */
     void setError(GLenum error);

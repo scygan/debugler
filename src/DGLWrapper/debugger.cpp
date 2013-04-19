@@ -305,6 +305,11 @@ size_t CallHistory::size() {
     return m_cb.size();
 }
 
+void CallHistory::setRetVal(const RetValue& ret) {
+    boost::lock_guard<boost::mutex> lock(m_mutex);
+    m_cb.back().setRetVal(ret);
+}
+
 void CallHistory::setError( GLenum error ) {
     boost::lock_guard<boost::mutex> lock(m_mutex);
     m_cb.back().setError(error);
