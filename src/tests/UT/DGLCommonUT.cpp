@@ -104,7 +104,7 @@ namespace {
 
     TEST_F(DGLCommonUT, codegen_libraries) {
         //gl.h + gl2.h
-        EXPECT_EQ(LIBRARY_GL | LIBRARY_ES2, ut_PointerLibraries[glEnable_Call]);
+        EXPECT_EQ(LIBRARY_GL | LIBRARY_ES2 | LIBRARY_ES3, ut_PointerLibraries[glEnable_Call]);
 
         //all ES2 entryps are should be shared with GL or GL_EXT
         for (int i = 0; i < NUM_ENTRYPOINTS; i++) {
@@ -163,7 +163,7 @@ namespace {
 
         DGLPixelTransfer rgba8(rgbaSizes, dsSizes, 0);
         EXPECT_EQ(rgba8.getFormat(), GL_RGB);
-        EXPECT_EQ(rgba8.getType(), GL_FLOAT);
+        EXPECT_EQ(rgba8.getType(), GL_UNSIGNED_BYTE);
     }
 
 
