@@ -141,7 +141,11 @@ def parse(path, library, genNonExtTypedefs = False, skipTrace = False):
 				entrypoints[entryPointName].addLibrary(library)
 				continue #no further processing of entrypoint
 			else:
-			    entrypoints[entryPointName] = Entrypoint(library, genNonExtTypedefs, skipTrace, retType, paramNames, paramDeclList)
+				entrypoints[entryPointName] = Entrypoint(library, genNonExtTypedefs, skipTrace, retType, paramNames, paramDeclList)
+				if entryPointName == "glXGetProcAddressARB":
+					#it would be very hard to parse glXGetProcAddress from glx.h (there is func ret type in definition).
+					#So for simplicity assume glXGetProcAddress is the same as glXGetProcAddressARB
+					entrypoints["glXGetProcAddress"] = Entrypoint(library, genNonExtTypedefs, skipTrace, retType, paramNames, paramDeclList)
 
 print >> defFile, "EXPORTS"
 
