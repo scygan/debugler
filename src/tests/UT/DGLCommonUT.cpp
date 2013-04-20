@@ -86,6 +86,7 @@ namespace {
 
         //glx.h
         ASSERT_STREQ(GetEntryPointName(glXChooseFBConfig_Call), "glXChooseFBConfig");
+        ASSERT_STREQ(GetEntryPointName(glXGetProcAddress_Call), "glXGetProcAddress");
 
         const char* null = NULL;
         //null

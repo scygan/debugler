@@ -70,9 +70,15 @@ void* APILoader::loadExtPointer(Entrypoint entryp) {
         void * ptr = NULL;
 
         switch (m_GlueLibrary) {
-#ifdef _WIN32        
+#ifdef HAVE_LIBRARY_WGL
         case LIBRARY_WGL:
             ptr  = DIRECT_CALL(wglGetProcAddress)(GetEntryPointName(entryp));
+            break;
+#endif
+#ifdef HAVE_LIBRARY_GLX
+        case LIBRARY_GLX:
+            ptr = reinterpret_cast<void*>(DIRECT_CALL(glXGetProcAddress)(
+                        reinterpret_cast<const GLubyte*>(GetEntryPointName(entryp))));
             break;
 #endif
         case LIBRARY_EGL:
@@ -206,7 +212,7 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary) {
 #ifdef USE_DETOURS
     DetourTransactionCommit();
 #endif
-    if (apiLibrary == LIBRARY_EGL || apiLibrary == LIBRARY_WGL)
+    if (apiLibrary == LIBRARY_EGL || apiLibrary == LIBRARY_WGL || apiLibrary == LIBRARY_GLX)
         m_GlueLibrary = apiLibrary;
 
     m_LoadedApiLibraries |= apiLibrary;
