@@ -140,6 +140,7 @@ namespace call_sets {
          wglSwapLayerBuffers_Call,
          wglSwapMultipleBuffers_Call,
          eglSwapBuffers_Call,
+         glXSwapBuffers_Call
     };
     Entrypoint drawCalls[] = {
         glDrawElements_Call,
