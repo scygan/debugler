@@ -231,7 +231,8 @@ int main(int argc, char** argv) {
             std::vector<char*> argv(args.size());
             for (size_t i = 0; i < args.size(); i++) {
                 std::copy(args[i].begin(), args[i].end(), std::back_inserter<std::vector<char> >(argvs[i]));
-                 argv[i] = &argvs[i][0];
+                argvs[i].push_back('\0');
+                argv[i] = &argvs[i][0];
             }
             argv.push_back(NULL);
 
