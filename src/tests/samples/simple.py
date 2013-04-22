@@ -4,6 +4,7 @@ import OpenGL
 from ctypes import c_void_p
 OpenGL.ERROR_ON_COPY = True 
 from OpenGL.GL import *
+from OpenGL.GL.ARB.vertex_array_object import *
 from OpenGL.GLUT import *
  
 # PyOpenGL 3.0.1 introduces this convenience module...
@@ -14,9 +15,10 @@ program = None
 vao = GLuint(0)
 vbo = GLuint(0)
 
+
 def initializeState(Width, Height):
     global vao
-    vao = glGenVertexArrays(1)
+    glGenVertexArrays(1, vao)
     glBindVertexArray(vao)
     
     global vbo
