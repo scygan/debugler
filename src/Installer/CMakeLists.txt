@@ -1,0 +1,9 @@
+set(CPACK_GENERATOR "DEB")
+set(CPACK_PACKAGE_VERSION_MAJOR "0")
+set(CPACK_PACKAGE_VERSION_MINOR "1")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqtgui4,libqtcore4")
+set(CPACK_PACKAGE_DESCRIPTION "The OpenGL Debugger")
+set(CPACK_PACKAGE_CONTACT "Slawomir Cygan debugler@gmail.com")
+#set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/Debian/postinst")
+
+include(CPack)
