@@ -9,6 +9,7 @@ include_directories(
     external
     external/source-highlight-3.1.7/lib/
     external/boost/
+    external/gtest/include
     ${CMAKE_CURRENT_BINARY_DIR}
     )
 
@@ -22,3 +23,5 @@ add_subdirectory(DGLGui)
 add_subdirectory(DGLWrapper)
 add_subdirectory(DGLLoader)
 add_subdirectory(Installer)
+add_subdirectory(external/gtest)
+add_subdirectory(tests)

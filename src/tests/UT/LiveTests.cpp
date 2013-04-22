@@ -1,12 +1,27 @@
+/* Copyright (C) 2013 Slawomir Cygan <slawomir.cygan@gmail.com>
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 
 #include "gtest/gtest.h"
 
-#include <DGLGUI/dglprocess.h>
-
+#include <DGLGui/dglprocess.h>
+#include <DGLCommon/gl-headers.h>
 #include <DGLNet/client.h>
 
-#include <windows.h>
-#include <boost/thread/thread.hpp> 
+#include <boost/thread/thread.hpp>
+
 
 namespace {
 
@@ -15,12 +30,19 @@ namespace {
 
         LiveTest() {
             if (once) {
+#ifdef _WIN32
                 SetCurrentDirectory("..");
+#endif
                 once = false;
-            } 
-            
+            }
+
             DGLProcess* process = DGLProcess::Create(
-                "C:\\Python27\\python.exe", "..", "..\\..\\src\\tests\\samples\\simple.py", 8888, false);
+#ifdef _WIN32
+                 "C:\\Python27\\python.exe", "..", "..\\..\\src\\tests\\samples\\simple.py",
+#else
+                 "python", "..", CMAKE_CURRENT_SOURCE_DIR"/../samples/simple.py",
+#endif
+                 8888, false);
             while (!process->waitReady(100)) {}
             delete process;
         }
@@ -110,7 +132,11 @@ namespace {
         client->connectServer("127.0.0.1", "8888");
         dglnet::HelloMessage * hello = utils::receiveMessage<dglnet::HelloMessage>(client.get(), messageHandlerStub);
         ASSERT_TRUE(hello != NULL);
+#ifdef _WIN32
         EXPECT_EQ("python.exe", hello->m_ProcessName);
+#else
+        EXPECT_TRUE(std::string::npos != hello->m_ProcessName.find("python"));
+#endif
         client->abort();
         EXPECT_TRUE(client.unique());
     }
@@ -125,7 +151,11 @@ namespace {
        dglnet::BreakedCallMessage* breaked = utils::receiveMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
        ASSERT_TRUE(breaked != NULL);
 
+#ifdef _WIN32
        EXPECT_EQ(wglGetCurrentContext_Call, breaked->m_entryp.getEntrypoint());
+#else
+       EXPECT_EQ(glXQueryExtension_Call, breaked->m_entryp.getEntrypoint());
+#endif
        EXPECT_EQ(0, breaked->m_TraceSize);
        EXPECT_EQ(0, breaked->m_CtxReports.size());
        EXPECT_EQ(0, breaked->m_CurrentCtx);
@@ -183,7 +213,6 @@ namespace {
 
        client->abort();
    }
-
 
    TEST_F(LiveTest, entryp_retvals) {
        stubs::Controller controllerStub;
@@ -244,7 +273,11 @@ namespace {
                dglnet::CallTraceMessage* callTrace = utils::receiveUntilMessage<dglnet::CallTraceMessage>(client.get(), messageHandlerStub);
                ASSERT_TRUE(callTrace != NULL);
 
+#ifdef _WIN32
                HGLRC ctx;
+#else
+               GLXContext ctx;
+#endif
                GLenum error;
                GLuint shader;
 

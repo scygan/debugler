@@ -6,8 +6,8 @@ set(dglgui_SOURCES
     dglgpuview.cpp dglmainwindow.cpp dglpixelrectangle.cpp
     dglprogramview.cpp dglrundialog.cpp dglshaderview.cpp
     dglstateview.cpp dgltabbedview.cpp dgltextureview.cpp
-    dgltraceview.cpp dgltreeview.cpp dglresourcefs.cpp 
-    dglprocess.cpp main.cpp
+    dgltraceview.cpp dgltreeview.cpp
+    dglprocess.cpp
     )
 
 set(dglgui_HEADERS
@@ -52,15 +52,16 @@ include_directories(
     )
 add_definitions(${QT_DEFINITIONS})
 
-add_executable(dglgui
+add_library(dglgui
     ${dglgui_FORMS_HEADERS}
     ${dglgui_SOURCES}
     ${dglgui_HEADERS_MOC}
     ${dglgui_RESOURCES_RCC}
 )
 
-add_dependencies(dglgui Boost)
+add_library(dglresourcefs dglresourcefs.cpp)
 
-target_link_libraries(dglgui -Wl,--whole-archive boost_system boost_serialization boost_regexp -Wl,--no-whole-archive QHexEdit srchiliteqt dglcommon dglnet ${QT_LIBRARIES})
+add_executable(debugler main.cpp)
+target_link_libraries(debugler dglgui srchiliteqt QHexEdit dglcommon dglnet ${QT_LIBRARIES} -Wl,--whole-archive dglresourcefs boost_system boost_serialization boost_regexp -Wl,--no-whole-archive)
 
-install (TARGETS dglgui DESTINATION bin)
+install (TARGETS debugler DESTINATION bin)
