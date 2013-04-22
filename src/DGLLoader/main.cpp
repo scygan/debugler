@@ -17,7 +17,13 @@
 
 #pragma warning(disable : 4996) 
 
-#include <windows.h>
+#ifdef _WIN32
+    #include <windows.h>
+    #include "CompleteInject/CompleteInject.h"
+#else
+    //TODO
+#endif
+
 #include <cstdlib>
 #include <stdexcept>
 #include <string>
@@ -27,7 +33,6 @@
 #include <stdint.h>
 
 
-#include "CompleteInject/CompleteInject.h"
 
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/sync/named_semaphore.hpp>
@@ -40,6 +45,7 @@
 #include <DGLCommon/wa.h>
 
 
+#ifdef _WIN32
 bool isProcess64Bit(HANDLE hProcess) {
     //get IsWow64Process function
     typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
@@ -69,6 +75,7 @@ bool isProcess64Bit(HANDLE hProcess) {
     }
     return false;
 }
+#endif
 
 
 struct IPCMessage {
@@ -79,7 +86,7 @@ struct IPCMessage {
 
 
 std::string getWrapperPath() {
-
+#ifdef _WIN32
 #ifdef _WIN64
     std::string ret = "DGLWrapper64\\DGLWrapper.dll";
 #else
@@ -93,6 +100,25 @@ std::string getWrapperPath() {
     std::string tmp = fileName;
     size_t splitPoint=tmp.find_last_of("/\\");
     return tmp.substr(0, splitPoint) + "\\" + ret;
+#else
+    return "libdglwrapper.so";
+#endif
+}
+
+std::string getCurrentDirectory() { 
+#ifndef _WIN32
+    #define MAX_PATH PATH_MAX
+#endif
+     char path[MAX_PATH];
+
+#ifdef _WIN32
+     if (!GetCurrentDirectory(MAX_PATH, path)) {
+#else
+     if (!getcwd(path, MAX_PATH)) {
+#endif
+        throw std::runtime_error("GetCurrentDirectory failed");
+     }
+     return path;
 }
 
 namespace po = boost::program_options;
@@ -100,8 +126,8 @@ using namespace std;
 
 int main(int argc, char** argv) {
 
-    IPCMessage default(EXIT_SUCCESS);
-    IPCMessage* ipcMessage = &default;    
+    IPCMessage message(EXIT_SUCCESS);
+    IPCMessage* ipcMessage = &message;    
 
     try {
 
@@ -148,14 +174,11 @@ int main(int argc, char** argv) {
             arguments += vm["execute"].as< vector<string> >()[i];
         }
 
-        char path[MAX_PATH];
-        if (!GetCurrentDirectory(MAX_PATH, path)) {
-            throw std::runtime_error("GetCurrentDirectory failed");
-        }
-
+       
         std::string wrapperPath = getWrapperPath();
+        std::string path = getCurrentDirectory();
 
-        printf("Executable: %s\nPath: %s\nArguments: %s\nWrapper: %s\n\n\n", executable, path, arguments.c_str(), wrapperPath.c_str());
+        printf("Executable: %s\nPath: %s\nArguments: %s\nWrapper: %s\n\n\n", executable, path.c_str(), arguments.c_str(), wrapperPath.c_str());
 
 #ifdef  WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
         //Workaround fo ARM Mali OpenGL ES wrapper on Windows: see LoaderThread() for description
@@ -166,6 +189,8 @@ int main(int argc, char** argv) {
         boost::interprocess::named_semaphore remoteThreadSemaphore(boost::interprocess::open_or_create, remoteThreadSemaphoreStr.str().c_str(), 0);
 #endif
 
+
+#ifdef _WIN32
         //prepare some structures for CreateProcess output
         STARTUPINFOA startupInfo;
         memset(&startupInfo, 0, sizeof(startupInfo));
@@ -183,13 +208,41 @@ int main(int argc, char** argv) {
             FALSE, 
             CREATE_SUSPENDED,
             NULL,
-            path,
+            path.c_str(),
             &startupInfo, 
             &processInformation) == 0 ) {
 
                 throw std::runtime_error("Cannot create process");
         }
+#else
+        pid_t pid = fork();
+        if (pid == -1) {
+            throw std::runtime_error("Cannot fork process");
+        }
+        if (pid == 0) {
+            std::vector<std::string> args; 
 
+            std::istringstream argumentsStream(arguments);
+            std::copy(std::istream_iterator<std::string>(argumentsStream),
+                std::istream_iterator<std::string>(),
+                std::back_inserter<std::vector<std::string> >(args));
+
+            std::vector<std::vector<char> > argvs(args.size()); 
+            std::vector<char*> argv(args.size());
+            for (size_t i = 0; i < args.size(); i++) {
+                std::copy(args[i].begin(), args[i].end(), std::back_inserter<std::vector<char> >(argvs[i]));
+                 argv[i] = &argvs[i][0];
+            }
+            argv.push_back(NULL);
+
+            Os::setEnv("LD_PRELOAD", wrapperPath.c_str());
+
+            execvp(executable, &argv[0]);                        
+            throw std::runtime_error("Cannot execute process");
+        }
+#endif
+
+#ifdef _WIN32        
 #ifdef _WIN64
         if (!isProcess64Bit(processInformation.hProcess)) {
             throw std::runtime_error("Incompatible loader version: used 64bit, but process is not 64bit");
@@ -219,11 +272,13 @@ int main(int argc, char** argv) {
         if (ResumeThread(processInformation.hThread) == -1) {
             throw std::runtime_error("Cannot resume process");
         }
+#endif
 
     } catch (const std::exception& e) {
 
         ipcMessage->status = EXIT_FAILURE;
 
+#ifdef _WIN32        
         //generic, GetLastError() aware error printer
 
         if ( DWORD lastError = GetLastError()) {
@@ -247,9 +302,16 @@ int main(int argc, char** argv) {
         } else {
             _snprintf(ipcMessage->message, 1000, "%s\n", e.what());
         }
+#else
+        if (errno) {
+            snprintf(ipcMessage->message, 1000, "%s: %s\n", e.what(), strerror(errno));
+        } else {
+            snprintf(ipcMessage->message, 1000, "%s\n", e.what());
+        }
+#endif
     }
 
-    printf(ipcMessage->message);
+    printf("%s", ipcMessage->message);
 
     std::string shmemName = Os::getEnv("dgl_loader_shmem");
     if (shmemName.length()) {

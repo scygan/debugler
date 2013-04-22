@@ -62,3 +62,5 @@ add_executable(dglgui
 add_dependencies(dglgui Boost)
 
 target_link_libraries(dglgui -Wl,--whole-archive boost_system boost_serialization boost_regexp -Wl,--no-whole-archive QHexEdit srchiliteqt dglcommon dglnet ${QT_LIBRARIES})
+
+install (TARGETS dglgui DESTINATION bin)

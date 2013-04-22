@@ -13,3 +13,5 @@ add_library(dglwrapper SHARED
 )
 
 target_link_libraries(dglwrapper -Wl,--whole-archive boost_serialization boost_system boost_thread dglcommon dglnet -Wl,--no-whole-archive dl pthread)
+
+install (TARGETS dglwrapper DESTINATION lib)
