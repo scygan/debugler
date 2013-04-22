@@ -25,8 +25,8 @@
 #include <DGLCommon/os.h>
 
 #ifdef _WIN32
-
 #include <windows.h>
+#endif
 
 class DGLProcessImpl: public DGLProcess {
 
@@ -35,6 +35,21 @@ class DGLProcessImpl: public DGLProcess {
         uint32_t status;
         char message[1000];
     };
+
+#ifndef _WIN32
+    struct CWD {
+        CWD() {
+            if (getcwd(m_cwd, PATH_MAX) == NULL) {
+                throw std::runtime_error("Cannot get current working directory");
+            }
+        }
+        ~CWD() {
+            chdir(m_cwd);
+        }
+        char m_cwd[PATH_MAX];
+    };
+
+#endif
 
 public:
 
@@ -45,6 +60,7 @@ public:
         m_SemOpenGL(boost::interprocess::open_or_create, m_SemOpenGLStr.c_str(), 0),m_Loaded(false)
     {
         try {
+#ifdef _WIN32
             DWORD binaryType;
             if (!GetBinaryTypeA(exec.c_str(), &binaryType)) {
                 throw std::runtime_error("Getting binary file type failed");
@@ -61,6 +77,9 @@ public:
             default:
                 throw std::runtime_error("Unsupported PE binary format");
             }
+#else
+            std::string loaderPath = "dglloader";
+#endif
 
             std::stringstream portStr;  portStr << port;
 
@@ -83,7 +102,7 @@ public:
             m_ShObj.truncate(sizeof(IPCMessage));
             m_MappedRegion = boost::interprocess::mapped_region(m_ShObj, boost::interprocess::read_write);
 
-
+#ifdef _WIN32
             //prepare some structures for CreateProcess output
             STARTUPINFOA startupInfo;
             memset(&startupInfo, 0, sizeof(startupInfo));
@@ -91,10 +110,9 @@ public:
             PROCESS_INFORMATION processInformation; 
             memset(&processInformation, 0, sizeof(processInformation));
 
-
             char absolutePath[MAX_PATH];
             _fullpath(absolutePath, path.c_str(), MAX_PATH);
-
+#endif
             //run loader process
 
             std::string switches;
@@ -107,7 +125,7 @@ public:
                 switches + 
                 "\"" + exec + "\" " +
                 "-- " + args;
-
+#ifdef _WIN32
             if (CreateProcessA(
                 (LPSTR)loaderPath.c_str(),
                 (LPSTR)arguments.c_str(),
@@ -122,7 +140,24 @@ public:
 
                     throw std::runtime_error("Cannot create loader process");
             }
+#else
+
+            CWD cwd;
+
+            if (chdir(path.c_str()) < 0) {
+                throw std::runtime_error("Cannot change directory");
+            }
+
+            int res = system(arguments.c_str());
+            if (res < 0) {
+                throw std::runtime_error("Cannot run loader process");
+            }
+            if (res != 0) {
+                throw std::runtime_error("Loader failed");
+            }
+#endif
         } catch (const std::runtime_error& err) {
+#ifdef _WIN32
             if ( DWORD lastError = GetLastError()) {
                 char* errorText;
                 FormatMessageA(
@@ -139,8 +174,18 @@ public:
                 message <<  err.what() << ": " << errorText;
                 throw std::runtime_error(message.str());
             } else {
-                throw err;    
+                throw err;
             }
+#else
+            if (errno) {
+                std::ostringstream message;
+                message <<  err.what() << ": " << strerror(errno);
+                throw std::runtime_error(message.str());
+            } else {
+                throw err;
+            }
+#endif
+
         }
     };
 
@@ -182,20 +227,6 @@ public:
     boost::interprocess::shared_memory_object  m_ShObj;
     boost::interprocess::mapped_region m_MappedRegion;
 };
-
-#else
-
-class DGLProcessImpl: public DGLProcess {
-    public:
-    DGLProcessImpl(std::string cmd, std::string path, std::string args, int port, bool modeEGL) {}
-
-    virtual bool waitReady(int msec) {
-        return true;
-    }
-};
-
-#endif
-
 
 
 DGLProcess* DGLProcess::Create(std::string exec, std::string path, std::string args, int port, bool modeEGL) {
