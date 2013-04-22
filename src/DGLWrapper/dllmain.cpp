@@ -75,6 +75,7 @@
     ActionBase::SetNext<ContextAction>(glXCreateNewContext_Call);
 
 //    ActionBase::SetNext<ContextAction>(glXCreateContextAttribsARB_Call); //TODO: no glxext .yet
+    ActionBase::SetNext<ContextAction>(glXMakeContextCurrent_Call);
     ActionBase::SetNext<ContextAction>(glXMakeCurrent_Call);
     ActionBase::SetNext<ContextAction>(glXDestroyContext_Call);
 
