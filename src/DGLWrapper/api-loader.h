@@ -33,20 +33,69 @@ enum ApiLibrary {
     LIBRARY_NONE = 0
 };
 
+/** 
+ * Class utilising various APIs to load all OpenGL entrypoints
+ */
 class APILoader {
 public:
     APILoader();
 
+    /**
+     * Load whole API library
+     *
+     * Called on initialization (for loading WGL/GLX/EGL
+     * Called on context creation (for loading specific api, like GL or ES2)
+     */
     void loadLibrary(ApiLibrary apiLibrary);
-    void* loadExtPointer(Entrypoint entryp);
-    void* ensurePointer(Entrypoint entryp);
-private:
+
+    /**
+     * Load one extension pointer
+     *
+     * This is called when app calls *glGetProcAddressMethod, to ensure
+     * proper extension pointer is loaded. Should not be used for
+     * non-ext APIs
+     *
+     * @ret: true on success load, false if implementation does not support this entrypoint
+     */
+    bool loadExtPointer(Entrypoint entryp);
 
     typedef void* LoadedLib;
 
-    void* loadGLPointer(LoadedLib library, Entrypoint entryp);
+    /**
+     * Ensure pointer is loaded
+     *
+     * This function is used mainly for debugger calls. It just checks 
+     * the pointer and loads it if not loaded earlier. 
+     *
+     * Throws in pointer is not supported by implementation.
+     *
+     * Usable with all entrypoints, but all non-EXT entrypoints 
+     * should be loaded earlier with loadLibrary()
+     */
+    void* ensurePointer(Entrypoint entryp);
 
+
+    /**
+     * Small util deciding if given library name is interesting to debugger
+     *
+     * Used on *nix platform, when we can intercept loader calls. This checks
+     * if filename in dlopen() is interresting for us
+     */
+    bool isLibGL(const char* name);
+
+    /**
+     * Set pointer to entrypoint implementation
+     *
+     * Used internally.
+     * On *nix platform used also externally: i we can intercept loader calls,
+     * this is called on dlsym call from application. This saves loader time, as
+     * it does not need to call dlsym itself again.
+     */
+    void setPointer(Entrypoint entryp, void* impl);
+
+private:
     std::string getLibraryName(ApiLibrary apiLibrary);
+    void* loadGLPointer(LoadedLib library, Entrypoint entryp);
 
     std::map<std::string, LoadedLib> m_LoadedLibraries;
     int m_LoadedApiLibraries;

@@ -37,7 +37,7 @@
 #include <DGLCommon/os.h>
 
 #ifndef _WIN32
-#include <dlfcn.h>
+#include "dl-intercept.h"
 #endif
 
 //here direct pointers are kept (pointers to entrypoints exposed by underlying OpenGL32 implementation
@@ -60,7 +60,7 @@ void* APILoader::loadGLPointer(LoadedLib library, Entrypoint entryp) {
 #endif
 }
 
-void* APILoader::loadExtPointer(Entrypoint entryp) {
+bool APILoader::loadExtPointer(Entrypoint entryp) {
     if (!g_DirectPointers[entryp].ptr) {
 
         if (!m_GlueLibrary) {
@@ -89,7 +89,7 @@ void* APILoader::loadExtPointer(Entrypoint entryp) {
         }
         g_DirectPointers[entryp].ptr = ptr;
     }
-    return g_DirectPointers[entryp].ptr;
+    return g_DirectPointers[entryp].ptr != NULL;
 }
 
 std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
@@ -118,6 +118,19 @@ std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
         default:
             assert(!"unknown library");
             throw std::runtime_error("Unknown GL library name");
+    }
+}
+
+bool APILoader::isLibGL(const char* name) {
+    std::string nameStr(name);
+    return nameStr.find("libGL") != std::string::npos ||
+        nameStr.find("libGLES") != std::string::npos ||
+        nameStr.find("libEGL") != std::string::npos;
+}
+
+void APILoader::setPointer(Entrypoint entryp, void* direct) {
+    if (entryp < NO_ENTRYPOINT) {
+         g_DirectPointers[entryp].ptr = direct;
     }
 }
 
@@ -191,7 +204,8 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary) {
             continue;
         }
 
-        g_DirectPointers[i].ptr = loadGLPointer(library, i);
+        //this sets g_DirectPointers[i].ptr
+        setPointer(i, loadGLPointer(library, i));
 
         if (g_DirectPointers[i].ptr) {
             //this entrypoint was loaded from OpenGL32.dll, detour it!

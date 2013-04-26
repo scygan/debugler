@@ -181,8 +181,7 @@ RetValue GetProcAddressAction::Pre(const CalledEntryPoint& call) {
         return ret;
     }
     //Load and get address of entrypoint implementation
-    void * entrypImpl =  g_ApiLoader.loadExtPointer(entryp);
-    if (entrypImpl) {
+    if (g_ApiLoader.loadExtPointer(entryp)) {
         //entrypoint supported by implementation, return address of wrapper to application
         ret = (const void *)getWrapperPointer(entryp);
     } else {
