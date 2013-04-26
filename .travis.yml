@@ -19,6 +19,7 @@ env:
 
 before_script:
   - "gem install travis-artifacts"
+  - "sudo apt-get install strace"
   - "sudo apt-get install libelf-dev"
   - "sudo apt-get install python-opengl"
 
