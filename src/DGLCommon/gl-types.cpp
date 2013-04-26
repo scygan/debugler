@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+#include<cstdio>
 
 #include "gl-types.h"
 
@@ -20,7 +21,7 @@
 #include<set>
 #include<sstream>
 
-namespace {
+namespace lists {
 #define FUNC_LIST_ELEM_SUPPORTED(name, type, library) #name,
 #define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library) FUNC_LIST_ELEM_SUPPORTED(name, type, library)
     const char* g_EntrypointNames[] = {
@@ -40,45 +41,55 @@ namespace {
     };
 #undef ENUM_LIST_ELEMENT
 
-    std::map<std::string, Entrypoint> g_EntryPointNameToEnum;
-    std::map<gl_t, std::string> g_GLEnumValueToName;
-    
-    void ensureEnumMapIntialized() {
-        if (!g_EntryPointNameToEnum.size()) {
+    struct MapCache {
+        MapCache() {
+
             for (Entrypoint e = 0; e < Entrypoints_NUM; e++) {
-                g_EntryPointNameToEnum[GetEntryPointName(e)] = e;
+                entryPointNameToEnum[GetEntryPointName(e)] = e;
             }
-        }
-        if (!g_GLEnumValueToName.size()) {
+
             int i = 0; 
             while (g_GLEnums[i].name) {
-                if (g_GLEnumValueToName.find(g_GLEnums[i].value) == g_GLEnumValueToName.end())
+                if (EnumGLToName.find(g_GLEnums[i].value) == EnumGLToName.end())
                     //do not overwrite any enum that already exist in the map:
                     //the first come GLenums are "older" - were defined earlier in OGL history. 
                     //the duplicates are usually some vendor extensions from the bottom glext.h
-                    g_GLEnumValueToName[g_GLEnums[i].value] = g_GLEnums[i].name;
+                    EnumGLToName[g_GLEnums[i].value] = g_GLEnums[i].name;
                 i++;
             }
         }
-    }
+
+        static MapCache* get() {
+            if (!s_cache) {
+                s_cache = new MapCache();
+            }
+            return s_cache;
+        }
+
+        static MapCache* s_cache;
+        std::map<std::string, Entrypoint> entryPointNameToEnum;
+        std::map<gl_t, std::string> EnumGLToName;
+    };
+
+    MapCache* MapCache::s_cache = NULL;
+
 }
 
+
 const char* GetEntryPointName(Entrypoint entryp) {
-    return g_EntrypointNames[entryp];
+    return lists::g_EntrypointNames[entryp];
 }
 
 Entrypoint GetEntryPointEnum(const char* name) {
-    ensureEnumMapIntialized();
-    std::map<std::string, Entrypoint>::iterator ret = g_EntryPointNameToEnum.find(name);
-    if (ret == g_EntryPointNameToEnum.end())
+    std::map<std::string, Entrypoint>::iterator ret = lists::MapCache::get()->entryPointNameToEnum.find(name);
+    if (ret == lists::MapCache::get()->entryPointNameToEnum.end())
         return NO_ENTRYPOINT;
     return ret->second;
 }
 
 std::string GetGLEnumName(gl_t glEnum) {
-    ensureEnumMapIntialized();
-    std::map<gl_t, std::string>::iterator ret = g_GLEnumValueToName.find(glEnum);
-    if (ret == g_GLEnumValueToName.end()) {
+    std::map<gl_t, std::string>::iterator ret = lists::MapCache::get()->EnumGLToName.find(glEnum);
+    if (ret == lists::MapCache::get()->EnumGLToName.end()) {
         std::ostringstream tmp; 
         tmp << "0x" << std::hex << glEnum;
         return tmp.str();
