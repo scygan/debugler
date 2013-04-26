@@ -145,7 +145,7 @@ namespace {
     TEST_F(DGLCommonUT, codegen_entryp_names) {
         EXPECT_EQ(GetEntryPointEnum("bad"), NO_ENTRYPOINT);
         EXPECT_EQ(GetEntryPointEnum("glDrawArrays"), glDrawArrays_Call);
-        EXPECT_EQ(GetEntryPointName(GetEntryPointEnum("glDrawArrays")), "glDrawArrays");
+        EXPECT_STREQ(GetEntryPointName(GetEntryPointEnum("glDrawArrays")), "glDrawArrays");
         EXPECT_EQ(GetEntryPointEnum(GetEntryPointName(glDrawArrays_Call)), glDrawArrays_Call);
     }
 
