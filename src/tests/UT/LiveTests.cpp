@@ -154,7 +154,7 @@ namespace {
 #ifdef _WIN32
        EXPECT_EQ(wglGetCurrentContext_Call, breaked->m_entryp.getEntrypoint());
 #else
-       EXPECT_EQ(glXQueryExtension_Call, breaked->m_entryp.getEntrypoint());
+       EXPECT_EQ(glXGetCurrentContext_Call, breaked->m_entryp.getEntrypoint());
 #endif
        EXPECT_EQ(0, breaked->m_TraceSize);
        EXPECT_EQ(0, breaked->m_CtxReports.size());
@@ -190,7 +190,11 @@ namespace {
        dglnet::BreakedCallMessage* breaked = utils::receiveMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
        ASSERT_TRUE(breaked != NULL);
 
+#ifdef _WIN32
        EXPECT_EQ(wglGetCurrentContext_Call, breaked->m_entryp.getEntrypoint());
+#else
+       EXPECT_EQ(glXGetCurrentContext_Call, breaked->m_entryp.getEntrypoint());
+#endif
        EXPECT_EQ(0, breaked->m_TraceSize);
        EXPECT_EQ(0, breaked->m_CtxReports.size());
        EXPECT_EQ(0, breaked->m_CurrentCtx);
@@ -222,11 +226,16 @@ namespace {
 
        dglnet::BreakedCallMessage* breaked = utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
        ASSERT_TRUE(breaked != NULL);
-              
+
+#ifdef _WIN32
+#define _glCreateContext_Call wglCreateContext_Call
+#else
+#define _glCreateContext_Call glXCreateNewContext_Call
+#endif
        {
            //set breakpoints && disable other breaking stuff
            std::set<Entrypoint> breakpoints;
-           breakpoints.insert(wglCreateContext_Call);
+           breakpoints.insert(_glCreateContext_Call);
            breakpoints.insert(glGetError_Call);
            breakpoints.insert(glCreateShader_Call);
            dglnet::SetBreakPointsMessage breakPointMessage(breakpoints);
@@ -252,7 +261,7 @@ namespace {
            {
                //we should be breaked on one of earlier breakpoints
                ASSERT_TRUE(
-                   breaked->m_entryp.getEntrypoint() == wglCreateContext_Call ||
+                   breaked->m_entryp.getEntrypoint() == _glCreateContext_Call ||
                    breaked->m_entryp.getEntrypoint() == glGetError_Call ||
                    breaked->m_entryp.getEntrypoint() == glCreateShader_Call
                    );
@@ -282,7 +291,7 @@ namespace {
                GLuint shader;
 
                switch (callTrace->m_Trace[0].getEntrypoint()) {
-                   case wglCreateContext_Call:
+                   case _glCreateContext_Call:
                        wglCreateContext_done = true;
                        callTrace->m_Trace[0].getRetVal().get(ctx);
                        EXPECT_TRUE(ctx != NULL);
