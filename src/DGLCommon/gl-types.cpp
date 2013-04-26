@@ -21,6 +21,8 @@
 #include<set>
 #include<sstream>
 
+#include<boost/make_shared.hpp>
+
 namespace lists {
 #define FUNC_LIST_ELEM_SUPPORTED(name, type, library) #name,
 #define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library) FUNC_LIST_ELEM_SUPPORTED(name, type, library)
@@ -60,18 +62,18 @@ namespace lists {
         }
 
         static MapCache* get() {
-            if (!s_cache) {
-                s_cache = new MapCache();
+            if (!s_cache.get()) {
+                s_cache = boost::make_shared<MapCache>();
             }
-            return s_cache;
+            return s_cache.get();
         }
 
-        static MapCache* s_cache;
+        static boost::shared_ptr<MapCache> s_cache;
         std::map<std::string, Entrypoint> entryPointNameToEnum;
         std::map<gl_t, std::string> EnumGLToName;
     };
 
-    MapCache* MapCache::s_cache = NULL;
+   boost::shared_ptr<MapCache> MapCache::s_cache;
 
 }
 
