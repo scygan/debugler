@@ -183,10 +183,10 @@ RetValue GetProcAddressAction::Pre(const CalledEntryPoint& call) {
     //Load and get address of entrypoint implementation
     if (g_ApiLoader.loadExtPointer(entryp)) {
         //entrypoint supported by implementation, return address of wrapper to application
-        ret = (const void *)getWrapperPointer(entryp);
+        ret = (FUNC_PTR)getWrapperPointer(entryp);
     } else {
         //entrypoint unsupported by implementation, return NULL to application
-        ret = (const void*) NULL;
+        ret = (FUNC_PTR) NULL;
     }
     return ret;
 }

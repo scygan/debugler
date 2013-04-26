@@ -59,6 +59,10 @@
 
     ActionBase::SetNext<GLGetErrorAction>(glGetError_Call);
     ActionBase::SetNext<GetProcAddressAction>(wglGetProcAddress_Call);
+    ActionBase::SetNext<GetProcAddressAction>(glXGetProcAddress_Call);
+    ActionBase::SetNext<GetProcAddressAction>(glXGetProcAddressARB_Call);
+    ActionBase::SetNext<GetProcAddressAction>(eglGetProcAddress_Call);
+
 
 #ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
 	ActionBase::SetNext<SurfaceAction>(eglCreateWindowSurface_Call);
