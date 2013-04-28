@@ -19,12 +19,11 @@ env:
 
 before_script:
   - "gem install travis-artifacts"
-  - "sudo apt-get install strace"
   - "sudo apt-get install libelf-dev"
   - "sudo apt-get install python-opengl"
   - "sudo mount -t tmpfs shm /dev/shm"
 
-script: mkdir build && cd build && cmake ../src -DCPACK_PACKAGE_VERSION_PATCH=$TRAVIS_JOB_NUMBER && make package && strace ./tests/UT/ut
+script: mkdir build && cd build && cmake ../src -DCPACK_PACKAGE_VERSION_PATCH=$TRAVIS_JOB_NUMBER && make package && sudo dpkg -i debugler-0.1.$TRAVIS_JOB_NUMBER-Linux.deb && ./tests/UT/ut
 
 after_success: # and this only on success
 after_script:
