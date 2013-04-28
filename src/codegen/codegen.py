@@ -100,7 +100,7 @@ def parse(path, library, genNonExtTypedefs = False, skipTrace = False):
 			#print line
 			retType = coarseFunctionMatch.group(2).strip()
 			entryPointName = coarseFunctionMatch.group(4)
-			print entryPointName
+			#print entryPointName
 			entrypointParamsStr = coarseFunctionMatch.group(5)
 			entrypointParams = entrypointParamsStr.split(",")
 			paramNames = []			
