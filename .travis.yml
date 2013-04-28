@@ -12,7 +12,6 @@ compiler:
     - gcc
 env:
   global:
-    - "TMP=/tmp"
     - "ARTIFACTS_AWS_REGION=us-east-1"
     - "ARTIFACTS_S3_BUCKET=debugler"
     - secure: "Sje6LO0jCVC+hP/029z601HTH4C9srFydjC5grh0IOZmcjkL3c6ReDej4szu\nH2EUA2PaUFyrZM4tPf3DFYH3AOmjwT/BBUnV4dOlwNB964bHtmjhcdJFD0BY\nA1AFToOi2CP7P0vRrpfEsXTEguoKlM9NsYGyGFgG0j1Z1gMXLYw="
@@ -20,11 +19,12 @@ env:
 
 before_script:
   - "gem install travis-artifacts"
-  - "sudo apt-get install ltrace"
+  - "sudo apt-get install strace"
   - "sudo apt-get install libelf-dev"
   - "sudo apt-get install python-opengl"
+  - "sudo mount -t tmpfs shm /dev/shm"
 
-script: mkdir build && cd build && cmake ../src -DCPACK_PACKAGE_VERSION_PATCH=$TRAVIS_JOB_NUMBER && make package && ltrace ./tests/UT/ut
+script: mkdir build && cd build && cmake ../src -DCPACK_PACKAGE_VERSION_PATCH=$TRAVIS_JOB_NUMBER && make package && strace ./tests/UT/ut
 
 after_success: # and this only on success
 after_script:
