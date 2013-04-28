@@ -20,11 +20,11 @@ env:
 
 before_script:
   - "gem install travis-artifacts"
-  - "sudo apt-get install strace"
+  - "sudo apt-get install ltrace"
   - "sudo apt-get install libelf-dev"
   - "sudo apt-get install python-opengl"
 
-script: mkdir build && cd build && cmake ../src -DCPACK_PACKAGE_VERSION_PATCH=$TRAVIS_JOB_NUMBER && make package && strace ./tests/UT/ut
+script: mkdir build && cd build && cmake ../src -DCPACK_PACKAGE_VERSION_PATCH=$TRAVIS_JOB_NUMBER && make package && ltrace ./tests/UT/ut
 
 after_success: # and this only on success
 after_script:
