@@ -21,7 +21,7 @@ Needed:
 
  * Python 2.7.*, http://www.python.org/download/
 
- * Qt 4.8.3, compiled with static runtime:
+ * Qt 4.8.4, compiled with static runtime:
    * Get http://releases.qt-project.org/qt4/source/qt-everywhere-opensource-src-4.8.4.zip,
 
    * Unpack, edit qt-everywhere-opensource-src-4.8.4\mkspecs\win32-msvc2010:
