@@ -10,17 +10,16 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-        <GenerateDebugInformation>true</GenerateDebugInformation>
-		<SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
     </Link>
     <ClCompile>
-		<Optimization>Disabled</Optimization>
-		<DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-		<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-		<PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Optimization>Disabled</Optimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Lib>
-
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup />

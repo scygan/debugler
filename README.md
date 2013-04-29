@@ -24,25 +24,7 @@ Needed:
  * Qt 4.8.4, compiled with static runtime:
    * Get http://releases.qt-project.org/qt4/source/qt-everywhere-opensource-src-4.8.4.zip,
 
-   * Unpack, edit qt-everywhere-opensource-src-4.8.4\mkspecs\win32-msvc2010:
-
-   * Replace 
-   
-```
-QMAKE_CFLAGS_RELEASE    = -O2 -MD
-QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO += -O2 -MD -Zi
-QMAKE_CFLAGS_DEBUG      = -Zi -MDd
-```
-
-   with
-   
-```
-QMAKE_CFLAGS_RELEASE    = -O2 -MT
-QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO += -O2 -MT -Zi
-QMAKE_CFLAGS_DEBUG      = -Zi -MTd
-```
-
-   * Build:
+   * Unpack, Build:
    
 ```
 "c:\Program Files (x86)\Microsoft Visual Studio 10.0\vc\vcvarsall.bat"
