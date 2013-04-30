@@ -55,7 +55,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>qtmaind.lib;QtCored4.lib;QtGuid4.lib;Winmm.lib;Imm32.lib;%(AdditionalDependencies);DGLNet.lib;DGLCommon.lib;srchiliteqt.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib</AdditionalDependencies>
+      <AdditionalDependencies>qtmaind.lib;QtCored4.lib;QtGuid4.lib;QtXmld4.lib;Winmm.lib;Imm32.lib;%(AdditionalDependencies);DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
@@ -65,7 +65,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>qtmain.lib;QtCore4.lib;QtGui4.lib;Winmm.lib;Imm32.lib;%(AdditionalDependencies);DGLNet.lib;DGLCommon.lib;srchiliteqt.lib;;dglcommon.res;;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib</AdditionalDependencies>
+      <AdditionalDependencies>qtmain.lib;QtCore4.lib;QtGui4.lib;QtXml4.lib;Winmm.lib;Imm32.lib;%(AdditionalDependencies);DGLNet.lib;DGLCommon.lib;dglcommon.res;;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

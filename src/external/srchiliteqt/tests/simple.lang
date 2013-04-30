@@ -1,6 +1,0 @@
-# standard comments
-environment string delim "/*" "*/" multiline begin
-  todo = "TODO"
-end
-
-keyword = "class"

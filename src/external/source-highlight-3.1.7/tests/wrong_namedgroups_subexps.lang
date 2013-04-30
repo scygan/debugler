@@ -1,3 +1,0 @@
-# contains an error since number there are non marked subexpressions
-
-(keyboard,symbol,type) = `(foo)(bar) (another)`

@@ -5,19 +5,6 @@
         <file>res/down_arrow.png</file>
         <file>res/handle.png</file>
         <file>res/default.stylesheet</file>
-        <file>highlight/default.lang</file>
-        <file>highlight/c_comment.lang</file>
-        <file>highlight/c_string.lang</file>
-        <file>highlight/default.style</file>
-        <file>highlight/function.lang</file>
-        <file>highlight/glsl.lang</file>
-        <file>highlight/html_simple.lang</file>
-        <file>highlight/key_string.lang</file>
-        <file>highlight/number.lang</file>
-        <file>highlight/symbols.lang</file>
-        <file>highlight/todo.lang</file>
-        <file>highlight/url.lang</file>
-        <file>highlight/xml.lang</file>
         <file>icons/buffer.png</file>
         <file>icons/context.png</file>
         <file>icons/fbo.png</file>
@@ -25,5 +12,6 @@
         <file>icons/shader.png</file>
         <file>icons/textures.png</file>
         <file>icons/program.png</file>
+        <file>res/glsl.xml</file>
     </qresource>
 </RCC>

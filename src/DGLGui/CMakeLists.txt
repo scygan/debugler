@@ -6,8 +6,8 @@ set(dglgui_SOURCES
     dglgpuview.cpp dglmainwindow.cpp dglpixelrectangle.cpp
     dglprogramview.cpp dglrundialog.cpp dglshaderview.cpp
     dglstateview.cpp dgltabbedview.cpp dgltextureview.cpp
-    dgltraceview.cpp dgltreeview.cpp
-    dglprocess.cpp
+    dgltraceview.cpp dgltreeview.cpp dglprocess.cpp
+    dglsyntaxhighlight.cpp
     )
 
 set(dglgui_HEADERS
@@ -17,7 +17,7 @@ set(dglgui_HEADERS
     dglpixelrectangle.h dglprogramview.h dglrundialog.h
     dglshaderview.h dglshaderviewitem.h dglstateview.h
     dgltabbedview.h dgltextureview.h dgltraceview.h
-    dgltreeview.h dglprocess.h
+    dgltreeview.h dglprocess.h dglsyntaxhighlight.h
     )
 
 set(dglgui_FORMS
@@ -46,7 +46,6 @@ QT4_ADD_RESOURCES(dglgui_RESOURCES_RCC ${dglgui_RESOURCES})
 include(${QT_USE_FILE})
 
 include_directories(
-    ../external/source-highlight-3.1.7/lib
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
     )
@@ -59,9 +58,7 @@ add_library(dglgui
     ${dglgui_RESOURCES_RCC}
 )
 
-add_library(dglresourcefs dglresourcefs.cpp)
-
 add_executable(debugler main.cpp)
-target_link_libraries(debugler dglgui srchiliteqt QHexEdit dglcommon dglnet ${QT_LIBRARIES} -Wl,--whole-archive dglresourcefs boost_system boost_serialization boost_regexp -Wl,--no-whole-archive)
+target_link_libraries(debugler dglgui QHexEdit dglcommon dglnet ${QT_LIBRARIES} -Wl,--whole-archive boost_system boost_serialization boost_regexp -Wl,--no-whole-archive)
 
 install (TARGETS debugler DESTINATION bin)

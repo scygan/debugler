@@ -230,9 +230,6 @@
     <ClCompile Include="dglstateview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dglresourcefs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\external\QHexEdit\commands.cpp">
       <Filter>QHexEdit</Filter>
     </ClCompile>
@@ -241,6 +238,15 @@
     </ClCompile>
     <ClCompile Include="..\..\dump\$(ConfigurationName)\GeneratedFiles\qrc_dglmainwindow.cpp">
       <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dglsyntaxhighlight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglsyntaxhighlight.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglsyntaxhighlight.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -343,6 +349,9 @@
     <CustomBuild Include="dglmainwindow.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="dglsyntaxhighlight.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dglgui.h">
@@ -394,9 +403,6 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dglresourcefs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dglprocess.h">

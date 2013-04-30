@@ -19,7 +19,7 @@
 
 #include "dgltabbedview.h"
 #include "ui_dglshaderview.h"
-#include "srchiliteqt/lib/srchiliteqt/Qt4SyntaxHighlighter.h"
+#include "dglsyntaxhighlight.h"
 
 class DGLGLSLEditor;
 
@@ -36,7 +36,7 @@ private:
     Ui::DGLShaderViewItem m_Ui;
     QLabel* m_Label;
     DGLGLSLEditor* m_GLSLEditor;
-    boost::shared_ptr<srchiliteqt::Qt4SyntaxHighlighter> m_Highlighter;
+    boost::shared_ptr<DGLSyntaxHighlighterGLSL> m_Highlighter;
     DGLResourceListener* m_Listener;
 };
 

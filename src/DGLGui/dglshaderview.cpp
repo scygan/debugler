@@ -141,8 +141,7 @@ DGLShaderViewItem::DGLShaderViewItem(ContextObjectName name, DGLResourceManager*
     m_Ui.verticalLayout->setStretch(0, 4);
     m_Ui.verticalLayout->setStretch(2, 1);
 
-    m_Highlighter = boost::make_shared<srchiliteqt::Qt4SyntaxHighlighter>(m_Ui.checkBox_Highlight->isChecked()?m_GLSLEditor->document():NULL);
-    m_Highlighter->init("glsl.lang");
+    m_Highlighter = boost::make_shared<DGLSyntaxHighlighterGLSL>(m_Ui.checkBox_Highlight->isChecked()?m_GLSLEditor->document():NULL);
 
     m_Listener = resManager->createListener(name, DGLResource::ObjectTypeShader);
     m_Listener->setParent(this);
