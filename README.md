@@ -21,19 +21,9 @@ Needed:
 
  * Python 2.7.*, http://www.python.org/download/
 
- * Qt 4.8.4, compiled with static runtime:
-   * Get http://releases.qt-project.org/qt4/source/qt-everywhere-opensource-src-4.8.4.zip,
+ * Qt 4.8.4, http://download.qt-project.org/official_releases/qt/4.8/4.8.4/qt-win-opensource-4.8.4-vs2010.exe
 
-   * Unpack, Build:
-   
-```
-"c:\Program Files (x86)\Microsoft Visual Studio 10.0\vc\vcvarsall.bat"
-cd qt-everywhere-opensource-src-4.8.4
-configure.exe -debug-and-release -platform win32-msvc2010 -no-qt3support -fast
-nmake
-```
-
- * Set <b>QTDIR</b> environment variable to location of <b>qt-everywhere-opensource-src-4.8.4</b> directory
+ * Set <b>QTDIR</b> environment variable to QT installation directory 
 
  * Run 
 ```
