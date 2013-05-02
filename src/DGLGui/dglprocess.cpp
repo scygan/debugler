@@ -44,7 +44,7 @@ class DGLProcessImpl: public DGLProcess {
             }
         }
         ~CWD() {
-            chdir(m_cwd);
+            int ignored = chdir(m_cwd);
         }
         char m_cwd[PATH_MAX];
     };
