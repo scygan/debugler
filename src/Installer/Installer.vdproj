@@ -15,31 +15,7 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_05776C35CA364860B31093C187097C33"
-        "OwnerKey" = "8:_46D7E7FEB4544395BFBC954905F0C6CE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_05776C35CA364860B31093C187097C33"
-        "OwnerKey" = "8:_FB094CA3B55543198187993232C94F2C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_05776C35CA364860B31093C187097C33"
-        "OwnerKey" = "8:_500388235C814430ADA133071ADF15C9"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_0FF50AD5B395961DAD2EBA7144B7A66C"
-        "OwnerKey" = "8:_500388235C814430ADA133071ADF15C9"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_0FF50AD5B395961DAD2EBA7144B7A66C"
+        "MsmKey" = "8:_156E6D7D7782A3ED7A2EA90EE4C3533D"
         "OwnerKey" = "8:_525DE70E72054CFEAE2693303582A805"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -69,26 +45,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_855CD347AD4E4CE7A99C052C448B506B"
+        "MsmKey" = "8:_D728874DFC3444E48885EED647C3F1A3"
         "OwnerKey" = "8:_525DE70E72054CFEAE2693303582A805"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_855CD347AD4E4CE7A99C052C448B506B"
-        "OwnerKey" = "8:_5F1DE5D457724848A3DC56DBB91740DE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B515DEF3C29B7F863B3589B73CD73D1E"
-        "OwnerKey" = "8:_FB094CA3B55543198187993232C94F2C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F95C413F85CD01DA740704604FF81BE0"
-        "OwnerKey" = "8:_FB094CA3B55543198187993232C94F2C"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -222,7 +180,7 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0FF50AD5B395961DAD2EBA7144B7A66C"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_156E6D7D7782A3ED7A2EA90EE4C3533D"
             {
             "SourcePath" = "8:PSAPI.DLL"
             "TargetName" = "8:PSAPI.DLL"
@@ -239,46 +197,6 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B515DEF3C29B7F863B3589B73CD73D1E"
-            {
-            "SourcePath" = "8:QtCore4.dll"
-            "TargetName" = "8:QtCore4.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_6ED3F8A906794F70B4A0502F54897A22"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F95C413F85CD01DA740704604FF81BE0"
-            {
-            "SourcePath" = "8:QtGui4.dll"
-            "TargetName" = "8:QtGui4.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_6ED3F8A906794F70B4A0502F54897A22"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -372,7 +290,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Debugler"
         "ProductCode" = "8:{1DFAE185-E52E-40C5-90B8-14C3A838F260}"
-        "PackageCode" = "8:{B0AE370F-03DA-46B3-A45D-961AE03CB694}"
+        "PackageCode" = "8:{F60862CE-0F99-4F8C-9765-BE14ACB9459A}"
         "UpgradeCode" = "8:{7DA79E05-4B7B-4671-A35D-45688442DE81}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -962,21 +880,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_05776C35CA364860B31093C187097C33"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC100_CRT_x86.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_855CD347AD4E4CE7A99C052C448B506B"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_D728874DFC3444E48885EED647C3F1A3"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"

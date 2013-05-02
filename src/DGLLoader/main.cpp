@@ -201,7 +201,7 @@ int main(int argc, char** argv) {
         //try run process (suspended - will not run user thread)
 
         if (CreateProcessA(
-            executable,
+            executable.c_str(),
             (LPSTR)argumentString.c_str(),
             NULL, 
             NULL,
