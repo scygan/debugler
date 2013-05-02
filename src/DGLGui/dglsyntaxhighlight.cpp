@@ -17,7 +17,7 @@
 
 class DGLHLTextCharFormat {
 public:
-    DGLHLTextCharFormat(const QColor& color, bool italics = false, bool bold = false, bool strikeout = false) {
+    DGLHLTextCharFormat(const QColor color, bool italics = false, bool bold = false, bool strikeout = false) {
         if (!s_defaultFormatsInitialized) {
             initialize();
         }
@@ -27,7 +27,8 @@ public:
             m_Format.setFontWeight(QFont::Bold);
         }
         m_Format.setFontStrikeOut(strikeout);
-        m_Format.setForeground(color);
+        if (color.isValid())
+            m_Format.setForeground(color);
     }
     DGLHLTextCharFormat(const QDomElement& xml) {
         if (!s_defaultFormatsInitialized) {
@@ -76,13 +77,13 @@ public:
 private:
     void initialize() {
         s_defaultFormatsInitialized = true;
-        s_defaultFormats["dsNormal"]   = DGLHLTextCharFormat(Qt::white);
+        s_defaultFormats["dsNormal"]   = DGLHLTextCharFormat(QColor());
         s_defaultFormats["dsKeyword"]  = DGLHLTextCharFormat(Qt::darkYellow);
         s_defaultFormats["dsDataType"] = DGLHLTextCharFormat(Qt::darkMagenta);
-        s_defaultFormats["dsFloat"]    = DGLHLTextCharFormat(Qt::darkBlue);
-        s_defaultFormats["dsBaseN"]    = DGLHLTextCharFormat(Qt::green);
-        s_defaultFormats["dsDecVal"]   = DGLHLTextCharFormat(Qt::blue);
-        s_defaultFormats["dsComment"]  = DGLHLTextCharFormat(Qt::darkCyan);
+        s_defaultFormats["dsFloat"]    = DGLHLTextCharFormat(Qt::darkCyan);
+        s_defaultFormats["dsBaseN"]    = DGLHLTextCharFormat(Qt::darkCyan);
+        s_defaultFormats["dsDecVal"]   = DGLHLTextCharFormat(Qt::darkCyan);
+        s_defaultFormats["dsComment"]  = DGLHLTextCharFormat(Qt::darkGreen);
     }
 
     QTextCharFormat m_Format;
