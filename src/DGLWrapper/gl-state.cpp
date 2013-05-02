@@ -2015,7 +2015,7 @@ NativeSurfaceGLX::NativeSurfaceGLX(const DGLDisplayState* _dpy, opaque_id_t id):
 
     int screen = DefaultScreen(dpy);
 
-    const int attribList[] = {GLX_FBCONFIG_ID, fbConfigID, None, None};
+    const int attribList[] = {GLX_FBCONFIG_ID, static_cast<int>(fbConfigID), None, None};
     int nElements;
     GLXFBConfig* config = DIRECT_CALL_CHK(glXChooseFBConfig)(dpy, screen, attribList, &nElements); 
 
