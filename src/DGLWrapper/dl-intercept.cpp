@@ -155,7 +155,7 @@ void *DLIntercept::dlsym (void * handle, const char *name) {
 
     void * ptr = real_dlsym(handle, name);
 
-    boost::mutex::scoped_lock lock(mutex);
+    boost::recursive_mutex::scoped_lock lock(mutex);
 
     std::map<uint64_t, bool>::iterator i = mSupportedLibraries.find(reinterpret_cast<uint64_t>(handle));
 
@@ -173,7 +173,7 @@ void *DLIntercept::dlvsym (void * handle, const char *name, const char *version)
 
     void * ptr = real_dlvsym(handle, name, version);
 
-    boost::mutex::scoped_lock lock(mutex);
+    boost::recursive_mutex::scoped_lock lock(mutex);
 
     std::map<uint64_t, bool>::iterator i = mSupportedLibraries.find(reinterpret_cast<uint64_t>(handle));
 
@@ -188,7 +188,7 @@ void *DLIntercept::dlvsym (void * handle, const char *name, const char *version)
 }
 
 void *DLIntercept::dlopen (const char *filename, int flag) {
-    boost::mutex::scoped_lock lock(mutex);
+    boost::recursive_mutex::scoped_lock lock(mutex);
 
     void* ret = real_dlopen(filename, flag);
 

@@ -15,7 +15,7 @@
 * limitations under the License.
 */
 
-#include<boost/thread/mutex.hpp>
+#include<boost/thread/recursive_mutex.hpp>
 #include<map>
 
 #include<dlfcn.h>
@@ -41,7 +41,7 @@ private:
     std::map<uint64_t, bool> mSupportedLibraries;
 
     bool m_initialized;
-    boost::mutex mutex;
+    boost::recursive_mutex mutex;
 };
 
 extern DLIntercept g_DLIntercept;
