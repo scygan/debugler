@@ -167,18 +167,18 @@ int main(int argc, char** argv) {
             throw std::runtime_error(out.str());
         }
 
-        const char* executable = vm["execute"].as< vector<string> >()[0].c_str();
-        std::string arguments = executable; 
-        for (size_t i = 1; i < vm["execute"].as< vector<string> >().size(); i++) {
-            arguments += " ";
-            arguments += vm["execute"].as< vector<string> >()[i];
+        std::string executable = vm["execute"].as< vector<string> >()[0];
+        std::vector<std::string> arguments;
+        std::string argumentString;
+        for (size_t i = 0; i < vm["execute"].as< vector<string> >().size(); i++) {
+            arguments.push_back(vm["execute"].as< vector<string> >()[i]);
+            argumentString += (i > 0?" ":"") + arguments[i];
         }
 
-       
         std::string wrapperPath = getWrapperPath();
         std::string path = getCurrentDirectory();
 
-        printf("Executable: %s\nPath: %s\nArguments: %s\nWrapper: %s\n\n\n", executable, path.c_str(), arguments.c_str(), wrapperPath.c_str());
+        printf("Executable: %s\nPath: %s\nArguments: %s\nWrapper: %s\n\n\n", executable.c_str(), path.c_str(), argumentString.c_str(), wrapperPath.c_str());
 
 #ifdef  WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
         //Workaround fo ARM Mali OpenGL ES wrapper on Windows: see LoaderThread() for description
@@ -202,7 +202,7 @@ int main(int argc, char** argv) {
 
         if (CreateProcessA(
             executable,
-            (LPSTR)arguments.c_str(),
+            (LPSTR)argumentString.c_str(),
             NULL, 
             NULL,
             FALSE, 
@@ -220,17 +220,10 @@ int main(int argc, char** argv) {
             throw std::runtime_error("Cannot fork process");
         }
         if (pid == 0) {
-            std::vector<std::string> args; 
-
-            std::istringstream argumentsStream(arguments);
-            std::copy(std::istream_iterator<std::string>(argumentsStream),
-                std::istream_iterator<std::string>(),
-                std::back_inserter<std::vector<std::string> >(args));
-
-            std::vector<std::vector<char> > argvs(args.size()); 
-            std::vector<char*> argv(args.size());
-            for (size_t i = 0; i < args.size(); i++) {
-                std::copy(args[i].begin(), args[i].end(), std::back_inserter<std::vector<char> >(argvs[i]));
+            std::vector<std::vector<char> > argvs(arguments.size()); 
+            std::vector<char*> argv(arguments.size());
+            for (size_t i = 0; i < arguments.size(); i++) {
+                std::copy(arguments[i].begin(), arguments[i].end(), std::back_inserter<std::vector<char> >(argvs[i]));
                 argvs[i].push_back('\0');
                 argv[i] = &argvs[i][0];
             }
@@ -238,7 +231,7 @@ int main(int argc, char** argv) {
 
             Os::setEnv("LD_PRELOAD", wrapperPath.c_str());
 
-            execvp(executable, &argv[0]);                        
+            execvp(executable.c_str(), &argv[0]);
             throw std::runtime_error("Cannot execute process");
         }
 #endif
