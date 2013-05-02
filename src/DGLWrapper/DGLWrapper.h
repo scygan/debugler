@@ -42,7 +42,9 @@
     #define HAVE_LIBRARY_WGL
     #define HAVE_LIBRARY_WGL_EXT
 #else
+#ifndef __ANDROID__
     #define HAVE_LIBRARY_GLX
+#endif
 #endif
 
 

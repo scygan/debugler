@@ -161,6 +161,11 @@ namespace endian = boost::spirit::detail;
 #error "VAX floating point format is not supported!"
 #endif
 
+#ifdef __ANDROID__
+#undef fpclassify
+#undef isfinite
+#endif
+
 namespace eos {
 
 	// forward declaration

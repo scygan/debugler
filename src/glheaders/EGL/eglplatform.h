@@ -83,6 +83,12 @@ typedef int   EGLNativeDisplayType;
 typedef void *EGLNativeWindowType;
 typedef void *EGLNativePixmapType;
 
+#elif defined (__ANDROID__)
+
+typedef void* EGLNativeDisplayType;
+typedef void* EGLNativePixmapType;
+typedef void* EGLNativeWindowType;
+
 #elif defined(__unix__)
 
 /* X11 (tentative)  */

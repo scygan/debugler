@@ -33,8 +33,10 @@
 #ifdef _WIN32
 #include <codegen/input/wglext.h>
 #else
+#ifndef __ANDROID__
 #include <codegen/input/glx.h>
 //#include <codegen/input/glxext.h>
+#endif
 #endif
 
 #endif
