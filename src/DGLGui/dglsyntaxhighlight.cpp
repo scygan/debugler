@@ -8,9 +8,7 @@
 #include <QDebug>
 
 #ifndef NDEBUG
-#define HL_DEBUG(x) x
-#else
-#define HL_DEBUG(x)
+#define HL_DEBUG
 #endif
 
 #define FATAL { throw std::runtime_error("Cannot parse syntax highlighting file."); }
@@ -136,11 +134,16 @@ public:
     }
 
     static DGLHLRuleBase* Create(const DGLHLData* data, const QDomElement& xml);
-
-    HL_DEBUG(QString m_debugRuleName);
+#ifdef HL_DEBUG
+    QString m_debugRuleName;
+#endif
 
 protected:
-    DGLHLRuleBase(const DGLHLData* data, QString formatName, QString actionName, HL_DEBUG(QString debugRuleName));
+    DGLHLRuleBase(const DGLHLData* data, QString formatName, QString actionName
+#ifdef HL_DEBUG
+            , QString debugRuleName
+#endif
+            );
 
 private:
     boost::shared_ptr<DGLHLActionBase> m_action;
@@ -149,7 +152,11 @@ private:
 
 class DGLHLRuleDetectChar: public DGLHLRuleBase {
 public: 
-    DGLHLRuleDetectChar(const DGLHLData* data, char _char, QString formatName, QString actionName):DGLHLRuleBase(data, formatName, actionName, HL_DEBUG(QString(__FUNCTION__) + ":" + _char)),
+    DGLHLRuleDetectChar(const DGLHLData* data, char _char, QString formatName, QString actionName):DGLHLRuleBase(data, formatName, actionName
+#ifdef HL_DEBUG
+            , QString(__FUNCTION__) + ":" + _char
+#endif
+            ),
         m_char(_char) {}
 private:
     virtual void tryMatch(const QString& str, uint& pos, int& matchSize) {
@@ -162,7 +169,11 @@ private:
 class DGLHLRuleDetect2Chars: public DGLHLRuleBase {
 public: 
     DGLHLRuleDetect2Chars(const DGLHLData* data, char char1, char char2, QString formatName, QString actionName):
-        DGLHLRuleBase(data, formatName, actionName, HL_DEBUG(QString(__FUNCTION__) + ":" + char1 + "," + char2)),m_regex(QRegExp::escape(QString(char1) + QString(char2))) {}
+        DGLHLRuleBase(data, formatName, actionName
+#ifdef HL_DEBUG
+                , QString(__FUNCTION__) + ":" + char1 + "," + char2
+#endif
+                ),m_regex(QRegExp::escape(QString(char1) + QString(char2))) {}
 
     typedef std::vector<std::string> keywordList_t;
 
@@ -190,7 +201,11 @@ private:
 
 class DGLHLRuleInt: public DGLHLRuleBase {
 public: 
-    DGLHLRuleInt(const DGLHLData* data, QString formatName, QString actionName):DGLHLRuleBase(data, formatName, actionName, HL_DEBUG(QString(__FUNCTION__))),
+    DGLHLRuleInt(const DGLHLData* data, QString formatName, QString actionName):DGLHLRuleBase(data, formatName, actionName
+#ifdef HL_DEBUG
+            , QString(__FUNCTION__)
+#endif
+                ),
         m_regex("\\b[+-]?(0|[1-9][0-9]*)") {}
 private:
     virtual void tryMatch(const QString& str, uint& pos, int& matchSize) {
@@ -202,7 +217,11 @@ private:
 
 class DGLHLRuleHlCHex: public DGLHLRuleBase {
 public: 
-    DGLHLRuleHlCHex(const DGLHLData* data, QString formatName, QString actionName):DGLHLRuleBase(data, formatName, actionName, HL_DEBUG(QString(__FUNCTION__))),
+    DGLHLRuleHlCHex(const DGLHLData* data, QString formatName, QString actionName):DGLHLRuleBase(data, formatName, actionName
+#ifdef HL_DEBUG
+            , QString(__FUNCTION__)
+#endif
+                ),
         m_regex("\\b[+-]?0(x|X)[0-9]+") {}
 private:
     virtual void tryMatch(const QString& str, uint& pos, int& matchSize) {
@@ -214,7 +233,11 @@ private:
 
 class DGLHLRuleDecimal: public DGLHLRuleBase {
 public: 
-    DGLHLRuleDecimal(const DGLHLData* data, QString formatName, QString actionName):DGLHLRuleBase(data, formatName, actionName, HL_DEBUG(QString(__FUNCTION__))) {}
+    DGLHLRuleDecimal(const DGLHLData* data, QString formatName, QString actionName):DGLHLRuleBase(data, formatName, actionName
+#ifdef HL_DEBUG
+            , QString(__FUNCTION__)
+#endif
+        ) {}
 private:
     virtual void tryMatch(const QString& str, uint& pos, int& matchSize) {
         assert(!"not implemented");
@@ -223,8 +246,11 @@ private:
 
 class DGLHLRuleHlCOct: public DGLHLRuleBase {
 public: 
-    DGLHLRuleHlCOct(const DGLHLData* data, QString formatName, QString actionName):DGLHLRuleBase(data, formatName, actionName, HL_DEBUG(QString(__FUNCTION__))),
-        m_regex("\\b[+-]?0[0-9]+") {}
+    DGLHLRuleHlCOct(const DGLHLData* data, QString formatName, QString actionName):DGLHLRuleBase(data, formatName, actionName
+#ifdef HL_DEBUG
+            , QString(__FUNCTION__)
+#endif
+            ), m_regex("\\b[+-]?0[0-9]+") {}
 private:
     virtual void tryMatch(const QString& str, uint& pos, int& matchSize) {
         pos = (uint)m_regex.indexIn(str);
@@ -235,8 +261,11 @@ private:
 
 class DGLHLRuleFloat: public DGLHLRuleBase {
 public: 
-    DGLHLRuleFloat(const DGLHLData* data, QString formatName, QString actionName):DGLHLRuleBase(data, formatName, actionName, HL_DEBUG(QString(__FUNCTION__))),
-      m_regex("\\b[+-]?((((0|[1-9][0-9]*)\\.[0-9]*)|(\\.[0-9]+))([Ee][+-]?[0-9]+)?)|((((0|[1-9][0-9]*)\\.?[0-9]*)|(\\.[0-9]+))([Ee][+-]?[0-9]+))(f|LF)?") {}
+    DGLHLRuleFloat(const DGLHLData* data, QString formatName, QString actionName):DGLHLRuleBase(data, formatName, actionName
+#ifdef HL_DEBUG
+            , QString(__FUNCTION__)
+#endif
+            ),m_regex("\\b[+-]?((((0|[1-9][0-9]*)\\.[0-9]*)|(\\.[0-9]+))([Ee][+-]?[0-9]+)?)|((((0|[1-9][0-9]*)\\.?[0-9]*)|(\\.[0-9]+))([Ee][+-]?[0-9]+))(f|LF)?") {}
 private:
     virtual void tryMatch(const QString& str, uint& pos, int& matchSize) {
         pos = (uint)m_regex.indexIn(str);
@@ -248,7 +277,11 @@ private:
 class DGLHLRuleStringDetect: public DGLHLRuleBase {
 public: 
     DGLHLRuleStringDetect(const DGLHLData* data, QString _string, QString formatName, QString actionName)
-        :DGLHLRuleBase(data, formatName, actionName, HL_DEBUG(QString(__FUNCTION__) + ":" + _string)),m_regex(QRegExp::escape(_string)) {}
+        :DGLHLRuleBase(data, formatName, actionName
+#ifdef HL_DEBUG
+                , QString(__FUNCTION__) + ":" + _string
+#endif
+         ), m_regex(QRegExp::escape(_string)) {}
 
     typedef std::vector<std::string> keywordList_t;
 
@@ -330,11 +363,15 @@ public:
             ret.pos = bestPos;
             ret.format = m_rules[best]->getFormat();
             ret.action = m_rules[best]->getAction();
-            HL_DEBUG(qDebug() << "Match(rule = " << m_rules[best]->m_debugRuleName << ", pos=" << ret.pos << ",size=" << ret.size << "): |" << str.mid(ret.pos, ret.size) << "|\n");
+#ifdef HL_DEBUG
+            qDebug() << "Match(rule = " << m_rules[best]->m_debugRuleName << ", pos=" << ret.pos << ",size=" << ret.size << "): |" << str.mid(ret.pos, ret.size) << "|\n";
+#endif
         } else {
             ret.pos = str.size();
             ret.size = 0;
-            HL_DEBUG(qDebug() << "No Match: |" << str << "|\n");
+#ifdef HL_DEBUG
+            qDebug() << "No Match: |" << str << "|\n";
+#endif
         }
 
         return ret;
@@ -343,7 +380,9 @@ public:
 
     const DGLHLActionBase* getLineEndAction() const { return m_LineEndAction.get(); }
 
-    HL_DEBUG(QString m_debugName);
+#ifdef HL_DEBUG
+    QString m_debugName;
+#endif
 
 private:
     std::vector<boost::shared_ptr<DGLHLRuleBase> > m_rules;
@@ -354,7 +393,9 @@ private:
 
 
 void DGLHLActionStay::doAction(DGLSyntaxHighlighterGLSL::HLState& state) const {
-    HL_DEBUG(qDebug() << "Action: stay, current context: " << state.getContext()->m_debugName << "\n");
+#ifdef HL_DEBUG
+    qDebug() << "Action: stay, current context: " << state.getContext()->m_debugName << "\n";
+#endif
 }
 
 void DGLHLActionPop::doAction(DGLSyntaxHighlighterGLSL::HLState& state) const {
@@ -364,14 +405,18 @@ void DGLHLActionPop::doAction(DGLSyntaxHighlighterGLSL::HLState& state) const {
             break;
         }
         state.pop();
+#ifdef HL_DEBUG
         HL_DEBUG(qDebug() << "Action: pop, current context: " << state.getContext()->m_debugName << "\n");
+#endif
     }
 
 }
 
 void DGLHLActionSetContext::doAction(DGLSyntaxHighlighterGLSL::HLState& state) const {
     state.push(m_context);
+#ifdef HL_DEBUG
     HL_DEBUG(qDebug() << "Action: set, current context: " << state.getContext()->m_debugName << "\n");
+#endif
 }
 
 class DGLHLData {
@@ -498,7 +543,11 @@ private:
     std::map<std::string, DGLHLTextCharFormat> m_formats;
 };
 
-DGLHLRuleKeyword::DGLHLRuleKeyword(const DGLHLData* data, std::string _string, QString formatName, QString actionName):DGLHLRuleBase(data, formatName, actionName, HL_DEBUG(QString(__FUNCTION__) + ":" + QString::fromStdString(_string))) {
+DGLHLRuleKeyword::DGLHLRuleKeyword(const DGLHLData* data, std::string _string, QString formatName, QString actionName):DGLHLRuleBase(data, formatName, actionName
+#ifdef HL_DEBUG
+        , QString(__FUNCTION__) + ":" + QString::fromStdString(_string)
+#endif
+        ) {
     const keywordList_t* list = data->getKeywordList(_string);
     QString regexStr;
     for (size_t i = 0; i < list->size(); i++) {
@@ -527,10 +576,16 @@ DGLHLActionBase* DGLHLActionBase::Create(const DGLHLData* data, const QString na
         FATAL;
 }
 
-DGLHLRuleBase::DGLHLRuleBase(const DGLHLData* data, QString formatName, QString actionName, HL_DEBUG(QString debugRuleName)) {
+DGLHLRuleBase::DGLHLRuleBase(const DGLHLData* data, QString formatName, QString actionName
+#ifdef HL_DEBUG
+        , QString debugRuleName
+#endif
+        ) {
     m_action = boost::shared_ptr<DGLHLActionBase>(DGLHLActionBase::Create(data, actionName));
     m_format = data->getFormat(formatName.toStdString());
-    HL_DEBUG(m_debugRuleName =  formatName + ":" + debugRuleName);
+#ifdef HL_DEBUG
+    m_debugRuleName =  formatName + ":" + debugRuleName;
+#endif
 }
 
 DGLHLContext::DGLHLContext(const QDomElement& xml, const DGLHLData* data): m_xml(xml) {
@@ -544,7 +599,9 @@ DGLHLContext::DGLHLContext(const QDomElement& xml, const DGLHLData* data): m_xml
         QString name = xml.attributes().item(i).toAttr().nodeName();
         QString val = xml.attributes().item(i).toAttr().nodeValue();
         if (name == "name") {
-            HL_DEBUG(m_debugName = val);
+#ifdef HL_DEBUG
+            m_debugName = val;
+#endif
             continue;
         } else if (name == "attribute") {
             m_DefaultFormat = data->getFormat(val.toStdString());
