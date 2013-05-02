@@ -1,5 +1,6 @@
 #include "dglsyntaxhighlight.h"
 #include<boost/make_shared.hpp>
+#include<stdexcept>
 
 #include <QFile>
 #include <QDomDocument>
@@ -106,7 +107,7 @@ class DGLHLActionStay: public DGLHLActionBase {
 
 class DGLHLActionPop: public DGLHLActionBase {
 public:
-    DGLHLActionPop::DGLHLActionPop(int counter):m_counter(counter) {}
+    DGLHLActionPop(int counter):m_counter(counter) {}
 private:
     virtual void doAction(DGLSyntaxHighlighterGLSL::HLState& state) const;
     int m_counter;

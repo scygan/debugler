@@ -1,5 +1,7 @@
 find_package(Qt4 REQUIRED)
 
+set(QT_USE_QTXML TRUE)
+
 set(dglgui_SOURCES 
     dglbreakpointdialog.cpp dglbufferview.cpp  dglconnectdialog.cpp
     dglcontoller.cpp dglfboview.cpp dglframebufferview.cpp

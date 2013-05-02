@@ -12,6 +12,8 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
     )
 
+add_definitions(-std=c++11)
+
 add_subdirectory(external/boost)
 add_subdirectory(external/QHexEdit)
 add_subdirectory(DGLCommon)
