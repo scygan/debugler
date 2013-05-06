@@ -74,7 +74,7 @@
 #      libraries. Automatically turned on for NDK r5x and r6x due to GLESv2
 #      problems.
 #
-#    LIBRARY_OUTPUT_PATH_ROOT=${CMAKE_SOURCE_DIR} - where to output binary
+#    LIBRARY_OUTPUT_PATH_ROOT=${CMAKE_BINARY_DIR} - where to output binary
 #      files. See additional details below.
 #
 #    ANDROID_SET_OBSOLETE_VARIABLES=ON - it set, then toolchain defines some
@@ -106,7 +106,7 @@
 #
 #    LIBRARY_OUTPUT_PATH_ROOT should be set in cache to determine where Android
 #    libraries will be installed.
-#    Default is ${CMAKE_SOURCE_DIR}, and the android libs will always be
+#    Default is ${CMAKE_BINARY_DIR}, and the android libs will always be
 #    under the ${LIBRARY_OUTPUT_PATH_ROOT}/libs/${ANDROID_NDK_ABI_NAME}
 #    (depending on the target ABI). This is convenient for Android packaging.
 #
@@ -715,7 +715,7 @@ set( ANDROID_SYSTEM_INCLUDE_DIRS "" )
 set( ANDROID_SYSTEM_LIB_DIRS "" )
 
 # setup output directories
-set( LIBRARY_OUTPUT_PATH_ROOT ${CMAKE_SOURCE_DIR} CACHE PATH "root for library output, set this to change where android libs are installed to" )
+set( LIBRARY_OUTPUT_PATH_ROOT ${CMAKE_BINARY_DIR} CACHE PATH "root for library output, set this to change where android libs are installed to" )
 set( CMAKE_INSTALL_PREFIX "${ANDROID_TOOLCHAIN_ROOT}/user" CACHE STRING "path for installing" )
 
 if(NOT _CMAKE_IN_TRY_COMPILE)
