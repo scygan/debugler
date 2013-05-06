@@ -26,8 +26,10 @@
 #include<stdexcept>
 #include<fstream>
 
+#ifndef __ANDROID__
 #include<libelf.h>
 #include<gelf.h>
+#endif
 
 #include<DGLCommon/os.h>
 
@@ -38,6 +40,8 @@
 
 #include"api-loader.h"
 #include"gl-wrappers.h"
+
+#ifndef __ANDROID__
 
 class ELFAnalyzer {
     public:
@@ -123,7 +127,7 @@ class ELFAnalyzer {
         int m_fd;
         std::map<std::string, int64_t> m_SymbolValues;
 };
-
+#endif
 
 DLIntercept g_DLIntercept;
 
@@ -202,6 +206,7 @@ void *DLIntercept::dlopen (const char *filename, int flag) {
 
 void DLIntercept::initialize() {
     m_initialized = true;
+#ifndef __ANDROID__
     ELFAnalyzer an("libdl");
 
     char* baseAddr = reinterpret_cast<char*>(&dlclose) - an.symValue("dlclose");
@@ -212,6 +217,28 @@ void DLIntercept::initialize() {
             baseAddr + an.symValue("dlsym"));
     m_real_dlvsym = reinterpret_cast<void* (*)(void*, const char*, const char*)>(
             baseAddr + an.symValue("dlvsym"));
+    } catch (const std::runtime_error& err) {
+        Os::nonFatal("dlvsym is not available in dynamic linker.\n");
+        m_real_dlvsym = NULL;
+    }
+#else
+    //dlopen/dlsym is injected in /system/bin/linker on Android from local functions (and libdl.so is only a stub).
+    //There is no way to get addresses of real dlopen/dlsym via elf parsing, as linker has -fvisibility=hidden.
+
+    //We strongly rely on DGLLoader to get those symbols..
+
+    char* baseAddr = reinterpret_cast<char*>(&dlclose);
+
+    m_real_dlopen = reinterpret_cast<void* (*)(const char *filename, int flag)> (
+        baseAddr + atoi(Os::getEnv("dlopen_addr").c_str()));
+
+    m_real_dlsym = reinterpret_cast<void* (*)(void*, const char*)> (
+        baseAddr + atoi(Os::getEnv("dlsym_addr").c_str()));
+
+    m_real_dlvsym = NULL;
+
+#endif
+    
 }
 
 extern "C" {

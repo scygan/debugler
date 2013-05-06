@@ -393,7 +393,11 @@ inline bool create_directory(const char *path)
 
 inline const char *get_temporary_path()
 {
+#ifndef __ANDROID__
    const char *names[] = {"/tmp", "TMPDIR", "TMP", "TEMP" };
+#else
+   const char *names[] = {"/data/local/tmp", "TMPDIR", "TMP", "TEMP" };
+#endif
    const int names_size = sizeof(names)/sizeof(names[0]);
    struct stat data;
    for(int i = 0; i != names_size; ++i){

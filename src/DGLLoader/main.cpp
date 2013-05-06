@@ -44,6 +44,10 @@
 #include "DGLCommon/os.h"
 #include <DGLCommon/wa.h>
 
+#ifdef __ANDROID__
+#include <dlfcn.h>
+#endif
+
 
 #ifdef _WIN32
 bool isProcess64Bit(HANDLE hProcess) {
@@ -100,6 +104,8 @@ std::string getWrapperPath() {
     std::string tmp = fileName;
     size_t splitPoint=tmp.find_last_of("/\\");
     return tmp.substr(0, splitPoint) + "\\" + ret;
+#elif __ANDROID__
+    return "/data/local/tmp/libdglwrapper.so";
 #else
     return "libdglwrapper.so";
 #endif
@@ -230,6 +236,19 @@ int main(int argc, char** argv) {
             argv.push_back(NULL);
 
             Os::setEnv("LD_PRELOAD", wrapperPath.c_str());
+
+#ifdef __ANDROID__
+           {
+               int addr = reinterpret_cast<char*>(&dlopen) - reinterpret_cast<char*>(&dlclose);
+               std::ostringstream str; str << addr;
+               Os::setEnv("dlopen_addr", str.str().c_str());
+           }
+           {
+               int addr = reinterpret_cast<char*>(&dlsym) - reinterpret_cast<char*>(&dlclose);
+               std::ostringstream str; str << addr;
+               Os::setEnv("dlsym_addr", str.str().c_str());
+           }
+#endif
 
             execvp(executable.c_str(), &argv[0]);
             throw std::runtime_error("Cannot execute process");
