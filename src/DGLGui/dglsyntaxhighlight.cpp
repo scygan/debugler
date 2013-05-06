@@ -631,11 +631,12 @@ DGLSyntaxHighlighterGLSL::DGLSyntaxHighlighterGLSL(QTextDocument *parent): QSynt
 
 void DGLSyntaxHighlighterGLSL::highlightBlock(const QString &text) {
     HLState currentState(s_data.get());
-    
+
     int previousStateIdx = previousBlockState();
 
     if (previousStateIdx != -1) {
-        currentState = m_hlStates[previousBlockState()];
+        static_assert(sizeof(HLState*) <= sizeof(int), "int size should be enough to fit a mem ptr");
+        currentState = *reinterpret_cast<HLState*>(previousStateIdx);
     }
 
     int pos = 0; 
@@ -667,11 +668,8 @@ void DGLSyntaxHighlighterGLSL::highlightBlock(const QString &text) {
     if (currentState.getContext()->getLineEndAction()) {
         currentState.getContext()->getLineEndAction()->doAction(currentState);
     }
+    setCurrentBlockState(reinterpret_cast<int>(&(*m_hlStateSet.insert(currentState).first)));
 
-    if (previousStateIdx == -1 || true/*currentState != m_hlStates[previousStateIdx]*/) {
-        m_hlStates.push_back(currentState);
-        setCurrentBlockState(m_hlStates.size() - 1);
-    }
 }
 
 DGLSyntaxHighlighterGLSL::HLState::HLState(const DGLHLData* data) {
@@ -680,6 +678,25 @@ DGLSyntaxHighlighterGLSL::HLState::HLState(const DGLHLData* data) {
 
 const DGLHLContext* DGLSyntaxHighlighterGLSL::HLState::getContext() {
     return top();
+}
+
+const DGLHLContext* DGLSyntaxHighlighterGLSL::HLState::operator[](size_t i) const {
+    return c[i];
+}
+
+bool DGLSyntaxHighlighterGLSL::HLState::operator<(const HLState& other) const {
+    if (size() < other.size()) {
+        return true;
+    } else if (size() > other.size()) {
+        return false;
+    } else {
+        for (size_t i = 0; i < size(); i++) {
+            if ((*this)[i] < other[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 boost::shared_ptr<DGLHLData> DGLSyntaxHighlighterGLSL::s_data;
