@@ -144,7 +144,11 @@ void *DLIntercept::real_dlvsym (void * handle, const char *name, const char *ver
     if (!m_initialized) {
         initialize();
     }
-    return m_real_dlvsym(handle, name, version);
+    if (m_real_dlvsym) {
+        return m_real_dlvsym(handle, name, version);
+    } else {
+        return m_real_dlsym(handle, name);
+    }
 }
 
 void *DLIntercept::real_dlopen (const char *filename, int flag) {
@@ -215,10 +219,10 @@ void DLIntercept::initialize() {
             baseAddr + an.symValue("dlopen"));
     m_real_dlsym = reinterpret_cast<void* (*)(void*, const char*)> (
             baseAddr + an.symValue("dlsym"));
-    m_real_dlvsym = reinterpret_cast<void* (*)(void*, const char*, const char*)>(
+    try {
+        m_real_dlvsym = reinterpret_cast<void* (*)(void*, const char*, const char*)>(
             baseAddr + an.symValue("dlvsym"));
-    } catch (const std::runtime_error& err) {
-        Os::nonFatal("dlvsym is not available in dynamic linker.\n");
+    } catch (const std::runtime_error& err) {        Os::nonFatal("dlvsym is not available in dynamic linker.\n");
         m_real_dlvsym = NULL;
     }
 #else
@@ -238,7 +242,7 @@ void DLIntercept::initialize() {
     m_real_dlvsym = NULL;
 
 #endif
-    
+
 }
 
 extern "C" {

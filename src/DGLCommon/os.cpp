@@ -157,6 +157,10 @@ void Os::fatal(const std::string& message) {
     exit(EXIT_FAILURE);
 }
 
+void Os::nonFatal(const std::string& message) {
+    fprintf(stderr, "Warning: %s\n", message.c_str());
+}
+
 void Os::setEnv(const char* variable, const char* value) {
     setenv(variable, value, 1);
 }

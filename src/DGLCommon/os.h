@@ -46,6 +46,8 @@ public:
 
     NO_RETURN static void fatal(const std::string& message);
 
+    static void nonFatal(const std::string& message);
+
     NO_RETURN static void terminate();
 
     static OsStatusPresenter* createStatusPresenter();
