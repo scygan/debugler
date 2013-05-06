@@ -91,7 +91,9 @@ DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface(opaque_id_t id, 
     return i;
 }
 //only WGL + GLX
+#ifdef HAVE_LIBRARY_WGL
 template DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface<dglState::NativeSurfaceWGL>(opaque_id_t id, bool lock);
+#endif
 #ifdef HAVE_LIBRARY_GLX
 template DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface<dglState::NativeSurfaceGLX>(opaque_id_t id, bool lock);
 #endif
