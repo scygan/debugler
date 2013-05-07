@@ -28,7 +28,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLCommon", "DGLCommon\DGLC
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "codegen", "codegen\codegen.vcxproj", "{F16EFBD2-E47A-4E5B-B091-7D400430745A}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Installer", "Installer\Installer.vdproj", "{55ABEC8C-2C4B-4216-AC6D-C62A7A8F5D77}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Installer", "buildtools\vs\auxprojects\Installer\Installer.vdproj", "{55ABEC8C-2C4B-4216-AC6D-C62A7A8F5D77}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLLoader", "DGLLoader\DGLLoader.vcxproj", "{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -76,7 +76,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboost_system", "external
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboost_thread", "external\boost\libboost_thread.vcxproj", "{F9A59A02-D3B0-4857-8502-1DEFC2115FEC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QTCopy", "Installer\QTCopy\QTCopy.vcxproj", "{3EBFDD5C-E730-48B1-BB5B-468EAC760B67}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QTCopy", "buildtools\vs\auxprojects\QTCopy\QTCopy.vcxproj", "{3EBFDD5C-E730-48B1-BB5B-468EAC760B67}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
