@@ -24,7 +24,7 @@ before_script:
   - "gem install travis-artifacts"
   - "sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test"
   - "sudo apt-get update"
-  - "sudo apt-get install g++-4.7 libelf-dev python-opengl"
+  - "sudo apt-get install g++-4.7 x11proto-gl-dev libelf-dev python-opengl"
   - "sudo mount -t tmpfs shm /dev/shm"
   - "sh -e /etc/init.d/xvfb start"
 
