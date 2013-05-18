@@ -40,7 +40,7 @@ def initializeState(Width, Height):
 
     program = compileProgram(
         compileShader('''
-            #version 150
+            #version 130
             in vec4 position;
             
             void main() {
@@ -49,7 +49,7 @@ def initializeState(Width, Height):
  
         ''',GL_VERTEX_SHADER),
         compileShader('''
-            #version 150
+            #version 130
             out vec4 oColor;
             void main()
             {
