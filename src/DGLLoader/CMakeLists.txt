@@ -10,9 +10,9 @@ add_executable(dglloader
 add_dependencies(dglloader Boost)
 
 if (ANDROID)
-	set(librt, "")
+	set(librt "")
 else()
-	set(librt, rt)
+	set(librt rt)
 endif()
 target_link_libraries(dglloader boost_program_options dglcommon ${librt})
 
