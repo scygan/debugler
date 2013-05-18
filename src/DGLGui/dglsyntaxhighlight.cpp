@@ -635,8 +635,7 @@ void DGLSyntaxHighlighterGLSL::highlightBlock(const QString &text) {
     int previousStateIdx = previousBlockState();
 
     if (previousStateIdx != -1) {
-        static_assert(sizeof(HLState*) <= sizeof(int), "int size should be enough to fit a mem ptr");
-        currentState = *reinterpret_cast<HLState*>(previousStateIdx);
+        currentState = *m_hlStateByIdx[previousStateIdx];
     }
 
     int pos = 0; 
@@ -668,8 +667,19 @@ void DGLSyntaxHighlighterGLSL::highlightBlock(const QString &text) {
     if (currentState.getContext()->getLineEndAction()) {
         currentState.getContext()->getLineEndAction()->doAction(currentState);
     }
-    setCurrentBlockState(reinterpret_cast<int>(&(*m_hlStateSet.insert(currentState).first)));
 
+    std::pair<std::map<HLState, int>::iterator,bool> i = m_hlStateMap.insert(std::pair<HLState, int>(currentState, m_hlStateByIdx.size()));
+
+    if (i.second) {
+        //inserted new state, so keep track of its idx
+
+        m_hlStateByIdx.push_back(&i.first->first);
+
+        //new state should have always last idx
+        assert(m_hlStateByIdx.size() - 1 == i.first->second);
+    }
+
+    setCurrentBlockState(i.first->second);
 }
 
 DGLSyntaxHighlighterGLSL::HLState::HLState(const DGLHLData* data) {

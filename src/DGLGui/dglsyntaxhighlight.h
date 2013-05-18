@@ -23,7 +23,6 @@ public:
         const DGLHLContext* getContext();
     private:
         const DGLHLContext* operator[](size_t i) const;
-        friend class HLState;
     };
 
 protected:
@@ -32,7 +31,8 @@ protected:
 private:
     static boost::shared_ptr<DGLHLData> s_data;
 
-    std::set<HLState> m_hlStateSet;
+    std::vector<const HLState*> m_hlStateByIdx;
+    std::map<HLState, int> m_hlStateMap;
 };
 
 #endif //DGLSYNTAXHIGHLIGHT_H
