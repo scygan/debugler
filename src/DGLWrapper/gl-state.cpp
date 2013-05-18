@@ -13,8 +13,14 @@
 * limitations under the License.
 */
 
-
 #include "gl-state.h"
+
+#ifdef HAVE_LIBRARY_GLX
+//for GLXBadDrawable:
+#include <X11/Xproto.h>
+#include <GL/glxproto.h>
+#endif
+
 
 #include <boost/make_shared.hpp>
 #include <string>
@@ -2005,21 +2011,97 @@ int NativeSurfaceEGL::getHeight() {
 
 #ifdef HAVE_LIBRARY_GLX
 
-NativeSurfaceGLX::NativeSurfaceGLX(const DGLDisplayState* _dpy, opaque_id_t id):m_Dpy(_dpy),NativeSurfaceBase(id) {
+class XErrorHandler {
+public:
+    XErrorHandler(Display* display):m_Lock(s_mtx) {
+        s_disp = display;
+        s_oldErrorHandler = XSetErrorHandler(s_errorHandler);
+    }
+    ~XErrorHandler() {
+        XSetErrorHandler(s_oldErrorHandler);
+    }
+    int getErrorCode() {
+        int errorCode = 0;
+        std::swap(errorCode, s_errorCode);
+        return errorCode;
+    }
+private:
+    static int s_errorHandler(Display *display, XErrorEvent *error) {
+        if (s_disp != display) {
+            if (s_oldErrorHandler) {
+                return s_oldErrorHandler(display, error);
+            } else {
+                assert(0);
+            }
+            return 0; 
+        }
+        if (error->error_code) {
+           int errorBase, eventBase;
+           glXQueryExtension(display, &errorBase, &eventBase);
+           s_errorCode = error->error_code - errorBase;
+       }
+    }
+
+    static Display* s_disp;
+    static boost::mutex s_mtx;
+    static int (*s_oldErrorHandler)(Display *, XErrorEvent *);
+    static int s_errorCode;
+
+    //whole class should be used once at a time, so we lock thorugh it lifetime.
+    boost::lock_guard<boost::mutex> m_Lock;
+};
+
+
+boost::mutex XErrorHandler::s_mtx;
+int XErrorHandler::s_errorCode = 0;
+Display* XErrorHandler::s_disp;
+int (*XErrorHandler::s_oldErrorHandler)(Display *, XErrorEvent *);
+
+
+NativeSurfaceGLX::NativeSurfaceGLX(const DGLDisplayState* _dpy, opaque_id_t id):m_Dpy(_dpy),NativeSurfaceBase(id), m_GLXDrawableGettersFailing(false) {
     
     GLXDrawable drawable = static_cast<GLXDrawable>(m_Id);
     Display* dpy = reinterpret_cast<Display*>(m_Dpy->getId());
 
     unsigned int fbConfigID;
-    DIRECT_CALL_CHK(glXQueryDrawable)(dpy, drawable, GLX_FBCONFIG_ID, &fbConfigID);
+    int error; 
+    {
+        XErrorHandler xErrorHandler(dpy);
+        DIRECT_CALL_CHK(glXQueryDrawable)(dpy, drawable, GLX_FBCONFIG_ID, &fbConfigID);
+        error = xErrorHandler.getErrorCode();
+    }
+    
+    int attribList[] = {None, None, None, None};
 
-    int screen = DefaultScreen(dpy);
+    if (error == GLXBadDrawable) {
+       
+        //this is acceptable and happen on Mesa, if bare Window XID was passed here instead of GLXDrawable
+        
+        m_GLXDrawableGettersFailing = true;
 
-    const int attribList[] = {GLX_FBCONFIG_ID, static_cast<int>(fbConfigID), None, None};
+        Window win = reinterpret_cast<Window>(id);
+
+        //in such case try to talk directly with X
+        
+        XWindowAttributes attribs;
+        XGetWindowAttributes(dpy, win, &attribs);
+
+        attribList[0] = GLX_VISUAL_ID;
+        attribList[1] = static_cast<int>(XVisualIDFromVisual(attribs.visual));
+
+        printf("id: = %d\n", attribList[1]);
+
+    } else if (!error) {
+
+        attribList[0] = GLX_FBCONFIG_ID;
+        attribList[1] = static_cast<int>(fbConfigID);
+
+    } else {
+        Os::fatal("Got unexpected X11 error\n");
+    }
+
     int nElements;
-    GLXFBConfig* config = DIRECT_CALL_CHK(glXChooseFBConfig)(dpy, screen, attribList, &nElements); 
-
-    assert(nElements == 1);
+    GLXFBConfig* config = DIRECT_CALL_CHK(glXChooseFBConfig)(dpy, DefaultScreen(dpy), attribList, &nElements); 
 
     if (nElements < 1) { 
         throw std::runtime_error("glXChooseFBConfig failed during native surface fbconfig discovery");
@@ -2068,23 +2150,46 @@ int NativeSurfaceGLX::getDepthSize() {
 }
 
 int NativeSurfaceGLX::getWidth() {
-    unsigned int width;
 
-    GLXDrawable drawable = static_cast<GLXDrawable>(m_Id);
     Display* dpy = reinterpret_cast<Display*>(m_Dpy->getId());
 
-    DIRECT_CALL_CHK(glXQueryDrawable)(dpy, drawable, GLX_WIDTH, &width);
-    return width;
+    if (!m_GLXDrawableGettersFailing) {
+
+        GLXDrawable drawable = static_cast<GLXDrawable>(m_Id);
+
+        unsigned int width;
+        DIRECT_CALL_CHK(glXQueryDrawable)(dpy, drawable, GLX_WIDTH, &width);
+
+        return width;
+
+    } else {
+        Window win = reinterpret_cast<Window>(m_Id);
+
+        XWindowAttributes attribs;
+        XGetWindowAttributes(dpy, win, &attribs);
+        return attribs.width;
+    }
 }
 
 int NativeSurfaceGLX::getHeight() {
-    unsigned int height;
-
-    GLXDrawable drawable = static_cast<GLXDrawable>(m_Id);
     Display* dpy = reinterpret_cast<Display*>(m_Dpy->getId());
 
-    DIRECT_CALL_CHK(glXQueryDrawable)(dpy, drawable, GLX_HEIGHT, &height);
-    return height;
+    if (!m_GLXDrawableGettersFailing) {
+
+        GLXDrawable drawable = static_cast<GLXDrawable>(m_Id);
+
+        unsigned int height;
+        DIRECT_CALL_CHK(glXQueryDrawable)(dpy, drawable, GLX_HEIGHT, &height);
+
+        return height;
+
+    } else {
+        Window win = reinterpret_cast<Window>(m_Id);
+
+        XWindowAttributes attribs;
+        XGetWindowAttributes(dpy, win, &attribs);
+        return attribs.height;
+    }
 }
 
 #endif

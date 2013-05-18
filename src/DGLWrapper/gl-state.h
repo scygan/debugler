@@ -185,6 +185,8 @@ private:
     int m_DepthSize, m_StencilSize;
     const DGLDisplayState* m_Dpy;
     bool m_Stereo, m_DoubleBuffered;
+
+    bool m_GLXDrawableGettersFailing;
 };
 
 class NativeSurfaceEGL: public NativeSurfaceBase {
