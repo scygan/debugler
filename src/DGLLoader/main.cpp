@@ -184,7 +184,7 @@ int main(int argc, char** argv) {
         std::string wrapperPath = getWrapperPath();
         std::string path = getCurrentDirectory();
 
-        printf("Executable: %s\nPath: %s\nArguments: %s\nWrapper: %s\n\n\n", executable.c_str(), path.c_str(), argumentString.c_str(), wrapperPath.c_str());
+        Os::info("Executable: %s\nPath: %s\nArguments: %s\nWrapper: %s\n\n\n", executable.c_str(), path.c_str(), argumentString.c_str(), wrapperPath.c_str());
 
 #ifdef  WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
         //Workaround fo ARM Mali OpenGL ES wrapper on Windows: see LoaderThread() for description
@@ -324,7 +324,7 @@ int main(int argc, char** argv) {
 #endif
     }
 
-    printf("%s", ipcMessage->message);
+    Os::info("%s", ipcMessage->message);
 
     std::string shmemName = Os::getEnv("dgl_loader_shmem");
     if (shmemName.length()) {

@@ -44,9 +44,10 @@ public:
 
     static void setEnv(const char* variable, const char* value);
 
-    NO_RETURN static void fatal(const std::string& message);
+    NO_RETURN static void fatal(const char* fmt, ...);
 
-    static void nonFatal(const std::string& message);
+    static void nonFatal(const char* fmt, ...);
+    static void info(const char* fmt, ...);
 
     NO_RETURN static void terminate();
 
@@ -57,6 +58,8 @@ public:
     static void setCurrentModuleHandle(void * handle);
 private:
     static void* m_CurrentHandle;
+
+    static std::string vargsToString(const char* fmt, const va_list arg);
 };
 
 

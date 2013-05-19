@@ -15,10 +15,10 @@
 
 
 #include "os.h"
+#include <vector>
 
 #ifdef _WIN32
 
-#include <vector>
 #include <Windows.h>
 #include <Psapi.h>
 
@@ -100,7 +100,13 @@ void Os::setEnv(const char* variable, const char* value) {
     SetEnvironmentVariable(variable, value);
 }
 
-void Os::fatal(const std::string& message) {
+void Os::fatal(const char* fmt, ...) {
+
+    va_list args;
+    va_start(args, fmt);
+    std::string message = vargsToString(fmt, args);
+    va_end(args);
+
     MessageBox(0, message.c_str(), "Fatal debugger error", MB_OK | MB_ICONSTOP);
     fprintf(stderr, "Error: %s\n", message.c_str());
     exit(EXIT_FAILURE);
@@ -137,6 +143,11 @@ void* Os::m_CurrentHandle = NULL;
 #include <stdexcept> //remove me
 #include <unistd.h>
 
+#ifdef __ANDROID__
+    #include <android/log.h>
+    #define LOG_TAG "Debugler"
+#endif
+
 class OsIconImpl: public OsIcon {
 public:
     OsIconImpl() {}
@@ -152,13 +163,45 @@ OsIcon*  Os::createIcon() {
     return new OsIconImpl();
 }
 
-void Os::fatal(const std::string& message) {
+void Os::fatal(const char* fmt, ...) {
+
+    va_list args;
+    va_start(args, fmt);
+    std::string message = vargsToString(fmt, args);
+    va_end(args);
+
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_FATAL, LOG_TAG, message.c_str());
+#endif
     fprintf(stderr, "Error: %s\n", message.c_str());
     exit(EXIT_FAILURE);
 }
 
-void Os::nonFatal(const std::string& message) {
+void Os::nonFatal(const char* fmt, ...) {
+
+    va_list args;
+    va_start(args, fmt);
+    std::string message = vargsToString(fmt, args);
+    va_end(args);
+
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_WARN, LOG_TAG, message.c_str());
+#endif
     fprintf(stderr, "Warning: %s\n", message.c_str());
+}
+
+void Os::info(const char* fmt, ...) {
+
+    va_list args;
+    va_start(args, fmt);
+    std::string message = vargsToString(fmt, args);
+    va_end(args);
+
+
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_INFO, LOG_TAG, message.c_str());
+#endif
+    fprintf(stdout, "%s\n", message.c_str());
 }
 
 void Os::setEnv(const char* variable, const char* value) {
@@ -204,3 +247,15 @@ OsStatusPresenter* Os::createStatusPresenter() {
 
 
 #endif
+
+std::string Os::vargsToString(const char* fmt, const va_list arg) {
+
+    size_t length = vsnprintf(NULL, 0, fmt, arg);
+
+    std::vector<char>buff(length + 1);
+
+    vsnprintf(&buff[0], buff.size(), fmt, arg);
+
+    return std::string(&buff[0]);
+}
+

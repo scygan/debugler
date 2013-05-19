@@ -175,7 +175,7 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary) {
 
         if (!openGLLibraryHandle) {
             std::string msg = std::string("Cannot load ") + libraryName + "  system library";
-            Os::fatal(msg);
+            Os::fatal(msg.c_str());
         } else {
             m_LoadedLibraries[libraryName] = openGLLibraryHandle;
         }

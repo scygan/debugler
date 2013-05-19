@@ -10,10 +10,10 @@ add_executable(dglloader
 add_dependencies(dglloader Boost)
 
 if (ANDROID)
-	set(librt "")
+	set(libs log)
 else()
-	set(librt rt)
+	set(libs rt)
 endif()
-target_link_libraries(dglloader boost_program_options dglcommon ${librt})
+target_link_libraries(dglloader boost_program_options dglcommon ${libs})
 
 install (TARGETS dglloader DESTINATION bin)

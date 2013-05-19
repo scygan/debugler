@@ -18,11 +18,11 @@ add_library(dglwrapper SHARED
 )
 
 if (ANDROID)
-	set(linux_libs "")
+	set(libs log)
 else()
-	set(linux_libs pthread elf)
+	set(libs pthread elf)
 endif()
 
-target_link_libraries(dglwrapper dglnet dglcommon boost_serialization boost_system boost_thread dl ${linux_libs})
+target_link_libraries(dglwrapper dglnet dglcommon boost_serialization boost_system boost_thread dl ${libs})
 
 install (TARGETS dglwrapper DESTINATION lib)
