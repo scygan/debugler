@@ -12,14 +12,10 @@ from OpenGL.GL.shaders import *
  
 import time, sys
 program = None
-vao = GLuint(0)
 vbo = GLuint(0)
 
 
 def initializeState(Width, Height):
-    global vao;
-    vao	= vertex_array_object.glGenVertexArrays(1)
-    vertex_array_object.glBindVertexArray(vao)
     
     global vbo
     vbo = glGenBuffers(1)
@@ -40,8 +36,8 @@ def initializeState(Width, Height):
 
     program = compileProgram(
         compileShader('''
-            #version 130
-            in vec4 position;
+            #version 120
+            attribute vec4 position;
             
             void main() {
                 gl_Position = position;
@@ -49,18 +45,16 @@ def initializeState(Width, Height):
  
         ''',GL_VERTEX_SHADER),
         compileShader('''
-            #version 130
-            out vec4 oColor;
+            #version 120
             void main()
             {
-                 oColor = vec4(1);
+                 gl_FragColor = vec4(1);
             }
     ''',GL_FRAGMENT_SHADER),
     )
     glUseProgram(program)
     
 def tidy(Width, Height):
-    glDeleteVertexArrays(1, vao)
     glDeleteBuffers(1, vbo)
     
  
