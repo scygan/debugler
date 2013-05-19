@@ -48,3 +48,27 @@ C:\Python27\scripts\easy_install pyopengl
   build\Win32\Release\UT\ut.exe
   ```
 
+### Build for Linux
+
+  * Install (for Ubuntu): g++-4.7 x11proto-gl-dev libelf-dev python-opengl
+  * Run
+```
+   cmake . -DCMAKE_BUILD_TYPE=Release && make package
+```
+  * Install built deb:
+```  
+  sudo dpkg -i debugler-...-Linux.deb
+```
+  * Run
+```  
+   debugler
+```
+
+####Running unit tests
+
+  * Install (for Ubuntu): python-opengl
+  * Run
+```
+  ./tests/UT/ut
+```
+
