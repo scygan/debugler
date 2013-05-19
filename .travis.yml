@@ -22,11 +22,11 @@ before_script:
   - "gem install travis-artifacts"
   - "sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test"
   - "sudo apt-get update"
-  - "sudo apt-get install g++-4.7 x11proto-gl-dev libelf-dev python-opengl"
+  - "sudo apt-get install g++-4.7 x11proto-gl-dev libelf-dev python-opengl mesa-utils"
   - "sudo mount -t tmpfs shm /dev/shm"
   - "sh -e /etc/init.d/xvfb start"
 
-script: mkdir build && cd build && CXX=g++-4.7 CC=gcc-4.7 cmake ../src -DCPACK_PACKAGE_VERSION_PATCH=$TRAVIS_JOB_NUMBER && make package && sudo dpkg -i debugler-0.1.$TRAVIS_JOB_NUMBER-Linux.deb && ./tests/UT/ut
+script: glxinfo && mkdir build && cd build && CXX=g++-4.7 CC=gcc-4.7 cmake ../src -DCPACK_PACKAGE_VERSION_PATCH=$TRAVIS_JOB_NUMBER && make package && sudo dpkg -i debugler-0.1.$TRAVIS_JOB_NUMBER-Linux.deb && ./tests/UT/ut
 
 after_success: # and this only on success
 after_script:
