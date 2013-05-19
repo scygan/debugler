@@ -1,0 +1,11 @@
+#!/bin/sh
+xdg-mime install --novendor /tmp/debugler-inst/debugler-mime.xml
+xdg-desktop-menu install --novendor /tmp/debugler-inst/debugler.desktop
+xdg-mime default debugler.desktop application/x-debugler
+
+xdg-icon-resource install --novendor --size 256 /tmp/debugler-inst/debugler-0.png debugler
+xdg-icon-resource install --novendor --size 48  /tmp/debugler-inst/debugler-1.png debugler
+xdg-icon-resource install --novendor --size 24  /tmp/debugler-inst/debugler-2.png debugle
+
+rm -r /tmp/debugler-inst/
+
