@@ -17,8 +17,6 @@ env:
     - secure: "Sje6LO0jCVC+hP/029z601HTH4C9srFydjC5grh0IOZmcjkL3c6ReDej4szu\nH2EUA2PaUFyrZM4tPf3DFYH3AOmjwT/BBUnV4dOlwNB964bHtmjhcdJFD0BY\nA1AFToOi2CP7P0vRrpfEsXTEguoKlM9NsYGyGFgG0j1Z1gMXLYw="
     - secure: "Uaej3fzMtOThUpL484V77AZbHeXWF3tkhN8tHnaDLOLH+4NSEfqrkWOMgqFx\ntkK6mJsqTaW96ezonNJHyx/5GsPG5B57DCffZ7sKrmiC1YqZ3FM7dayaAT3y\noFfMs2Op54d2g3NzqU1z4iAH4pnTdQorgp0Qm5KvTHmuthkHTPA="
     - "export DISPLAY=:99.0"
-    #workaround for issue #9  (Lnx Mesa: NativeSurfaceGlx ctor fails) done for UT tests to pass on Mesa
-    - "LIBGL_ALWAYS_INDIRECT=1"
 
 before_script:
   - "gem install travis-artifacts"
