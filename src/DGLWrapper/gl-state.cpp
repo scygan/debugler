@@ -2021,6 +2021,7 @@ public:
         XSetErrorHandler(s_oldErrorHandler);
     }
     int getErrorCode() {
+        XSync(s_disp, False);
         int errorCode = 0;
         std::swap(errorCode, s_errorCode);
         return errorCode;
@@ -2063,19 +2064,26 @@ NativeSurfaceGLX::NativeSurfaceGLX(const DGLDisplayState* _dpy, opaque_id_t id):
     GLXDrawable drawable = static_cast<GLXDrawable>(m_Id);
     Display* dpy = reinterpret_cast<Display*>(m_Dpy->getId());
 
-    unsigned int fbConfigID;
+    unsigned int fbConfigID = 0xbadf00d;
     int error; 
     {
         XErrorHandler xErrorHandler(dpy);
         DIRECT_CALL_CHK(glXQueryDrawable)(dpy, drawable, GLX_FBCONFIG_ID, &fbConfigID);
         error = xErrorHandler.getErrorCode();
     }
-    
-    int attribList[] = {None, None, None, None};
+    GLXFBConfig* config = NULL;
+    if (!error) {
+        const int attribList[] = {GLX_FBCONFIG_ID, static_cast<int>(fbConfigID), None, None};
+        int nElements;
+        config = DIRECT_CALL_CHK(glXChooseFBConfig)(dpy, DefaultScreen(dpy), attribList, &nElements);
+        if (!nElements) {
+            config = NULL;
+        }
+    }
 
-    if (error == GLXBadDrawable) {
-       
+    if (!config && (error == GLXBadDrawable || !error)) {
         //this is acceptable and happen on Mesa, if bare Window XID was passed here instead of GLXDrawable
+        //this condition is signalized with GLXBadDrawable, but on INDIRECT rendering there is mysteriously no error (?)
         
         m_GLXDrawableGettersFailing = true;
 
@@ -2086,25 +2094,17 @@ NativeSurfaceGLX::NativeSurfaceGLX(const DGLDisplayState* _dpy, opaque_id_t id):
         XWindowAttributes attribs;
         XGetWindowAttributes(dpy, win, &attribs);
 
-        attribList[0] = GLX_VISUAL_ID;
-        attribList[1] = static_cast<int>(XVisualIDFromVisual(attribs.visual));
 
-        printf("id: = %d\n", attribList[1]);
-
-    } else if (!error) {
-
-        attribList[0] = GLX_FBCONFIG_ID;
-        attribList[1] = static_cast<int>(fbConfigID);
-
-    } else {
-        Os::fatal("Got unexpected X11 error\n");
+        const int attribList[] = {GLX_VISUAL_ID, static_cast<int>(XVisualIDFromVisual(attribs.visual)), None, None};
+        int nElements;
+        config = DIRECT_CALL_CHK(glXChooseFBConfig)(dpy, DefaultScreen(dpy), attribList, &nElements);
+        if (!nElements) {
+            config = NULL;
+        }
     }
 
-    int nElements;
-    GLXFBConfig* config = DIRECT_CALL_CHK(glXChooseFBConfig)(dpy, DefaultScreen(dpy), attribList, &nElements); 
-
-    if (nElements < 1) { 
-        throw std::runtime_error("glXChooseFBConfig failed during native surface fbconfig discovery");
+    if (!config) {
+        Os::fatal("Cannot get FBConvig for given GLXDrawable/Window XID");
     }
 
     int ret = Success;
