@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Exec=debugler %u
+MimeType=application/x-debugler;
+Icon=debugler
+#X-DocPath=yourapp/index.html
+Terminal=false
+Name=Debugler
+GenericName=Debugler
+Comment=The OpenGL Debugger
+Categories=Qt;Utility;Debugger
