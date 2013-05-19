@@ -59,7 +59,7 @@ public:
 private:
     static void* m_CurrentHandle;
 
-    static std::string vargsToString(const char* fmt, const va_list arg);
+    static std::string vargsToString(const char* fmt, va_list arg);
 };
 
 

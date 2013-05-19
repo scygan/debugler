@@ -16,6 +16,7 @@
 
 #include "os.h"
 #include <vector>
+#include <cstdarg>
 
 #ifdef _WIN32
 
@@ -248,7 +249,7 @@ OsStatusPresenter* Os::createStatusPresenter() {
 
 #endif
 
-std::string Os::vargsToString(const char* fmt, const va_list arg) {
+std::string Os::vargsToString(const char* fmt, va_list arg) {
 
     size_t length = vsnprintf(NULL, 0, fmt, arg);
 
