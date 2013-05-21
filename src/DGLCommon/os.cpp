@@ -249,13 +249,16 @@ OsStatusPresenter* Os::createStatusPresenter() {
 
 #endif
 
-std::string Os::vargsToString(const char* fmt, va_list arg) {
+std::string Os::vargsToString(const char* fmt, va_list args) {
 
-    size_t length = vsnprintf(NULL, 0, fmt, arg);
+    va_list argsCopy;
+    va_copy(argsCopy, args);
+    size_t length = vsnprintf(NULL, 0, fmt, argsCopy);
+    va_end(argsCopy);
 
     std::vector<char>buff(length + 1);
 
-    vsnprintf(&buff[0], buff.size(), fmt, arg);
+    vsnprintf(&buff[0], buff.size(), fmt, args);
 
     return std::string(&buff[0]);
 }
