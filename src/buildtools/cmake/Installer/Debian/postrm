@@ -1,9 +1,9 @@
 #!/bin/sh
 
-xdg-mime uninstall debugler-mime.xml
-xdg-desktop-menu uninstall debugler.desktop
+xdg-mime uninstall --mode system /usr/share/mime/packages/debugler-mime.xml
+xdg-desktop-menu uninstall --mode system debugler.desktop
 
-xdg-icon-resource uninstall  --size 256 debugler
-xdg-icon-resource uninstall  --size 48  debugler
-xdg-icon-resource uninstall  --size 24  debugle
+xdg-icon-resource uninstall --mode system  --size 256 debugler
+xdg-icon-resource uninstall --mode system  --size 48  debugler
+xdg-icon-resource uninstall --mode system  --size 24  debugle
 
