@@ -1,0 +1,2 @@
+add_subdirectory(Installer)
+add_subdirectory(DesktopEntry)
