@@ -15,7 +15,13 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_156E6D7D7782A3ED7A2EA90EE4C3533D"
+        "MsmKey" = "8:_0FF50AD5B395961DAD2EBA7144B7A66C"
+        "OwnerKey" = "8:_500388235C814430ADA133071ADF15C9"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_0FF50AD5B395961DAD2EBA7144B7A66C"
         "OwnerKey" = "8:_525DE70E72054CFEAE2693303582A805"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -23,6 +29,18 @@
         {
         "MsmKey" = "8:_46D7E7FEB4544395BFBC954905F0C6CE"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4CA329FF20454D3B90F7CBF14E83A2F8"
+        "OwnerKey" = "8:_525DE70E72054CFEAE2693303582A805"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4CA329FF20454D3B90F7CBF14E83A2F8"
+        "OwnerKey" = "8:_5F1DE5D457724848A3DC56DBB91740DE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -45,14 +63,44 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_D728874DFC3444E48885EED647C3F1A3"
-        "OwnerKey" = "8:_525DE70E72054CFEAE2693303582A805"
+        "MsmKey" = "8:_B515DEF3C29B7F863B3589B73CD73D1E"
+        "OwnerKey" = "8:_FB094CA3B55543198187993232C94F2C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_EF9CE0F99939E6D0657B4399FA40EAB4"
+        "OwnerKey" = "8:_FB094CA3B55543198187993232C94F2C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F95C413F85CD01DA740704604FF81BE0"
+        "OwnerKey" = "8:_FB094CA3B55543198187993232C94F2C"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_FB094CA3B55543198187993232C94F2C"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FE399408CBEE49F8AA9EA75AAC32AF68"
+        "OwnerKey" = "8:_46D7E7FEB4544395BFBC954905F0C6CE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FE399408CBEE49F8AA9EA75AAC32AF68"
+        "OwnerKey" = "8:_FB094CA3B55543198187993232C94F2C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FE399408CBEE49F8AA9EA75AAC32AF68"
+        "OwnerKey" = "8:_500388235C814430ADA133071ADF15C9"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -180,7 +228,7 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_156E6D7D7782A3ED7A2EA90EE4C3533D"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0FF50AD5B395961DAD2EBA7144B7A66C"
             {
             "SourcePath" = "8:PSAPI.DLL"
             "TargetName" = "8:PSAPI.DLL"
@@ -197,6 +245,66 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B515DEF3C29B7F863B3589B73CD73D1E"
+            {
+            "SourcePath" = "8:QtCore4.dll"
+            "TargetName" = "8:QtCore4.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_6ED3F8A906794F70B4A0502F54897A22"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EF9CE0F99939E6D0657B4399FA40EAB4"
+            {
+            "SourcePath" = "8:QtXml4.dll"
+            "TargetName" = "8:QtXml4.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_6ED3F8A906794F70B4A0502F54897A22"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F95C413F85CD01DA740704604FF81BE0"
+            {
+            "SourcePath" = "8:QtGui4.dll"
+            "TargetName" = "8:QtGui4.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_6ED3F8A906794F70B4A0502F54897A22"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -294,7 +402,7 @@
         "UpgradeCode" = "8:{7DA79E05-4B7B-4671-A35D-45688442DE81}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
-        "RemovePreviousVersions" = "11:FALSE"
+        "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
         "ProductVersion" = "8:1.0.0"
@@ -322,128 +430,12 @@
             {
                 "Keys"
                 {
-                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_5263447EAD434364B5A8B568F7F9BEBC"
-                    {
-                    "Name" = "8:Software"
-                    "Condition" = "8:"
-                    "AlwaysCreate" = "11:FALSE"
-                    "DeleteAtUninstall" = "11:FALSE"
-                    "Transitive" = "11:FALSE"
-                        "Keys"
-                        {
-                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_02FC3BD2BDAD4E60878F25DB1E3A48C4"
-                            {
-                            "Name" = "8:[Manufacturer]"
-                            "Condition" = "8:"
-                            "AlwaysCreate" = "11:FALSE"
-                            "DeleteAtUninstall" = "11:FALSE"
-                            "Transitive" = "11:FALSE"
-                                "Keys"
-                                {
-                                }
-                                "Values"
-                                {
-                                }
-                            }
-                        }
-                        "Values"
-                        {
-                        }
-                    }
                 }
             }
             "HKCU"
             {
                 "Keys"
                 {
-                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_CE4D78EF34CE433B9DDDC93F89F95BFB"
-                    {
-                    "Name" = "8:Software"
-                    "Condition" = "8:"
-                    "AlwaysCreate" = "11:FALSE"
-                    "DeleteAtUninstall" = "11:FALSE"
-                    "Transitive" = "11:FALSE"
-                        "Keys"
-                        {
-                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_2D530D0B7A9D41E9951072AFA24FE85D"
-                            {
-                            "Name" = "8:[Manufacturer]"
-                            "Condition" = "8:"
-                            "AlwaysCreate" = "11:FALSE"
-                            "DeleteAtUninstall" = "11:FALSE"
-                            "Transitive" = "11:FALSE"
-                                "Keys"
-                                {
-                                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_ADFFEF74BEC54307B5685B2D21D637DE"
-                                    {
-                                    "Name" = "8:Debugler"
-                                    "Condition" = "8:"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "DeleteAtUninstall" = "11:FALSE"
-                                    "Transitive" = "11:FALSE"
-                                        "Keys"
-                                        {
-                                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_6E6A0F07105442B684CF5AF64FD32B72"
-                                            {
-                                            "Name" = "8:widgets"
-                                            "Condition" = "8:"
-                                            "AlwaysCreate" = "11:FALSE"
-                                            "DeleteAtUninstall" = "11:FALSE"
-                                            "Transitive" = "11:FALSE"
-                                                "Keys"
-                                                {
-                                                }
-                                                "Values"
-                                                {
-                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_31124E79620842BDA9C7F0DAB8CAC9CE"
-                                                    {
-                                                    "Name" = "8:style"
-                                                    "Condition" = "8:"
-                                                    "Transitive" = "11:FALSE"
-                                                    "ValueTypes" = "3:3"
-                                                    "Value" = "3:1"
-                                                    }
-                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_4D3E8B2F8E454315B705E113C95A7B21"
-                                                    {
-                                                    "Name" = "8:windowState"
-                                                    "Condition" = "8:"
-                                                    "Transitive" = "11:FALSE"
-                                                    "ValueTypes" = "3:4"
-                                                    "Value" = "8:40004200790074006500410072007200610079002800000000000000FF000000000000000000FD0000000000000002000000000000000000000000000300BE000000000000003C00FC0002000000000000000100FC0000000000000021000000000001005B0000000000000000000000FF00FF00FF00FA00FF00FF00FF00FF000100000000000000000000000000000003000000000007008000000000000300B800FC0001000000000000000200FC000000000000000000000000000700800000000000030024000000FF00FF00FF00FC0002000000000000000200FC000000000000002E00000000000100DA000000000000003C000000FF00FF00FF00FC0001000000000000000200FB000000000000001600000044000000470000004C00000054000000720000006500000065000000560000006900000065000000770001000000000000000000000000000100DF00000000000000C8000000FF00FF00FF00FC00000000000100E3000000000005009D0000000000020058000000FF00FF00FF00FA00000000000000030002000000000000000600FB000000000000001C00000044000000470000004C00000054000000650000007800000074000000750000007200000065000000560000006900000065000000770001000000000000000000FF00FF00FF00FF0000000000000013000000FF00FF00FF00FB000000000000002400000044000000470000004C0000004600000072000000610000006D00000065000000620000007500000066000000660000006500000072000000560000006900000065000000770001000000000000000000FF00FF00FF00FF0000000000000013000000FF00FF00FF00FB000000000000001A00000044000000470000004C000000420000007500000066000000660000006500000072000000560000006900000065000000770001000000000000000000FF00FF00FF00FF0000000000000013000000FF00FF00FF00FB000000000000001C00000044000000470000004C00000050000000720000006F0000006700000072000000610000006D000000560000006900000065000000770001000000000000000000FF00FF00FF00FF0000000000000013000000FF00FF00FF00FB000000000000001A00000044000000470000004C000000530000006800000061000000640000006500000072000000560000006900000065000000770001000000000000000000FF00FF00FF00FF0000000000000013000000FF00FF00FF00FB000000000000001400000044000000470000004C00000046000000420000004F000000560000006900000065000000770001000000000000002E00000000000200950000000000000013000000FF00FF00FF00FC000000000002000C00000000000100DA000000000000003E000000FF00FF00FF00FC0001000000000000000300FB000000000000001800000044000000470000004C00000054000000720000006100000063000000650000005600000069000000650000007700010000000000000000000000000002007D0000000000000023000000FF00FF00FF00FB000000000000001800000044000000470000004C00000053000000740000006100000074000000650000005600000069000000650000007700010000000000020081000000000002007E0000000000000023000000FF00FF00FF00FB000000000000001400000044000000470000004C0000004700000050000000550000005600000069000000650000007700010000000000050003000000000002007D0000000000000023000000FF00FF00FF00FB000000000000002200000044000000470000004C000000420000007200000065000000610000006B000000500000006F000000690000006E00000074000000560000006900000065000000770000000000000002004600000000000200410000000000000000000000000000000000000000000700800000000000000000000000000000000400000000000000040000000000000008000000000000000800FC00000000000000010000000000000002000000000000000200000000000000160000006D00000061000000690000006E000000540000006F0000006F0000006C0000004200000061000000720001000000000000000000FF00FF00FF00FF0000000000000000000000000000000000FF00FF00FF00FF0001000000000000000C00FF00FF00FF00FF00000000000000000000000000000000002900"
-                                                    }
-                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_7F882425E04040E9A49A93CEE29157D5"
-                                                    {
-                                                    "Name" = "8:geometry"
-                                                    "Condition" = "8:"
-                                                    "Transitive" = "11:FALSE"
-                                                    "ValueTypes" = "3:4"
-                                                    "Value" = "8:400042007900740065004100720072006100790028000100D900D000CB000000010000000000FF00FF00FF00F800FF00FF00FF00F8000000000007008700000000000400170000000000020094000000000001005F00000000000500B700000000000200EE000000000000000000020000002900"
-                                                    }
-                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_F3BA4A1C55064849A77B2DAC4082FB4A"
-                                                    {
-                                                    "Name" = "8:ColorScheme"
-                                                    "Condition" = "8:"
-                                                    "Transitive" = "11:FALSE"
-                                                    "ValueTypes" = "3:3"
-                                                    "Value" = "3:1"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        "Values"
-                                        {
-                                        }
-                                    }
-                                }
-                                "Values"
-                                {
-                                }
-                            }
-                        }
-                        "Values"
-                        {
-                        }
-                    }
                 }
             }
             "HKCR"
@@ -880,11 +872,25 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_D728874DFC3444E48885EED647C3F1A3"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_4CA329FF20454D3B90F7CBF14E83A2F8"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "SourcePath" = "8:Microsoft_VC100_CRT_x64.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_FE399408CBEE49F8AA9EA75AAC32AF68"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:Microsoft_VC100_CRT_x86.msm"
                 "Properties"
                 {
                 }
