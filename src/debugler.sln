@@ -327,7 +327,6 @@ Global
 		{3EBFDD5C-E730-48B1-BB5B-468EAC760B67}.Release-Android-ARM|Win32.ActiveCfg = Debug|x64
 		{3EBFDD5C-E730-48B1-BB5B-468EAC760B67}.Release-Android-ARM|x64.ActiveCfg = Debug|x64
 		{8AF96288-59F4-4F67-9590-11429468C558}.Debug|Win32.ActiveCfg = Debug-Android-ARM|Win32
-		{8AF96288-59F4-4F67-9590-11429468C558}.Debug|Win32.Build.0 = Debug-Android-ARM|Win32
 		{8AF96288-59F4-4F67-9590-11429468C558}.Debug|x64.ActiveCfg = Debug-Android-ARM|Win32
 		{8AF96288-59F4-4F67-9590-11429468C558}.Debug-Android-ARM|Win32.ActiveCfg = Debug-Android-ARM|Win32
 		{8AF96288-59F4-4F67-9590-11429468C558}.Debug-Android-ARM|Win32.Build.0 = Debug-Android-ARM|Win32
