@@ -178,33 +178,6 @@ void Os::fatal(const char* fmt, ...) {
     exit(EXIT_FAILURE);
 }
 
-void Os::nonFatal(const char* fmt, ...) {
-
-    va_list args;
-    va_start(args, fmt);
-    std::string message = vargsToString(fmt, args);
-    va_end(args);
-
-#ifdef __ANDROID__
-    __android_log_print(ANDROID_LOG_WARN, LOG_TAG, message.c_str());
-#endif
-    fprintf(stderr, "Warning: %s\n", message.c_str());
-}
-
-void Os::info(const char* fmt, ...) {
-
-    va_list args;
-    va_start(args, fmt);
-    std::string message = vargsToString(fmt, args);
-    va_end(args);
-
-
-#ifdef __ANDROID__
-    __android_log_print(ANDROID_LOG_INFO, LOG_TAG, message.c_str());
-#endif
-    fprintf(stdout, "%s\n", message.c_str());
-}
-
 void Os::setEnv(const char* variable, const char* value) {
     setenv(variable, value, 1);
 }
@@ -248,6 +221,33 @@ OsStatusPresenter* Os::createStatusPresenter() {
 
 
 #endif
+
+void Os::nonFatal(const char* fmt, ...) {
+
+    va_list args;
+    va_start(args, fmt);
+    std::string message = vargsToString(fmt, args);
+    va_end(args);
+
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_WARN, LOG_TAG, message.c_str());
+#endif
+    fprintf(stderr, "Warning: %s\n", message.c_str());
+}
+
+void Os::info(const char* fmt, ...) {
+
+    va_list args;
+    va_start(args, fmt);
+    std::string message = vargsToString(fmt, args);
+    va_end(args);
+
+
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_INFO, LOG_TAG, message.c_str());
+#endif
+    fprintf(stdout, "%s\n", message.c_str());
+}
 
 std::string Os::vargsToString(const char* fmt, va_list args) {
 
