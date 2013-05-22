@@ -215,7 +215,7 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary) {
 #endif
 #ifdef USE_MHOOK
             if (!Mhook_SetHook(&(PVOID&)g_DirectPointers[i].ptr, hookPtr)) {
-                Os::fatal("Cannot load OpenGL32.dll funcion %s().", GetEntryPointName(i));
+                Os::fatal("Cannot hook %s() function.", GetEntryPointName(i));
             }
 #endif
         }
