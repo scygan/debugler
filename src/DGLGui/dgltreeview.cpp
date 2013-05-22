@@ -23,7 +23,7 @@
 DGLTreeView::DGLTreeView(QWidget* parrent, DglController* controller):QDockWidget(tr("State Tree"), parrent), m_TreeWidget(this),m_controller(controller) {
     setObjectName("DGLTreeView");
 
-    m_TreeWidget.setMinimumSize(QSize(200, 0));
+//    m_TreeWidget.setMinimumSize(QSize(200, 0));
 
     setConnected(false);
     
