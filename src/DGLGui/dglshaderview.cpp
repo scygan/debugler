@@ -160,6 +160,17 @@ void DGLShaderViewItem::error(const std::string& message) {
     m_Label->show();
 }
 
+void DGLShaderViewItem::saveShader() {
+    QString fileName = QFileDialog::getSaveFileName(this, tr( "Save shader as..." ), QString(), tr( "Text files (*.txt)" ));
+    QFile f(fileName);
+    if  (!f.open(QIODevice::WriteOnly)) {
+        QMessageBox::critical(this, tr("Write error"), tr("Cannot open file for writing."));
+        return;
+    }
+    f.write(m_GLSLEditor->toPlainText().toLocal8Bit());
+    f.close();
+}
+
 void DGLShaderViewItem::update(const DGLResource& res) {
     m_GLSLEditor->show();
     m_Ui.groupBox1->show();

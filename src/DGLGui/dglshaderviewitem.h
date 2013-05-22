@@ -28,6 +28,9 @@ class DGLShaderViewItem: public DGLTabbedViewItem {
 public:
     DGLShaderViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
 
+public slots:
+    void saveShader();
+
 private slots:
     void update(const DGLResource& res);
     void error(const std::string&);
