@@ -44,7 +44,7 @@
        <widget class="QWidget" name="widget" native="true">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QLabel" name="labelLinkStatus">
+          <widget class="QLabel" name="shaderStatus">
            <property name="text">
             <string>Compile Status: Unknown</string>
            </property>

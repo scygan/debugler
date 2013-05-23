@@ -301,6 +301,10 @@ const std::string& GLShaderObj::queryAndStoreSources() {
     return m_LastSources;
 }
 
+bool GLShaderObj::isDeleted() const {
+    return m_Deleted;
+}
+
 GLenum GLShaderObj::getTarget() const {
     return m_Target;   
 }
@@ -1097,6 +1101,8 @@ boost::shared_ptr<DGLResource> GLContext::queryShader(gl_t _name) {
     resource->m_CompileStatus = std::pair<std::string, gl_t>(shader->queryCompilationInfoLog(), shader->queryCompilationStatus());
     
     resource->m_Source = shader->queryAndStoreSources();
+
+    resource->m_ShaderObjDeleted = shader->isDeleted();
 
     return ret;
 }

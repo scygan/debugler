@@ -92,6 +92,7 @@ public:
     GLint queryCompilationStatus() const;
     std::string queryCompilationInfoLog() const;
     const std::string& queryAndStoreSources();
+    bool isDeleted() const;
 
 private:
     bool m_Deleted;

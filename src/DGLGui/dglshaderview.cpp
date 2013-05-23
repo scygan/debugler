@@ -180,10 +180,14 @@ void DGLShaderViewItem::update(const DGLResource& res) {
     m_Ui.textEditLinker->setText(QString::fromStdString(resource->m_CompileStatus.first));
     m_GLSLEditor->clear();
     m_GLSLEditor->appendPlainText(QString::fromStdString(resource->m_Source));
-    if (!resource->m_CompileStatus.second) {
-        m_Ui.labelLinkStatus->setText(tr("Compile status: failed"));
+    if (resource->m_ShaderObjDeleted) {
+        m_Ui.shaderStatus->setText(tr("Shader object already deleted. Shown cached source."));
     } else {
-        m_Ui.labelLinkStatus->setText(tr("Compile status: success"));
+        if (!resource->m_CompileStatus.second) {
+            m_Ui.shaderStatus->setText(tr("Compile status: failed"));
+        } else {
+            m_Ui.shaderStatus->setText(tr("Compile status: success"));
+        }
     }
 }
 
