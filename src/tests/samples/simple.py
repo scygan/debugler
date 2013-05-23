@@ -22,9 +22,10 @@ def initializeState(Width, Height):
     glBindBuffer(GL_ARRAY_BUFFER, vbo)
     
     vertexPositions = [
-        0.75,  0.75,  0.0,  1.0,
-        0.75, -0.75,  0.0,  1.0,
-        -0.75, -0.75,  0.0,  1.0,
+        0.5,  0.5,  0.0,  1.0,
+        0.5, -0.5,  0.0,  1.0,
+		-0.5, 0.5,  0.0,  1.0,
+        -0.5, -0.5,  0.0,  1.0,
     ]
     array_type = (GLfloat * len(vertexPositions))
     glBufferData(GL_ARRAY_BUFFER, len(vertexPositions) * 4, array_type(*vertexPositions), GL_STATIC_DRAW)
@@ -48,7 +49,7 @@ def initializeState(Width, Height):
             #version 120
             void main()
             {
-                 gl_FragColor = vec4(1);
+                 gl_FragColor = vec4(0.4, 0.5, 0.8, 1.0);
             }
     ''',GL_FRAGMENT_SHADER),
     )
@@ -65,7 +66,7 @@ def ReSizeGLScene(Width, Height):
 def DrawGLScene():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 3)
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
     glGetError()
  
@@ -75,7 +76,7 @@ def main():
     global window
 
     glutInit(sys.argv)
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_ALPHA)
  
     glutInitWindowSize(640, 480)
  

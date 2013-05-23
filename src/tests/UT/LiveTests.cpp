@@ -319,6 +319,108 @@ namespace {
        client->abort();
    }
 
+
+   TEST_F(LiveTest, framebuffer_query) {
+       stubs::Controller controllerStub;
+       stubs::MessageHandler messageHandlerStub;
+       boost::shared_ptr<dglnet::Client> client(new dglnet::Client(&controllerStub, &messageHandlerStub));
+       client->connectServer("127.0.0.1", "8888");
+
+       dglnet::BreakedCallMessage* breaked = utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+       ASSERT_TRUE(breaked != NULL);
+
+       {
+           //set breakpoints && disable other breaking stuff
+           std::set<Entrypoint> breakpoints;
+           breakpoints.insert(glDrawArrays_Call);
+           dglnet::SetBreakPointsMessage breakPointMessage(breakpoints);
+           client->sendMessage(&breakPointMessage);
+
+           dglnet::ConfigurationMessage config(DGLConfiguration(false, false, false));
+           client->sendMessage(&config);
+       }
+
+       {
+           //continue
+           dglnet::ContinueBreakMessage continueMsg(false);
+           client->sendMessage(&continueMsg);
+       }
+       
+       breaked = utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+       ASSERT_TRUE(breaked != NULL);
+       EXPECT_EQ(glDrawArrays_Call, breaked->m_entryp.getEntrypoint());
+
+       for (int step = 0; step < 3; step++) {
+           //step == 0: before first draw (GL_BACK should be cleared)
+           //step == 1: after first draw (GL_BACK  should contain quad)
+           //step == 2: after first swap (GL_FRONT should contain quad)
+
+           {
+               //query back framebuffer
+               dglnet::QueryResourceMessage::ResourceQuery framebufferQuery;
+               framebufferQuery.m_Type = DGLResource::ObjectTypeFramebuffer;
+               framebufferQuery.m_ObjectName = ContextObjectName(breaked->m_CurrentCtx, step==2?GL_FRONT:GL_BACK);
+               framebufferQuery.m_ListenerId = 3; //some rand value..
+               std::vector<dglnet::QueryResourceMessage::ResourceQuery> resQueries;
+               resQueries.push_back(framebufferQuery);
+               dglnet::QueryResourceMessage query;
+               query.m_ResourceQueries = resQueries;
+               client->sendMessage(&query);
+           }
+
+           dglnet::ResourceMessage * resource = utils::receiveUntilMessage<dglnet::ResourceMessage>(client.get(), messageHandlerStub);
+           std::string err;
+           ASSERT_TRUE(resource->isOk(err));
+           EXPECT_EQ(0, err.length());
+           EXPECT_EQ(3, resource->m_ListenerId);
+           DGLResourceFramebuffer * framebufferResource = dynamic_cast<DGLResourceFramebuffer*>(resource->m_Resource.get());
+           ASSERT_TRUE(framebufferResource != NULL);
+
+           ASSERT_EQ(GL_RGBA, framebufferResource->m_PixelRectangle->m_GLFormat);
+           ASSERT_EQ(GL_UNSIGNED_BYTE, framebufferResource->m_PixelRectangle->m_GLType);
+           EXPECT_EQ(0, framebufferResource->m_PixelRectangle->m_Samples);
+           EXPECT_EQ(640, framebufferResource->m_PixelRectangle->m_Width);
+           EXPECT_EQ(480, framebufferResource->m_PixelRectangle->m_Height);
+           EXPECT_EQ(0, framebufferResource->m_PixelRectangle->m_InternalFormat);
+           GLubyte* ptr = (GLubyte*)framebufferResource->m_PixelRectangle->getPtr();
+
+           for (int y = 0; y < framebufferResource->m_PixelRectangle->m_Height; y++) {
+               GLubyte* rowPtr = y * framebufferResource->m_PixelRectangle->m_RowBytes + ptr;
+               for (int x = 0; x < framebufferResource->m_PixelRectangle->m_Width; x++) {
+                   if ( step && x > 0.3 * framebufferResource->m_PixelRectangle->m_Width  &&
+                        x < 0.7 * framebufferResource->m_PixelRectangle->m_Width  &&
+                        y > 0.3 * framebufferResource->m_PixelRectangle->m_Height  &&
+                        y < 0.7 * framebufferResource->m_PixelRectangle->m_Height) {
+                       ASSERT_EQ(102 , rowPtr[4 * x + 0]);
+                       ASSERT_EQ(127 , rowPtr[4 * x + 1]);
+                       ASSERT_EQ(204 , rowPtr[4 * x + 2]);
+                       ASSERT_EQ(255 , rowPtr[4 * x + 3]);
+                   }
+                   if (!step ||  x < 0.2 * framebufferResource->m_PixelRectangle->m_Width  ||
+                       x > 0.8 * framebufferResource->m_PixelRectangle->m_Width  ||
+                       y < 0.2 * framebufferResource->m_PixelRectangle->m_Height  ||
+                       y > 0.8 * framebufferResource->m_PixelRectangle->m_Height) {
+                           ASSERT_EQ(0, rowPtr[4 * x + 0]);
+                           ASSERT_EQ(0, rowPtr[4 * x + 1]);
+                           ASSERT_EQ(0, rowPtr[4 * x + 2]);
+                           ASSERT_EQ(0, rowPtr[4 * x + 3]);
+                   }
+               }
+           }
+           if (step == 1) {
+               //advance one frame (up to swap)
+               dglnet::ContinueBreakMessage step(dglnet::ContinueBreakMessage::STEP_FRAME);
+               client->sendMessage(&step);
+               ASSERT_TRUE(utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub) != NULL);
+           }
+           //advance one call
+           dglnet::ContinueBreakMessage step(dglnet::ContinueBreakMessage::STEP_CALL);
+           client->sendMessage(&step);
+           ASSERT_TRUE(utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub) != NULL);
+       }
+
+       client->abort();
+   }
     
 
 }  // namespace
