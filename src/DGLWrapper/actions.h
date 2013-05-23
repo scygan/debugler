@@ -113,6 +113,7 @@ class ProgramAction: public ActionBase {
 };
 
 class ShaderAction: public ActionBase {
+    virtual RetValue Pre(const CalledEntryPoint&);
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 

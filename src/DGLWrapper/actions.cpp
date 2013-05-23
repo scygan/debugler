@@ -606,6 +606,32 @@ void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     PrevPost(call, ret);
 }
 
+RetValue ShaderAction::Pre(const CalledEntryPoint& call) {
+    RetValue ret = PrevPre(call);
+
+    Entrypoint entrp = call.getEntrypoint();
+
+    if (entrp == glDeleteShader_Call || entrp == glDeleteObjectARB_Call) {
+        
+        //shader is going to be deleted.
+        //we would like to remember sources of deleted shader for later display
+
+        GLuint name;
+        call.getArgs()[0].get(name);
+
+        dglState::GLShaderObj* shader = gc->findShader(name);
+        if (!shader) {
+            //propably GL error, no such shader
+            return ret;
+        }
+        try {
+            shader->queryAndStoreSources();        
+        } catch(...) {}
+        
+    }
+    return ret;
+}
+
 void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
 
@@ -620,88 +646,23 @@ void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             GLenumWrap target;
             call.getArgs()[0].get(target);
 
-            gc->ensureShader(name)->setTarget(target);
+            gc->ensureShader(name, entrp == glCreateShaderObjectARB_Call)->setTarget(target);
 
         } else if (entrp == glDeleteShader_Call || entrp == glDeleteObjectARB_Call) {
 
             call.getArgs()[0].get(name);
 
-            dglState::GLShaderObj* shader = gc->ensureShader(name);
+            dglState::GLShaderObj* shader = gc->ensureShader(name, entrp == glDeleteObjectARB_Call);
+
             shader->markDeleted();
 
-        } else if (entrp == glShaderSource_Call || entrp == glShaderSourceARB_Call) {
-
-            // we assume that GLcharARB is the same as GLchar
-
-            GLsizei  count;
-            const GLchar * const* string;
-            const GLint* length;
-            call.getArgs()[0].get(name);
-            call.getArgs()[1].get(count);
-            if (entrp == glShaderSourceARB_Call) {
-                const GLcharARB * *stringArb;
-                call.getArgs()[2].get(stringArb);
-                string = stringArb;
-            } else {
-                call.getArgs()[2].get(string);
-            }
-            
-            call.getArgs()[3].get(length);
-
-            std::vector<std::string> sources(count);
-            for (size_t i = 0; i < sources.size(); i++) {
-                if (length && length[i] > 0) {
-                    sources[i] = std::string(string[0], length[i]);
-                } else {
-                    sources[i] = std::string(string[0]);
-                }
-            }
-
-            gc->ensureShader(name)->setSources(sources);
-
-
-        } else if (entrp == glCompileShader_Call) {
+        } else if (entrp == glCompileShader_Call || entrp == glCompileShaderARB_Call) {
             
             call.getArgs()[0].get(name);
 
-            GLint infoLogLength, compileStatus;
-            DIRECT_CALL_CHK(glGetShaderiv)(name, GL_INFO_LOG_LENGTH, &infoLogLength);
-            DIRECT_CALL_CHK(glGetShaderiv)(name, GL_COMPILE_STATUS, &compileStatus);
-
-            std::string infoLog; infoLog.resize(infoLogLength);
-            GLsizei actualLength;
-            DIRECT_CALL_CHK(glGetShaderInfoLog)(name, static_cast<GLsizei>(infoLog.size()), &actualLength, &infoLog[0]);
-
-            if (actualLength < infoLogLength) {
-                //highly unlikely - only on buggy drivers
-                infoLog.resize(actualLength);
-            }
-
-            gc->ensureShader(name)->setCompilationStatus(infoLog, compileStatus);
-
-            if (compileStatus != GL_TRUE) {
-                getController()->getBreakState().setBreakAtCompilerError();
-            }
-
-        } else if (entrp == glCompileShaderARB_Call) {
-
-            call.getArgs()[0].get(name);
-
-            GLint infoLogLength, compileStatus;
-            DIRECT_CALL_CHK(glGetObjectParameterivARB)(name, GL_OBJECT_INFO_LOG_LENGTH_ARB, &infoLogLength);
-            DIRECT_CALL_CHK(glGetObjectParameterivARB)(name, GL_OBJECT_COMPILE_STATUS_ARB, &compileStatus);
-
-            std::string infoLog; infoLog.resize(infoLogLength);
-            GLsizei actualLength;
-            DIRECT_CALL_CHK(glGetInfoLogARB)(name, static_cast<GLsizei>(infoLog.size()), &actualLength, &infoLog[0]);
-
-            if (actualLength < infoLogLength) {
-                //highly unlikely - only on buggy drivers
-                infoLog.resize(actualLength);
-            }
-
-            gc->ensureShader(name)->setCompilationStatus(infoLog, compileStatus);
-
+            dglState::GLShaderObj* shader = gc->ensureShader(name, entrp == glCompileShaderARB_Call);
+            GLint compileStatus = shader->queryCompilationStatus();
+            
             if (compileStatus != GL_TRUE) {
                 getController()->getBreakState().setBreakAtCompilerError();
             }
@@ -710,7 +671,7 @@ void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             GLuint prog, shad;
             call.getArgs()[0].get(prog);
             call.getArgs()[1].get(shad);
-            gc->ensureProgram(prog)->attachShader(gc->ensureShader(shad));
+            gc->ensureProgram(prog)->attachShader(gc->ensureShader(shad, entrp == glAttachObjectARB_Call));
         }
     }
     PrevPost(call, ret);

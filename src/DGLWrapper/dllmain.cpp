@@ -124,8 +124,6 @@
 
     ActionBase::SetNext<ShaderAction>(glCreateShader_Call);
     ActionBase::SetNext<ShaderAction>(glCreateShaderObjectARB_Call);
-    ActionBase::SetNext<ShaderAction>(glShaderSource_Call);
-    ActionBase::SetNext<ShaderAction>(glShaderSourceARB_Call);
     ActionBase::SetNext<ShaderAction>(glDeleteShader_Call);
     ActionBase::SetNext<ShaderAction>(glDeleteObjectARB_Call);
     ActionBase::SetNext<ShaderAction>(glCompileShader_Call);

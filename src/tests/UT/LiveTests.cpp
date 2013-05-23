@@ -319,6 +319,26 @@ namespace {
        client->abort();
    }
 
+   void checkColor(GLubyte* ptr, int width, int height, int rowBytes, int r, int g, int b, int a) {
+       for (int y = 0; y < height; y++) {
+           GLubyte* rowPtr = y * rowBytes + ptr;
+           for (int x = 0; x < width; x++) {
+               if (x > 0.3 * width && x < 0.7 * width && y > 0.3 * height && y < 0.7 * height) {
+                       ASSERT_EQ(r , rowPtr[4 * x + 0]);
+                       ASSERT_EQ(g , rowPtr[4 * x + 1]);
+                       ASSERT_EQ(b , rowPtr[4 * x + 2]);
+                       ASSERT_EQ(a , rowPtr[4 * x + 3]);
+               }
+               if (x < 0.2 * width || x > 0.8 * width || y < 0.2 * height || y > 0.8 * height) {
+                       ASSERT_EQ(0, rowPtr[4 * x + 0]);
+                       ASSERT_EQ(0, rowPtr[4 * x + 1]);
+                       ASSERT_EQ(0, rowPtr[4 * x + 2]);
+                       ASSERT_EQ(0, rowPtr[4 * x + 3]);
+               }
+           }
+       }
+   }
+
 
    TEST_F(LiveTest, framebuffer_query) {
        stubs::Controller controllerStub;
@@ -382,31 +402,19 @@ namespace {
            EXPECT_EQ(640, framebufferResource->m_PixelRectangle->m_Width);
            EXPECT_EQ(480, framebufferResource->m_PixelRectangle->m_Height);
            EXPECT_EQ(0, framebufferResource->m_PixelRectangle->m_InternalFormat);
-           GLubyte* ptr = (GLubyte*)framebufferResource->m_PixelRectangle->getPtr();
 
-           for (int y = 0; y < framebufferResource->m_PixelRectangle->m_Height; y++) {
-               GLubyte* rowPtr = y * framebufferResource->m_PixelRectangle->m_RowBytes + ptr;
-               for (int x = 0; x < framebufferResource->m_PixelRectangle->m_Width; x++) {
-                   if ( step && x > 0.3 * framebufferResource->m_PixelRectangle->m_Width  &&
-                        x < 0.7 * framebufferResource->m_PixelRectangle->m_Width  &&
-                        y > 0.3 * framebufferResource->m_PixelRectangle->m_Height  &&
-                        y < 0.7 * framebufferResource->m_PixelRectangle->m_Height) {
-                       ASSERT_EQ(102 , rowPtr[4 * x + 0]);
-                       ASSERT_EQ(127 , rowPtr[4 * x + 1]);
-                       ASSERT_EQ(204 , rowPtr[4 * x + 2]);
-                       ASSERT_EQ(255 , rowPtr[4 * x + 3]);
-                   }
-                   if (!step ||  x < 0.2 * framebufferResource->m_PixelRectangle->m_Width  ||
-                       x > 0.8 * framebufferResource->m_PixelRectangle->m_Width  ||
-                       y < 0.2 * framebufferResource->m_PixelRectangle->m_Height  ||
-                       y > 0.8 * framebufferResource->m_PixelRectangle->m_Height) {
-                           ASSERT_EQ(0, rowPtr[4 * x + 0]);
-                           ASSERT_EQ(0, rowPtr[4 * x + 1]);
-                           ASSERT_EQ(0, rowPtr[4 * x + 2]);
-                           ASSERT_EQ(0, rowPtr[4 * x + 3]);
-                   }
-               }
+           if (step) {
+               checkColor((GLubyte*)framebufferResource->m_PixelRectangle->getPtr(),
+                   framebufferResource->m_PixelRectangle->m_Width,
+                   framebufferResource->m_PixelRectangle->m_Height,
+                   framebufferResource->m_PixelRectangle->m_RowBytes, 102, 127, 204, 255);
+           } else {
+               checkColor((GLubyte*)framebufferResource->m_PixelRectangle->getPtr(),
+                   framebufferResource->m_PixelRectangle->m_Width,
+                   framebufferResource->m_PixelRectangle->m_Height,
+                   framebufferResource->m_PixelRectangle->m_RowBytes, 0, 0, 0, 0);
            }
+           
            if (step == 1) {
                //advance one frame (up to swap)
                dglnet::ContinueBreakMessage step(dglnet::ContinueBreakMessage::STEP_FRAME);
@@ -414,14 +422,133 @@ namespace {
                ASSERT_TRUE(utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub) != NULL);
            }
            //advance one call
-           dglnet::ContinueBreakMessage step(dglnet::ContinueBreakMessage::STEP_CALL);
-           client->sendMessage(&step);
+           dglnet::ContinueBreakMessage stepCall(dglnet::ContinueBreakMessage::STEP_CALL);
+           client->sendMessage(&stepCall);
            ASSERT_TRUE(utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub) != NULL);
        }
 
        client->abort();
    }
     
+   TEST_F(LiveTest, edit_shader) {
+       stubs::Controller controllerStub;
+       stubs::MessageHandler messageHandlerStub;
+       boost::shared_ptr<dglnet::Client> client(new dglnet::Client(&controllerStub, &messageHandlerStub));
+       client->connectServer("127.0.0.1", "8888");
+
+       dglnet::BreakedCallMessage* breaked = utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+       ASSERT_TRUE(breaked != NULL);
+
+       {
+           //set breakpoints && disable other breaking stuff
+           std::set<Entrypoint> breakpoints;
+           breakpoints.insert(glLinkProgram_Call);
+           dglnet::SetBreakPointsMessage breakPointMessage(breakpoints);
+           client->sendMessage(&breakPointMessage);
+
+           dglnet::ConfigurationMessage config(DGLConfiguration(false, false, false));
+           client->sendMessage(&config);
+       }
+
+       {
+           //continue
+           dglnet::ContinueBreakMessage continueMsg(false);
+           client->sendMessage(&continueMsg);
+       }
+
+       breaked = utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+       ASSERT_TRUE(breaked != NULL);
+       EXPECT_EQ(glLinkProgram_Call, breaked->m_entryp.getEntrypoint());
+
+       //we are not before glLinkProgram(). Get the fragment shader
+
+       ASSERT_EQ(1, breaked->m_CtxReports.size());
+       ASSERT_EQ(2, breaked->m_CtxReports[0].m_ShaderSpace.size());
+
+       GLuint fragId = -1;
+       for (auto i = breaked->m_CtxReports[0].m_ShaderSpace.begin(); i !=  breaked->m_CtxReports[0].m_ShaderSpace.end(); i++) {
+           if (i->m_Target == GL_FRAGMENT_SHADER) {
+               fragId = i->m_Name;
+           }
+       }
+
+       {
+           dglnet::QueryResourceMessage::ResourceQuery shaderQuery;
+           shaderQuery.m_Type = DGLResource::ObjectTypeShader;
+           shaderQuery.m_ObjectName = ContextObjectName(breaked->m_CurrentCtx, fragId);
+           std::vector<dglnet::QueryResourceMessage::ResourceQuery> resQueries;
+           resQueries.push_back(shaderQuery);
+           dglnet::QueryResourceMessage query;
+           query.m_ResourceQueries = resQueries;
+           client->sendMessage(&query);
+       }
+
+       dglnet::ResourceMessage * resource = utils::receiveUntilMessage<dglnet::ResourceMessage>(client.get(), messageHandlerStub);
+       ASSERT_TRUE(resource->isOk(std::string()));
+       DGLResourceShader * shaderResource = dynamic_cast<DGLResourceShader*>(resource->m_Resource.get());
+       
+       //Edit frag shader
+       std::string source = shaderResource->m_Source;
+       std::string oldStr = "vec4(0.4, 0.5, 0.8, 1.0)";
+       std::string newStr = "vec4(0.8, 0.5, 0.4, 1.0)";
+       size_t pos = 0;
+       while((pos = source.find(oldStr, pos)) != std::string::npos) {
+           source.replace(pos, oldStr.length(), newStr);
+           pos += newStr.length();
+       }
+       
+
+       dglnet::EditShaderSourceMessage edit(breaked->m_CurrentCtx, fragId, source);
+       client->sendMessage(&edit);
+
+       //Verify frag shader
+       {
+           dglnet::QueryResourceMessage::ResourceQuery shaderQuery;
+           shaderQuery.m_Type = DGLResource::ObjectTypeShader;
+           shaderQuery.m_ObjectName = ContextObjectName(breaked->m_CurrentCtx, fragId);
+           std::vector<dglnet::QueryResourceMessage::ResourceQuery> resQueries;
+           resQueries.push_back(shaderQuery);
+           dglnet::QueryResourceMessage query;
+           query.m_ResourceQueries = resQueries;
+           client->sendMessage(&query);
+       }
+       resource = utils::receiveUntilMessage<dglnet::ResourceMessage>(client.get(), messageHandlerStub);
+       ASSERT_TRUE(resource->isOk(std::string()));
+       shaderResource = dynamic_cast<DGLResourceShader*>(resource->m_Resource.get());
+       ASSERT_EQ(source, shaderResource->m_Source);
+       ASSERT_EQ(shaderResource->m_CompileStatus.second, GL_TRUE);
+
+       //Verify by drawing with edited shader
+       {
+           dglnet::ContinueBreakMessage stepDrawCall(dglnet::ContinueBreakMessage::STEP_FRAME);
+           client->sendMessage(&stepDrawCall);
+           ASSERT_TRUE(utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub) != NULL);
+       }
+
+       //Query back framebuffer
+       {
+           dglnet::QueryResourceMessage::ResourceQuery framebufferQuery;
+           framebufferQuery.m_Type = DGLResource::ObjectTypeFramebuffer;
+           framebufferQuery.m_ObjectName = ContextObjectName(breaked->m_CurrentCtx, GL_BACK);
+           std::vector<dglnet::QueryResourceMessage::ResourceQuery> resQueries;
+           resQueries.push_back(framebufferQuery);
+           dglnet::QueryResourceMessage query;
+           query.m_ResourceQueries = resQueries;
+           client->sendMessage(&query);
+       }
+
+       resource = utils::receiveUntilMessage<dglnet::ResourceMessage>(client.get(), messageHandlerStub);
+       ASSERT_TRUE(resource->isOk(std::string()));
+       DGLResourceFramebuffer * framebufferResource = dynamic_cast<DGLResourceFramebuffer*>(resource->m_Resource.get());
+       ASSERT_TRUE(framebufferResource != NULL);
+
+       checkColor((GLubyte*)framebufferResource->m_PixelRectangle->getPtr(),
+               framebufferResource->m_PixelRectangle->m_Width,
+               framebufferResource->m_PixelRectangle->m_Height,
+               framebufferResource->m_PixelRectangle->m_RowBytes, 204, 127, 102, 255);
+
+       client->abort();
+   }
 
 }  // namespace
 

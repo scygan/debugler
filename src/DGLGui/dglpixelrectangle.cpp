@@ -26,7 +26,7 @@
 
 #include "dglgui.h"
 
-#undef min
+#include <DGLCommon/def.h>
 
 DGLPixRectQGraphicsView::DGLPixRectQGraphicsView(QWidget* parent):QGraphicsView(parent) {
     QPixmap* tile = new QPixmap(128, 128);

@@ -335,12 +335,12 @@ class DGLResourceShader: public DGLResource {
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
         ar & boost::serialization::base_object<DGLResource>(*this);
-        ar & m_Sources;
+        ar & m_Source;
         ar & m_CompileStatus;
     }
 
 public:
-    std::vector<std::string> m_Sources;
+    std::string m_Source;
     std::pair<std::string, gl_t> m_CompileStatus;
 };
 

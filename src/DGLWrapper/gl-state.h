@@ -32,7 +32,7 @@ class GLObj {
 public:
     GLObj();
     GLObj(GLuint name);
-    GLuint getName();
+    GLuint getName() const;
 private:
     GLuint m_Name;
 };
@@ -80,23 +80,24 @@ private:
 
 class GLShaderObj: public GLObj {
 public:
-    GLShaderObj(GLuint name);
+    GLShaderObj(GLuint name, bool arbApi);
     GLShaderObj() {}
     void markDeleted();
 
-    void setSources(const std::vector<std::string>&);
-    void setCompilationStatus(const std::string&, GLint compileStatus);
     void setTarget(GLenum target);
-
-    const std::vector<std::string>& getSources() const;
     GLenum getTarget() const;
-    const std::pair<std::string, GLint>& getCompileStatus() const;
+    
+    bool useArbApi() const;
+
+    GLint queryCompilationStatus() const;
+    std::string queryCompilationInfoLog() const;
+    const std::string& queryAndStoreSources();
 
 private:
     bool m_Deleted;
-    std::vector<std::string> m_Sources;
-    std::pair<std::string, GLint> m_CompileStatus;
+    std::string m_LastSources;
     GLenum m_Target;
+    bool m_arbApi;
 };
 
 class GLProgramObj: public GLObj {
@@ -252,8 +253,8 @@ public:
     void deleteFBO(GLuint name);
     GLProgramObj* ensureProgram(GLuint name);
     void deleteProgram(GLuint name);
-    GLShaderObj* ensureShader(GLuint name);
-    void markShaderDeleted(GLuint name);
+    GLShaderObj* ensureShader(GLuint name, bool fromArbAPI);
+    GLShaderObj* findShader(GLuint name);
 
     boost::shared_ptr<DGLResource> queryTexture(gl_t name);
     boost::shared_ptr<DGLResource> queryBuffer(gl_t name);
@@ -263,6 +264,13 @@ public:
     boost::shared_ptr<DGLResource> queryProgram(gl_t name);
     boost::shared_ptr<DGLResource> queryGPU(gl_t name);
     boost::shared_ptr<DGLResource> queryState(gl_t name);
+
+    /**
+     * Shader edit request
+     *
+     * Edits and recompiles the shader;
+     */
+    void editShaderSource(gl_t name, const std::string& source);
 
     opaque_id_t getId();
 

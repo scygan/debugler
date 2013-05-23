@@ -56,6 +56,10 @@ namespace dglnet {
         unsupported();
     }
 
+    void MessageHandler::doHandle(const EditShaderSourceMessage&) {
+        unsupported();
+    }
+
     void MessageHandler::unsupported() {
         throw std::runtime_error("Message cannot be handled by current message handler object.");
     }
@@ -87,5 +91,8 @@ namespace dglnet {
     std::set<Entrypoint> SetBreakPointsMessage::get() const {
         return m_BreakPoints;
     }
+
+    EditShaderSourceMessage::EditShaderSourceMessage(opaque_id_t context, gl_t shaderId, std::string& source):m_Context(context),
+        m_ShaderId(shaderId), m_Source(source) {}
 
 };

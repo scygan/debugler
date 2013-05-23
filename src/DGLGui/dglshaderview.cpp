@@ -179,9 +179,7 @@ void DGLShaderViewItem::update(const DGLResource& res) {
 
     m_Ui.textEditLinker->setText(QString::fromStdString(resource->m_CompileStatus.first));
     m_GLSLEditor->clear();
-    for (size_t i = 0; i < resource->m_Sources.size(); i++) {
-        m_GLSLEditor->appendPlainText(QString::fromStdString(resource->m_Sources[i]));
-    }
+    m_GLSLEditor->appendPlainText(QString::fromStdString(resource->m_Source));
     if (!resource->m_CompileStatus.second) {
         m_Ui.labelLinkStatus->setText(tr("Compile status: failed"));
     } else {

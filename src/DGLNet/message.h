@@ -39,6 +39,7 @@ class ResourceMessage;
 
 class SetBreakPointsMessage;
 
+class EditShaderSourceMessage;
 
 class MessageHandler {
 public:
@@ -53,6 +54,9 @@ public:
     virtual void doHandle(const ResourceMessage&);
 
     virtual void doHandle(const SetBreakPointsMessage&);
+
+    virtual void doHandle(const EditShaderSourceMessage&);
+
     virtual void doHandleDisconnect(const std::string& why) = 0;
     virtual ~MessageHandler() {}
 private:
@@ -323,6 +327,28 @@ public:
 private:
     std::set<Entrypoint> m_BreakPoints;
 
+};
+
+class EditShaderSourceMessage: public Message {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_Context;
+        ar & m_ShaderId;
+        ar & m_Source;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+public:
+    EditShaderSourceMessage() {}
+    EditShaderSourceMessage(opaque_id_t context, gl_t shaderId, std::string& source);
+
+    opaque_id_t m_Context;
+    gl_t m_ShaderId;
+    std::string m_Source;
 };
 
 };

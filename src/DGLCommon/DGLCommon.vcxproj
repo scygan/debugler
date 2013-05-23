@@ -50,6 +50,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="def.h" />
     <ClInclude Include="dglconfiguration.h" />
     <ClInclude Include="gl-formats.h" />
     <ClInclude Include="gl-serialized.h" />

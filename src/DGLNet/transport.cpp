@@ -48,6 +48,7 @@ REGISTER_CLASS(dglnet::CallTraceMessage);
 REGISTER_CLASS(dglnet::SetBreakPointsMessage);
 REGISTER_CLASS(dglnet::QueryResourceMessage);
 REGISTER_CLASS(dglnet::ResourceMessage);
+REGISTER_CLASS(dglnet::EditShaderSourceMessage);
 
 REGISTER_CLASS(DGLResource);
 REGISTER_CLASS(DGLResourceTexture);

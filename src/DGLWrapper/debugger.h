@@ -430,6 +430,11 @@ public:
      */
     void doHandle(const dglnet::SetBreakPointsMessage&);
 
+    /** 
+     * Message handler - handle shader edit request
+     */
+    void doHandle(const dglnet::EditShaderSourceMessage&);
+
 private:
 
     /**

@@ -18,12 +18,7 @@
 #define OS_H
 
 #include <string>
-
-#ifdef _WIN32
-#define NO_RETURN __declspec(noreturn) 
-#else
-#define NO_RETURN __attribute__((noreturn))
-#endif
+#include <DGLCommon/def.h>
 
 class OsIcon {
 public:

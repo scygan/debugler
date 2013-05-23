@@ -168,7 +168,7 @@ GLObj::GLObj():m_Name(0) {}
 
 GLObj::GLObj(GLuint name):m_Name(name) {}
 
-GLuint GLObj::getName() { return m_Name; }
+GLuint GLObj::getName() const { return m_Name; }
 
 
 GLTextureObj::GLTextureObj(GLuint name):GLObj(name),m_Target(0) {}
@@ -237,33 +237,76 @@ std::set<GLShaderObj*>& GLProgramObj::getAttachedShaders() {
     return m_AttachedShaders;
 }
 
-GLShaderObj::GLShaderObj(GLuint name):GLObj(name), m_Deleted(false), m_Target(0) {
-    m_CompileStatus.second = GL_FALSE;
-}
+GLShaderObj::GLShaderObj(GLuint name, bool arbApi):GLObj(name), m_Deleted(false), m_Target(0), m_arbApi(arbApi) {}
 
 void GLShaderObj::markDeleted() {
     m_Deleted = true;
 }
 
-void GLShaderObj::setSources(const std::vector<std::string>& sources) {
-    m_Sources = sources;
+GLint GLShaderObj::queryCompilationStatus() const {
+    GLint compileStatus;
+    if (m_arbApi) {
+        DIRECT_CALL_CHK(glGetObjectParameterivARB)(getName(), GL_OBJECT_COMPILE_STATUS_ARB, &compileStatus);
+    } else {
+        DIRECT_CALL_CHK(glGetShaderiv)(getName(), GL_COMPILE_STATUS, &compileStatus);
+    }
+    return compileStatus;
 }
 
-void GLShaderObj::setCompilationStatus(const std::string& compileLog, GLint compileStatus) {
-    m_CompileStatus.first = compileLog; 
-    m_CompileStatus.second = compileStatus;
+std::string GLShaderObj::queryCompilationInfoLog() const {
+    GLint infoLogLength;
+    if (m_arbApi) {
+        DIRECT_CALL_CHK(glGetObjectParameterivARB)(getName(), GL_OBJECT_INFO_LOG_LENGTH_ARB, &infoLogLength);
+    } else {
+        DIRECT_CALL_CHK(glGetShaderiv)(getName(), GL_INFO_LOG_LENGTH, &infoLogLength);
+    }
+
+    std::vector<GLchar> infoLog(infoLogLength + 1);
+    
+    GLint actualLength;
+    if (m_arbApi) {
+        DIRECT_CALL_CHK(glGetInfoLogARB)(getName(), static_cast<GLsizei>(infoLog.size()), &actualLength, &infoLog[0]);
+    } else {
+        DIRECT_CALL_CHK(glGetShaderInfoLog)(getName(), static_cast<GLsizei>(infoLog.size()), &actualLength, &infoLog[0]);
+    }
+    infoLog[std::min(infoLog.size() - 1, static_cast<size_t>(actualLength))] = 0;
+
+    return &infoLog[0];
 }
 
-const std::vector<std::string>& GLShaderObj::getSources() const {
-    return m_Sources;   
+const std::string& GLShaderObj::queryAndStoreSources() {
+    if (m_Deleted) {
+        //shader does not exist in shader memory any more
+        return m_LastSources;
+    }
+
+    std::vector<GLchar> sources;
+    GLint length;
+    if (m_arbApi) {
+        DIRECT_CALL_CHK(glGetObjectParameterivARB)(getName(), GL_OBJECT_SHADER_SOURCE_LENGTH_ARB, &length);
+    } else {
+        DIRECT_CALL_CHK(glGetShaderiv)(getName(), GL_SHADER_SOURCE_LENGTH, &length);
+    }
+    sources.resize(length + 1);
+    GLint actualLength;
+    if (m_arbApi) {
+        DIRECT_CALL_CHK(glGetShaderSourceARB)(getName(), length, &actualLength, &sources[0]);
+    } else {
+        DIRECT_CALL_CHK(glGetShaderSource)(getName(), length, &actualLength, &sources[0]);
+    }
+    sources[std::min(sources.size() - 1, static_cast<size_t>(actualLength))] = 0;
+
+    m_LastSources = &sources[0];
+
+    return m_LastSources;
 }
 
 GLenum GLShaderObj::getTarget() const {
     return m_Target;   
 }
 
-const std::pair<std::string, GLint>& GLShaderObj::getCompileStatus() const {
-    return m_CompileStatus;
+bool GLShaderObj::useArbApi() const {
+    return m_arbApi;
 }
 
 void GLShaderObj::setTarget( GLenum target ) {
@@ -1046,13 +1089,14 @@ boost::shared_ptr<DGLResource> GLContext::queryShader(gl_t _name) {
     DGLResourceShader* resource;
     boost::shared_ptr<DGLResource> ret (resource = new DGLResourceShader);
 
-    std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.find(name);
-    if (i == m_Shaders.end()) {
+    GLShaderObj* shader = findShader(name);
+    if (!shader) {
         throw std::runtime_error("Shader does not exist");
-    }
-    const GLShaderObj* shader = &i->second;
-    resource->m_CompileStatus = shader->getCompileStatus();
-    resource->m_Sources = shader->getSources();
+    }    
+    
+    resource->m_CompileStatus = std::pair<std::string, gl_t>(shader->queryCompilationInfoLog(), shader->queryCompilationStatus());
+    
+    resource->m_Source = shader->queryAndStoreSources();
 
     return ret;
 }
@@ -1815,6 +1859,22 @@ boost::shared_ptr<DGLResource> GLContext::queryState(gl_t) {
     return ret;
 }
 
+void GLContext::editShaderSource(gl_t name, const std::string& source) {
+    GLShaderObj* obj = findShader(name);
+    if (!obj) {
+        throw std::runtime_error("Shader does not exist");
+    }
+
+    const char* sourcePtr = source.c_str();
+
+    if (obj->useArbApi()) {
+        DIRECT_CALL_CHK(glShaderSourceARB)(name, 1, &sourcePtr, NULL);
+        DIRECT_CALL_CHK(glCompileShaderARB)(name);
+    } else {
+        DIRECT_CALL_CHK(glShaderSource)(name, 1, &sourcePtr, NULL);
+        DIRECT_CALL_CHK(glCompileShader)(name);
+    }    
+}
 
 GLProgramObj* GLContext::ensureProgram(GLuint name) {
     std::map<GLuint, GLProgramObj>::iterator i = m_Programs.find(name);
@@ -1831,19 +1891,20 @@ void GLContext::deleteProgram(GLuint name) {
     }
 }
 
-GLShaderObj* GLContext::ensureShader(GLuint name) {
+GLShaderObj* GLContext::ensureShader(GLuint name, bool fromArbAPI) {
     std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.find(name);
     if (i == m_Shaders.end()) {
-        i = m_Shaders.insert(std::pair<GLuint, GLShaderObj>(name, GLShaderObj(name))).first;
+        i = m_Shaders.insert(std::pair<GLuint, GLShaderObj>(name, GLShaderObj(name, fromArbAPI))).first;
     }
     return &(*i).second;
 }
 
-void GLContext::markShaderDeleted(GLuint name) {
-    std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.find(name); 
-    if (i !=  m_Shaders.end()) {
-        i->second.markDeleted();
+GLShaderObj* GLContext::findShader(GLuint name) {
+    std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.find(name);
+    if (i == m_Shaders.end()) {
+        return NULL;
     }
+    return &(*i).second;
 }
 
 

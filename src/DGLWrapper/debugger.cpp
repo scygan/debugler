@@ -20,8 +20,6 @@
 #include"debugger.h"
 #include <boost/interprocess/sync/named_semaphore.hpp>
 
-#undef min
-
 boost::shared_ptr<DGLDebugController> _g_Controller;
 
 DGLDebugController* getController() {
@@ -485,4 +483,26 @@ void DGLDebugController::doHandle(const dglnet::QueryResourceMessage& msg) {
 
 void DGLDebugController::doHandle(const dglnet::SetBreakPointsMessage& msg) {
     getBreakState().handle(msg);
+}
+
+void DGLDebugController::doHandle(const dglnet::EditShaderSourceMessage& msg) {
+    dglState::GLContext* ctx = gc;
+    try {
+        if (!ctx) {
+            throw std::runtime_error("No OpenGL Context present, cannot issue query");
+        }
+        if (ctx->getId() != msg.m_Context) {
+                throw std::runtime_error("Object's parent context is not current now, cannot issue  query");
+        }
+        ctx->startQuery();
+
+        ctx->editShaderSource(msg.m_ShaderId, msg.m_Source);
+
+    } catch (const std::runtime_error& message) {
+        assert(!"Errors from DGLDebugController::doHandle(const dglnet::EditShaderSourceMessage&) not implemented");
+    }
+    std::string message;
+    if (ctx && !ctx->endQuery(message)) {
+        assert("!Errors from DGLDebugController::doHandle(const dglnet::EditShaderSourceMessage&) not implemented");
+    }
 }
