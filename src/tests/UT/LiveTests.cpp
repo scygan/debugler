@@ -484,7 +484,8 @@ namespace {
        }
 
        dglnet::ResourceMessage * resource = utils::receiveUntilMessage<dglnet::ResourceMessage>(client.get(), messageHandlerStub);
-       ASSERT_TRUE(resource->isOk(std::string()));
+       std::string nothing;
+       ASSERT_TRUE(resource->isOk(nothing));
        DGLResourceShader * shaderResource = dynamic_cast<DGLResourceShader*>(resource->m_Resource.get());
        
        //Edit frag shader
@@ -513,7 +514,8 @@ namespace {
            client->sendMessage(&query);
        }
        resource = utils::receiveUntilMessage<dglnet::ResourceMessage>(client.get(), messageHandlerStub);
-       ASSERT_TRUE(resource->isOk(std::string()));
+       nothing;
+       ASSERT_TRUE(resource->isOk(nothing));
        shaderResource = dynamic_cast<DGLResourceShader*>(resource->m_Resource.get());
        ASSERT_EQ(source, shaderResource->m_Source);
        ASSERT_EQ(shaderResource->m_CompileStatus.second, GL_TRUE);
@@ -538,7 +540,7 @@ namespace {
        }
 
        resource = utils::receiveUntilMessage<dglnet::ResourceMessage>(client.get(), messageHandlerStub);
-       ASSERT_TRUE(resource->isOk(std::string()));
+       ASSERT_TRUE(resource->isOk(nothing));
        DGLResourceFramebuffer * framebufferResource = dynamic_cast<DGLResourceFramebuffer*>(resource->m_Resource.get());
        ASSERT_TRUE(framebufferResource != NULL);
 
