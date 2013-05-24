@@ -18,6 +18,7 @@
 #define _MESSAGE_H
 
 #include <DGLCommon/gl-types.h>
+#include <DGLCommon/gl-resource.h>
 #include <DGLCommon/gl-serialized.h>
 #include <DGLCommon/dglconfiguration.h>
 

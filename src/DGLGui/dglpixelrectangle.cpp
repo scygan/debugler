@@ -15,7 +15,7 @@
 
 
 #include "dglpixelrectangle.h"
-#include <DGLCommon/gl-serialized.h>
+#include <DGLCommon/gl-resource.h>
 
 #include <QGraphicsView>
 #include <QGraphicsPixmapItem>

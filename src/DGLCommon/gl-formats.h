@@ -18,7 +18,7 @@
 #define GL_FORMATS_H
 
 #include <DGLCommon/gl-headers.h>
-#include <DGLCommon/gl-serialized.h>
+#include <DGLCommon/gl-anyvalue.h>
 
 #include <vector>
 

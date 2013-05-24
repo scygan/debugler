@@ -23,6 +23,9 @@
 #include "actions.h"
 #include "pointers.h"
 #include "api-loader.h"
+#include "tls.h"
+#include "display.h"
+#include "native-surface.h"
 
 boost::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];
 
