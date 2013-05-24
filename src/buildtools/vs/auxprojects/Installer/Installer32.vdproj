@@ -33,6 +33,24 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_ADCD12411B3646A7B9061EB45552858F"
+        "OwnerKey" = "8:_46D7E7FEB4544395BFBC954905F0C6CE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_ADCD12411B3646A7B9061EB45552858F"
+        "OwnerKey" = "8:_FB094CA3B55543198187993232C94F2C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_ADCD12411B3646A7B9061EB45552858F"
+        "OwnerKey" = "8:_500388235C814430ADA133071ADF15C9"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_B515DEF3C29B7F863B3589B73CD73D1E"
         "OwnerKey" = "8:_FB094CA3B55543198187993232C94F2C"
         "MsmSig" = "8:_UNDEFINED"
@@ -64,13 +82,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_46D7E7FEB4544395BFBC954905F0C6CE"
+        "OwnerKey" = "8:_500388235C814430ADA133071ADF15C9"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_500388235C814430ADA133071ADF15C9"
+        "OwnerKey" = "8:_46D7E7FEB4544395BFBC954905F0C6CE"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -256,7 +274,7 @@
         {
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_6ED3F8A906794F70B4A0502F54897A22"
             {
-            "DefaultLocation" = "8:[ProgramFiles64Folder][Manufacturer]\\[ProductName]"
+            "DefaultLocation" = "8:[ProgramFilesFolder][Manufacturer]\\[ProductName]"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -359,7 +377,7 @@
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
-        "TargetPlatform" = "3:1"
+        "TargetPlatform" = "3:0"
         "PreBuildEvent" = "8:"
         "PostBuildEvent" = "8:"
         "RunPostBuildEvent" = "3:0"
@@ -812,6 +830,20 @@
         }
         "MergeModule"
         {
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_ADCD12411B3646A7B9061EB45552858F"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:Microsoft_VC100_CRT_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
         }
         "ProjectOutput"
         {
