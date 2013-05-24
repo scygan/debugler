@@ -83,6 +83,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AndroidBuild", "buildtools\
 		{F16EFBD2-E47A-4E5B-B091-7D400430745A} = {F16EFBD2-E47A-4E5B-B091-7D400430745A}
 	EndProjectSection
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Installer32", "buildtools\vs\auxprojects\Installer\Installer32.vdproj", "{2F085A1B-2753-4F40-8D7C-9741DA0F1639}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -105,7 +107,6 @@ Global
 		{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}.Debug-Android-ARM|x64.ActiveCfg = Debug|x64
 		{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}.Installer|Win32.ActiveCfg = Release|x64
 		{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}.Installer|x64.ActiveCfg = Release|x64
-		{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}.Installer|x64.Build.0 = Release|x64
 		{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}.Release|Win32.ActiveCfg = Release|Win32
 		{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}.Release|Win32.Build.0 = Release|Win32
 		{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}.Release|x64.ActiveCfg = Release|x64
@@ -119,7 +120,6 @@ Global
 		{28B3A2F3-8E6F-4D4C-B29F-BF6180067E26}.Debug-Android-ARM|x64.ActiveCfg = Debug|x64
 		{28B3A2F3-8E6F-4D4C-B29F-BF6180067E26}.Installer|Win32.ActiveCfg = Release|x64
 		{28B3A2F3-8E6F-4D4C-B29F-BF6180067E26}.Installer|x64.ActiveCfg = Release|x64
-		{28B3A2F3-8E6F-4D4C-B29F-BF6180067E26}.Installer|x64.Build.0 = Release|x64
 		{28B3A2F3-8E6F-4D4C-B29F-BF6180067E26}.Release|Win32.ActiveCfg = Release|Win32
 		{28B3A2F3-8E6F-4D4C-B29F-BF6180067E26}.Release|Win32.Build.0 = Release|Win32
 		{28B3A2F3-8E6F-4D4C-B29F-BF6180067E26}.Release|x64.ActiveCfg = Release|x64
@@ -133,7 +133,6 @@ Global
 		{5C2A907E-02DA-4D13-B84B-B48500DBEFA3}.Debug-Android-ARM|x64.ActiveCfg = Debug|x64
 		{5C2A907E-02DA-4D13-B84B-B48500DBEFA3}.Installer|Win32.ActiveCfg = Release|x64
 		{5C2A907E-02DA-4D13-B84B-B48500DBEFA3}.Installer|x64.ActiveCfg = Release|x64
-		{5C2A907E-02DA-4D13-B84B-B48500DBEFA3}.Installer|x64.Build.0 = Release|x64
 		{5C2A907E-02DA-4D13-B84B-B48500DBEFA3}.Release|Win32.ActiveCfg = Release|Win32
 		{5C2A907E-02DA-4D13-B84B-B48500DBEFA3}.Release|Win32.Build.0 = Release|Win32
 		{5C2A907E-02DA-4D13-B84B-B48500DBEFA3}.Release|x64.ActiveCfg = Release|x64
@@ -148,7 +147,6 @@ Global
 		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}.Debug-Android-ARM|x64.ActiveCfg = Debug|x64
 		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}.Installer|Win32.ActiveCfg = Release|x64
 		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}.Installer|x64.ActiveCfg = Release|x64
-		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}.Installer|x64.Build.0 = Release|x64
 		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}.Release|Win32.ActiveCfg = Release|Win32
 		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}.Release|Win32.Build.0 = Release|Win32
 		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}.Release|x64.ActiveCfg = Release|x64
@@ -183,7 +181,6 @@ Global
 		{55ABEC8C-2C4B-4216-AC6D-C62A7A8F5D77}.Installer|x64.Build.0 = Release
 		{55ABEC8C-2C4B-4216-AC6D-C62A7A8F5D77}.Release|Win32.ActiveCfg = Release
 		{55ABEC8C-2C4B-4216-AC6D-C62A7A8F5D77}.Release|x64.ActiveCfg = Release
-		{55ABEC8C-2C4B-4216-AC6D-C62A7A8F5D77}.Release|x64.Build.0 = Release
 		{55ABEC8C-2C4B-4216-AC6D-C62A7A8F5D77}.Release-Android-ARM|Win32.ActiveCfg = Debug
 		{55ABEC8C-2C4B-4216-AC6D-C62A7A8F5D77}.Release-Android-ARM|x64.ActiveCfg = Debug
 		{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}.Debug|Win32.ActiveCfg = Debug|Win32
@@ -194,7 +191,6 @@ Global
 		{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}.Debug-Android-ARM|x64.ActiveCfg = Debug|x64
 		{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}.Installer|Win32.ActiveCfg = Release|x64
 		{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}.Installer|x64.ActiveCfg = Release|x64
-		{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}.Installer|x64.Build.0 = Release|x64
 		{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}.Release|Win32.ActiveCfg = Release|Win32
 		{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}.Release|Win32.Build.0 = Release|Win32
 		{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}.Release|x64.ActiveCfg = Release|x64
@@ -232,7 +228,6 @@ Global
 		{DA1E89A2-A0A1-44B3-B295-72ED4B8E5CF4}.Debug-Android-ARM|x64.ActiveCfg = Debug|x64
 		{DA1E89A2-A0A1-44B3-B295-72ED4B8E5CF4}.Installer|Win32.ActiveCfg = Release|x64
 		{DA1E89A2-A0A1-44B3-B295-72ED4B8E5CF4}.Installer|x64.ActiveCfg = Release|x64
-		{DA1E89A2-A0A1-44B3-B295-72ED4B8E5CF4}.Installer|x64.Build.0 = Release|x64
 		{DA1E89A2-A0A1-44B3-B295-72ED4B8E5CF4}.Release|Win32.ActiveCfg = Release|Win32
 		{DA1E89A2-A0A1-44B3-B295-72ED4B8E5CF4}.Release|Win32.Build.0 = Release|Win32
 		{DA1E89A2-A0A1-44B3-B295-72ED4B8E5CF4}.Release|x64.ActiveCfg = Release|x64
@@ -246,7 +241,6 @@ Global
 		{3E07C0ED-2E87-4722-B32F-BB7401F07A90}.Debug-Android-ARM|x64.ActiveCfg = Debug|x64
 		{3E07C0ED-2E87-4722-B32F-BB7401F07A90}.Installer|Win32.ActiveCfg = Release|x64
 		{3E07C0ED-2E87-4722-B32F-BB7401F07A90}.Installer|x64.ActiveCfg = Release|x64
-		{3E07C0ED-2E87-4722-B32F-BB7401F07A90}.Installer|x64.Build.0 = Release|x64
 		{3E07C0ED-2E87-4722-B32F-BB7401F07A90}.Release|Win32.ActiveCfg = Release|Win32
 		{3E07C0ED-2E87-4722-B32F-BB7401F07A90}.Release|Win32.Build.0 = Release|Win32
 		{3E07C0ED-2E87-4722-B32F-BB7401F07A90}.Release|x64.ActiveCfg = Release|x64
@@ -340,6 +334,18 @@ Global
 		{8AF96288-59F4-4F67-9590-11429468C558}.Release-Android-ARM|Win32.ActiveCfg = Release-Android-ARM|Win32
 		{8AF96288-59F4-4F67-9590-11429468C558}.Release-Android-ARM|Win32.Build.0 = Release-Android-ARM|Win32
 		{8AF96288-59F4-4F67-9590-11429468C558}.Release-Android-ARM|x64.ActiveCfg = Debug-Android-ARM|Win32
+		{2F085A1B-2753-4F40-8D7C-9741DA0F1639}.Debug|Win32.ActiveCfg = Debug
+		{2F085A1B-2753-4F40-8D7C-9741DA0F1639}.Debug|x64.ActiveCfg = Debug
+		{2F085A1B-2753-4F40-8D7C-9741DA0F1639}.Debug-Android-ARM|Win32.ActiveCfg = Debug
+		{2F085A1B-2753-4F40-8D7C-9741DA0F1639}.Debug-Android-ARM|x64.ActiveCfg = Debug
+		{2F085A1B-2753-4F40-8D7C-9741DA0F1639}.Installer|Win32.ActiveCfg = Release
+		{2F085A1B-2753-4F40-8D7C-9741DA0F1639}.Installer|Win32.Build.0 = Release
+		{2F085A1B-2753-4F40-8D7C-9741DA0F1639}.Installer|x64.ActiveCfg = Release
+		{2F085A1B-2753-4F40-8D7C-9741DA0F1639}.Installer|x64.Build.0 = Release
+		{2F085A1B-2753-4F40-8D7C-9741DA0F1639}.Release|Win32.ActiveCfg = Release
+		{2F085A1B-2753-4F40-8D7C-9741DA0F1639}.Release|x64.ActiveCfg = Release
+		{2F085A1B-2753-4F40-8D7C-9741DA0F1639}.Release-Android-ARM|Win32.ActiveCfg = Release
+		{2F085A1B-2753-4F40-8D7C-9741DA0F1639}.Release-Android-ARM|x64.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
