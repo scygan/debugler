@@ -376,13 +376,9 @@ namespace {
            //step == 2: after first swap (GL_FRONT should contain quad)
 
            {
-               //query back framebuffer
-               dglnet::QueryResourceMessage::ResourceQuery framebufferQuery;
-               framebufferQuery.m_Type = DGLResource::ObjectTypeFramebuffer;
-               framebufferQuery.m_ObjectName = ContextObjectName(breaked->m_CurrentCtx, step==2?GL_FRONT:GL_BACK);
-               framebufferQuery.m_ListenerId = 3; //some rand value..
-               std::vector<dglnet::QueryResourceMessage::ResourceQuery> resQueries;
-               resQueries.push_back(framebufferQuery);
+               //query framebuffer
+               std::vector<dglnet::QueryResourceMessage::ResourceQuery> resQueries(1, dglnet::QueryResourceMessage::ResourceQuery(DGLResource::ObjectTypeFramebuffer,
+                   3 /* some rand value */, ContextObjectName(breaked->m_CurrentCtx, step==2?GL_FRONT:GL_BACK))); 
                dglnet::QueryResourceMessage query;
                query.m_ResourceQueries = resQueries;
                client->sendMessage(&query);
@@ -473,11 +469,8 @@ namespace {
        }
 
        {
-           dglnet::QueryResourceMessage::ResourceQuery shaderQuery;
-           shaderQuery.m_Type = DGLResource::ObjectTypeShader;
-           shaderQuery.m_ObjectName = ContextObjectName(breaked->m_CurrentCtx, fragId);
-           std::vector<dglnet::QueryResourceMessage::ResourceQuery> resQueries;
-           resQueries.push_back(shaderQuery);
+           std::vector<dglnet::QueryResourceMessage::ResourceQuery> resQueries(1, dglnet::QueryResourceMessage::ResourceQuery(DGLResource::ObjectTypeShader,
+               3 /* some rand value */, ContextObjectName(breaked->m_CurrentCtx, fragId))); 
            dglnet::QueryResourceMessage query;
            query.m_ResourceQueries = resQueries;
            client->sendMessage(&query);
@@ -504,11 +497,8 @@ namespace {
 
        //Verify frag shader
        {
-           dglnet::QueryResourceMessage::ResourceQuery shaderQuery;
-           shaderQuery.m_Type = DGLResource::ObjectTypeShader;
-           shaderQuery.m_ObjectName = ContextObjectName(breaked->m_CurrentCtx, fragId);
-           std::vector<dglnet::QueryResourceMessage::ResourceQuery> resQueries;
-           resQueries.push_back(shaderQuery);
+           std::vector<dglnet::QueryResourceMessage::ResourceQuery> resQueries(1, dglnet::QueryResourceMessage::ResourceQuery(DGLResource::ObjectTypeShader,
+               3 /* some rand value */, ContextObjectName(breaked->m_CurrentCtx, fragId))); 
            dglnet::QueryResourceMessage query;
            query.m_ResourceQueries = resQueries;
            client->sendMessage(&query);
@@ -529,11 +519,8 @@ namespace {
 
        //Query back framebuffer
        {
-           dglnet::QueryResourceMessage::ResourceQuery framebufferQuery;
-           framebufferQuery.m_Type = DGLResource::ObjectTypeFramebuffer;
-           framebufferQuery.m_ObjectName = ContextObjectName(breaked->m_CurrentCtx, GL_BACK);
-           std::vector<dglnet::QueryResourceMessage::ResourceQuery> resQueries;
-           resQueries.push_back(framebufferQuery);
+           std::vector<dglnet::QueryResourceMessage::ResourceQuery> resQueries(1, dglnet::QueryResourceMessage::ResourceQuery(DGLResource::ObjectTypeFramebuffer,
+               3 /* some rand value */, ContextObjectName(breaked->m_CurrentCtx, GL_BACK))); 
            dglnet::QueryResourceMessage query;
            query.m_ResourceQueries = resQueries;
            client->sendMessage(&query);

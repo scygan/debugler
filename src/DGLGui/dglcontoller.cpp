@@ -33,10 +33,7 @@ DGLResourceManager::DGLResourceManager(DglController* controller):m_MaxListenerI
 void DGLResourceManager::emitQueries() {
     dglnet::QueryResourceMessage queries;
     for (std::multimap<uint, DGLResourceListener*>::iterator i = m_Listeners.begin(); i != m_Listeners.end(); i++) {
-        dglnet::QueryResourceMessage::ResourceQuery query;
-        query.m_ListenerId = i->first;
-        query.m_ObjectName = i->second->m_ObjectName;
-        query.m_Type = i->second->m_ObjectType;
+        dglnet::QueryResourceMessage::ResourceQuery query(i->second->m_ObjectType, i->first, i->second->m_ObjectName);
         queries.m_ResourceQueries.push_back(query);
     }
     if (queries.m_ResourceQueries.size())

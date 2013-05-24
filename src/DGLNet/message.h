@@ -276,11 +276,13 @@ public:
         template<class Archive>
         void serialize(Archive & ar, const unsigned int version) {
             ar & m_Type;
-            ar & m_ObjectName;
             ar & m_ListenerId;
+            ar & m_ObjectName;
         }
 
     public:
+        ResourceQuery(DGLResource::ObjectType type, value_t listenerId, ContextObjectName name):m_Type(type), m_ListenerId(listenerId), m_ObjectName(name) {}
+        ResourceQuery() {};
         DGLResource::ObjectType m_Type;
         value_t m_ListenerId;
         ContextObjectName m_ObjectName;
