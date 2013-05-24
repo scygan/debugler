@@ -535,26 +535,6 @@ void BufferAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     PrevPost(call, ret);
 }
 
-RetValue ProgramAction::Pre(const CalledEntryPoint& call) {
-    RetValue ret = PrevPre(call);
-
-    if (call.getEntrypoint() == glUseProgram_Call || call.getEntrypoint() == glUseProgramObjectARB_Call) {
-
-        GLint currentProgramName;
-        DIRECT_CALL(glGetIntegerv)(GL_CURRENT_PROGRAM, &currentProgramName);
-        
-        if (currentProgramName) {
-            dglState::GLProgramObj* currentProgram = gc->ensureProgram(currentProgramName);
-
-            currentProgram->use(false);
-            if (currentProgram->mayDelete()) {
-                gc->deleteProgram(currentProgramName);
-            }
-        }
-    }
-    return ret;
-}
-
 void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
 
@@ -579,6 +559,21 @@ void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
         } else if (entrp == glUseProgram_Call || entrp == glUseProgramObjectARB_Call) {
 
             call.getArgs()[0].get(name);
+
+            GLint currentProgramName;
+            DIRECT_CALL(glGetIntegerv)(GL_CURRENT_PROGRAM, &currentProgramName);
+
+            if (currentProgramName != name) {
+
+                //we may delete last program, if marked for deletion
+
+                dglState::GLProgramObj* currentProgram = gc->ensureProgram(currentProgramName);
+
+                currentProgram->use(false);
+                if (currentProgram->mayDelete()) {
+                    gc->deleteProgram(currentProgramName);
+                }
+            }
 
             if (name != 0) {
                 gc->ensureProgram(name)->use(true);
