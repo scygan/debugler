@@ -324,16 +324,16 @@ namespace {
            GLubyte* rowPtr = y * rowBytes + ptr;
            for (int x = 0; x < width; x++) {
                if (x > 0.3 * width && x < 0.7 * width && y > 0.3 * height && y < 0.7 * height) {
-                       ASSERT_EQ(r , rowPtr[4 * x + 0]);
-                       ASSERT_EQ(g , rowPtr[4 * x + 1]);
-                       ASSERT_EQ(b , rowPtr[4 * x + 2]);
-                       ASSERT_EQ(a , rowPtr[4 * x + 3]);
+                   ASSERT_TRUE(abs(r - rowPtr[4 * x + 0]) <= 1);
+                   ASSERT_TRUE(abs(g - rowPtr[4 * x + 1]) <= 1);
+                   ASSERT_TRUE(abs(b - rowPtr[4 * x + 2]) <= 1);
+                   ASSERT_TRUE(abs(a - rowPtr[4 * x + 3]) <= 1);
                }
                if (x < 0.2 * width || x > 0.8 * width || y < 0.2 * height || y > 0.8 * height) {
-                       ASSERT_EQ(0, rowPtr[4 * x + 0]);
-                       ASSERT_EQ(0, rowPtr[4 * x + 1]);
-                       ASSERT_EQ(0, rowPtr[4 * x + 2]);
-                       ASSERT_EQ(0, rowPtr[4 * x + 3]);
+                   ASSERT_TRUE(abs(rowPtr[4 * x + 0]) <= 1);
+                   ASSERT_TRUE(abs(rowPtr[4 * x + 1]) <= 1);
+                   ASSERT_TRUE(abs(rowPtr[4 * x + 2]) <= 1);
+                   ASSERT_TRUE(abs(rowPtr[4 * x + 3]) <= 1);
                }
            }
        }
