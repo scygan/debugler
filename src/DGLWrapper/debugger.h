@@ -17,200 +17,12 @@
 #define DEBUGGER_H
 
 #include <DGLNet/server.h>
-
-#include<map>
-#include <boost/thread.hpp>
-#include <boost/thread/tss.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/circular_buffer.hpp>
 #include <DGLCommon/dglconfiguration.h>
 #include <DGLCommon/os.h>
 
 #include "gl-state.h"
-
-
-/**
- * Length of history buffer
- */
-#define CALL_HISTORY_LEN 5000
-
-/**
- * Class aggregating all OpenGL state read needed by debugger
- */
-class DGLDisplayState {
-
-    /**
-     * Iterator for container of all GL context state objects
-     */
-    typedef std::map<opaque_id_t, boost::shared_ptr<dglState::GLContext> >::iterator ContextListIter;
-
-    /**
-     * Iterator for container of all native surfaces
-     */
-    typedef std::map<opaque_id_t, boost::shared_ptr<dglState::NativeSurfaceBase> >::iterator SurfaceListIter;
-public:
-    /**
-     * Ctor
-     */
-    DGLDisplayState(opaque_id_t id);
-
-    /**
-     * Native id getter
-     */
-    opaque_id_t getId() const;
-
-    /**
-     * Getter for default display on display-less configurations (like WGL).
-     */
-    static DGLDisplayState* defDpy();
-
-    /**
-     * Getter for specific display on display-able configurations (like EGL, GLX).
-     */
-    static DGLDisplayState* get(opaque_id_t dpy);
-
-    /**
-     * Getter for ctx object by given id (created if not exist)
-     */
-    ContextListIter ensureContext(dglState::GLContextVersion version, opaque_id_t id, bool lock = true);
-
-    /**
-     * Getter for native surface object by given id (created if not exist). Not usable for EGL
-     */
-    template<typename NativeSurfaceType>
-    SurfaceListIter ensureSurface(opaque_id_t id, bool lock = true);
-
-    /**
-     * Getter for native surface object by given id
-     */
-    SurfaceListIter getSurface(opaque_id_t id);
-
-    /**
-     * Add surface by given id and pixelformat. Not usable on WGL
-     */
-    template<typename NativeSurfaceType>
-    void addSurface(opaque_id_t id, opaque_id_t pixfmt);
-
-    /**
-     * Method deleting ctx object by given id (should be called when deleted by application)
-     */
-    void deleteContext(opaque_id_t id);
-
-    /**
-     * Method deleting ctx object by given id (should be called when deleted by application). Does not immediately delete when bound
-     */
-    void lazyDeleteContext(opaque_id_t id);
-
-    /**
-     * Getter for short context state report
-     */
-    std::vector<dglnet::ContextReport> describe();
-
-    /**
-     * Getter for short context state report from all Displays
-     */
-    static std::vector<dglnet::ContextReport> describeAll();
-
-private:
-
-    /**
-     * Container of all GL context state objects
-     */
-    std::map<opaque_id_t, boost::shared_ptr<dglState::GLContext> > m_ContextList;
-
-    /**
-     * Container of  all native surfaces
-     */
-    std::map<opaque_id_t, boost::shared_ptr<dglState::NativeSurfaceBase> > m_SurfaceList;
-
-    /**
-     * Mutex for context container operations
-     */
-    boost::mutex m_ContextListMutex;
-
-    /**
-     * Mutex for surface container operations
-     */
-    boost::mutex m_SurfaceListMutex;
-
-    /**
-     *  Collection of all displays
-     */
-    static std::map<opaque_id_t, boost::shared_ptr<DGLDisplayState> > s_Displays;
-
-    /**
-     *  Mutex guarding s_Displays
-     */ 
-    static boost::mutex s_DisplaysMutex;
-
-    /**
-     * Display ID as seen from native API
-     */
-    opaque_id_t m_Id;
-};
-
-/**
-* Class aggregating all thread-specific state
-*/
-class DGLThreadState {
-public:
-
-    /**
-     * Ctor
-     */
-    DGLThreadState();
-
-    /**
-     * Setter for current context (should be called just after *MakeCurrent-like calls).
-     */
-    void bindContext(DGLDisplayState* dpy, opaque_id_t id, dglState::NativeSurfaceBase* readSurface);
-
-    /**
-     * Getter for current context (should be called just after *MakeCurrent-like calls).
-     */
-    dglState::GLContext* getCurrentCtx();
-
-    /**
-     *  Release current TSS - should be called on eglReleaseThread
-     */
-    static void release();
-
-     /**
-     *  Get current TSS
-     */
-    static DGLThreadState* get();
-
-    /**
-     *  Set current API (only on EGL, called on eglBindApi)
-     */
-    void bindEGLApi(EGLenum api);
-
-    /**
-     *  Set current EGL API
-     */
-    EGLenum getEGLApi();
-
-private:
-
-    /**
-     * Thread-space pointer to current context object
-     */
-    dglState::GLContext* m_Current;
-
-    /**
-     * Current EGL api
-     */
-    EGLenum m_EGLApi;
-
-    //TODO: API bound by eglBindApi should be stored here
-
-    /**
-     * Thread-specific pointer to thread specific state
-     */
-    static boost::thread_specific_ptr<DGLThreadState> s_CurrentThreadState;
-};
-
-#define gc DGLThreadState::get()->getCurrentCtx()
 
 /**
  * class for break state - breaking and continuing application execution
@@ -296,6 +108,11 @@ private:
       */
     std::set<Entrypoint> m_BreakPoints;
 };
+
+/**
+ * Length of history buffer
+ */
+#define CALL_HISTORY_LEN 5000
 
 /**
  * round buffer with call history

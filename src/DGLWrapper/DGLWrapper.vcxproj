@@ -71,6 +71,7 @@
     <ClInclude Include="api-loader.h" />
     <ClInclude Include="debugger.h" />
     <ClInclude Include="DGLWrapper.h" />
+    <ClInclude Include="display.h" />
     <ClInclude Include="gl-headers-inside.h" />
     <ClInclude Include="gl-state.h" />
     <ClInclude Include="gl-wrappers.h" />
@@ -78,6 +79,7 @@
     <ClInclude Include="pointers.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="actions.h" />
+    <ClInclude Include="tls.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\external\mhook\disasm-lib\cpu.c" />
@@ -85,12 +87,14 @@
     <ClCompile Include="..\external\mhook\disasm-lib\disasm_x86.c" />
     <ClCompile Include="..\external\mhook\mhook-lib\mhook.cpp" />
     <ClCompile Include="debugger.cpp" />
+    <ClCompile Include="display.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="api-loader.cpp" />
     <ClCompile Include="gl-state.cpp" />
     <ClCompile Include="gl-wrappers.cpp" />
     <ClCompile Include="actions.cpp" />
     <ClCompile Include="native-surface.cpp" />
+    <ClCompile Include="tls.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

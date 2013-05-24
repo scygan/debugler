@@ -26,14 +26,15 @@
 #include <string>
 #include <cstring>
 #include <stdexcept>
+#include <sstream>
 
 #include "pointers.h"
 #include "api-loader.h"
-#include "debugger.h"
-
+#include "tls.h"
 #include "native-surface.h"
 
-#include "DGLCommon/gl-formats.h"
+#include <DGLCommon/def.h>
+#include <DGLCommon/gl-formats.h>
 
 namespace dglState {
 

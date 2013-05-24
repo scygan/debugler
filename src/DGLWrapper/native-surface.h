@@ -18,8 +18,8 @@
 #define NATIVE_SURFACE_H
 
 #include <DGLCommon/gl-types.h>
-#include "debugger.h"
 
+class DGLDisplayState;
 
 namespace dglState {
 

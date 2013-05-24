@@ -23,6 +23,7 @@
 
 #include "pointers.h"
 #include "api-loader.h"
+#include "display.h"
 
 namespace dglState {
 
