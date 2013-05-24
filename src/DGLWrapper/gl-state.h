@@ -128,91 +128,6 @@ private:
     GLenum m_Target;
 };
 
-//Native platform interface surface. HDC on windows
-class NativeSurfaceBase {
-public:
-    NativeSurfaceBase(opaque_id_t);
-    opaque_id_t getId();
-    virtual bool isDoubleBuffered() = 0;
-    virtual bool isStereo() = 0;
-
-    virtual int* getRGBASizes() = 0;
-    virtual int getStencilSize() = 0;
-    virtual int getDepthSize() = 0;
-
-    virtual int getWidth() = 0;
-    virtual int getHeight() = 0;
-    virtual ~NativeSurfaceBase() {}
-protected:
-    opaque_id_t m_Id;
-};
-
-class NativeSurfaceWGL: public NativeSurfaceBase {
-public:
-    NativeSurfaceWGL(const DGLDisplayState* dpy, opaque_id_t id);
-    virtual bool isDoubleBuffered();
-    virtual bool isStereo();
-
-    virtual int* getRGBASizes();
-    virtual int getStencilSize();
-    virtual int getDepthSize();
-
-    virtual int getWidth(); 
-    virtual int getHeight(); 
-private:
-    int m_Width, m_Height;
-    bool m_Stereo, m_DoubleBuffered;
-    int m_RGBASizes[4];
-    int m_DepthSize, m_StencilSize;
-};
-
-class NativeSurfaceGLX: public NativeSurfaceBase {
-public:
-    /**
-     * Ctor
-     */
-    NativeSurfaceGLX(const DGLDisplayState* dpy, opaque_id_t id);
-
-    virtual bool isDoubleBuffered();
-    virtual bool isStereo();
-
-    virtual int* getRGBASizes();
-    virtual int getStencilSize();
-    virtual int getDepthSize();
-
-    virtual int getWidth(); 
-    virtual int getHeight();
-private:
-    int m_RGBASizes[4];
-    int m_DepthSize, m_StencilSize;
-    const DGLDisplayState* m_Dpy;
-    bool m_Stereo, m_DoubleBuffered;
-
-    bool m_GLXDrawableGettersFailing;
-};
-
-class NativeSurfaceEGL: public NativeSurfaceBase {
-public:
-    /**
-     * Ctor
-     */
-    NativeSurfaceEGL(const DGLDisplayState* dpy, opaque_id_t pixfmt, opaque_id_t id);
-
-    virtual bool isDoubleBuffered();
-    virtual bool isStereo();
-
-    virtual int* getRGBASizes();
-    virtual int getStencilSize();
-    virtual int getDepthSize();
-
-    virtual int getWidth(); 
-    virtual int getHeight();
-private:
-    int m_RGBASizes[4];
-    int m_DepthSize, m_StencilSize;
-    const DGLDisplayState* m_Dpy;
-};
-
 class GLContextVersion {
 public:
     enum Type {
@@ -231,6 +146,8 @@ private:
     int m_MinorVersion;
     Type m_Type;
 };
+
+class NativeSurfaceBase;
 
 class GLContext {
 public:

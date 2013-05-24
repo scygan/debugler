@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+#ifndef DEBUGGER_H
+#define DEBUGGER_H
 
 #include <DGLNet/server.h>
 
@@ -478,3 +480,5 @@ DGLDebugController* getController();
  *  Global config object instance
  */
 extern DGLConfiguration g_Config;
+
+#endif //DEBUGGER_H

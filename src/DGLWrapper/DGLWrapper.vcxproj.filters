@@ -53,6 +53,9 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="native-surface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -84,6 +87,9 @@
     </ClCompile>
     <ClCompile Include="..\external\mhook\disasm-lib\disasm_x86.c">
       <Filter>mhook</Filter>
+    </ClCompile>
+    <ClCompile Include="native-surface.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

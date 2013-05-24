@@ -20,6 +20,8 @@
 #include"debugger.h"
 #include <boost/interprocess/sync/named_semaphore.hpp>
 
+#include "native-surface.h"
+
 boost::shared_ptr<DGLDebugController> _g_Controller;
 
 DGLDebugController* getController() {
