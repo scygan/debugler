@@ -40,7 +40,6 @@ public:
 signals:
     void update(const DGLResource&);
     void error(const std::string&);
-    void invalidate();
 private:
     uint m_ListenerId;
     DGLResourceManager* m_Manager;
