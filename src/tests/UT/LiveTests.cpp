@@ -370,15 +370,13 @@ namespace {
        ASSERT_TRUE(breaked != NULL);
        EXPECT_EQ(glDrawArrays_Call, breaked->m_entryp.getEntrypoint());
 
-       for (int step = 0; step < 3; step++) {
+       for (int step = 0; step < 2; step++) {
            //step == 0: before first draw (GL_BACK should be cleared)
            //step == 1: after first draw (GL_BACK  should contain quad)
-           //step == 2: after first swap (GL_FRONT should contain quad)
-
            {
                //query framebuffer
                std::vector<dglnet::QueryResourceMessage::ResourceQuery> resQueries(1, dglnet::QueryResourceMessage::ResourceQuery(DGLResource::ObjectTypeFramebuffer,
-                   3 /* some rand value */, ContextObjectName(breaked->m_CurrentCtx, step==2?GL_FRONT:GL_BACK))); 
+                   3 /* some rand value */, ContextObjectName(breaked->m_CurrentCtx, GL_BACK))); 
                dglnet::QueryResourceMessage query;
                query.m_ResourceQueries = resQueries;
                client->sendMessage(&query);
@@ -399,6 +397,8 @@ namespace {
            EXPECT_EQ(480, framebufferResource->m_PixelRectangle->m_Height);
            EXPECT_EQ(0, framebufferResource->m_PixelRectangle->m_InternalFormat);
 
+           printf("step = %d\n", step);
+
            if (step) {
                checkColor((GLubyte*)framebufferResource->m_PixelRectangle->getPtr(),
                    framebufferResource->m_PixelRectangle->m_Width,
@@ -411,12 +411,6 @@ namespace {
                    framebufferResource->m_PixelRectangle->m_RowBytes, 0, 0, 0, 0);
            }
            
-           if (step == 1) {
-               //advance one frame (up to swap)
-               dglnet::ContinueBreakMessage step(dglnet::ContinueBreakMessage::STEP_FRAME);
-               client->sendMessage(&step);
-               ASSERT_TRUE(utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub) != NULL);
-           }
            //advance one call
            dglnet::ContinueBreakMessage stepCall(dglnet::ContinueBreakMessage::STEP_CALL);
            client->sendMessage(&stepCall);
