@@ -286,11 +286,11 @@ NativeSurfaceGLX::NativeSurfaceGLX(const DGLDisplayState* _dpy, opaque_id_t id):
 }
 
 bool NativeSurfaceGLX::isDoubleBuffered() {
-    return true;
+    return m_DoubleBuffered;
 }
 
 bool NativeSurfaceGLX::isStereo() {
-    return false;
+    return m_Stereo;
 }
 
 int* NativeSurfaceGLX::getRGBASizes() {
