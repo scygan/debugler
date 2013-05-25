@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+#include <stdexcept>
 
 #include "dglblitterbase.h"
 

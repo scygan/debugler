@@ -19,6 +19,8 @@
 
 #include <DGLNet/protocol/anyvalue.h>
 
+#include <boost/serialization/base_object.hpp>
+
 #include <vector>
 
 /**

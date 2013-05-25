@@ -16,6 +16,10 @@
 #include "native-surface.h"
 
 #ifdef HAVE_LIBRARY_GLX
+
+#include <DGLCommon/os.h>
+#include <boost/thread/lock_guard.hpp>
+
 //for GLXBadDrawable:
 #include <X11/Xproto.h>
 #include <GL/glxproto.h>

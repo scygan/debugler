@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+#include<cstring>
 
 #include "resource.h"
 #include <DGLCommon/gl-types.h>
