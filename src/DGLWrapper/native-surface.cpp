@@ -213,7 +213,7 @@ NativeSurfaceGLX::NativeSurfaceGLX(const DGLDisplayState* _dpy, opaque_id_t id):
         DIRECT_CALL_CHK(glXQueryDrawable)(dpy, drawable, GLX_FBCONFIG_ID, &fbConfigID);
         error = xErrorHandler.getErrorCode();
     }
-    GLXFBConfig* config = NULL;
+    GLXFBConfig* config = NULL, * memToFree = NULL;
     if (!error) {
         const int attribList[] = {GLX_FBCONFIG_ID, static_cast<int>(fbConfigID), None, None};
         int nElements;
@@ -221,6 +221,7 @@ NativeSurfaceGLX::NativeSurfaceGLX(const DGLDisplayState* _dpy, opaque_id_t id):
         if (!nElements) {
             config = NULL;
         }
+        memToFree = config;
     }
 
     if (!config && (error == GLXBadDrawable || !error)) {
@@ -236,18 +237,31 @@ NativeSurfaceGLX::NativeSurfaceGLX(const DGLDisplayState* _dpy, opaque_id_t id):
         XWindowAttributes attribs;
         XGetWindowAttributes(dpy, win, &attribs);
 
+        const int visualID = XVisualIDFromVisual(attribs.visual);
 
-        const int attribList[] = {GLX_VISUAL_ID, static_cast<int>(XVisualIDFromVisual(attribs.visual)), None, None};
-        int nElements;
-        config = DIRECT_CALL_CHK(glXChooseFBConfig)(dpy, DefaultScreen(dpy), attribList, &nElements);
-        if (!nElements) {
-            config = NULL;
+        int nElements; 
+        GLXFBConfig* configs = DIRECT_CALL_CHK(glXGetFBConfigs)(dpy, DefaultScreen(dpy), &nElements);
+
+        config = NULL;
+        if (nElements) {
+            memToFree = configs;
+        }
+
+        for (int i =0; i < nElements; i++) {
+            int id;
+            if (DIRECT_CALL_CHK(glXGetFBConfigAttrib)(dpy, configs[i], GLX_VISUAL_ID, &id) == Success) {
+                if (id == visualID) {
+                    config = &configs[i];
+                    break;
+                }
+            }
         }
     }
 
     if (!config) {
-        Os::fatal("Cannot get FBConvig for given GLXDrawable/Window XID");
+        Os::fatal("Cannot get FBConfig for given GLXDrawable/Window XID");
     }
+    
 
     int ret = Success;
     
@@ -268,7 +282,7 @@ NativeSurfaceGLX::NativeSurfaceGLX(const DGLDisplayState* _dpy, opaque_id_t id):
        throw std::runtime_error("eglGetConfigAttrib failed during native surface pixelformat discovery");
     }
 
-    XFree(config);
+    XFree(memToFree);
 }
 
 bool NativeSurfaceGLX::isDoubleBuffered() {
