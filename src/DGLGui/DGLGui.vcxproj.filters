@@ -53,7 +53,7 @@
     <ClCompile Include="dglconnectdialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dglcontoller.cpp">
+    <ClCompile Include="dglcontroller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dgltraceview.cpp">

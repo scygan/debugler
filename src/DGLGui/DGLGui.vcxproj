@@ -263,7 +263,7 @@
     <ClCompile Include="dglbreakpointdialog.cpp" />
     <ClCompile Include="dglbufferview.cpp" />
     <ClCompile Include="dglconnectdialog.cpp" />
-    <ClCompile Include="dglcontoller.cpp" />
+    <ClCompile Include="dglcontroller.cpp" />
     <ClCompile Include="dglfboview.cpp" />
     <ClCompile Include="dglframebufferview.cpp" />
     <ClCompile Include="dglgpuview.cpp" />

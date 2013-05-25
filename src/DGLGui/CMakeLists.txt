@@ -4,7 +4,7 @@ set(QT_USE_QTXML TRUE)
 
 set(dglgui_SOURCES 
     dglbreakpointdialog.cpp dglbufferview.cpp  dglconnectdialog.cpp
-    dglcontoller.cpp dglfboview.cpp dglframebufferview.cpp
+    dglcontroller.cpp dglfboview.cpp dglframebufferview.cpp
     dglgpuview.cpp dglmainwindow.cpp dglpixelrectangle.cpp
     dglprogramview.cpp dglrundialog.cpp dglshaderview.cpp
     dglstateview.cpp dgltabbedview.cpp dgltextureview.cpp
