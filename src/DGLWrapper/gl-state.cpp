@@ -859,13 +859,13 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(gl_t _name) {
     //additionally we will check some non-color attachments
        
     //it is crucial, that depth_stencil is checked first (we will break is succeed)
-	attachments.push_back(GL_DEPTH_STENCIL_ATTACHMENT);
+    attachments.push_back(GL_DEPTH_STENCIL_ATTACHMENT);
 
     //if depth_stencil fails, we will also check these:
     attachments.push_back(GL_DEPTH_ATTACHMENT);
     attachments.push_back(GL_STENCIL_ATTACHMENT);
 
-	queryCheckError();
+    queryCheckError();
 
     for (size_t i = 0; i < attachments.size(); i++) {
             
@@ -1080,11 +1080,11 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(gl_t _name) {
             DIRECT_CALL_CHK(glDeleteFramebuffers)(1, &downsampledFBO);
         }
 
-		if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
-			//we have succesfully read GL_DEPTH_STENCIL_ATTACHMENT attachment. 
-			//WA for buggy drivers: do not try to read DEPTH and STENCIL attachments if DEPTH_STENCIL is used
-			break;
-		}
+        if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
+            //we have succesfully read GL_DEPTH_STENCIL_ATTACHMENT attachment. 
+            //WA for buggy drivers: do not try to read DEPTH and STENCIL attachments if DEPTH_STENCIL is used
+            break;
+        }
     }
 
     return ret;
