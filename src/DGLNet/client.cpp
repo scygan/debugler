@@ -15,8 +15,10 @@
 
 
 #include<string>
-#include <boost/asio.hpp>
 #include <boost/bind.hpp>
+
+#include <boost/asio/placeholders.hpp>
+
 #include "client.h"
 
 
