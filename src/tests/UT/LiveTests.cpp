@@ -64,6 +64,8 @@ namespace {
         public:
             virtual void onSetStatus(std::string) {}
             virtual void onSocket() {}
+            virtual void onSocketStartSend() {}
+            virtual void onSocketStopSend() {}
         };
 
         class MessageHandler: public dglnet::MessageHandler {

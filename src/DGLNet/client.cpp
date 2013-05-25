@@ -59,6 +59,15 @@ namespace dglnet {
         }
     }
 
+    void Client::notifyStartSend() {
+        m_controller->onSocketStartSend();
+    }
+
+    void Client::notifyEndSend() {
+        m_controller->onSocketStopSend();
+    }
+
+
     boost::shared_ptr<Client> Client::shared_from_this() {
         return boost::static_pointer_cast<Client>(get_shared_from_base());
     }

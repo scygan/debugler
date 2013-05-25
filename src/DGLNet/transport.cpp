@@ -154,6 +154,8 @@ namespace dglnet {
         m_WriteQueue.push_back(std::pair<TransportHeader*, boost::asio::streambuf*>(header, stream));
 
         if (m_WriteReady) {
+            notifyStartSend();
+            m_WriteReady = false;
             writeQueue();
         }
     }
@@ -184,6 +186,7 @@ namespace dglnet {
             writeQueue();
         } else {
             m_WriteReady = true;
+            notifyEndSend();
         }
         
         if (ec) {
@@ -199,6 +202,9 @@ namespace dglnet {
         if (m_Abort) return;
         m_messageHandler->doHandleDisconnect(why);
     }
+    
+    void Transport::notifyStartSend() {}
 
+    void Transport::notifyEndSend() {}
 
 }

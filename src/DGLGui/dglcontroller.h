@@ -169,6 +169,21 @@ public:
      */
     virtual void onSocket();
 
+    /**
+     * Method called by DGLClient, when network socket starts sending data
+     *
+     * We start QSocketNotifier in write mode to handle polls()
+     */
+    virtual void onSocketStartSend();
+
+    /**
+     * Method called by DGLClient, when network socket stops sending data
+     *
+     * We stop QSocketNotifier in write mode to stop handling polls()
+     */
+    virtual void onSocketStopSend();
+
+
     //IMessageHandler methods:
     virtual void doHandle(const dglnet::HelloMessage&);
     virtual void doHandle(const dglnet::BreakedCallMessage&);

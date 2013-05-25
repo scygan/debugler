@@ -25,6 +25,8 @@ class IController {
 public:
     virtual void onSetStatus(std::string) = 0;
     virtual void onSocket() = 0;
+    virtual void onSocketStartSend() = 0;
+    virtual void onSocketStopSend() = 0;
 
     virtual ~IController() {}
 };
@@ -42,6 +44,8 @@ private:
     void onResolve(const boost::system::error_code& err,
         boost::asio::ip::tcp::resolver::iterator endpoint_iterator);
     void onConnect(const boost::system::error_code &err);
+    virtual void notifyStartSend() override;
+    virtual void notifyEndSend() override;
     boost::shared_ptr<Client> shared_from_this();
 
     IController* m_controller;

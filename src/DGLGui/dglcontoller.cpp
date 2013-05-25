@@ -140,11 +140,20 @@ void DglController::connectServer(const std::string& host, const std::string& po
 }
 
 void DglController::onSocket() {
-    //m_Timer.stop();
+    m_Timer.stop();
     m_NotifierRead = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Read); 
     m_NotifierWrite = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Write); 
+    m_NotifierWrite->setEnabled(false);
     CONNASSERT(connect(&*m_NotifierRead, SIGNAL(activated(int)), this, SLOT(poll())));
     CONNASSERT(connect(&*m_NotifierWrite, SIGNAL(activated(int)), this, SLOT(poll())));
+}
+
+void DglController::onSocketStartSend() {
+    m_NotifierWrite->setEnabled(true);
+}
+
+void DglController::onSocketStopSend() {
+    m_NotifierWrite->setEnabled(false);
 }
 
 void DglController::disconnectServer() {

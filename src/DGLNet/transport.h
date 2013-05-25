@@ -38,6 +38,8 @@ protected:
     
     void read();
     void notifyDisconnect(const std::string& why = "");
+    virtual void notifyStartSend();
+    virtual void notifyEndSend();
 
     boost::shared_ptr<Transport> get_shared_from_base() {
         return shared_from_this();
