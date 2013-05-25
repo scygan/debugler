@@ -29,6 +29,9 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
+#include <boost/asio/read.hpp>
+#include <boost/asio/write.hpp>
+#include <boost/asio/placeholders.hpp>
 
 #include <sstream>
 #include <boost/bind.hpp>

@@ -14,9 +14,10 @@
 */
 
 
-#include "message.h"
-//#define BOOST_ASIO_DISABLE_IOCP
-#include <boost/asio.hpp>
+#include <DGLNet/protocol/message.h>
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/streambuf.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
 namespace dglnet {
