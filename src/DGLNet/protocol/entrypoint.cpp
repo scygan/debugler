@@ -14,7 +14,7 @@
 */
 
 
-#include "gl-serialized.h"
+#include "entrypoint.h"
 
 #include <sstream>
 #include <iomanip>

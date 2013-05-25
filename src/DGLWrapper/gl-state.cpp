@@ -34,7 +34,8 @@
 #include "native-surface.h"
 
 #include <DGLCommon/def.h>
-#include <DGLCommon/gl-formats.h>
+#include <DGLNet/protocol/pixeltransfer.h>
+
 
 namespace dglState {
 

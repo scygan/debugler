@@ -14,13 +14,13 @@
 */
 
 
-#ifndef GL_RESOURCE_H
-#define GL_RESOURCE_H
+#ifndef RESOURCE_H
+#define RESOURCE_H
 
 #include <boost/shared_ptr.hpp>
 #include <vector>
 
-#include <DGLCommon/gl-anyvalue.h>
+#include <DGLNet/protocol/anyvalue.h>
 #include <boost/serialization/binary_object.hpp>
 
 
@@ -328,4 +328,4 @@ public:
     gl_t m_Target;
 };
 
-#endif //GL_RESOURCE_H
+#endif //RESOURCE_H

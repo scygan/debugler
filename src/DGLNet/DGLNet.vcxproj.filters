@@ -9,6 +9,15 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="protocol">
+      <UniqueIdentifier>{4cb8a1c3-13bd-4fc7-af9f-7511d486e718}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="protocol\Header Files">
+      <UniqueIdentifier>{bd6c98c5-6e9f-4515-b7bf-b5bced575947}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="protocol\Source Files">
+      <UniqueIdentifier>{3429127f-57ff-42af-93ab-3fdb0208e30a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="server.cpp">
@@ -20,8 +29,17 @@
     <ClCompile Include="client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="message.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="protocol\entrypoint.cpp">
+      <Filter>protocol\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\message.cpp">
+      <Filter>protocol\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\resource.cpp">
+      <Filter>protocol\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\pixeltransfer.cpp">
+      <Filter>protocol\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -39,6 +57,21 @@
     </ClInclude>
     <ClInclude Include="serializer-fwd.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\anyvalue.h">
+      <Filter>protocol\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\entrypoint.h">
+      <Filter>protocol\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\message.h">
+      <Filter>protocol\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\resource.h">
+      <Filter>protocol\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\pixeltransfer.h">
+      <Filter>protocol\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -22,8 +22,8 @@
 #include <QSocketNotifier>
 #include <QtGui>
 
-#include "DGLNet/client.h"
-#include "DGLCommon/dglconfiguration.h"
+#include <DGLNet/client.h>
+#include <DGLNet/protocol/dglconfiguration.h>
 #include <boost/make_shared.hpp>
 
 class DGLResourceManager;

@@ -17,12 +17,12 @@
 #ifndef GL_STATE_H
 #define GL_STATE_H
 
-#include <DGLCommon/gl-types.h>
-#include <DGLNet/message.h>
-
 #include <map>
 #include <queue>
 #include <boost/shared_ptr.hpp>
+
+#include <DGLCommon/gl-types.h>
+#include <DGLNet/protocol/message.h>
 
 class DGLDisplayState;
 

@@ -14,7 +14,7 @@
 */
 
 
-#include "gl-resource.h"
+#include "resource.h"
 #include <DGLCommon/gl-types.h>
 
 DGLResourceFBO::FBOAttachment::FBOAttachment(gl_t id):m_Ok(true),m_Id(id) {}

@@ -23,7 +23,10 @@
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="client.cpp" />
-    <ClCompile Include="message.cpp" />
+    <ClCompile Include="protocol\entrypoint.cpp" />
+    <ClCompile Include="protocol\message.cpp" />
+    <ClCompile Include="protocol\pixeltransfer.cpp" />
+    <ClCompile Include="protocol\resource.cpp" />
     <ClCompile Include="server.cpp" />
     <ClCompile Include="transport.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
@@ -33,6 +36,11 @@
   <ItemGroup>
     <ClInclude Include="client.h" />
     <ClInclude Include="message.h" />
+    <ClInclude Include="protocol\anyvalue.h" />
+    <ClInclude Include="protocol\entrypoint.h" />
+    <ClInclude Include="protocol\message.h" />
+    <ClInclude Include="protocol\pixeltransfer.h" />
+    <ClInclude Include="protocol\resource.h" />
     <ClInclude Include="serializer-fwd.h" />
     <ClInclude Include="server.h" />
     <ClInclude Include="transport.h" />
@@ -44,9 +52,9 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-    <ImportGroup Condition="'$(Configuration)'=='Debug'" Label="PropertySheets">
+  <ImportGroup Condition="'$(Configuration)'=='Debug'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-	<Import Project="$(SolutionDir)\buildtools\vs\props\debugler.debug.props" />
+    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.debug.props" />
     <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)'=='Release'" Label="PropertySheets">

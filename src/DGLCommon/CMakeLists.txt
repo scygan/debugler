@@ -1,5 +1,4 @@
 set(dglcommon_SOURCES 
-    gl-formats.cpp gl-serialized.cpp gl-resource.cpp
     gl-types.cpp os.cpp 
     )
 

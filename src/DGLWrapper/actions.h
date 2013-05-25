@@ -14,12 +14,14 @@
 */
 
 
-#include <DGLCommon/gl-serialized.h>
+//#include <DGLNet/gl-serialized.h>
 #include <utility>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/tss.hpp>
 #include <vector>
+
+#include <DGLNet/protocol/entrypoint.h>
 
 class ActionBase;
 extern boost::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];

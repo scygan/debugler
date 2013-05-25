@@ -14,9 +14,7 @@
 */
 
 
-#include <DGLNet/server.h>
-
-#include <boost/make_shared.hpp>
+//#include <boost/make_shared.hpp>
 
 #include "gl-wrappers.h"
 #include "debugger.h"
@@ -26,6 +24,9 @@
 #include "tls.h"
 #include "display.h"
 #include "native-surface.h"
+
+#include <DGLNet/server.h>
+#include <DGLCommon/gl-types.h>
 
 boost::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];
 
@@ -123,7 +124,7 @@ RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
 void DefaultAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     getController()->getServer().lock();
 
-	CallHistory& history = getController()->getCallHistory();
+    CallHistory& history = getController()->getCallHistory();
 
     GLenum error;
     if (dglState::GLContext* ctx = gc) {
@@ -140,9 +141,9 @@ void DefaultAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
         }
     }
 
-	if (ret.isSet()) {
-		history.setRetVal(ret);    
-	}
+    if (ret.isSet()) {
+        history.setRetVal(ret);    
+    }
     
     getController()->getServer().unlock();
     

@@ -18,31 +18,13 @@
     <ClInclude Include="gl-types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gl-headers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gl-serialized.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dglconfiguration.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="os.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gl-formats.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="def.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gl-resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gl-anyvalue.h">
+    <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -50,16 +32,7 @@
     <ClCompile Include="gl-types.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gl-serialized.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="os.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gl-formats.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gl-resource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

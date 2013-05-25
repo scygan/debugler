@@ -20,9 +20,9 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 
+#include <DGLNet/protocol/resource.h>
+
 #include "ui_dglpixelrectangleview.h"
-#include "DGLCommon/gl-formats.h"
-#include "DGLCommon/gl-resource.h"
 
 class DGLPixRectQGraphicsView: public QGraphicsView {
     Q_OBJECT

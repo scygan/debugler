@@ -18,10 +18,13 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DGLCommonUT.cpp">
+    <ClCompile Include="LiveTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LiveTests.cpp">
+    <ClCompile Include="DGLNetUT.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DGLCommonUT.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

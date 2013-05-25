@@ -15,7 +15,8 @@
 
 
 #include "dglpixelrectangle.h"
-#include <DGLCommon/gl-resource.h>
+#include "dglblitterbase.h"
+#include <DGLNet/protocol/resource.h>
 
 #include <QGraphicsView>
 #include <QGraphicsPixmapItem>

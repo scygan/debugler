@@ -19,7 +19,8 @@
 #include <DGLNet/server.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/circular_buffer.hpp>
-#include <DGLCommon/dglconfiguration.h>
+
+#include <DGLNet/protocol/dglconfiguration.h>
 #include <DGLCommon/os.h>
 
 #include "gl-state.h"

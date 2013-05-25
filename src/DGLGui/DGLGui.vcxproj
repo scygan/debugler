@@ -259,6 +259,7 @@
     <ClCompile Include="..\external\QHexEdit\qhexedit.cpp" />
     <ClCompile Include="..\external\QHexEdit\qhexedit_p.cpp" />
     <ClCompile Include="..\external\QHexEdit\xbytearray.cpp" />
+    <ClCompile Include="dglblitterbase.cpp" />
     <ClCompile Include="dglbreakpointdialog.cpp" />
     <ClCompile Include="dglbufferview.cpp" />
     <ClCompile Include="dglconnectdialog.cpp" />
@@ -342,6 +343,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dglblitterbase.h" />
     <ClInclude Include="dglprocess.h" />
     <CustomBuild Include="dglsyntaxhighlight.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>

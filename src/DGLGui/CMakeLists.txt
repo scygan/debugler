@@ -9,7 +9,7 @@ set(dglgui_SOURCES
     dglprogramview.cpp dglrundialog.cpp dglshaderview.cpp
     dglstateview.cpp dgltabbedview.cpp dgltextureview.cpp
     dgltraceview.cpp dgltreeview.cpp dglprocess.cpp
-    dglsyntaxhighlight.cpp
+    dglsyntaxhighlight.cpp dglblitterbase.cpp
     )
 
 set(dglgui_HEADERS
@@ -20,6 +20,7 @@ set(dglgui_HEADERS
     dglshaderview.h dglshaderviewitem.h dglstateview.h
     dgltabbedview.h dgltextureview.h dgltraceview.h
     dgltreeview.h dglprocess.h dglsyntaxhighlight.h
+	dglblitterbase.h
     )
 
 set(dglgui_FORMS

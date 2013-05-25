@@ -1,5 +1,5 @@
 set(ut_SOURCES
-    DGLCommonUT.cpp LiveTests.cpp
+    DGLCommonUT.cpp DGLNetUT.cpp LiveTests.cpp
     main.cpp
     )
 

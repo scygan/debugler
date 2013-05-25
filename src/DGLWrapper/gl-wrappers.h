@@ -13,5 +13,6 @@
 * limitations under the License.
 */
 
+#include <DGLCommon/gl-types.h>
 
 void* getWrapperPointer(Entrypoint entryp);

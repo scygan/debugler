@@ -18,9 +18,9 @@
 #define _MESSAGE_H
 
 #include <DGLCommon/gl-types.h>
-#include <DGLCommon/gl-resource.h>
-#include <DGLCommon/gl-serialized.h>
-#include <DGLCommon/dglconfiguration.h>
+#include <DGLNet/protocol/entrypoint.h>
+#include <DGLNet/protocol/resource.h>
+#include <DGLNet/protocol/dglconfiguration.h>
 
 #include <DGLNet/serializer-fwd.h>
 #include <set>

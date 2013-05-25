@@ -248,6 +248,9 @@
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglsyntaxhighlight.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="dglblitterbase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">
@@ -406,6 +409,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dglprocess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dglblitterbase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

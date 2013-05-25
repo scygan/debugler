@@ -1,6 +1,7 @@
 set(dglnet_SOURCES 
-    client.cpp message.cpp
-    server.cpp transport.cpp
+    client.cpp server.cpp transport.cpp
+	protocol/message.cpp protocol/entrypoint.cpp protocol/resource.cpp
+	protocol/pixeltransfer.cpp
     )
 
 add_library(dglnet

@@ -14,13 +14,16 @@
 */
 
 
-#ifndef GL_SERIALIZED_H
-#define GL_SERIALIZED_H
+#ifndef ENTRYPOINT_H
+#define ENTRYPOINT_H
 
-#include <DGLCommon/gl-anyvalue.h>
+#include <DGLNet/protocol/anyvalue.h>
 
 #include <vector>
 
+/**
+ *  Class holding return value for entrypoint
+ */
 class RetValue: public AnyValue {
 public: 
     RetValue():m_isSet(false) {}
@@ -41,6 +44,9 @@ private:
     bool m_isSet;
 };
 
+/**
+ *  Class holding called entrypoint: entrypoint, parameters and return value
+ */
 class CalledEntryPoint {
     friend class boost::serialization::access;
 
@@ -80,4 +86,4 @@ private:
     int m_SavedArgsCount;
 };
 
-#endif
+#endif //ENTRYPOINT_H

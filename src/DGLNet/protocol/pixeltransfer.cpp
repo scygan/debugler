@@ -14,7 +14,7 @@
 */
 
 
-#include "gl-formats.h"
+#include "pixeltransfer.h"
 
 #include <stdexcept>
 #include <cassert>
@@ -23,238 +23,240 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
 namespace blt {
 
-inline void blitUNORM8(const void* inVoid, int components, float* out) {
-    const uint8_t* inCast = reinterpret_cast<const uint8_t*>(inVoid);
+    inline void blitUNORM8(const void* inVoid, int components, float* out) {
+        const uint8_t* inCast = reinterpret_cast<const uint8_t*>(inVoid);
         out[0] = inCast[0] / 255.f;
-    if (components > 1)    
-        out[1] = inCast[1] / 255.f;
-    if (components > 2)    
-        out[2] = inCast[2] / 255.f;
-    if (components > 3)    
-        out[3] = inCast[3] / 255.f;
-}
-inline void blitSNORM8(const void* inVoid, int components, float* out) {
-    const int8_t* inCast = reinterpret_cast<const int8_t*>(inVoid);
-    out[0] = MAX(inCast[0] / 127.f, -1.0f);
-    if (components > 1)    
-        out[1] = MAX(inCast[1] / 127.f, -1.0f);
-    if (components > 2)    
-        out[2] = MAX(inCast[2] / 127.f, -1.0f);
-    if (components > 3)    
-        out[3] = MAX(inCast[3] / 127.f, -1.0f);
-}
+        if (components > 1)    
+            out[1] = inCast[1] / 255.f;
+        if (components > 2)    
+            out[2] = inCast[2] / 255.f;
+        if (components > 3)    
+            out[3] = inCast[3] / 255.f;
+    }
+    inline void blitSNORM8(const void* inVoid, int components, float* out) {
+        const int8_t* inCast = reinterpret_cast<const int8_t*>(inVoid);
+        out[0] = MAX(inCast[0] / 127.f, -1.0f);
+        if (components > 1)    
+            out[1] = MAX(inCast[1] / 127.f, -1.0f);
+        if (components > 2)    
+            out[2] = MAX(inCast[2] / 127.f, -1.0f);
+        if (components > 3)    
+            out[3] = MAX(inCast[3] / 127.f, -1.0f);
+    }
 
-inline void blitUNORM16(const void* inVoid, int components, float* out) {
-    const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
-    out[0] = inCast[0] / 65535.f;
-    if (components > 1)    
-        out[1] = inCast[1] / 65535.f;
-    if (components > 2)    
-        out[2] = inCast[2] / 65535.f;
-    if (components > 3)    
-        out[3] = inCast[3] / 65535.f;
-}
-inline void blitSNORM16(const void* inVoid, int components, float* out) {
-    const int16_t* inCast = reinterpret_cast<const int16_t*>(inVoid);
-    out[0] = MAX(inCast[0] / 32767.f, -1.0f);
-    if (components > 1)    
-        out[1] = MAX(inCast[1] / 32767.f, -1.0f);
-    if (components > 2)    
-        out[2] = MAX(inCast[2] / 32767.f, -1.0f);
-    if (components > 3)    
-        out[3] = MAX(inCast[3] / 32767.f, -1.0f);
-}
+    inline void blitUNORM16(const void* inVoid, int components, float* out) {
+        const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
+        out[0] = inCast[0] / 65535.f;
+        if (components > 1)    
+            out[1] = inCast[1] / 65535.f;
+        if (components > 2)    
+            out[2] = inCast[2] / 65535.f;
+        if (components > 3)    
+            out[3] = inCast[3] / 65535.f;
+    }
+    inline void blitSNORM16(const void* inVoid, int components, float* out) {
+        const int16_t* inCast = reinterpret_cast<const int16_t*>(inVoid);
+        out[0] = MAX(inCast[0] / 32767.f, -1.0f);
+        if (components > 1)    
+            out[1] = MAX(inCast[1] / 32767.f, -1.0f);
+        if (components > 2)    
+            out[2] = MAX(inCast[2] / 32767.f, -1.0f);
+        if (components > 3)    
+            out[3] = MAX(inCast[3] / 32767.f, -1.0f);
+    }
 
-inline void blitUNORM32(const void* inVoid, int components, float* out) {
-    const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
-    out[0] = inCast[0] / 4294967295.f;
-    if (components > 1)    
-        out[1] = inCast[1] / 4294967295.f;
-    if (components > 2)    
-        out[2] = inCast[2] / 4294967295.f;
-    if (components > 3)    
-        out[3] = inCast[3] / 4294967295.f;
-}
-inline void blitSNORM32(const void* inVoid, int components, float* out) {
-    const int32_t* inCast = reinterpret_cast<const int32_t*>(inVoid);
-    out[0] = MAX(inCast[0] / 2147483647.f, -1.0f);
-    if (components > 1)    
-        out[1] = MAX(inCast[1] / 2147483647.f, -1.0f);
-    if (components > 2)    
-        out[2] = MAX(inCast[2] / 2147483647.f, -1.0f);
-    if (components > 3)    
-        out[3] = MAX(inCast[3] / 2147483647.f, -1.0f);
-}
-inline void blitFLOAT32(const void* inVoid, int components, float* out) {
-    const float* inCast = reinterpret_cast<const float*>(inVoid);
-    out[0] = inCast[0];
-    if (components > 1)    
-        out[1] = inCast[1];
-    if (components > 2)    
-        out[2] = inCast[2];
-    if (components > 3)    
-        out[3] = inCast[3];
-}
+    inline void blitUNORM32(const void* inVoid, int components, float* out) {
+        const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
+        out[0] = inCast[0] / 4294967295.f;
+        if (components > 1)    
+            out[1] = inCast[1] / 4294967295.f;
+        if (components > 2)    
+            out[2] = inCast[2] / 4294967295.f;
+        if (components > 3)    
+            out[3] = inCast[3] / 4294967295.f;
+    }
+    inline void blitSNORM32(const void* inVoid, int components, float* out) {
+        const int32_t* inCast = reinterpret_cast<const int32_t*>(inVoid);
+        out[0] = MAX(inCast[0] / 2147483647.f, -1.0f);
+        if (components > 1)    
+            out[1] = MAX(inCast[1] / 2147483647.f, -1.0f);
+        if (components > 2)    
+            out[2] = MAX(inCast[2] / 2147483647.f, -1.0f);
+        if (components > 3)    
+            out[3] = MAX(inCast[3] / 2147483647.f, -1.0f);
+    }
+    inline void blitFLOAT32(const void* inVoid, int components, float* out) {
+        const float* inCast = reinterpret_cast<const float*>(inVoid);
+        out[0] = inCast[0];
+        if (components > 1)    
+            out[1] = inCast[1];
+        if (components > 2)    
+            out[2] = inCast[2];
+        if (components > 3)    
+            out[3] = inCast[3];
+    }
 
-inline void blitUNORM4444(const void* inVoid, int components, float* out) {
-    const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
-    out[3] = (inCast[0]  & 0x0f) / float(0x0f);
-    out[2] = ((inCast[0]  & (0x0f << 4)) >> 4) / float(0x0f);
-    out[1] = ((inCast[0]  & (0x0f << 8)) >> 8) / float(0x0f);
-    out[0] = ((inCast[0]  & (0x0f << 12)) >> 12) / float(0x0f);
-}
+    inline void blitUNORM4444(const void* inVoid, int components, float* out) {
+        const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
+        out[3] = (inCast[0]  & 0x0f) / float(0x0f);
+        out[2] = ((inCast[0]  & (0x0f << 4)) >> 4) / float(0x0f);
+        out[1] = ((inCast[0]  & (0x0f << 8)) >> 8) / float(0x0f);
+        out[0] = ((inCast[0]  & (0x0f << 12)) >> 12) / float(0x0f);
+    }
 
-inline void blitUNORM5551(const void* inVoid, int components, float* out) {
-    const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
-    out[3] = static_cast<float>(inCast[0]  & 0x01);
-    out[2] = ((inCast[0]  & (0x1f << 1)) >> 1) / float(0x1f);
-    out[1] = ((inCast[0]  & (0x1f << 6)) >> 6) / float(0x1f);
-    out[0] = ((inCast[0]  & (0x1f << 11)) >> 11) / float(0x1f);
-}
+    inline void blitUNORM5551(const void* inVoid, int components, float* out) {
+        const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
+        out[3] = static_cast<float>(inCast[0]  & 0x01);
+        out[2] = ((inCast[0]  & (0x1f << 1)) >> 1) / float(0x1f);
+        out[1] = ((inCast[0]  & (0x1f << 6)) >> 6) / float(0x1f);
+        out[0] = ((inCast[0]  & (0x1f << 11)) >> 11) / float(0x1f);
+    }
 
-inline void blitUNORM2101010_REV(const void* inVoid, int components, float* out) {
-    const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
-    out[0] = (inCast[0]  & 0x3ff) / float(0x3ff);
-    out[1] = ((inCast[0]  & (0x3ff << 10)) >> 10) / float(0x3ff);
-    out[2] = ((inCast[0]  & (0x3ff << 20)) >> 20) / float(0x3ff);
-    out[3] = ((inCast[0]  & (0x3   << 30)) >> 30) / float(0x3);
-}
+    inline void blitUNORM2101010_REV(const void* inVoid, int components, float* out) {
+        const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
+        out[0] = (inCast[0]  & 0x3ff) / float(0x3ff);
+        out[1] = ((inCast[0]  & (0x3ff << 10)) >> 10) / float(0x3ff);
+        out[2] = ((inCast[0]  & (0x3ff << 20)) >> 20) / float(0x3ff);
+        out[3] = ((inCast[0]  & (0x3   << 30)) >> 30) / float(0x3);
+    }
 
-inline void blitUNORM565(const void* inVoid, int components, float* out) {
-    const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
-    out[2] = (inCast[0]  & 0x1f) / float(0x1f);
-    out[1] = ((inCast[0]  & (0x3f << 5)) >> 5) / float(0x3f);
-    out[0] = ((inCast[0]  & (0x1f << 11)) >> 11) / float(0x1f);
-}
+    inline void blitUNORM565(const void* inVoid, int components, float* out) {
+        const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
+        out[2] = (inCast[0]  & 0x1f) / float(0x1f);
+        out[1] = ((inCast[0]  & (0x3f << 5)) >> 5) / float(0x3f);
+        out[0] = ((inCast[0]  & (0x1f << 11)) >> 11) / float(0x1f);
+    }
 
-inline void blitUNORM24_8(const void* inVoid, int components, float* out) {
-    const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
-    out[1] = (inCast[0]  & 0xff) / float(0xff);
-    out[0] = ((inCast[0]  & (0xffffff << 8)) >> 8) / float(0xffffff);
-}
+    inline void blitUNORM24_8(const void* inVoid, int components, float* out) {
+        const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
+        out[1] = (inCast[0]  & 0xff) / float(0xff);
+        out[0] = ((inCast[0]  & (0xffffff << 8)) >> 8) / float(0xffffff);
+    }
 
-inline void blitF32_UNORM24_8(const void* inVoid, int components, float* out) {
-    const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
-    out[1] = (inCast[1]  & 0xff) / float(0xff);
-    out[0] = *reinterpret_cast<const float*>(&inCast[0]);
-}
+    inline void blitF32_UNORM24_8(const void* inVoid, int components, float* out) {
+        const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
+        out[1] = (inCast[1]  & 0xff) / float(0xff);
+        out[0] = *reinterpret_cast<const float*>(&inCast[0]);
+    }
 
-inline void blitUNORM332(const void* inVoid, int components, float* out) {
-    const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
-    out[2] = (inCast[0]  & 0x3) / float(0x3);
-    out[1] = ((inCast[0]  & (0x7 << 2)) >> 2) / float(0x7);
-    out[0] = ((inCast[0]  & (0x7 << 5)) >> 5) / float(0x7);
-}
+    inline void blitUNORM332(const void* inVoid, int components, float* out) {
+        const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
+        out[2] = (inCast[0]  & 0x3) / float(0x3);
+        out[1] = ((inCast[0]  & (0x7 << 2)) >> 2) / float(0x7);
+        out[0] = ((inCast[0]  & (0x7 << 5)) >> 5) / float(0x7);
+    }
 
-template<void(*blitConversion)(const void*, int, float*)>
-static void blitFunc(DGLBlitterBase::OutputFormat outFormat, int width, int height, const void * src, void* dst, int srcStride, int dstStride, int srcPixelSize, int dstPixelSize, int srcComponents, std::pair<float, float>* scaleBias) {
-    for (int y = 0; y < height; y++) {            
-        const unsigned char* srcPtr = (const unsigned char*)src + y * srcStride;
-        unsigned char* dstPtr = (unsigned char*)dst + y * dstStride;
-        for (int x = 0; x < width; x++) {         
-            float temp[4] = { 0., 0., 0., 1.};
+    template<void(*blitConversion)(const void*, int, float*)>
+    static void blitFunc(const int* outputOffsets, int width, int height, const void * src, void* dst, int srcStride, int dstStride, int srcPixelSize, int dstPixelSize, int srcComponents, std::pair<float, float>* scaleBias) {
+        for (int y = 0; y < height; y++) {            
+            const unsigned char* srcPtr = (const unsigned char*)src + y * srcStride;
+            unsigned char* dstPtr = (unsigned char*)dst + y * dstStride;
+            for (int x = 0; x < width; x++) {         
+                float temp[4] = { 0., 0., 0., 1.};
 
-            blitConversion(srcPtr, srcComponents, temp);
+                blitConversion(srcPtr, srcComponents, temp);
 
-            int out;
+                int out;
 
-            if ((out = DGLBlitterBase::outputOffsets[outFormat][0]) >= 0)
-                dstPtr[out] = static_cast<unsigned char>(MAX(MIN(temp[0] * scaleBias[out].first + scaleBias[out].second, 1.0f), 0.0f) * 255.0f);
+                if ((out = outputOffsets[0]) >= 0)
+                    dstPtr[out] = static_cast<unsigned char>(MAX(MIN(temp[0] * scaleBias[out].first + scaleBias[out].second, 1.0f), 0.0f) * 255.0f);
 
-            if ((out = DGLBlitterBase::outputOffsets[outFormat][1]) >= 0)
-                dstPtr[out] = static_cast<unsigned char>(MAX(MIN(temp[1] * scaleBias[out].first + scaleBias[out].second, 1.0f), 0.0f) * 255.0f);
+                if ((out = outputOffsets[1]) >= 0)
+                    dstPtr[out] = static_cast<unsigned char>(MAX(MIN(temp[1] * scaleBias[out].first + scaleBias[out].second, 1.0f), 0.0f) * 255.0f);
 
-            if ((out = DGLBlitterBase::outputOffsets[outFormat][2]) >= 0)
-                dstPtr[out] = static_cast<unsigned char>(MAX(MIN(temp[2] * scaleBias[out].first + scaleBias[out].second, 1.0f), 0.0f) * 255.0f);
+                if ((out = outputOffsets[2]) >= 0)
+                    dstPtr[out] = static_cast<unsigned char>(MAX(MIN(temp[2] * scaleBias[out].first + scaleBias[out].second, 1.0f), 0.0f) * 255.0f);
 
-            if ((out = DGLBlitterBase::outputOffsets[outFormat][3]) >= 0)
-                dstPtr[out] = static_cast<unsigned char>(MAX(MIN(temp[3] * scaleBias[out].first + scaleBias[out].second, 1.0f), 0.0f) * 255.0f);
+                if ((out = outputOffsets[3]) >= 0)
+                    dstPtr[out] = static_cast<unsigned char>(MAX(MIN(temp[3] * scaleBias[out].first + scaleBias[out].second, 1.0f), 0.0f) * 255.0f);
 
-            dstPtr += dstPixelSize;               
-            srcPtr += srcPixelSize;               
-        }                                         
-    }                                             
-}      
-
+                dstPtr += dstPixelSize;               
+                srcPtr += srcPixelSize;               
+            }                                         
+        }                                             
+    }      
 } //namespace blt 
 
 namespace extract {
 
-template<typename T>
-std::vector<AnyValue> extract(const void* inVoid, int channels) {
-    const T* inCast = reinterpret_cast<const T*>(inVoid);
-    std::vector<AnyValue> ret;
-    for (int i = 0; i < channels; i++) {
-        ret.push_back(inCast[i]);
+    template<typename T>
+    std::vector<AnyValue> extract(const void* inVoid, int channels) {
+        const T* inCast = reinterpret_cast<const T*>(inVoid);
+        std::vector<AnyValue> ret;
+        for (int i = 0; i < channels; i++) {
+            ret.push_back(inCast[i]);
+        }
+        return ret;
     }
-    return ret;
-}
 
-std::vector<AnyValue> extractUNORM4444(const void* inVoid, int components) {
-    std::vector<AnyValue> ret(4);
-    const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
-    ret[3] = inCast[0]  & 0x0f;
-    ret[2] = (inCast[0]  & (0x0f << 4)) >> 4;
-    ret[1] = (inCast[0]  & (0x0f << 8)) >> 8;
-    ret[0] = (inCast[0]  & (0x0f << 12)) >> 12;
-    return ret;
-}
+    std::vector<AnyValue> extractUNORM4444(const void* inVoid, int components) {
+        std::vector<AnyValue> ret(4);
+        const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
+        ret[3] = inCast[0]  & 0x0f;
+        ret[2] = (inCast[0]  & (0x0f << 4)) >> 4;
+        ret[1] = (inCast[0]  & (0x0f << 8)) >> 8;
+        ret[0] = (inCast[0]  & (0x0f << 12)) >> 12;
+        return ret;
+    }
 
-std::vector<AnyValue> extractUNORM5551(const void* inVoid, int components) {
-    std::vector<AnyValue> ret(4);
-    const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
-    ret[3] = static_cast<float>(inCast[0]  & 0x01);
-    ret[2] = (inCast[0]  & (0x1f << 1)) >> 1;
-    ret[1] = (inCast[0]  & (0x1f << 6)) >> 6;
-    ret[0] = (inCast[0]  & (0x1f << 11)) >> 11;
-    return ret;
-}
+    std::vector<AnyValue> extractUNORM5551(const void* inVoid, int components) {
+        std::vector<AnyValue> ret(4);
+        const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
+        ret[3] = static_cast<float>(inCast[0]  & 0x01);
+        ret[2] = (inCast[0]  & (0x1f << 1)) >> 1;
+        ret[1] = (inCast[0]  & (0x1f << 6)) >> 6;
+        ret[0] = (inCast[0]  & (0x1f << 11)) >> 11;
+        return ret;
+    }
 
-std::vector<AnyValue> extractUNORM2101010_REV(const void* inVoid, int components) {
-    std::vector<AnyValue> ret(4);
-    const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
-    ret[0] = inCast[0]  & 0x3ff;
-    ret[1] = (inCast[0]  & (0x3ff << 10)) >> 10;
-    ret[2] = (inCast[0]  & (0x3ff << 20)) >> 20;
-    ret[3] = (inCast[0]  & (0x3   << 30)) >> 30;
-    return ret;
-}
+    std::vector<AnyValue> extractUNORM2101010_REV(const void* inVoid, int components) {
+        std::vector<AnyValue> ret(4);
+        const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
+        ret[0] = inCast[0]  & 0x3ff;
+        ret[1] = (inCast[0]  & (0x3ff << 10)) >> 10;
+        ret[2] = (inCast[0]  & (0x3ff << 20)) >> 20;
+        ret[3] = (inCast[0]  & (0x3   << 30)) >> 30;
+        return ret;
+    }
 
-std::vector<AnyValue> extractUNORM565(const void* inVoid, int components) {
-    std::vector<AnyValue> ret(3);
-    const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
-    ret[2] = inCast[0]  & 0x1f;
-    ret[1] = (inCast[0]  & (0x3f << 5)) >> 5;
-    ret[0] = (inCast[0]  & (0x1f << 11)) >> 11;
-    return ret;
-}
+    std::vector<AnyValue> extractUNORM565(const void* inVoid, int components) {
+        std::vector<AnyValue> ret(3);
+        const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
+        ret[2] = inCast[0]  & 0x1f;
+        ret[1] = (inCast[0]  & (0x3f << 5)) >> 5;
+        ret[0] = (inCast[0]  & (0x1f << 11)) >> 11;
+        return ret;
+    }
 
-std::vector<AnyValue> extractUNORM24_8(const void* inVoid, int components) {
-    std::vector<AnyValue> ret(2);
-    const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
-    ret[1] = inCast[0]  & 0xff;
-    ret[0] = (inCast[0]  & (0xffffff << 8)) >> 8;
-    return ret;
-}
+    std::vector<AnyValue> extractUNORM24_8(const void* inVoid, int components) {
+        std::vector<AnyValue> ret(2);
+        const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
+        ret[1] = inCast[0]  & 0xff;
+        ret[0] = (inCast[0]  & (0xffffff << 8)) >> 8;
+        return ret;
+    }
 
-std::vector<AnyValue> extractF32_UNORM24_8(const void* inVoid, int components) {
-    std::vector<AnyValue> ret(2);
-    const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
-    ret[1] = inCast[1]  & 0xff;
-    ret[0] = *reinterpret_cast<const float*>(&inCast[0]);
-    return ret;
-}
+    std::vector<AnyValue> extractF32_UNORM24_8(const void* inVoid, int components) {
+        std::vector<AnyValue> ret(2);
+        const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
+        ret[1] = inCast[1]  & 0xff;
+        ret[0] = *reinterpret_cast<const float*>(&inCast[0]);
+        return ret;
+    }
 
-std::vector<AnyValue> extractUNORM332(const void* inVoid, int components) {
-    std::vector<AnyValue> ret(3);
-    const uint8_t* inCast = reinterpret_cast<const uint8_t*>(inVoid);
-    ret[2] = inCast[0]  & 0x3;
-    ret[1] = (inCast[0]  & (0x7 << 2)) >> 2;
-    ret[0] = (inCast[0]  & (0x7 << 5)) >> 5;
-    return ret;
-}
+    std::vector<AnyValue> extractUNORM332(const void* inVoid, int components) {
+        std::vector<AnyValue> ret(3);
+        const uint8_t* inCast = reinterpret_cast<const uint8_t*>(inVoid);
+        ret[2] = inCast[0]  & 0x3;
+        ret[1] = (inCast[0]  & (0x7 << 2)) >> 2;
+        ret[0] = (inCast[0]  & (0x7 << 5)) >> 5;
+        return ret;
+    }
 
 } //namespace extract
 
@@ -336,7 +338,7 @@ struct GLInternalFormat g_InternalFormats[] = {
     { GL_RGB8I,          GL_RGB_INTEGER,  GL_BYTE                                  },
     { GL_RGB16UI,        GL_RGB_INTEGER,  GL_UNSIGNED_SHORT                        },
     { GL_RGB16I,         GL_RGB_INTEGER,  GL_SHORT                                 },
-                                                                                  
+
     { GL_RGB32UI,        GL_RGB_INTEGER, GL_UNSIGNED_INT                           },       
     { GL_RGB32I,         GL_RGB_INTEGER, GL_INT                                    },        
     { GL_RG8,            GL_RG,          GL_UNSIGNED_BYTE                          },                    
@@ -406,7 +408,7 @@ struct GLInternalFormat g_InternalFormats[] = {
     { GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT                    },
 
     { GL_ALPHA,            GL_ALPHA,            GL_UNSIGNED_BYTE                   },
-    
+
     //Cannot reliably support this. fallback to floats or ubytes...
     { GL_ALPHA4,           GL_ALPHA,            GL_FLOAT                           },
     { GL_ALPHA8,           GL_ALPHA,            GL_UNSIGNED_BYTE                   },
@@ -468,8 +470,6 @@ GLDataType* GLFormats::getDataType(GLenum dataType) {
     }
     return NULL;
 }
-
-
 
 DGLPixelTransfer::DGLPixelTransfer(std::vector<GLint> _rgbaSizes, std::vector<GLint> _depthStencilSizes, GLenum internalFormat):m_DataFormat(NULL),m_DataType(NULL) {
 
@@ -575,134 +575,3 @@ unsigned int DGLPixelTransfer::getPixelSize() {
         }
     }
 }
-
-DGLBlitterBase::DGLBlitterBase() {
-    for (size_t i = 0; i < sizeof(m_ChannelScaleBiases)/sizeof(m_ChannelScaleBiases[0]); i++) {
-        m_ChannelScaleBiases[i] = std::pair<float, float>(1.0f, 0.0f);
-    }
-}
-
-void DGLBlitterBase::blit(unsigned int width, unsigned int height, unsigned int rowBytes, GLenum format, GLenum type, const void* data) {
-
-    m_SrcStride = rowBytes;
-    m_Width = width;
-    m_Height = height;
-    m_DataFormat = GLFormats::getDataFormat(format);
-    m_DataType = GLFormats::getDataType(type);
-
-    if (!m_DataFormat || !m_DataType) {
-        throw std::runtime_error("Got image of unknown type and format. It may be debugger bug");
-    }
-
-    m_SrcData = data;
-
-    doBlit();
-}
-
-void  DGLBlitterBase::setChannelScale(Channel channel, float scale, float bias) {
-    m_ChannelScaleBiases[channel] = std::pair<float, float>(scale, bias);
-    if (m_DataFormat && m_DataType) {
-        doBlit();
-    }
-}
-
-void DGLBlitterBase::doBlit() {
-    
-    OutputFormat outputFormat = _GL_RGBX32;
-    std::pair<float, float> channelSBs[4] = {
-        std::pair<float, float>(1.0f, 0.0f),
-        std::pair<float, float>(1.0f, 0.0f),
-        std::pair<float, float>(1.0f, 0.0f),
-        std::pair<float, float>(1.0f, 0.0f)
-    };
-
-    switch (m_DataFormat->format) {
-        case GL_RED:
-        case GL_RG:       
-        case GL_RGB:
-        case GL_RED_INTEGER:
-        case GL_RG_INTEGER:
-        case GL_RGB_INTEGER:
-            outputFormat = _GL_RGBX32;
-            channelSBs[0] = m_ChannelScaleBiases[CHANNEL_R];
-            channelSBs[1] = m_ChannelScaleBiases[CHANNEL_G];
-            channelSBs[2] = m_ChannelScaleBiases[CHANNEL_B];
-            break;
-        case GL_RGBA:
-        case GL_RGBA_INTEGER:
-            outputFormat = _GL_BGRA32;
-            channelSBs[0] = m_ChannelScaleBiases[CHANNEL_B];
-            channelSBs[1] = m_ChannelScaleBiases[CHANNEL_G];
-            channelSBs[2] = m_ChannelScaleBiases[CHANNEL_R];
-            channelSBs[3] = m_ChannelScaleBiases[CHANNEL_A];
-            break;
-        case GL_DEPTH_COMPONENT:
-            outputFormat = _GL_MONO8;
-            channelSBs[0] = m_ChannelScaleBiases[CHANNEL_D];
-            break;
-        case GL_STENCIL_INDEX:
-            channelSBs[0] = m_ChannelScaleBiases[CHANNEL_S];
-            outputFormat = _GL_MONO8;
-            break;
-        case GL_ALPHA:
-            channelSBs[0] = m_ChannelScaleBiases[CHANNEL_A];
-            outputFormat = _GL_MONO8;
-            break;
-        case GL_LUMINANCE:
-            outputFormat = _GL_MONO8; break;
-        case GL_DEPTH_STENCIL:
-            outputFormat = _GL_RGBX32;
-            channelSBs[0] = m_ChannelScaleBiases[CHANNEL_D];
-            channelSBs[1] = m_ChannelScaleBiases[CHANNEL_S];
-            break;
-        case GL_LUMINANCE_ALPHA:
-            outputFormat = _GL_RGBX32; break;
-        default:
-        assert(0);
-    }
-    
-    int srcPixelSize = 0;
-    if (m_DataType->packed) {
-        srcPixelSize = m_DataType->byteSize;
-    } else {
-        srcPixelSize =  m_DataFormat->components * m_DataType->byteSize;
-    }  
-
-    int dstPixelSize = 0;
-    for (int i = 0; i < 4; i++) {
-        if (outputOffsets[outputFormat][i] >= 0)
-            dstPixelSize ++;
-    }
-
-    int targetRowBytes = (m_Width * dstPixelSize + 4 - 1) & (-4);
-    if (outputData.size() < size_t(targetRowBytes * m_Height))
-        outputData = std::vector<char>(targetRowBytes * m_Height);
-
-    m_DataType->blitFunc(outputFormat, m_Width, m_Height, m_SrcData, &outputData[0], m_SrcStride, targetRowBytes, srcPixelSize, dstPixelSize, m_DataFormat->components, channelSBs);
-
-    sink(m_Width, m_Height, outputFormat, &outputData[0]);
-}
-
-std::vector<AnyValue> DGLBlitterBase::describePixel(unsigned int x, unsigned int y) {
-
-    if (!m_SrcStride || !m_DataType || !m_DataFormat || x > m_Width || y > m_Height) {
-        return std::vector<AnyValue>();
-    }
-
-    int srcPixelSize = 0;
-    if (m_DataType->packed) {
-        srcPixelSize = m_DataType->byteSize;
-    } else {
-        srcPixelSize =  m_DataFormat->components * m_DataType->byteSize;
-    }  
-
-    const void* pixPtr = &reinterpret_cast<const unsigned char*>(m_SrcData)[y * m_SrcStride + x * srcPixelSize];
-
-    return m_DataType->extractor(pixPtr, m_DataFormat->components);
-}
-
-const int DGLBlitterBase::outputOffsets[3][4] = {
-    {2, 1, 0, 3},
-    {0, 1, 2, -1},
-    {0, -1, -1, -1}
-};

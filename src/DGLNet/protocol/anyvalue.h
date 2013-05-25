@@ -14,8 +14,8 @@
 */
 
 
-#ifndef GL_ANYVALUE_H
-#define GL_ANYVALUE_H
+#ifndef ANYVALUE_H
+#define ANYVALUE_H
 
 #include <boost/variant.hpp>
 #include <boost/variant/get.hpp>
@@ -101,4 +101,4 @@ private:
         PtrWrap<void*>, PtrWrap<const void*>, GLenumWrap> m_value;
 };
 
-#endif //GL_ANYVALUE_H
+#endif //ANYVALUE_H
