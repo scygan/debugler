@@ -208,7 +208,7 @@ void DGLShaderView::showShader(uint ctx, uint name, uint target) {
 }
 
 DGLTabbedViewItem* DGLShaderView::createTab(const ContextObjectName& id) {
-    return new DGLShaderViewItem(id, m_ResourceManager, this);
+    return new DGLShaderViewItem(id, m_Controller->getResourceManager(), this);
 }
 
 QString DGLShaderView::getTabName(uint id, uint target) {

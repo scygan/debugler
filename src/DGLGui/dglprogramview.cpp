@@ -121,7 +121,7 @@ void DGLProgramView::showProgram(uint ctx, uint name) {
 }
 
 DGLTabbedViewItem* DGLProgramView::createTab(const ContextObjectName& id) {
-    return new DGLProgramViewItem(id, m_ResourceManager, this);
+    return new DGLProgramViewItem(id, m_Controller->getResourceManager(), this);
 }
 
 QString DGLProgramView::getTabName(uint id, uint target) {

@@ -79,7 +79,7 @@ void DGLFBOView::showFBO(uint ctx, uint bufferEnum) {
 }
 
 DGLTabbedViewItem* DGLFBOView::createTab(const ContextObjectName& id) {
-    return new DGLFBOViewItem(id, m_ResourceManager, this);
+    return new DGLFBOViewItem(id, m_Controller->getResourceManager(), this);
 }
 
 QString DGLFBOView::getTabName(uint id, uint target) {

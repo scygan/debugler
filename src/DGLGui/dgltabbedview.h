@@ -53,8 +53,6 @@ protected:
     DGLTabbedViewItem* getTab(const ContextObjectName& id);
     void setupNames(const char* title, const char* objName);
 
-    DGLResourceManager* m_ResourceManager;
-
     DglController* m_Controller;
 private: 
     virtual DGLTabbedViewItem* createTab(const ContextObjectName& id) = 0;

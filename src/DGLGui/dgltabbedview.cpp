@@ -34,8 +34,6 @@ DGLTabbedView::DGLTabbedView(QWidget* parrent, DglController* controller):QDockW
 
     //internal
     CONNASSERT(connect(&m_TabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(closeTab(int))));
-
-    m_ResourceManager = controller->getResourceManager();
 }
 
 

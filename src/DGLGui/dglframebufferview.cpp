@@ -55,7 +55,7 @@ void DGLFramebufferView::showFramebuffer(uint ctx, uint bufferEnum) {
 }
 
 DGLTabbedViewItem* DGLFramebufferView::createTab(const ContextObjectName& id) {
-    return new DGLFramebufferViewItem(id, m_ResourceManager, this);
+    return new DGLFramebufferViewItem(id, m_Controller->getResourceManager(), this);
 }
 
 QString DGLFramebufferView::getTabName(uint id, uint target) {

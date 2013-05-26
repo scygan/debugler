@@ -57,7 +57,7 @@ void DGLBufferView::showBuffer(uint ctx, uint name) {
 }
 
 DGLTabbedViewItem* DGLBufferView::createTab(const ContextObjectName& id) {
-    return new DGLBufferViewItem(id, m_ResourceManager, this);
+    return new DGLBufferViewItem(id, m_Controller->getResourceManager(), this);
 }
 
 QString DGLBufferView::getTabName(uint id, uint target) {
