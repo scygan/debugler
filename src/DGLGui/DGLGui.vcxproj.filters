@@ -251,6 +251,15 @@
     <ClCompile Include="dglblitterbase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglglsleditor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglglsleditor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="dglglsleditor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">
@@ -353,6 +362,9 @@
       <Filter>Resource Files</Filter>
     </CustomBuild>
     <CustomBuild Include="dglsyntaxhighlight.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dglglsleditor.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
