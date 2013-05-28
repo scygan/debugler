@@ -17,46 +17,49 @@
 #include "message.h"
 
 #include <stdexcept>
+#include <boost/serialization/export.hpp> 
+
+#include "request.h"
 
 namespace dglnet {
 
-    void MessageHandler::doHandle(const HelloMessage&) {
+    void MessageHandler::doHandle(const message::Hello&) {
         unsupported();
     }
 
-    void MessageHandler::doHandle(const ConfigurationMessage&) {
+    void MessageHandler::doHandle(const message::Configuration&) {
         unsupported();
     }
 
-    void MessageHandler::doHandle(const BreakedCallMessage&) {
+    void MessageHandler::doHandle(const message::BreakedCall&) {
         unsupported();
     }
 
-    void MessageHandler::doHandle(const ContinueBreakMessage&) {
+    void MessageHandler::doHandle(const message::ContinueBreak&) {
         unsupported();
     }
 
-    void MessageHandler::doHandle(const QueryCallTraceMessage&) {
+    void MessageHandler::doHandle(const message::QueryCallTrace&) {
         unsupported();
     }
 
-    void MessageHandler::doHandle(const CallTraceMessage&) {
+    void MessageHandler::doHandle(const message::CallTrace&) {
         unsupported();
     }
 
-    void MessageHandler::doHandle(const QueryResourceMessage&) {
+    void MessageHandler::doHandle(const message::Request&) {
         unsupported();
     }
 
-    void MessageHandler::doHandle(const ResourceMessage&) {
+    void MessageHandler::doHandle(const message::RequestReply&) {
         unsupported();
     }
 
-    void MessageHandler::doHandle(const SetBreakPointsMessage&) {
+    void MessageHandler::doHandle(const message::SetBreakPoints&) {
         unsupported();
     }
 
-    void MessageHandler::doHandle(const EditShaderSourceMessage&) {
+    void MessageHandler::doHandle(const message::EditShaderSource&) {
         unsupported();
     }
 
@@ -64,35 +67,59 @@ namespace dglnet {
         throw std::runtime_error("Message cannot be handled by current message handler object.");
     }
 
-    bool ContinueBreakMessage::isBreaked() const  {
-        return m_Breaked;
-    }
-
-     std::pair<bool, ContinueBreakMessage::StepMode> ContinueBreakMessage::getStep() const  {
-        return std::pair<bool, StepMode>(m_InStepMode, m_StepMode);
-    }
-
-    StatusMessage::StatusMessage():m_Ok(true) {}
-
-    void StatusMessage::error(std::string msg) {
-        m_ErrorMsg = msg;
-        m_Ok = false;
-    }
-
-    bool StatusMessage::isOk(std::string& error) const {
-        if (!m_Ok) {
-            error = m_ErrorMsg;
+    namespace message {
+        bool ContinueBreak::isBreaked() const  {
+            return m_Breaked;
         }
-        return m_Ok;
+
+        std::pair<bool, ContinueBreak::StepMode> ContinueBreak::getStep() const  {
+            return std::pair<bool, StepMode>(m_InStepMode, m_StepMode);
+        }
+
+        Request::Request() {
+            s_RequestId++;
+            m_RequestId = s_RequestId;
+        }
+
+        Request::Request(DGLRequest* request):m_Request(request) {
+            s_RequestId++;
+            m_RequestId = s_RequestId;
+        }
+
+        int Request::s_RequestId = 0;
+
+        int Request::getId() const {
+            return m_RequestId;
+        }
+
+
+        RequestReply::RequestReply():m_Ok(true) {}
+
+        void RequestReply::error(std::string msg) {
+            m_ErrorMsg = msg;
+            m_Ok = false;
+        }
+
+        bool RequestReply::isOk(std::string& error) const {
+            if (!m_Ok) {
+                error = m_ErrorMsg;
+            }
+            return m_Ok;
+        }
+
+        int RequestReply::getId() const {
+            return m_RequestId;
+        }
+
+
+        SetBreakPoints::SetBreakPoints(const std::set<Entrypoint>& breakpoints):m_BreakPoints(breakpoints) {}
+
+        std::set<Entrypoint> SetBreakPoints::get() const {
+            return m_BreakPoints;
+        }
+
+        EditShaderSource::EditShaderSource(opaque_id_t context, gl_t shaderId, std::string& source):m_Context(context),
+            m_ShaderId(shaderId), m_Source(source) {}
     }
-
-    SetBreakPointsMessage::SetBreakPointsMessage(const std::set<Entrypoint>& breakpoints):m_BreakPoints(breakpoints) {}
-
-    std::set<Entrypoint> SetBreakPointsMessage::get() const {
-        return m_BreakPoints;
-    }
-
-    EditShaderSourceMessage::EditShaderSourceMessage(opaque_id_t context, gl_t shaderId, std::string& source):m_Context(context),
-        m_ShaderId(shaderId), m_Source(source) {}
 
 };

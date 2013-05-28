@@ -41,6 +41,9 @@
     <ClCompile Include="protocol\pixeltransfer.cpp">
       <Filter>protocol\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="protocol\ctxobjname.cpp">
+      <Filter>protocol\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="message.h">
@@ -71,6 +74,12 @@
       <Filter>protocol\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="protocol\pixeltransfer.h">
+      <Filter>protocol\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\request.h">
+      <Filter>protocol\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\ctxobjname.h">
       <Filter>protocol\Header Files</Filter>
     </ClInclude>
   </ItemGroup>

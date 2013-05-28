@@ -24,57 +24,104 @@
 
 #include <DGLNet/client.h>
 #include <DGLNet/protocol/dglconfiguration.h>
+#include <DGLNet/protocol/resource.h>
+#include <DGLNet/protocol/request.h>
 #include <boost/make_shared.hpp>
+
+
+
+class DGLRequestManager;
+
+/**
+ * Class implementing handler for response for single-time request
+ *
+ * Requests are all messages send to debugee, that can emit errors upon receive (so reply is needed).
+ */
+class DGLRequestHandler {
+public:
+    DGLRequestHandler(DGLRequestManager*);
+    virtual void onRequestFinished(const dglnet::message::RequestReply* reply) = 0;
+    virtual ~DGLRequestHandler();
+private:
+    DGLRequestManager* m_Manager;
+};
+
+class DglController;
+
+/**
+ * Class managing and handling all issued and not replied requests
+ */
+class DGLRequestManager {
+public:
+    DGLRequestManager(DglController*);
+    
+    void request(dglnet::DGLRequest* request, DGLRequestHandler*);
+
+    void handle(const dglnet::message::RequestReply& msg);
+
+    void unregisterHandler(DGLRequestHandler*);
+
+private:
+    DglController* m_Controller;
+
+    std::map<int, DGLRequestHandler*> m_CurrentHandlers;
+
+};
+
+
 
 class DGLResourceManager;
 
-class DGLResourceListener: public QObject {
+
+/**
+ * Class implementint a resource listener
+ *
+ * Each listener is associated with one resource to be queried multiple times
+ * Queries are issues automatically by DGLResourceManager on DGLController command.
+ */
+class DGLResourceListener: public QObject, public DGLRequestHandler {
     friend class DGLResourceManager;
 public:
     Q_OBJECT
 
-    DGLResourceListener(uint listenerId, ContextObjectName objectName, DGLResource::ObjectType type, DGLResourceManager* manager);
+    DGLResourceListener(dglnet::ContextObjectName objectName, dglnet::DGLResource::ObjectType type, DGLResourceManager* manager);
 
     ~DGLResourceListener();
 
+    virtual void onRequestFinished(const dglnet::message::RequestReply* msg);
+
 signals:
-    void update(const DGLResource&);
+    void update(const dglnet::DGLResource&);
     void error(const std::string&);
 private:
-    uint m_ListenerId;
     DGLResourceManager* m_Manager;
-    DGLResource::ObjectType m_ObjectType;
-    uint m_RefCount;
-    ContextObjectName m_ObjectName;
+    dglnet::DGLResource::ObjectType m_ObjectType;
+    dglnet::ContextObjectName m_ObjectName;
 };
 
-
-class DglController;
-
+/**
+ * Class managing and handling all listeners
+ *
+ * It's main aim is to emit apropriate queries and return queried data to listeners
+ */
 class DGLResourceManager {
     friend class DGLResourceListener;
 public:
-    DGLResourceManager(DglController*);
-
+    DGLResourceManager(DGLRequestManager*);
 
     void emitQueries();
 
-    void handleResourceMessage(const dglnet::ResourceMessage& msg);
+    DGLResourceListener* createListener(dglnet::ContextObjectName name, dglnet::DGLResource::ObjectType type);
 
-    DGLResourceListener* createListener(ContextObjectName name, DGLResource::ObjectType type);
+    DGLRequestManager* getRequestManager();
 
 private:
-    void registerListener(DGLResourceListener* listener);
-
     void unregisterListener(DGLResourceListener* listener);
 
-    std::multimap<uint, DGLResourceListener*> m_Listeners;
+    std::list<DGLResourceListener*> m_Listeners;
 
-    uint m_MaxListenerId;
-
-    DglController* m_Controller;
+    DGLRequestManager* m_RequestManager;
 };
-
 
 /**
  * Class aggregating currently set bkpoints
@@ -119,7 +166,7 @@ private:
 class DGLViewRouter:public QObject {
     Q_OBJECT
 public:
-    void show(const ContextObjectName& name, DGLResource::ObjectType type);
+    void show(const dglnet::ContextObjectName& name, dglnet::DGLResource::ObjectType type);
 signals:
     void showTexture(uint ctx, uint name);
     void showBuffer(uint ctx, uint name);
@@ -185,10 +232,10 @@ public:
 
 
     //IMessageHandler methods:
-    virtual void doHandle(const dglnet::HelloMessage&);
-    virtual void doHandle(const dglnet::BreakedCallMessage&);
-    virtual void doHandle(const dglnet::CallTraceMessage&);
-    virtual void doHandle(const dglnet::ResourceMessage&);
+    virtual void doHandle(const dglnet::message::Hello&);
+    virtual void doHandle(const dglnet::message::BreakedCall&);
+    virtual void doHandle(const dglnet::message::CallTrace&);
+    virtual void doHandle(const dglnet::message::RequestReply&);
 
     /** 
      * Method called by DGLclient, when disconnection condition is detected
@@ -199,6 +246,11 @@ public:
      * Getter for break point controller object
      */
     DGLBreakPointController* getBreakPoints();
+
+    /**
+     * Getter for request manager controller object
+     */
+    DGLRequestManager* getRequestManager();
 
     /**
      * Getter for resource manager controller object
@@ -251,7 +303,7 @@ signals:
     void setRunning(bool);
 
     void breaked(CalledEntryPoint, uint);
-    void breakedWithStateReports(uint, const std::vector<dglnet::ContextReport>&);
+    void breakedWithStateReports(uint, const std::vector<dglnet::message::BreakedCall::ContextReport>&);
 
     void gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&);
 
@@ -294,6 +346,7 @@ private:
     std::string m_DglClientDeadInfo;
     DGLBreakPointController m_BreakPointController;
     DGLConfiguration m_Config;
+    DGLRequestManager m_RequestManager;
     DGLResourceManager m_ResourceManager;
     DGLViewRouter m_ViewRouter;
 };

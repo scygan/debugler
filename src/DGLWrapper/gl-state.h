@@ -23,6 +23,7 @@
 
 #include <DGLCommon/gl-types.h>
 #include <DGLNet/protocol/message.h>
+#include <DGLNet/protocol/resource.h>
 
 class DGLDisplayState;
 
@@ -158,7 +159,7 @@ public:
     std::map<GLuint, GLShaderObj> m_Shaders;
     std::map<GLuint, GLFBObj> m_FBOs;
 
-    dglnet::ContextReport describe();
+    dglnet::message::BreakedCall::ContextReport describe();
 
     NativeSurfaceBase* getNativeReadSurface();
     void setNativeReadSurface(NativeSurfaceBase*);
@@ -174,14 +175,14 @@ public:
     GLShaderObj* ensureShader(GLuint name, bool fromArbAPI);
     GLShaderObj* findShader(GLuint name);
 
-    boost::shared_ptr<DGLResource> queryTexture(gl_t name);
-    boost::shared_ptr<DGLResource> queryBuffer(gl_t name);
-    boost::shared_ptr<DGLResource> queryFramebuffer(gl_t bufferEnum);
-    boost::shared_ptr<DGLResource> queryFBO(gl_t name);
-    boost::shared_ptr<DGLResource> queryShader(gl_t name);
-    boost::shared_ptr<DGLResource> queryProgram(gl_t name);
-    boost::shared_ptr<DGLResource> queryGPU(gl_t name);
-    boost::shared_ptr<DGLResource> queryState(gl_t name);
+    boost::shared_ptr<dglnet::DGLResource> queryTexture(gl_t name);
+    boost::shared_ptr<dglnet::DGLResource> queryBuffer(gl_t name);
+    boost::shared_ptr<dglnet::DGLResource> queryFramebuffer(gl_t bufferEnum);
+    boost::shared_ptr<dglnet::DGLResource> queryFBO(gl_t name);
+    boost::shared_ptr<dglnet::DGLResource> queryShader(gl_t name);
+    boost::shared_ptr<dglnet::DGLResource> queryProgram(gl_t name);
+    boost::shared_ptr<dglnet::DGLResource> queryGPU(gl_t name);
+    boost::shared_ptr<dglnet::DGLResource> queryState(gl_t name);
 
     /**
      * Shader edit request
@@ -281,32 +282,32 @@ private:
     /**
      * Get state element (using glGetIntegerv)
      */
-    DGLResourceState::StateItem getStateIntegerv(const char* name, GLenum value, size_t length);
+    dglnet::resource::DGLResourceState::StateItem getStateIntegerv(const char* name, GLenum value, size_t length);
 
     /**
     * Get state element (using glGetInteger64v)
     */
-    DGLResourceState::StateItem getStateInteger64v(const char* name, GLenum value, size_t length);
+    dglnet::resource::DGLResourceState::StateItem getStateInteger64v(const char* name, GLenum value, size_t length);
 
     /**
      * Get state element (using glGetFloatv)
      */
-    DGLResourceState::StateItem getStateFloatv(const char* name, GLenum value, size_t length);
+    dglnet::resource::DGLResourceState::StateItem getStateFloatv(const char* name, GLenum value, size_t length);
 
     /**
      * Get state element (using glGetDoublev)
      */
-    DGLResourceState::StateItem getStateDoublev(const char* name, GLenum value, size_t length);
+    dglnet::resource::DGLResourceState::StateItem getStateDoublev(const char* name, GLenum value, size_t length);
 
     /**
      * Get state element (using glGetBooleanv)
      */
-    DGLResourceState::StateItem getStateBooleanv(const char* name, GLenum value, size_t length);
+    dglnet::resource::DGLResourceState::StateItem getStateBooleanv(const char* name, GLenum value, size_t length);
 
     /**
      * Get state element (using glIsEnabled)
      */
-    DGLResourceState::StateItem getStateIsEnabled(const char* name, GLenum value);
+    dglnet::resource::DGLResourceState::StateItem getStateIsEnabled(const char* name, GLenum value);
 
     /**
      * Get texture currently bound to given target
@@ -331,6 +332,3 @@ private:
 
 } //namespace
 #endif
-
-
-DGLResourceState::StateItem getState(const char* name, GLenum value, size_t length);

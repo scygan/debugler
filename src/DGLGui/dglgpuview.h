@@ -32,7 +32,7 @@ public:
 
 public slots:
     void setConnected(bool);
-    void update(const DGLResource&);
+    void update(const dglnet::DGLResource&);
     void error(const std::string&);
 
 private: 

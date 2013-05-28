@@ -24,17 +24,17 @@
 class DGLFBOViewItem: public DGLTabbedViewItem {
     Q_OBJECT
 public:
-    DGLFBOViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
+    DGLFBOViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
 
 private slots:
     void error(const std::string& message);
-    void update(const DGLResource&);
+    void update(const dglnet::DGLResource&);
     void showAttachment(int id);
 
 private: 
     Ui_DGLFBOViewItem m_Ui;
     DGLPixelRectangleScene* m_PixelRectangleScene;
-    std::vector<DGLResourceFBO::FBOAttachment> m_Attachments;
+    std::vector<dglnet::resource::DGLResourceFBO::FBOAttachment> m_Attachments;
     bool m_Error; 
     DGLResourceListener* m_Listener;
 };
@@ -51,7 +51,7 @@ public:
         void showFBO(uint ctx, uint name);
 
 private:
-        virtual DGLTabbedViewItem* createTab(const ContextObjectName& id);
+        virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
         virtual QString getTabName(uint id, uint target);
 };
 

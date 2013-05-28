@@ -20,7 +20,7 @@
 #include "dglshaderviewitem.h"
 
 
-DGLProgramViewItem::DGLProgramViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent), m_ResourceManager(resManager) {
+DGLProgramViewItem::DGLProgramViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent), m_ResourceManager(resManager) {
     m_Ui.setupUi(this);
 
     m_Label = new QLabel(this);
@@ -31,10 +31,10 @@ DGLProgramViewItem::DGLProgramViewItem(ContextObjectName name, DGLResourceManage
     m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(1, new QTableWidgetItem("type"));
     m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(2, new QTableWidgetItem("value"));
 
-    m_Listener = resManager->createListener(name, DGLResource::ObjectTypeProgram);
+    m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectTypeProgram);
     m_Listener->setParent(this);
 
-    CONNASSERT(connect(m_Listener,SIGNAL(update(const DGLResource&)),this,SLOT(update(const DGLResource&))));
+    CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));
     CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
 }
 
@@ -46,13 +46,13 @@ void DGLProgramViewItem::error(const std::string& message) {
     m_Label->show();
 }
 
-void DGLProgramViewItem::update(const DGLResource& res) {
+void DGLProgramViewItem::update(const dglnet::DGLResource& res) {
     m_Ui.tabWidget->show();
     m_Ui.groupBoxLinkStatus->show();
     m_Ui.groupBoxUniforms->show();
     m_Label->hide();
 
-    const DGLResourceProgram* resource = dynamic_cast<const DGLResourceProgram*>(&res);
+    const dglnet::resource::DGLResourceProgram* resource = dynamic_cast<const dglnet::resource::DGLResourceProgram*>(&res);
     std::string errorMsg;
 
     m_Ui.textEditLinker->setText(QString::fromStdString(resource->mLinkStatus.first));
@@ -66,7 +66,7 @@ void DGLProgramViewItem::update(const DGLResource& res) {
             }
         }
         if (!found) {
-            DGLShaderViewItem* newTab = new DGLShaderViewItem(ContextObjectName(getObjName().m_Context, resource->m_AttachedShaders[i].first), m_ResourceManager, this);
+            DGLShaderViewItem* newTab = new DGLShaderViewItem(dglnet::ContextObjectName(getObjName().m_Context, resource->m_AttachedShaders[i].first), m_ResourceManager, this);
             m_Ui.tabWidget->addTab(newTab, QString::fromStdString(GetShaderStageName(resource->m_AttachedShaders[i].second))
                 + QString(" Shader ") + QString::number(resource->m_AttachedShaders[i].first));
         }
@@ -120,7 +120,7 @@ void DGLProgramView::showProgram(uint ctx, uint name) {
     ensureTabDisplayed(ctx, name);
 }
 
-DGLTabbedViewItem* DGLProgramView::createTab(const ContextObjectName& id) {
+DGLTabbedViewItem* DGLProgramView::createTab(const dglnet::ContextObjectName& id) {
     return new DGLProgramViewItem(id, m_Controller->getResourceManager(), this);
 }
 

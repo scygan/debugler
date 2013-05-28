@@ -31,24 +31,24 @@ public:
         void showFramebuffer(uint ctx, uint bufferEnum);
 
 private:
-        virtual DGLTabbedViewItem* createTab(const ContextObjectName& id);
+        virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
         virtual QString getTabName(uint id, uint target);
 };
 
 class DGLFramebufferViewItem: public DGLTabbedViewItem {
     Q_OBJECT
 public:
-    DGLFramebufferViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
+    DGLFramebufferViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
 
 private slots:
     void error(const std::string& message);
-    void update(const DGLResource& res);
+    void update(const dglnet::DGLResource& res);
 
 private: 
     Ui::DGLFramebufferViewItem m_Ui;
     DGLPixelRectangleScene* m_PixelRectangleScene;
     DGLResourceListener* m_Listener;
-    boost::shared_ptr<DGLPixelRectangle> m_PixelRectangle;
+    boost::shared_ptr<dglnet::resource::DGLPixelRectangle> m_PixelRectangle;
 };
 
 #endif //DGLFRAMEBUFFERVIEW_H

@@ -19,13 +19,13 @@
 
 #include <DGLCommon/def.h>
 
-DGLTextureViewItem::DGLTextureViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent), m_CurrentFace(0), m_CurrentLevel(0) {
+DGLTextureViewItem::DGLTextureViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent), m_CurrentFace(0), m_CurrentLevel(0) {
     m_Ui.setupUi(this);
     
     m_PixelRectangleScene = new DGLPixelRectangleScene();
     m_Ui.m_PixelRectangleView->setScene(m_PixelRectangleScene);
 
-    m_Listener = resManager->createListener(name, DGLResource::ObjectTypeTexture);
+    m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectTypeTexture);
     m_Listener->setParent(this);
 
     m_Ui.horizontalSlider_LOD->setDisabled(true);
@@ -33,7 +33,7 @@ DGLTextureViewItem::DGLTextureViewItem(ContextObjectName name, DGLResourceManage
     CONNASSERT(connect(m_Ui.horizontalSlider_LOD,SIGNAL(sliderMoved(int)),this,SLOT(levelSliderMoved(int))));
     CONNASSERT(connect(m_Ui.comboBoxCM,SIGNAL(currentIndexChanged(int)),this,SLOT(faceComboChanged(int))));
 
-    CONNASSERT(connect(m_Listener,SIGNAL(update(const DGLResource&)),this,SLOT(update(const DGLResource&))));
+    CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));
     CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
 
     m_Ui.labelCM->hide();
@@ -46,8 +46,8 @@ void DGLTextureViewItem::error(const std::string& message) {
     m_Ui.m_PixelRectangleView->updateFormatSizeInfo(NULL);
 }
 
-void DGLTextureViewItem::update(const DGLResource& res) {
-    const DGLResourceTexture* resource = dynamic_cast<const DGLResourceTexture*>(&res);
+void DGLTextureViewItem::update(const dglnet::DGLResource& res) {
+    const dglnet::resource::DGLResourceTexture* resource = dynamic_cast<const dglnet::resource::DGLResourceTexture*>(&res);
 
     m_FacesLevels = resource->m_FacesLevels;
 
@@ -124,7 +124,7 @@ void DGLTextureView::showTexture(uint ctx, uint name) {
     ensureTabDisplayed(ctx, name);
 }
 
-DGLTabbedViewItem* DGLTextureView::createTab(const ContextObjectName& id) {
+DGLTabbedViewItem* DGLTextureView::createTab(const dglnet::ContextObjectName& id) {
     return new DGLTextureViewItem(id, m_Controller->getResourceManager(), this);
 }
 

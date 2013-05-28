@@ -29,8 +29,8 @@ DGLGPUView::DGLGPUView(QWidget* parrent, DglController* controller):QDockWidget(
     CONNASSERT(connect(controller, SIGNAL(setConnected(bool)), this, SLOT(setConnected(bool))));
 }
 
-void DGLGPUView::update(const DGLResource& res) {
-    const DGLResourceGPU* resource = dynamic_cast<const DGLResourceGPU*>(&res);
+void DGLGPUView::update(const dglnet::DGLResource& res) {
+    const dglnet::resource::DGLResourceGPU* resource = dynamic_cast<const dglnet::resource::DGLResourceGPU*>(&res);
     m_Ui->label_Renderer->setText(QString::fromStdString(resource->m_Renderer));
     m_Ui->label_Vendor->setText(QString::fromStdString(resource->m_Vendor));
     m_Ui->label_Version->setText(QString::fromStdString(resource->m_Version));
@@ -70,10 +70,10 @@ void DGLGPUView::setConnected(bool connected) {
         setWidget(m_Ui->frame);
         setLayout(m_Ui->verticalLayout);
         
-        m_Listener = m_Controller->getResourceManager()->createListener(ContextObjectName(), DGLResource::ObjectTypeGPU);
+        m_Listener = m_Controller->getResourceManager()->createListener(dglnet::ContextObjectName(), dglnet::DGLResource::ObjectTypeGPU);
         m_Listener->setParent(m_Ui->groupBox);
 
-        CONNASSERT(connect(m_Listener,SIGNAL(update(const DGLResource&)),this,SLOT(update(const DGLResource&))));
+        CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));
         CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
     }
 }

@@ -20,15 +20,15 @@
 #include "ui_dglfboviewitem.h"
 
 
-DGLFBOViewItem::DGLFBOViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent),m_Error(false) {
+DGLFBOViewItem::DGLFBOViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent),m_Error(false) {
     m_Ui.setupUi(this);
     m_PixelRectangleScene = new DGLPixelRectangleScene();
     m_Ui.m_pixelRectangleView->setScene(m_PixelRectangleScene);
 
-    m_Listener = resManager->createListener(name, DGLResource::ObjectTypeFBO);
+    m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectTypeFBO);
     m_Listener->setParent(this);
 
-    CONNASSERT(connect(m_Listener,SIGNAL(update(const DGLResource&)),this,SLOT(update(const DGLResource&))));
+    CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));
     CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
 
 }
@@ -40,9 +40,9 @@ void DGLFBOViewItem::error(const std::string& message) {
     m_Ui.m_pixelRectangleView->updateFormatSizeInfo(NULL);
 }
 
-void DGLFBOViewItem::update(const DGLResource& res) {
+void DGLFBOViewItem::update(const dglnet::DGLResource& res) {
 
-    const DGLResourceFBO* resource = dynamic_cast<const DGLResourceFBO*>(&res);
+    const dglnet::resource::DGLResourceFBO* resource = dynamic_cast<const dglnet::resource::DGLResourceFBO*>(&res);
     
     m_Ui.m_AttListWidget->clear();
     m_Error = false;
@@ -78,7 +78,7 @@ void DGLFBOView::showFBO(uint ctx, uint bufferEnum) {
     ensureTabDisplayed(ctx, bufferEnum);
 }
 
-DGLTabbedViewItem* DGLFBOView::createTab(const ContextObjectName& id) {
+DGLTabbedViewItem* DGLFBOView::createTab(const dglnet::ContextObjectName& id) {
     return new DGLFBOViewItem(id, m_Controller->getResourceManager(), this);
 }
 

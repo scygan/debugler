@@ -19,8 +19,8 @@
 
 #include <DGLCommon/gl-types.h>
 #include <DGLNet/protocol/entrypoint.h>
-#include <DGLNet/protocol/resource.h>
 #include <DGLNet/protocol/dglconfiguration.h>
+#include <DGLNet/protocol/ctxobjname.h>
 
 #include <DGLNet/serializer-fwd.h>
 #include <set>
@@ -28,35 +28,37 @@
 
 namespace dglnet {
 
-class HelloMessage;
-class ConfigurationMessage;
-class BreakedCallMessage;
-class ContinueBreakMessage;
-class QueryCallTraceMessage;
-class CallTraceMessage;
+namespace message {
+    //generic messages
+    class Hello;
+    class Configuration;
+    class BreakedCall;
+    class ContinueBreak;
+    class QueryCallTrace;
+    class CallTrace;
 
-class QueryResourceMessage;
-class ResourceMessage;
+    class Request;
+    class RequestReply;
 
-class SetBreakPointsMessage;
+    class SetBreakPoints;
+    class EditShaderSource;
+}
 
-class EditShaderSourceMessage;
 
 class MessageHandler {
 public:
-    virtual void doHandle(const HelloMessage&);
-    virtual void doHandle(const ConfigurationMessage&);
-    virtual void doHandle(const BreakedCallMessage&);
-    virtual void doHandle(const ContinueBreakMessage&);
-    virtual void doHandle(const QueryCallTraceMessage&);
-    virtual void doHandle(const CallTraceMessage&);
+    virtual void doHandle(const message::Hello&);
+    virtual void doHandle(const message::Configuration&);
+    virtual void doHandle(const message::BreakedCall&);
+    virtual void doHandle(const message::ContinueBreak&);
+    virtual void doHandle(const message::QueryCallTrace&);
+    virtual void doHandle(const message::CallTrace&);
 
-    virtual void doHandle(const QueryResourceMessage&);
-    virtual void doHandle(const ResourceMessage&);
+    virtual void doHandle(const message::Request&);
+    virtual void doHandle(const message::RequestReply&);
 
-    virtual void doHandle(const SetBreakPointsMessage&);
-
-    virtual void doHandle(const EditShaderSourceMessage&);
+    virtual void doHandle(const message::SetBreakPoints&);
+    virtual void doHandle(const message::EditShaderSource&);
 
     virtual void doHandleDisconnect(const std::string& why) = 0;
     virtual ~MessageHandler() {}
@@ -66,7 +68,7 @@ private:
 
 class Message {
     friend class boost::serialization::access;
-    
+
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {}
 
@@ -76,32 +78,10 @@ public:
     virtual ~Message() {}
 };
 
-class ContextReport {
-    friend class boost::serialization::access;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & m_Id;
-        ar & m_TextureSpace;
-        ar & m_BufferSpace;
-        ar & m_ShaderSpace;
-        ar & m_ProgramSpace;
-        ar & m_FBOSpace;
-        ar & m_FramebufferSpace;
-    }
-public:
-    ContextReport() {}
-    ContextReport(opaque_id_t id):m_Id(id) {}
-    opaque_id_t m_Id;
-    std::set<ContextObjectName> m_TextureSpace;
-    std::set<ContextObjectName> m_BufferSpace;
-    std::set<ContextObjectName> m_ShaderSpace;
-    std::set<ContextObjectName> m_ProgramSpace;
-    std::set<ContextObjectName> m_FBOSpace;
-    std::set<ContextObjectName> m_FramebufferSpace;
-};
+namespace message {
 
-class HelloMessage: public Message {
+class Hello: public Message {
     friend class boost::serialization::access;
 
     template<class Archive>
@@ -113,12 +93,12 @@ class HelloMessage: public Message {
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
 
 public:
-    HelloMessage() {}
-    HelloMessage(std::string name):m_ProcessName(name) {}
+    Hello() {}
+    Hello(std::string name):m_ProcessName(name) {}
     std::string m_ProcessName;
 };
 
-class ConfigurationMessage: public Message {
+class Configuration: public Message {
     friend class boost::serialization::access;
 
     template<class Archive>
@@ -132,13 +112,13 @@ class ConfigurationMessage: public Message {
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
 
 public:
-    ConfigurationMessage() {}
-    ConfigurationMessage(const DGLConfiguration& conf):m_config(conf) {}
+    Configuration() {}
+    Configuration(const DGLConfiguration& conf):m_config(conf) {}
 
     DGLConfiguration m_config;
 };
 
-class BreakedCallMessage: public Message {
+class BreakedCall: public Message {
     friend class boost::serialization::access;
     
     template<class Archive>
@@ -153,8 +133,35 @@ class BreakedCallMessage: public Message {
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
 
 public:
-    BreakedCallMessage(CalledEntryPoint entryp, value_t traceSize, opaque_id_t currentCtx, std::vector<ContextReport> ctxReports):m_entryp(entryp), m_TraceSize(traceSize), m_CurrentCtx(currentCtx), m_CtxReports(ctxReports) {}
-    BreakedCallMessage() {}
+
+    class ContextReport {
+        friend class boost::serialization::access;
+
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version) {
+            ar & m_Id;
+            ar & m_TextureSpace;
+            ar & m_BufferSpace;
+            ar & m_ShaderSpace;
+            ar & m_ProgramSpace;
+            ar & m_FBOSpace;
+            ar & m_FramebufferSpace;
+        }
+    public:
+        ContextReport() {}
+        ContextReport(opaque_id_t id):m_Id(id) {}
+        opaque_id_t m_Id;
+        std::set<ContextObjectName> m_TextureSpace;
+        std::set<ContextObjectName> m_BufferSpace;
+        std::set<ContextObjectName> m_ShaderSpace;
+        std::set<ContextObjectName> m_ProgramSpace;
+        std::set<ContextObjectName> m_FBOSpace;
+        std::set<ContextObjectName> m_FramebufferSpace;
+    };
+
+
+    BreakedCall(CalledEntryPoint entryp, value_t traceSize, opaque_id_t currentCtx, std::vector<ContextReport> ctxReports):m_entryp(entryp), m_TraceSize(traceSize), m_CurrentCtx(currentCtx), m_CtxReports(ctxReports) {}
+    BreakedCall() {}
 
     CalledEntryPoint m_entryp;
     value_t m_TraceSize;
@@ -162,7 +169,7 @@ public:
     opaque_id_t m_CurrentCtx;
 };
 
-class ContinueBreakMessage: public Message {
+class ContinueBreak: public Message {
     friend class boost::serialization::access;
 
     template<class Archive>
@@ -183,9 +190,9 @@ public:
        STEP_FRAME
    };
 
-   ContinueBreakMessage(){}
-   ContinueBreakMessage(StepMode stepMode):m_Breaked(false),m_InStepMode(true), m_StepMode(stepMode) {}
-   ContinueBreakMessage(bool breaked):m_Breaked(breaked),m_InStepMode(false) {}
+   ContinueBreak(){}
+   ContinueBreak(StepMode stepMode):m_Breaked(false),m_InStepMode(true), m_StepMode(stepMode) {}
+   ContinueBreak(bool breaked):m_Breaked(breaked),m_InStepMode(false) {}
    bool isBreaked() const;
    std::pair<bool, StepMode> getStep() const;
 
@@ -195,7 +202,7 @@ private:
     StepMode m_StepMode;
 };
 
-class QueryCallTraceMessage: public Message {
+class QueryCallTrace: public Message {
     friend class boost::serialization::access;
 
     template<class Archive>
@@ -208,14 +215,14 @@ class QueryCallTraceMessage: public Message {
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
 
 public:
-    QueryCallTraceMessage(){}
-    QueryCallTraceMessage(value_t startOffset, value_t endOffset):m_StartOffset(startOffset), m_EndOffset(endOffset) {}
+    QueryCallTrace(){}
+    QueryCallTrace(value_t startOffset, value_t endOffset):m_StartOffset(startOffset), m_EndOffset(endOffset) {}
 
     value_t m_StartOffset;
     value_t m_EndOffset;
 };
 
-class CallTraceMessage: public Message {
+class CallTrace: public Message {
     friend class boost::serialization::access;
 
     template<class Archive>
@@ -228,90 +235,79 @@ class CallTraceMessage: public Message {
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
 
 public:
-    CallTraceMessage(){}
-    CallTraceMessage(const std::vector<CalledEntryPoint>& trace, int start):m_Trace(trace), m_StartOffset(start) {}
+    CallTrace(){}
+    CallTrace(const std::vector<CalledEntryPoint>& trace, int start):m_Trace(trace), m_StartOffset(start) {}
 
     value_t m_StartOffset;
     std::vector<CalledEntryPoint> m_Trace;
 };
 
+}// namespace message
+
+class DGLRequest;
+
+namespace message {
 
 
-class StatusMessage: public Message {
+class Request: public Message {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Message>(*this);
+        ar & m_RequestId;
+        ar & m_Request;
+    }
+
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+    value_t m_RequestId;
+    static value_t s_RequestId;
+
+public:
+    Request();
+    Request(DGLRequest*);
+    boost::shared_ptr<DGLRequest> m_Request;
+    int getId() const;
+};
+
+class RequestReply: public Message {
 public:
     friend class boost::serialization::access;
 
-    StatusMessage();
+    RequestReply();
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
         ar & boost::serialization::base_object<Message>(*this);
         ar & m_Ok;
         ar & m_ErrorMsg;
+        ar & m_RequestId;
+        ar & m_Reply;
     }
     void error(std::string msg);
     bool isOk(std::string& error) const;
 
+    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+
+    class ReplyBase {
+        public:
+            template<class Archive>
+            void serialize(Archive & ar, const unsigned int version) {}
+        
+            virtual ~ReplyBase() {}
+    };
+
+    int getId() const;
+
+    value_t m_RequestId;
+    boost::shared_ptr<ReplyBase> m_Reply;
 private:
     bool m_Ok;
     std::string m_ErrorMsg;
 };
 
-class QueryResourceMessage: public Message {
-    
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<Message>(*this);
-        ar & m_ResourceQueries;
-    }
-public:
-
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
-
-    class ResourceQuery {
-        
-        friend class boost::serialization::access;
-
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int version) {
-            ar & m_Type;
-            ar & m_ListenerId;
-            ar & m_ObjectName;
-        }
-
-    public:
-        ResourceQuery(DGLResource::ObjectType type, value_t listenerId, ContextObjectName name):m_Type(type), m_ListenerId(listenerId), m_ObjectName(name) {}
-        ResourceQuery() {};
-        DGLResource::ObjectType m_Type;
-        value_t m_ListenerId;
-        ContextObjectName m_ObjectName;
-    };
-
-    std::vector<ResourceQuery> m_ResourceQueries;
-};
-
-
-
-
-class ResourceMessage: public StatusMessage {
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<StatusMessage>(*this);
-        ar & m_ListenerId;
-        ar & m_Resource;
-    }
-public:
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
-
-    value_t m_ListenerId;
-    boost::shared_ptr<DGLResource> m_Resource;
-};
-
-class SetBreakPointsMessage: public Message {
+class SetBreakPoints: public Message {
     friend class boost::serialization::access;
 
     template<class Archive>
@@ -323,8 +319,8 @@ class SetBreakPointsMessage: public Message {
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
 
 public:
-    SetBreakPointsMessage() {}
-    SetBreakPointsMessage(const std::set<Entrypoint>&);
+    SetBreakPoints() {}
+    SetBreakPoints(const std::set<Entrypoint>&);
     std::set<Entrypoint> get() const;
 
 private:
@@ -332,7 +328,7 @@ private:
 
 };
 
-class EditShaderSourceMessage: public Message {
+class EditShaderSource: public Message {
     friend class boost::serialization::access;
 
     template<class Archive>
@@ -346,15 +342,30 @@ class EditShaderSourceMessage: public Message {
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
 
 public:
-    EditShaderSourceMessage() {}
-    EditShaderSourceMessage(opaque_id_t context, gl_t shaderId, std::string& source);
+    EditShaderSource() {}
+    EditShaderSource(opaque_id_t context, gl_t shaderId, std::string& source);
 
     opaque_id_t m_Context;
     gl_t m_ShaderId;
     std::string m_Source;
 };
 
-};
+}; //namespace message
+}; //namespace dglnet
 
+
+#ifdef REGISTER_CLASS
+REGISTER_CLASS(dglnet::message::Hello)
+REGISTER_CLASS(dglnet::message::Configuration);
+REGISTER_CLASS(dglnet::message::BreakedCall);
+REGISTER_CLASS(dglnet::message::ContinueBreak);
+REGISTER_CLASS(dglnet::message::QueryCallTrace);
+REGISTER_CLASS(dglnet::message::CallTrace);
+REGISTER_CLASS(dglnet::message::Request);
+REGISTER_CLASS(dglnet::message::RequestReply);
+REGISTER_CLASS(dglnet::message::RequestReply::ReplyBase);
+REGISTER_CLASS(dglnet::message::SetBreakPoints);
+REGISTER_CLASS(dglnet::message::EditShaderSource);
+#endif
 
 #endif

@@ -121,10 +121,10 @@ void DGLDisplayState::lazyDeleteContext(opaque_id_t id) {
     }
 }
 
-std::vector<dglnet::ContextReport> DGLDisplayState::describe() {
+std::vector<dglnet::message::BreakedCall::ContextReport> DGLDisplayState::describe() {
     boost::lock_guard<boost::mutex> quard(m_ContextListMutex);
 
-    std::vector<dglnet::ContextReport> ret(m_ContextList.size());
+    std::vector<dglnet::message::BreakedCall::ContextReport> ret(m_ContextList.size());
     int j = 0;
     for (ContextListIter i = m_ContextList.begin(); i != m_ContextList.end(); i++) {
         ret[j++] = i->second->describe();
@@ -132,15 +132,15 @@ std::vector<dglnet::ContextReport> DGLDisplayState::describe() {
     return ret;
 }
 
-std::vector<dglnet::ContextReport> DGLDisplayState::describeAll() {
-    std::vector<dglnet::ContextReport> ret;
+std::vector<dglnet::message::BreakedCall::ContextReport> DGLDisplayState::describeAll() {
+    std::vector<dglnet::message::BreakedCall::ContextReport> ret;
 
     boost::lock_guard<boost::mutex> quard(s_DisplaysMutex);
 
     for (std::map<opaque_id_t, boost::shared_ptr<DGLDisplayState> >::iterator i = s_Displays.begin(); 
         i != s_Displays.end(); i++) {
 
-            std::vector<dglnet::ContextReport> partialReport = i->second->describe();
+            std::vector<dglnet::message::BreakedCall::ContextReport> partialReport = i->second->describe();
 
             std::copy(partialReport.begin(), partialReport.end(), std::back_inserter(ret));
     }

@@ -29,7 +29,7 @@ public:
         void showShader(uint, uint, uint);
 
 private:
-        virtual DGLTabbedViewItem* createTab(const ContextObjectName& id);
+        virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
         virtual QString getTabName(uint id, uint target);
 };
 

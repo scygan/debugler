@@ -30,8 +30,8 @@ DGLStateView::DGLStateView(QWidget* parrent, DglController* controller):QDockWid
     CONNASSERT(connect(controller, SIGNAL(setConnected(bool)), this, SLOT(setConnected(bool))));
 }
 
-void DGLStateView::update(const DGLResource& res) {
-    const DGLResourceState* resource = dynamic_cast<const DGLResourceState*>(&res);
+void DGLStateView::update(const dglnet::DGLResource& res) {
+    const dglnet::resource::DGLResourceState* resource = dynamic_cast<const dglnet::resource::DGLResourceState*>(&res);
 
     bool initializeRows = !(m_Ui->tableWidget->rowCount());
     
@@ -82,10 +82,10 @@ void DGLStateView::setConnected(bool connected) {
         m_Ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem("Parameter"));
         m_Ui->tableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem("Value"));
         
-        m_Listener = m_Controller->getResourceManager()->createListener(ContextObjectName(), DGLResource::ObjectTypeState);
+        m_Listener = m_Controller->getResourceManager()->createListener(dglnet::ContextObjectName(), dglnet::DGLResource::ObjectTypeState);
         m_Listener->setParent(m_Ui->frame);
 
-        CONNASSERT(connect(m_Listener,SIGNAL(update(const DGLResource&)),this,SLOT(update(const DGLResource&))));
+        CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));
         CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
     }
 }

@@ -17,111 +17,107 @@
 #include "dglcontroller.h"
 #include "dglgui.h"
 
+DGLRequestHandler::DGLRequestHandler(DGLRequestManager* manager):m_Manager(manager) {}
 
-
-DGLResourceListener::DGLResourceListener(uint listenerId, ContextObjectName objectName, DGLResource::ObjectType type, DGLResourceManager* manager):
-m_ListenerId(listenerId), m_ObjectName(objectName), m_ObjectType(type), m_Manager(manager), m_RefCount(0) {
-    m_Manager->registerListener(this);
+DGLRequestHandler::~DGLRequestHandler() {
+    m_Manager->unregisterHandler(this);
 }
+
+DGLRequestManager::DGLRequestManager(DglController* controller):m_Controller(controller) {}
+
+void DGLRequestManager::request(dglnet::DGLRequest* request, DGLRequestHandler* handler) {
+
+    dglnet::message::Request requestMessage(request);
+    m_CurrentHandlers[requestMessage.getId()] = handler;
+    m_Controller->sendMessage(&requestMessage);
+}
+
+void DGLRequestManager::handle(const dglnet::message::RequestReply& msg) {
+    std::map<int, DGLRequestHandler*>::iterator i = m_CurrentHandlers.find(msg.getId());
+    if (i != m_CurrentHandlers.end()) {
+        i->second->onRequestFinished(&msg);
+        m_CurrentHandlers.erase(i);
+    }
+}
+
+void DGLRequestManager::unregisterHandler(DGLRequestHandler* handler) {
+    for (std::map<int, DGLRequestHandler*>::iterator i = m_CurrentHandlers.begin(); i != m_CurrentHandlers.end(); i++) {
+        if (i->second == handler) {
+            m_CurrentHandlers.erase(i++);
+        }
+    }
+}
+
+
+DGLResourceListener::DGLResourceListener(dglnet::ContextObjectName objectName, dglnet::DGLResource::ObjectType type, DGLResourceManager* manager):DGLRequestHandler(manager->getRequestManager()), m_ObjectName(objectName), m_ObjectType(type), m_Manager(manager) {}
 
 DGLResourceListener::~DGLResourceListener() {
     m_Manager->unregisterListener(this);
 }
 
-DGLResourceManager::DGLResourceManager(DglController* controller):m_MaxListenerId(0), m_Controller(controller) {}
+void DGLResourceListener::onRequestFinished(const dglnet::message::RequestReply* msg) {
+    std::string errorMessage;
+    if (msg->isOk(errorMessage)) {
+        update(*dynamic_cast<dglnet::DGLResource*>(msg->m_Reply.get()));
+    } else {
+        error(errorMessage);
+    }
+}
+
+DGLResourceManager::DGLResourceManager(DGLRequestManager* manager): m_RequestManager(manager) {}
 
 void DGLResourceManager::emitQueries() {
-    dglnet::QueryResourceMessage queries;
-    for (std::multimap<uint, DGLResourceListener*>::iterator i = m_Listeners.begin(); i != m_Listeners.end(); i++) {
-        dglnet::QueryResourceMessage::ResourceQuery query(i->second->m_ObjectType, i->first, i->second->m_ObjectName);
-        queries.m_ResourceQueries.push_back(query);
-    }
-    if (queries.m_ResourceQueries.size())
-        m_Controller->sendMessage(&queries);
-}
-
-
-void DGLResourceManager::handleResourceMessage(const dglnet::ResourceMessage& msg) {
-
-    int  idx = 0; 
-    bool end = false;
-
-    //this strange method of iteration is to allow modification of m_Listeners
-
-    for (int idx = 0; !end; idx++) {
-        std::pair<std::multimap<uint, DGLResourceListener*>::iterator, std::multimap<uint, DGLResourceListener*>::iterator> range = m_Listeners.equal_range(msg.m_ListenerId);
-        std::multimap<uint, DGLResourceListener*>::iterator i  = range.first;
-        for (int j = 0; j < idx && i != range.second ; j++) {
-            i++;
-        }
-        if (i == range.second) {
-            end = true; 
-        } else {
-            std::string errorMessage;
-            if (msg.isOk(errorMessage)) {
-                i->second->update(*msg.m_Resource);
-            } else {
-                i->second->error(errorMessage);
-            }
-        }
+    for (std::list<DGLResourceListener*>::iterator i = m_Listeners.begin(); i != m_Listeners.end(); i++) {
+        m_RequestManager->request(new dglnet::request::QueryResource((*i)->m_ObjectType, (*i)->m_ObjectName), *i);
     }
 }
 
-DGLResourceListener* DGLResourceManager::createListener(ContextObjectName name, DGLResource::ObjectType type) {
-    for (std::multimap<uint, DGLResourceListener*>::iterator i = m_Listeners.begin(); i != m_Listeners.end(); i++) {
-        if (i->second->m_ObjectName == name && i->second->m_ObjectType == type) {
-            return new DGLResourceListener(i->second->m_ListenerId, name, type, this);
-        }
-    }
-    return new DGLResourceListener(m_MaxListenerId++, name, type, this);
+DGLResourceListener* DGLResourceManager::createListener(dglnet::ContextObjectName name, dglnet::DGLResource::ObjectType type) {
+    DGLResourceListener* listener = new DGLResourceListener(name, type, this);
+    
+    m_Listeners.insert(m_Listeners.end(), listener);
+    m_RequestManager->request(new dglnet::request::QueryResource(listener->m_ObjectType, listener->m_ObjectName), listener);
+
+    return listener;
 }
 
-void DGLResourceManager::registerListener(DGLResourceListener* listener) {
-    m_Listeners.insert(std::pair<uint, DGLResourceListener*>(listener->m_ListenerId, listener));
-
-    dglnet::QueryResourceMessage queries;
-    dglnet::QueryResourceMessage::ResourceQuery query;
-    query.m_ListenerId = listener->m_ListenerId;
-    query.m_ObjectName = listener->m_ObjectName;
-    query.m_Type = listener->m_ObjectType;
-    queries.m_ResourceQueries.push_back(query);
-    m_Controller->sendMessage(&queries);
+DGLRequestManager* DGLResourceManager::getRequestManager() {
+    return m_RequestManager;    
 }
 
 void DGLResourceManager::unregisterListener(DGLResourceListener* listener) {
-    std::pair<std::multimap<uint, DGLResourceListener*>::iterator, std::multimap<uint, DGLResourceListener*>::iterator> range = m_Listeners.equal_range(listener->m_ListenerId);
-    for (std::multimap<uint, DGLResourceListener*>::iterator i = range.first; i != range.second; i++) {
-        if (i->second == listener) {
+    for (std::list<DGLResourceListener*>::iterator i = m_Listeners.begin(); i != m_Listeners.end(); i++) {
+        if (*i == listener) {
             m_Listeners.erase(i);
             break;
         }
     }
 }
 
-void DGLViewRouter::show(const ContextObjectName& name, DGLResource::ObjectType type) {
+void DGLViewRouter::show(const dglnet::ContextObjectName& name, dglnet::DGLResource::ObjectType type) {
     switch (type) {
-        case DGLResource::ObjectTypeBuffer:
+        case dglnet::DGLResource::ObjectTypeBuffer:
             emit showBuffer(name.m_Context, name.m_Name);
             break;
-        case DGLResource::ObjectTypeFramebuffer:
+        case dglnet::DGLResource::ObjectTypeFramebuffer:
             emit showFramebuffer(name.m_Context, name.m_Name);
             break;
-        case DGLResource::ObjectTypeFBO:
+        case dglnet::DGLResource::ObjectTypeFBO:
             emit showFBO(name.m_Context, name.m_Name);
             break;
-        case DGLResource::ObjectTypeTexture:
+        case dglnet::DGLResource::ObjectTypeTexture:
             emit showTexture(name.m_Context, name.m_Name);
             break;
-        case DGLResource::ObjectTypeShader:
+        case dglnet::DGLResource::ObjectTypeShader:
             emit showShader(name.m_Context, name.m_Name, name.m_Target);
             break;
-        case DGLResource::ObjectTypeProgram:
+        case dglnet::DGLResource::ObjectTypeProgram:
             emit showProgram(name.m_Context, name.m_Name);
             break;
     }
 }
 
-DglController::DglController():m_Disconnected(true), m_Connected(false), m_ConfiguredAndBkpointsSet(false), m_BreakPointController(this), m_ResourceManager(this) {
+DglController::DglController():m_Disconnected(true), m_Connected(false), m_ConfiguredAndBkpointsSet(false), m_BreakPointController(this), m_RequestManager(this), m_ResourceManager(getRequestManager()) {
     m_Timer.setInterval(10);
     CONNASSERT(connect(&m_Timer, SIGNAL(timeout()), this, SLOT(poll())));
 }
@@ -191,13 +187,13 @@ void DglController::debugContinue() {
     setBreaked(false);
     setRunning(true);
     assert(isConnected());
-    dglnet::ContinueBreakMessage message(false);
+    dglnet::message::ContinueBreak message(false);
     m_DglClient->sendMessage(&message);
 }
 
 void DglController::debugInterrupt() {
     assert(isConnected());
-    dglnet::ContinueBreakMessage message(true);
+    dglnet::message::ContinueBreak message(true);
     m_DglClient->sendMessage(&message);
     newStatus("Interrupting...");
 }
@@ -206,7 +202,7 @@ void DglController::debugStep() {
     setBreaked(false);
     setRunning(true);
     assert(isConnected());
-    dglnet::ContinueBreakMessage message(dglnet::ContinueBreakMessage::STEP_CALL);
+    dglnet::message::ContinueBreak message(dglnet::message::ContinueBreak::STEP_CALL);
     m_DglClient->sendMessage(&message);
     newStatus("Running...");
 }
@@ -215,7 +211,7 @@ void DglController::debugStepDrawCall() {
     setBreaked(false);
     setRunning(true);
     assert(isConnected());
-    dglnet::ContinueBreakMessage message(dglnet::ContinueBreakMessage::STEP_DRAW_CALL);
+    dglnet::message::ContinueBreak message(dglnet::message::ContinueBreak::STEP_DRAW_CALL);
     m_DglClient->sendMessage(&message);
     newStatus("Running...");
 }
@@ -224,7 +220,7 @@ void DglController::debugStepFrame() {
     setBreaked(false);
     setRunning(true);
     assert(isConnected());
-    dglnet::ContinueBreakMessage message(dglnet::ContinueBreakMessage::STEP_FRAME);
+    dglnet::message::ContinueBreak message(dglnet::message::ContinueBreak::STEP_FRAME);
     m_DglClient->sendMessage(&message);
     newStatus("Running...");
 }
@@ -234,11 +230,11 @@ void DglController::onSetStatus(std::string str) {
 }
 
 void DglController::queryCallTrace(uint startOffset, uint endOffset) {
-    dglnet::QueryCallTraceMessage message(startOffset, endOffset);
+    dglnet::message::QueryCallTrace message(startOffset, endOffset);
     m_DglClient->sendMessage(&message);
 }
 
-void DglController::doHandle(const dglnet::HelloMessage & msg) {
+void DglController::doHandle(const dglnet::message::Hello & msg) {
     //we are connected now
     m_Connected = true;
     debugeeInfo(msg.m_ProcessName);
@@ -246,7 +242,7 @@ void DglController::doHandle(const dglnet::HelloMessage & msg) {
     setDisconnected(false);
 }
 
-void DglController::doHandle(const dglnet::BreakedCallMessage & msg) {
+void DglController::doHandle(const dglnet::message::BreakedCall & msg) {
     if (!m_ConfiguredAndBkpointsSet) {
         //this is the first time debugee was stopped, before any execution
         //we must upload some configuration to it
@@ -267,12 +263,12 @@ void DglController::doHandle(const dglnet::BreakedCallMessage & msg) {
     newStatus("Breaked execution.");
 }
 
-void DglController::doHandle(const dglnet::CallTraceMessage& msg) {
+void DglController::doHandle(const dglnet::message::CallTrace& msg) {
     gotCallTraceChunkChunk(msg.m_StartOffset, msg.m_Trace);
 }
 
-void DglController::doHandle(const dglnet::ResourceMessage& msg) {
-    m_ResourceManager.handleResourceMessage(msg);
+void DglController::doHandle(const dglnet::message::RequestReply& msg) {
+    getRequestManager()->handle(msg);
 }
 
 void DglController::doHandleDisconnect(const std::string& msg) {
@@ -290,6 +286,10 @@ DGLBreakPointController* DglController::getBreakPoints() {
     return &m_BreakPointController;
 }
 
+DGLRequestManager* DglController::getRequestManager() {
+    return &m_RequestManager;
+}
+
 DGLResourceManager* DglController::getResourceManager() {
     return &m_ResourceManager;
 }
@@ -305,7 +305,7 @@ void DglController::configure(const DGLConfiguration& config) {
 
 void DglController::sendConfig() {
     if (isConnected()) {
-        dglnet::ConfigurationMessage message(m_Config);
+        dglnet::message::Configuration message(m_Config);
         m_DglClient->sendMessage(&message);
     }
 }
@@ -329,7 +329,7 @@ void DGLBreakPointController::setCurrent(const std::set<Entrypoint>& newCurrent)
 
 void DGLBreakPointController::sendCurrent() {
     if (m_Controller->isConnected()) {
-        dglnet::SetBreakPointsMessage msg(m_Current);
+        dglnet::message::SetBreakPoints msg(m_Current);
         m_Controller->sendMessage(&msg);
     }    
 }

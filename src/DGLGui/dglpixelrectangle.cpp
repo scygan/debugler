@@ -168,7 +168,7 @@ void DGLPixelRectangleView::showChannelS(bool show) {
     m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_S, show?1.0:0.0, 0.0);
 }
 
-void DGLPixelRectangleView::updateFormatSizeInfo(const DGLPixelRectangle* pixelRectangle) {
+void DGLPixelRectangleView::updateFormatSizeInfo(const dglnet::resource::DGLPixelRectangle* pixelRectangle) {
     if (pixelRectangle) {
         std::ostringstream formatSize;
         if (pixelRectangle->m_InternalFormat)
@@ -191,7 +191,7 @@ void DGLPixelRectangleScene::setText(const std::string& message) {
     m_Scene.addText(message.c_str());
 }
 
-void DGLPixelRectangleScene::setPixelRectangle(const DGLPixelRectangle& pixelRectangle) {
+void DGLPixelRectangleScene::setPixelRectangle(const dglnet::resource::DGLPixelRectangle& pixelRectangle) {
 
     m_Item = NULL;
 

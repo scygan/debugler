@@ -31,18 +31,18 @@ public slots:
     void showTexture(uint ctx, uint name);
 
 private:
-    virtual DGLTabbedViewItem* createTab(const ContextObjectName& id);
+    virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
     virtual QString getTabName(uint id, uint target);
 };
 
 class DGLTextureViewItem: public DGLTabbedViewItem {
     Q_OBJECT
 public:
-    DGLTextureViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
+    DGLTextureViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
 
 private slots:
     void error(const std::string& message);
-    void update(const DGLResource& res);
+    void update(const dglnet::DGLResource& res);
     void levelSliderMoved(int value);
     void faceComboChanged(int value);
 
@@ -52,7 +52,7 @@ private:
 
     Ui::DGLTextureViewItem m_Ui;
     DGLPixelRectangleScene* m_PixelRectangleScene;
-    std::vector<std::vector<boost::shared_ptr<DGLPixelRectangle> > > m_FacesLevels;
+    std::vector<std::vector<boost::shared_ptr<dglnet::resource::DGLPixelRectangle> > > m_FacesLevels;
 
     DGLResourceListener* m_Listener;
 

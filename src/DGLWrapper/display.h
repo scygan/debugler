@@ -92,12 +92,12 @@ public:
     /**
      * Getter for short context state report
      */
-    std::vector<dglnet::ContextReport> describe();
+    std::vector<dglnet::message::BreakedCall::ContextReport> describe();
 
     /**
      * Getter for short context state report from all Displays
      */
-    static std::vector<dglnet::ContextReport> describeAll();
+    static std::vector<dglnet::message::BreakedCall::ContextReport> describeAll();
 
 private:
 

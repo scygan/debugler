@@ -103,7 +103,7 @@ RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
     if (getController()->getBreakState().mayBreakAt(call.getEntrypoint())) {
         //we just hit a break;
         dglState::GLContext* ctx = gc;
-        dglnet::BreakedCallMessage callStateMessage(call, (value_t)getController()->getCallHistory().size(), ctx?ctx->getId():0, DGLDisplayState::describeAll());
+        dglnet::message::BreakedCall callStateMessage(call, (value_t)getController()->getCallHistory().size(), ctx?ctx->getId():0, DGLDisplayState::describeAll());
         getController()->getServer().sendMessage(&callStateMessage);
     }
     

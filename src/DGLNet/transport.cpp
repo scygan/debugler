@@ -13,6 +13,12 @@
 * limitations under the License.
 */
 
+#include <boost/serialization/export.hpp> 
+#define REGISTER_CLASS(X) BOOST_CLASS_EXPORT(X)
+#include "protocol/message.h"
+#include "protocol/resource.h"
+#include "protocol/request.h"
+#undef REGISTER_CLASS
 
 
 #include "transport.h"
@@ -23,7 +29,6 @@
 #include <portable_archive/portable_oarchive.hpp>
 #include <portable_archive/portable_iarchive.hpp>
 #include <boost/serialization/set.hpp>
-#include <boost/serialization/export.hpp> 
 #include <boost/serialization/variant.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/utility.hpp>
@@ -35,33 +40,6 @@
 
 #include <sstream>
 #include <boost/bind.hpp>
-
-
-//TODO: this one is horrible. very.
-
-#define REGISTER_CLASS(X) BOOST_CLASS_EXPORT_GUID(X, #X)
-
-REGISTER_CLASS(dglnet::Message)
-REGISTER_CLASS(dglnet::HelloMessage)
-REGISTER_CLASS(dglnet::ConfigurationMessage);
-REGISTER_CLASS(dglnet::BreakedCallMessage);
-REGISTER_CLASS(dglnet::ContinueBreakMessage);
-REGISTER_CLASS(dglnet::QueryCallTraceMessage);
-REGISTER_CLASS(dglnet::CallTraceMessage);
-REGISTER_CLASS(dglnet::SetBreakPointsMessage);
-REGISTER_CLASS(dglnet::QueryResourceMessage);
-REGISTER_CLASS(dglnet::ResourceMessage);
-REGISTER_CLASS(dglnet::EditShaderSourceMessage);
-
-REGISTER_CLASS(DGLResource);
-REGISTER_CLASS(DGLResourceTexture);
-REGISTER_CLASS(DGLResourceBuffer);
-REGISTER_CLASS(DGLResourceFramebuffer);
-REGISTER_CLASS(DGLResourceFBO);
-REGISTER_CLASS(DGLResourceShader);
-REGISTER_CLASS(DGLResourceProgram);
-REGISTER_CLASS(DGLResourceGPU);
-REGISTER_CLASS(DGLResourceState);
 
 
 namespace dglnet {

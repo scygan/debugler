@@ -402,39 +402,39 @@ void GLContextVersion::fill() {
 GLContext::GLContext(GLContextVersion version, opaque_id_t id): m_Version(version), m_Id(id), m_NativeReadSurface(NULL), m_HasNVXMemoryInfo(false),
     m_HasDebugOutput(false), m_InImmediateMode(false),m_EverBound(false), m_RefCount(0), m_ToBeDeleted(false)  {}
 
-dglnet::ContextReport GLContext::describe() {
-    dglnet::ContextReport ret(m_Id);
+dglnet::message::BreakedCall::ContextReport GLContext::describe() {
+    dglnet::message::BreakedCall::ContextReport ret(m_Id);
     for (std::map<GLuint, GLTextureObj>::iterator i = m_Textures.begin(); 
         i != m_Textures.end(); i++) {
-            ret.m_TextureSpace.insert(ContextObjectName(m_Id, i->second.getName(), i->second.getTarget()));
+            ret.m_TextureSpace.insert(dglnet::ContextObjectName(m_Id, i->second.getName(), i->second.getTarget()));
     }
     for (std::map<GLuint, GLBufferObj>::iterator i = m_Buffers.begin(); 
         i != m_Buffers.end(); i++) {
-            ret.m_BufferSpace.insert(ContextObjectName(m_Id, i->second.getName()));
+            ret.m_BufferSpace.insert(dglnet::ContextObjectName(m_Id, i->second.getName()));
     }
     for (std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.begin(); 
         i != m_Shaders.end(); i++) {
-            ret.m_ShaderSpace.insert(ContextObjectName(m_Id, i->second.getName(), i->second.getTarget()));
+            ret.m_ShaderSpace.insert(dglnet::ContextObjectName(m_Id, i->second.getName(), i->second.getTarget()));
     }
     for (std::map<GLuint, GLProgramObj>::iterator i = m_Programs.begin(); 
         i != m_Programs.end(); i++) {
-            ret.m_ProgramSpace.insert(ContextObjectName(m_Id, i->second.getName()));
+            ret.m_ProgramSpace.insert(dglnet::ContextObjectName(m_Id, i->second.getName()));
     }
     for (std::map<GLuint, GLFBObj>::iterator i = m_FBOs.begin(); 
         i != m_FBOs.end(); i++) {
-            ret.m_FBOSpace.insert(ContextObjectName(m_Id, i->second.getName()));
+            ret.m_FBOSpace.insert(dglnet::ContextObjectName(m_Id, i->second.getName()));
     }
     if (m_NativeReadSurface) {
         if (m_NativeReadSurface->isStereo()) {
             if (m_NativeReadSurface->isDoubleBuffered()) {
-                ret.m_FramebufferSpace.insert(ContextObjectName(m_Id, GL_BACK_RIGHT));
+                ret.m_FramebufferSpace.insert(dglnet::ContextObjectName(m_Id, GL_BACK_RIGHT));
             }
-            ret.m_FramebufferSpace.insert(ContextObjectName(m_Id, GL_FRONT_RIGHT));
+            ret.m_FramebufferSpace.insert(dglnet::ContextObjectName(m_Id, GL_FRONT_RIGHT));
         }
         if (m_NativeReadSurface->isDoubleBuffered()) {
-            ret.m_FramebufferSpace.insert(ContextObjectName(m_Id, GL_BACK));
+            ret.m_FramebufferSpace.insert(dglnet::ContextObjectName(m_Id, GL_BACK));
         }
-        ret.m_FramebufferSpace.insert(ContextObjectName(m_Id, GL_FRONT));
+        ret.m_FramebufferSpace.insert(dglnet::ContextObjectName(m_Id, GL_FRONT));
     }
     return ret;
 }
@@ -597,12 +597,12 @@ GLContextVersion& GLContext::getVersion() {
     return m_Version;
 }
 
-boost::shared_ptr<DGLResource> GLContext::queryTexture(gl_t _name) {
+boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
 
     GLuint name = static_cast<GLuint>(_name);
 
-    DGLResourceTexture* resource;
-    boost::shared_ptr<DGLResource> ret (resource = new DGLResourceTexture());
+    dglnet::resource::DGLResourceTexture* resource;
+    boost::shared_ptr<dglnet::DGLResource> ret (resource = new dglnet::resource::DGLResourceTexture());
 
     //check if GL knows about a texture
     if (DIRECT_CALL_CHK(glIsTexture)(name) != GL_TRUE) {
@@ -677,7 +677,7 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(gl_t _name) {
 
             DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, internalFormat);
 
-            resource->m_FacesLevels[face].push_back(boost::make_shared<DGLPixelRectangle>(width, height, defAlignment.getAligned(width * transfer.getPixelSize()),
+            resource->m_FacesLevels[face].push_back(boost::make_shared<dglnet::resource::DGLPixelRectangle>(width, height, defAlignment.getAligned(width * transfer.getPixelSize()),
                 transfer.getFormat(), transfer.getType(), internalFormat, samples));
             
             GLvoid* ptr;
@@ -694,12 +694,12 @@ boost::shared_ptr<DGLResource> GLContext::queryTexture(gl_t _name) {
     return ret;
 }
 
-boost::shared_ptr<DGLResource> GLContext::queryBuffer(gl_t _name) {
+boost::shared_ptr<dglnet::DGLResource> GLContext::queryBuffer(gl_t _name) {
 
     GLuint name = static_cast<GLuint>(_name);
 
-    DGLResourceBuffer* resource;
-    boost::shared_ptr<DGLResource> ret (resource = new DGLResourceBuffer());
+    dglnet::resource::DGLResourceBuffer* resource;
+    boost::shared_ptr<dglnet::DGLResource> ret (resource = new dglnet::resource::DGLResourceBuffer());
 
     //check if GL knows about a texture
     if (DIRECT_CALL_CHK(glIsBuffer)(name) != GL_TRUE) {
@@ -788,12 +788,12 @@ boost::shared_ptr<DGLResource> GLContext::queryBuffer(gl_t _name) {
     return ret;
 }
 
-boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(gl_t _bufferEnum) {
+boost::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(gl_t _bufferEnum) {
 
     GLuint bufferEnum = static_cast<GLuint>(_bufferEnum);
 
-    DGLResourceFramebuffer* resource;
-    boost::shared_ptr<DGLResource> ret (resource = new DGLResourceFramebuffer);
+    dglnet::resource::DGLResourceFramebuffer* resource;
+    boost::shared_ptr<dglnet::DGLResource> ret (resource = new dglnet::resource::DGLResourceFramebuffer);
 
     if (!m_NativeReadSurface) {
         throw std::runtime_error("Buffer does not exist");
@@ -821,7 +821,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(gl_t _bufferEnum) {
     //we cannot reliably get internalformat for default framebuffer, so it is 0 here.
     DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, 0);
 
-    resource->m_PixelRectangle = boost::make_shared<DGLPixelRectangle>(width, height, defAlignment.getAligned(width * transfer.getPixelSize()),
+    resource->m_PixelRectangle = boost::make_shared<dglnet::resource::DGLPixelRectangle>(width, height, defAlignment.getAligned(width * transfer.getPixelSize()),
         transfer.getFormat(), transfer.getType(), 0, 0);
 #pragma message ( "GLContext::queryFramebuffer: query MSAA" )
 
@@ -832,12 +832,12 @@ boost::shared_ptr<DGLResource> GLContext::queryFramebuffer(gl_t _bufferEnum) {
     return ret;
 }
 
-boost::shared_ptr<DGLResource> GLContext::queryFBO(gl_t _name) {
+boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
 
     GLuint name = static_cast<GLuint>(_name);
 
-    DGLResourceFBO* resource;
-    boost::shared_ptr<DGLResource> ret (resource = new DGLResourceFBO());
+    dglnet::resource::DGLResourceFBO* resource;
+    boost::shared_ptr<dglnet::DGLResource> ret (resource = new dglnet::resource::DGLResourceFBO());
  
     state_setters::ReadBuffer readBuffer;
     state_setters::DrawBuffers drawBuffers; //we may touch draw buffer when downsampling MSAA buffers
@@ -886,7 +886,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(gl_t _name) {
         }
 
         //it looks, like there is an attachment. Add it to returned list
-        resource->m_Attachments.push_back(DGLResourceFBO::FBOAttachment(attachments[i]));
+        resource->m_Attachments.push_back(dglnet::resource::DGLResourceFBO::FBOAttachment(attachments[i]));
 
         //query attached object name
         GLint attmntName;
@@ -1011,7 +1011,7 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(gl_t _name) {
 
         DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, internalFormat);
 
-        resource->m_Attachments.back().m_PixelRectangle = boost::make_shared<DGLPixelRectangle>(width,
+        resource->m_Attachments.back().m_PixelRectangle = boost::make_shared<dglnet::resource::DGLPixelRectangle>(width,
             height, defAlignment.getAligned(width * transfer.getPixelSize()), 
             transfer.getFormat(), transfer.getType(), internalFormat, samples);
 
@@ -1090,12 +1090,12 @@ boost::shared_ptr<DGLResource> GLContext::queryFBO(gl_t _name) {
     return ret;
 }
 
-boost::shared_ptr<DGLResource> GLContext::queryShader(gl_t _name) {
+boost::shared_ptr<dglnet::DGLResource> GLContext::queryShader(gl_t _name) {
 
     GLuint name = static_cast<GLuint>(_name);
 
-    DGLResourceShader* resource;
-    boost::shared_ptr<DGLResource> ret (resource = new DGLResourceShader);
+    dglnet::resource::DGLResourceShader* resource;
+    boost::shared_ptr<dglnet::DGLResource> ret (resource = new dglnet::resource::DGLResourceShader);
 
     GLShaderObj* shader = findShader(name);
     if (!shader) {
@@ -1111,12 +1111,12 @@ boost::shared_ptr<DGLResource> GLContext::queryShader(gl_t _name) {
     return ret;
 }
 
-boost::shared_ptr<DGLResource> GLContext::queryProgram(gl_t _name) {
+boost::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
 
     GLuint name = static_cast<GLuint>(_name);
 
-    DGLResourceProgram* resource;
-    boost::shared_ptr<DGLResource> ret (resource = new DGLResourceProgram);
+    dglnet::resource::DGLResourceProgram* resource;
+    boost::shared_ptr<dglnet::DGLResource> ret (resource = new dglnet::resource::DGLResourceProgram);
 
     std::map<GLuint, GLProgramObj>::iterator i = m_Programs.find(name);
     if (i == m_Programs.end()) {
@@ -1157,7 +1157,7 @@ boost::shared_ptr<DGLResource> GLContext::queryProgram(gl_t _name) {
         DIRECT_CALL_CHK(glGetProgramiv)(name, GL_ACTIVE_UNIFORM_MAX_LENGTH, &activeUniformsMaxNameLength);
         std::vector<GLchar> nameBuffer(activeUniformsMaxNameLength);
         for (int i =0; i < activeUniforms; i++) {
-            DGLResourceProgram::Uniform uniform;
+            dglnet::resource::DGLResourceProgram::Uniform uniform;
             uniform.m_supportedType = false;
 
             GLsizei length;
@@ -1352,10 +1352,10 @@ boost::shared_ptr<DGLResource> GLContext::queryProgram(gl_t _name) {
 
 
 
-boost::shared_ptr<DGLResource> GLContext::queryGPU(gl_t name) {
+boost::shared_ptr<dglnet::DGLResource> GLContext::queryGPU(gl_t name) {
 
-    DGLResourceGPU* resource;
-    boost::shared_ptr<DGLResource> ret (resource = new DGLResourceGPU);
+    dglnet::resource::DGLResourceGPU* resource;
+    boost::shared_ptr<dglnet::DGLResource> ret (resource = new dglnet::resource::DGLResourceGPU);
 
     // Forgot about:
     //GL_EXTENSIONS
@@ -1401,8 +1401,8 @@ boost::shared_ptr<DGLResource> GLContext::queryGPU(gl_t name) {
 }
 
 
-DGLResourceState::StateItem GLContext::getStateIntegerv(const char* name, GLenum value, size_t length) {
-    DGLResourceState::StateItem ret;
+dglnet::resource::DGLResourceState::StateItem GLContext::getStateIntegerv(const char* name, GLenum value, size_t length) {
+    dglnet::resource::DGLResourceState::StateItem ret;
     ret.m_Name = name;
     std::vector<GLint> val(length, 0);
     
@@ -1417,8 +1417,8 @@ DGLResourceState::StateItem GLContext::getStateIntegerv(const char* name, GLenum
     return ret;
 }
 
-DGLResourceState::StateItem GLContext::getStateInteger64v(const char* name, GLenum value, size_t length) {
-    DGLResourceState::StateItem ret;
+dglnet::resource::DGLResourceState::StateItem GLContext::getStateInteger64v(const char* name, GLenum value, size_t length) {
+    dglnet::resource::DGLResourceState::StateItem ret;
     ret.m_Name = name;
     std::vector<GLint64> val(length, 0);
 
@@ -1439,8 +1439,8 @@ DGLResourceState::StateItem GLContext::getStateInteger64v(const char* name, GLen
     return ret;
 }
 
-DGLResourceState::StateItem GLContext::getStateFloatv(const char* name, GLenum value, size_t length) {
-    DGLResourceState::StateItem ret;
+dglnet::resource::DGLResourceState::StateItem GLContext::getStateFloatv(const char* name, GLenum value, size_t length) {
+    dglnet::resource::DGLResourceState::StateItem ret;
     ret.m_Name = name;
     std::vector<GLfloat> val(length, 0);
 
@@ -1455,8 +1455,8 @@ DGLResourceState::StateItem GLContext::getStateFloatv(const char* name, GLenum v
     return ret;                                                      
 }
 
-DGLResourceState::StateItem GLContext::getStateDoublev(const char* name, GLenum value, size_t length) {
-    DGLResourceState::StateItem ret;
+dglnet::resource::DGLResourceState::StateItem GLContext::getStateDoublev(const char* name, GLenum value, size_t length) {
+    dglnet::resource::DGLResourceState::StateItem ret;
     ret.m_Name = name;
     std::vector<GLdouble> val(length, 0);
 
@@ -1471,8 +1471,8 @@ DGLResourceState::StateItem GLContext::getStateDoublev(const char* name, GLenum 
     return ret;
 }
 
-DGLResourceState::StateItem GLContext::getStateBooleanv(const char* name, GLenum value, size_t length) {
-    DGLResourceState::StateItem ret;
+dglnet::resource::DGLResourceState::StateItem GLContext::getStateBooleanv(const char* name, GLenum value, size_t length) {
+    dglnet::resource::DGLResourceState::StateItem ret;
     ret.m_Name = name;
     std::vector<GLboolean> val(length, 0);
 
@@ -1487,8 +1487,8 @@ DGLResourceState::StateItem GLContext::getStateBooleanv(const char* name, GLenum
     return ret;                                         
 }
 
-DGLResourceState::StateItem GLContext::getStateIsEnabled(const char* name, GLenum value) {
-    DGLResourceState::StateItem ret;
+dglnet::resource::DGLResourceState::StateItem GLContext::getStateIsEnabled(const char* name, GLenum value) {
+    dglnet::resource::DGLResourceState::StateItem ret;
     ret.m_Name = name;
     GLboolean val =  DIRECT_CALL_CHK(glIsEnabled)(value);
     if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {
@@ -1529,10 +1529,10 @@ GLuint GLContext::getBoundTexture(GLenum target) {
     return lastTexture[0];
 }
 
-boost::shared_ptr<DGLResource> GLContext::queryState(gl_t) {
+boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
 
-    DGLResourceState* resource;
-    boost::shared_ptr<DGLResource> ret (resource = new DGLResourceState);
+    dglnet::resource::DGLResourceState* resource;
+    boost::shared_ptr<dglnet::DGLResource> ret (resource = new dglnet::resource::DGLResourceState);
 
 #ifdef WA_ES_QUERY_STATE
     if (!gc->getVersion().check(GLContextVersion::DT))

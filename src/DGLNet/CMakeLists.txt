@@ -1,7 +1,7 @@
 set(dglnet_SOURCES 
     client.cpp server.cpp transport.cpp
 	protocol/message.cpp protocol/entrypoint.cpp protocol/resource.cpp
-	protocol/pixeltransfer.cpp
+	protocol/pixeltransfer.cpp protocol/ctxobjname.cpp
     )
 
 add_library(dglnet

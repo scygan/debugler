@@ -30,18 +30,18 @@ public:
         void showBuffer(uint ctx, uint name);
 
 private:
-        virtual DGLTabbedViewItem* createTab(const ContextObjectName& id);
+        virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
         virtual QString getTabName(uint id, uint target);
 };
 
 class DGLBufferViewItem: public DGLTabbedViewItem {
     Q_OBJECT
 public:
-    DGLBufferViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
+    DGLBufferViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
 
 private slots:
     void error(const std::string& message);
-    void update(const DGLResource& res);
+    void update(const dglnet::DGLResource& res);
 
 private: 
     QHexEdit* m_Editor;

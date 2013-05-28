@@ -42,7 +42,7 @@ private:
 };
 
 
-DGLShaderViewItem::DGLShaderViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
+DGLShaderViewItem::DGLShaderViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
     m_Ui.setupUi(this);
     m_GLSLEditor = new DGLGLSLEditor(this);
 
@@ -58,12 +58,12 @@ DGLShaderViewItem::DGLShaderViewItem(ContextObjectName name, DGLResourceManager*
 
     m_Highlighter = boost::make_shared<DGLSyntaxHighlighterGLSL>(m_Ui.checkBox_Highlight->isChecked()?m_GLSLEditor->document():NULL);
 
-    m_Listener = resManager->createListener(name, DGLResource::ObjectTypeShader);
+    m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectTypeShader);
     m_Listener->setParent(this);
 
     CONNASSERT(connect(m_Ui.checkBox_Highlight, SIGNAL(toggled(bool)), this, SLOT(toggleHighlight(bool))));
 
-    CONNASSERT(connect(m_Listener,SIGNAL(update(const DGLResource&)),this,SLOT(update(const DGLResource&))));
+    CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));
     CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
 
 }
@@ -86,11 +86,11 @@ void DGLShaderViewItem::saveShader() {
     f.close();
 }
 
-void DGLShaderViewItem::update(const DGLResource& res) {
+void DGLShaderViewItem::update(const dglnet::DGLResource& res) {
     m_GLSLEditor->show();
     m_Ui.groupBox1->show();
     m_Label->hide();
-    const DGLResourceShader* resource = dynamic_cast<const DGLResourceShader*>(&res);
+    const dglnet::resource::DGLResourceShader* resource = dynamic_cast<const dglnet::resource::DGLResourceShader*>(&res);
 
     m_Ui.textEditLinker->setText(QString::fromStdString(resource->m_CompileStatus.first));
     m_GLSLEditor->clear();
@@ -122,7 +122,7 @@ void DGLShaderView::showShader(uint ctx, uint name, uint target) {
     ensureTabDisplayed(ctx, name, target);
 }
 
-DGLTabbedViewItem* DGLShaderView::createTab(const ContextObjectName& id) {
+DGLTabbedViewItem* DGLShaderView::createTab(const dglnet::ContextObjectName& id) {
     return new DGLShaderViewItem(id, m_Controller->getResourceManager(), this);
 }
 

@@ -17,6 +17,10 @@
 
 #include "resource.h"
 #include <DGLCommon/gl-types.h>
+#include <boost/serialization/export.hpp> 
+
+namespace dglnet {
+namespace resource {
 
 DGLResourceFBO::FBOAttachment::FBOAttachment(gl_t id):m_Ok(true),m_Id(id) {}
 
@@ -28,30 +32,6 @@ void DGLResourceFBO::FBOAttachment::error(std::string msg) {
 bool DGLResourceFBO::FBOAttachment::isOk(std::string& msg) const {
     msg = m_ErrorMsg;
     return m_Ok;
-}
-
-ContextObjectName::ContextObjectName():m_Context(0), m_Name(0), m_Target(0) {}
-ContextObjectName::ContextObjectName(opaque_id_t context, gl_t name, gl_t target):m_Name(name),m_Context(context),m_Target(target) {}
-ContextObjectName::~ContextObjectName() {}
-
-bool ContextObjectName::operator==(const ContextObjectName&rhs) const {
-
-    //it is crucial that m_Target is not get into account here (ID + ctxID is enough to indentify an object and m_Target is optional)
-
-    return m_Context == rhs.m_Context && m_Name == rhs.m_Name;
-}
-
-bool ContextObjectName::operator<(const ContextObjectName&rhs) const {
-
-    //it is crucial that m_Target is not get into account here (ID + ctxID is enough to indentify an object and m_Target is optional)
-
-    if (m_Context < rhs.m_Context)
-        return true;
-    if (m_Context > rhs.m_Context)
-        return false;
-    if (m_Name < rhs.m_Name)
-        return true;
-    return false;
 }
 
 DGLPixelRectangle::DGLPixelRectangle(value_t width, value_t height, value_t rowBytes, gl_t glFormat, gl_t glType, gl_t iFormat, value_t samples):m_Width(width),
@@ -87,3 +67,5 @@ size_t DGLPixelRectangle::getSize() const {
     return m_Height * m_RowBytes;
 }
 
+}; //namespace resource
+}; //namespace dglnet

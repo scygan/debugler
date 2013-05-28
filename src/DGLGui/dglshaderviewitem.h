@@ -26,13 +26,13 @@ class DGLGLSLEditor;
 class DGLShaderViewItem: public DGLTabbedViewItem {
     Q_OBJECT
 public:
-    DGLShaderViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
+    DGLShaderViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
 
 public slots:
     void saveShader();
 
 private slots:
-    void update(const DGLResource& res);
+    void update(const dglnet::DGLResource& res);
     void error(const std::string&);
     void toggleHighlight(bool);
 private:

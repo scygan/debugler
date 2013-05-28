@@ -45,7 +45,7 @@ public:
 public slots:
     void setConnected(bool);
     void debugeeInfo(const std::string&);
-    void breakedWithStateReports(uint currentContextId, const std::vector<dglnet::ContextReport>&);
+    void breakedWithStateReports(uint currentContextId, const std::vector<dglnet::message::BreakedCall::ContextReport>&);
 
     void onDoubleClicked(QTreeWidgetItem*, int);
 

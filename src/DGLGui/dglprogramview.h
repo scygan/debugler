@@ -31,7 +31,7 @@ public:
         void showProgram(uint ctx, uint name);
 
 private:
-        virtual DGLTabbedViewItem* createTab(const ContextObjectName& id);
+        virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
         virtual QString getTabName(uint id, uint target);
 
 };
@@ -39,11 +39,11 @@ private:
 class DGLProgramViewItem: public DGLTabbedViewItem {
     Q_OBJECT
 public:
-    DGLProgramViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
+    DGLProgramViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
 
 private slots:
     void error(const std::string& message);
-    void update(const DGLResource& res);
+    void update(const dglnet::DGLResource& res);
 
 private:
     Ui::DGLProgramViewItem m_Ui;

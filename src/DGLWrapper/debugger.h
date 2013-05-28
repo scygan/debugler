@@ -21,6 +21,7 @@
 #include <boost/circular_buffer.hpp>
 
 #include <DGLNet/protocol/dglconfiguration.h>
+#include <DGLNet/protocol/request.h>
 #include <DGLCommon/os.h>
 
 #include "gl-state.h"
@@ -74,17 +75,17 @@ public:
     /**
      * Handler for configuration message remote command
      */
-    void handle(const dglnet::ConfigurationMessage&);
+    void handle(const dglnet::message::Configuration&);
 
     /**
      * Handler for remote continue & break commands
      */
-    void handle(const dglnet::ContinueBreakMessage&);
+    void handle(const dglnet::message::ContinueBreak&);
 
     /**
      * Handler for set breakpoints command
      */
-    void handle(const dglnet::SetBreakPointsMessage&);
+    void handle(const dglnet::message::SetBreakPoints&);
 private:
 
     /**
@@ -102,7 +103,7 @@ private:
      * Actual step mode (call, draw call, frame) if in step mode
      * irrelevant, if m_StepModeEnabled == false
      */
-    dglnet::ContinueBreakMessage::StepMode m_StepMode;
+    dglnet::message::ContinueBreak::StepMode m_StepMode;
 
      /** 
       * List of actually set breakpoints
@@ -133,7 +134,7 @@ public:
     /**
      * Handle and respond to history query message
      */  
-    void query(const dglnet::QueryCallTraceMessage& query, dglnet::CallTraceMessage& reply);
+    void query(const dglnet::message::QueryCallTrace& query, dglnet::message::CallTrace& reply);
 
 
     /** 
@@ -228,32 +229,37 @@ public:
     /** 
      * Message handler - pass configuration message to global configuration object
      */
-    void doHandle(const dglnet::ConfigurationMessage&);
+    void doHandle(const dglnet::message::Configuration&);
 
     /** 
      * Message handler - pass continue & break message to breakstate object
      */
-    void doHandle(const dglnet::ContinueBreakMessage&);
+    void doHandle(const dglnet::message::ContinueBreak&);
 
     /** 
      * Message handler - pass history query message to call history object
      */
-    void doHandle(const dglnet::QueryCallTraceMessage&);
-
-    /** 
-     * Message handler - handle resource query
-     */
-    void doHandle(const dglnet::QueryResourceMessage&);
+    void doHandle(const dglnet::message::QueryCallTrace&);
 
     /** 
      * Message handler - pass new breakpoint list message to breakstate object
      */
-    void doHandle(const dglnet::SetBreakPointsMessage&);
+    void doHandle(const dglnet::message::SetBreakPoints&);
 
     /** 
      * Message handler - handle shader edit request
      */
-    void doHandle(const dglnet::EditShaderSourceMessage&);
+    void doHandle(const dglnet::message::EditShaderSource&);
+
+    /** 
+     * Message handler - handle general request message
+     */
+    void doHandle(const dglnet::message::Request&);
+
+    /** 
+     * Request handler - query resource request
+     */
+    boost::shared_ptr<dglnet::DGLResource> doHandleRequest(const dglnet::request::QueryResource&);
 
 private:
 

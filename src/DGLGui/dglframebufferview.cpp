@@ -19,15 +19,15 @@
 
 
 
-DGLFramebufferViewItem::DGLFramebufferViewItem(ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
+DGLFramebufferViewItem::DGLFramebufferViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
     m_Ui.setupUi(this);
     m_PixelRectangleScene = new DGLPixelRectangleScene();
     m_Ui.m_PixelRectangleView->setScene(m_PixelRectangleScene);  
 
-    m_Listener = resManager->createListener(name, DGLResource::ObjectTypeFramebuffer);
+    m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectTypeFramebuffer);
     m_Listener->setParent(this);
 
-    CONNASSERT(connect(m_Listener,SIGNAL(update(const DGLResource&)),this,SLOT(update(const DGLResource&))));
+    CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));
     CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
 }
 
@@ -36,8 +36,8 @@ void DGLFramebufferViewItem::error(const std::string& message) {
     m_Ui.m_PixelRectangleView->updateFormatSizeInfo(NULL);
 }
 
-void DGLFramebufferViewItem::update(const DGLResource& res) {
-    const DGLResourceFramebuffer* resource = dynamic_cast<const DGLResourceFramebuffer*>(&res);
+void DGLFramebufferViewItem::update(const dglnet::DGLResource& res) {
+    const dglnet::resource::DGLResourceFramebuffer* resource = dynamic_cast<const dglnet::resource::DGLResourceFramebuffer*>(&res);
     m_PixelRectangle = resource->m_PixelRectangle;
     m_PixelRectangleScene->setPixelRectangle(*m_PixelRectangle);
     m_Ui.m_PixelRectangleView->updateFormatSizeInfo(m_PixelRectangle.get());
@@ -54,7 +54,7 @@ void DGLFramebufferView::showFramebuffer(uint ctx, uint bufferEnum) {
     ensureTabDisplayed(ctx, bufferEnum);
 }
 
-DGLTabbedViewItem* DGLFramebufferView::createTab(const ContextObjectName& id) {
+DGLTabbedViewItem* DGLFramebufferView::createTab(const dglnet::ContextObjectName& id) {
     return new DGLFramebufferViewItem(id, m_Controller->getResourceManager(), this);
 }
 

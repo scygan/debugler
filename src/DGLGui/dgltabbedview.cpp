@@ -17,9 +17,9 @@
 #include "dgltabbedview.h"
 #include "dglgui.h"
 
-DGLTabbedViewItem::DGLTabbedViewItem(ContextObjectName objectName, QWidget* parrent):QWidget(parrent),m_ObjectName(objectName) {}
+DGLTabbedViewItem::DGLTabbedViewItem(dglnet::ContextObjectName objectName, QWidget* parrent):QWidget(parrent),m_ObjectName(objectName) {}
 
-const ContextObjectName& DGLTabbedViewItem::getObjName() {return m_ObjectName; }
+const dglnet::ContextObjectName& DGLTabbedViewItem::getObjName() {return m_ObjectName; }
 
 DGLTabbedView::DGLTabbedView(QWidget* parrent, DglController* controller):QDockWidget(parrent),m_Controller(controller),m_TabWidget(this) {
 
@@ -63,13 +63,13 @@ void DGLTabbedView::ensureTabDisplayed(uint ctxId, uint objName, uint target) {
         }
     }
     if (!found) {
-        m_TabWidget.addTab(createTab(ContextObjectName(ctxId, objName, target)), getTabName(objName, target));
+        m_TabWidget.addTab(createTab(dglnet::ContextObjectName(ctxId, objName, target)), getTabName(objName, target));
         m_TabWidget.setCurrentIndex(m_TabWidget.count() - 1);
     }
     raise();
 }
 
-DGLTabbedViewItem* DGLTabbedView::getTab(const ContextObjectName& id) {
+DGLTabbedViewItem* DGLTabbedView::getTab(const dglnet::ContextObjectName& id) {
     for (int i = 0; i < m_TabWidget.count(); i++) {
         DGLTabbedViewItem* widget = dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));
         if (widget && widget->getObjName() == id) {

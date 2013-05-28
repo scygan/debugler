@@ -20,6 +20,9 @@
 #include <DGLCommon/gl-headers.h>
 #include <DGLNet/client.h>
 
+#include <DGLNet/protocol/request.h>
+#include <DGLNet/protocol/resource.h>
+
 #include <boost/thread/thread.hpp>
 
 
@@ -70,15 +73,15 @@ namespace {
 
         class MessageHandler: public dglnet::MessageHandler {
             
-            virtual void doHandle(const dglnet::HelloMessage& msg) { mLastMessage = new dglnet::HelloMessage(msg); }
-            virtual void doHandle(const dglnet::ConfigurationMessage& msg) { mLastMessage = new dglnet::ConfigurationMessage(msg); }
-            virtual void doHandle(const dglnet::BreakedCallMessage& msg) { mLastMessage = new dglnet::BreakedCallMessage(msg); }
-            virtual void doHandle(const dglnet::ContinueBreakMessage& msg) { mLastMessage = new dglnet::ContinueBreakMessage(msg); }
-            virtual void doHandle(const dglnet::QueryCallTraceMessage& msg) { mLastMessage = new dglnet::QueryCallTraceMessage(msg); }
-            virtual void doHandle(const dglnet::CallTraceMessage& msg) { mLastMessage = new dglnet::CallTraceMessage(msg); }
-            virtual void doHandle(const dglnet::QueryResourceMessage& msg) { mLastMessage = new dglnet::QueryResourceMessage(msg); }
-            virtual void doHandle(const dglnet::ResourceMessage& msg) { mLastMessage = new dglnet::ResourceMessage(msg); }
-            virtual void doHandle(const dglnet::SetBreakPointsMessage& msg) { mLastMessage = new dglnet::SetBreakPointsMessage(msg); }
+            virtual void doHandle(const dglnet::message::Hello& msg) { mLastMessage = new dglnet::message::Hello(msg); }
+            virtual void doHandle(const dglnet::message::Configuration& msg) { mLastMessage = new dglnet::message::Configuration(msg); }
+            virtual void doHandle(const dglnet::message::BreakedCall& msg) { mLastMessage = new dglnet::message::BreakedCall(msg); }
+            virtual void doHandle(const dglnet::message::ContinueBreak& msg) { mLastMessage = new dglnet::message::ContinueBreak(msg); }
+            virtual void doHandle(const dglnet::message::QueryCallTrace& msg) { mLastMessage = new dglnet::message::QueryCallTrace(msg); }
+            virtual void doHandle(const dglnet::message::CallTrace& msg) { mLastMessage = new dglnet::message::CallTrace(msg); }
+            virtual void doHandle(const dglnet::message::Request& msg) { mLastMessage = new dglnet::message::Request(msg); }
+            virtual void doHandle(const dglnet::message::RequestReply& msg) { mLastMessage = new dglnet::message::RequestReply(msg); }
+            virtual void doHandle(const dglnet::message::SetBreakPoints& msg) { mLastMessage = new dglnet::message::SetBreakPoints(msg); }
             void doHandleDisconnect(const std::string &msg) { mDisconnected = true; mDisconnectedReason = msg; }
 
         public:
@@ -132,7 +135,7 @@ namespace {
         stubs::MessageHandler messageHandlerStub;
         boost::shared_ptr<dglnet::Client> client(new dglnet::Client(&controllerStub, &messageHandlerStub));
         client->connectServer("127.0.0.1", "8888");
-        dglnet::HelloMessage * hello = utils::receiveMessage<dglnet::HelloMessage>(client.get(), messageHandlerStub);
+        dglnet::message::Hello * hello = utils::receiveMessage<dglnet::message::Hello>(client.get(), messageHandlerStub);
         ASSERT_TRUE(hello != NULL);
 #ifdef _WIN32
         EXPECT_EQ("python.exe", hello->m_ProcessName);
@@ -149,8 +152,8 @@ namespace {
        boost::shared_ptr<dglnet::Client> client(new dglnet::Client(&controllerStub, &messageHandlerStub));
        client->connectServer("127.0.0.1", "8888");
 
-       utils::receiveMessage<dglnet::HelloMessage>(client.get(), messageHandlerStub);
-       dglnet::BreakedCallMessage* breaked = utils::receiveMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+       utils::receiveMessage<dglnet::message::Hello>(client.get(), messageHandlerStub);
+       dglnet::message::BreakedCall* breaked = utils::receiveMessage<dglnet::message::BreakedCall>(client.get(), messageHandlerStub);
        ASSERT_TRUE(breaked != NULL);
 
 #ifdef _WIN32
@@ -164,16 +167,16 @@ namespace {
 
        do {
            {
-               dglnet::ContinueBreakMessage continueMsg(false);
+               dglnet::message::ContinueBreak continueMsg(false);
                client->sendMessage(&continueMsg);
            }
            boost::this_thread::sleep(boost::posix_time::milliseconds(10));
            {
-               dglnet::ContinueBreakMessage continueMsg(true);
+               dglnet::message::ContinueBreak continueMsg(true);
                client->sendMessage(&continueMsg);
            }
 
-           breaked = utils::receiveMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+           breaked = utils::receiveMessage<dglnet::message::BreakedCall>(client.get(), messageHandlerStub);
            ASSERT_TRUE(breaked != NULL);
        } while (!breaked->m_CurrentCtx);       
        EXPECT_NE(0, breaked->m_TraceSize);
@@ -188,8 +191,8 @@ namespace {
        boost::shared_ptr<dglnet::Client> client(new dglnet::Client(&controllerStub, &messageHandlerStub));
        client->connectServer("127.0.0.1", "8888");
 
-       utils::receiveMessage<dglnet::HelloMessage>(client.get(), messageHandlerStub);
-       dglnet::BreakedCallMessage* breaked = utils::receiveMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+       utils::receiveMessage<dglnet::message::Hello>(client.get(), messageHandlerStub);
+       dglnet::message::BreakedCall* breaked = utils::receiveMessage<dglnet::message::BreakedCall>(client.get(), messageHandlerStub);
        ASSERT_TRUE(breaked != NULL);
 
 #ifdef _WIN32
@@ -204,15 +207,15 @@ namespace {
        {
            std::set<Entrypoint> breakpoints;
            breakpoints.insert(glDrawArrays_Call);
-           dglnet::SetBreakPointsMessage breakPointMessage(breakpoints);
+           dglnet::message::SetBreakPoints breakPointMessage(breakpoints);
            client->sendMessage(&breakPointMessage);
        }
        {
-           dglnet::ContinueBreakMessage continueMsg(false);
+           dglnet::message::ContinueBreak continueMsg(false);
            client->sendMessage(&continueMsg);
        }
 
-       breaked = utils::receiveMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+       breaked = utils::receiveMessage<dglnet::message::BreakedCall>(client.get(), messageHandlerStub);
        ASSERT_TRUE(breaked != NULL);
         
        EXPECT_EQ(glDrawArrays_Call, breaked->m_entryp.getEntrypoint());
@@ -226,7 +229,7 @@ namespace {
        boost::shared_ptr<dglnet::Client> client(new dglnet::Client(&controllerStub, &messageHandlerStub));
        client->connectServer("127.0.0.1", "8888");
 
-       dglnet::BreakedCallMessage* breaked = utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+       dglnet::message::BreakedCall* breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), messageHandlerStub);
        ASSERT_TRUE(breaked != NULL);
 
 #ifdef _WIN32
@@ -240,15 +243,15 @@ namespace {
            breakpoints.insert(_glCreateContext_Call);
            breakpoints.insert(glGetError_Call);
            breakpoints.insert(glCreateShader_Call);
-           dglnet::SetBreakPointsMessage breakPointMessage(breakpoints);
+           dglnet::message::SetBreakPoints breakPointMessage(breakpoints);
            client->sendMessage(&breakPointMessage);
 
-           dglnet::ConfigurationMessage config(DGLConfiguration(false, false, false));
+           dglnet::message::Configuration config(DGLConfiguration(false, false, false));
            client->sendMessage(&config);
        }
        {
            //continue
-           dglnet::ContinueBreakMessage continueMsg(false);
+           dglnet::message::ContinueBreak continueMsg(false);
            client->sendMessage(&continueMsg);
        }
 
@@ -257,7 +260,7 @@ namespace {
        bool glCreateShader_done = false;
 
        while (!wglCreateContext_done || !glGetError_done || !glCreateShader_done) {
-           breaked = utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+           breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), messageHandlerStub);
            ASSERT_TRUE(breaked != NULL);
 
            {
@@ -270,18 +273,18 @@ namespace {
                
                {
                    //advance one call
-                   dglnet::ContinueBreakMessage step(dglnet::ContinueBreakMessage::STEP_CALL);
+                   dglnet::message::ContinueBreak step(dglnet::message::ContinueBreak::STEP_CALL);
                    client->sendMessage(&step);
-                   ASSERT_TRUE(utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub) != NULL);
+                   ASSERT_TRUE(utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), messageHandlerStub) != NULL);
                }
                
                {
                    //query callTrace with one entryp
-                   dglnet::QueryCallTraceMessage queryCallTrace(0, 1);
+                   dglnet::message::QueryCallTrace queryCallTrace(0, 1);
                    client->sendMessage(&queryCallTrace);
                }
 
-               dglnet::CallTraceMessage* callTrace = utils::receiveUntilMessage<dglnet::CallTraceMessage>(client.get(), messageHandlerStub);
+               dglnet::message::CallTrace* callTrace = utils::receiveUntilMessage<dglnet::message::CallTrace>(client.get(), messageHandlerStub);
                ASSERT_TRUE(callTrace != NULL);
 
 #ifdef _WIN32
@@ -313,7 +316,7 @@ namespace {
                }
 
                //continue execution
-               dglnet::ContinueBreakMessage continueMsg(false);
+               dglnet::message::ContinueBreak continueMsg(false);
                client->sendMessage(&continueMsg);
            }
        }
@@ -348,27 +351,27 @@ namespace {
        boost::shared_ptr<dglnet::Client> client(new dglnet::Client(&controllerStub, &messageHandlerStub));
        client->connectServer("127.0.0.1", "8888");
 
-       dglnet::BreakedCallMessage* breaked = utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+       dglnet::message::BreakedCall* breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), messageHandlerStub);
        ASSERT_TRUE(breaked != NULL);
 
        {
            //set breakpoints && disable other breaking stuff
            std::set<Entrypoint> breakpoints;
            breakpoints.insert(glDrawArrays_Call);
-           dglnet::SetBreakPointsMessage breakPointMessage(breakpoints);
+           dglnet::message::SetBreakPoints breakPointMessage(breakpoints);
            client->sendMessage(&breakPointMessage);
 
-           dglnet::ConfigurationMessage config(DGLConfiguration(false, false, false));
+           dglnet::message::Configuration config(DGLConfiguration(false, false, false));
            client->sendMessage(&config);
        }
 
        {
            //continue
-           dglnet::ContinueBreakMessage continueMsg(false);
+           dglnet::message::ContinueBreak continueMsg(false);
            client->sendMessage(&continueMsg);
        }
        
-       breaked = utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+       breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), messageHandlerStub);
        ASSERT_TRUE(breaked != NULL);
        EXPECT_EQ(glDrawArrays_Call, breaked->m_entryp.getEntrypoint());
 
@@ -377,19 +380,14 @@ namespace {
            //step == 1: after first draw (GL_BACK  should contain quad)
            {
                //query framebuffer
-               std::vector<dglnet::QueryResourceMessage::ResourceQuery> resQueries(1, dglnet::QueryResourceMessage::ResourceQuery(DGLResource::ObjectTypeFramebuffer,
-                   3 /* some rand value */, ContextObjectName(breaked->m_CurrentCtx, GL_BACK))); 
-               dglnet::QueryResourceMessage query;
-               query.m_ResourceQueries = resQueries;
-               client->sendMessage(&query);
+               dglnet::message::Request request(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeFramebuffer, dglnet::ContextObjectName(breaked->m_CurrentCtx, GL_BACK)));
+               client->sendMessage(&request);
            }
 
-           dglnet::ResourceMessage * resource = utils::receiveUntilMessage<dglnet::ResourceMessage>(client.get(), messageHandlerStub);
-           std::string err;
-           ASSERT_TRUE(resource->isOk(err));
-           EXPECT_EQ(0, err.length());
-           EXPECT_EQ(3, resource->m_ListenerId);
-           DGLResourceFramebuffer * framebufferResource = dynamic_cast<DGLResourceFramebuffer*>(resource->m_Resource.get());
+           dglnet::message::RequestReply* reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), messageHandlerStub);
+           std::string nothing;
+           ASSERT_TRUE(reply->isOk(nothing));
+           dglnet::resource::DGLResourceFramebuffer * framebufferResource = dynamic_cast<dglnet::resource::DGLResourceFramebuffer*>(reply->m_Reply.get());
            ASSERT_TRUE(framebufferResource != NULL);
 
            ASSERT_EQ(GL_RGBA, framebufferResource->m_PixelRectangle->m_GLFormat);
@@ -398,8 +396,6 @@ namespace {
            EXPECT_EQ(640, framebufferResource->m_PixelRectangle->m_Width);
            EXPECT_EQ(480, framebufferResource->m_PixelRectangle->m_Height);
            EXPECT_EQ(0, framebufferResource->m_PixelRectangle->m_InternalFormat);
-
-           printf("step = %d\n", step);
 
            if (step) {
                checkColor((GLubyte*)framebufferResource->m_PixelRectangle->getPtr(),
@@ -414,9 +410,9 @@ namespace {
            }
            
            //advance one call
-           dglnet::ContinueBreakMessage stepCall(dglnet::ContinueBreakMessage::STEP_CALL);
+           dglnet::message::ContinueBreak stepCall(dglnet::message::ContinueBreak::STEP_CALL);
            client->sendMessage(&stepCall);
-           ASSERT_TRUE(utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub) != NULL);
+           ASSERT_TRUE(utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), messageHandlerStub) != NULL);
        }
 
        client->abort();
@@ -428,27 +424,27 @@ namespace {
        boost::shared_ptr<dglnet::Client> client(new dglnet::Client(&controllerStub, &messageHandlerStub));
        client->connectServer("127.0.0.1", "8888");
 
-       dglnet::BreakedCallMessage* breaked = utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+       dglnet::message::BreakedCall* breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), messageHandlerStub);
        ASSERT_TRUE(breaked != NULL);
 
        {
            //set breakpoints && disable other breaking stuff
            std::set<Entrypoint> breakpoints;
            breakpoints.insert(glLinkProgram_Call);
-           dglnet::SetBreakPointsMessage breakPointMessage(breakpoints);
+           dglnet::message::SetBreakPoints breakPointMessage(breakpoints);
            client->sendMessage(&breakPointMessage);
 
-           dglnet::ConfigurationMessage config(DGLConfiguration(false, false, false));
+           dglnet::message::Configuration config(DGLConfiguration(false, false, false));
            client->sendMessage(&config);
        }
 
        {
            //continue
-           dglnet::ContinueBreakMessage continueMsg(false);
+           dglnet::message::ContinueBreak continueMsg(false);
            client->sendMessage(&continueMsg);
        }
 
-       breaked = utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub);
+       breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), messageHandlerStub);
        ASSERT_TRUE(breaked != NULL);
        EXPECT_EQ(glLinkProgram_Call, breaked->m_entryp.getEntrypoint());
 
@@ -465,17 +461,14 @@ namespace {
        }
 
        {
-           std::vector<dglnet::QueryResourceMessage::ResourceQuery> resQueries(1, dglnet::QueryResourceMessage::ResourceQuery(DGLResource::ObjectTypeShader,
-               3 /* some rand value */, ContextObjectName(breaked->m_CurrentCtx, fragId))); 
-           dglnet::QueryResourceMessage query;
-           query.m_ResourceQueries = resQueries;
-           client->sendMessage(&query);
+           dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, fragId)));
+           client->sendMessage(&requestMessage);
        }
 
-       dglnet::ResourceMessage * resource = utils::receiveUntilMessage<dglnet::ResourceMessage>(client.get(), messageHandlerStub);
+       dglnet::message::RequestReply  * reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), messageHandlerStub);
        std::string nothing;
-       ASSERT_TRUE(resource->isOk(nothing));
-       DGLResourceShader * shaderResource = dynamic_cast<DGLResourceShader*>(resource->m_Resource.get());
+       ASSERT_TRUE(reply->isOk(nothing));
+       dglnet::resource::DGLResourceShader * shaderResource = dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get());
        
        //Edit frag shader
        std::string source = shaderResource->m_Source;
@@ -488,43 +481,35 @@ namespace {
        }
        
 
-       dglnet::EditShaderSourceMessage edit(breaked->m_CurrentCtx, fragId, source);
+       dglnet::message::EditShaderSource edit(breaked->m_CurrentCtx, fragId, source);
        client->sendMessage(&edit);
 
        //Verify frag shader
        {
-           std::vector<dglnet::QueryResourceMessage::ResourceQuery> resQueries(1, dglnet::QueryResourceMessage::ResourceQuery(DGLResource::ObjectTypeShader,
-               3 /* some rand value */, ContextObjectName(breaked->m_CurrentCtx, fragId))); 
-           dglnet::QueryResourceMessage query;
-           query.m_ResourceQueries = resQueries;
-           client->sendMessage(&query);
+           dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, fragId)));
+           client->sendMessage(&requestMessage);
        }
-       resource = utils::receiveUntilMessage<dglnet::ResourceMessage>(client.get(), messageHandlerStub);
-       nothing;
-       ASSERT_TRUE(resource->isOk(nothing));
-       shaderResource = dynamic_cast<DGLResourceShader*>(resource->m_Resource.get());
+       reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), messageHandlerStub);
+       ASSERT_TRUE(reply->isOk(nothing));
+       shaderResource = dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get());
        ASSERT_EQ(source, shaderResource->m_Source);
        ASSERT_EQ(shaderResource->m_CompileStatus.second, GL_TRUE);
 
        //Verify by drawing with edited shader
        {
-           dglnet::ContinueBreakMessage stepDrawCall(dglnet::ContinueBreakMessage::STEP_FRAME);
+           dglnet::message::ContinueBreak stepDrawCall(dglnet::message::ContinueBreak::STEP_FRAME);
            client->sendMessage(&stepDrawCall);
-           ASSERT_TRUE(utils::receiveUntilMessage<dglnet::BreakedCallMessage>(client.get(), messageHandlerStub) != NULL);
+           ASSERT_TRUE(utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), messageHandlerStub) != NULL);
        }
 
        //Query back framebuffer
        {
-           std::vector<dglnet::QueryResourceMessage::ResourceQuery> resQueries(1, dglnet::QueryResourceMessage::ResourceQuery(DGLResource::ObjectTypeFramebuffer,
-               3 /* some rand value */, ContextObjectName(breaked->m_CurrentCtx, GL_BACK))); 
-           dglnet::QueryResourceMessage query;
-           query.m_ResourceQueries = resQueries;
-           client->sendMessage(&query);
+           dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeFramebuffer, dglnet::ContextObjectName(breaked->m_CurrentCtx, GL_BACK)));
+           client->sendMessage(&requestMessage);
        }
-
-       resource = utils::receiveUntilMessage<dglnet::ResourceMessage>(client.get(), messageHandlerStub);
-       ASSERT_TRUE(resource->isOk(nothing));
-       DGLResourceFramebuffer * framebufferResource = dynamic_cast<DGLResourceFramebuffer*>(resource->m_Resource.get());
+       reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), messageHandlerStub);
+       ASSERT_TRUE(reply->isOk(nothing));
+       dglnet::resource::DGLResourceFramebuffer* framebufferResource = dynamic_cast<dglnet::resource::DGLResourceFramebuffer*>(reply->m_Reply.get());
        ASSERT_TRUE(framebufferResource != NULL);
 
        checkColor((GLubyte*)framebufferResource->m_PixelRectangle->getPtr(),
@@ -536,5 +521,6 @@ namespace {
    }
 
 }  // namespace
+
 
 
