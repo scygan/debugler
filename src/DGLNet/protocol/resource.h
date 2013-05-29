@@ -95,7 +95,7 @@ class DGLResourceTexture: public DGLResource {
     }
 
 public:
-    std::vector<std::vector<::boost::shared_ptr<dglnet::resource::DGLPixelRectangle> > > m_FacesLevels;
+    std::vector<std::vector< ::boost::shared_ptr<dglnet::resource::DGLPixelRectangle> > > m_FacesLevels;
 };
 
 class DGLResourceBuffer: public DGLResource {
