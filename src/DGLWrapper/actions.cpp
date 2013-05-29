@@ -653,7 +653,7 @@ void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
             dglState::GLShaderObj* shader = gc->ensureShader(name, entrp == glDeleteObjectARB_Call);
 
-            shader->markDeleted();
+            shader->deleteCalled();
 
         } else if (entrp == glCompileShader_Call || entrp == glCompileShaderARB_Call) {
             
@@ -671,6 +671,11 @@ void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[0].get(prog);
             call.getArgs()[1].get(shad);
             gc->ensureProgram(prog)->attachShader(gc->ensureShader(shad, entrp == glAttachObjectARB_Call));
+        } else if (entrp == glDetachShader_Call || entrp == glDetachObjectARB_Call) {
+            GLuint prog, shad;
+            call.getArgs()[0].get(prog);
+            call.getArgs()[1].get(shad);
+            gc->ensureProgram(prog)->detachShader(gc->ensureShader(shad, entrp == glAttachObjectARB_Call));
         }
     }
     PrevPost(call, ret);

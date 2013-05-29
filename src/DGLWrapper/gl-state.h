@@ -83,7 +83,9 @@ class GLShaderObj: public GLObj {
 public:
     GLShaderObj(GLuint name, bool arbApi);
     GLShaderObj() {}
-    void markDeleted();
+    void deleteCalled();
+    void incRefCount();
+    void decRefCount();
 
     void setTarget(GLenum target);
     GLenum getTarget() const;
@@ -96,10 +98,15 @@ public:
     bool isDeleted() const;
 
 private:
+
+    void mayDelete();
+
     bool m_Deleted;
+    bool m_DeleteCalled;
     std::string m_LastSources;
     GLenum m_Target;
     bool m_arbApi;
+    int m_RefCount;
 };
 
 class GLProgramObj: public GLObj {

@@ -230,21 +230,31 @@ void GLProgramObj::markDeleted() {
 
 void GLProgramObj::attachShader(GLShaderObj* shader) {
     m_AttachedShaders.insert(shader);
-
+    shader->incRefCount();
 }
 
 void GLProgramObj::detachShader(GLShaderObj* shader) {
     m_AttachedShaders.erase(shader);
+    shader->decRefCount();
 }
 
 std::set<GLShaderObj*>& GLProgramObj::getAttachedShaders() {
     return m_AttachedShaders;
 }
 
-GLShaderObj::GLShaderObj(GLuint name, bool arbApi):GLObj(name), m_Deleted(false), m_Target(0), m_arbApi(arbApi) {}
+GLShaderObj::GLShaderObj(GLuint name, bool arbApi):GLObj(name), m_Deleted(false), m_DeleteCalled(false), m_Target(0), m_arbApi(arbApi), m_RefCount(0) {}
 
-void GLShaderObj::markDeleted() {
-    m_Deleted = true;
+void GLShaderObj::deleteCalled() {
+    m_DeleteCalled = true;
+    mayDelete();
+}
+
+void GLShaderObj::incRefCount() {
+    m_RefCount++;
+}
+void GLShaderObj::decRefCount() {
+    m_RefCount--;
+    mayDelete();
 }
 
 GLint GLShaderObj::queryCompilationStatus() const {
@@ -307,6 +317,12 @@ const std::string& GLShaderObj::queryAndStoreSources() {
 
 bool GLShaderObj::isDeleted() const {
     return m_Deleted;
+}
+
+void GLShaderObj::mayDelete() {
+    if (m_RefCount == 0 && m_DeleteCalled) {
+        m_Deleted = true;
+    }
 }
 
 GLenum GLShaderObj::getTarget() const {

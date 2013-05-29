@@ -130,6 +130,8 @@
     ActionBase::SetNext<ShaderAction>(glCompileShaderARB_Call);
     ActionBase::SetNext<ShaderAction>(glAttachObjectARB_Call);
     ActionBase::SetNext<ShaderAction>(glAttachShader_Call);
+    ActionBase::SetNext<ShaderAction>(glDetachObjectARB_Call);
+    ActionBase::SetNext<ShaderAction>(glDetachShader_Call);
 
     ActionBase::SetNext<ImmediateModeAction>(glBegin_Call);
     ActionBase::SetNext<ImmediateModeAction>(glEnd_Call);
