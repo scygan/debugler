@@ -86,16 +86,21 @@ public:
     void deleteCalled();
     void incRefCount();
     void decRefCount();
+    int getRefCount();
 
-    void setTarget(GLenum target);
+    void createCalled(GLenum target);
     GLenum getTarget() const;
     
-    bool useArbApi() const;
+    //bool useArbApi() const;
 
     GLint queryCompilationStatus() const;
     std::string queryCompilationInfoLog() const;
-    const std::string& queryAndStoreSources();
+    void cacheSources();
+    std::string querySources();
     bool isDeleted() const;
+
+    void editSource(const std::string& source);
+
 
 private:
 
@@ -113,6 +118,7 @@ class GLProgramObj: public GLObj {
 public:
     GLProgramObj(GLuint name);
     GLProgramObj() {}
+    ~GLProgramObj();
     void use(bool inUse); 
     bool mayDelete(); 
     void markDeleted();
@@ -178,6 +184,7 @@ public:
     GLFBObj* ensureFBO(GLuint name);
     void deleteFBO(GLuint name);
     GLProgramObj* ensureProgram(GLuint name);
+    GLProgramObj* findProgram(GLuint name);
     void deleteProgram(GLuint name);
     GLShaderObj* ensureShader(GLuint name, bool fromArbAPI);
     GLShaderObj* findShader(GLuint name);
@@ -190,13 +197,6 @@ public:
     boost::shared_ptr<dglnet::DGLResource> queryProgram(gl_t name);
     boost::shared_ptr<dglnet::DGLResource> queryGPU(gl_t name);
     boost::shared_ptr<dglnet::DGLResource> queryState(gl_t name);
-
-    /**
-     * Shader edit request
-     *
-     * Edits and recompiles the shader;
-     */
-    void editShaderSource(gl_t name, const std::string& source);
 
     opaque_id_t getId();
 

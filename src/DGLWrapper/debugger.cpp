@@ -251,8 +251,11 @@ void DGLDebugController::doHandle(const dglnet::message::EditShaderSource& msg) 
         }
         ctx->startQuery();
 
-        ctx->editShaderSource(msg.m_ShaderId, msg.m_Source);
-
+        dglState::GLShaderObj* obj = ctx->findShader(msg.m_ShaderId);
+        if (!obj) {
+            throw std::runtime_error("Shader does not exist");
+        }
+        obj->editSource(msg.m_Source);
     } catch (const std::runtime_error& message) {
         assert(!"Errors from DGLDebugController::doHandle(const dglnet::EditShaderSourceMessage&) not implemented");
     }

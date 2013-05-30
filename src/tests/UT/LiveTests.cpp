@@ -160,6 +160,10 @@ namespace {
                 dglnet::message::SetBreakPoints breakPointMessage(breakpoints);
                 client->sendMessage(&breakPointMessage);
             }
+
+            EXPECT_TRUE(ret != NULL);
+            EXPECT_EQ(entryp, ret->m_entryp.getEntrypoint());
+
             return ret;
         }
 
@@ -384,8 +388,6 @@ namespace {
        }
       
        breaked = utils::runUntilEntryPoint(client,  getMessageHandler(), glDrawArrays_Call);
-       ASSERT_TRUE(breaked != NULL);
-       EXPECT_EQ(glDrawArrays_Call, breaked->m_entryp.getEntrypoint());
 
        for (int step = 0; step < 2; step++) {
            //step == 0: before first draw (GL_BACK should be cleared)
@@ -443,8 +445,6 @@ namespace {
        }
 
        breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glLinkProgram_Call);
-       ASSERT_TRUE(breaked != NULL);
-       EXPECT_EQ(glLinkProgram_Call, breaked->m_entryp.getEntrypoint());
 
        //we are not before glLinkProgram(). Get the fragment shader
 
@@ -517,6 +517,204 @@ namespace {
 
        client->abort();
    }
+
+
+   TEST_F(LiveTest, shader_handling) {
+        dglnet::message::RequestReply* reply;
+        std::string nothing;
+        GLuint shaderId, programId;
+
+        boost::shared_ptr<dglnet::Client> client = getClientFor("shader_handling.py");
+        
+        dglnet::message::BreakedCall* breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler());
+        ASSERT_TRUE(breaked != NULL);
+        
+        {
+            //disable other breaking stuff
+            dglnet::message::Configuration config(DGLConfiguration(false, false, false));
+            client->sendMessage(&config);
+        }
+
+        //#simple case: create-delete
+        //shader = glCreateShader(GL_VERTEX_SHADER);
+        //#test point: we have one shader
+        breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glDeleteShader_Call);
+        EXPECT_EQ(1, breaked->m_CtxReports[0].m_ShaderSpace.size());
+        //glDeleteShader(shader);
+        //#test point: shader deleted
+        breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glFlush_Call);
+        EXPECT_EQ(1, breaked->m_CtxReports[0].m_ShaderSpace.size());
+        shaderId = breaked->m_CtxReports[0].m_ShaderSpace.begin()->m_Name;
+        {
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
+            client->sendMessage(&requestMessage);
+        }
+        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
+        ASSERT_TRUE(reply->isOk(nothing));
+        EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get())->m_ShaderObjDeleted);
+        //glFlush(); #flush is only to mark case end
+
+
+	    //#source cache test
+	    //shader = glCreateShader(GL_VERTEX_SHADER);
+	    //glShaderSource(shader, source);
+	    //glDeleteShader(shader);
+	    //#test point: shader deleted, has cached source
+        breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glFlush_Call);
+        if (breaked->m_CtxReports[0].m_ShaderSpace.size() == 1) {
+            //same id for new shader
+            shaderId = breaked->m_CtxReports[0].m_ShaderSpace.begin()->m_Name;
+        } else if (breaked->m_CtxReports[0].m_ShaderSpace.size() == 2) {
+            //new id for new shader, look up the list
+            auto i = breaked->m_CtxReports[0].m_ShaderSpace.begin();
+            if (shaderId == i->m_Name) shaderId = i->m_Name; else  shaderId = (++i)->m_Name;
+        } else { ASSERT_TRUE(0); }
+        {
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
+            client->sendMessage(&requestMessage);
+        }
+        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
+        ASSERT_TRUE(reply->isOk(nothing));
+        EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get())->m_ShaderObjDeleted);
+        EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get())->m_Source.find("gl_Position") != std::string::npos);
+        //glFlush(); #flush is only to mark case end
+        
+		
+        //#lazy deletion test, create-attach-delete-detach
+        //shader = glCreateShader(GL_VERTEX_SHADER);
+        //program = glCreateProgram();
+        breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glAttachShader_Call);
+        breaked->m_entryp.getArgs()[0].get(programId);
+        breaked->m_entryp.getArgs()[1].get(shaderId);
+        //glAttachShader(program, shader);
+        //#test point: program has shader
+        breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glDeleteShader_Call);
+        {
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeProgram, dglnet::ContextObjectName(breaked->m_CurrentCtx, programId)));
+            client->sendMessage(&requestMessage);
+        }
+        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
+        ASSERT_TRUE(reply->isOk(nothing));
+        EXPECT_EQ(1, dynamic_cast<dglnet::resource::DGLResourceProgram*>(reply->m_Reply.get())->m_AttachedShaders.size());
+        EXPECT_EQ(shaderId, dynamic_cast<dglnet::resource::DGLResourceProgram*>(reply->m_Reply.get())->m_AttachedShaders[0].first);
+        //glDeleteShader(shader);
+        //#test point: shader not deleted
+        breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glDetachShader_Call);
+        {
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
+            client->sendMessage(&requestMessage);
+        }
+        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
+        ASSERT_TRUE(reply->isOk(nothing));
+        EXPECT_FALSE(dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get())->m_ShaderObjDeleted);
+        //glDetachShader(program, shader);
+        //#test point: shader deleted, program has no shader
+        breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glDeleteProgram_Call);
+        {
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
+            client->sendMessage(&requestMessage);
+        }
+        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
+        ASSERT_TRUE(reply->isOk(nothing));
+        EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get())->m_ShaderObjDeleted);
+        {
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeProgram, dglnet::ContextObjectName(breaked->m_CurrentCtx, programId)));
+            client->sendMessage(&requestMessage);
+        }
+        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
+        ASSERT_TRUE(reply->isOk(nothing));
+        EXPECT_EQ(0, dynamic_cast<dglnet::resource::DGLResourceProgram*>(reply->m_Reply.get())->m_AttachedShaders.size());
+        //glDeleteProgram(program)
+		//glFlush(); #flush is only to mark case end
+
+
+        //#lazy deletion test2: create-attach-delete-deleteprogram
+        //shader = glCreateShader(GL_VERTEX_SHADER);
+        //program = glCreateProgram();
+        //glAttachShader(program, shader);
+        breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glAttachShader_Call);
+        breaked->m_entryp.getArgs()[0].get(programId);
+        breaked->m_entryp.getArgs()[1].get(shaderId);
+        //glDeleteShader(shader);
+        //#test point: shader not deleted, program has shader
+        breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glDeleteProgram_Call);
+        {
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
+            client->sendMessage(&requestMessage);
+        }
+        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
+        ASSERT_TRUE(reply->isOk(nothing));
+        EXPECT_FALSE(dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get())->m_ShaderObjDeleted);
+        {
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeProgram, dglnet::ContextObjectName(breaked->m_CurrentCtx, programId)));
+            client->sendMessage(&requestMessage);
+        }
+        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
+        ASSERT_TRUE(reply->isOk(nothing));
+        EXPECT_EQ(1, dynamic_cast<dglnet::resource::DGLResourceProgram*>(reply->m_Reply.get())->m_AttachedShaders.size());
+        EXPECT_EQ(shaderId, dynamic_cast<dglnet::resource::DGLResourceProgram*>(reply->m_Reply.get())->m_AttachedShaders[0].first);
+        //glDeleteProgram(program)
+        //#test point: shader deleted
+        breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glFlush_Call);
+        {
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
+            client->sendMessage(&requestMessage);
+        }
+        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
+        ASSERT_TRUE(reply->isOk(nothing));
+        EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get())->m_ShaderObjDeleted);
+        //glFlush(); #flush is only to mark case end
+		
+
+
+        //#caching in lazy deletion test (source after delete by detach) 
+        //shader = glCreateShader(GL_VERTEX_SHADER);
+        //program = glCreateProgram();
+        //glAttachShader(program, shader);
+        breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glAttachShader_Call);
+        breaked->m_entryp.getArgs()[0].get(programId);
+        breaked->m_entryp.getArgs()[1].get(shaderId);
+        //glDeleteShader(shader);
+        //glShaderSource(shader, source);
+        //glDetachShader(program, shader);
+        //#test point: cached source
+        breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glDeleteProgram_Call);
+        {
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
+            client->sendMessage(&requestMessage);
+        }
+        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
+        ASSERT_TRUE(reply->isOk(nothing));
+        EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get())->m_ShaderObjDeleted);
+        EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get())->m_Source.find("gl_Position") != std::string::npos);
+        //glDeleteProgram(program)
+        //glFlush(); #flush is only to mark case end
+	
+
+
+        //#caching in lazy deletion test 2 (source after delete by deleteprogram) 
+        //shader = glCreateShader(GL_VERTEX_SHADER);
+        //program = glCreateProgram();
+        //glAttachShader(program, shader);
+        breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glAttachShader_Call);
+        breaked->m_entryp.getArgs()[0].get(programId);
+        breaked->m_entryp.getArgs()[1].get(shaderId);
+        //glDeleteShader(shader);
+        //glShaderSource(shader, source);
+        //glDeleteProgram(program)
+        //#test point: cached source
+        breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glFlush_Call);
+        {
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
+            client->sendMessage(&requestMessage);
+        }
+        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
+        ASSERT_TRUE(reply->isOk(nothing));
+        EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get())->m_ShaderObjDeleted);
+        EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get())->m_Source.find("gl_Position") != std::string::npos);
+        //glFlush(); #flush is only to mark case end
+   }
+
 
 
 }  // namespace

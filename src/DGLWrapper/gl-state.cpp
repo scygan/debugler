@@ -216,6 +216,13 @@ GLenum GLBufferObj::getTarget() {
 
 GLProgramObj::GLProgramObj(GLuint name):GLObj(name), m_InUse(false) {}
 
+GLProgramObj::~GLProgramObj() {
+    auto i = m_AttachedShaders.begin();
+    while (i != m_AttachedShaders.end()) {
+        detachShader(*(i++));
+    }
+}
+
 void GLProgramObj::use(bool) {
     m_InUse = true;
 }
@@ -257,7 +264,14 @@ void GLShaderObj::decRefCount() {
     mayDelete();
 }
 
+int GLShaderObj::getRefCount() {
+    return m_RefCount;
+}
+
 GLint GLShaderObj::queryCompilationStatus() const {
+    if (m_Deleted) {
+        return 0;
+    }
     GLint compileStatus;
     if (m_arbApi) {
         DIRECT_CALL_CHK(glGetObjectParameterivARB)(getName(), GL_OBJECT_COMPILE_STATUS_ARB, &compileStatus);
@@ -268,6 +282,10 @@ GLint GLShaderObj::queryCompilationStatus() const {
 }
 
 std::string GLShaderObj::queryCompilationInfoLog() const {
+    if (m_Deleted) {
+        return "";
+    }
+
     GLint infoLogLength;
     if (m_arbApi) {
         DIRECT_CALL_CHK(glGetObjectParameterivARB)(getName(), GL_OBJECT_INFO_LOG_LENGTH_ARB, &infoLogLength);
@@ -288,7 +306,7 @@ std::string GLShaderObj::queryCompilationInfoLog() const {
     return &infoLog[0];
 }
 
-const std::string& GLShaderObj::queryAndStoreSources() {
+std::string GLShaderObj::querySources() {
     if (m_Deleted) {
         //shader does not exist in shader memory any more
         return m_LastSources;
@@ -310,14 +328,31 @@ const std::string& GLShaderObj::queryAndStoreSources() {
     }
     sources[std::min(sources.size() - 1, static_cast<size_t>(actualLength))] = 0;
 
-    m_LastSources = &sources[0];
 
-    return m_LastSources;
+    return &sources[0];
+}
+
+void GLShaderObj::cacheSources() {
+    if (m_Deleted) return;
+
+    m_LastSources = querySources();
 }
 
 bool GLShaderObj::isDeleted() const {
     return m_Deleted;
 }
+
+void GLShaderObj::editSource(const std::string& source) {
+    const char* sourcePtr = source.c_str();
+    if (m_arbApi) {
+        DIRECT_CALL_CHK(glShaderSourceARB)(getName(), 1, &sourcePtr, NULL);
+        DIRECT_CALL_CHK(glCompileShaderARB)(getName());
+    } else {
+        DIRECT_CALL_CHK(glShaderSource)(getName(), 1, &sourcePtr, NULL);
+        DIRECT_CALL_CHK(glCompileShader)(getName());
+    } 
+}
+
 
 void GLShaderObj::mayDelete() {
     if (m_RefCount == 0 && m_DeleteCalled) {
@@ -329,12 +364,13 @@ GLenum GLShaderObj::getTarget() const {
     return m_Target;   
 }
 
-bool GLShaderObj::useArbApi() const {
-    return m_arbApi;
-}
-
-void GLShaderObj::setTarget( GLenum target ) {
+void GLShaderObj::createCalled(GLenum target) {
     m_Target = target;
+    m_Deleted = false;
+    m_DeleteCalled = false;
+    m_Target = false;
+    m_RefCount = 0;
+    m_LastSources = "";
 }
 
 
@@ -1120,7 +1156,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryShader(gl_t _name) {
     
     resource->m_CompileStatus = std::pair<std::string, gl_t>(shader->queryCompilationInfoLog(), shader->queryCompilationStatus());
     
-    resource->m_Source = shader->queryAndStoreSources();
+    resource->m_Source = shader->querySources();
 
     resource->m_ShaderObjDeleted = shader->isDeleted();
 
@@ -1885,27 +1921,18 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     return ret;
 }
 
-void GLContext::editShaderSource(gl_t name, const std::string& source) {
-    GLShaderObj* obj = findShader(name);
-    if (!obj) {
-        throw std::runtime_error("Shader does not exist");
-    }
-
-    const char* sourcePtr = source.c_str();
-
-    if (obj->useArbApi()) {
-        DIRECT_CALL_CHK(glShaderSourceARB)(name, 1, &sourcePtr, NULL);
-        DIRECT_CALL_CHK(glCompileShaderARB)(name);
-    } else {
-        DIRECT_CALL_CHK(glShaderSource)(name, 1, &sourcePtr, NULL);
-        DIRECT_CALL_CHK(glCompileShader)(name);
-    }    
-}
-
 GLProgramObj* GLContext::ensureProgram(GLuint name) {
     std::map<GLuint, GLProgramObj>::iterator i = m_Programs.find(name);
     if (i == m_Programs.end()) {
         i = m_Programs.insert(std::pair<GLuint, GLProgramObj>(name, GLProgramObj(name))).first;
+    }
+    return &(*i).second;
+}
+
+GLProgramObj* GLContext::findProgram(GLuint name) {
+    std::map<GLuint, GLProgramObj>::iterator i = m_Programs.find(name);
+    if (i == m_Programs.end()) {
+        return NULL;
     }
     return &(*i).second;
 }
