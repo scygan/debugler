@@ -568,7 +568,7 @@ namespace {
         } else if (breaked->m_CtxReports[0].m_ShaderSpace.size() == 2) {
             //new id for new shader, look up the list
             auto i = breaked->m_CtxReports[0].m_ShaderSpace.begin();
-            if (shaderId == i->m_Name) shaderId = i->m_Name; else  shaderId = (++i)->m_Name;
+            if (shaderId != i->m_Name) shaderId = i->m_Name; else  shaderId = (++i)->m_Name;
         } else { ASSERT_TRUE(0); }
         {
             dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
