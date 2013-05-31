@@ -479,8 +479,10 @@ namespace {
        }
        
 
-       dglnet::message::EditShaderSource edit(breaked->m_CurrentCtx, fragId, source);
-       client->sendMessage(&edit);
+       dglnet::message::Request requestMessage(new dglnet::request::EditShaderSource(breaked->m_CurrentCtx, fragId, source));
+       client->sendMessage(&requestMessage);
+       reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
+       ASSERT_TRUE(reply->isOk(nothing));
 
        //Verify frag shader
        {

@@ -41,7 +41,6 @@ namespace message {
     class RequestReply;
 
     class SetBreakPoints;
-    class EditShaderSource;
 }
 
 
@@ -58,7 +57,6 @@ public:
     virtual void doHandle(const message::RequestReply&);
 
     virtual void doHandle(const message::SetBreakPoints&);
-    virtual void doHandle(const message::EditShaderSource&);
 
     virtual void doHandleDisconnect(const std::string& why) = 0;
     virtual ~MessageHandler() {}
@@ -328,28 +326,6 @@ private:
 
 };
 
-class EditShaderSource: public Message {
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
-        ar & boost::serialization::base_object<Message>(*this);
-        ar & m_Context;
-        ar & m_ShaderId;
-        ar & m_Source;
-    }
-
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
-
-public:
-    EditShaderSource() {}
-    EditShaderSource(opaque_id_t context, gl_t shaderId, std::string& source);
-
-    opaque_id_t m_Context;
-    gl_t m_ShaderId;
-    std::string m_Source;
-};
-
 }; //namespace message
 }; //namespace dglnet
 
@@ -365,7 +341,6 @@ REGISTER_CLASS(dglnet::message::Request);
 REGISTER_CLASS(dglnet::message::RequestReply);
 REGISTER_CLASS(dglnet::message::RequestReply::ReplyBase);
 REGISTER_CLASS(dglnet::message::SetBreakPoints);
-REGISTER_CLASS(dglnet::message::EditShaderSource);
 #endif
 
 #endif

@@ -48,11 +48,32 @@ public:
     ContextObjectName m_ObjectName;
 };
 
+class EditShaderSource: public DGLRequest {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::base_object<DGLRequest>(*this);
+        ar & m_Context;
+        ar & m_ShaderId;
+        ar & m_Source;
+    }
+
+public:
+    EditShaderSource() {}
+    EditShaderSource(opaque_id_t context, gl_t shaderId, std::string& source);
+
+    opaque_id_t m_Context;
+    gl_t m_ShaderId;
+    std::string m_Source;
+};
+
 } //namespace request
 } //namespace dglnet
 
 #ifdef REGISTER_CLASS
 REGISTER_CLASS(dglnet::request::QueryResource)
+REGISTER_CLASS(dglnet::request::EditShaderSource)
 #endif
 
 #endif //REQUEST_H

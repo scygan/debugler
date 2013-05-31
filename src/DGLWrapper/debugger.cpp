@@ -240,31 +240,6 @@ void DGLDebugController::doHandle(const dglnet::message::SetBreakPoints& msg) {
     getBreakState().handle(msg);
 }
 
-void DGLDebugController::doHandle(const dglnet::message::EditShaderSource& msg) {
-    dglState::GLContext* ctx = gc;
-    try {
-        if (!ctx) {
-            throw std::runtime_error("No OpenGL Context present, cannot issue query");
-        }
-        if (ctx->getId() != msg.m_Context) {
-                throw std::runtime_error("Object's parent context is not current now, cannot issue  query");
-        }
-        ctx->startQuery();
-
-        dglState::GLShaderObj* obj = ctx->findShader(msg.m_ShaderId);
-        if (!obj) {
-            throw std::runtime_error("Shader does not exist");
-        }
-        obj->editSource(msg.m_Source);
-    } catch (const std::runtime_error& message) {
-        assert(!"Errors from DGLDebugController::doHandle(const dglnet::EditShaderSourceMessage&) not implemented");
-    }
-    std::string message;
-    if (ctx && !ctx->endQuery(message)) {
-        assert("!Errors from DGLDebugController::doHandle(const dglnet::EditShaderSourceMessage&) not implemented");
-    }
-}
-
 void DGLDebugController::doHandle(const dglnet::message::Request& msg) {
     dglnet::message::RequestReply reply;
 
@@ -272,6 +247,8 @@ void DGLDebugController::doHandle(const dglnet::message::Request& msg) {
         //only one request type for now
         if (dynamic_cast<const dglnet::request::QueryResource*>(msg.m_Request.get())) {
             reply.m_Reply = doHandleRequest(*dynamic_cast<const dglnet::request::QueryResource*>(msg.m_Request.get()));
+        } else if (dynamic_cast<const dglnet::request::EditShaderSource*>(msg.m_Request.get())) {
+            doHandleRequest(*dynamic_cast<const dglnet::request::EditShaderSource*>(msg.m_Request.get()));
         } else {
             reply.error("Cannot handle: unsupported request");
         }
@@ -333,4 +310,27 @@ boost::shared_ptr<dglnet::DGLResource> DGLDebugController::doHandleRequest(const
     }
 
     return resource;
+}
+
+void DGLDebugController::doHandleRequest(const dglnet::request::EditShaderSource& request) {
+    dglState::GLContext* ctx = gc;
+    if (!ctx) {
+        throw std::runtime_error("No OpenGL Context present, cannot issue query");
+    }
+    if (ctx->getId() != request.m_Context) {
+        throw std::runtime_error("Object's parent context is not current now, cannot issue  query");
+    }
+    ctx->startQuery();
+
+    dglState::GLShaderObj* obj = ctx->findShader(request.m_ShaderId);
+    if (!obj) {
+        throw std::runtime_error("Shader does not exist");
+    }
+    obj->editSource(request.m_Source);
+
+
+    std::string message;
+    if (ctx && !ctx->endQuery(message)) {
+        throw std::runtime_error(message);
+    }
 }

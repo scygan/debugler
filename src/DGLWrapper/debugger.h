@@ -247,11 +247,6 @@ public:
     void doHandle(const dglnet::message::SetBreakPoints&);
 
     /** 
-     * Message handler - handle shader edit request
-     */
-    void doHandle(const dglnet::message::EditShaderSource&);
-
-    /** 
      * Message handler - handle general request message
      */
     void doHandle(const dglnet::message::Request&);
@@ -260,6 +255,11 @@ public:
      * Request handler - query resource request
      */
     boost::shared_ptr<dglnet::DGLResource> doHandleRequest(const dglnet::request::QueryResource&);
+
+    /** 
+     * Request handler - edit shader request
+     */
+    void doHandleRequest(const dglnet::request::EditShaderSource&);
 
 private:
 

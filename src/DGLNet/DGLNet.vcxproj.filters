@@ -44,6 +44,9 @@
     <ClCompile Include="protocol\ctxobjname.cpp">
       <Filter>protocol\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="protocol\request.cpp">
+      <Filter>protocol\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="message.h">
