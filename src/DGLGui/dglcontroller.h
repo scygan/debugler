@@ -92,6 +92,8 @@ public:
     ~DGLResourceListener();
 
     virtual void onRequestFinished(const dglnet::message::RequestReply* msg);
+public:
+    void fire();
 
 signals:
     void update(const dglnet::DGLResource&);

@@ -328,10 +328,10 @@ std::string GLShaderObj::queryCompilationInfoLog() const {
     return &infoLog[0];
 }
 
-std::string GLShaderObj::querySources() {
-    if (m_Deleted) {
+const std::string& GLShaderObj::querySource() {
+    if (isDeleted()) {
         //shader does not exist in shader memory any more
-        return m_LastSources;
+        return m_Source;
     }
 
     std::vector<GLchar> sources;
@@ -350,14 +350,16 @@ std::string GLShaderObj::querySources() {
     }
     sources[std::min(sources.size() - 1, static_cast<size_t>(actualLength))] = 0;
 
+    m_Source = &sources[0];
 
-    return &sources[0];
+    return m_Source;
 }
 
-void GLShaderObj::cacheSources() {
-    if (m_Deleted) return;
-
-    m_LastSources = querySources();
+void GLShaderObj::shaderSourceCalled() {
+    if (isDeleted()) {
+        throw std::exception("glShaderSource was called, but shader already marked as deleted");
+    }
+    m_OrigSource = querySource();
 }
 
 bool GLShaderObj::isDeleted() const {
@@ -365,6 +367,10 @@ bool GLShaderObj::isDeleted() const {
 }
 
 void GLShaderObj::editSource(const std::string& source) {
+    if (isDeleted()) {
+        throw std::exception("Error: trying to edit source of already deleted shader");
+    }
+
     const char* sourcePtr = source.c_str();
     if (m_arbApi) {
         DIRECT_CALL_CHK(glShaderSourceARB)(getName(), 1, &sourcePtr, NULL);
@@ -375,6 +381,9 @@ void GLShaderObj::editSource(const std::string& source) {
     } 
 }
 
+void GLShaderObj::resetSourceToOrig() {
+    editSource(m_OrigSource);
+}
 
 void GLShaderObj::mayDelete() {
     if (m_RefCount == 0 && m_DeleteCalled) {
@@ -391,7 +400,6 @@ void GLShaderObj::createCalled(GLenum target) {
     m_Deleted = false;
     m_DeleteCalled = false;
     m_RefCount = 0;
-    m_LastSources = "";
 }
 
 
@@ -1132,7 +1140,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryShader(gl_t _name) {
     
     resource->m_CompileStatus = std::pair<std::string, gl_t>(shader->queryCompilationInfoLog(), shader->queryCompilationStatus());
     
-    resource->m_Source = shader->querySources();
+    resource->m_Source = shader->querySource();
 
     resource->m_ShaderObjDeleted = shader->isDeleted();
 

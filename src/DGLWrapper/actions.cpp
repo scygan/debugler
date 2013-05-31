@@ -545,32 +545,6 @@ void BufferAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     PrevPost(call, ret);
 }
 
-RetValue ProgramAction::Pre(const CalledEntryPoint& call) {
-    RetValue ret = PrevPre(call);
-
-    Entrypoint entrp = call.getEntrypoint();
-
-    if (entrp == glDeleteProgram_Call || entrp == glDeleteObjectARB_Call) {
-        GLuint name;
-        call.getArgs()[0].get(name);
-        dglState::GLProgramObj* program = gc->findProgram(name);
-        if (program) {
-            for (auto i = program->getAttachedShaders().begin(); i != program->getAttachedShaders().end(); i++) {
-                if ((*i)->getRefCount() == 1) {
-                    try {
-                        //shader is going to be deleted.
-                        //we would like to remember sources of deleted shader for later display
-                        (*i)->cacheSources();        
-                    } catch(...) {}    
-                }
-            }
-        }
-    }
-    return ret;
-}
-
-
-
 void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
 
@@ -645,43 +619,6 @@ void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     PrevPost(call, ret);
 }
 
-RetValue ShaderAction::Pre(const CalledEntryPoint& call) {
-    RetValue ret = PrevPre(call);
-
-    Entrypoint entrp = call.getEntrypoint();
-
-    if (entrp == glDeleteShader_Call || entrp == glDeleteObjectARB_Call) {
-        GLuint name;
-        call.getArgs()[0].get(name);
-
-        dglState::GLShaderObj* shader = gc->findShader(name);
-        if (shader && shader->getRefCount() == 0) {
-            try {
-                //shader is going to be deleted.
-                //we would like to remember sources of deleted shader for later display
-                shader->cacheSources();        
-            } catch(...) {}    
-        }
-    }
-    if (entrp == glDetachShader_Call || entrp == glDetachObjectARB_Call) {
-        GLuint progName, shadName;
-        call.getArgs()[0].get(progName);
-        call.getArgs()[1].get(shadName);
-
-        dglState::GLProgramObj* program = gc->findProgram(progName);
-        dglState::GLShaderObj* shader = gc->findShader(shadName);
-        if (program && shader && shader->getRefCount() == 1 && program->getAttachedShaders().find(shader) != program->getAttachedShaders().end()) {
-            try {
-                //shader is going to be deleted.
-                //we would like to remember sources of deleted shader for later display
-                shader->cacheSources();        
-            } catch(...) {}    
-        }
-    }
-
-    return ret;
-}
-
 void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
 
@@ -718,15 +655,25 @@ void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             }
 
         } else if (entrp == glAttachShader_Call || entrp == glAttachObjectARB_Call) {
+
             GLuint prog, shad;
             call.getArgs()[0].get(prog);
             call.getArgs()[1].get(shad);
             gc->ensureProgram(prog)->attachShader(gc->ensureShader(shad, entrp == glAttachObjectARB_Call));
+
         } else if (entrp == glDetachShader_Call || entrp == glDetachObjectARB_Call) {
+
             GLuint prog, shad;
             call.getArgs()[0].get(prog);
             call.getArgs()[1].get(shad);
             gc->ensureProgram(prog)->detachShader(gc->ensureShader(shad, entrp == glAttachObjectARB_Call));
+
+        } else if (entrp == glShaderSourceARB_Call || entrp == glShaderSource_Call) {
+
+            GLuint shad;
+            call.getArgs()[0].get(shad);
+            gc->ensureShader(shad, entrp == glShaderSourceARB_Call)->shaderSourceCalled();
+
         }
     }
     PrevPost(call, ret);

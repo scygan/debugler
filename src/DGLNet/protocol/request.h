@@ -56,15 +56,19 @@ class EditShaderSource: public DGLRequest {
         ar & boost::serialization::base_object<DGLRequest>(*this);
         ar & m_Context;
         ar & m_ShaderId;
-        ar & m_Source;
+        ar & m_Reset;
+        if (!m_Reset) {
+            ar & m_Source;
+        }
     }
 
 public:
     EditShaderSource() {}
-    EditShaderSource(opaque_id_t context, gl_t shaderId, std::string& source);
+    EditShaderSource(opaque_id_t context, gl_t shaderId, bool reset, std::string source = "");
 
     opaque_id_t m_Context;
     gl_t m_ShaderId;
+    bool m_Reset;
     std::string m_Source;
 };
 

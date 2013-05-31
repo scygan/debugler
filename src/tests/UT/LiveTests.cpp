@@ -475,7 +475,7 @@ namespace {
        dglnet::resource::DGLResourceShader * shaderResource = dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get());
        
        //Edit frag shader
-       std::string source = shaderResource->m_Source;
+       std::string oldSource = shaderResource->m_Source, source = oldSource;
        std::string oldStr = "vec4(0.4, 0.5, 0.8, 1.0)";
        std::string newStr = "vec4(0.8, 0.5, 0.4, 1.0)";
        size_t pos = 0;
@@ -485,7 +485,7 @@ namespace {
        }
        
 
-       dglnet::message::Request requestMessage(new dglnet::request::EditShaderSource(breaked->m_CurrentCtx, fragId, source));
+       dglnet::message::Request requestMessage(new dglnet::request::EditShaderSource(breaked->m_CurrentCtx, fragId, false, source));
        client->sendMessage(&requestMessage);
        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
        ASSERT_TRUE(reply->isOk(nothing));
@@ -522,6 +522,26 @@ namespace {
                framebufferResource->m_PixelRectangle->m_Width,
                framebufferResource->m_PixelRectangle->m_Height,
                framebufferResource->m_PixelRectangle->m_RowBytes, 204, 127, 102, 255);
+
+
+       //Reset shader to default
+       {
+           dglnet::message::Request requestMessage(new dglnet::request::EditShaderSource(breaked->m_CurrentCtx, fragId, true));
+           client->sendMessage(&requestMessage);
+       }
+       reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
+       ASSERT_TRUE(reply->isOk(nothing));
+
+       //Verify frag shader
+       {
+           dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, fragId)));
+           client->sendMessage(&requestMessage);
+       }
+       reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
+       ASSERT_TRUE(reply->isOk(nothing));
+       shaderResource = dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get());
+       ASSERT_EQ(oldSource, shaderResource->m_Source);
+       ASSERT_EQ(shaderResource->m_CompileStatus.second, GL_TRUE);
 
        client->abort();
    }

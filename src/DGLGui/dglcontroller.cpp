@@ -64,6 +64,10 @@ void DGLResourceListener::onRequestFinished(const dglnet::message::RequestReply*
     }
 }
 
+void DGLResourceListener::fire() {
+    m_Manager->getRequestManager()->request(new dglnet::request::QueryResource(m_ObjectType, m_ObjectName), this);
+}
+
 DGLResourceManager::DGLResourceManager(DGLRequestManager* manager): m_RequestManager(manager) {}
 
 void DGLResourceManager::emitQueries() {
@@ -76,7 +80,7 @@ DGLResourceListener* DGLResourceManager::createListener(dglnet::ContextObjectNam
     DGLResourceListener* listener = new DGLResourceListener(name, type, this);
     
     m_Listeners.insert(m_Listeners.end(), listener);
-    m_RequestManager->request(new dglnet::request::QueryResource(listener->m_ObjectType, listener->m_ObjectName), listener);
+    listener->fire();
 
     return listener;
 }

@@ -91,15 +91,16 @@ public:
     void createCalled(GLenum target);
     GLenum getTarget() const;
     
-    //bool useArbApi() const;
-
     GLint queryCompilationStatus() const;
     std::string queryCompilationInfoLog() const;
-    void cacheSources();
-    std::string querySources();
+
+    void shaderSourceCalled();
+
+    const std::string& querySource();
     bool isDeleted() const;
 
     void editSource(const std::string& source);
+    void resetSourceToOrig();
 
 
 private:
@@ -108,7 +109,7 @@ private:
 
     bool m_Deleted;
     bool m_DeleteCalled;
-    std::string m_LastSources;
+    std::string m_Source, m_OrigSource;
     GLenum m_Target;
     bool m_arbApi;
     int m_RefCount;

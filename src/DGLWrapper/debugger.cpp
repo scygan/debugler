@@ -329,8 +329,11 @@ void DGLDebugController::doHandleRequest(const dglnet::request::EditShaderSource
     if (!obj) {
         throw std::runtime_error("Shader does not exist");
     }
-    obj->editSource(request.m_Source);
-
+    if (request.m_Reset) {
+        obj->resetSourceToOrig();
+    } else {
+        obj->editSource(request.m_Source);
+    }
 
     std::string message;
     if (ctx && !ctx->endQuery(message)) {
