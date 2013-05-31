@@ -446,7 +446,7 @@ namespace {
 
        breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glLinkProgram_Call);
 
-       //we are not before glLinkProgram(). Get the fragment shader
+       //we jutt before glLinkProgram(). Get the fragment shader
 
        ASSERT_EQ(1, breaked->m_CtxReports.size());
        ASSERT_EQ(2, breaked->m_CtxReports[0].m_ShaderSpace.size());
