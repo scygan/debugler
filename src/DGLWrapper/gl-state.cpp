@@ -368,7 +368,6 @@ void GLShaderObj::createCalled(GLenum target) {
     m_Target = target;
     m_Deleted = false;
     m_DeleteCalled = false;
-    m_Target = false;
     m_RefCount = 0;
     m_LastSources = "";
 }

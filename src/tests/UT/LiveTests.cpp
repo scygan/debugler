@@ -540,6 +540,7 @@ namespace {
         //#test point: we have one shader
         breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glDeleteShader_Call);
         EXPECT_EQ(1, breaked->m_CtxReports[0].m_ShaderSpace.size());
+        EXPECT_EQ(GL_VERTEX_SHADER, breaked->m_CtxReports[0].m_ShaderSpace.begin()->m_Target);
         //glDeleteShader(shader);
         //#test point: shader deleted
         breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glFlush_Call);
