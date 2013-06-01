@@ -77,9 +77,6 @@ HANDLE Inject(HANDLE hProcess, const char* dllname, const char* funcname)
     // Where the codecave execution should begin at
 	LPVOID codecaveExecAddr = 0;
 
-	// Handle to the thread we create in the process
-	HANDLE hThread = NULL;
-
 	// Temp variables
 #ifdef _WIN64
 	DWORD64 dwTmpSize = 0;
@@ -109,15 +106,15 @@ HANDLE Inject(HANDLE hProcess, const char* dllname, const char* funcname)
 // you can upgrade the functions or ignore them
 
 	// Build names
-	_snprintf(injectDllName, MAX_PATH, "%s", dllname);
-	_snprintf(injectFuncName, MAX_PATH, "%s", funcname);
-	_snprintf(user32Name, MAX_PATH, "user32.dll");
-	_snprintf(msgboxName, MAX_PATH, "MessageBoxA");
+	_snprintf_s(injectDllName, MAX_PATH, _TRUNCATE, "%s", dllname);
+	_snprintf_s(injectFuncName, MAX_PATH, _TRUNCATE, "%s", funcname);
+	_snprintf_s(user32Name, MAX_PATH, _TRUNCATE, "user32.dll");
+	_snprintf_s(msgboxName, MAX_PATH, _TRUNCATE, "MessageBoxA");
 
 	// Build error messages
-	_snprintf(injectError0, MAX_PATH, "Error");
-	_snprintf(injectError1, MAX_PATH, "Could not load the dll: %s", injectDllName);
-	_snprintf(injectError2, MAX_PATH, "Could not load the function: %s", injectFuncName);
+    _snprintf_s(injectError0, MAX_PATH, _TRUNCATE, "Error");
+    _snprintf_s(injectError1, MAX_PATH, _TRUNCATE, "Could not load the dll: %s", injectDllName);
+    _snprintf_s(injectError2, MAX_PATH, _TRUNCATE, "Could not load the function: %s", injectFuncName);
 
 	// Create the workspace
 	workspace = (LPBYTE)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 1024);

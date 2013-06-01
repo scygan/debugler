@@ -101,7 +101,7 @@ namespace blt {
             out[3] = inCast[3];
     }
 
-    inline void blitUNORM4444(const void* inVoid, int components, float* out) {
+    inline void blitUNORM4444(const void* inVoid, int /*components*/, float* out) {
         const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
         out[3] = (inCast[0]  & 0x0f) / float(0x0f);
         out[2] = ((inCast[0]  & (0x0f << 4)) >> 4) / float(0x0f);
@@ -109,7 +109,7 @@ namespace blt {
         out[0] = ((inCast[0]  & (0x0f << 12)) >> 12) / float(0x0f);
     }
 
-    inline void blitUNORM5551(const void* inVoid, int components, float* out) {
+    inline void blitUNORM5551(const void* inVoid, int /*components*/, float* out) {
         const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
         out[3] = static_cast<float>(inCast[0]  & 0x01);
         out[2] = ((inCast[0]  & (0x1f << 1)) >> 1) / float(0x1f);
@@ -117,7 +117,7 @@ namespace blt {
         out[0] = ((inCast[0]  & (0x1f << 11)) >> 11) / float(0x1f);
     }
 
-    inline void blitUNORM2101010_REV(const void* inVoid, int components, float* out) {
+    inline void blitUNORM2101010_REV(const void* inVoid, int /*components*/, float* out) {
         const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
         out[0] = (inCast[0]  & 0x3ff) / float(0x3ff);
         out[1] = ((inCast[0]  & (0x3ff << 10)) >> 10) / float(0x3ff);
@@ -125,26 +125,26 @@ namespace blt {
         out[3] = ((inCast[0]  & (0x3   << 30)) >> 30) / float(0x3);
     }
 
-    inline void blitUNORM565(const void* inVoid, int components, float* out) {
+    inline void blitUNORM565(const void* inVoid, int /*components*/, float* out) {
         const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
         out[2] = (inCast[0]  & 0x1f) / float(0x1f);
         out[1] = ((inCast[0]  & (0x3f << 5)) >> 5) / float(0x3f);
         out[0] = ((inCast[0]  & (0x1f << 11)) >> 11) / float(0x1f);
     }
 
-    inline void blitUNORM24_8(const void* inVoid, int components, float* out) {
+    inline void blitUNORM24_8(const void* inVoid, int /*components*/, float* out) {
         const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
         out[1] = (inCast[0]  & 0xff) / float(0xff);
         out[0] = ((inCast[0]  & (0xffffff << 8)) >> 8) / float(0xffffff);
     }
 
-    inline void blitF32_UNORM24_8(const void* inVoid, int components, float* out) {
+    inline void blitF32_UNORM24_8(const void* inVoid, int /*components*/, float* out) {
         const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
         out[1] = (inCast[1]  & 0xff) / float(0xff);
         out[0] = *reinterpret_cast<const float*>(&inCast[0]);
     }
 
-    inline void blitUNORM332(const void* inVoid, int components, float* out) {
+    inline void blitUNORM332(const void* inVoid, int /*components*/, float* out) {
         const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
         out[2] = (inCast[0]  & 0x3) / float(0x3);
         out[1] = ((inCast[0]  & (0x7 << 2)) >> 2) / float(0x7);
@@ -194,7 +194,7 @@ namespace extract {
         return ret;
     }
 
-    std::vector<AnyValue> extractUNORM4444(const void* inVoid, int components) {
+    std::vector<AnyValue> extractUNORM4444(const void* inVoid, int /*components*/) {
         std::vector<AnyValue> ret(4);
         const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
         ret[3] = inCast[0]  & 0x0f;
@@ -204,7 +204,7 @@ namespace extract {
         return ret;
     }
 
-    std::vector<AnyValue> extractUNORM5551(const void* inVoid, int components) {
+    std::vector<AnyValue> extractUNORM5551(const void* inVoid, int /*components*/) {
         std::vector<AnyValue> ret(4);
         const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
         ret[3] = static_cast<float>(inCast[0]  & 0x01);
@@ -214,7 +214,7 @@ namespace extract {
         return ret;
     }
 
-    std::vector<AnyValue> extractUNORM2101010_REV(const void* inVoid, int components) {
+    std::vector<AnyValue> extractUNORM2101010_REV(const void* inVoid, int /*components*/) {
         std::vector<AnyValue> ret(4);
         const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
         ret[0] = inCast[0]  & 0x3ff;
@@ -224,7 +224,7 @@ namespace extract {
         return ret;
     }
 
-    std::vector<AnyValue> extractUNORM565(const void* inVoid, int components) {
+    std::vector<AnyValue> extractUNORM565(const void* inVoid, int /*components*/) {
         std::vector<AnyValue> ret(3);
         const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
         ret[2] = inCast[0]  & 0x1f;
@@ -233,7 +233,7 @@ namespace extract {
         return ret;
     }
 
-    std::vector<AnyValue> extractUNORM24_8(const void* inVoid, int components) {
+    std::vector<AnyValue> extractUNORM24_8(const void* inVoid, int /*components*/) {
         std::vector<AnyValue> ret(2);
         const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
         ret[1] = inCast[0]  & 0xff;
@@ -241,7 +241,7 @@ namespace extract {
         return ret;
     }
 
-    std::vector<AnyValue> extractF32_UNORM24_8(const void* inVoid, int components) {
+    std::vector<AnyValue> extractF32_UNORM24_8(const void* inVoid, int /*components*/) {
         std::vector<AnyValue> ret(2);
         const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
         ret[1] = inCast[1]  & 0xff;
@@ -249,7 +249,7 @@ namespace extract {
         return ret;
     }
 
-    std::vector<AnyValue> extractUNORM332(const void* inVoid, int components) {
+    std::vector<AnyValue> extractUNORM332(const void* inVoid, int /*components*/) {
         std::vector<AnyValue> ret(3);
         const uint8_t* inCast = reinterpret_cast<const uint8_t*>(inVoid);
         ret[2] = inCast[0]  & 0x3;

@@ -39,7 +39,13 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp> 
-#include <boost/program_options.hpp>
+#pragma warning(push)
+#pragma warning(disable:4512)//'boost::program_options::options_description' : assignment operator could not be generated
+#include <boost/program_options/options_description.hpp>
+#pragma warning(pop)
+#include <boost/program_options/positional_options.hpp>
+#include <boost/program_options/variables_map.hpp>
+#include <boost/program_options/parsers.hpp>
 
 #include "DGLCommon/os.h"
 #include <DGLCommon/wa.h>
@@ -270,12 +276,12 @@ int main(int argc, char** argv) {
 
         //inject thread with wrapper library loading code, run through DLLMain and InitializeThread() function
 
-        HANDLE thread = Inject(processInformation.hProcess, wrapperPath.c_str(), "LoaderThread");
-
-        //wait for loader thread to finish dll inject
 #ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
+        Inject(processInformation.hProcess, wrapperPath.c_str(), "LoaderThread");
         remoteThreadSemaphore.wait();
 #else
+        HANDLE thread = Inject(processInformation.hProcess, wrapperPath.c_str(), "LoaderThread");
+        //wait for loader thread to finish dll inject
         WaitForSingleObject(thread, INFINITE);
 #endif
 

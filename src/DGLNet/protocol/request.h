@@ -25,7 +25,7 @@ namespace dglnet {
 class DGLRequest {
 public:
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {}
+    void serialize(Archive& /*ar*/, const unsigned int) {}
     virtual ~DGLRequest() {}
 };
 
@@ -36,7 +36,7 @@ class QueryResource: public DGLRequest {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void serialize(Archive & ar, const unsigned int) {
         ar & boost::serialization::base_object<DGLRequest>(*this);
         ar & m_Type;
         ar & m_ObjectName;
@@ -52,7 +52,7 @@ class EditShaderSource: public DGLRequest {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void serialize(Archive & ar, const unsigned int) {
         ar & boost::serialization::base_object<DGLRequest>(*this);
         ar & m_Context;
         ar & m_ShaderId;

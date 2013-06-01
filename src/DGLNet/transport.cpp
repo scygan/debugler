@@ -23,13 +23,17 @@
 
 #include "transport.h"
 
-//for boost serialization
-#pragma warning(disable:4244 4308)
-
 #include <portable_archive/portable_oarchive.hpp>
+#pragma warning(push)
+#pragma warning(disable:4244) //'argument' : conversion from 'std::streamsize' to 'size_t', possible loss of data basic_binary_iprimitive.hpp	181
 #include <portable_archive/portable_iarchive.hpp>
+#pragma warning(pop)
 #include <boost/serialization/set.hpp>
+#pragma warning(push)
+#pragma warning(disable:4512) //'boost::serialization::variant_save_visitor<Archive>' : assignment operator could not be generated
+
 #include <boost/serialization/variant.hpp>
+#pragma warning(pop)
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -151,10 +155,10 @@ namespace dglnet {
         std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> > sentData;
         std::swap(m_WriteQueue, sentData);
         boost::asio::async_write(m_socket, buffers, boost::bind(&Transport::onWrite, shared_from_this(),
-                sentData, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+                sentData, boost::asio::placeholders::error));
     }
 
-    void Transport::onWrite(std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> > sentData, const boost::system::error_code &ec, std::size_t bytes_transferred) {
+    void Transport::onWrite(std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> > sentData, const boost::system::error_code &ec) {
         for (size_t i = 0; i < sentData.size(); i++) {
             delete sentData[i].first;
             delete sentData[i].second;

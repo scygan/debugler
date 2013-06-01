@@ -68,7 +68,7 @@ class Message {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {}
+    void serialize(Archive& /*ar*/, const unsigned int) {}
 
 public:
     virtual void handle(MessageHandler*) const = 0;
@@ -83,7 +83,7 @@ class Hello: public Message {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void serialize(Archive & ar, const unsigned int) {
         ar & boost::serialization::base_object<Message>(*this);
         ar & m_ProcessName;
     }
@@ -100,7 +100,7 @@ class Configuration: public Message {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void serialize(Archive & ar, const unsigned int) {
         ar & boost::serialization::base_object<Message>(*this);
         ar & m_config.m_BreakOnGLError;
         ar & m_config.m_BreakOnDebugOutput;
@@ -120,7 +120,7 @@ class BreakedCall: public Message {
     friend class boost::serialization::access;
     
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void serialize(Archive & ar, const unsigned int) {
         ar & boost::serialization::base_object<Message>(*this);
         ar & m_entryp;
         ar & m_TraceSize;
@@ -136,7 +136,7 @@ public:
         friend class boost::serialization::access;
 
         template<class Archive>
-        void serialize(Archive & ar, const unsigned int version) {
+        void serialize(Archive & ar, const unsigned int) {
             ar & m_Id;
             ar & m_TextureSpace;
             ar & m_BufferSpace;
@@ -171,7 +171,7 @@ class ContinueBreak: public Message {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void serialize(Archive & ar, const unsigned int) {
         ar & boost::serialization::base_object<Message>(*this);
         ar & m_Breaked;
         ar & m_InStepMode;
@@ -204,7 +204,7 @@ class QueryCallTrace: public Message {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void serialize(Archive & ar, const unsigned int) {
         ar & boost::serialization::base_object<Message>(*this);
         ar & m_StartOffset;
         ar & m_EndOffset;
@@ -224,7 +224,7 @@ class CallTrace: public Message {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void serialize(Archive & ar, const unsigned int) {
         ar & boost::serialization::base_object<Message>(*this);
         ar & m_StartOffset;
         ar & m_Trace;
@@ -251,7 +251,7 @@ class Request: public Message {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void serialize(Archive & ar, const unsigned int) {
         ar & boost::serialization::base_object<Message>(*this);
         ar & m_RequestId;
         ar & m_Request;
@@ -276,7 +276,7 @@ public:
     RequestReply();
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void serialize(Archive & ar, const unsigned int) {
         ar & boost::serialization::base_object<Message>(*this);
         ar & m_Ok;
         ar & m_ErrorMsg;
@@ -291,7 +291,7 @@ public:
     class ReplyBase {
         public:
             template<class Archive>
-            void serialize(Archive & ar, const unsigned int version) {}
+            void serialize(Archive& /*ar*/, const unsigned int) {}
         
             virtual ~ReplyBase() {}
     };
@@ -309,7 +309,7 @@ class SetBreakPoints: public Message {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void serialize(Archive & ar, const unsigned int) {
         ar & boost::serialization::base_object<Message>(*this);
         ar & m_BreakPoints;
     }

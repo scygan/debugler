@@ -53,6 +53,9 @@ extern "C" {
 #define INTERRUPT_GATE 6
 #define TRAP_GATE      7
 
+#pragma warning(push)
+#pragma warning(disable:4214) //nonstandard extension used: bit field types other than int"
+
 typedef struct _IDT_ENTRY
 {
    USHORT LowOffset;
@@ -266,6 +269,8 @@ typedef struct _GDT_ENTRY
         } Bits;
     } HighWord;
 } GDT_ENTRY;
+
+#pragma warning(pop)
 
 BYTE *GetAbsoluteAddressFromSegment(BYTE Segment, DWORD Offset);
 BYTE *GetAbsoluteAddressFromSelector(WORD Selector, DWORD Offset);

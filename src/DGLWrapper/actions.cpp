@@ -403,7 +403,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
     if (ret.isSet()) return ret;
 
 #ifdef HAVE_LIBRARY_WGL
-    HDC hdc;
+    HDC hdc = NULL;
     HGLRC sharedCtx = NULL;
     const int *attribList = NULL;
     switch (call.getEntrypoint()) {
@@ -415,6 +415,8 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
             call.getArgs()[1].get(sharedCtx);
             call.getArgs()[2].get(attribList);
             break;
+        default:
+            assert(0);
     }
 
     std::vector<int> newAttribList; 
@@ -438,7 +440,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
         newAttribList.push_back(0);
     }
 
-    HGLRC tmpCtx;
+    HGLRC tmpCtx = NULL;
 
     if (!anyContextPresent) {
         //we must create one dummy ctx, to force ICD loading on Windows
@@ -452,7 +454,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
         ret = DIRECT_CALL_CHK(wglCreateContextAttribsARB)(hdc, sharedCtx, &newAttribList[0]);
     }	
 
-    if (!anyContextPresent) {
+    if (tmpCtx) {
         //unwind dummy ctx
         DIRECT_CALL_CHK(wglMakeCurrent)(NULL, NULL);
         DIRECT_CALL_CHK(wglDeleteContext)(tmpCtx);
@@ -587,8 +589,13 @@ void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
             call.getArgs()[0].get(name);
 
-            GLint currentProgramName;
-            DIRECT_CALL(glGetIntegerv)(GL_CURRENT_PROGRAM, &currentProgramName);
+            GLuint currentProgramName;
+            {
+                GLint i;
+                DIRECT_CALL(glGetIntegerv)(GL_CURRENT_PROGRAM, &i);
+                currentProgramName = static_cast<GLuint>(i);
+            }
+            
 
             if (currentProgramName != name) {
 

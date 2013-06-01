@@ -49,7 +49,7 @@ void DGLPixRectQGraphicsView::mouseMoveEvent ( QMouseEvent * event ) {
     emit onMouseOver(event->pos());
     QGraphicsView::mouseMoveEvent(event);
 }
-void DGLPixRectQGraphicsView::leaveEvent ( QEvent * event ) {
+void DGLPixRectQGraphicsView::leaveEvent ( QEvent * /*event*/ ) {
     emit onMouseLeft();
 }
 

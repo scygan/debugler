@@ -1,7 +1,10 @@
 #ifndef QHEXEDIT_H
 #define QHEXEDIT_H
 
+#pragma warning(push)
+#pragma warning(disable:4512) // assignment operator could not be generated
 #include <QtGui>
+#pragma warning(pop)
 #include "qhexedit_p.h"
 
 /** \mainpage

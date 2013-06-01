@@ -27,7 +27,7 @@ public:
     ContextObjectName(opaque_id_t context, gl_t name, gl_t target = 0);
     virtual ~ContextObjectName();
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void serialize(Archive & ar, const unsigned int) {
         ar & m_Name;
         ar & m_Context;
         ar & m_Target;

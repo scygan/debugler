@@ -45,7 +45,7 @@ DGLBreakPointDialog::~DGLBreakPointDialog() {}
 
 std::set<Entrypoint> DGLBreakPointDialog::getBreakPoints() {
     std::set<Entrypoint> ret;
-    for (uint i = 0; i < m_Ui.rightListWidget->count(); i++) {
+    for (int i = 0; i < m_Ui.rightListWidget->count(); i++) {
         DGLBreakPointDialogItem* widget = dynamic_cast<DGLBreakPointDialogItem*>( m_Ui.rightListWidget->item(i));
         assert(widget);
         ret.insert(widget->get());
@@ -56,11 +56,11 @@ std::set<Entrypoint> DGLBreakPointDialog::getBreakPoints() {
 void DGLBreakPointDialog::addBreakPoint() {
     QList<QListWidgetItem*> list = m_Ui.leftListWidget->selectedItems();
 
-    for (uint i = 0; i < list.count(); i++) {
+    for (int i = 0; i < list.count(); i++) {
         DGLBreakPointDialogItem* widget1 = dynamic_cast<DGLBreakPointDialogItem*>(list.at(i));
         assert(widget1);
         bool found = false;
-        for (uint j = 0; j < m_Ui.rightListWidget->count(); j++) {
+        for (int j = 0; j < m_Ui.rightListWidget->count(); j++) {
             DGLBreakPointDialogItem* widget2 = dynamic_cast<DGLBreakPointDialogItem*>( m_Ui.rightListWidget->item(j));
             assert(widget2);
             if (widget1->get() == widget2->get()) {
@@ -76,7 +76,7 @@ void DGLBreakPointDialog::addBreakPoint() {
 
 void DGLBreakPointDialog::deleteBreakPoint() {
     QList<QListWidgetItem*> list = m_Ui.rightListWidget->selectedItems();
-    for (uint i = 0; i < list.count(); i++) {
+    for (int i = 0; i < list.count(); i++) {
         delete list.at(i);
     }
 }
@@ -87,7 +87,7 @@ void DGLBreakPointDialog::searchBreakPoint(const QString& prefix) {
 
         bool first = true;
 
-        for (uint j = 0; j < m_Ui.leftListWidget->count(); j++) {
+        for (int j = 0; j < m_Ui.leftListWidget->count(); j++) {
             QListWidgetItem* item = m_Ui.leftListWidget->item(j);
             if (item->text().startsWith(prefix)) {
                 QModelIndex idx = m_Ui.leftListWidget->model()->index(j, 0);

@@ -33,7 +33,7 @@ public:
     RetValue(const RetValue& v):AnyValue(*static_cast<const AnyValue*>(&v)),m_isSet(v.isSet()) {}
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void serialize(Archive & ar, const unsigned int) {
         ar & boost::serialization::base_object<AnyValue>(*this);;
         ar & m_isSet;
     }
@@ -53,7 +53,7 @@ class CalledEntryPoint {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void serialize(Archive & ar, const unsigned int) {
         ar & m_args;
         ar & m_retVal;
         ar & m_entryp;

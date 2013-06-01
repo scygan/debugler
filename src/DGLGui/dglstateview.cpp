@@ -48,7 +48,7 @@ void DGLStateView::update(const dglnet::DGLResource& res) {
     for (size_t i = 0; i < resource->m_Items.size(); i++) {
         std::ostringstream valStream;
         valStream << std::showpoint;
-        for (int j = 0; j < resource->m_Items[i].m_Values.size(); j++) {
+        for (size_t j = 0; j < resource->m_Items[i].m_Values.size(); j++) {
             if (j)
                 valStream << ", ";
             resource->m_Items[i].m_Values[j].writeToSS(valStream);
@@ -61,7 +61,7 @@ void DGLStateView::update(const dglnet::DGLResource& res) {
 
 }
 
-void DGLStateView::error(const std::string& message) {
+void DGLStateView::error(const std::string& /*message*/) {
     m_Ui->tableWidget->setRowCount(0);
 }
 

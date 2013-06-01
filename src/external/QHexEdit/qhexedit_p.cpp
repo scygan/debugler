@@ -1,4 +1,7 @@
+#pragma warning(push)
+#pragma warning(disable:4512) // assignment operator could not be generated
 #include <QtGui>
+#pragma warning(pop)
 
 #include "qhexedit_p.h"
 #include "commands.h"
@@ -471,9 +474,9 @@ if (!_readOnly)
             {
                 QByteArray hexValue = _xData.data().mid(posBa, 1).toHex();
                 if ((charX % 3) == 0)
-                    hexValue[0] = key;
+                    hexValue[0] = static_cast<char>(key);
                 else
-                    hexValue[1] = key;
+                    hexValue[1] = static_cast<char>(key);
 
                 replace(posBa, QByteArray().fromHex(hexValue)[0]);
 

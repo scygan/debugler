@@ -68,7 +68,10 @@ struct DGLColorScheme {
 DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags) {
 
+#pragma warning(push)
+#pragma warning(disable:4127) //conditional expression is constant
     Q_INIT_RESOURCE(dglmainwindow);
+#pragma warning(pop)
 
     boost::shared_ptr<OsIcon> icon(Os::createIcon());
 #ifdef _WIN32

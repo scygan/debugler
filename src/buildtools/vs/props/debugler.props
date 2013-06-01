@@ -17,11 +17,13 @@
       <PreprocessorDefinitions>USE_MSVC;WIN32;BOOST_ALL_NO_LIB;BOOST_ALL_COMPILE_IN_PLACE;BOOST_THREAD_BUILD_LIB;_WIN32_WINNT=0x0501</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <WarningLevel>Level4</WarningLevel>
+      <DisableSpecificWarnings>4481;4127</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLNet;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLGUI</AdditionalLibraryDirectories>
-	  <TargetMachine Condition="'$(Platform)'=='Win32'">MachineX86</TargetMachine>
-	  <TargetMachine Condition="'$(Platform)'=='x64'">MachineX64</TargetMachine>
+      <TargetMachine Condition="'$(Platform)'=='Win32'">MachineX86</TargetMachine>
+      <TargetMachine Condition="'$(Platform)'=='x64'">MachineX64</TargetMachine>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup />

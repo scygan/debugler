@@ -112,7 +112,7 @@ namespace {
             dglnet::Message* msg = NULL; 
             do {
                 transport->run_one();
-            } while (!handler.mDisconnected && !(msg = handler.getLastMessage()));
+            } while (!handler.mDisconnected && !((msg = handler.getLastMessage()) != NULL));
             EXPECT_EQ(false, handler.mDisconnected);
             if (!msg || !dynamic_cast<T*>(msg)) {
                 return NULL;
@@ -451,7 +451,7 @@ namespace {
        ASSERT_EQ(1, breaked->m_CtxReports.size());
        ASSERT_EQ(2, breaked->m_CtxReports[0].m_ShaderSpace.size());
 
-       GLuint fragId = -1;
+       gl_t fragId = 0;
        for (auto i = breaked->m_CtxReports[0].m_ShaderSpace.begin(); i !=  breaked->m_CtxReports[0].m_ShaderSpace.end(); i++) {
            if (i->m_Target == GL_FRAGMENT_SHADER) {
                fragId = i->m_Name;
@@ -547,7 +547,7 @@ namespace {
         //#test point: shader deleted
         breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glFlush_Call);
         EXPECT_EQ(1, breaked->m_CtxReports[0].m_ShaderSpace.size());
-        shaderId = breaked->m_CtxReports[0].m_ShaderSpace.begin()->m_Name;
+        shaderId = (GLuint)breaked->m_CtxReports[0].m_ShaderSpace.begin()->m_Name;
         {
             dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
             client->sendMessage(&requestMessage);
@@ -566,11 +566,11 @@ namespace {
         breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glFlush_Call);
         if (breaked->m_CtxReports[0].m_ShaderSpace.size() == 1) {
             //same id for new shader
-            shaderId = breaked->m_CtxReports[0].m_ShaderSpace.begin()->m_Name;
+            shaderId = (GLuint)breaked->m_CtxReports[0].m_ShaderSpace.begin()->m_Name;
         } else if (breaked->m_CtxReports[0].m_ShaderSpace.size() == 2) {
             //new id for new shader, look up the list
             auto i = breaked->m_CtxReports[0].m_ShaderSpace.begin();
-            if (shaderId != i->m_Name) shaderId = i->m_Name; else  shaderId = (++i)->m_Name;
+            if (shaderId != i->m_Name) shaderId = (GLuint)i->m_Name; else  shaderId = (GLuint)(++i)->m_Name;
         } else { ASSERT_TRUE(0); }
         {
             dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));

@@ -29,7 +29,7 @@ class PtrWrap {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void serialize(Archive & ar, const unsigned int) {
         long long tmp = reinterpret_cast<long long>(m_value);
         ar & tmp;
         m_value = reinterpret_cast<T>(tmp);
@@ -50,7 +50,7 @@ class GLenumWrap {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void serialize(Archive & ar, const unsigned int) {
         ar & m_value;
     }
 
@@ -71,7 +71,7 @@ class AnyValue {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void serialize(Archive & ar, const unsigned int) {
         ar & m_value;
     }
 

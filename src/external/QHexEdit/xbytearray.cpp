@@ -44,7 +44,7 @@ void XByteArray::setData(QByteArray data)
 
 bool XByteArray::dataChanged(int i)
 {
-    return bool(_changedData[i]);
+    return _changedData[i] != char(0);
 }
 
 QByteArray XByteArray::dataChanged(int i, int len)
@@ -143,7 +143,7 @@ QString XByteArray::floatString8(int index)
 {
     QByteArray fba = _data.mid(index, sizeof(float));
     float f = *reinterpret_cast<float*>(fba.data());
-    QString ret = QString::number(f, f, 6);
+    QString ret = QString::number(f, 'g', 6);
     ret.resize(8);
     return ret;
 }

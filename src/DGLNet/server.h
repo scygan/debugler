@@ -26,7 +26,7 @@ namespace dglnet {
 
 class Server: public Transport {
 public: 
-    Server(int port, MessageHandler*);
+    Server(unsigned short port, MessageHandler*);
     void lock();
     void unlock();
     void accept();

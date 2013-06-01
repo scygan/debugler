@@ -47,14 +47,14 @@ void DGLFBOViewItem::update(const dglnet::DGLResource& res) {
     m_Ui.m_AttListWidget->clear();
     m_Error = false;
     m_Attachments = resource->m_Attachments;
-    for (int i = 0; i < resource->m_Attachments.size(); i++) {
+    for (size_t i = 0; i < resource->m_Attachments.size(); i++) {
         m_Ui.m_AttListWidget->addItem(QString::fromStdString(GetGLEnumName(resource->m_Attachments[i].m_Id)));
     }
     showAttachment(0);
 }
 
 void DGLFBOViewItem::showAttachment(int id) {
-    if (m_Error || id >= m_Attachments.size() || id < 0) return;
+    if (m_Error || static_cast<size_t>(id) >= m_Attachments.size() || id < 0) return;
 
     std::string errorMsg;
 
@@ -82,6 +82,6 @@ DGLTabbedViewItem* DGLFBOView::createTab(const dglnet::ContextObjectName& id) {
     return new DGLFBOViewItem(id, m_Controller->getResourceManager(), this);
 }
 
-QString DGLFBOView::getTabName(uint id, uint target) {
+QString DGLFBOView::getTabName(uint id, uint /*target*/) {
     return QString("FBO ") + QString::number(id);
 }

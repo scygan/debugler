@@ -256,13 +256,20 @@ std::string Os::vargsToString(const char* fmt, va_list args) {
 
     va_list argsCopy;
     va_copy(argsCopy, args);
+#ifdef _WIN32
+    size_t length = _vscprintf(fmt, argsCopy);
+#else
     size_t length = vsnprintf(NULL, 0, fmt, argsCopy);
+#endif
     va_end(argsCopy);
 
     std::vector<char>buff(length + 1);
 
+#ifdef _WIN32
+    vsnprintf_s(&buff[0], buff.size(), _TRUNCATE, fmt, args);
+#else
     vsnprintf(&buff[0], buff.size(), fmt, args);
-
+#endif
     return std::string(&buff[0]);
 }
 

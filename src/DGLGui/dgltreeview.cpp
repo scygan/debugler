@@ -234,7 +234,7 @@ private:
 void DGLTreeView::breakedWithStateReports(uint currentContextId, const std::vector<dglnet::message::BreakedCall::ContextReport>& report) {
     for(size_t i = 0; i < report.size(); i++) {
         DGLCtxTreeWidget*  widget = 0; 
-        for (uint j = 0; j < m_TreeWidget.topLevelItemCount(); j++) {
+        for (int j = 0; j < m_TreeWidget.topLevelItemCount(); j++) {
             DGLCtxTreeWidget*  thisWidget = dynamic_cast<DGLCtxTreeWidget*>(m_TreeWidget.topLevelItem(j)); 
             if ( thisWidget && thisWidget->getId() == report[i].m_Id) {
                 widget = thisWidget; break;
@@ -247,7 +247,7 @@ void DGLTreeView::breakedWithStateReports(uint currentContextId, const std::vect
         widget->update(report[i], report[i].m_Id == currentContextId);
     }    
     
-    for (uint j = 0; j < m_TreeWidget.topLevelItemCount(); j++) {
+    for (int j = 0; j < m_TreeWidget.topLevelItemCount(); j++) {
         DGLCtxTreeWidget* thisWidget = dynamic_cast<DGLCtxTreeWidget*>(m_TreeWidget.topLevelItem(j)); 
         bool found = false;
         for(size_t i = 0; i < report.size(); i++) {

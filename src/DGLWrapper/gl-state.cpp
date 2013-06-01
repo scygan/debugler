@@ -147,9 +147,9 @@ namespace state_setters {
     private:
 
         static struct StateEntry {
-            const GLenum m_Target;
-            const GLint m_State;
-            const bool m_ES3;
+            GLenum m_Target;
+            GLint m_State;
+            bool m_ES3;
             GLint m_SavedState;
         } s_StateTable[STATE_SIZE];
     };
@@ -677,7 +677,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
     state_setters::PixelStoreAlignment defAlignment;
 
     //rebind texture, so we can access it
-    GLint lastTexture = getBoundTexture(tex->getTarget());
+    GLuint lastTexture = getBoundTexture(tex->getTarget());
     if (lastTexture != tex->getName()) {
         DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), tex->getName());
     }
@@ -689,7 +689,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
     }
 
     for (size_t face = 0; face < resource->m_FacesLevels.size(); face++) {
-        for (int level = 0; true; level++) {
+        for (int level = 0;; level++) {
 
             GLint height, width, samples = 0;
 
@@ -764,50 +764,51 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryBuffer(gl_t _name) {
     }
 
     //rebind buffer, so we can access it
-    GLint lastBuffer = 0;
+    GLint i;
     switch (buff->getTarget()) {
         case GL_ARRAY_BUFFER:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_ARRAY_BUFFER_BINDING, &lastBuffer);
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_ARRAY_BUFFER_BINDING, &i);
             break;
         case GL_ATOMIC_COUNTER_BUFFER:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_ATOMIC_COUNTER_BUFFER_BINDING, &lastBuffer);
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_ATOMIC_COUNTER_BUFFER_BINDING, &i);
             break;
         case GL_COPY_READ_BUFFER:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_COPY_READ_BUFFER_BINDING, &lastBuffer);
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_COPY_READ_BUFFER_BINDING, &i);
             break;
         case GL_COPY_WRITE_BUFFER:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_COPY_WRITE_BUFFER_BINDING, &lastBuffer);
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_COPY_WRITE_BUFFER_BINDING, &i);
             break;
         case GL_DRAW_INDIRECT_BUFFER:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_DRAW_INDIRECT_BUFFER_BINDING, &lastBuffer);
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_DRAW_INDIRECT_BUFFER_BINDING, &i);
             break;
         case GL_DISPATCH_INDIRECT_BUFFER:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_DISPATCH_INDIRECT_BUFFER_BINDING, &lastBuffer);
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_DISPATCH_INDIRECT_BUFFER_BINDING, &i);
             break;
         case GL_ELEMENT_ARRAY_BUFFER:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_ELEMENT_ARRAY_BUFFER_BINDING, &lastBuffer);
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_ELEMENT_ARRAY_BUFFER_BINDING, &i);
             break;
         case GL_PIXEL_PACK_BUFFER:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_PIXEL_PACK_BUFFER_BINDING, &lastBuffer);
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_PIXEL_PACK_BUFFER_BINDING, &i);
             break;
         case GL_PIXEL_UNPACK_BUFFER:
-            DIRECT_CALL_CHK(glGetIntegerv)( GL_PIXEL_UNPACK_BUFFER_BINDING, &lastBuffer);
+            DIRECT_CALL_CHK(glGetIntegerv)( GL_PIXEL_UNPACK_BUFFER_BINDING, &i);
             break;
         case GL_SHADER_STORAGE_BUFFER:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_SHADER_STORAGE_BUFFER_BINDING, &lastBuffer);
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_SHADER_STORAGE_BUFFER_BINDING, &i);
             break;
         /*case GL_TEXTURE_BUFFER:
             DIRECT_CALL_CHK(glGetIntegerv)(GL_NO_IDEA_WHAT_SHOULD_BE_HERE, &lastBuffer);
             break;*/
         case GL_TRANSFORM_FEEDBACK_BUFFER:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, &lastBuffer);
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, &i);
             break;
         case GL_UNIFORM_BUFFER:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_UNIFORM_BUFFER_BINDING, &lastBuffer);
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_UNIFORM_BUFFER_BINDING, &i);
             break;       
     default:
         throw std::runtime_error("Buffer target is not supported");
     }
+    GLuint lastBuffer = static_cast<GLuint>(i);
     if (lastBuffer != buff->getName()) {
         DIRECT_CALL_CHK(glBindBuffer)(buff->getTarget(), buff->getName());
     }
@@ -945,7 +946,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
             GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &attmntName);
         
         //now look for the attached object and query internal format and dimensions
-        GLint width, height, internalFormat, samples = 0;
+        GLint width = 0, height = 0, internalFormat = 0, samples = 0;
         if (type == GL_TEXTURE) {
 
             if (!DIRECT_CALL_CHK(glIsTexture)(attmntName)) {
@@ -1017,6 +1018,8 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
             DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_SAMPLES, &samples);
 
             DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, lastRenderBuffer);
+        } else {
+            assert(0);
         }
 
         //there should be no errors. Otherwise something nasty happened
@@ -1223,8 +1226,8 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
             uniform.m_location = DIRECT_CALL_CHK(glGetUniformLocation)(name, uniform.m_name.c_str());
             if (uniform.m_location >= 0) {
                 uniform.m_supportedType = true;
-                GLenum baseType;
-                int typeSize;
+                GLenum baseType = 0;
+                int typeSize = 0;
                 switch (type) {
                 case GL_FLOAT:
                 case GL_FLOAT_VEC2:
@@ -1403,7 +1406,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
 
 
 
-boost::shared_ptr<dglnet::DGLResource> GLContext::queryGPU(gl_t name) {
+boost::shared_ptr<dglnet::DGLResource> GLContext::queryGPU() {
 
     dglnet::resource::DGLResourceGPU* resource;
     boost::shared_ptr<dglnet::DGLResource> ret (resource = new dglnet::resource::DGLResourceGPU);
@@ -1426,8 +1429,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryGPU(gl_t name) {
         resource->m_GLSL = value;
     }
 
-    resource->m_hasNVXGPUMemoryInfo = m_HasNVXMemoryInfo;
-    if (resource->m_hasNVXGPUMemoryInfo = m_HasNVXMemoryInfo) {
+    if ((resource->m_hasNVXGPUMemoryInfo = m_HasNVXMemoryInfo) != false) {
         GLint val;
 
 #define GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          0x9047
@@ -1964,7 +1966,7 @@ opaque_id_t GLContext::getId() {
     return m_Id;
 }
 
-void APIENTRY debugOutputCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,  const GLchar* message, GLvoid* userParam) {
+void APIENTRY debugOutputCallback(GLenum /*source*/, GLenum /*type*/, GLuint /*id*/, GLenum /*severity*/, GLsizei length, const GLchar* message, GLvoid* userParam) {
     reinterpret_cast<GLContext*>(userParam)->setDebugOutput(std::string(message, length));
 };
 

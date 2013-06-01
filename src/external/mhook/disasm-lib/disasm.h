@@ -52,6 +52,8 @@ typedef ULONG64 U64;
 
 #define MAX_CODE_REFERENCE_COUNT 3
 
+#pragma warning(push)
+#pragma warning(disable:4214) //nonstandard extenion used: bit field types other than int
 typedef struct _CODE_BRANCH
 {
 	U64 Addresses[MAX_CODE_REFERENCE_COUNT]; // NULL if multiple to addresses
@@ -420,6 +422,7 @@ typedef enum _ARCHITECTURE_TYPE
 
 } ARCHITECTURE_TYPE;
 
+struct _INSTRUCTION;
 typedef BOOL (*INIT_INSTRUCTION)(struct _INSTRUCTION *Instruction);
 typedef void (*DUMP_INSTRUCTION)(struct _INSTRUCTION *Instruction, BOOL ShowBytes, BOOL Verbose);
 typedef BOOL (*GET_INSTRUCTION)(struct _INSTRUCTION *Instruction, U8 *Address, U32 Flags);
@@ -488,11 +491,9 @@ typedef struct _INSTRUCTION_OPERAND
 		//}
 		U64 Value_U64;
 		S64 Value_S64;
-		U128 Value_U128;
-		U128 Float128;
 		U8 Float80[80];
 		U8 BCD[10];
-	};
+	} Value;
 } INSTRUCTION_OPERAND;
 
 typedef struct _INSTRUCTION
@@ -548,6 +549,7 @@ typedef struct _INSTRUCTION
 	U8 CodeBlockFirst: 1;
 	U8 CodeBlockLast : 1;
 } INSTRUCTION;
+#pragma warning(pop) //4214: //nonstandard extenion used: bit field types other than int
 
 typedef struct _DISASSEMBLER
 {

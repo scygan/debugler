@@ -91,7 +91,7 @@ void DGLProgramViewItem::update(const dglnet::DGLResource& res) {
         if (resource->m_Uniforms[i].m_supportedType) {
             std::ostringstream valStream; 
             valStream << std::showpoint;
-            for (int j = 0; j < resource->m_Uniforms[i].m_value.size(); j++) {
+            for (size_t j = 0; j < resource->m_Uniforms[i].m_value.size(); j++) {
                 if (j % resource->m_Uniforms[i].m_rowSize == 0)
                     valStream << std::endl;
                 else if (j)
@@ -124,6 +124,6 @@ DGLTabbedViewItem* DGLProgramView::createTab(const dglnet::ContextObjectName& id
     return new DGLProgramViewItem(id, m_Controller->getResourceManager(), this);
 }
 
-QString DGLProgramView::getTabName(uint id, uint target) {
+QString DGLProgramView::getTabName(uint id, uint /*target*/) {
     return QString("Program Shader ") + QString::number(id);
 }

@@ -59,7 +59,7 @@ public:
         painter->setPen(backup);
     }
 
-    QSize sizeHint ( const QStyleOptionViewItem & option, const QModelIndex & index ) const{
+    QSize sizeHint(const QStyleOptionViewItem& /*option*/, const QModelIndex& /*index*/) const{
         return QSize(200, 40);
     }
 };
@@ -78,13 +78,13 @@ uint DGLTraceViewList::getVisibleRowCount() {
     return indexFromItem(maximumItem).row() - indexFromItem(minimumItem).row() + 1;
 }
 
-uint DGLTraceViewList::getFirstVisibleElementIdx() {
+int DGLTraceViewList::getFirstVisibleElementIdx() {
     QListWidgetItem* minimumItem = itemAt(5, 5);
     if ( !minimumItem ) { minimumItem = item(0); }
     return indexFromItem(minimumItem).row();
 }
 
-void DGLTraceViewList::resizeEvent (QResizeEvent* e) {
+void DGLTraceViewList::resizeEvent(QResizeEvent* /*e*/) {
     resized();
 }
 
@@ -118,7 +118,6 @@ void DGLTraceView::setRunning(bool running) {
 
 void DGLTraceView::mayNeedNewElements() {
     if (m_Enabled) {
-        int visibleRows = m_traceList.getVisibleRowCount();
         if (m_traceList.getFirstVisibleElementIdx() < m_traceList.count() - m_QueryUpperBound - 1) {
             //we are starving of entrypoints to display, try to query new entrypoints up to this bound
             int nextUpperBound = m_QueryUpperBound + 2 * m_traceList.getVisibleRowCount();

@@ -128,6 +128,6 @@ DGLTabbedViewItem* DGLTextureView::createTab(const dglnet::ContextObjectName& id
     return new DGLTextureViewItem(id, m_Controller->getResourceManager(), this);
 }
 
-QString DGLTextureView::getTabName(uint id, uint target) {
+QString DGLTextureView::getTabName(uint id, uint /*target*/) {
     return QString("Texture ") + QString::number(id);
 }

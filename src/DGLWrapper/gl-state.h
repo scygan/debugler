@@ -195,7 +195,7 @@ public:
     boost::shared_ptr<dglnet::DGLResource> queryFBO(gl_t name);
     boost::shared_ptr<dglnet::DGLResource> queryShader(gl_t name);
     boost::shared_ptr<dglnet::DGLResource> queryProgram(gl_t name);
-    boost::shared_ptr<dglnet::DGLResource> queryGPU(gl_t name);
+    boost::shared_ptr<dglnet::DGLResource> queryGPU();
     boost::shared_ptr<dglnet::DGLResource> queryState(gl_t name);
 
     opaque_id_t getId();

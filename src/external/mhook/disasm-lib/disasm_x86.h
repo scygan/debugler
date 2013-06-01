@@ -680,6 +680,8 @@ typedef enum _X86_SEGMENT
 extern char *X86_Registers[];
 
 #pragma pack(push,1)
+#pragma warning(push)
+#pragma warning(disable:4214) //nonstandard extension used: bit field types other than int
 typedef struct _MODRM
 {
 	U8 mod : 2;
@@ -710,6 +712,7 @@ typedef struct _REX_SIB
 	U8 index : 4;
 	U8 base : 4;
 } REX_SIB;
+#pragma warning(pop)
 #pragma pack(pop)
 
 //
@@ -737,6 +740,9 @@ typedef struct _X86_OPCODE
 	U32 ResultsIfFalse; // results if Preconditions are not met
 } X86_OPCODE;
 
+#pragma warning(push)
+#pragma warning(disable:4214) //nonstandard extension used : bit field types other than int
+
 typedef struct _X86_INSTRUCTION
 {
 	struct _INSTRUCTION *Instruction; // the generic instruction format representing this instruction
@@ -757,7 +763,7 @@ typedef struct _X86_INSTRUCTION
 	{
 		X86_SEGMENT Segment;
 		DWORD Selector;
-	};
+	} SS;
 
 	// NOTE: these are for internal use, use Instruction->Operands[]
 	//
@@ -810,6 +816,8 @@ typedef struct _X86_INSTRUCTION
 	S64 Displacement;
 
 } X86_INSTRUCTION;
+
+#pragma warning(pop)
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Exported functions

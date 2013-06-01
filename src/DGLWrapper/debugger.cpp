@@ -21,6 +21,8 @@
 #include "native-surface.h"
 #include "tls.h"
 
+#include <sstream>
+
 boost::shared_ptr<DGLDebugController> _g_Controller;
 
 DGLDebugController* getController() {
@@ -78,7 +80,7 @@ bool BreakState::isBreaked() {
 void BreakState::handle(const dglnet::message::ContinueBreak& msg) {
     m_break = msg.isBreaked();
     if (!m_break) {
-        if (m_StepModeEnabled = msg.getStep().first) {
+        if ((m_StepModeEnabled = msg.getStep().first) != false) {
             m_StepMode = msg.getStep().second;
         }
     }
@@ -160,8 +162,11 @@ dglnet::Server& DGLDebugController::getServer() {
                 port = tmp;
         }
         
-
-        int portNum = atoi(port.c_str());
+        unsigned short portNum;
+        {
+            std::istringstream stream(port);
+            stream >> portNum;
+        }
         m_Server = boost::make_shared<dglnet::Server>(portNum, this);
         
         std::string semaphore = Os::getEnv("dgl_semaphore");
@@ -295,7 +300,7 @@ boost::shared_ptr<dglnet::DGLResource> DGLDebugController::doHandleRequest(const
             resource = ctx->queryProgram(request.m_ObjectName.m_Name);
             break;
         case dglnet::DGLResource::ObjectTypeGPU:
-            resource = ctx->queryGPU(request.m_ObjectName.m_Name);
+            resource = ctx->queryGPU();
             break;
         case dglnet::DGLResource::ObjectTypeState:
             resource = ctx->queryState(request.m_ObjectName.m_Name);
@@ -322,7 +327,7 @@ void DGLDebugController::doHandleRequest(const dglnet::request::EditShaderSource
     }
     ctx->startQuery();
 
-    dglState::GLShaderObj* obj = ctx->findShader(request.m_ShaderId);
+    dglState::GLShaderObj* obj = ctx->findShader(static_cast<GLuint>(request.m_ShaderId));
     if (!obj) {
         throw std::runtime_error("Shader does not exist");
     }

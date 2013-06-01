@@ -239,7 +239,7 @@ public:
 #endif
         ) {}
 private:
-    virtual void tryMatch(const QString& str, uint& pos, int& matchSize) {
+    virtual void tryMatch(const QString& /*str*/, uint& /*pos*/, int& /*matchSize*/) {
         assert(!"not implemented");
     }
 };
@@ -348,7 +348,8 @@ public:
 
     HLResult doHighlight(const QString& str) const {
         HLResult ret; 
-        int best = -1, bestMatchSize = 0, bestPos = str.size();
+        int best = -1, bestMatchSize = 0;
+        uint bestPos = static_cast<uint>(str.size());
         for (size_t i = 0; i < m_rules.size(); i++) {
             uint pos; int matchSize;
             m_rules[i]->tryMatch(str, pos, matchSize);
@@ -676,7 +677,7 @@ void DGLSyntaxHighlighterGLSL::highlightBlock(const QString &text) {
         m_hlStateByIdx.push_back(&i.first->first);
 
         //new state should have always last idx
-        assert(m_hlStateByIdx.size() - 1 == i.first->second);
+        assert(m_hlStateByIdx.size() - 1 == static_cast<size_t>(i.first->second));
     }
 
     setCurrentBlockState(i.first->second);

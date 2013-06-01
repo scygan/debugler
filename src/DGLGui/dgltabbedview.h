@@ -19,7 +19,10 @@
 
 #include <QDockWidget>
 #include <QTabWidget>
+#pragma warning(push)
+#pragma warning(disable:4512) // assignment operator could not be generated
 #include <QtGui>
+#pragma warning(pop)
 
 #include "DGLCommon//gl-types.h"
 

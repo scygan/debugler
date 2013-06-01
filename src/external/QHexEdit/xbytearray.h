@@ -3,7 +3,10 @@
 
 /** \cond docNever */
 
+#pragma warning(push)
+#pragma warning(disable:4512) // assignment operator could not be generated
 #include <QtCore>
+#pragma warning(pop)
 
 /*! XByteArray represents the content of QHexEcit.
 XByteArray comprehend the data itself and informations to store if it was

@@ -130,13 +130,13 @@
 	{ \
 		if (!Instruction->AnomalyOccurred) \
 		{ \
-			if (!SuppressErrors) printf("[0x%08I64X] ANOMALY: unexpected segment 0x%02X\n", VIRTUAL_ADDRESS, X86Instruction->Selector); \
+			if (!SuppressErrors) printf("[0x%08I64X] ANOMALY: unexpected segment 0x%02X\n", VIRTUAL_ADDRESS, X86Instruction->SS.Selector); \
 			Instruction->AnomalyOccurred = TRUE; \
 		} \
 	} \
 	else \
 	{ \
-		switch (X86Instruction->Segment) \
+		switch (X86Instruction->SS.Segment) \
 		{ \
 			case SEG_CS: \
 			case SEG_DS: \
@@ -144,12 +144,12 @@
 			case SEG_ES: \
 				assert(!X86Instruction->HasSelector); \
 				Operand->TargetAddress = (U64)X86Instruction->Displacement; \
-				/* assert(!GetAbsoluteAddressFromSegment((BYTE)X86Instruction->Segment, (DWORD)X86Instruction->Displacement) || GetAbsoluteAddressFromSegment(X86Instruction->Segment, (DWORD)X86Instruction->Displacement) == Operand->TargetAddress); */ \
+				/* assert(!GetAbsoluteAddressFromSegment((BYTE)X86Instruction->SS.Segment, (DWORD)X86Instruction->Displacement) || GetAbsoluteAddressFromSegment(X86Instruction->SS.Segment, (DWORD)X86Instruction->Displacement) == Operand->TargetAddress); */ \
 				break; \
 			case SEG_FS: \
 			case SEG_GS: \
 				assert(!X86Instruction->HasSelector); \
-				Operand->TargetAddress = (U64)GetAbsoluteAddressFromSegment((BYTE)X86Instruction->Segment, (DWORD)X86Instruction->Displacement); \
+				Operand->TargetAddress = (U64)GetAbsoluteAddressFromSegment((BYTE)X86Instruction->SS.Segment, (DWORD)X86Instruction->Displacement); \
 				break; \
 			default: \
 				assert(0); /* shouldn't be possible */ \
@@ -163,7 +163,7 @@
 	if (!X86Instruction->HasSegmentOverridePrefix && (reg == REG_EBP || reg == REG_ESP)) \
 	{ \
 		assert(!X86Instruction->HasSelector); \
-		X86Instruction->Segment = SEG_SS; \
+		X86Instruction->SS.Segment = SEG_SS; \
 	} \
 }
 
@@ -601,7 +601,7 @@ BOOL X86_InitInstruction(INSTRUCTION *Instruction)
 			return FALSE;
 	}
 	X86Instruction->Instruction = Instruction;
-	X86Instruction->Segment = SEG_DS;
+	X86Instruction->SS.Segment = SEG_DS;
 	return TRUE;
 }
 
@@ -635,28 +635,28 @@ BOOL X86_InitInstruction(INSTRUCTION *Instruction)
 	switch (Operand->Length) \
 	{ \
 		case 8: \
-			APPEND(OPCSTR, SIZE_LEFT, "0x%02I64X=", Operand->Value_U64); \
-			if (Operand->Value_S64 >= 0 || !(Operand->Flags & OP_SIGNED)) APPEND(OPCSTR, SIZE_LEFT, "%I64u", Operand->Value_U64); \
-			/*else APPEND(OPCSTR, SIZE_LEFT, "-0x%02I64X=%I64d", -Operand->Value_S64, Operand->Value_S64);*/ \
-			else APPEND(OPCSTR, SIZE_LEFT, "%I64d", Operand->Value_S64); \
+			APPEND(OPCSTR, SIZE_LEFT, "0x%02I64X=", Operand->Value.Value_U64); \
+			if (Operand->Value.Value_S64 >= 0 || !(Operand->Flags & OP_SIGNED)) APPEND(OPCSTR, SIZE_LEFT, "%I64u", Operand->Value.Value_U64); \
+			/*else APPEND(OPCSTR, SIZE_LEFT, "-0x%02I64X=%I64d", -Operand->Value.Value_S64, Operand->Value.Value_S64);*/ \
+			else APPEND(OPCSTR, SIZE_LEFT, "%I64d", Operand->Value.Value_S64); \
 			break; \
 		case 4: \
-			APPEND(OPCSTR, SIZE_LEFT, "0x%02lX=", (U32)Operand->Value_U64); \
-			if (Operand->Value_S64 >= 0 || !(Operand->Flags & OP_SIGNED)) APPEND(OPCSTR, SIZE_LEFT, "%lu", (U32)Operand->Value_U64); \
-			/*else APPEND(OPCSTR, SIZE_LEFT, "-0x%02lX=%ld", (U32)-Operand->Value_S64, (S32)Operand->Value_S64);*/ \
-			else APPEND(OPCSTR, SIZE_LEFT, "%ld", (S32)Operand->Value_S64); \
+			APPEND(OPCSTR, SIZE_LEFT, "0x%02lX=", (U32)Operand->Value.Value_U64); \
+			if (Operand->Value.Value_S64 >= 0 || !(Operand->Flags & OP_SIGNED)) APPEND(OPCSTR, SIZE_LEFT, "%lu", (U32)Operand->Value.Value_U64); \
+			/*else APPEND(OPCSTR, SIZE_LEFT, "-0x%02lX=%ld", (U32)-Operand->Value.Value_S64, (S32)Operand->Value.Value_S64);*/ \
+			else APPEND(OPCSTR, SIZE_LEFT, "%ld", (S32)Operand->Value.Value_S64); \
 			break; \
 		case 2: \
-			APPEND(OPCSTR, SIZE_LEFT, "0x%02X=", (U16)Operand->Value_U64); \
-			if (Operand->Value_S64 >= 0 || !(Operand->Flags & OP_SIGNED)) APPEND(OPCSTR, SIZE_LEFT, "%u", (U16)Operand->Value_U64); \
-			/*else APPEND(OPCSTR, SIZE_LEFT, "-0x%02X=%d", (U16)-Operand->Value_S64, (S16)Operand->Value_S64);*/ \
-			else APPEND(OPCSTR, SIZE_LEFT, "%d", (S16)Operand->Value_S64); \
+			APPEND(OPCSTR, SIZE_LEFT, "0x%02X=", (U16)Operand->Value.Value_U64); \
+			if (Operand->Value.Value_S64 >= 0 || !(Operand->Flags & OP_SIGNED)) APPEND(OPCSTR, SIZE_LEFT, "%u", (U16)Operand->Value.Value_U64); \
+			/*else APPEND(OPCSTR, SIZE_LEFT, "-0x%02X=%d", (U16)-Operand->Value.Value_S64, (S16)Operand->Value.Value_S64);*/ \
+			else APPEND(OPCSTR, SIZE_LEFT, "%d", (S16)Operand->Value.Value_S64); \
 			break; \
 		case 1: \
-			APPEND(OPCSTR, SIZE_LEFT, "0x%02X=", (U8)Operand->Value_U64); \
-			if (Operand->Value_S64 >= 0 || !(Operand->Flags & OP_SIGNED)) APPEND(OPCSTR, SIZE_LEFT, "%u", (U8)Operand->Value_U64); \
-			/*else APPEND(OPCSTR, SIZE_LEFT, "-0x%02X=%d", (U8)-Operand->Value_S64, (S8)Operand->Value_S64);*/ \
-			else APPEND(OPCSTR, SIZE_LEFT, "%d", (S8)Operand->Value_S64); \
+			APPEND(OPCSTR, SIZE_LEFT, "0x%02X=", (U8)Operand->Value.Value_U64); \
+			if (Operand->Value.Value_S64 >= 0 || !(Operand->Flags & OP_SIGNED)) APPEND(OPCSTR, SIZE_LEFT, "%u", (U8)Operand->Value.Value_U64); \
+			/*else APPEND(OPCSTR, SIZE_LEFT, "-0x%02X=%d", (U8)-Operand->Value.Value_S64, (S8)Operand->Value.Value_S64);*/ \
+			else APPEND(OPCSTR, SIZE_LEFT, "%d", (S8)Operand->Value.Value_S64); \
 			break; \
 		default: assert(0); break; \
 	} \
@@ -739,13 +739,13 @@ BOOL X86_InitInstruction(INSTRUCTION *Instruction)
 	if (X86Instruction->HasSelector) \
 	{ \
 		assert((op)->Flags & OP_FAR); \
-		APPEND(OPCSTR, SIZE_LEFT, "%s 0x%02X:[", DataSizes[((op)->Length >> 1)], X86Instruction->Selector); \
+		APPEND(OPCSTR, SIZE_LEFT, "%s 0x%02X:[", DataSizes[((op)->Length >> 1)], X86Instruction->SS.Selector); \
 	} \
 	else \
 	{ \
 		assert(!((op)->Flags & OP_FAR)); \
-		assert(X86Instruction->Segment < SEG_MAX) ; \
-		APPEND(OPCSTR, SIZE_LEFT, "%s %s:[", DataSizes[((op)->Length >> 1)], Segments[X86Instruction->Segment]); \
+		assert(X86Instruction->SS.Segment < SEG_MAX) ; \
+		APPEND(OPCSTR, SIZE_LEFT, "%s %s:[", DataSizes[((op)->Length >> 1)], Segments[X86Instruction->SS.Segment]); \
 	} \
 	X86_WRITE_ABSOLUTE_DISPLACEMENT() \
 	APPENDB(']'); \
@@ -766,7 +766,7 @@ void OutputAddress(INSTRUCTION *Instruction, INSTRUCTION_OPERAND *Operand, U32 O
 	// If it has a positive 32-bit displacement, it is shown as seg:Displacement[base+index*scale]
 	// If it is a negative displacement or 8-bit, it is shown as seg:[base+index*scale+displacement]
 	//
-	APPEND(OPCSTR, SIZE_LEFT, "%s:", Segments[X86Instruction->Segment]);
+	APPEND(OPCSTR, SIZE_LEFT, "%s:", Segments[X86Instruction->SS.Segment]);
 	if (X86Instruction->HasBaseRegister)
 	{
 		if (X86Instruction->Displacement)
@@ -957,6 +957,7 @@ PROLOGUE StandardPrologues[] =
 // it is a valid function
 U8 *X86_FindFunctionByPrologue(INSTRUCTION *Instruction, U8 *StartAddress, U8 *EndAddress, U32 Flags)
 {
+    (void)Instruction;(void)StartAddress;(void)EndAddress;(void)Flags;
 	assert(0); // TODO
 	return NULL;
 }
@@ -1002,7 +1003,7 @@ BOOL X86_GetInstruction(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 	//
 	// Get prefixes or three byte opcode
 	//
-	while (TRUE)
+	while (1)
 	{
 		Opcode = *Address;
 		INSTR_INC(1); // increment Instruction->Length and address
@@ -1109,7 +1110,7 @@ BOOL X86_GetInstruction(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 					if (!IS_AMD64())
 					{
 						X86Instruction->HasSegmentOverridePrefix = TRUE;
-						X86Instruction->Segment = SEG_ES;
+						X86Instruction->SS.Segment = SEG_ES;
 					}
 					else if (!Instruction->AnomalyOccurred)
 					{
@@ -1122,7 +1123,7 @@ BOOL X86_GetInstruction(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 					if (!IS_AMD64())
 					{
 						X86Instruction->HasSegmentOverridePrefix = TRUE;
-						X86Instruction->Segment = SEG_CS;  
+						X86Instruction->SS.Segment = SEG_CS;  
 					}
 					else if (!Instruction->AnomalyOccurred)
 					{
@@ -1135,7 +1136,7 @@ BOOL X86_GetInstruction(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 					if (!IS_AMD64())
 					{
 						X86Instruction->HasSegmentOverridePrefix = TRUE;
-						X86Instruction->Segment = SEG_SS;
+						X86Instruction->SS.Segment = SEG_SS;
 					}
 					else if (!Instruction->AnomalyOccurred)
 					{
@@ -1148,7 +1149,7 @@ BOOL X86_GetInstruction(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 					if (!IS_AMD64())
 					{
 						X86Instruction->HasSegmentOverridePrefix = TRUE;
-						X86Instruction->Segment = SEG_DS;
+						X86Instruction->SS.Segment = SEG_DS;
 					}
 					else if (!Instruction->AnomalyOccurred)
 					{
@@ -1159,12 +1160,12 @@ BOOL X86_GetInstruction(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 				case PREFIX_SEGMENT_OVERRIDE_FS:
 					SANITY_CHECK_SEGMENT_OVERRIDE();
 					X86Instruction->HasSegmentOverridePrefix = TRUE;
-					X86Instruction->Segment = SEG_FS;
+					X86Instruction->SS.Segment = SEG_FS;
 					break;
 				case PREFIX_SEGMENT_OVERRIDE_GS:
 					SANITY_CHECK_SEGMENT_OVERRIDE();
 					X86Instruction->HasSegmentOverridePrefix = TRUE;
-					X86Instruction->Segment = SEG_GS;
+					X86Instruction->SS.Segment = SEG_GS;
 					break;
 
 				case PREFIX_LOCK:
@@ -1643,14 +1644,14 @@ HasSpecialExtension:
 		case ITYPE_ENTER: case ITYPE_LEAVE:
 			SANITY_CHECK_SEGMENT_OVERRIDE();
 			X86Instruction->HasSegmentOverridePrefix = FALSE;
-			X86Instruction->Segment = SEG_SS;
+			X86Instruction->SS.Segment = SEG_SS;
 			break;
 		case ITYPE_RET: case ITYPE_DEBUG: 
 		case ITYPE_OFLOW: case ITYPE_TRAP: 
 		case ITYPE_TRAPRET:
 			SANITY_CHECK_SEGMENT_OVERRIDE();
 			X86Instruction->HasSegmentOverridePrefix = FALSE;
-			X86Instruction->Segment = SEG_CS;
+			X86Instruction->SS.Segment = SEG_CS;
 			break;
 	}
 
@@ -1889,7 +1890,7 @@ HasSpecialExtension:
 	// Detect use of unusual segments
 	if (!Instruction->AnomalyOccurred && !IS_X86_16())
 	{
-		switch (X86Instruction->Segment)
+		switch (X86Instruction->SS.Segment)
 		{
 			case SEG_CS: case SEG_DS: case SEG_SS:
 				break;
@@ -1915,7 +1916,7 @@ HasSpecialExtension:
 				Instruction->AnomalyOccurred = TRUE;
 				break;
 			default:
-				if (!SuppressErrors) printf("[0x%08I64X] ANOMALY: unexpected segment 0x%02X\n", VIRTUAL_ADDRESS, X86Instruction->Selector);
+				if (!SuppressErrors) printf("[0x%08I64X] ANOMALY: unexpected segment 0x%02X\n", VIRTUAL_ADDRESS, X86Instruction->SS.Selector);
 				Instruction->AnomalyOccurred = TRUE;
 				break;
 		}
@@ -1929,23 +1930,23 @@ HasSpecialExtension:
 			switch (Instruction->Prefixes[i])
 			{
 				case PREFIX_BRANCH_NOT_TAKEN:
-					if (!Instruction->AnomalyOccurred && X86Instruction->Segment != SEG_CS)
+					if (!Instruction->AnomalyOccurred && X86Instruction->SS.Segment != SEG_CS)
 					{
 						if (!SuppressErrors) printf("[0x%08I64X] ANOMALY: Segment override used with conditional branch\n", VIRTUAL_ADDRESS);
 						Instruction->AnomalyOccurred = TRUE;
 					}
 					X86Instruction->HasSegmentOverridePrefix = FALSE;
-					X86Instruction->Segment = SEG_CS;
+					X86Instruction->SS.Segment = SEG_CS;
 					X86Instruction->HasBranchNotTakenPrefix = TRUE;
 					break;
 				case PREFIX_BRANCH_TAKEN:
-					if (!Instruction->AnomalyOccurred && X86Instruction->Segment != SEG_DS)
+					if (!Instruction->AnomalyOccurred && X86Instruction->SS.Segment != SEG_DS)
 					{
 						if (!SuppressErrors) printf("[0x%08I64X] ANOMALY: Segment override used with conditional branch\n", VIRTUAL_ADDRESS);
 						Instruction->AnomalyOccurred = TRUE;
 					}
 					X86Instruction->HasSegmentOverridePrefix = FALSE;
-					X86Instruction->Segment = SEG_CS;
+					X86Instruction->SS.Segment = SEG_CS;
 					X86Instruction->HasBranchTakenPrefix = TRUE;
 					break;
 			}
@@ -2144,7 +2145,7 @@ HasSpecialExtension:
 				if (!(Operand1->Flags & (OP_GLOBAL|OP_FAR)))
 				{
 					assert(!X86Instruction->HasSelector);
-					X86Instruction->Segment = SEG_CS;
+					X86Instruction->SS.Segment = SEG_CS;
 				}
 				
 				if (Operand1->TargetAddress)
@@ -2186,7 +2187,7 @@ HasSpecialExtension:
 				if (!(Operand1->Flags & (OP_GLOBAL|OP_FAR)))
 				{
 					assert(!X86Instruction->HasSelector);
-					X86Instruction->Segment = SEG_CS;
+					X86Instruction->SS.Segment = SEG_CS;
 				}
 								
 				if (Operand1->TargetAddress)
@@ -2228,7 +2229,7 @@ HasSpecialExtension:
 				if (!(Operand1->Flags & (OP_GLOBAL|OP_FAR)))
 				{
 					assert(!X86Instruction->HasSelector);
-					X86Instruction->Segment = SEG_CS;
+					X86Instruction->SS.Segment = SEG_CS;
 				}
 
 				if (Operand1->TargetAddress)
@@ -2372,24 +2373,24 @@ HasSpecialExtension:
 			case ITYPE_ENTER:
 				if (!Instruction->AnomalyOccurred)
 				{
-					if (Instruction->Operands[1].Value_U64 & 3)
+					if (Instruction->Operands[1].Value.Value_U64 & 3)
 					{
 						if (!SuppressErrors) printf("[0x%08I64X] ANOMALY: ENTER has invalid operand 2\n", VIRTUAL_ADDRESS);
 						Instruction->AnomalyOccurred = TRUE;
 					}
-					if (Instruction->Operands[2].Value_U64 & ~0x1F)
+					if (Instruction->Operands[2].Value.Value_U64 & ~0x1F)
 					{
 						if (!SuppressErrors) printf("[0x%08I64X] ANOMALY: ENTER has invalid operand 3\n", VIRTUAL_ADDRESS);
 						Instruction->AnomalyOccurred = TRUE;
 					}
 				}
 				SANITY_CHECK_ADDRESS_SIZE();
-				Instruction->Operands[2].Value_U64 &= 0x1F;
+				Instruction->Operands[2].Value.Value_U64 &= 0x1F;
 
 				// frame pointer + stack space
-				i = Operand1->Length + (U32)Instruction->Operands[1].Value_U64;
+				i = Operand1->Length + (U32)Instruction->Operands[1].Value.Value_U64;
 				Instruction->StackChange = -((LONG)i);
-				i = (U32)Instruction->Operands[2].Value_U64 * Operand1->Length;
+				i = (U32)Instruction->Operands[2].Value.Value_U64 * Operand1->Length;
 				Instruction->StackChange -= i;
 				break;
 
@@ -2412,27 +2413,27 @@ HasSpecialExtension:
 						break;
 
 					case 0xC2: // ret with 1 arg
-						if (!Instruction->AnomalyOccurred && (Operand1->Value_U64 & 3))
+						if (!Instruction->AnomalyOccurred && (Operand1->Value.Value_U64 & 3))
 						{
 							if (!SuppressErrors) printf("[0x%08I64X] ANOMALY: ret has invalid operand 1\n", VIRTUAL_ADDRESS);
 							Instruction->AnomalyOccurred = TRUE;
 						}
-						Instruction->StackChange += (LONG)Operand1->Value_U64;
+						Instruction->StackChange += (LONG)Operand1->Value.Value_U64;
 						break;
 
 					case 0xCB: // far ret with no args
 						Instruction->StackChange *= 2; // account for segment
-						Instruction->StackChange += (LONG)Operand1->Value_U64;
+						Instruction->StackChange += (LONG)Operand1->Value.Value_U64;
 						break;
 
 					case 0xCA: // far ret with 1 arg
-						if (!Instruction->AnomalyOccurred && (Operand1->Value_U64 & 3))
+						if (!Instruction->AnomalyOccurred && (Operand1->Value.Value_U64 & 3))
 						{
 							if (!SuppressErrors) printf("[0x%08I64X] ANOMALY: retf has invalid operand 1\n", VIRTUAL_ADDRESS);
 							Instruction->AnomalyOccurred = TRUE;
 						}
 						Instruction->StackChange *= 2; // account for segment
-						Instruction->StackChange += (LONG)Operand1->Value_U64;
+						Instruction->StackChange += (LONG)Operand1->Value.Value_U64;
 						break;
 				}
 				SANITY_CHECK_ADDRESS_SIZE();
@@ -2440,10 +2441,10 @@ HasSpecialExtension:
 
 			case ITYPE_ADD:
 			case ITYPE_XCHGADD:
-				if (Instruction->Operands[1].Value_S64) Instruction->StackChange = (LONG)(Instruction->Operands[1].Value_S64);
+				if (Instruction->Operands[1].Value.Value_S64) Instruction->StackChange = (LONG)(Instruction->Operands[1].Value.Value_S64);
 				break;
 			case ITYPE_SUB:
-				if (Instruction->Operands[1].Value_S64) Instruction->StackChange = (LONG)(-Instruction->Operands[1].Value_S64);
+				if (Instruction->Operands[1].Value.Value_S64) Instruction->StackChange = (LONG)(-Instruction->Operands[1].Value.Value_S64);
 				break;
 			case ITYPE_MOV:
 			case ITYPE_AND:
@@ -2530,7 +2531,6 @@ INTERNAL U8 *SetOperands(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 {
 	INSTRUCTION_OPERAND *Operand;
 	U32 Index, OperandIndex;
-	S64 Displacement = 0;
 	U8 Register;
 	U32 OperandFlags, OperandType, AddressMode, Segment;
 	U8 Opcode;
@@ -2583,7 +2583,7 @@ INTERNAL U8 *SetOperands(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 
 			case OPTYPE_0:
 				if (!Decode) continue;
-				Operand->Value_U64 = 0;
+				Operand->Value.Value_U64 = 0;
 				Operand->Type = OPTYPE_IMM;
 				//DISASM_OUTPUT(("[SetOperand] const 0\n"));
 				if (Disassemble)
@@ -2594,7 +2594,7 @@ INTERNAL U8 *SetOperands(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 				continue;
 			case OPTYPE_1:
 				if (!Decode) continue;
-				Operand->Value_U64 = 1;
+				Operand->Value.Value_U64 = 1;
 				Operand->Type = OPTYPE_IMM;
 				//DISASM_OUTPUT(("[SetOperand] const 1\n"));
 				if (Disassemble)
@@ -2605,7 +2605,7 @@ INTERNAL U8 *SetOperands(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 				continue;
 			case OPTYPE_FF:
 				if (!Decode) continue;
-				Operand->Value_U64 = 0xFF;
+				Operand->Value.Value_U64 = 0xFF;
 				Operand->Type = OPTYPE_IMM;
 				//DISASM_OUTPUT(("[SetOperand] const 0xff\n"));
 				if (Disassemble)
@@ -3452,7 +3452,7 @@ INTERNAL U8 *SetOperands(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 				if (Disassemble)
 				{
 					APPEND(OPCSTR, SIZE_LEFT, "%s:[%s]", 
-						Segments[X86Instruction->Segment], X86_Registers[Operand->Register]);
+						Segments[X86Instruction->SS.Segment], X86_Registers[Operand->Register]);
 					X86_WRITE_OPFLAGS();
 				}
 				continue;
@@ -3468,8 +3468,8 @@ INTERNAL U8 *SetOperands(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 					switch (Operand->Length)
 					{
 						case 8:
-							if (OperandFlags & OP_SIGNED) Operand->Value_S64 = (S64)*((S64 *)Address);
-							else Operand->Value_U64 = (U64)*((U64 *)Address);
+							if (OperandFlags & OP_SIGNED) Operand->Value.Value_S64 = (S64)*((S64 *)Address);
+							else Operand->Value.Value_U64 = (U64)*((U64 *)Address);
 							break;
 						case 4:
 							if (!(OperandFlags & OP_SIGNED) && OperandIndex == 1 && 
@@ -3490,28 +3490,28 @@ INTERNAL U8 *SetOperands(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 									case ITYPE_OR:
 									case ITYPE_XOR:
 										assert(OperandIndex == 1);
-										Operand->Value_S64 = (S64)*((S32 *)Address);
+										Operand->Value.Value_S64 = (S64)*((S32 *)Address);
 										break;
 									default:
 										assert(0);
-										if (OperandFlags & OP_SIGNED) Operand->Value_S64 = (S64)*((S32 *)Address);
-										else Operand->Value_U64 = (U64)*((U32 *)Address);
+										if (OperandFlags & OP_SIGNED) Operand->Value.Value_S64 = (S64)*((S32 *)Address);
+										else Operand->Value.Value_U64 = (U64)*((U32 *)Address);
 										break;
 								}
 							}
 							else
 							{
-								if (OperandFlags & OP_SIGNED) Operand->Value_S64 = (S64)*((S32 *)Address);
-								else Operand->Value_U64 = (U64)*((U32 *)Address);
+								if (OperandFlags & OP_SIGNED) Operand->Value.Value_S64 = (S64)*((S32 *)Address);
+								else Operand->Value.Value_U64 = (U64)*((U32 *)Address);
 							}
 							break;
 						case 2:
-							if (OperandFlags & OP_SIGNED) Operand->Value_S64 = (S64)*((S16 *)Address);
-							else Operand->Value_U64 = (U64)*((U16 *)Address);
+							if (OperandFlags & OP_SIGNED) Operand->Value.Value_S64 = (S64)*((S16 *)Address);
+							else Operand->Value.Value_U64 = (U64)*((U16 *)Address);
 							break;
 						case 1:
-							if (OperandFlags & OP_SIGNED) Operand->Value_S64 = (S64)*((S8 *)Address);
-							else Operand->Value_U64 = (U64)*((U8 *)Address);
+							if (OperandFlags & OP_SIGNED) Operand->Value.Value_S64 = (S64)*((S8 *)Address);
+							else Operand->Value.Value_U64 = (U64)*((U8 *)Address);
 							break;
 						default:
 							assert(0);
@@ -3552,7 +3552,7 @@ INTERNAL U8 *SetOperands(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 						default: assert(0); return NULL;
 					}					
 
-					Operand->Value_S64 = X86Instruction->Displacement;
+					Operand->Value.Value_S64 = X86Instruction->Displacement;
 					X86Instruction->Relative = TRUE;
 
 					if ((Operand->Flags & OP_COND) && !X86Instruction->Displacement)
@@ -3571,7 +3571,7 @@ INTERNAL U8 *SetOperands(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 				X86_SET_ADDR();
 				SANITY_CHECK_SEGMENT_OVERRIDE();
 				X86Instruction->HasSegmentOverridePrefix = FALSE;
-				X86Instruction->Segment = SEG_CS;
+				X86Instruction->SS.Segment = SEG_CS;
 				X86Instruction->BaseRegister = Operand->Register;
 				X86Instruction->HasBaseRegister = TRUE;
 				assert(Instruction->OperandCount == 1);
@@ -3612,7 +3612,7 @@ INTERNAL U8 *SetOperands(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 				X86Instruction->HasFullDisplacement = TRUE;
 				X86_SET_ADDR();
 				X86_SET_TARGET();
-				assert(X86Instruction->Segment == SEG_DS || X86Instruction->HasSegmentOverridePrefix);
+				assert(X86Instruction->SS.Segment == SEG_DS || X86Instruction->HasSegmentOverridePrefix);
 				//DISASM_OUTPUT(("[SetOperand] AMODE_O (offset)\n"));
 				if (Disassemble)
 				{
@@ -3630,11 +3630,11 @@ INTERNAL U8 *SetOperands(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 				switch (Operand->Length)
 				{
 					case 6:
-						X86Instruction->Segment = *((U16 *)Address); INSTR_INC(2);
+						X86Instruction->SS.Segment = *((U16 *)Address); INSTR_INC(2);
 						X86Instruction->Displacement = (S64)*((S32 *)Address); INSTR_INC(4);
 						break;
 					case 4:
-						X86Instruction->Segment = *((U16 *)Address); INSTR_INC(2);
+						X86Instruction->SS.Segment = *((U16 *)Address); INSTR_INC(2);
 						X86Instruction->Displacement = (S64)*((S16 *)Address); INSTR_INC(2);
 						break;
 					default:
@@ -3668,13 +3668,13 @@ INTERNAL U8 *SetOperands(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 				X86Instruction->BaseRegister = Operand->Register;
 				X86Instruction->HasBaseRegister = TRUE;
 				X86_SET_ADDR();
-				if (!X86Instruction->HasSegmentOverridePrefix) X86Instruction->Segment = SEG_DS;
+				if (!X86Instruction->HasSegmentOverridePrefix) X86Instruction->SS.Segment = SEG_DS;
 
 				//DISASM_OUTPUT(("[SetOperand] AMODE_X (addressing via DS:[ESI])\n"));
 				if (Disassemble)
 				{
 					APPEND(OPCSTR, SIZE_LEFT, "%s:[%s]", 
-						Segments[X86Instruction->Segment], X86_Registers[Operand->Register]);
+						Segments[X86Instruction->SS.Segment], X86_Registers[Operand->Register]);
 					X86_WRITE_OPFLAGS();
 				}
 				continue;
@@ -3706,7 +3706,7 @@ INTERNAL U8 *SetOperands(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 				}
 				else
 				{
-					Segment = X86Instruction->Segment = SEG_ES;
+					Segment = X86Instruction->SS.Segment = SEG_ES;
 				}
 
 				//DISASM_OUTPUT(("[SetOperand] AMODE_Y (addressing via ES:[EDI])\n"));
@@ -3818,7 +3818,7 @@ INTERNAL U8 *SetOperands(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 
 				Operand->Flags |= OP_REG;
 				Operand->Register = X86_XMM_OFFSET + rex_modrm.reg; break;
-				X86_SET_REG(0);
+				/*X86_SET_REG(0);
 
 				if (Disassemble)
 				{
@@ -3826,7 +3826,7 @@ INTERNAL U8 *SetOperands(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 					X86_WRITE_OPFLAGS();
 				}
 				//DISASM_OUTPUT(("[SetOperand] AMODE_V (XMM register)\n"));
-				continue;
+				continue;*/
 
 			case AMODE_R: // modrm.rm is general register and modrm.mod = 11
 				assert(X86Instruction->HasModRM);
@@ -3998,7 +3998,7 @@ INTERNAL U8 *SetOperands(INSTRUCTION *Instruction, U8 *Address, U32 Flags)
 					if (!SuppressErrors) printf("[0x%08I64X] ERROR: mod = 3 for AMODE_M (\"%s\")\n", VIRTUAL_ADDRESS, X86Instruction->Opcode.Mnemonic);
 					goto abort;
 				}
-				assert(X86Instruction->Segment == SEG_DS || X86Instruction->HasSegmentOverridePrefix);
+				assert(X86Instruction->SS.Segment == SEG_DS || X86Instruction->HasSegmentOverridePrefix);
 				//DISASM_OUTPUT(("[SetOperand] AMODE_M (memory only)\n"));
 				Address = SetModRM32(Instruction, Address, Operand, OperandIndex, SuppressErrors);
 				if (!Address) return NULL;
@@ -4296,7 +4296,7 @@ INTERNAL U8 *SetModRM32(INSTRUCTION *Instruction, U8 *Address, INSTRUCTION_OPERA
 			X86Instruction->Relative = TRUE;
 			Operand->Flags |= OP_IPREL | OP_SIGNED | OP_REG;
 			SANITY_CHECK_SEGMENT_OVERRIDE();
-			if (!X86Instruction->HasSegmentOverridePrefix) X86Instruction->Segment = SEG_CS;
+			if (!X86Instruction->HasSegmentOverridePrefix) X86Instruction->SS.Segment = SEG_CS;
 			X86Instruction->HasFullDisplacement = TRUE;
 
 			// Since there may be an immediate value to follow, it is necessary

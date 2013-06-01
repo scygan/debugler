@@ -22,8 +22,8 @@
 #include <DGLCommon/gl-headers.h>
 #include <DGLNet/protocol/anyvalue.h>
 
-class GLDataFormat;
-class GLDataType;
+struct GLDataFormat;
+struct GLDataType;
 
 class DGLBlitterBase {
 
