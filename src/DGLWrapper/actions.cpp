@@ -51,6 +51,7 @@ RetValue ActionBase::DoPre(const CalledEntryPoint& call) {
             Os::fatal(e.what());
         }
     }
+    return RetValue();
 }
 
 void ActionBase::DoPost(const CalledEntryPoint& call, const RetValue& ret) {
@@ -187,7 +188,7 @@ RetValue GetProcAddressAction::Pre(const CalledEntryPoint& call) {
     //Load and get address of entrypoint implementation
     if (g_ApiLoader.loadExtPointer(entryp)) {
         //entrypoint supported by implementation, return address of wrapper to application
-        ret = (FUNC_PTR)getWrapperPointer(entryp);
+        ret = reinterpret_cast<FUNC_PTR>(getWrapperPointer(entryp));
     } else {
         //entrypoint unsupported by implementation, return NULL to application
         ret = (FUNC_PTR) NULL;

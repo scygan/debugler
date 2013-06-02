@@ -318,15 +318,15 @@ namespace boost { namespace serialization {
 }}
 
 #ifdef REGISTER_CLASS
-REGISTER_CLASS(dglnet::DGLResource);
-REGISTER_CLASS(dglnet::resource::DGLResourceTexture);
-REGISTER_CLASS(dglnet::resource::DGLResourceBuffer);
-REGISTER_CLASS(dglnet::resource::DGLResourceFramebuffer);
-REGISTER_CLASS(dglnet::resource::DGLResourceFBO);
-REGISTER_CLASS(dglnet::resource::DGLResourceShader);
-REGISTER_CLASS(dglnet::resource::DGLResourceProgram);
-REGISTER_CLASS(dglnet::resource::DGLResourceGPU);
-REGISTER_CLASS(dglnet::resource::DGLResourceState);
+REGISTER_CLASS(dglnet::DGLResource)
+REGISTER_CLASS(dglnet::resource::DGLResourceTexture)
+REGISTER_CLASS(dglnet::resource::DGLResourceBuffer)
+REGISTER_CLASS(dglnet::resource::DGLResourceFramebuffer)
+REGISTER_CLASS(dglnet::resource::DGLResourceFBO)
+REGISTER_CLASS(dglnet::resource::DGLResourceShader)
+REGISTER_CLASS(dglnet::resource::DGLResourceProgram)
+REGISTER_CLASS(dglnet::resource::DGLResourceGPU)
+REGISTER_CLASS(dglnet::resource::DGLResourceState)
 #endif
 
 

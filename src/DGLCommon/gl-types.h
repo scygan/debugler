@@ -26,6 +26,9 @@ typedef uint64_t gl_t;        //gl enums (including 64bit)
 typedef int32_t  value_t;     //any gl values (GLints)
 
 
+typedef int (*FUNC_PTR) ();
+
+
 #define FUNC_LIST_ELEM_SUPPORTED(name, type, library) name##_Call,
 #define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library) FUNC_LIST_ELEM_SUPPORTED(name, type, library)
 enum Entrypoints {

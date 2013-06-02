@@ -77,7 +77,7 @@ DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
 #ifdef _WIN32
     setWindowIcon(QIcon(QPixmap::fromWinHICON((HICON)icon->get())));
 #else
-#warning: no window icon on non-windows
+#pragma message ( "no window icon on non-windows" )
 #endif
 
     //load designer UI 

@@ -170,8 +170,8 @@ void *DLIntercept::dlsym (void * handle, const char *name) {
     Entrypoint entryp = GetEntryPointEnum(name);
 
     if (i != mSupportedLibraries.end() && i->second && entryp != NO_ENTRYPOINT) {
-        g_ApiLoader.setPointer(entryp, ptr);
-        return getWrapperPointer(entryp);
+        g_ApiLoader.setPointer(entryp, reinterpret_cast<FUNC_PTR>((ptrdiff_t)ptr));
+        return reinterpret_cast<void*>((ptrdiff_t)getWrapperPointer(entryp));
     } else {
         return ptr;
     }
@@ -188,8 +188,8 @@ void *DLIntercept::dlvsym (void * handle, const char *name, const char *version)
     Entrypoint entryp = GetEntryPointEnum(name);
 
     if (i != mSupportedLibraries.end() && i->second && entryp != NO_ENTRYPOINT) {
-        g_ApiLoader.setPointer(entryp, ptr);
-        return getWrapperPointer(entryp);
+        g_ApiLoader.setPointer(entryp, reinterpret_cast<FUNC_PTR>((ptrdiff_t)ptr));
+        return reinterpret_cast<void*>((ptrdiff_t)getWrapperPointer(entryp));
     } else {
         return ptr;
     }
@@ -255,7 +255,7 @@ extern "C" {
      *
      * Called directly by debugee
      */
-    void *dlopen(const char *filename, int flag) {
+    void *dlopen(const char *filename, int flag) throw() {
         try {
             return g_DLIntercept.dlopen(filename, flag);
         } catch (const std::exception& e) {
@@ -269,7 +269,7 @@ extern "C" {
      *
      * Called directly by debugee
      */
-    void *dlsym (void * handle, const char *name) {
+    void *dlsym (void * handle, const char *name) throw() {
         try {
             return g_DLIntercept.dlsym(handle, name);
         } catch (const std::exception& e) {
@@ -283,7 +283,7 @@ extern "C" {
      *
      * Called directly by debugee
      */
-    void *dlvsym (void * handle, const char *name, const char *version) {
+    void *dlvsym (void * handle, const char *name, const char *version) throw() {
         try {
             return g_DLIntercept.dlvsym(handle, name, version);
         } catch (const std::exception& e) {

@@ -17,7 +17,7 @@
 
 namespace dglnet {
 
-ContextObjectName::ContextObjectName():m_Context(0), m_Name(0), m_Target(0) {}
+ContextObjectName::ContextObjectName():m_Name(0), m_Context(0), m_Target(0) {}
 ContextObjectName::ContextObjectName(opaque_id_t context, gl_t name, gl_t target):m_Name(name),m_Context(context),m_Target(target) {}
 ContextObjectName::~ContextObjectName() {}
 
@@ -41,4 +41,4 @@ bool ContextObjectName::operator<(const ContextObjectName&rhs) const {
     return false;
 }
 
-}; //namespace dglnet
+} //namespace dglnet

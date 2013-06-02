@@ -20,7 +20,7 @@
 #include <iomanip>
 #include <cstring>
 
-CalledEntryPoint::CalledEntryPoint(Entrypoint entryp, int numArgs):m_entryp(entryp), m_SavedArgsCount(0), m_glError(GL_NO_ERROR) {
+CalledEntryPoint::CalledEntryPoint(Entrypoint entryp, int numArgs):m_entryp(entryp), m_glError(GL_NO_ERROR), m_SavedArgsCount(0) {
     m_args.resize(numArgs);
 }
 
@@ -64,6 +64,9 @@ public:
     }
     void operator()(PtrWrap<const void*> i) const {
         (*m_Stream) << std::hex << "0x" << (const void*)i << std::dec;
+    }
+    void operator()(PtrWrap<FUNC_PTR> i) const {
+        (*m_Stream) << std::hex << "0x" << (FUNC_PTR)i << std::dec;
     }
     void operator()(GLenumWrap i) const {
         (*m_Stream) << GetGLEnumName(i.get());

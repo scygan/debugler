@@ -22,12 +22,12 @@
 
 extern "C" {
 #include "codegen/wrappers.inl"
-};
+}
 
 
-#define FUNC_LIST_ELEM_SUPPORTED(name, type, library) (void*)&name,
+#define FUNC_LIST_ELEM_SUPPORTED(name, type, library) (FUNC_PTR)&name,
 #define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library) NULL,
-void * wrapperPtrs[] = {
+FUNC_PTR wrapperPtrs[] = {
     #include "codegen/functionList.inl"
     NULL
 };
@@ -35,6 +35,6 @@ void * wrapperPtrs[] = {
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED
 
 
-void* getWrapperPointer(Entrypoint entryp) {
+FUNC_PTR getWrapperPointer(Entrypoint entryp) {
     return wrapperPtrs[entryp];
 }

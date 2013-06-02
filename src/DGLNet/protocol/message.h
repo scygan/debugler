@@ -158,7 +158,7 @@ public:
     };
 
 
-    BreakedCall(CalledEntryPoint entryp, value_t traceSize, opaque_id_t currentCtx, std::vector<ContextReport> ctxReports):m_entryp(entryp), m_TraceSize(traceSize), m_CurrentCtx(currentCtx), m_CtxReports(ctxReports) {}
+    BreakedCall(CalledEntryPoint entryp, value_t traceSize, opaque_id_t currentCtx, std::vector<ContextReport> ctxReports):m_entryp(entryp), m_TraceSize(traceSize), m_CtxReports(ctxReports), m_CurrentCtx(currentCtx) {}
     BreakedCall() {}
 
     CalledEntryPoint m_entryp;
@@ -234,7 +234,7 @@ class CallTrace: public Message {
 
 public:
     CallTrace(){}
-    CallTrace(const std::vector<CalledEntryPoint>& trace, int start):m_Trace(trace), m_StartOffset(start) {}
+    CallTrace(const std::vector<CalledEntryPoint>& trace, int start):m_StartOffset(start), m_Trace(trace) {}
 
     value_t m_StartOffset;
     std::vector<CalledEntryPoint> m_Trace;
@@ -326,21 +326,21 @@ private:
 
 };
 
-}; //namespace message
-}; //namespace dglnet
+} //namespace message
+} //namespace dglnet
 
 
 #ifdef REGISTER_CLASS
 REGISTER_CLASS(dglnet::message::Hello)
-REGISTER_CLASS(dglnet::message::Configuration);
-REGISTER_CLASS(dglnet::message::BreakedCall);
-REGISTER_CLASS(dglnet::message::ContinueBreak);
-REGISTER_CLASS(dglnet::message::QueryCallTrace);
-REGISTER_CLASS(dglnet::message::CallTrace);
-REGISTER_CLASS(dglnet::message::Request);
-REGISTER_CLASS(dglnet::message::RequestReply);
-REGISTER_CLASS(dglnet::message::RequestReply::ReplyBase);
-REGISTER_CLASS(dglnet::message::SetBreakPoints);
+REGISTER_CLASS(dglnet::message::Configuration)
+REGISTER_CLASS(dglnet::message::BreakedCall)
+REGISTER_CLASS(dglnet::message::ContinueBreak)
+REGISTER_CLASS(dglnet::message::QueryCallTrace)
+REGISTER_CLASS(dglnet::message::CallTrace)
+REGISTER_CLASS(dglnet::message::Request)
+REGISTER_CLASS(dglnet::message::RequestReply)
+REGISTER_CLASS(dglnet::message::RequestReply::ReplyBase)
+REGISTER_CLASS(dglnet::message::SetBreakPoints)
 #endif
 
 #endif

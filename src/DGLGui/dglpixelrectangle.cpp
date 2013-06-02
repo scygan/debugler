@@ -89,7 +89,7 @@ private:
 };
 
 
-DGLPixelRectangleView::DGLPixelRectangleView(QWidget* parent):m_Scene(NULL),m_GraphicsView(parent) {
+DGLPixelRectangleView::DGLPixelRectangleView(QWidget* parent):m_GraphicsView(parent), m_Scene(NULL) {
     m_Ui = new Ui::DGLPixelRectangleView();
     m_Ui->setupUi(this);
     m_Ui->verticalLayout->insertWidget(0, &m_GraphicsView);

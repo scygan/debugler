@@ -20,8 +20,8 @@ set(dglgui_HEADERS
     dglpixelrectangle.h dglprogramview.h dglrundialog.h
     dglshaderview.h dglshaderviewitem.h dglstateview.h
     dgltabbedview.h dgltextureview.h dgltraceview.h
-    dgltreeview.h dglprocess.h dglsyntaxhighlight.h
-	dglblitterbase.h dglglsleditor.h
+    dgltreeview.h dglsyntaxhighlight.h dglglsleditor.h
+    #dglprocess.h dglblitterbase.h <- no need for Qt moc here.
     )
 
 set(dglgui_FORMS

@@ -30,17 +30,17 @@
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED
 
 //DIRECT_CALL(X) can be used to directly call entrypoint X, like DIRECT_CALL(glEnable)(GL_BLEND).
-#define DIRECT_CALL(X) (*(POINTER_TYPE(X))POINTER(X))
+#define DIRECT_CALL(X) (*reinterpret_cast<POINTER_TYPE(X)>(POINTER(X)))
 #define POINTER(X) g_DirectPointers[X##_Call].ptr
 
 //DIRECT_CALL_CHECKED(X) can be used call entrypoint X with NULL-checking, like DIRECT_CALL_CHK(glEnable)(GL_BLEND).
 //will throw exception on NULL
-#define DIRECT_CALL_CHK(X) (*(POINTER_TYPE(X))POINTER_CHECKED(X))
+#define DIRECT_CALL_CHK(X) (*reinterpret_cast<POINTER_TYPE(X)>(POINTER_CHECKED(X)))
 #define POINTER_CHECKED(X) g_ApiLoader.ensurePointer(X##_Call)
 
 
 struct LoadedPointer {
-    void* ptr;
+    FUNC_PTR ptr;
     int libraryMask;
 };
 

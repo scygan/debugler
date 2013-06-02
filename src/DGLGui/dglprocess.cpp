@@ -45,6 +45,7 @@ class DGLProcessImpl: public DGLProcess {
         }
         ~CWD() {
             int ignored = chdir(m_cwd);
+            (void) ignored;
         }
         char m_cwd[PATH_MAX];
     };
@@ -54,10 +55,11 @@ class DGLProcessImpl: public DGLProcess {
 public:
 
     DGLProcessImpl(std::string exec, std::string path, std::string args, int port, bool modeEGL):
+        m_Loaded(false),
         m_PortStr(boost::lexical_cast<std::string>(port)), m_SemLoaderStr("sem_loader_" + m_PortStr),
         m_SemOpenGLStr("sem_" + m_PortStr),
         m_SemLoader(boost::interprocess::open_or_create, m_SemLoaderStr.c_str(), 0),
-        m_SemOpenGL(boost::interprocess::open_or_create, m_SemOpenGLStr.c_str(), 0),m_Loaded(false)
+        m_SemOpenGL(boost::interprocess::open_or_create, m_SemOpenGLStr.c_str(), 0)
     {
         try {
 #ifdef _WIN32

@@ -65,8 +65,6 @@ private:
     gl_t m_value;
 };
 
-typedef int (*FUNC_PTR) ();
-
 class AnyValue {
     friend class boost::serialization::access;
 
@@ -87,18 +85,18 @@ public:
 
     template<typename T>
     void get(T& v) const { v = boost::get<T>(m_value); }
+    //avoid memptr to function ptr cast (it is a compiler ext). 
+    void get(FUNC_PTR& v) const { v = (FUNC_PTR)boost::get<PtrWrap<FUNC_PTR> >(m_value); }
     template<typename TBase>
     void get(const TBase*& v) const { v = (const TBase*)boost::get<PtrWrap<const void*> >(m_value); }
     template<typename TBase>
     void get(TBase*& v) const { v = (TBase*)boost::get<PtrWrap<void*> >(m_value); }
-    //for function pointers const qualifier is meaningless, so we need specific overload to resolve ambiguity
-    void get(FUNC_PTR& v) const { v = (FUNC_PTR)boost::get<PtrWrap<const void*> >(m_value); }
 
     void writeToSS(std::ostringstream& out) const;
 
 private:
     boost::variant<signed long long, unsigned long long, signed long, unsigned long, unsigned int, signed int, unsigned short, signed short, unsigned char, signed char, float, double,
-        PtrWrap<void*>, PtrWrap<const void*>, GLenumWrap> m_value;
+        PtrWrap<void*>, PtrWrap<const void*>, PtrWrap<FUNC_PTR>, GLenumWrap> m_value;
 };
 
 #endif //ANYVALUE_H

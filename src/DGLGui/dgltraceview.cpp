@@ -32,9 +32,10 @@ public:
             painter->fillRect(option.rect, option.palette.color(QPalette::Highlight));
         }
 
-        GLenum glError = index.data(Qt::UserRole + 1).toInt();
+        int glErrorI = index.data(Qt::UserRole + 1).toInt();
+        GLenum glError = static_cast<GLenum>(glErrorI);
         QString error;
-        if (glError != -1) {
+        if (glErrorI != -1) {
             error = (glError == GL_NO_ERROR)?"GL_NO_ERROR":QString::fromStdString(GetGLEnumName(glError));
         }
 

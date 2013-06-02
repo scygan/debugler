@@ -72,7 +72,7 @@ public:
      * Usable with all entrypoints, but all non-EXT entrypoints 
      * should be loaded earlier with loadLibrary()
      */
-    void* ensurePointer(Entrypoint entryp);
+    FUNC_PTR ensurePointer(Entrypoint entryp);
 
 
     /**
@@ -87,15 +87,15 @@ public:
      * Set pointer to entrypoint implementation
      *
      * Used internally.
-     * On *nix platform used also externally: i we can intercept loader calls,
+     * On *nix platform used also externally: if we can intercept loader calls,
      * this is called on dlsym call from application. This saves loader time, as
      * it does not need to call dlsym itself again.
      */
-    void setPointer(Entrypoint entryp, void* impl);
+    void setPointer(Entrypoint entryp, FUNC_PTR impl);
 
 private:
     std::string getLibraryName(ApiLibrary apiLibrary);
-    void* loadGLPointer(LoadedLib library, Entrypoint entryp);
+    FUNC_PTR loadGLPointer(LoadedLib library, Entrypoint entryp);
 
     std::map<std::string, LoadedLib> m_LoadedLibraries;
     int m_LoadedApiLibraries;

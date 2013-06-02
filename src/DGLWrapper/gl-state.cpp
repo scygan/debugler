@@ -125,7 +125,7 @@ namespace state_setters {
             //dump and set pixel store state
             for (int i = 0; i < STATE_SIZE; i++) {
                 if (gc->getVersion().check(GLContextVersion::DT) ||
-                        s_StateTable[i].m_ES3 && gc->getVersion().check(GLContextVersion::ES, 3)) {
+                        (s_StateTable[i].m_ES3 && gc->getVersion().check(GLContextVersion::ES, 3))) {
                     DIRECT_CALL_CHK(glGetIntegerv)(s_StateTable[i].m_Target, &s_StateTable[i].m_SavedState);
                     DIRECT_CALL_CHK(glPixelStorei)(s_StateTable[i].m_Target, s_StateTable[i].m_State);
                 }
@@ -134,7 +134,7 @@ namespace state_setters {
         ~PixelStoreAlignment() {
             for (int i = 0; i < STATE_SIZE; i++) {
                 if (gc->getVersion().check(GLContextVersion::DT) ||
-                        s_StateTable[i].m_ES3 && gc->getVersion().check(GLContextVersion::ES, 3)) {
+                        (s_StateTable[i].m_ES3 && gc->getVersion().check(GLContextVersion::ES, 3))) {
                     DIRECT_CALL_CHK(glPixelStorei)(s_StateTable[i].m_Target, s_StateTable[i].m_SavedState);
                 }
             }
@@ -164,7 +164,7 @@ namespace state_setters {
         { GL_PACK_SKIP_IMAGES,  0,        false },
         { GL_PACK_ALIGNMENT,    4,        true },
     };
-};
+}
 #undef STATE_SIZE
 
 
@@ -384,7 +384,7 @@ GLenum GLFBObj::getTarget() {
     return m_Target;
 }
 
-GLContextVersion::GLContextVersion(Type type):m_Type(type),m_Filled(false) {}
+GLContextVersion::GLContextVersion(Type type):m_Filled(false), m_Type(type) {}
 
 bool GLContextVersion::check(Type type, int majorVersion, int minorVersion) {
 
@@ -1968,7 +1968,7 @@ opaque_id_t GLContext::getId() {
 
 void APIENTRY debugOutputCallback(GLenum /*source*/, GLenum /*type*/, GLuint /*id*/, GLenum /*severity*/, GLsizei length, const GLchar* message, GLvoid* userParam) {
     reinterpret_cast<GLContext*>(userParam)->setDebugOutput(std::string(message, length));
-};
+}
 
 
 void GLContext::firstUse() {

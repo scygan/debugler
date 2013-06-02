@@ -22,5 +22,5 @@ namespace request {
     EditShaderSource::EditShaderSource(opaque_id_t context, gl_t shaderId, std::string& source):m_Context(context),
         m_ShaderId(shaderId), m_Source(source) {}
 
-}; //namespace resource
-}; //namespace dglnet
+} //namespace resource
+} //namespace dglnet

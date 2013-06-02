@@ -23,6 +23,7 @@
 class OsIcon {
 public:
     virtual void * get() = 0;
+    virtual ~OsIcon() {}
 };
 
 class OsStatusPresenter {

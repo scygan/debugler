@@ -49,7 +49,7 @@ void DGLRequestManager::unregisterHandler(DGLRequestHandler* handler) {
 }
 
 
-DGLResourceListener::DGLResourceListener(dglnet::ContextObjectName objectName, dglnet::DGLResource::ObjectType type, DGLResourceManager* manager):DGLRequestHandler(manager->getRequestManager()), m_ObjectName(objectName), m_ObjectType(type), m_Manager(manager) {}
+DGLResourceListener::DGLResourceListener(dglnet::ContextObjectName objectName, dglnet::DGLResource::ObjectType type, DGLResourceManager* manager):DGLRequestHandler(manager->getRequestManager()), m_ObjectType(type), m_ObjectName(objectName), m_Manager(manager) {}
 
 DGLResourceListener::~DGLResourceListener() {
     m_Manager->unregisterListener(this);
@@ -114,6 +114,9 @@ void DGLViewRouter::show(const dglnet::ContextObjectName& name, dglnet::DGLResou
         case dglnet::DGLResource::ObjectTypeProgram:
             emit showProgram(name.m_Context, name.m_Name);
             break;
+        default:
+        	assert(0);
+        	break;
     }
 }
 

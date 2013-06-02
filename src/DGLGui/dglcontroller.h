@@ -97,9 +97,9 @@ signals:
     void update(const dglnet::DGLResource&);
     void error(const std::string&);
 private:
-    DGLResourceManager* m_Manager;
     dglnet::DGLResource::ObjectType m_ObjectType;
     dglnet::ContextObjectName m_ObjectName;
+    DGLResourceManager* m_Manager;
 };
 
 /**
@@ -336,15 +336,15 @@ private:
     bool m_Disconnected;
 
     /**
+     * Set to true, if client is ready for receiving messages. Does not always equal !m_Disconnected
+     */
+    bool m_Connected;
+
+    /**
      * Set to true if configuration and breakpoints were already send.
      * If not set, the configuration and breakpoint will be synced ASAP.
      */
     bool m_ConfiguredAndBkpointsSet;
-
-    /**
-     * Set to true, if client is ready for receiving messages. Does not always equal !m_Disconnected
-     */
-    bool m_Connected;
 
     std::string m_DglClientDeadInfo;
     DGLBreakPointController m_BreakPointController;

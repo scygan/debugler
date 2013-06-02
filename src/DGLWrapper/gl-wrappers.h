@@ -15,4 +15,4 @@
 
 #include <DGLCommon/gl-types.h>
 
-void* getWrapperPointer(Entrypoint entryp);
+FUNC_PTR getWrapperPointer(Entrypoint entryp);

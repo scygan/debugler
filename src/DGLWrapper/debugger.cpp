@@ -30,11 +30,11 @@ DGLDebugController* getController() {
         _g_Controller = boost::make_shared<DGLDebugController>();
     }
     return _g_Controller.get();
-};
+}
 
 DGLConfiguration g_Config;
 
-BreakState::BreakState():m_break(true),m_StepModeEnabled(false) {}
+BreakState::BreakState():m_break(true),m_StepModeEnabled(false), m_StepMode(dglnet::message::ContinueBreak::STEP_DRAW_CALL) {}
 
 bool BreakState::mayBreakAt(const Entrypoint& e) {
     if (m_StepModeEnabled) {
@@ -92,7 +92,7 @@ void BreakState::handle(const dglnet::message::SetBreakPoints& msg) {
 
 CallHistory::CallHistory() {
     m_cb = boost::circular_buffer<CalledEntryPoint>(CALL_HISTORY_LEN);
-};
+}
 
 void CallHistory::add(const CalledEntryPoint& entryp) {
     boost::lock_guard<boost::mutex> lock(m_mutex);

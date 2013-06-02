@@ -50,13 +50,14 @@ LoadedPointer g_DirectPointers[Entrypoints_NUM] = {
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED
 };
 
-APILoader::APILoader():m_GlueLibrary(LIBRARY_NONE), m_LoadedApiLibraries(LIBRARY_NONE) {}
+APILoader::APILoader():m_LoadedApiLibraries(LIBRARY_NONE),m_GlueLibrary(LIBRARY_NONE) {}
 
-void* APILoader::loadGLPointer(LoadedLib library, Entrypoint entryp) {
+FUNC_PTR APILoader::loadGLPointer(LoadedLib library, Entrypoint entryp) {
 #ifdef _WIN32
     return GetProcAddress((HINSTANCE)library, GetEntryPointName(entryp));
 #else
-    return dlsym(library, GetEntryPointName(entryp));
+    //(int) -> see http://www.trilithium.com/johan/2004/12/problem-with-dlsym/
+    return reinterpret_cast<FUNC_PTR>((ptrdiff_t)dlsym(library, GetEntryPointName(entryp)));
 #endif
 }
 
@@ -67,7 +68,7 @@ bool APILoader::loadExtPointer(Entrypoint entryp) {
             throw std::runtime_error("Trying to call *GetProcAdress, but no glue library loaded");
         }
 
-        void * ptr = NULL;
+        FUNC_PTR ptr = NULL;
 
         switch (m_GlueLibrary) {
 #ifdef HAVE_LIBRARY_WGL
@@ -77,12 +78,12 @@ bool APILoader::loadExtPointer(Entrypoint entryp) {
 #endif
 #ifdef HAVE_LIBRARY_GLX
         case LIBRARY_GLX:
-            ptr = reinterpret_cast<void*>(DIRECT_CALL(glXGetProcAddress)(
+            ptr = reinterpret_cast<FUNC_PTR>(DIRECT_CALL(glXGetProcAddress)(
                         reinterpret_cast<const GLubyte*>(GetEntryPointName(entryp))));
             break;
 #endif
         case LIBRARY_EGL:
-            ptr = (void*)DIRECT_CALL(eglGetProcAddress)(GetEntryPointName(entryp));
+            ptr = reinterpret_cast<FUNC_PTR>(DIRECT_CALL(eglGetProcAddress)(GetEntryPointName(entryp)));
             break;
         default:
             assert(!"unknown glue library");
@@ -128,7 +129,7 @@ bool APILoader::isLibGL(const char* name) {
         nameStr.find("libEGL") != std::string::npos;
 }
 
-void APILoader::setPointer(Entrypoint entryp, void* direct) {
+void APILoader::setPointer(Entrypoint entryp, FUNC_PTR direct) {
     if (entryp < NO_ENTRYPOINT) {
          g_DirectPointers[entryp].ptr = direct;
     }
@@ -209,7 +210,9 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary) {
 
         if (g_DirectPointers[i].ptr) {
             //this entrypoint was loaded from OpenGL32.dll, detour it!
-            void * hookPtr = getWrapperPointer(i);
+#if defined(USE_DETOURS) || defined(USE_MHOOK)            
+            FUNC_PTR * hookPtr = getWrapperPointer(i);
+#endif            
 #ifdef USE_DETOURS
             DetourAttach(&(PVOID&)g_DirectPointers[i].ptr, hookPtr);
 #endif
@@ -229,7 +232,7 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary) {
     m_LoadedApiLibraries |= apiLibrary;
 }
 
-void* APILoader::ensurePointer(Entrypoint entryp) {
+FUNC_PTR APILoader::ensurePointer(Entrypoint entryp) {
     if (g_DirectPointers[entryp].ptr || loadExtPointer(entryp)) {
         return g_DirectPointers[entryp].ptr;
     } else {
