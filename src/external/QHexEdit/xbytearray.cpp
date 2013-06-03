@@ -144,7 +144,11 @@ QString XByteArray::floatString8(int index)
     QByteArray fba = _data.mid(index, sizeof(float));
     float f = *reinterpret_cast<float*>(fba.data());
     QString ret = QString::number(f, 'g', 6);
-    ret.resize(8);
+    if (ret.size() > 8) {
+        ret.resize(8);
+    } else if (ret.size() < 8) {
+        ret += QString(8 - ret.size(), ' ');
+    }
     return ret;
 }
 
