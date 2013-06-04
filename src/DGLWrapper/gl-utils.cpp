@@ -72,7 +72,7 @@ MSAADownSampler::MSAADownSampler(GLenum attTarget, GLenum att, GLuint fboName, G
     } else if (m_DownsampledResourceTarget == GL_TEXTURE_2D_MULTISAMPLE) {
         DIRECT_CALL_CHK(glFramebufferTexture2D)(GL_DRAW_FRAMEBUFFER, att, GL_TEXTURE_2D, m_DownsampledResource, 0);
     } else if (m_DownsampledResourceTarget == GL_TEXTURE_2D_MULTISAMPLE_ARRAY) {
-        DIRECT_CALL_CHK(glFramebufferTexture3D)(GL_DRAW_FRAMEBUFFER, att, GL_TEXTURE_2D_ARRAY, m_DownsampledResource, 0, 0);
+        DIRECT_CALL_CHK(glFramebufferTextureLayer)(GL_DRAW_FRAMEBUFFER, att, m_DownsampledResource, 0, 0);
     } else { assert(0); }
 
     GLint blitMask = 0;
