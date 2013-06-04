@@ -678,7 +678,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
     state_setters::PixelStoreAlignment defAlignment;
 
     //rebind texture, so we can access it
-    GLuint lastTexture = getBoundTexture(tex->getTarget());
+    GLuint lastTexture = glutils::getBoundTexture(tex->getTarget());
     if (lastTexture != tex->getName()) {
         DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), tex->getName());
     }
@@ -948,6 +948,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
         
         //now look for the attached object and query internal format and dimensions
         GLint width = 0, height = 0, internalFormat = 0, samples = 0;
+        GLenum attTarget;
         if (type == GL_TEXTURE) {
 
             if (!DIRECT_CALL_CHK(glIsTexture)(attmntName)) {
@@ -956,55 +957,35 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
             }
 
             GLTextureObj* tex = ensureTexture(attmntName);
+            attTarget = tex->getTarget();
 
-            GLenum bindableTarget;
+            GLenum bindableTarget = glutils::textTargetToBindableTarget(attTarget);
 
-            switch (tex->getTarget()) {
-                case GL_TEXTURE_1D:
-                    bindableTarget = tex->getTarget();
-                    break;
-                case GL_TEXTURE_2D:
-                    bindableTarget = tex->getTarget();
-                    break;
-                case GL_TEXTURE_RECTANGLE:
-                    bindableTarget = tex->getTarget();
-                    break;
+            
 
-                case GL_TEXTURE_CUBE_MAP_POSITIVE_X:
-                case GL_TEXTURE_CUBE_MAP_NEGATIVE_X:
-                case GL_TEXTURE_CUBE_MAP_POSITIVE_Y:
-                case GL_TEXTURE_CUBE_MAP_NEGATIVE_Y:
-                case GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
-                case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
-                    bindableTarget = GL_TEXTURE_CUBE_MAP;
-                    break;
-                case GL_TEXTURE_3D:
-                    bindableTarget = tex->getTarget();
-                    break;
-                case GL_TEXTURE_2D_MULTISAMPLE:
-                    bindableTarget = tex->getTarget();
-                    samples = 1;
-                    break;
-                default:
-                    resource->m_Attachments.back().error("Attached texture target is not supported");
-                    continue;
+            if (attTarget == GL_TEXTURE_2D_MULTISAMPLE || 
+                attTarget == GL_TEXTURE_2D_MULTISAMPLE_ARRAY) {
+                samples = 1;
             }
 
             GLint level;
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
                 GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, &level);
 
-            GLint lastTexture = getBoundTexture(tex->getTarget());
+            GLint lastTexture = glutils::getBoundTexture(attTarget);
             DIRECT_CALL_CHK(glBindTexture)(bindableTarget, tex->getName());
 
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_WIDTH, &width);
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_HEIGHT, &height);
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(tex->getTarget(), level, GL_TEXTURE_SAMPLES, &samples);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(attTarget, level, GL_TEXTURE_WIDTH, &width);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(attTarget, level, GL_TEXTURE_HEIGHT, &height);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(attTarget, level, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(attTarget, level, GL_TEXTURE_SAMPLES, &samples);
 
             DIRECT_CALL_CHK(glBindTexture)(bindableTarget, lastTexture);
 
         } else if (type == GL_RENDERBUFFER) {
+            
+            attTarget = GL_RENDERBUFFER;
+
             if (!DIRECT_CALL_CHK(glIsRenderbuffer)(attmntName)) {
                 resource->m_Attachments.back().error("Attached renderbuffer object does not exist");
                 continue;
@@ -1072,7 +1053,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
 
         boost::shared_ptr<glutils::MSAADownSampler> downSampler;
         if (samples) {
-            downSampler = boost::make_shared<glutils::MSAADownSampler>(type, attachments[i], name, internalFormat, width, height);
+            downSampler = boost::make_shared<glutils::MSAADownSampler>(attTarget, attachments[i], name, internalFormat, &transfer, width, height);
             DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, downSampler->getDownsampledFBO());
         }
 
@@ -1500,38 +1481,6 @@ dglnet::resource::DGLResourceState::StateItem GLContext::getStateIsEnabled(const
         ret.m_Values.resize(1, val);
     }                                          
     return ret;
-}
-
-GLuint GLContext::getBoundTexture(GLenum target) {
-#ifdef WA_ARM_MALI_EMU_GETTERS_OVERFLOW
-    //WA for buggy ARM Mali OpenGL ES 3.0 emulator, where to really much data is returned from glGetIntegerv
-    // It was measured that bug is causing to overwrite 192*4 bytes of memory.
-    GLint lastTexture[192];
-#else
-    GLint lastTexture[1];
-#endif
-
-    switch (target) {
-        case GL_TEXTURE_1D:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_1D, lastTexture);
-            break;
-        case GL_TEXTURE_2D:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D, lastTexture);
-            break;
-        case GL_TEXTURE_RECTANGLE:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_RECTANGLE, lastTexture);
-            break;
-        case GL_TEXTURE_1D_ARRAY:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_1D_ARRAY, lastTexture);
-            break;
-        case GL_TEXTURE_CUBE_MAP:
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_CUBE_MAP, lastTexture);
-            break;
-        default:
-            assert(0);
-    }
-
-    return lastTexture[0];
 }
 
 boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {

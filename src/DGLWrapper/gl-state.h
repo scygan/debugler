@@ -317,11 +317,6 @@ private:
     dglnet::resource::DGLResourceState::StateItem getStateIsEnabled(const char* name, GLenum value);
 
     /**
-     * Get texture currently bound to given target
-     */
-    GLuint getBoundTexture(GLenum target);
-
-    /**
      * True if ctx was ever bound, false otherwise
      */
     bool m_EverBound;

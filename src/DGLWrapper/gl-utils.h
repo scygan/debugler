@@ -19,11 +19,13 @@
 
 #include <DGLCommon/gl-types.h>
 
+class DGLPixelTransfer;
+
 namespace glutils {
 
 class MSAADownSampler {
 public:
-MSAADownSampler(GLenum attType, /*GLenum attTarget,*/ GLenum att, GLuint fboName, GLenum attInternalFormat, int width, int height);
+MSAADownSampler(GLenum attTarget, GLenum att, GLuint fboName, GLenum attInternalFormat, DGLPixelTransfer* transfer, int width, int height);
 ~MSAADownSampler();
 
 GLuint getDownsampledFBO();
@@ -31,11 +33,19 @@ GLuint getDownsampledFBO();
 
 private:
     GLuint m_DownSampledFBO;
-    GLuint m_DownsampledResourceType;
+    GLuint m_DownsampledResourceTarget;
     GLuint m_DownsampledResource;
     GLuint m_Texture;
     GLuint m_FBO;
 };
+
+
+GLenum textTargetToBindableTarget(GLenum);
+
+/**
+ * Get texture currently bound to given target
+ */
+GLuint getBoundTexture(GLenum target);
 
 } //namespace glutils
 #endif
