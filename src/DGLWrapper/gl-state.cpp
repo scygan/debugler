@@ -1067,6 +1067,9 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
             DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, transfer.getFormat(), transfer.getType(), ptr);
         }
 
+        //there should be no errors. Otherwise something nasty happened
+        queryCheckError();
+
         if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
             //we have succesfully read GL_DEPTH_STENCIL_ATTACHMENT attachment. 
             //WA for buggy drivers: do not try to read DEPTH and STENCIL attachments if DEPTH_STENCIL is used
