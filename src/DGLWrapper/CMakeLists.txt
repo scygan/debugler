@@ -3,7 +3,7 @@ set(dglwrapper_SOURCES
     gl-state.cpp gl-wrappers.cpp
     actions.cpp native-surface.cpp
 	dl-intercept.cpp display.cpp
-	tls.cpp
+	tls.cpp gl-utils.cpp
 #dllmain.cpp should be at the end, until all static ctors are fixed:
     dllmain.cpp
     )

@@ -70,6 +70,7 @@
     <ClInclude Include="display.h" />
     <ClInclude Include="gl-headers-inside.h" />
     <ClInclude Include="gl-state.h" />
+    <ClInclude Include="gl-utils.h" />
     <ClInclude Include="gl-wrappers.h" />
     <ClInclude Include="native-surface.h" />
     <ClInclude Include="pointers.h" />
@@ -87,6 +88,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="api-loader.cpp" />
     <ClCompile Include="gl-state.cpp" />
+    <ClCompile Include="gl-utils.cpp" />
     <ClCompile Include="gl-wrappers.cpp" />
     <ClCompile Include="actions.cpp" />
     <ClCompile Include="native-surface.cpp" />

@@ -32,6 +32,7 @@
 #include "api-loader.h"
 #include "tls.h"
 #include "native-surface.h"
+#include "gl-utils.h"
 
 #include <DGLCommon/def.h>
 #include <DGLNet/protocol/pixeltransfer.h>
@@ -1069,49 +1070,10 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
             height, defAlignment.getAligned(width * transfer.getPixelSize()), 
             transfer.getFormat(), transfer.getType(), internalFormat, samples);
 
-       
-
-        GLuint downsampledFBO = 0, downsampledRBO = 0;
+        boost::shared_ptr<glutils::MSAADownSampler> downSampler;
         if (samples) {
-            //this is a multisample render target. We must downsample it before reading
-
-            //create renderbuffer for downsampling
-            DIRECT_CALL_CHK(glGenRenderbuffers)(1, &downsampledRBO);
-            DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, downsampledRBO);
-            DIRECT_CALL_CHK(glRenderbufferStorage)(GL_RENDERBUFFER, internalFormat, width, height);
-
-            //create framebuffer used for downsampling, set it as draw
-            DIRECT_CALL_CHK(glGenFramebuffers)(1, &downsampledFBO);
-            DIRECT_CALL_CHK(glBindFramebuffer)(GL_DRAW_FRAMEBUFFER, downsampledFBO);
-            DIRECT_CALL_CHK(glFramebufferRenderbuffer)(GL_DRAW_FRAMEBUFFER, attachments[i], GL_RENDERBUFFER, downsampledRBO);
-
-            GLint blitMask = 0;
-
-            if (attachments[i] != GL_DEPTH_ATTACHMENT && attachments[i] != GL_STENCIL_ATTACHMENT && attachments[i] != GL_DEPTH_STENCIL_ATTACHMENT) {
-                //select buffers for downsampling
-                DIRECT_CALL_CHK(glReadBuffer)(attachments[i]); 
-                DIRECT_CALL_CHK(glDrawBuffer)(attachments[i]); 
-
-                blitMask |= GL_COLOR_BUFFER_BIT;
-            } else {
-                switch (attachments[i]) {
-                    case GL_DEPTH_ATTACHMENT:
-                        blitMask |= GL_DEPTH_BUFFER_BIT;
-                        break;
-                    case GL_STENCIL_ATTACHMENT:
-                        blitMask |= GL_STENCIL_BUFFER_BIT;
-                        break;
-                    case GL_DEPTH_STENCIL_ATTACHMENT:
-                        blitMask |= GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
-                        break;
-                }
-            }
-
-            //downsample
-            DIRECT_CALL_CHK(glBlitFramebuffer)(0, 0, width, height, 0, 0, width, height, blitMask, GL_NEAREST);
-
-            //set downsampled fbo as read, to allow glReadPixels read from it
-            DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, downsampledFBO);
+            downSampler = boost::make_shared<glutils::MSAADownSampler>(type, attachments[i], name, internalFormat, width, height);
+            DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, downSampler->getDownsampledFBO());
         }
 
         if (attachments[i] != GL_DEPTH_ATTACHMENT && attachments[i] != GL_STENCIL_ATTACHMENT && attachments[i] != GL_DEPTH_STENCIL_ATTACHMENT) {
@@ -1122,16 +1084,6 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
         GLvoid* ptr = resource->m_Attachments.back().m_PixelRectangle->getPtr();
         if (ptr) {
             DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, transfer.getFormat(), transfer.getType(), ptr);
-        }
-
-        if (samples) {
-            //restore state to point to original multisampled FBO            
-            DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, 0);
-            DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, name);
-
-            //delete objects used for downsampling
-            DIRECT_CALL_CHK(glDeleteRenderbuffers)(1, &downsampledRBO);
-            DIRECT_CALL_CHK(glDeleteFramebuffers)(1, &downsampledFBO);
         }
 
         if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
