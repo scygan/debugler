@@ -23,6 +23,8 @@
 
 #include <cassert>
 
+#include <stdexcept>
+
 namespace glutils {
 
 MSAADownSampler::MSAADownSampler(GLenum attTarget, GLenum att, GLuint fboName, GLenum attInternalFormat, DGLPixelTransfer* transfer, int width, int height):m_DownSampledFBO(0), m_DownsampledResourceTarget(attTarget), m_DownsampledResource(0), m_FBO(fboName) {
