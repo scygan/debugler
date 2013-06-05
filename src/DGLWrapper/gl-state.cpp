@@ -949,6 +949,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
         //now look for the attached object and query internal format and dimensions
         GLint width = 0, height = 0, internalFormat = 0, samples = 0;
         GLenum attTarget;
+        bool multisampled = false;
         if (type == GL_TEXTURE) {
 
             if (!DIRECT_CALL_CHK(glIsTexture)(attmntName)) {
@@ -961,12 +962,9 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
 
             GLenum bindableTarget = glutils::textTargetToBindableTarget(attTarget);
 
-            
-
             if (attTarget == GL_TEXTURE_2D_MULTISAMPLE || 
-                attTarget == GL_TEXTURE_2D_MULTISAMPLE_ARRAY) {
-                samples = 1;
-            }
+                attTarget == GL_TEXTURE_2D_MULTISAMPLE_ARRAY)
+                multisampled = true;
 
             GLint level;
             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
@@ -998,6 +996,10 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
             DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
             DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_INTERNAL_FORMAT, &internalFormat);
             DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_SAMPLES, &samples);
+
+            if (samples) {
+                multisampled = true;
+            }
 
             DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, lastRenderBuffer);
         } else {
@@ -1052,7 +1054,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
             transfer.getFormat(), transfer.getType(), internalFormat, samples);
 
         boost::shared_ptr<glutils::MSAADownSampler> downSampler;
-        if (samples) {
+        if (multisampled) {
             downSampler = boost::make_shared<glutils::MSAADownSampler>(attTarget, attachments[i], name, internalFormat, &transfer, width, height);
             DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, downSampler->getDownsampledFBO());
         }
