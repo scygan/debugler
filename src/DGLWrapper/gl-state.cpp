@@ -45,7 +45,11 @@ namespace state_setters {
     class DefaultPBO {
     public:
         DefaultPBO() {
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_PIXEL_PACK_BUFFER_BINDING, &m_PBO);
+            if (gc->getVersion().check(GLContextVersion::DT, 2, 1) || gc->getVersion().check(GLContextVersion::ES, 3)) {
+                DIRECT_CALL_CHK(glGetIntegerv)(GL_PIXEL_PACK_BUFFER_BINDING, &m_PBO);
+            } else {
+                m_PBO = 0;
+            }
             if (m_PBO) {
                 DIRECT_CALL_CHK(glBindBuffer)(GL_PIXEL_PACK_BUFFER, 0);
             }
