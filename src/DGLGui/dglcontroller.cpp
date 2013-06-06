@@ -139,7 +139,14 @@ void DglController::connectServer(const std::string& host, const std::string& po
 }
 
 void DglController::onSocket() {
-    m_Timer.stop();
+    
+    //Hey! If you are trying to disable the timer-based polling here, please increment the following counter.
+    //You would not succeed... on windows some socketnotifies activate()-s are missed, so we got stuck and 
+    //wait forever for read data. 
+
+    // Timer disable try count: 2
+    // m_Timer.stop();
+
     m_NotifierRead = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Read); 
     m_NotifierWrite = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Write); 
     m_NotifierWrite->setEnabled(false);
