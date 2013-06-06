@@ -66,13 +66,26 @@ namespace state_setters {
     class CurrentFramebuffer {
     public:
         CurrentFramebuffer(GLuint name) {
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_FRAMEBUFFER_BINDING, &m_ReadFBO);
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_DRAW_FRAMEBUFFER_BINDING, &m_DrawFBO);
-            DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, name);
+            if (gc->getVersion().check(GLContextVersion::DT, 3) || gc->getVersion().check(GLContextVersion::ES, 3)) {
+                //full FBO support
+                DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_FRAMEBUFFER_BINDING, &m_ReadFBO);
+                DIRECT_CALL_CHK(glGetIntegerv)(GL_DRAW_FRAMEBUFFER_BINDING, &m_DrawFBO);
+                DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, name);
+            } else if (gc->getVersion().check(GLContextVersion::ES, 2)) {
+                //only single draw+read fbo binding is supported
+                DIRECT_CALL_CHK(glGetIntegerv)(GL_FRAMEBUFFER_BINDING, &m_DrawFBO);
+                DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, name);
+            }
         }
         ~CurrentFramebuffer() {
-            DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, m_ReadFBO);
-            DIRECT_CALL_CHK(glBindFramebuffer)(GL_DRAW_FRAMEBUFFER, m_DrawFBO);
+            if (gc->getVersion().check(GLContextVersion::DT, 3) || gc->getVersion().check(GLContextVersion::ES, 3)) {
+                //full FBO support
+                DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, m_ReadFBO);
+                DIRECT_CALL_CHK(glBindFramebuffer)(GL_DRAW_FRAMEBUFFER, m_DrawFBO);
+            } else if (gc->getVersion().check(GLContextVersion::ES, 2)) {
+                //only single draw+read fbo binding is supported
+                DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, m_DrawFBO);
+            }
         }
     private:
         GLint m_ReadFBO, m_DrawFBO;
@@ -859,7 +872,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(gl_t _bufferE
     state_setters::DefaultPBO defPBO;
     state_setters::CurrentFramebuffer currentFramebuffer(0);
     state_setters::PixelStoreAlignment defAlignment;
-    
+
     //select read buffer
     if (m_Version.check(GLContextVersion::ES, 3) || m_Version.check(GLContextVersion::DT)) {
         DIRECT_CALL_CHK(glReadBuffer)(bufferEnum);
