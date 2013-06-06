@@ -1,4 +1,6 @@
 [![Build Status](https://secure.travis-ci.org/debugler/debugler.png?branch=master)](http://travis-ci.org/debugler/debugler)
+[![Ohloh badge](https://www.ohloh.net/p/debugler/widgets/project_thin_badge.gif)](http://www.ohloh.net/p/debugler)
+
 
 # Debugler
 
