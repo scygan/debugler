@@ -500,10 +500,15 @@ dglnet::message::BreakedCall::ContextReport GLContext::describe() {
             }
             ret.m_FramebufferSpace.insert(dglnet::ContextObjectName(m_Id, GL_FRONT_RIGHT));
         }
-        if (m_NativeReadSurface->isDoubleBuffered()) {
+        if (gc->getVersion().check(GLContextVersion::ES, 3) || gc->getVersion().check(GLContextVersion::DT)) {
+            //we have glReadBuffer, so we can read from front/back
+            if (m_NativeReadSurface->isDoubleBuffered()) {
+                ret.m_FramebufferSpace.insert(dglnet::ContextObjectName(m_Id, GL_BACK));
+            }
+            ret.m_FramebufferSpace.insert(dglnet::ContextObjectName(m_Id, GL_FRONT));
+        } else {
             ret.m_FramebufferSpace.insert(dglnet::ContextObjectName(m_Id, GL_BACK));
         }
-        ret.m_FramebufferSpace.insert(dglnet::ContextObjectName(m_Id, GL_FRONT));
     }
     return ret;
 }
