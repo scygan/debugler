@@ -194,6 +194,11 @@ namespace call_sets {
         glDrawRangeElementsBaseVertex_Call,
         glDrawRangeElementsEXT_Call,
         glMultiDrawRangeElementArrayAPPLE_Call,
+        glDrawTransformFeedback_Call,
+        glDrawTransformFeedbackInstanced_Call,
+        glDrawTransformFeedbackNV_Call,
+        glDrawTransformFeedbackStream_Call,
+        glDrawTransformFeedbackStreamInstanced_Call,
         glEnd_Call,
     };
 
