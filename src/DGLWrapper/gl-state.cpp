@@ -1530,21 +1530,132 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
 #define STATE_ISENABLED(NAME) resource->m_Items.push_back(getStateIsEnabled(#NAME, NAME))
 
 
+    //Current Values and Associated Data                //Compat!
+    //GL_CURRENT COLOR                                  //Compat!
+    //GL_CURRENT_SECONDARY COLOR                        //Compat!
+    //GL_CURRENT_INDEX                                  //Compat!
+    //GL_CURRENT_TEXTURE COORDS                         //Compat!
+    //GL_CURRENT_NORMAL                                 //Compat!
+    //GL_CURRENT_FOG COORD                              //Compat!
+    //GL_CURRENT_RASTER POSITION                        //Compat!
+    //GL_CURRENT_RASTER DISTANCE                        //Compat!
+    //GL_CURRENT_RASTER COLOR                           //Compat!
+    //GL_CURRENT_RASTER SECONDARY COLOR                 //Compat!
+    //GL_CURRENT_RASTER INDEX                           //Compat!
+    //GL_CURRENT_RASTER TEXTURE COORDS                  //Compat!
+    //GL_CURRENT_RASTER POSITION VALID                  //Compat!
+    //GL_EDGE_FLAG                                      //Compat!
     STATE_INTEGERV(GL_PATCH_VERTICES, 1);
     STATE_FLOATV(GL_PATCH_DEFAULT_OUTER_LEVEL, 4);
     STATE_FLOATV(GL_PATCH_DEFAULT_INNER_LEVEL, 2);
+
+    //Legacy Vertex Array State                         //COmpat!
+    //GL_VERTEX_ARRAY                                     //COmpat!
+    //GL_VERTEX_ARRAY_SIZE                                //COmpat!
+    //GL_VERTEX_ARRAY_TYPE                                //COmpat!
+    //GL_VERTEX_ARRAY_STRIDE                              //COmpat!
+    //GL_VERTEX_ARRAY_POINTER                             //COmpat!
+    //GL_NORMAL_ARRAY                                     //COmpat!
+    //GL_NORMAL_ARRAY_TYPE                                //COmpat!
+    //GL_NORMAL_ARRAY_STRIDE                              //COmpat!
+    //GL_NORMAL_ARRAY_POINTER                             //COmpat!
+    //GL_FOG_COORD_ARRAY                                  //COmpat!
+    //GL_FOG_COORD_ARRAY_TYPE                             //COmpat!
+    //GL_FOG_COORD_ARRAY_STRIDE                           //COmpat!
+    //GL_FOG_COORD_ARRAY_POINTER                          //COmpat!
+    //GL_COLOR_ARRAY                                      //COmpat!
+    //GL_COLOR_ARRAY_SIZE                                 //COmpat!
+    //GL_COLOR_ARRAY_TYPE                                 //COmpat!
+    //GL_COLOR_ARRAY_STRIDE                               //COmpat!
+    //GL_COLOR_ARRAY_POINTER                              //COmpat!
+    //GL_SECONDARY_COLOR_ARRAY                            //COmpat!
+    //GL_SECONDARY_COLOR_ARRAY_SIZE                       //COmpat!
+    //GL_SECONDARY_COLOR_ARRAY_TYPE                       //COmpat!
+    //GL_SECONDARY_COLOR_ARRAY_STRIDE                     //COmpat!
+    //GL_SECONDARY_COLOR_ARRAY_POINTER                    //COmpat!
+    //GL_INDEX_ARRAY                                      //COmpat!
+    //GL_INDEX_ARRAY_TYPE                                 //COmpat!
+    //GL_INDEX_ARRAY_STRIDE                               //COmpat!
+    //GL_INDEX_ARRAY_POINTER                              //COmpat!
+    //GL_TEXTURE_COORD_ARRAY                              //COmpat!
+    //GL_TEXTURE_COORD_ARRAY_SIZE                         //COmpat!
+    //GL_TEXTURE_COORD_ARRAY_TYPE                         //COmpat!
+    //GL_TEXTURE_COORD_ARRAY_STRIDE                       //COmpat!
+    //GL_TEXTURE_COORD_ARRAY_POINTER                      //COmpat!
+
+
+    //VAO State
+    //VERTEX ATTRIB ARRAY ENABLED
+    //VERTEX ATTRIB ARRAY SIZE
+    //VERTEX ATTRIB ARRAY STRIDE
+    //VERTEX ATTRIB ARRAY TYPE
+    //VERTEX ATTRIB ARRAY NORMALIZED
+    //VERTEX ATTRIB ARRAY INTEGER
+    //VERTEX ATTRIB ARRAY LONG
+    //VERTEX ATTRIB ARRAY DIVISOR
+    //VERTEX ATTRIB ARRAY POINTER
+    //EDGE FLAG ARRAY                                   //COmpat!
+    //EDGE FLAG ARRAY STRIDE                            //COmpat!
+    //EDGE FLAG ARRAY POINTER                           //COmpat!
+    //LABEL
+    //VERTEX ARRAY BUFFER BINDING                       //COmpat!
+    //NORMAL ARRAY BUFFER BINDING                       //COmpat!
+    //COLOR ARRAY BUFFER BINDING                        //COmpat!
+    //INDEX ARRAY BUFFER BINDING                        //COmpat!
+    //TEXTURE COORD ARRAY BUFFER BINDING                //COmpat!
+    //EDGE FLAG ARRAY BUFFER BINDING                    //COmpat!
+    //SECONDARY COLOR ARRAY BUFFER BINDING              //COmpat!
+    //FOG COORD ARRAY BUFFER BINDING                    //COmpat!
     STATE_INTEGERV(GL_ELEMENT_ARRAY_BUFFER_BINDING, 1);
+    //VERTEX ATTRIB ARRAY BUFFER BINDING
+    //VERTEX ATTRIB BINDING
+    //VERTEX ATTRIB RELATIVE OFFSET
+    //VERTEX BINDING OFFSET
+    //VERTEX BINDING STRIDE
+    
+
+    //Vertex Array Data
+    //CLIENT ACTIVE TEXTURE
     STATE_INTEGERV(GL_ARRAY_BUFFER_BINDING, 1);
     STATE_INTEGERV(GL_DRAW_INDIRECT_BUFFER_BINDING, 1);
     STATE_INTEGERV(GL_VERTEX_ARRAY_BINDING, 1);
     STATE_ISENABLED(GL_PRIMITIVE_RESTART);
     STATE_INTEGERV(GL_PRIMITIVE_RESTART_INDEX, 1);
+
+    //Buffer Object state
+    //BUFFER SIZE
+    //BUFFER USAGE
+    //BUFFER ACCESS
+    //BUFFER ACCESS FLAGS
+    //BUFFER MAPPED
+    //BUFFER MAP POINTER
+    //BUFFER MAP OFFSET
+    //BUFFER MAP LENGTH
+    //LABEL
+
+    //Transformation State                         //COmpat!
+    //COLOR MATRIX                                 //COmpat!
+    //(TRANSPOSE COLOR MATRIX)                     //COmpat!
+    //MODELVIEW MATRIX                             //COmpat!
+    //(TRANSPOSE MODELVIEW MATRIX)                 //COmpat!
+    //PROJECTION MATRIX                            //COmpat!
+    //(TRANSPOSE PROJECTION MATRIX)                //COmpat!
+    //TEXTURE MATRIX                               //COmpat!
+    //(TRANSPOSE TEXTURE MATRIX)                   //COmpat!
     STATE_INTEGERV(GL_VIEWPORT, 4);
     if (gc->getVersion().check(GLContextVersion::DT)) {
         STATE_DOUBLEV(GL_DEPTH_RANGE, 2);
     } else  {
         STATE_FLOATV(GL_DEPTH_RANGE, 2);
     }
+    //COLOR MATRIX STACK DEPTH                    //Compat!
+    //MODELVIEW STACK DEPTH                       //Compat!
+    //PROJECTION STACK DEPTH                      //Compat!
+    //TEXTURE STACK DEPTH                         //Compat!
+    //MATRIX MODE                                 //Compat!
+    //NORMALIZE                                   //Compat!
+    //RESCALE NORMAL                              //Compat!
+    //CLIP PLANEi                                 //Compat!
     STATE_ISENABLED(GL_CLIP_DISTANCE0);
     STATE_ISENABLED(GL_CLIP_DISTANCE1);
     STATE_ISENABLED(GL_CLIP_DISTANCE2);
@@ -1553,14 +1664,66 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     STATE_ISENABLED(GL_CLIP_DISTANCE5);
     STATE_ISENABLED(GL_DEPTH_CLAMP);
     STATE_INTEGERV(GL_TRANSFORM_FEEDBACK_BINDING, 1);
+
+    //Coloring
+    //FOG COLOR                                  //COmpat
+    //FOG INDEX                                  //COmpat
+    //FOG DENSITY                                //COmpat
+    //FOG START                                  //COmpat
+    //FOG END                                    //COmpat
+    //FOG MODE                                   //COmpat
+    //FOG                                        //COmpat
+    //FOG COORD SRC                              //COmpat
+    //COLOR SUM                                  //COmpat
+    //SHADE MODEL                                //COmpat
+    //CLAMP VERTEX COLOR                         //COmpat
+    //CLAMP FRAGMENT COLOR                       //COmpat
     STATE_INTEGERENUMV(GL_CLAMP_READ_COLOR, 1);
     STATE_INTEGERENUMV(GL_PROVOKING_VERTEX, 1);
+
+    //Lighting
+    //LIGHTING                                    //Compat
+    //COLOR MATERIAL                              //Compat
+    //COLOR MATERIAL PARAMETER                    //Compat
+    //COLOR MATERIAL FACE                         //Compat
+    //AMBIENT                                     //Compat
+    //DIFFUSE                                     //Compat
+    //SPECULAR                                    //Compat
+    //EMISSION                                    //Compat
+    //SHININESS                                   //Compat
+    //LIGHT MODEL AMBIENT                         //Compat
+    //LIGHT MODEL LOCAL VIEWER                    //Compat
+    //LIGHT MODEL TWO SIDE                        //Compat
+    //LIGHT MODEL COLOR CONTROL                   //Compat
+    //AMBIENT                                     //COmpat
+    //DIFFUSE                                     //COmpat
+    //SPECULAR                                    //COmpat
+    //POSITION                                    //COmpat
+    //CONSTANT ATTENUATION                        //COmpat
+    //LINEAR ATTENUATION                          //COmpat
+    //QUADRATIC ATTENUATION                       //COmpat
+    //SPOT DIRECTION                              //COmpat
+    //SPOT EXPONENT                               //COmpat
+    //SPOT CUTOFF                                 //COmpat
+    //LIGHTi                                      //COmpat
+    //COLOR INDEXES                               //COmpat
+
+
+    //Rasterization
     STATE_ISENABLED(GL_RASTERIZER_DISCARD);
     STATE_FLOATV(GL_POINT_SIZE, 1);
+    //POINT SMOOTH                                //Compat
+    //POINT SPRITE                                //Compat
+    //POINT SIZE MIN                              //Compat
+    //POINT SIZE MAX                              //Compat
     STATE_FLOATV(GL_POINT_FADE_THRESHOLD_SIZE, 1);
+    //POINT DISTANCE ATTENUATION                  //Compat
     STATE_INTEGERENUMV(GL_POINT_SPRITE_COORD_ORIGIN, 1);
     STATE_FLOATV(GL_LINE_WIDTH, 1);
     STATE_ISENABLED(GL_LINE_SMOOTH);
+    //LINE STIPPLE PATTERN                      //COmpat
+    //LINE STIPPLE REPEAT                       //COmpat
+    //LINE STIPPLE                              //COmpat
     STATE_ISENABLED(GL_CULL_FACE);
     STATE_INTEGERENUMV(GL_CULL_FACE_MODE, 1);
     STATE_INTEGERENUMV(GL_FRONT_FACE, 1);
@@ -1571,6 +1734,9 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     STATE_ISENABLED(GL_POLYGON_OFFSET_POINT);
     STATE_ISENABLED(GL_POLYGON_OFFSET_LINE);
     STATE_ISENABLED(GL_POLYGON_OFFSET_FILL);
+    //POLYGON STIPPLE                          //COmpat
+
+    //Multisampling
     STATE_ISENABLED(GL_MULTISAMPLE);
     STATE_ISENABLED(GL_SAMPLE_ALPHA_TO_COVERAGE);
     STATE_ISENABLED(GL_SAMPLE_ALPHA_TO_ONE);
@@ -1580,6 +1746,11 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     STATE_ISENABLED(GL_SAMPLE_SHADING);
     STATE_FLOATV(GL_MIN_SAMPLE_SHADING_VALUE, 1);
     STATE_ISENABLED(GL_SAMPLE_MASK);
+    //SAMPLE MASK VALUE
+
+    //Texturing (per texture unit)
+    //TEXTURE xD                                //COmpat
+    //TEXTURE CUBE MAP                          //COmpat
     STATE_INTEGERV(GL_TEXTURE_BINDING_1D, 1);
     STATE_INTEGERV(GL_TEXTURE_BINDING_2D, 1);
     STATE_INTEGERV(GL_TEXTURE_BINDING_3D, 1);
@@ -1592,9 +1763,117 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     STATE_INTEGERV(GL_TEXTURE_BINDING_2D_MULTISAMPLE, 1);
     STATE_INTEGERV(GL_TEXTURE_BINDING_2D_MULTISAMPLE_ARRAY, 1);
     STATE_INTEGERV(GL_SAMPLER_BINDING, 1);
+    //TEXTURE xD
+    //TEXTURE 1D ARRAY
+    //TEXTURE 2D ARRAY
+    //TEXTURE CUBE MAP ARRAY
+    //TEXTURE RECTANGLE
+    //TEXTURE CUBE MAP POSITIVE X
+    //TEXTURE CUBE MAP NEGATIVE X
+    //TEXTURE CUBE MAP POSITIVE Y
+    //TEXTURE CUBE MAP NEGATIVE Y
+    //TEXTURE CUBE MAP POSITIVE Z
+    //TEXTURE CUBE MAP NEGATIVE Z
+
+    //Texturing (per texture object)
+    //TEXTURE SWIZZLE R
+    //TEXTURE SWIZZLE G
+    //TEXTURE SWIZZLE B
+    //TEXTURE SWIZZLE A
+    //TEXTURE BORDER COLOR
+    //TEXTURE MIN FILTER
+    //TEXTURE MAG FILTER
+    //TEXTURE WRAP S
+    //TEXTURE WRAP T
+    //TEXTURE WRAP R
+    //TEXTURE PRIORITY                  //Compat
+    //TEXTURE RESIDENT                  //Compat
+    //TEXTURE MIN LOD
+    //TEXTURE MAX LOD
+    //TEXTURE BASE LEVEL
+    //TEXTURE MAX LEVEL
+    //TEXTURE LOD BIAS
+    //DEPTH TEXTURE MODE   //Compat
+    //DEPTH STENCIL TEXTURE
+    //TEXTURE COMPARE MODE
+    //TEXTURE COMPARE FUNC
+    //GENERATE MIPMAP             //COmpat
+    //IMAGE FORMAT COMPATIBILITY
+    //TEXTURE IMMUTABLE
+    //TEXTURE IMMUTABLE
+    //TEXTURE VIEW MIN LEVEL
+    //TEXTURE VIEW NUM LEVELS
+    //TEXTURE VIEW MIN LAYER
+    //TEXTURE VIEW NUM LAYERS
+    //LABEL
+
+    //Texturing (per texture image)
+    //TEXTURE WIDTH
+    //TEXTURE HEIGHT
+    //TEXTURE DEPTH
+    //TEXTURE BORDER       //COmpat
+    //TEXTURE SAMPLES
+    //TEXTURE FIXED SAMPLE
+    //TEXTURE INTERNAL FORMAT
+    //TEXTURE COMPONENTS)
+    //TEXTURE x SIZE
+    //TEXTURE SHARED SIZE
+    //TEXTURE x TYPE
+    //TEXTURE COMPRESSED
+    //TEXTURE COMPRESSED IMAGE
+    //TEXTURE BUFFER DATA STORE BINDING
+    //TEXTURE BUFFER OFFSET
+    //TEXTURE BUFFER SIZE
+
+    //Texturing (per sampler objects)
+    //TEXTURE BORDER COLOR
+    //TEXTURE COMPARE FUNC
+    //TEXTURE COMPARE MODE
+    //TEXTURE LOD BIAS
+    //TEXTURE MAX LOD
+    //TEXTURE MAG FILTER
+    //TEXTURE MIN FILTER
+    //TEXTURE MIN LOD
+    //TEXTURE WRAP S
+    //TEXTURE WRAP T
+    //TEXTURE WRAP R
+    //LABEL
+
+
+    //Texture Environment and Generation
     STATE_INTEGERV(GL_ACTIVE_TEXTURE, 1);
+    //COORD REPLACE                      //COmpat!
+    //TEXTURE ENV MODE                   //COmpat!
+    //TEXTURE ENV COLOR                  //COmpat!
+    //TEXTURE LOD BIAS                   //COmpat!
+    //TEXTURE GEN x                      //COmpat!
+    //EYE PLANE                          //COmpat!
+    //OBJECT PLANE                       //COmpat!
+    //TEXTURE GEN MODE                   //COmpat!
+    //COMBINE RGB                        //COmpat!
+    //COMBINE ALPHA                      //COmpat!
+    //SRC0 RGB                           //COmpat!
+    //SRC1 RGB                           //COmpat!
+    //SRC2 RGB                           //COmpat!
+    //SRC0 ALPHA                         //COmpat!
+    //SRC1 ALPHA                         //COmpat!
+    //SRC2 ALPHA                         //COmpat!
+    //OPERAND0 RGB                       //COmpat!
+    //OPERAND1 RGB                       //COmpat!
+    //OPERAND2 RGB                       //COmpat!
+    //OPERAND0 ALPHA                     //COmpat!
+    //OPERAND1 ALPHA                     //COmpat!
+    //OPERAND2 ALPHA                     //COmpat!
+    //RGB SCALE                          //COmpat!
+    //ALPHA SCALE                        //COmpat!
+
+
+    //Pixel Operations
     STATE_ISENABLED(GL_SCISSOR_TEST);
     STATE_FLOATV(GL_SCISSOR_BOX, 4);
+    //ALPHA TEST                        //Compat!
+    //ALPHA TEST FUNC                   //Compat!
+    //ALPHA TEST REF                    //Compat!
     STATE_ISENABLED(GL_STENCIL_TEST);
     STATE_INTEGERENUMV(GL_STENCIL_FUNC, 1);
     STATE_INTEGERV(GL_STENCIL_VALUE_MASK, 1);
@@ -1620,16 +1899,26 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     STATE_FLOATV(GL_BLEND_COLOR, 4);
     STATE_ISENABLED(GL_FRAMEBUFFER_SRGB);
     STATE_ISENABLED(GL_DITHER);
+    //INDEX LOGIC OP   //Compat!
     STATE_ISENABLED(GL_COLOR_LOGIC_OP);
     STATE_INTEGERENUMV(GL_LOGIC_OP_MODE, 1);
+
+    //Framebuffer Control
+    //INDEX WRITEMASK
     STATE_BOOLEANV(GL_DEPTH_WRITEMASK, 1);
     STATE_INTEGERV(GL_STENCIL_WRITEMASK, 1);
     STATE_INTEGERV(GL_STENCIL_BACK_WRITEMASK, 1);
     STATE_FLOATV(GL_COLOR_CLEAR_VALUE, 4);
+    //INDEX CLEAR VALUE
     STATE_FLOATV(GL_DEPTH_CLEAR_VALUE, 1);
     STATE_INTEGERV(GL_STENCIL_CLEAR_VALUE, 1);
+    //ACCUM CLEAR VALUE
+
+    //Framebuffer (state per target binding point)
     STATE_INTEGERV(GL_DRAW_FRAMEBUFFER_BINDING, 1);
     STATE_INTEGERV(GL_READ_FRAMEBUFFER_BINDING, 1);
+
+    //Framebuffer (state per framebuffer object)
     STATE_INTEGERV(GL_DRAW_BUFFER0, 1);
     STATE_INTEGERV(GL_DRAW_BUFFER1, 1);
     STATE_INTEGERV(GL_DRAW_BUFFER2, 1);
@@ -1640,7 +1929,37 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     STATE_INTEGERV(GL_DRAW_BUFFER7, 1);
     STATE_INTEGERV(GL_DRAW_BUFFER8, 1);
     STATE_INTEGERENUMV(GL_READ_BUFFER, 1);
+    //LABEL
+
+
+    //Framebuffer (state per attachment point)
+    //FRAMEBUFFER ATTACHMENT OBJECT TYPE
+    //FRAMEBUFFER ATTACHMENT OBJECT NAME
+    //FRAMEBUFFER ATTACHMENT TEXTURE LEVEL
+    //FRAMEBUFFER ATTACHMENT TEXTURE CUBE MAP FACE
+    //FRAMEBUFFER ATTACHMENT TEXTURE LAYER
+    //FRAMEBUFFER ATTACHMENT LAYERED
+    //FRAMEBUFFER ATTACHMENT COLOR ENCODING
+    //FRAMEBUFFER ATTACHMENT COMPONENT TYPE
+    //FRAMEBUFFER ATTACHMENT x SIZE
+
+    //23.32. Renderbuffer (state per target and binding point)
     STATE_INTEGERV(GL_RENDERBUFFER_BINDING, 1);
+
+    //Renderbuffer (state per renderbuffer object)
+    //RENDERBUFFER WIDTH
+    //RENDERBUFFER HEIGHT
+    //RENDERBUFFER INTERNAL FORMAT
+    //RENDERBUFFER RED SIZE
+    //RENDERBUFFER GREEN SIZE
+    //RENDERBUFFER BLUE SIZE
+    //RENDERBUFFER ALPHA SIZE
+    //RENDERBUFFER DEPTH SIZE
+    //RENDERBUFFER STENCIL SIZE
+    //RENDERBUFFER SAMPLES
+    //LABEL
+
+    //Pixels
     STATE_BOOLEANV(GL_UNPACK_SWAP_BYTES, 1);
     STATE_BOOLEANV(GL_UNPACK_LSB_FIRST, 1);
     STATE_INTEGERV(GL_UNPACK_IMAGE_HEIGHT, 1);
@@ -1667,20 +1986,317 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     STATE_INTEGERV(GL_PACK_COMPRESSED_BLOCK_DEPTH, 1);
     STATE_INTEGERV(GL_PACK_COMPRESSED_BLOCK_SIZE, 1);
     STATE_INTEGERV(GL_PIXEL_PACK_BUFFER_BINDING, 1);
+    //MAP COLOR                                        //Compat
+    //MAP STENCIL                                      //Compat
+    //INDEX SHIFT                                      //Compat
+    //INDEX OFFSET                                     //Compat
+    //x SCALE                                          //Compat
+    //x BIAS                                           //Compat
+    //COLOR TABLE                                      //Compat
+    //POST CONVOLUTION COLOR TABLE                     //Compat
+    //POST COLOR MATRIX COLOR TABLE                    //Compat
+    //COLOR TABLE                                      //Compat
+    //POST CONVOLUTION COLOR TABLE                     //Compat
+    //POST COLOR MATRIX COLOR TABLE                    //Compat
+    //COLOR TABLE FORMAT                               //Compat
+    //COLOR TABLE WIDTH                                //Compat
+    //COLOR TABLE x SIZE                               //Compat
+    //COLOR TABLE SCzALE                                //Compat
+    //COLOR TABLE BIAS                                 //Compat
+    //CONVOLUTION 1D                                   //COmpat
+    //CONVOLUTION 2D                                   //COmpat
+    //SEPARABLE 2D                                     //COmpat
+    //CONVOLUTION xD                                   //COmpat
+    //SEPARABLE 2D                                     //COmpat
+    //CONVOLUTION BORDER COLOR                         //COmpat
+    //CONVOLUTION BORDER MODE                          //COmpat
+    //CONVOLUTION FILTER SCALE                         //COmpat
+    //CONVOLUTION FILTER BIAS                          //COmpat
+    //CONVOLUTION FORMAT                               //COmpat
+    //CONVOLUTION WIDTH                                //COmpat
+    //CONVOLUTION HEIGHT                               //COmpat
+    //POST CONVOLUTION                                 //COmpat
+    //POST CONVOLUTION                                 //COmpat
+    //POST COLOR MATRIX                                //COmpat
+    //POST COLOR MATRIX                                //COmpat
+    //HISTOGRAM                                        //COmpat
+    //HISTOGRAM                                        //COmpat
+    //HISTOGRAM WIDTH                                  //COmpat
+    //HISTOGRAM FORMAT                                 //COmpat
+    //HISTOGRAM x SIZE                                 //COmpat
+    //HISTOGRAM SINK                                   //COmpat
+    //MINMAX                                           //COmpat
+    //MINMAX                                           //COmpat
+    //MINMAX FORMAT                                    //COmpat
+    //MINMAX SINK                                      //COmpat
+    //ZOOM X                                           //COmpat
+    //ZOOM Y                                           //COmpat
+    //x                                                //COmpat
+    //x                                                //COmpat
+    //x SIZE                                           //COmpat
+
+    //Evaluators                                       //COmpat
+    //ORDER                                            //COmpat
+    //ORDER                                            //COmpat
+    //COEFF                                            //COmpat
+    //COEFF                                            //COmpat
+    //DOMAIN                                           //COmpat
+    //DOMAIN                                           //COmpat
+    //MAP1 x                                           //COmpat
+    //MAP2 x                                           //COmpat
+    //MAP1 GRID DOMAIN                                 //COmpat
+    //MAP2 GRID DOMAIN                                 //COmpat
+    //MAP1 GRID SEGMENTS                               //COmpat
+    //MAP2 GRID SEGMENTS                               //COmpat
+    //AUTO NORMAL                                      //COmpat
+
+
+    //Shader object state 
+    //SHADER TYPE
+    //DELETE STATUS
+    //COMPILE STATUS
+    //–
+    //INFO LOG LENGTH
+    //–
+    //SHADER SOURCE LENGTH
+    //LABEL
+
+    //Program Pipeline Object State
+    //ACTIVE PROGRAM
+    //VERTEX SHADER
+    //GEOMETRY SHADER
+    //FRAGMENT SHADER
+    //TESS CONTROL SHADER
+    //TESS EVALUATION SHADER
+    //VALIDATE STATUS
+    //–
+    //INFO LOG LENGTH
+    //LABEL
+
+
+    //Program Object State
     STATE_INTEGERV(GL_CURRENT_PROGRAM, 1);
     STATE_INTEGERV(GL_PROGRAM_PIPELINE_BINDING, 1);
+    //PROGRAM SEPARABLE
+    //DELETE STATUS
+    //LINK STATUS
+    //VALIDATE STATUS
+    //ATTACHED SHADERS
+    //–
+    //–
+    //INFO LOG LENGTH
+    //PROGRAM BINARY LENGTH
+    //PROGRAM BINARY RETRIEVABLE
+    //-–
+    //COMPUTE WORK GROUP SIZE
+    //LABEL
+    //ACTIVE UNIFORMS
+    //–
+    //–
+    //–
+    //–
+    //ACTIVE UNIFORM MAX LENGTH
+    //–
+    //ACTIVE ATTRIBUTES
+    //–
+    //–
+    //–
+    //–
+    //ACTIVE ATTRIBUTE MAX LENGTH
+    //GEOMETRY VERTICES
+    //GEOMETRY INPUT
+    //GEOMETRY OUTPUT
+    //GEOMETRY SHADER INVOCATIONS
+    //TRANSFORM FEEDBACK
+    //MODE
+    //TRANSFORM FEEDBACK VARYINGS
+    //TRANSFORM FEEDBACK VARYING
+    //MAX LENGTH
+    //–
+    //–
+    //–
     STATE_INTEGERV(GL_UNIFORM_BUFFER_BINDING, 1);
+    //UNIFORM BUFFER BINDING
+    //UNIFORM BUFFER START
+    //UNIFORM BUFFER SIZE
+    //ACTIVE UNIFORM BLOCKS
+    //ACTIVE UNIFORM BLOCK MAX
+    //NAME LENGTH
+    //UNIFORM TYPE
+    //UNIFORM SIZE
+    //UNIFORM NAME LENGTH
+    //UNIFORM BLOCK INDEX
+    //UNIFORM OFFSET
+    //UNIFORM ARRAY STRIDE
+    //UNIFORM MATRIX STRIDE
+    //UNIFORM IS ROW MAJOR
+    //UNIFORM BLOCK BINDING
+    //UNIFORM BLOCK DATA SIZE
+    //UNIFORM BLOCK ACTIVE UNIFORMS
+    //UNIFORM BLOCK ACTIVE UNIFORM
+    //INDICES
+    //UNIFORM BLOCK REFERENCED -
+    //BY VERTEX SHADER
+    //UNIFORM BLOCK REFERENCED -
+    //BY TESS CONTROL SHADER
+    //UNIFORM BLOCK REFERENCED -
+    //BY TESS EVALUTION SHADER
+    //UNIFORM BLOCK REFERENCED -
+    //BY GEOMETRY SHADER
+    //UNIFORM BLOCK REFERENCED -
+    //BY FRAGMENT SHADER
+    //UNIFORM BLOCK REFERENCED -
+    //BY COMPUTE SHADER
+    //TESS CONTROL OUTPUT VERTICES
+    //TESS GEN MODE
+    //TESS GEN SPACING
+    //TESS GEN VERTEX ORDER
+    //TESS GEN POINT MODE
+    //ACTIVE SUBROUTINE UNIFORM -
+    //LOCATIONS
+    //ACTIVE SUBROUTINE UNIFORMS
+    //ACTIVE SUBROUTINES
+    //ACTIVE SUBROUTINE UNIFORM -
+    //MAX LENGTH
+    //ACTIVE SUBROUTINE MAX -
+    //LENGTH
+    //NUM COMPATIBLE SUBROUTINES
+    //COMPATIBLE SUBROUTINES
+    //UNIFORM SIZE
+    //UNIFORM NAME LENGTH
+    //–
+    //–
+    //–
+    //ACTIVE ATOMIC COUNTER -
+    //BUFFERS
+    //ATOMIC COUNTER BUFFER BINDING
+    //ATOMIC COUNTER BUFFER DATA
+    //SIZE
+    //ATOMIC COUNTER BUFFER ACTIVE
+    //ATOMIC COUNTERS
+    //ATOMIC COUNTER BUFFER ACTIVE
+    //ATOMIC COUNTER INDICES
+    //ATOMIC COUNTER BUFFER REFERENCED
+    //BY VERTEX SHADER
+    //ATOMIC COUNTER BUFFER REFERENCED
+    //BY TESS CONTROL -
+    //SHADER
+    //ATOMIC COUNTER BUFFER REFERENCED
+    //BY TESS EVALUTION -
+    //SHADER
+    //ATOMIC COUNTER BUFFER REFERENCED
+    //BY GEOMETRY SHADER
+    //ATOMIC COUNTER BUFFER REFERENCED
+    //BY FRAGMENT SHADER
+    //ATOMIC COUNTER BUFFER REFERENCED
+    //BY COMPUTE SHADER
+    //UNIFORM ATOMIC COUNTER -
+    //BUFFER INDEX
+
+    //Program Interface State
+    //ACTIVE RESOURCES
+    //MAX NAME LENGTH
+    //MAX NUM ACTIVE VARIABLES
+    //MAX NUM COMPATIBLE SUBROUTINES
+
+    //Program Object Resource State
+    //NAME LENGTH
+    //TYPE
+    //ARRAY SIZE
+    //OFFSET
+    //BLOCK INDEX
+    //ARRAY STRIDE
+    //MATRIX STRIDE
+    //IS ROW MAJOR
+    //ATOMIC COUNTER BUFFER INDEX
+    //BUFFER BINDING
+    //BUFFER DATA SIZE
+    //NUM ACTIVE VARIABLES
+    //ACTIVE VARIABLES
+    //REFERENCED BY VERTEX SHADER
+    //REFERENCED BY TESS CONTROL -
+    //SHADER
+    //REFERENCED BY TESS EVALUATION
+    //SHADER
+    //REFERENCED BY GEOMETRY -
+    //SHADER
+    //REFERENCED BY FRAGMENT -
+    //SHADER
+    //REFERENCED BY COMPUTE -
+    //SHADER
+    //TOP LEVEL ARRAY SIZE
+    //TOP LEVEL ARRAY STRIDE
+    //LOCATION
+    //LOCATION INDEX
+    //IS PER PATCH
+    //NUM COMPATIBLE SUBROUTINES
+    //COMPATIBLE SUBROUTINES
+
+    //Vertex and Geometry Shader State           
+    //VERTEX PROGRAM TWO SIDE                    //Compat
+    //CURRENT VERTEX ATTRIB                      
     STATE_ISENABLED(GL_PROGRAM_POINT_SIZE);
+
+    //Query Object State
+    //QUERY RESULT
+    //QUERY RESULT AVAILABLE
+    //LABEL
+
+    //Image State (state per image unit)
+    //IMAGE BINDING NAME
+    //IMAGE BINDING LEVEL
+    //IMAGE BINDING LAYERED
+    //IMAGE BINDING LAYER
+    //IMAGE BINDING ACCESS
+    //IMAGE BINDING FORMAT
+
+    
+    
+    //Transform Feedback State
     STATE_INTEGERV(GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, 1);
+    //TRANSFORM FEEDBACK BUFFER BINDING
+    //TRANSFORM FEEDBACK BUFFER START
+    //TRANSFORM FEEDBACK BUFFER SIZE
     STATE_BOOLEANV(GL_TRANSFORM_FEEDBACK_PAUSED, 1);
     STATE_BOOLEANV(GL_TRANSFORM_FEEDBACK_ACTIVE, 1);
+    //LABEL
+
+    //Atomic Counter State
     STATE_INTEGERV(GL_ATOMIC_COUNTER_BUFFER_BINDING, 1);
     STATE_INTEGERV(GL_SHADER_STORAGE_BUFFER_BINDING, 1);
+    //ATOMIC COUNTER BUFFER START
+    //ATOMIC COUNTER BUFFER SIZE
+
+    //Shader Storage Buffer State
+    //SHADER STORAGE BUFFER BINDING
+    //SHADER STORAGE BUFFER BINDING
+    //SHADER STORAGE BUFFER START
+    //SHADER STORAGE BUFFER SIZE
+
+
+    //Sync (state per sync object)
+    //GetSynciv
+    //GetSynciv
+    //GetSynciv
+    //GetSynciv
+    //GetObjectPtrLabel
+
+    //Hints
+    //PERSPECTIVE CORRECTION HINT            //COmpat!
+    //POINT SMOOTH HINT                      //COmpat!
     STATE_INTEGERENUMV(GL_LINE_SMOOTH_HINT, 1);
     STATE_INTEGERENUMV(GL_POLYGON_SMOOTH_HINT, 1);
+    //FOG HINT                                  //Compat
+    //GENERATE MIPMAP HINT                      //Compat
     STATE_INTEGERENUMV(GL_TEXTURE_COMPRESSION_HINT, 1);
     STATE_INTEGERENUMV(GL_FRAGMENT_SHADER_DERIVATIVE_HINT, 1);
+
+
+    //Compute Dispatch State
     STATE_INTEGERV(GL_DISPATCH_INDIRECT_BUFFER_BINDING, 1);
+
+        
+    //Implementation Dependent Values
     STATE_INTEGERV(GL_MAX_CLIP_DISTANCES, 1);
     STATE_INTEGERV(GL_SUBPIXEL_BITS, 1);
     STATE_INTEGER64V(GL_MAX_ELEMENT_INDEX, 1);
@@ -1692,6 +2308,20 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     STATE_FLOATV(GL_MAX_TEXTURE_LOD_BIAS, 1);
     STATE_INTEGERV(GL_MAX_CUBE_MAP_TEXTURE_SIZE, 1);
     STATE_INTEGERV(GL_MAX_RENDERBUFFER_SIZE, 1);
+    //MAX LIGHTS                                  //COmpat
+    //MAX COLOR MATRIX STACK DEPTH                //COmpat
+    //MAX MODELVIEW STACK DEPTH                   //COmpat
+    //MAX PROJECTION STACK DEPTH                  //COmpat
+    //MAX TEXTURE STACK DEPTH                     //COmpat
+    //MAX PIXEL MAP TABLE                         //COmpat
+    //MAX NAME STACK DEPTH                        //COmpat
+    //MAX LIST NESTING                            //COmpat
+    //MAX EVAL ORDER                              //COmpat
+    //MAX ATTRIB STACK DEPTH                      //COmpat
+    //MAX CLIENT ATTRIB STACK DEPTH               //COmpat
+    //ALIASED POINT SIZE RANGE                    //COmpat
+    //MAX CONVOLUTION WIDTH                       //COmpat
+    //MAX CONVOLUTION HEIGHT                      //COmpat
     STATE_INTEGERV(GL_MAX_VIEWPORTS, 1);
     STATE_INTEGERV(GL_VIEWPORT_SUBPIXEL_BITS, 1);
     STATE_FLOATV(GL_VIEWPORT_BOUNDS_RANGE, 2);
@@ -1720,8 +2350,18 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     STATE_INTEGERV(GL_MAJOR_VERSION, 1);
     STATE_INTEGERV(GL_MINOR_VERSION, 1);
     STATE_INTEGERV(GL_CONTEXT_FLAGS, 1);
+    //EXTENSIONS        //Compat!
+    //EXTENSIONS
     STATE_INTEGERV(GL_NUM_EXTENSIONS, 1);
+    //RENDERER
+    //SHADING LANGUAGE VERSION
+    //SHADING LANGUAGE VERSION
     STATE_INTEGERV(GL_NUM_SHADING_LANGUAGE_VERSIONS, 1);
+    //VENDOR
+    //VERSION
+
+    //Ok. continue here...!
+
     STATE_INTEGERV(GL_MAX_VERTEX_ATTRIBS, 1);
     STATE_INTEGERV(GL_MAX_VERTEX_UNIFORM_COMPONENTS, 1);
     STATE_INTEGERV(GL_MAX_VERTEX_UNIFORM_VECTORS, 1);
@@ -1770,6 +2410,8 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     STATE_INTEGERV(GL_MAX_TEXTURE_IMAGE_UNITS, 1);
     STATE_INTEGERV(GL_MIN_PROGRAM_TEXTURE_GATHER_OFFSET, 1);
     STATE_INTEGERV(GL_MAX_PROGRAM_TEXTURE_GATHER_OFFSET, 1);
+    //MAX TEXTURE UNITS   //Compat
+    //MAX TEXTURE COORDS  //COmpat
     STATE_INTEGERV(GL_MAX_FRAGMENT_ATOMIC_COUNTER_BUFFERS, 1);
     STATE_INTEGERV(GL_MAX_FRAGMENT_ATOMIC_COUNTERS, 1);
     STATE_INTEGERV(GL_MAX_FRAGMENT_SHADER_STORAGE_BLOCKS, 1);
