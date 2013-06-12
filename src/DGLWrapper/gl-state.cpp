@@ -402,7 +402,7 @@ GLenum GLFBObj::getTarget() {
     return m_Target;
 }
 
-GLContextVersion::GLContextVersion(Type type):m_Filled(false), m_Type(type) {}
+GLContextVersion::GLContextVersion(Type type):m_Type(type),m_Initialized(false) {}
 
 bool GLContextVersion::check(Type type, int majorVersion, int minorVersion) {
 
@@ -410,8 +410,8 @@ bool GLContextVersion::check(Type type, int majorVersion, int minorVersion) {
         return false;
     }
 
-    if (!m_Filled)
-        fill(); 
+    if (!m_Initialized)
+        return false;
 
     if (majorVersion > m_MajorVersion) {
         return false;
@@ -424,12 +424,10 @@ bool GLContextVersion::check(Type type, int majorVersion, int minorVersion) {
     return true;
 }
 
-void GLContextVersion::fill() {
+void GLContextVersion::initialize(const char* cVersion) {
     //It is safe to assume OpenGL ES 1.1 / OpenGL 1.1 is supported, if version string 
     //parsing fails.
     m_MajorVersion = m_MinorVersion = 1;
-
-    const char* cVersion = reinterpret_cast<const char*>(DIRECT_CALL_CHK(glGetString)(GL_VERSION));
 
     assert(cVersion);
 
@@ -464,7 +462,7 @@ void GLContextVersion::fill() {
         assert(!"cannot reliably detect OpenGL version");
     }
 
-    m_Filled = true;
+    m_Initialized = true;
 }
 
 
@@ -2547,6 +2545,9 @@ void GLContext::firstUse() {
     std::vector<std::string> exts;
     
     bool debugOutputSupported = false;
+
+	getVersion().initialize(reinterpret_cast<const char*>(DIRECT_CALL_CHK(glGetString)(GL_VERSION)));
+
     if (getVersion().check(GLContextVersion::DT, 3) || getVersion().check(GLContextVersion::ES, 3)) {
         DIRECT_CALL_CHK(glGetIntegerv)(GL_NUM_EXTENSIONS, &maxExtensions);
         exts.resize(maxExtensions);

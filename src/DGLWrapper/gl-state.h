@@ -152,10 +152,10 @@ public:
     GLContextVersion(Type type);
 
     bool check(Type type, int majorVersion = 0, int minorVersion = 0);
-
+    void initialize(const char* cVersion);
 private:
-    void fill();
-    bool m_Filled;
+    
+    bool m_Initialized;
     int m_MajorVersion;
     int m_MinorVersion;
     Type m_Type;
