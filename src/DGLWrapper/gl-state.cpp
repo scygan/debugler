@@ -500,7 +500,7 @@ dglnet::message::BreakedCall::ContextReport GLContext::describe() {
             }
             ret.m_FramebufferSpace.insert(dglnet::ContextObjectName(m_Id, GL_FRONT_RIGHT));
         }
-        if (gc->getVersion().check(GLContextVersion::ES, 3) || gc->getVersion().check(GLContextVersion::DT)) {
+        if (getVersion().check(GLContextVersion::ES, 3) || getVersion().check(GLContextVersion::DT)) {
             //we have glReadBuffer, so we can read from front/back
             if (m_NativeReadSurface->isDoubleBuffered()) {
                 ret.m_FramebufferSpace.insert(dglnet::ContextObjectName(m_Id, GL_BACK));
@@ -736,14 +736,14 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_BLUE_SIZE, &rgbaSizes[2]);
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_ALPHA_SIZE, &rgbaSizes[3]);
 
-            if (gc->getVersion().check(GLContextVersion::DT, 3, 2)) {
+            if (getVersion().check(GLContextVersion::DT, 3, 2)) {
                 DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_SAMPLES, &samples);
             }
 
             std::vector<GLint> deptStencilSizes(2, 0);
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_DEPTH_SIZE, &deptStencilSizes[0]);
             
-            if (gc->getVersion().check(GLContextVersion::DT, 3)) { 
+            if (getVersion().check(GLContextVersion::DT, 3)) { 
                 DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_STENCIL_SIZE, &deptStencilSizes[1]);
             }
 
@@ -1435,7 +1435,7 @@ dglnet::resource::DGLResourceState::StateItem GLContext::getStateInteger64v(cons
     ret.m_Name = name;
     std::vector<GLint64> val(length, 0);
 
-    if (gc->getVersion().check(GLContextVersion::DT, 3, 2) || gc->getVersion().check(GLContextVersion::ES, 3)) {
+    if (getVersion().check(GLContextVersion::DT, 3, 2) || getVersion().check(GLContextVersion::ES, 3)) {
         DIRECT_CALL_CHK(glGetInteger64v)(value, &val[0]);
     } else {
         std::vector<GLint> valInt(length, 0);
@@ -1516,7 +1516,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     boost::shared_ptr<dglnet::DGLResource> ret (resource = new dglnet::resource::DGLResourceState);
 
 #ifdef WA_ES_QUERY_STATE
-    if (!gc->getVersion().check(GLContextVersion::DT))
+    if (!getVersion().check(GLContextVersion::DT))
         return ret; //not really supported on non-DT
 #endif
 
@@ -1643,7 +1643,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     //TEXTURE MATRIX                               //COmpat!
     //(TRANSPOSE TEXTURE MATRIX)                   //COmpat!
     STATE_INTEGERV(GL_VIEWPORT, 4);
-    if (gc->getVersion().check(GLContextVersion::DT)) {
+    if (getVersion().check(GLContextVersion::DT)) {
         STATE_DOUBLEV(GL_DEPTH_RANGE, 2);
     } else  {
         STATE_FLOATV(GL_DEPTH_RANGE, 2);
@@ -2547,7 +2547,7 @@ void GLContext::firstUse() {
     std::vector<std::string> exts;
     
     bool debugOutputSupported = false;
-    if (gc->getVersion().check(GLContextVersion::DT, 3) || gc->getVersion().check(GLContextVersion::ES, 3)) {
+    if (getVersion().check(GLContextVersion::DT, 3) || getVersion().check(GLContextVersion::ES, 3)) {
         DIRECT_CALL_CHK(glGetIntegerv)(GL_NUM_EXTENSIONS, &maxExtensions);
         exts.resize(maxExtensions);
         for (int i = 0; i < maxExtensions; i++) {
