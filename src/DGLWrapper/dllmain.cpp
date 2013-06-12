@@ -135,6 +135,10 @@
 
     ActionBase::SetNext<ImmediateModeAction>(glBegin_Call);
     ActionBase::SetNext<ImmediateModeAction>(glEnd_Call);
+
+    ActionBase::SetNext<DebugOutputCallback>(glDebugMessageCallback_Call);
+    ActionBase::SetNext<DebugOutputCallback>(glDebugMessageCallbackARB_Call);
+
 }
 
 #ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP

@@ -784,3 +784,28 @@ void FBOAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     }
     PrevPost(call, ret);
 }
+
+RetValue DebugOutputCallback::Pre(const CalledEntryPoint& call) {
+    RetValue ret = PrevPre(call);
+
+    Entrypoint entrp = call.getEntrypoint();
+    if (gc && (entrp == glDebugMessageCallback_Call || entrp == glDebugMessageCallbackARB_Call)) {
+        GLDEBUGPROC callback;
+        const GLvoid* userParam;
+        call.getArgs()[0].get(callback);
+        call.getArgs()[1].get(userParam);
+
+        //register application's callback into out context
+        gc->setCustomDebugOutputCallback(callback);
+
+        //call debug message callback now, to prevent override
+        if (entrp == glDebugMessageCallback_Call) {
+            DIRECT_CALL_CHK(glDebugMessageCallback)(dglState::GLContext::debugOutputCallback, userParam);
+        } else if (entrp == glDebugMessageCallbackARB_Call) {
+            DIRECT_CALL_CHK(glDebugMessageCallbackARB)(dglState::GLContext::debugOutputCallback, userParam);
+        } else { assert(0); }
+
+        return RetValue::getVoidAlreadySet();
+    }
+    return ret; 
+}

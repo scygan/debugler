@@ -32,6 +32,7 @@
 #include "api-loader.h"
 #include "native-surface.h"
 #include "gl-utils.h"
+#include "tls.h"
 
 #include <DGLCommon/def.h>
 #include <DGLNet/protocol/pixeltransfer.h>
@@ -470,7 +471,7 @@ void GLContextVersion::initialize(const char* cVersion) {
 
 
 GLContext::GLContext(GLContextVersion version, opaque_id_t id): m_Version(version), m_Id(id), m_NativeReadSurface(NULL), m_HasNVXMemoryInfo(false),
-    m_HasDebugOutput(false), m_InImmediateMode(false),m_EverBound(false), m_RefCount(0), m_ToBeDeleted(false)  {}
+    m_HasDebugOutput(false), m_DebugOutputCallback(NULL), m_InImmediateMode(false),m_EverBound(false), m_RefCount(0), m_ToBeDeleted(false)  {}
 
 dglnet::message::BreakedCall::ContextReport GLContext::describe() {
     dglnet::message::BreakedCall::ContextReport ret(m_Id);
@@ -597,9 +598,13 @@ GLenum GLContext::peekError() {
     return ret;
 }
 
-void GLContext::setDebugOutput(const std::string& message) {
+void GLContext::setDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam) {
     m_HasDebugOutput = true; 
-    m_DebugOutput = message;
+    m_DebugOutput = std::string(message, length);
+
+    if (m_DebugOutputCallback) {
+        m_DebugOutputCallback(source, type, id, severity, length, message, userParam);
+    }
 }
 
 bool GLContext::hasDebugOutput() {
@@ -609,6 +614,10 @@ bool GLContext::hasDebugOutput() {
 const std::string& GLContext::popDebugOutput() {
     m_HasDebugOutput = false;
     return m_DebugOutput;
+}
+
+void GLContext::setCustomDebugOutputCallback(GLDEBUGPROC callback) {
+    m_DebugOutputCallback = callback;
 }
 
 void GLContext::startQuery() {
@@ -2537,8 +2546,10 @@ opaque_id_t GLContext::getId() {
     return m_Id;
 }
 
-void APIENTRY debugOutputCallback(GLenum /*source*/, GLenum /*type*/, GLuint /*id*/, GLenum /*severity*/, GLsizei length, const GLchar* message, GLvoid* userParam) {
-    reinterpret_cast<GLContext*>(userParam)->setDebugOutput(std::string(message, length));
+void APIENTRY GLContext::debugOutputCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam) {
+    if (gc) {
+        gc->setDebugOutput(source, type, id, severity, length, message, userParam);
+    }
 }
 
 
@@ -2574,7 +2585,7 @@ void GLContext::firstUse() {
     
     if (debugOutputSupported) {
         DIRECT_CALL_CHK(glEnable)(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
-        DIRECT_CALL_CHK(glDebugMessageCallbackARB)(debugOutputCallback, this);
+        DIRECT_CALL_CHK(glDebugMessageCallbackARB)(debugOutputCallback, NULL);
     }
 }
 

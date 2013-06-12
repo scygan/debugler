@@ -41,7 +41,14 @@ public:
     template<typename T>
     RetValue(T v):AnyValue(v),m_isSet(true) {}
 
-    bool isSet() const { return m_isSet; }   
+    static RetValue getVoidAlreadySet() {
+        RetValue ret;
+        ret.m_isSet = true;
+        return ret;
+    }
+
+
+    bool isSet() const { return m_isSet; }
 private: 
     bool m_isSet;
 };

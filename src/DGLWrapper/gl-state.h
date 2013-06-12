@@ -203,10 +203,30 @@ public:
     std::pair<bool, GLenum> getPokedError();
     GLenum peekError();
 
-    void setDebugOutput(const std::string& message);
+    /**
+     * Debugger's specific debug message callback 
+     */
+    static void APIENTRY debugOutputCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam);
+
+    /**
+     * non-static function called from debug message callback
+     */
+    void setDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam);
+
+    /** 
+     * Returns true, if got debug message output
+     */
     bool hasDebugOutput();
+
+    /**
+     * Returns last debug message
+     */
     const std::string& popDebugOutput();
 
+    /**
+     * Setter for custom debug message callback, that can be registered by application
+     */
+    void setCustomDebugOutputCallback(GLDEBUGPROC callback);
 
     void startQuery();
     bool endQuery(std::string& message);
@@ -280,6 +300,11 @@ private:
      * Pending message from debug output
      */
     std::string m_DebugOutput;
+
+    /**
+     * Custom debug message callback registered by application
+     */
+    GLDEBUGPROC m_DebugOutputCallback;
 
     /**
      * Set to true if betweek glBegin() and glEnd() 

@@ -128,6 +128,10 @@ class FBOAction: public ActionBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
+class DebugOutputCallback: public ActionBase {
+    virtual RetValue Pre(const CalledEntryPoint&);
+};
+
 template<typename Action>
 void SetAllActions() {
     for (int i = 0; i < NUM_ENTRYPOINTS; i++) {
