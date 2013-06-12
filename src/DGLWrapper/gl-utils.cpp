@@ -17,7 +17,6 @@
 #include "gl-state.h"
 #include "pointers.h"
 #include "api-loader.h"
-#include "tls.h"
 
 #include <DGLNet/protocol/pixeltransfer.h>
 

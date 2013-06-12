@@ -30,7 +30,6 @@
 
 #include "pointers.h"
 #include "api-loader.h"
-#include "tls.h"
 #include "native-surface.h"
 #include "gl-utils.h"
 
