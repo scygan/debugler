@@ -24,7 +24,6 @@ add_custom_command(
         ${codegen_in}/glext.h
         ${codegen_in}/wgl-notrace.h
         ${codegen_in}/wgl.h
-        ${codegen_in}/wglext-partial.h
         ${codegen_in}/wglext.h 
 		${codegen_in}/egl.h 
 		${codegen_in}/eglext.h 
