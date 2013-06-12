@@ -471,7 +471,7 @@ void GLContextVersion::initialize(const char* cVersion) {
 
 
 GLContext::GLContext(GLContextVersion version, opaque_id_t id): m_Version(version), m_Id(id), m_NativeReadSurface(NULL), m_HasNVXMemoryInfo(false),
-    m_HasDebugOutput(false), m_DebugOutputCallback(NULL), m_InImmediateMode(false),m_EverBound(false), m_RefCount(0), m_ToBeDeleted(false)  {}
+    m_HasDebugOutput(false), m_DebugOutputCallback(NULL), m_InImmediateMode(false),m_EverBound(false), m_RefCount(0), m_ToBeDeleted(false), m_InQuery(false)  {}
 
 dglnet::message::BreakedCall::ContextReport GLContext::describe() {
     dglnet::message::BreakedCall::ContextReport ret(m_Id);
@@ -599,6 +599,9 @@ GLenum GLContext::peekError() {
 }
 
 void GLContext::setDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam) {
+
+    if (m_InQuery) return;
+
     m_HasDebugOutput = true; 
     m_DebugOutput = std::string(message, length);
 
@@ -621,6 +624,8 @@ void GLContext::setCustomDebugOutputCallback(GLDEBUGPROC callback) {
 }
 
 void GLContext::startQuery() {
+
+    m_InQuery = true;
 
     if (m_Version.check(GLContextVersion::UNSUPPORTED)) {
         throw std::runtime_error("Context version is not supported");
@@ -648,8 +653,7 @@ bool GLContext::endQuery(std::string& message) {
     }
     while (!m_InImmediateMode && DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR);
     
-    //always invalidate debug output from query functions
-    m_HasDebugOutput = false;
+    m_InQuery = false;
 
     return ret;
 }

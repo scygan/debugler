@@ -355,6 +355,12 @@ private:
      * True if deletion is pending
      */
     bool m_ToBeDeleted;
+
+    /**
+     * True if queries are now performed on contexts
+     */
+    bool m_InQuery;
+
 };
 
 } //namespace
