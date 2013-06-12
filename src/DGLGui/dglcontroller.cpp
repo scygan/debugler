@@ -308,19 +308,17 @@ DGLViewRouter* DglController::getViewRouter() {
     return &m_ViewRouter;
 }
 
-void DglController::configure(const DGLConfiguration& config) {
-    m_Config = config;
-    sendConfig();
-}
-
-void DglController::sendConfig() {
+void DglController::sendConfig(const DGLConfiguration* config) {
+    if (config) {
+        m_Config = *config;
+    }
     if (isConnected()) {
         dglnet::message::Configuration message(m_Config);
         m_DglClient->sendMessage(&message);
     }
 }
 
-const DGLConfiguration& DglController::getConfig() {
+DGLConfiguration& DglController::getConfig() {
     return m_Config;
 }
 

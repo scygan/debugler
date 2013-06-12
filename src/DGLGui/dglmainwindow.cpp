@@ -20,6 +20,7 @@
 
 #include "dglmainwindow.h"
 #include "dglbreakpointdialog.h"
+#include "dglconfigdialog.h"
 #include "dgltraceview.h"
 #include "dgltreeview.h"
 #include "dgltextureview.h"
@@ -99,6 +100,8 @@ DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
     // read QSettings
     
     readSettings();
+
+    showConfig();
 }
 
 DGLMainWindow::~DGLMainWindow() {
@@ -226,6 +229,10 @@ void DGLMainWindow::createMenus() {
      for (uint i = 0; i < DGLNUM_COLOR_SCHEMES; i++) {
          ColorSchemeMenu->addAction(setColorSchemeActs[i]);
      }
+
+     toolsMenu = menuBar()->addMenu(tr("&Tools"));
+     toolsMenu->addAction(configurationAct);
+
 
      menuBar()->addSeparator();
 
@@ -383,6 +390,10 @@ void DGLMainWindow::createToolBars() {
      //mapper maps connected actions to one emitted signal by int parameter. Connect this signal to "this"
 
      CONNASSERT(connect(&m_SetColorSchemeSignalMapper, SIGNAL(mapped(int)), this, SLOT(setColorScheme(int))));
+
+     configurationAct= new QAction(tr("Configuration..."), this);
+     configurationAct->setStatusTip(tr("Configuration options"));
+     CONNASSERT(connect(configurationAct, SIGNAL(triggered()), this, SLOT(configure())));
  }
 
   void DGLMainWindow::createInteractions() {
@@ -434,6 +445,13 @@ void DGLMainWindow::createToolBars() {
               QString colorSchemeSheet = QLatin1String(file.readAll());
               qApp->setStyleSheet(colorSchemeSheet);
           }
+      }
+  }
+
+  void DGLMainWindow::configure() {
+      DGLConfigDialog dialog(m_controller.getConfig());
+      if (dialog.exec() == QDialog::Accepted) {
+          m_controller.sendConfig(dialog.getConfig());
       }
   }
 
@@ -538,9 +556,11 @@ void DGLMainWindow::createToolBars() {
      //This action enables breaking on various events, like GL error or debug output
      //tell DGLController to configure it's debugee
 
-     DGLConfiguration config(setBreakOnGLErrorAct->isChecked(), setBreakOnDebugOutputAct->isChecked(), setBreakOnCompilerErrAct->isChecked());
-
-     m_controller.configure(config);
+     m_controller.getConfig().m_BreakOnCompilerError = setBreakOnGLErrorAct->isChecked();
+     m_controller.getConfig().m_BreakOnDebugOutput = setBreakOnDebugOutputAct->isChecked();
+     m_controller.getConfig().m_BreakOnCompilerError = setBreakOnCompilerErrAct->isChecked();
+     m_controller.sendConfig();
+     showConfig();
  }
 
 void DGLMainWindow::errorMessage(const QString& title, const QString& msg) {
@@ -548,4 +568,10 @@ void DGLMainWindow::errorMessage(const QString& title, const QString& msg) {
     //all fatals should eventually end here
 
     QMessageBox::critical(this, title, msg);
+}
+
+void DGLMainWindow::showConfig() {
+    setBreakOnGLErrorAct->setChecked(m_controller.getConfig().m_BreakOnCompilerError);
+    setBreakOnDebugOutputAct->setChecked(m_controller.getConfig().m_BreakOnDebugOutput);
+    setBreakOnCompilerErrAct->setChecked(m_controller.getConfig().m_BreakOnCompilerError);
 }

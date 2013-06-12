@@ -403,6 +403,10 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
 
     if (ret.isSet()) return ret;
 
+    if (!g_Config.m_ForceDebugContext) {
+        return ret;
+    }
+
 #ifdef HAVE_LIBRARY_WGL
     HDC hdc = NULL;
     HGLRC sharedCtx = NULL;
@@ -427,6 +431,9 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
         while (attribList[i]) {
             int attrib = attribList[i++], value = attribList[i++]; 
             if (attrib == WGL_CONTEXT_FLAGS_ARB) {
+                if (!g_Config.m_ForceDebugContextES && (value & WGL_CONTEXT_ES2_PROFILE_BIT_EXT)) {
+                    return ret;
+                }
                 value |= WGL_CONTEXT_DEBUG_BIT_ARB;
                 done = true;
             }

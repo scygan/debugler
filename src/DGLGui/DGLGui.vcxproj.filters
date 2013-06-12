@@ -260,6 +260,15 @@
     <ClCompile Include="dglglsleditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dglconfigdialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglconfigdialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglconfigdialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">
@@ -367,6 +376,12 @@
     <CustomBuild Include="dglglsleditor.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="dglconfigdialog.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\dglconfigdialog.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dglgui.h">
@@ -425,6 +440,9 @@
     </ClInclude>
     <ClInclude Include="dglblitterbase.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglconfigdialog.h">
+      <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

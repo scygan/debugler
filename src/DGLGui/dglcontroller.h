@@ -266,12 +266,12 @@ public:
     DGLViewRouter* getViewRouter();
 
     /** 
-     * Setter for new configuration of debugee
+     * Send new configuration to debugee
      */
-    void configure(const DGLConfiguration& config);
+    void sendConfig(const DGLConfiguration* config = NULL);
 
 
-    const DGLConfiguration& getConfig();
+    DGLConfiguration& getConfig();
 
     /** 
      * Send message to debugee. Base method for all lover-level communication with debugee
@@ -323,8 +323,6 @@ public slots:
     void queryCallTrace(uint, uint);
 
 private:
-
-    void sendConfig();
 
     boost::shared_ptr<dglnet::Client> m_DglClient;
     boost::shared_ptr<QSocketNotifier> m_NotifierRead, m_NotifierWrite;

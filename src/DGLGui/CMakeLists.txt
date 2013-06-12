@@ -10,7 +10,7 @@ set(dglgui_SOURCES
     dglstateview.cpp dgltabbedview.cpp dgltextureview.cpp
     dgltraceview.cpp dgltreeview.cpp dglprocess.cpp
     dglsyntaxhighlight.cpp dglblitterbase.cpp
-	dglglsleditor.cpp
+	dglglsleditor.cpp dglconfigdialog.cpp
     )
 
 set(dglgui_HEADERS
@@ -20,8 +20,8 @@ set(dglgui_HEADERS
     dglpixelrectangle.h dglprogramview.h dglrundialog.h
     dglshaderview.h dglshaderviewitem.h dglstateview.h
     dgltabbedview.h dgltextureview.h dgltraceview.h
-    dgltreeview.h dglsyntaxhighlight.h dglglsleditor.h
-    #dglprocess.h dglblitterbase.h <- no need for Qt moc here.
+    dgltreeview.h dglprocess.h dglsyntaxhighlight.h
+	dglblitterbase.h dglglsleditor.h dglconfigdialog.h
     )
 
 set(dglgui_FORMS
@@ -37,6 +37,7 @@ set(dglgui_FORMS
     ui/dglshaderview.ui
     ui/dglstateview.ui
     ui/dgltextureviewitem.ui
+	ui/dglconfigdialog.ui
     )
 
 SET(dglgui_RESOURCES dglmainwindow.qrc)

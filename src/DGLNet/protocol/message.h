@@ -105,6 +105,8 @@ class Configuration: public Message {
         ar & m_config.m_BreakOnGLError;
         ar & m_config.m_BreakOnDebugOutput;
         ar & m_config.m_BreakOnCompilerError;
+        ar & m_config.m_ForceDebugContext;
+        ar & m_config.m_ForceDebugContextES;
     }
 
     virtual void handle(MessageHandler* h) const { h->doHandle(*this); }

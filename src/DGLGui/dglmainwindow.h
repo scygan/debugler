@@ -91,6 +91,11 @@ private slots:
      */
     void setColorScheme(int ColorScheme);
 
+    /** 
+     * Slot for displaying configuration window
+     */
+    void configure();
+
     /**
      * Called by dgl controller to give debugee process info. Used to populate window caption
      */
@@ -123,6 +128,11 @@ private:
       */
     void readSettings();
 
+    /** 
+     * Synchronize widgets with current debugee configuration in controller
+     */
+    void showConfig();
+
     /**
       * Method intercepring main window close event
       */
@@ -133,6 +143,7 @@ private:
     QMenu *fileMenu;
     QMenu *debugMenu;
     QMenu *viewMenu;
+    QMenu *toolsMenu;
     QMenu *ColorSchemeMenu;
     QMenu *helpMenu;
 
@@ -159,6 +170,7 @@ private:
     QAction *setBreakOnDebugOutputAct;
 	QAction *setBreakOnCompilerErrAct;
     QAction *setColorSchemeActs[DGLNUM_COLOR_SCHEMES];
+    QAction *configurationAct;
     /**
      * Action group for all actions from setColorSchemeActs[]
      */

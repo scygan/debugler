@@ -14,19 +14,27 @@
 */
 
 
-#ifndef DGLCONFIGURATION_H
-#define DGLCONFIGURATION_H
+#ifndef DGLCONFIGDIALOG_H
+#define DGLCONFIGDIALOG_H
 
-class DGLConfiguration {
+#include "ui_dglconfigdialog.h"
+#include "dglcontroller.h"
+
+class DGLConfigDialog : public QDialog {
+    Q_OBJECT
+
 public:
-    DGLConfiguration():m_BreakOnGLError(true), m_BreakOnDebugOutput(true), m_BreakOnCompilerError(true), m_ForceDebugContext(true), m_ForceDebugContextES(false) {}
-    DGLConfiguration(bool breakOnGLError, bool breakOnDebugOutput, bool breakOnCompilerError):m_BreakOnGLError(breakOnGLError),
-        m_BreakOnDebugOutput(breakOnDebugOutput), m_BreakOnCompilerError(breakOnCompilerError) {}
-    bool m_BreakOnGLError;
-    bool m_BreakOnDebugOutput;
-    bool m_BreakOnCompilerError;
-    bool m_ForceDebugContext;
-    bool m_ForceDebugContextES;
+    DGLConfigDialog(const DGLConfiguration& configuration);
+    ~DGLConfigDialog();
+
+    const DGLConfiguration* getConfig();
+
+public slots: 
+    void toggleDebugFlagRenderingContext(bool);
+
+private:
+    Ui_ConfigDialog m_Ui;
+    DGLConfiguration m_Configuration;
 };
 
-#endif
+#endif // DGLCONNECTDIALOG_H
