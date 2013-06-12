@@ -157,7 +157,7 @@ parse(inputDir + "/gl3.h", "LIBRARY_ES3", True)
 
 parse(inputDir + "/wgl.h", "LIBRARY_WGL", True)
 parse(inputDir + "/wgl-notrace.h", "LIBRARY_WGL", True, True)
-parse(inputDir + "/wglext-partial.h", "LIBRARY_WGL_EXT")
+parse(inputDir + "/wglext.h", "LIBRARY_WGL_EXT")
 
 parse(inputDir + "/egl.h", "LIBRARY_EGL", True)
 parse(inputDir + "/eglext.h", "LIBRARY_EGL_EXT")
@@ -196,21 +196,21 @@ for name, entrypoint in sorted(entrypoints.items()):
 		print >> wrappersFile, "    retVal = g_Actions[" + name + "_Call]->DoPre(call);"
 
 	print >> wrappersFile, "    if (!retVal.isSet()) {"
-	if entrypoint.retType != "void":
+	if entrypoint.retType.lower() != "void":
 		print >> wrappersFile, "    	retVal = DIRECT_CALL(" + name + ")(" + listToString(entrypoint.paramList) + ");"
 	else:
 		print >> wrappersFile, "    	DIRECT_CALL(" + name + ")(" + listToString(entrypoint.paramList) + ");"			
 	print >> wrappersFile, "    }"
 	
 	if not entrypoint.skipTrace:
-		if entrypoint.retType != "void":
+		if entrypoint.retType.lower() != "void":
 			print >> wrappersFile, "    g_Actions[" + name + "_Call]->DoPost(call, retVal);"
 			
 		else:
 			print >> wrappersFile, "    g_Actions[" + name + "_Call]->DoPost(call);"
 		
 
-	if entrypoint.retType != "void":
+	if entrypoint.retType.lower() != "void":
 		print >> wrappersFile, "    " + entrypoint.retType + " tmp;  retVal.get(tmp); return tmp;"
 
 	print >> wrappersFile, "}"
