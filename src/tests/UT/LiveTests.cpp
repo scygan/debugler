@@ -101,6 +101,13 @@ namespace {
             return client;
         }
 
+        DGLConfiguration getUsualConfig() {
+            DGLConfiguration config;
+            config.m_BreakOnGLError = false;
+            config.m_BreakOnDebugOutput = false;
+            config.m_BreakOnCompilerError = false;
+            return config;
+        }
 
         static bool once;
     };
@@ -297,7 +304,7 @@ namespace {
            dglnet::message::SetBreakPoints breakPointMessage(breakpoints);
            client->sendMessage(&breakPointMessage);
 
-           dglnet::message::Configuration config(DGLConfiguration(false, false, false));
+           dglnet::message::Configuration config(getUsualConfig());
            client->sendMessage(&config);
        }
        {
@@ -383,7 +390,7 @@ namespace {
 
        {
            //disable breaking stuff
-           dglnet::message::Configuration config(DGLConfiguration(false, false, false));
+           dglnet::message::Configuration config(getUsualConfig());
            client->sendMessage(&config);
        }
       
@@ -440,7 +447,7 @@ namespace {
 
        {
            //disable other breaking stuff
-           dglnet::message::Configuration config(DGLConfiguration(false, false, false));
+           dglnet::message::Configuration config(getUsualConfig());
            client->sendMessage(&config);
        }
 
@@ -533,7 +540,7 @@ namespace {
         
         {
             //disable other breaking stuff
-            dglnet::message::Configuration config(DGLConfiguration(false, false, false));
+            dglnet::message::Configuration config(getUsualConfig());
             client->sendMessage(&config);
         }
 
