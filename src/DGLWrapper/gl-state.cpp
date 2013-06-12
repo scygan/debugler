@@ -44,8 +44,8 @@ namespace state_setters {
 
     class DefaultPBO {
     public:
-        DefaultPBO() {
-            if (gc->getVersion().check(GLContextVersion::DT, 2, 1) || gc->getVersion().check(GLContextVersion::ES, 3)) {
+        DefaultPBO(GLContext* ctx):m_Ctx(ctx) {
+            if (m_Ctx->getVersion().check(GLContextVersion::DT, 2, 1) || m_Ctx->getVersion().check(GLContextVersion::ES, 3)) {
                 DIRECT_CALL_CHK(glGetIntegerv)(GL_PIXEL_PACK_BUFFER_BINDING, &m_PBO);
             } else {
                 m_PBO = 0;
@@ -60,50 +60,53 @@ namespace state_setters {
             }
         }
     private:
+		GLContext* m_Ctx;
         GLint m_PBO;
     };
 
     class CurrentFramebuffer {
     public:
-        CurrentFramebuffer(GLuint name) {
-            if (gc->getVersion().check(GLContextVersion::DT, 3) || gc->getVersion().check(GLContextVersion::ES, 3)) {
+        CurrentFramebuffer(GLContext* ctx, GLuint name):m_Ctx(ctx) {
+            if (m_Ctx->getVersion().check(GLContextVersion::DT, 3) || m_Ctx->getVersion().check(GLContextVersion::ES, 3)) {
                 //full FBO support
                 DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_FRAMEBUFFER_BINDING, &m_ReadFBO);
                 DIRECT_CALL_CHK(glGetIntegerv)(GL_DRAW_FRAMEBUFFER_BINDING, &m_DrawFBO);
                 DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, name);
-            } else if (gc->getVersion().check(GLContextVersion::ES, 2)) {
+            } else if (m_Ctx->getVersion().check(GLContextVersion::ES, 2)) {
                 //only single draw+read fbo binding is supported
                 DIRECT_CALL_CHK(glGetIntegerv)(GL_FRAMEBUFFER_BINDING, &m_DrawFBO);
                 DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, name);
             }
         }
         ~CurrentFramebuffer() {
-            if (gc->getVersion().check(GLContextVersion::DT, 3) || gc->getVersion().check(GLContextVersion::ES, 3)) {
+            if (m_Ctx->getVersion().check(GLContextVersion::DT, 3) || m_Ctx->getVersion().check(GLContextVersion::ES, 3)) {
                 //full FBO support
                 DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, m_ReadFBO);
                 DIRECT_CALL_CHK(glBindFramebuffer)(GL_DRAW_FRAMEBUFFER, m_DrawFBO);
-            } else if (gc->getVersion().check(GLContextVersion::ES, 2)) {
+            } else if (m_Ctx->getVersion().check(GLContextVersion::ES, 2)) {
                 //only single draw+read fbo binding is supported
                 DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, m_DrawFBO);
             }
         }
     private:
+		GLContext* m_Ctx;
         GLint m_ReadFBO, m_DrawFBO;
     };
 
     class ReadBuffer {
     public:
-        ReadBuffer() {
-            if (gc->getVersion().check(GLContextVersion::ES, 3) || gc->getVersion().check(GLContextVersion::DT)) {
+        ReadBuffer(GLContext* ctx):m_Ctx(ctx) {
+            if (m_Ctx->getVersion().check(GLContextVersion::ES, 3) || m_Ctx->getVersion().check(GLContextVersion::DT)) {
                 DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &m_ReadBuffer);
             }
         }
         ~ReadBuffer() {
-            if (gc->getVersion().check(GLContextVersion::ES, 3) || gc->getVersion().check(GLContextVersion::DT)) {
+            if (m_Ctx->getVersion().check(GLContextVersion::ES, 3) || m_Ctx->getVersion().check(GLContextVersion::DT)) {
                 DIRECT_CALL_CHK(glReadBuffer)(m_ReadBuffer);
             }
         }
     private:
+		GLContext* m_Ctx;
         GLint m_ReadBuffer;
     };
 
@@ -139,11 +142,11 @@ namespace state_setters {
     class PixelStoreAlignment {
 #define STATE_SIZE 8
     public:
-        PixelStoreAlignment() {
+        PixelStoreAlignment(GLContext* ctx):m_Ctx(ctx) {
             //dump and set pixel store state
             for (int i = 0; i < STATE_SIZE; i++) {
-                if (gc->getVersion().check(GLContextVersion::DT) ||
-                        (s_StateTable[i].m_ES3 && gc->getVersion().check(GLContextVersion::ES, 3))) {
+                if (m_Ctx->getVersion().check(GLContextVersion::DT) ||
+                        s_StateTable[i].m_ES3 && m_Ctx->getVersion().check(GLContextVersion::ES, 3)) {
                     DIRECT_CALL_CHK(glGetIntegerv)(s_StateTable[i].m_Target, &s_StateTable[i].m_SavedState);
                     DIRECT_CALL_CHK(glPixelStorei)(s_StateTable[i].m_Target, s_StateTable[i].m_State);
                 }
@@ -151,8 +154,8 @@ namespace state_setters {
         }
         ~PixelStoreAlignment() {
             for (int i = 0; i < STATE_SIZE; i++) {
-                if (gc->getVersion().check(GLContextVersion::DT) ||
-                        (s_StateTable[i].m_ES3 && gc->getVersion().check(GLContextVersion::ES, 3))) {
+                if (m_Ctx->getVersion().check(GLContextVersion::DT) ||
+                        s_StateTable[i].m_ES3 && m_Ctx->getVersion().check(GLContextVersion::ES, 3)) {
                     DIRECT_CALL_CHK(glPixelStorei)(s_StateTable[i].m_Target, s_StateTable[i].m_SavedState);
                 }
             }
@@ -170,6 +173,7 @@ namespace state_setters {
             bool m_ES3;
             GLint m_SavedState;
         } s_StateTable[STATE_SIZE];
+		GLContext* m_Ctx;
     };
     
     PixelStoreAlignment::StateEntry PixelStoreAlignment::s_StateTable[STATE_SIZE] = {
@@ -694,8 +698,8 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
     }
 
     //disconnect PBO if it exists
-    state_setters::DefaultPBO defPBO;
-    state_setters::PixelStoreAlignment defAlignment;
+    state_setters::DefaultPBO defPBO(this);
+    state_setters::PixelStoreAlignment defAlignment(this);
 
     //rebind texture, so we can access it
     GLuint lastTexture = glutils::getBoundTexture(tex->getTarget());
@@ -871,10 +875,10 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(gl_t _bufferE
     if (!m_NativeReadSurface) {
         throw std::runtime_error("Buffer does not exist");
     }
-    state_setters::ReadBuffer readBuffer;
-    state_setters::DefaultPBO defPBO;
-    state_setters::CurrentFramebuffer currentFramebuffer(0);
-    state_setters::PixelStoreAlignment defAlignment;
+    state_setters::ReadBuffer readBuffer(this);
+    state_setters::DefaultPBO defPBO(this);
+    state_setters::CurrentFramebuffer currentFramebuffer(this, 0);
+    state_setters::PixelStoreAlignment defAlignment(this);
 
     //select read buffer
     if (m_Version.check(GLContextVersion::ES, 3) || m_Version.check(GLContextVersion::DT)) {
@@ -912,12 +916,12 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
     dglnet::resource::DGLResourceFBO* resource;
     boost::shared_ptr<dglnet::DGLResource> ret (resource = new dglnet::resource::DGLResourceFBO());
  
-    state_setters::ReadBuffer readBuffer;
+    state_setters::ReadBuffer readBuffer(this);
     state_setters::DrawBuffers drawBuffers; //we may touch draw buffer when downsampling MSAA buffers
     state_setters::RenderBuffer renderBuffer;
-    state_setters::DefaultPBO defPBO;
-    state_setters::CurrentFramebuffer currentFBO(name);
-    state_setters::PixelStoreAlignment defAlignment;
+    state_setters::DefaultPBO defPBO(this);
+    state_setters::CurrentFramebuffer currentFBO(this, name);
+    state_setters::PixelStoreAlignment defAlignment(this);
 
     //get maximum number of color attachments
     GLint maxColorAttachments; 
