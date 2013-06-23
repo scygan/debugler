@@ -13,9 +13,8 @@
 * limitations under the License.
 */
 
-
-#include <DGLNet/protocol/message.h>
 #include <boost/asio/io_service.hpp>
+#include <DGLNet/protocol/message.h>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <boost/enable_shared_from_this.hpp>

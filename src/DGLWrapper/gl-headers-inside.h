@@ -23,7 +23,6 @@
 #undef NOGDI
 //include GL from the GL implementation "perspective" - all GL funcs are locally implemented
 #define NOGDI
-#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #undef WINGDIAPI
 #define WINGDIAPI DGLWRAPPER_API

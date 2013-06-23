@@ -78,7 +78,11 @@ void DGLStateView::setConnected(bool connected) {
         setWidget(m_Ui->frame);
         setLayout(m_Ui->verticalLayout);
         m_Ui->tableWidget->setRowCount(1);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
         m_Ui->tableWidget->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+#else
+        m_Ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+#endif       
         m_Ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem("Parameter"));
         m_Ui->tableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem("Value"));
         

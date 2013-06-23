@@ -17,8 +17,9 @@
 #ifndef DGLMAINWINDOW_H
 #define DGLMAINWINDOW_H
 
-#include <QtGui/QMainWindow>
-#include <QtGui/QListWidget>
+#include <QMainWindow>
+
+#include <QListWidget>
 #include <QSignalMapper>
 
 #include "ui_dglmainwindow.h"
@@ -42,7 +43,7 @@ public:
     /** 
      * Ctor, called from bootstrap in main()
      */
-    DGLMainWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
+    DGLMainWindow(QWidget *parent = 0, Qt::WindowFlags flags = 0);
     virtual ~DGLMainWindow();
 
 

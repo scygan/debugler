@@ -14,6 +14,9 @@
     <ProjectGuid>{8AF96288-59F4-4F67-9590-11429468C558}</ProjectGuid>
     <Keyword>MakeFileProj</Keyword>
   </PropertyGroup>
+  <PropertyGroup Label="Configuration" >
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Android-ARM|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>

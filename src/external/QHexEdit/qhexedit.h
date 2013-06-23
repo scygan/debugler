@@ -7,6 +7,8 @@
 #pragma warning(pop)
 #include "qhexedit_p.h"
 
+#include<QHBoxLayout>
+
 /** \mainpage
 QHexEdit is a binary editor widget for Qt.
 

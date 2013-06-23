@@ -15,10 +15,9 @@
 
 
 #include "gtest/gtest.h"
-
+#include <DGLNet/client.h>
 #include <DGLGui/dglprocess.h>
 #include <DGLCommon/gl-headers.h>
-#include <DGLNet/client.h>
 
 #include <DGLNet/protocol/request.h>
 #include <DGLNet/protocol/resource.h>

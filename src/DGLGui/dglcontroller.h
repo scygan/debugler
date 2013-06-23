@@ -17,6 +17,14 @@
 #ifndef DGLCONTROLLER_H
 #define DGLCONTROLLER_H
 
+#include <DGLNet/client.h>
+#include <DGLNet/protocol/dglconfiguration.h>
+#include <DGLNet/protocol/resource.h>
+#include <DGLNet/protocol/request.h>
+#include <boost/make_shared.hpp>
+
+#include <DGLCommon/def.h>
+
 #include <QObject>
 #include <QTimer>
 #include <QSocketNotifier>
@@ -24,14 +32,6 @@
 #pragma warning(disable:4512) // assignment operator could not be generated
 #include <QtGui>
 #pragma warning(pop)
-
-#include <DGLNet/client.h>
-#include <DGLNet/protocol/dglconfiguration.h>
-#include <DGLNet/protocol/resource.h>
-#include <DGLNet/protocol/request.h>
-#include <boost/make_shared.hpp>
-
-
 
 class DGLRequestManager;
 

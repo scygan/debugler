@@ -17,6 +17,8 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QFile>
+#include <QToolBar>
+#include <QProgressDialog>
 
 #include "dglmainwindow.h"
 #include "dglbreakpointdialog.h"
@@ -66,7 +68,16 @@ struct DGLColorScheme {
     { "Dark Orange", ":/res/darkorange.stylesheet"},
 };
 
-DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
+    
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+#define HICON_TO_QPIXMAP(hicon) QPixmap::fromHICON(hicon)
+#else
+// Private API, use QtWinExtras when it becomes available (oh my...)
+QPixmap qt_pixmapFromWinHICON(HICON icon);
+#define HICON_TO_QPIXMAP(hicon) qt_pixmapFromWinHICON(hicon)
+#endif
+
+DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags) {
 
 #pragma warning(push)
@@ -76,7 +87,7 @@ DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WFlags flags)
 
     boost::shared_ptr<OsIcon> icon(Os::createIcon());
 #ifdef _WIN32
-    setWindowIcon(QIcon(QPixmap::fromWinHICON((HICON)icon->get())));
+    setWindowIcon(QIcon(HICON_TO_QPIXMAP((HICON)icon->get())));
 #else
 #pragma message ( "no window icon on non-windows" )
 #endif

@@ -20,6 +20,8 @@
 #include "dglshaderviewitem.h"
 #include "dglglsleditor.h"
 #include <QPainter>
+#include <QFileDialog>
+#include <QMessageBox>
 
 
 //line numbering taken from  http://doc.qt.digia.com/4.6/widgets-codeeditor.html

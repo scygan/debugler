@@ -10,6 +10,9 @@
 #pragma warning(pop)
 #include "xbytearray.h"
 
+#include<QScrollArea>
+#include<QUndoStack>
+
 class QHexEditPrivate : public QWidget
 {
 Q_OBJECT

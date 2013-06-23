@@ -17,8 +17,7 @@
 #ifndef DGLCONNECTDIALOG_H
 #define DGLCONNECTDIALOG_H
 
-#include <QtGui/QMainWindow>
- #include <QIntValidator>
+#include <QIntValidator>
 
 #include "ui_dglconnectdialog.h"
 

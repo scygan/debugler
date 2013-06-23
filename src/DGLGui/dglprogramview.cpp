@@ -26,7 +26,11 @@ DGLProgramViewItem::DGLProgramViewItem(dglnet::ContextObjectName name, DGLResour
     m_Label = new QLabel(this);
     m_Ui.verticalLayout_2->addWidget(m_Label);
     m_Ui.tableWidgetUniforms->setRowCount(1);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     m_Ui.tableWidgetUniforms->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+#else
+    m_Ui.tableWidgetUniforms->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+#endif
     m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(0, new QTableWidgetItem("name"));
     m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(1, new QTableWidgetItem("type"));
     m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(2, new QTableWidgetItem("value"));

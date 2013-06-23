@@ -20,6 +20,8 @@
 #include "dgltabbedview.h"
 #include "QHexEdit/qhexedit.h"
 
+#include <QLabel>
+
 class DGLBufferView : public DGLTabbedView {
     Q_OBJECT
 

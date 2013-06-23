@@ -382,105 +382,101 @@
     <CustomBuild Include="ui\dglconfigdialog.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="dglgui.h">
+    <CustomBuild Include="dglblitterbase.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglfboviewitem.h">
+    </CustomBuild>
+    <CustomBuild Include="dglprocess.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="resource.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dglgui.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglconfigdialog.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglframebufferviewitem.h">
+    </CustomBuild>
+    <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglbreakpointdialog.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglmainwindow.h">
+    </CustomBuild>
+    <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglconnectdialog.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dgltextureviewitem.h">
+    </CustomBuild>
+    <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglfboviewitem.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglbreakpointdialog.h">
+    </CustomBuild>
+    <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglframebufferviewitem.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglshaderview.h">
+    </CustomBuild>
+    <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglgpuview.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglconnectdialog.h">
+    </CustomBuild>
+    <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglmainwindow.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglprogramview.h">
+    </CustomBuild>
+    <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglpixelrectangleview.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglrundialog.h">
+    </CustomBuild>
+    <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglprogramview.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglgpuview.h">
+    </CustomBuild>
+    <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglrundialog.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\QHexEdit\xbytearray.h">
+    </CustomBuild>
+    <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglshaderview.h">
+      <Filter>Generated Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglstateview.h">
+      <Filter>Generated Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dgltextureviewitem.h">
+      <Filter>Generated Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\external\QHexEdit\commands.h">
       <Filter>QHexEdit</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\QHexEdit\commands.h">
+    </CustomBuild>
+    <CustomBuild Include="..\external\QHexEdit\xbytearray.h">
       <Filter>QHexEdit</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\CompleteInject\CompleteInject.h">
+    </CustomBuild>
+    <CustomBuild Include="..\external\CompleteInject\CompleteInject.h">
       <Filter>ComleteInject</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglstateview.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglpixelrectangleview.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dglprocess.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dglblitterbase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglconfigdialog.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\checkbox.png">
+    </CustomBuild>
+    <CustomBuild Include="res\checkbox.png">
       <Filter>Resource Files\qrc-sources</Filter>
-    </None>
-    <None Include="res\darkorange.stylesheet">
+    </CustomBuild>
+    <CustomBuild Include="res\darkorange.stylesheet">
       <Filter>Resource Files\qrc-sources</Filter>
-    </None>
-    <None Include="res\default.stylesheet">
+    </CustomBuild>
+    <CustomBuild Include="res\default.stylesheet">
       <Filter>Resource Files\qrc-sources</Filter>
-    </None>
-    <None Include="res\down_arrow.png">
+    </CustomBuild>
+    <CustomBuild Include="res\down_arrow.png">
       <Filter>Resource Files\qrc-sources</Filter>
-    </None>
-    <None Include="res\handle.png">
+    </CustomBuild>
+    <CustomBuild Include="res\handle.png">
       <Filter>Resource Files\qrc-sources</Filter>
-    </None>
-    <None Include="icons\buffer.png">
+    </CustomBuild>
+    <CustomBuild Include="icons\buffer.png">
       <Filter>Resource Files\qrc-sources\icons</Filter>
-    </None>
-    <None Include="icons\context.png">
+    </CustomBuild>
+    <CustomBuild Include="icons\context.png">
       <Filter>Resource Files\qrc-sources\icons</Filter>
-    </None>
-    <None Include="icons\fbo.png">
+    </CustomBuild>
+    <CustomBuild Include="icons\fbo.png">
       <Filter>Resource Files\qrc-sources\icons</Filter>
-    </None>
-    <None Include="icons\framebuffer.png">
+    </CustomBuild>
+    <CustomBuild Include="icons\framebuffer.png">
       <Filter>Resource Files\qrc-sources\icons</Filter>
-    </None>
-    <None Include="icons\shader.png">
+    </CustomBuild>
+    <CustomBuild Include="icons\shader.png">
       <Filter>Resource Files\qrc-sources\icons</Filter>
-    </None>
-    <None Include="icons\shader_object.png">
+    </CustomBuild>
+    <CustomBuild Include="icons\shader_object.png">
       <Filter>Resource Files\qrc-sources\icons</Filter>
-    </None>
-    <None Include="icons\textures.png">
+    </CustomBuild>
+    <CustomBuild Include="icons\textures.png">
       <Filter>Resource Files\qrc-sources\icons</Filter>
-    </None>
+    </CustomBuild>
   </ItemGroup>
 </Project>

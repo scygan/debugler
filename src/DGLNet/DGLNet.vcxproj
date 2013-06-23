@@ -49,6 +49,9 @@
     <ClInclude Include="server.h" />
     <ClInclude Include="transport.h" />
   </ItemGroup>
+  <PropertyGroup Label="Configuration" >
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>

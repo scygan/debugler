@@ -3,6 +3,8 @@
 #include <QtGui>
 #pragma warning(pop)
 
+#include<QApplication>
+
 #include "qhexedit_p.h"
 #include "commands.h"
 
@@ -451,7 +453,7 @@ void QHexEditPrivate::keyPressEvent(QKeyEvent *event)
 if (!_readOnly)
 {
     /* Hex input */
-        int key = int(event->text()[0].toAscii());
+        QChar key = event->text()[0];
         if ((key>='0' && key<='9') || (key>='a' && key <= 'f'))
         {
             if (getSelectionBegin() != getSelectionEnd())
@@ -474,9 +476,9 @@ if (!_readOnly)
             {
                 QByteArray hexValue = _xData.data().mid(posBa, 1).toHex();
                 if ((charX % 3) == 0)
-                    hexValue[0] = static_cast<char>(key);
+                    hexValue[0] = key.toLatin1();
                 else
-                    hexValue[1] = static_cast<char>(key);
+                    hexValue[1] = key.toLatin1();
 
                 replace(posBa, QByteArray().fromHex(hexValue)[0]);
 

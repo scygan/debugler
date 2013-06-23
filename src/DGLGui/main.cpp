@@ -15,7 +15,7 @@
 
 
 #include "dglmainwindow.h"
-#include <QtGui/QApplication>
+#include <QApplication>
 
 #include <cstdlib>
 #ifdef _WIN32

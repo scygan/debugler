@@ -17,7 +17,7 @@
 #ifndef DGLRUNDIALOG_H
 #define DGLRUNDIALOG_H
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 
 #include "ui_dglrundialog.h"
 

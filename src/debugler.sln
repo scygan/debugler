@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+# Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLWrapper", "DGLWrapper\DGLWrapper.vcxproj", "{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F9A59A02-D3B0-4857-8502-1DEFC2115FEC} = {F9A59A02-D3B0-4857-8502-1DEFC2115FEC}
@@ -27,8 +27,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLCommon", "DGLCommon\DGLC
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "codegen", "codegen\codegen.vcxproj", "{F16EFBD2-E47A-4E5B-B091-7D400430745A}"
-EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Installer64", "buildtools\vs\auxprojects\Installer\Installer.vdproj", "{55ABEC8C-2C4B-4216-AC6D-C62A7A8F5D77}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLLoader", "DGLLoader\DGLLoader.vcxproj", "{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -82,8 +80,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AndroidBuild", "buildtools\
 	ProjectSection(ProjectDependencies) = postProject
 		{F16EFBD2-E47A-4E5B-B091-7D400430745A} = {F16EFBD2-E47A-4E5B-B091-7D400430745A}
 	EndProjectSection
-EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Installer32", "buildtools\vs\auxprojects\Installer\Installer32.vdproj", "{2F085A1B-2753-4F40-8D7C-9741DA0F1639}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
