@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>3.7</ProductVersion>
+    <ProjectGuid>f343e478-708f-46b6-a736-866317ed8d57</ProjectGuid>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputName>Debugler</OutputName>
+    <OutputType>Package</OutputType>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <OutputPath>..\..\..\..\..\build\Win32\$(Configuration)\Installer</OutputPath>
+    <IntermediateOutputPath>..\..\..\..\..\build\Win32\$(Configuration)\Installer\</IntermediateOutputPath>
+    <DefineConstants>Debug</DefineConstants>
+    <LinkerAdditionalOptions>-b ..\..\..\..\..\build\Win32\$(Configuration)\</LinkerAdditionalOptions>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>..\..\..\..\..\build\Win32\$(Configuration)\Installer</OutputPath>
+    <IntermediateOutputPath>..\..\..\..\..\build\Win32\$(Configuration)\Installer\</IntermediateOutputPath>
+    <LinkerAdditionalOptions>-b ..\..\..\..\..\build\Win32\$(Configuration)\</LinkerAdditionalOptions>
+    <DefineConstants />
+    <WixVariables>Platform=$(Platform)</WixVariables>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DefineConstants>Debug;</DefineConstants>
+    <WixVariables>Platform=$(Platform)</WixVariables>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <LinkerAdditionalOptions>-b ..\..\..\..\..\build\Win32\$(Configuration)\
+-b ..\..\..\..\..\build\x64\$(Configuration)\</LinkerAdditionalOptions>
+    <DefineConstants />
+    <OutputPath>..\..\..\..\..\build\$(Platform)\$(Configuration)\Installer</OutputPath>
+    <IntermediateOutputPath>..\..\..\..\..\build\$(Platform)\$(Configuration)\Installer\</IntermediateOutputPath>
+    <WixVariables>Platform=$(Platform)</WixVariables>
+    <SuppressAllWarnings>False</SuppressAllWarnings>
+    <Pedantic>True</Pedantic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DefineConstants>Debug</DefineConstants>
+    <OutputPath>..\..\..\..\..\build\$(Platform)\$(Configuration)\Installer</OutputPath>
+    <IntermediateOutputPath>..\..\..\..\..\build\$(Platform)\$(Configuration)\Installer\</IntermediateOutputPath>
+    <WixVariables>Platform=$(Platform)</WixVariables>
+    <LinkerAdditionalOptions>-b ..\..\..\..\..\build\Win32\$(Configuration)\
+-b ..\..\..\..\..\build\x64\$(Configuration)\</LinkerAdditionalOptions>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Debugler.wxs" />
+  </ItemGroup>
+  <ItemGroup>
+    <WixExtension Include="WixUIExtension">
+      <HintPath>$(WixExtDir)\WixUIExtension.dll</HintPath>
+      <Name>WixUIExtension</Name>
+    </WixExtension>
+  </ItemGroup>
+  <Import Project="$(WixTargetsPath)" />
+  <!--
+	To modify your build process, add your task inside one of the targets below and uncomment it.
+	Other similar extension points exist, see Wix.targets.
+	<Target Name="BeforeBuild">
+	</Target>
+	<Target Name="AfterBuild">
+	</Target>
+	-->
+</Project>

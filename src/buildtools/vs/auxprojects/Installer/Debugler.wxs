@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='Windows-1252'?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+
+  <?ifdef var.Debug ?>
+    <?define debugsuffix = "d" ?>
+  <?else?>
+    <?define debugsuffix = "" ?>
+  <?endif ?>
+
+  <?if $(var.Platform) = x64 ?>
+    <?define programFilesFolder = "ProgramFiles64Folder" ?>
+    <?define installerVersion = "200" ?>
+  <?else?>
+    <?define programFilesFolder = "ProgramFiles64Folder" ?>
+    <?define installerVersion = "100" ?>
+  <?endif ?>
+  
+  <Product Name='Debugler' Id='{54FE114C-FCCB-4FAC-BF68-484D4D3DE3F0}' UpgradeCode='{D2691962-72E5-4DD1-997D-09038F9C2A50}'
+    Language='1033' Codepage='1252' Version='0.1' Manufacturer='Slawomir Cygan'>
+
+    <Package Id='*' Keywords='Installer' Description="Debugler 0.1 Installer"
+      Manufacturer='Slawomir Cygan'
+      InstallerVersion='$(var.installerVersion)' Languages='1033' Compressed='yes' SummaryCodepage='1252' Platform='$(var.Platform)'/>
+
+    <Media Id='1' Cabinet='Sample.cab' EmbedCab='yes' DiskPrompt="CD-ROM #1" />
+    <Property Id='DiskPrompt' Value="Debugler 0.1 Installation [1]" />
+
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+      <Directory Id='$(var.programFilesFolder)' Name='PFiles'>
+        <Directory Id='Debugler' Name='Debugler'>
+          <Directory Id='INSTALLDIR' Name='Debugler'>
+
+            <Directory Id='DGLWrapper' Name='DGLWrapper'>
+              <Component Id='WrapperLibrary' Guid='{1533E661-CA81-4306-8E38-1625C90F65C8}'>
+                <File Id='WrapperDLL' Name='DGLWrapper.dll' DiskId='1' Source='DGLWrapper\DGLWrapper.dll' KeyPath='yes' />
+              </Component>
+            </Directory>
+
+            <?if $(var.Platform) = x64 ?>
+              <Directory Id='DGLWrapper64' Name='DGLWrapper64'>
+                <Component Id='WrapperLibrary64' Guid='{62BFD843-0649-40B6-8506-FFFC38C68335}'>
+                  <File Id='Wrapper64DLL' Name='DGLWrapper.dll' DiskId='1' Source='DGLWrapper64\DGLWrapper.dll' KeyPath='yes' />
+                </Component>
+              </Directory>
+            <?endif?>
+
+            <Component Id='MainExecutables' Guid='{AE901FC3-7E38-4663-9C97-258D1DB5C78F}'>
+              <File Id='DebuglerEXE' Name='Debugler.exe' DiskId='1' Source='Debugler.exe' KeyPath='yes'>
+                <Shortcut Id="startmenuDebugler01" Directory="ProgramMenuDir" Name="Debugler 0.1" WorkingDirectory='INSTALLDIR' Icon="Debugler01.exe" IconIndex="0" Advertise="yes" />
+              </File>
+              <File Id='DGLLoaderEXE' Name='DGLLoader.exe' DiskId='1' Source='DGLLoader.exe'/>
+            </Component>
+
+            <?if $(var.Platform) = x64 ?>
+              <Component Id='MainExecutables64' Guid='{1A9080E2-C665-4D5E-AF19-9831F74AD6AA}'>
+                <File Id='DGLLoader64EXE' Name='DGLLoader64.exe' DiskId='1' Source='DGLLoader64.exe' KeyPath='yes'/>
+              </Component>
+            <?endif?>
+
+            <Component Id='QTRedist' Guid='{84F8EC42-6E09-48CE-A6D1-B7E58CD95C46}'>
+              <File Id='Qt5XMLDLL' Name='Qt5XML$(var.debugsuffix).dll' DiskId='1' Source='Qt5XML$(var.debugsuffix).dll' KeyPath='yes' />
+              <File Id='Qt5GuiDLL' Name='Qt5Gui$(var.debugsuffix).dll' DiskId='1' Source='Qt5Gui$(var.debugsuffix).dll' />
+              <File Id='Qt5WidgetsDLL' Name='Qt5Widgets$(var.debugsuffix).dll' DiskId='1' Source='Qt5Widgets$(var.debugsuffix).dll' />
+              <File Id='Qt5CoreDLL' Name='Qt5Core$(var.debugsuffix).dll' DiskId='1' Source='Qt5Core$(var.debugsuffix).dll' />
+              <File Id='icuin51DLL' Name='icuin51.dll' DiskId='1' Source='icuin51.dll' />
+              <File Id='icuuc51DLL' Name='icuuc51.dll' DiskId='1' Source='icuuc51.dll' />
+              <File Id='icudt51DLL' Name='icudt51.dll' DiskId='1' Source='icudt51.dll' />
+            </Component>
+                 
+
+          </Directory>
+        </Directory>
+      </Directory>
+
+      <Directory Id="ProgramMenuFolder" Name="Programs">
+        <Directory Id="ProgramMenuDir" Name="Debugler 0.1">
+          <Component Id="ProgramMenuDir" Guid="{D2B8D448-4723-4676-B95D-5B39EBF7F50B}">
+            <RemoveFolder Id='ProgramMenuDir' On='uninstall' />
+            <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Type='string' Value='' KeyPath='yes'/>
+          </Component>
+        </Directory>
+      </Directory>
+
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+
+    <Feature Id='Complete' Level='1' Title='Debugler executables' Description='Debugler essentials.' Display='expand' ConfigurableDirectory='INSTALLDIR'>
+      <ComponentRef Id='MainExecutables' />
+      <?if $(var.Platform) = x64 ?>
+        <ComponentRef Id='MainExecutables64' />
+      <?endif?>
+      <ComponentRef Id='QTRedist' />
+      <?if $(var.Platform) = x64 ?>
+        <ComponentRef Id='WrapperLibrary64' />
+      <?endif?>
+      <ComponentRef Id='WrapperLibrary' />
+      <ComponentRef Id='ProgramMenuDir' />
+    </Feature>
+
+    <UIRef Id="WixUI_Mondo" />
+    <UIRef Id="WixUI_ErrorProgressText" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+
+    <Icon Id="Debugler01.exe" SourceFile="Debugler.exe" />
+
+    <WixVariable Id="WixUILicenseRtf" Value="..\..\..\..\..\LICENCE.rtf" />
+  </Product>
+</Wix>

@@ -17,21 +17,19 @@ The OpenGL 2.1+, OpenGL ES 2.0/3.0 debugger for Windows and Linux
 ### Build for Windows
 
 Needed: 
- * Microsoft Visual Studio 2010 (non-express edition). No 2012 support yet.
-
- * Visual Studio Add-in 1.1.11 for Qt4 (http://releases.qt-project.org/vsaddin/qt-vs-addin-1.1.11-opensource.exe)
+ * Microsoft Visual Studio 2012
 
  * Python 2.7.*, http://www.python.org/download/
 
- * Qt 4.8.4, http://download.qt-project.org/official_releases/qt/4.8/4.8.4/qt-win-opensource-4.8.4-vs2010.exe
+ * Qt 5.0.1-rc1, http://download.qt-project.org/development_releases/qt/5.1/5.1.0-rc1/qt-windows-opensource-5.1.0-rc1-msvc2012-x86-offline.exe
 
- * Set <b>QTDIR</b> environment variable to QT installation directory 
+ * Set <b>QTDIR</b> environment variable to QT installation directory (like C:\Qt\Qt5.1.0\5.1.0-rc1\msvc2012).
 
  * Run 
 ```
 src\built.bat
 ```
- * Installer is build in <b>src\built.bat</b> directory
+ * Installers are build in <b>build\Win32\Release\Installer</b> and <b>build\x64\Release\Installer</b> directories
 
 ####Running unit tests
 
