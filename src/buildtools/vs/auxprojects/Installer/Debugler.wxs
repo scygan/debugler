@@ -11,7 +11,7 @@
     <?define programFilesFolder = "ProgramFiles64Folder" ?>
     <?define installerVersion = "200" ?>
   <?else?>
-    <?define programFilesFolder = "ProgramFiles64Folder" ?>
+    <?define programFilesFolder = "ProgramFilesFolder" ?>
     <?define installerVersion = "100" ?>
   <?endif ?>
   
