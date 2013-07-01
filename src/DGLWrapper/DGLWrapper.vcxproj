@@ -49,11 +49,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)..\build\$(Platform)\$(Configuration)\$(ProjectName)64</OutDir>
+    <OutDir>$(SolutionDir)..\build\$(Platform)\$(Configuration)\$(ProjectName)64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)..\build\$(Platform)\$(Configuration)\$(ProjectName)64</OutDir>
+    <OutDir>$(SolutionDir)..\build\$(Platform)\$(Configuration)\$(ProjectName)64\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
