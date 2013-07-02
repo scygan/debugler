@@ -87,9 +87,6 @@ public:
 
             //set environment variables - child processes will inherit these
 
-            //debugging port
-            Os::setEnv("dgl_port", portStr.str().c_str());
-
             //semaphore triggered by loader (when done loading)
             Os::setEnv("dgl_loader_semaphore", m_SemLoaderStr.c_str());
 
@@ -125,6 +122,7 @@ public:
             std::string arguments = 
                 "\"" + loaderPath + "\" " +
                 switches + 
+                "--port " + portStr.str() + " "
                 "\"" + exec + "\" " +
                 "-- " + args;
 #ifdef _WIN32

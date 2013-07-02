@@ -20,8 +20,6 @@
 #ifdef _WIN32
     #include <windows.h>
     #include "CompleteInject/CompleteInject.h"
-#else
-    //TODO
 #endif
 
 #include <cstdlib>
@@ -32,13 +30,6 @@
 #include <cstdio>
 #include <stdint.h>
 
-
-
-#include <boost/interprocess/managed_shared_memory.hpp>
-#include <boost/interprocess/sync/named_semaphore.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp> 
 #pragma warning(push)
 #pragma warning(disable:4512)//'boost::program_options::options_description' : assignment operator could not be generated
 #include <boost/program_options/options_description.hpp>
@@ -47,13 +38,19 @@
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/parsers.hpp>
 
-#include "DGLCommon/os.h"
+#include <boost/interprocess/mapped_region.hpp>
+#include <boost/interprocess/shared_memory_object.hpp>
+#include <boost/interprocess/sync/named_semaphore.hpp>
+
+#include <DGLCommon/os.h>
 #include <DGLCommon/wa.h>
+#include <DGLCommon/ipc.h>
 
 #ifdef __ANDROID__
 #include <dlfcn.h>
 #endif
 
+#pragma warning(disable:4503)
 
 #ifdef _WIN32
 bool isProcess64Bit(HANDLE hProcess) {
@@ -139,7 +136,7 @@ using namespace std;
 int main(int argc, char** argv) {
 
     IPCMessage message(EXIT_SUCCESS);
-    IPCMessage* ipcMessage = &message;    
+    IPCMessage* ipcMessage = &message; 
 
     try {
 
@@ -147,6 +144,9 @@ int main(int argc, char** argv) {
         desc.add_options()
             ("help,h", "produce help message")
             ("egl", "use egl mode");
+
+        desc.add_options()
+            ("port", po::value< vector<string> >(), "Debugger TCP port number.");
 
         po::options_description mandatory("Mandatory options");
         mandatory.add_options()
@@ -169,10 +169,6 @@ int main(int argc, char** argv) {
             throw std::runtime_error(out.str());
         }
 
-        if (vm.count("egl")) {
-            Os::setEnv("dgl_mode", "egl");
-        }
-
         if (!vm.count("execute")) {
             std::ostringstream out;
             out << "Nothing to execute.\n" << desc << "\n" << mandatory << "\n";
@@ -192,15 +188,19 @@ int main(int argc, char** argv) {
 
         Os::info("Executable: %s\nPath: %s\nArguments: %s\nWrapper: %s\n\n\n", executable.c_str(), path.c_str(), argumentString.c_str(), wrapperPath.c_str());
 
-#ifdef  WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
-        //Workaround fo ARM Mali OpenGL ES wrapper on Windows: see LoaderThread() for description
-        //as we do not return from LoaderThread() immediately, we need a semaphore to know when to resume application
-        std::ostringstream remoteThreadSemaphoreStr;
-        remoteThreadSemaphoreStr << boost::uuids::random_generator()();
-        Os::setEnv("dgl_remote_thread_semaphore", remoteThreadSemaphoreStr.str().c_str());
-        boost::interprocess::named_semaphore remoteThreadSemaphore(boost::interprocess::open_or_create, remoteThreadSemaphoreStr.str().c_str(), 0);
-#endif
+        boost::shared_ptr<DGLIPC> dglIPC = DGLIPC::Create();
+        Os::setEnv("dgl_uuid", dglIPC->getUUID().c_str());
 
+        if (vm.count("egl")) {
+            dglIPC->setDebuggerMode(DGLIPC::DebuggerMode::EGL);
+        }
+
+        if (vm.count("port")) {
+            std::istringstream portStr(vm["port"].as< vector<string> >()[0]);
+            int port; 
+            portStr >> port;
+            dglIPC->setDebuggerPort(port);
+        }
 
 #ifdef _WIN32
         //prepare some structures for CreateProcess output
@@ -278,7 +278,7 @@ int main(int argc, char** argv) {
 
 #ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
         Inject(processInformation.hProcess, wrapperPath.c_str(), "LoaderThread");
-        remoteThreadSemaphore.wait();
+        dglIPC->waitForRemoteThreadSemaphore();
 #else
         HANDLE thread = Inject(processInformation.hProcess, wrapperPath.c_str(), "LoaderThread");
         //wait for loader thread to finish dll inject

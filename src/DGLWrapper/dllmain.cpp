@@ -35,11 +35,9 @@
  */
  void Initialize(void) {
     
-    std::string dgl_mode = Os::getEnv("dgl_mode");
-
     //load system GL libraries (& initialize entrypoint tables)
 
-    if (dgl_mode == "egl" ) {
+    if (getIPC()->getDebuggerMode() == DGLIPC::DebuggerMode::EGL ) {
 		g_ApiLoader.loadLibrary(LIBRARY_EGL);
 		//GL library loading is deferred - we don't know which library to load now.
     } else {
@@ -186,11 +184,8 @@ extern "C" DGLWRAPPER_API void LoaderThread() {
     //Fix: lock this thread until application finishes
 
     //tell the loader we are done, so it can resume application
-    std::string remoteThreadSemaphoreStr = Os::getEnv("dgl_remote_thread_semaphore");
-    boost::interprocess::named_semaphore remoteThreadSemaphore(boost::interprocess::open_only, remoteThreadSemaphoreStr.c_str());
-    remoteThreadSemaphore.post();
-
-    
+    getIPC()->postRemoteThreadSemaphore();
+        
     //wait for application exit (all threads but this exit);
     g_ThreadWatcher.lockLoaderThread();
 #endif

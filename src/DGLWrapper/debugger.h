@@ -23,6 +23,7 @@
 #include <DGLNet/protocol/dglconfiguration.h>
 #include <DGLNet/protocol/request.h>
 #include <DGLCommon/os.h>
+#include <DGLCommon/ipc.h>
 
 #include "gl-state.h"
 
@@ -304,5 +305,11 @@ DGLDebugController* getController();
  *  Global config object instance
  */
 extern DGLConfiguration g_Config;
+
+/**
+ * Get IPC handle to loader 
+ */
+DGLIPC* getIPC();
+
 
 #endif //DEBUGGER_H

@@ -32,6 +32,16 @@ DGLDebugController* getController() {
     return _g_Controller.get();
 }
 
+DGLIPC* getIPC() {
+    static boost::shared_ptr<DGLIPC> s_IPC;
+
+    if (!s_IPC.get()) {
+        s_IPC = DGLIPC::CreateFromUUID(Os::getEnv("dgl_uuid"));
+    }
+
+    return s_IPC.get();
+}
+
 DGLConfiguration g_Config;
 
 BreakState::BreakState():m_break(true),m_StepModeEnabled(false), m_StepMode(dglnet::message::ContinueBreak::STEP_DRAW_CALL) {}
@@ -152,22 +162,8 @@ void DGLDebugController::doHandleDisconnect(const std::string&) {
 dglnet::Server& DGLDebugController::getServer() {
     if (!m_Server) {
 
-        std::string port = "5555";
-
-        {
-            //port may be overrided by environment
-
-            std::string tmp = Os::getEnv("dgl_port");
-            if (tmp.length()) 
-                port = tmp;
-        }
-        
-        unsigned short portNum;
-        {
-            std::istringstream stream(port);
-            stream >> portNum;
-        }
-        m_Server = boost::make_shared<dglnet::Server>(portNum, this);
+        int port = getIPC()->getDebuggerPort();
+        m_Server = boost::make_shared<dglnet::Server>(port, this);
         
         std::string semaphore = Os::getEnv("dgl_semaphore");
         if (semaphore.length()) {
@@ -181,7 +177,11 @@ dglnet::Server& DGLDebugController::getServer() {
         }
 
         m_presenter = boost::shared_ptr<OsStatusPresenter>(Os::createStatusPresenter());
-        m_presenter->setStatus(Os::getProcessName() + ": wating for debugger on port " + port + ".");
+        {
+            std::ostringstream msg;
+            msg << Os::getProcessName() << ": wating for debugger on port " << port << ".";
+            m_presenter->setStatus(msg.str());
+        }
                         
         m_Server->accept();
         
