@@ -171,6 +171,9 @@ private:
  * DGLwrapper routine called just after DLLinjection
  */
 extern "C" DGLWRAPPER_API void LoaderThread() {
+    
+    Initialize();
+
 #ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
     //this is called from remotely created thread started right after dll injection
 
@@ -224,7 +227,6 @@ BOOL APIENTRY DllMain( HMODULE hModule,
             }
 #endif
             Os::setCurrentModuleHandle(hModule);
-            Initialize();
             break;
         case DLL_THREAD_ATTACH:
 #ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
