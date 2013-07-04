@@ -9,10 +9,8 @@
 
   <?if $(var.Platform) = x64 ?>
     <?define programFilesFolder = "ProgramFiles64Folder" ?>
-    <?define installerVersion = "200" ?>
   <?else?>
     <?define programFilesFolder = "ProgramFilesFolder" ?>
-    <?define installerVersion = "100" ?>
   <?endif ?>
   
   <Product Name='Debugler' Id='{54FE114C-FCCB-4FAC-BF68-484D4D3DE3F0}' UpgradeCode='{D2691962-72E5-4DD1-997D-09038F9C2A50}'
@@ -20,7 +18,7 @@
 
     <Package Id='*' Keywords='Installer' Description="Debugler 0.1 Installer"
       Manufacturer='Slawomir Cygan'
-      InstallerVersion='$(var.installerVersion)' Languages='1033' Compressed='yes' SummaryCodepage='1252' Platform='$(var.Platform)'/>
+      InstallerVersion='450' Languages='1033' Compressed='yes' SummaryCodepage='1252' Platform='$(var.Platform)'/>
 
     <Media Id='1' Cabinet='Sample.cab' EmbedCab='yes' DiskPrompt="CD-ROM #1" />
     <Property Id='DiskPrompt' Value="Debugler 0.1 Installation [1]" />
@@ -71,6 +69,7 @@
           </Directory>
         </Directory>
       </Directory>
+      
 
       <Directory Id="ProgramMenuFolder" Name="Programs">
         <Directory Id="ProgramMenuDir" Name="Debugler 0.1">
@@ -84,6 +83,13 @@
       <Directory Id="DesktopFolder" Name="Desktop" />
     </Directory>
 
+    <DirectoryRef Id="TARGETDIR">
+      <Merge Id="VCRedist32" SourceFile="$(env.COMMONPROGRAMFILES(x86))\Merge Modules\Microsoft_VC110_CRT_x86.msm" DiskId="1" Language="0"/>
+      <?if $(var.Platform) = x64 ?>
+        <Merge Id="VCRedist64" SourceFile="$(env.COMMONPROGRAMFILES(x86))\Merge Modules\Microsoft_VC110_CRT_x64.msm" DiskId="1" Language="0"/>
+      <?endif?>
+    </DirectoryRef>
+
     <Feature Id='Complete' Level='1' Title='Debugler executables' Description='Debugler essentials.' Display='expand' ConfigurableDirectory='INSTALLDIR'>
       <ComponentRef Id='MainExecutables' />
       <?if $(var.Platform) = x64 ?>
@@ -96,6 +102,17 @@
       <ComponentRef Id='WrapperLibrary' />
       <ComponentRef Id='ProgramMenuDir' />
     </Feature>
+
+
+    <Feature Id="VCRedist32" Title="Visual C++ 11.0 Runtime (x86)" AllowAdvertise="no" Display="hidden" Level="1">
+      <MergeRef Id="VCRedist32"/>
+    </Feature>
+
+    <?if $(var.Platform) = x64 ?>
+      <Feature Id="VCRedist64" Title="Visual C++ 11.0 Runtime (x64)" AllowAdvertise="no" Display="hidden" Level="1">
+        <MergeRef Id="VCRedist64"/>
+      </Feature>
+    <?endif?>
 
     <UIRef Id="WixUI_Mondo" />
     <UIRef Id="WixUI_ErrorProgressText" />
