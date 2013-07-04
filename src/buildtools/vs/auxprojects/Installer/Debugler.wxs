@@ -60,6 +60,7 @@
               <File Id='Qt5GuiDLL' Name='Qt5Gui$(var.debugsuffix).dll' DiskId='1' Source='Qt5Gui$(var.debugsuffix).dll' />
               <File Id='Qt5WidgetsDLL' Name='Qt5Widgets$(var.debugsuffix).dll' DiskId='1' Source='Qt5Widgets$(var.debugsuffix).dll' />
               <File Id='Qt5CoreDLL' Name='Qt5Core$(var.debugsuffix).dll' DiskId='1' Source='Qt5Core$(var.debugsuffix).dll' />
+              <File Id='qwindowsDLL' Name='qwindows$(var.debugsuffix).dll' DiskId='1' Source='qwindows$(var.debugsuffix).dll' />
               <File Id='icuin51DLL' Name='icuin51.dll' DiskId='1' Source='icuin51.dll' />
               <File Id='icuuc51DLL' Name='icuuc51.dll' DiskId='1' Source='icuuc51.dll' />
               <File Id='icudt51DLL' Name='icudt51.dll' DiskId='1' Source='icudt51.dll' />
