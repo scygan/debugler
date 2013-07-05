@@ -36,12 +36,8 @@ namespace dglnet {
         read();
     }
 
-    void Server::lock() {
-        m_mutex.lock();
-    }    
-
-    void Server::unlock() {
-        m_mutex.unlock();
-    }  
+    std::mutex& Server::getMtx() {
+        return m_mutex;
+    }
 }
 

@@ -43,6 +43,9 @@ RetValue ActionBase::DoPre(const CalledEntryPoint& call) {
     } else {
         try {
             return Pre(call);
+        } catch (const DGLDebugController::TeardownException&) {
+            _g_Controller.reset();
+            Os::terminate();
         } catch (const std::exception& e) {
             Os::fatal(e.what());
         }
@@ -57,6 +60,9 @@ void ActionBase::DoPost(const CalledEntryPoint& call, const RetValue& ret) {
     if (m_ThreadedInfiniteRecursionGuard == 0) {
         try {
             Post(call, ret);
+        } catch (const DGLDebugController::TeardownException&) {
+            _g_Controller.reset();
+            Os::terminate();
         } catch (const std::exception& e) {
             Os::fatal(e.what());
         }
@@ -91,7 +97,7 @@ void ActionBase::PrevPost(const CalledEntryPoint& call, const RetValue& ret) {
 RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
     RetValue ret = PrevPre(call);
 
-    getController()->getServer().lock();
+    std::lock_guard<std::mutex> server_lock(getController()->getServer().getMtx());
 
     //do a fast non-blocking poll to get "interrupt" message, etc.."
     getController()->poll();
@@ -114,12 +120,11 @@ RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
     //add call to history ring
     getController()->getCallHistory().add(call);
 
-    getController()->getServer().unlock();
     return ret;
 }
 
 void DefaultAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
-    getController()->getServer().lock();
+    std::lock_guard<std::mutex> server_lock(getController()->getServer().getMtx());
 
     CallHistory& history = getController()->getCallHistory();
 
@@ -141,8 +146,6 @@ void DefaultAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     if (ret.isSet()) {
         history.setRetVal(ret);    
     }
-    
-    getController()->getServer().unlock();
     
     PrevPost(call, ret);
 }

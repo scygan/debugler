@@ -205,7 +205,7 @@ void DGLDebugController::run_one() {
 void DGLDebugController::poll() {
     getServer().poll();
     if (m_Disconnected) {
-        tearDown();        
+        tearDown();
     }
 }
 
@@ -214,9 +214,7 @@ void DGLDebugController::tearDown() {
 
     m_presenter->setStatus(Os::getProcessName() + ": terminating");
 
-    //this destroys "this"!
-    _g_Controller.reset();
-    Os::terminate();
+    throw TeardownException();    
 }
 
 

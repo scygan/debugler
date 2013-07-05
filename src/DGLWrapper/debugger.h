@@ -262,6 +262,14 @@ public:
      */
     void doHandleRequest(const dglnet::request::EditShaderSource&);
 
+
+    /**
+     *  Abnormal termination exception class
+     *
+     *  thrown by poll() and run_one
+     */
+    class TeardownException {};
+
 private:
 
     /**
