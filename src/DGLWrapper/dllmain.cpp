@@ -28,7 +28,9 @@
 #endif
 
 #include <DGLCommon/os.h>
-
+#include <atomic>
+#include <thread>
+#include <condition_variable>
     
 /**
  * DGLwrapper routine called on library load
@@ -142,28 +144,30 @@
 #ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
 class ThreadWatcher {
 public:
-    ThreadWatcher():m_ThreadCount(0) {}
+    ThreadWatcher():m_ThreadCount() {
+        m_ThreadCount = 0;
+    }
 
-    void addThread() {
-        std::lock_guard<std::mutex> lock(m_ThreadCountLock);
+    void onAttachThread() {
         m_ThreadCount++;
     }
 
-    void deleteThread() {
-        std::lock_guard<std::mutex> lock(m_ThreadCountLock);
-        m_ThreadCount--;
-        if (m_ThreadCount < 1) {
-            m_LoaderThreadLock.unlock();
+    void onDettachThread() {
+        if (std::atomic_fetch_sub(&m_ThreadCount, 1) <= 1) {
+            std::lock_guard<std::mutex> lock(m_mutex);
+            m_condition.notify_one();
         }
     }
 
     void lockLoaderThread() {
-        m_LoaderThreadLock.lock();
-        m_LoaderThreadLock.lock();
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_condition.wait(lock);
     }
+
 private: 
-    std::mutex m_LoaderThreadLock, m_ThreadCountLock;
-    int m_ThreadCount;
+    std::mutex m_mutex;
+    std::condition_variable m_condition;
+    std::atomic_int m_ThreadCount;
 } g_ThreadWatcher;
 #endif
 
@@ -230,12 +234,12 @@ BOOL APIENTRY DllMain( HMODULE hModule,
             break;
         case DLL_THREAD_ATTACH:
 #ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
-            g_ThreadWatcher.addThread();
+            g_ThreadWatcher.onAttachThread();
 #endif            
             break;
         case DLL_THREAD_DETACH:
 #ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
-            g_ThreadWatcher.deleteThread();
+            g_ThreadWatcher.onDettachThread();
 #endif
             break;
         case DLL_PROCESS_DETACH:
