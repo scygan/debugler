@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/lock_guard.hpp>
 #include <boost/make_shared.hpp>
 
 #include "display.h"
@@ -33,7 +31,7 @@ DGLDisplayState* DGLDisplayState::defDpy() {
 }
 
 DGLDisplayState* DGLDisplayState::get(opaque_id_t dpy) {
-    boost::lock_guard<boost::mutex> lock(s_DisplaysMutex);
+    std::lock_guard<std::mutex> lock(s_DisplaysMutex);
 
     std::map<opaque_id_t, boost::shared_ptr<DGLDisplayState> >::iterator i = s_Displays.find(dpy);
 
@@ -92,13 +90,13 @@ template DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface<dglStat
 
 
 DGLDisplayState::SurfaceListIter DGLDisplayState::getSurface(opaque_id_t id) {
-    boost::lock_guard<boost::mutex> guard(m_SurfaceListMutex);
+    std::lock_guard<std::mutex> guard(m_SurfaceListMutex);
     return m_SurfaceList.find(id);
 }
 
 template<typename NativeSurfaceType>
 void DGLDisplayState::addSurface(opaque_id_t id, opaque_id_t pixfmt) {
-    boost::lock_guard<boost::mutex> guard(m_SurfaceListMutex);
+    std::lock_guard<std::mutex> guard(m_SurfaceListMutex);
     m_SurfaceList[id] =  boost::make_shared<NativeSurfaceType>(this, pixfmt, id);
 }
 #ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
@@ -107,7 +105,7 @@ template void DGLDisplayState::addSurface<dglState::NativeSurfaceEGL>(opaque_id_
 #endif
 
 void DGLDisplayState::deleteContext(opaque_id_t id) {
-    boost::lock_guard<boost::mutex> guard(m_ContextListMutex);
+    std::lock_guard<std::mutex> guard(m_ContextListMutex);
     if (gc && gc->getId() == id) {
         DGLThreadState::get()->bindContext(this, 0, 0);
     }
@@ -122,7 +120,7 @@ void DGLDisplayState::lazyDeleteContext(opaque_id_t id) {
 }
 
 std::vector<dglnet::message::BreakedCall::ContextReport> DGLDisplayState::describe() {
-    boost::lock_guard<boost::mutex> quard(m_ContextListMutex);
+    std::lock_guard<std::mutex> quard(m_ContextListMutex);
 
     std::vector<dglnet::message::BreakedCall::ContextReport> ret(m_ContextList.size());
     int j = 0;
@@ -135,7 +133,7 @@ std::vector<dglnet::message::BreakedCall::ContextReport> DGLDisplayState::descri
 std::vector<dglnet::message::BreakedCall::ContextReport> DGLDisplayState::describeAll() {
     std::vector<dglnet::message::BreakedCall::ContextReport> ret;
 
-    boost::lock_guard<boost::mutex> quard(s_DisplaysMutex);
+    std::lock_guard<std::mutex> quard(s_DisplaysMutex);
 
     for (std::map<opaque_id_t, boost::shared_ptr<DGLDisplayState> >::iterator i = s_Displays.begin(); 
         i != s_Displays.end(); i++) {
@@ -149,4 +147,4 @@ std::vector<dglnet::message::BreakedCall::ContextReport> DGLDisplayState::descri
 
 std::map<opaque_id_t, boost::shared_ptr<DGLDisplayState> > DGLDisplayState::s_Displays;
 
-boost::mutex DGLDisplayState::s_DisplaysMutex;
+std::mutex DGLDisplayState::s_DisplaysMutex;

@@ -145,12 +145,12 @@ public:
     ThreadWatcher():m_ThreadCount(0) {}
 
     void addThread() {
-        boost::lock_guard<boost::mutex> lock(m_ThreadCountLock);
+        std::lock_guard<std::mutex> lock(m_ThreadCountLock);
         m_ThreadCount++;
     }
 
     void deleteThread() {
-        boost::lock_guard<boost::mutex> lock(m_ThreadCountLock);
+        std::lock_guard<std::mutex> lock(m_ThreadCountLock);
         m_ThreadCount--;
         if (m_ThreadCount < 1) {
             m_LoaderThreadLock.unlock();
@@ -162,7 +162,7 @@ public:
         m_LoaderThreadLock.lock();
     }
 private: 
-    boost::mutex m_LoaderThreadLock, m_ThreadCountLock;
+    std::mutex m_LoaderThreadLock, m_ThreadCountLock;
     int m_ThreadCount;
 } g_ThreadWatcher;
 #endif

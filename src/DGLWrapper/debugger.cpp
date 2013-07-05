@@ -105,12 +105,12 @@ CallHistory::CallHistory() {
 }
 
 void CallHistory::add(const CalledEntryPoint& entryp) {
-    boost::lock_guard<boost::mutex> lock(m_mutex);
+    std::lock_guard<std::mutex> lock(m_mutex);
     m_cb.push_back(entryp);
 }
 
 void CallHistory::query(const dglnet::message::QueryCallTrace& query, dglnet::message::CallTrace& reply) {
-    boost::lock_guard<boost::mutex> lock(m_mutex);
+    std::lock_guard<std::mutex> lock(m_mutex);
 
     size_t startOffset = reply.m_StartOffset = query.m_StartOffset;
     if (startOffset >= m_cb.size())
@@ -131,17 +131,17 @@ size_t CallHistory::size() {
 }
 
 void CallHistory::setRetVal(const RetValue& ret) {
-    boost::lock_guard<boost::mutex> lock(m_mutex);
+    std::lock_guard<std::mutex> lock(m_mutex);
     m_cb.back().setRetVal(ret);
 }
 
 void CallHistory::setError( GLenum error ) {
-    boost::lock_guard<boost::mutex> lock(m_mutex);
+    std::lock_guard<std::mutex> lock(m_mutex);
     m_cb.back().setError(error);
 }
 
 void CallHistory::setDebugOutput(const std::string& message) {
-    boost::lock_guard<boost::mutex> lock(m_mutex);
+    std::lock_guard<std::mutex> lock(m_mutex);
     m_cb.back().setDebugOutput(message);
 }
 

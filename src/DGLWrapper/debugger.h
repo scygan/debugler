@@ -166,7 +166,7 @@ private:
     /** 
      * Mutex used to access this class
      */
-    boost::mutex m_mutex;
+    std::mutex m_mutex;
 };
 
 

@@ -18,7 +18,6 @@
 #ifdef HAVE_LIBRARY_GLX
 
 #include <DGLCommon/os.h>
-#include <boost/thread/lock_guard.hpp>
 
 //for GLXBadDrawable:
 #include <X11/Xproto.h>
@@ -186,16 +185,16 @@ private:
     }
 
     static Display* s_disp;
-    static boost::mutex s_mtx;
+    static std::mutex s_mtx;
     static int (*s_oldErrorHandler)(Display *, XErrorEvent *);
     static int s_errorCode;
 
     //whole class should be used once at a time, so we lock thorugh it lifetime.
-    boost::lock_guard<boost::mutex> m_Lock;
+    std::lock_guard<std::mutex> m_Lock;
 };
 
 
-boost::mutex XErrorHandler::s_mtx;
+std::mutex XErrorHandler::s_mtx;
 int XErrorHandler::s_errorCode = 0;
 Display* XErrorHandler::s_disp;
 int (*XErrorHandler::s_oldErrorHandler)(Display *, XErrorEvent *);

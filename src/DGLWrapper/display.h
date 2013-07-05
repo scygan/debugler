@@ -16,9 +16,9 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+#include <mutex>
 #include<map>
 
-#include <boost/thread/mutex.hpp>
 #include <DGLCommon/gl-types.h>
 #include "gl-state.h"
 
@@ -114,12 +114,12 @@ private:
     /**
      * Mutex for context container operations
      */
-    boost::mutex m_ContextListMutex;
+    std::mutex m_ContextListMutex;
 
     /**
      * Mutex for surface container operations
      */
-    boost::mutex m_SurfaceListMutex;
+    std::mutex m_SurfaceListMutex;
 
     /**
      *  Collection of all displays
@@ -129,7 +129,7 @@ private:
     /**
      *  Mutex guarding s_Displays
      */ 
-    static boost::mutex s_DisplaysMutex;
+    static std::mutex s_DisplaysMutex;
 
     /**
      * Display ID as seen from native API
