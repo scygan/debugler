@@ -18,9 +18,8 @@
 #include <utility>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/tss.hpp>
 #include <vector>
-
+#include <DGLCommon/def.h>
 #include <DGLNet/protocol/entrypoint.h>
 
 class ActionBase;
@@ -67,7 +66,7 @@ protected:
      */
     virtual void Post(const CalledEntryPoint&, const RetValue& ret = RetValue());
 private:
-    static boost::thread_specific_ptr<int> m_ThreadedInfiniteRecursionGuard;
+    static THREAD_LOCAL int m_ThreadedInfiniteRecursionGuard;
 
     void SetPrev(const boost::shared_ptr<ActionBase>& prev);
     boost::shared_ptr<ActionBase> m_PrevAction;

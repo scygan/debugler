@@ -16,8 +16,8 @@
 #ifndef TLS_H
 #define TLS_H
 
-#include <boost/thread/tss.hpp>
 #include <DGLCommon/gl-types.h>
+#include <DGLCommon/def.h>
 
 class DGLDisplayState;
 namespace dglState {
@@ -33,9 +33,9 @@ class DGLThreadState {
 public:
 
     /**
-     * Ctor
+     * Initializer, reset to default state
      */
-    DGLThreadState();
+    void reset();
 
     /**
      * Setter for current context (should be called just after *MakeCurrent-like calls).
@@ -67,24 +67,18 @@ public:
      */
     EGLenum getEGLApi();
 
-private:
 
-    /**
-     * Thread-space pointer to current context object
-     */
-    dglState::GLContext* m_Current;
+    struct  Priv {
+        /**
+         * Thread-space pointer to current context object
+         */
+        dglState::GLContext* m_Current;
 
-    /**
-     * Current EGL api
-     */
-    EGLenum m_EGLApi;
-
-    //TODO: API bound by eglBindApi should be stored here
-
-    /**
-     * Thread-specific pointer to thread specific state
-     */
-    static boost::thread_specific_ptr<DGLThreadState> s_CurrentThreadState;
+        /**
+         * Current EGL api
+         */
+        EGLenum m_EGLApi;
+    } priv;
 };
 
 #define gc DGLThreadState::get()->getCurrentCtx()

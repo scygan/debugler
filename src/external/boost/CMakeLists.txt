@@ -42,14 +42,3 @@ add_library(boost_system
     ${boost_system_SOURCES}
 )
 set_target_properties(boost_system PROPERTIES COMPILE_FLAGS -fPIC)
-
-set(boost_thread_SOURCES
-    libs/thread/src/pthread/thread.cpp
-    libs/thread/src/pthread/once.cpp
-)
-add_library(boost_thread
-    ${boost_thread_SOURCES}
-)
-set_target_properties(boost_thread PROPERTIES COMPILE_FLAGS -fPIC)
-
-

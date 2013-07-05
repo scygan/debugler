@@ -30,17 +30,13 @@
 
 boost::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];
 
-boost::thread_specific_ptr<int> ActionBase::m_ThreadedInfiniteRecursionGuard;
-
+THREAD_LOCAL int ActionBase::m_ThreadedInfiniteRecursionGuard = 0;
 
 RetValue ActionBase::DoPre(const CalledEntryPoint& call) {
-    if (m_ThreadedInfiniteRecursionGuard.get() == NULL) {
-        m_ThreadedInfiniteRecursionGuard.reset(new int(0));
-    }
+    
+    m_ThreadedInfiniteRecursionGuard++;
 
-    (*m_ThreadedInfiniteRecursionGuard.get())++;
-
-    if (*m_ThreadedInfiniteRecursionGuard.get() > 1) {
+    if (m_ThreadedInfiniteRecursionGuard > 1) {
         //	This is unlikely, but may happen sometimes - OpenGL implementation called us. 
         //If we dont catch it here, we will deadlock later, or likely get into infinite recursion.
         return RetValue();
@@ -56,9 +52,9 @@ RetValue ActionBase::DoPre(const CalledEntryPoint& call) {
 
 void ActionBase::DoPost(const CalledEntryPoint& call, const RetValue& ret) {
 
-    (*m_ThreadedInfiniteRecursionGuard.get())--;
+    m_ThreadedInfiniteRecursionGuard--;
 
-    if (*m_ThreadedInfiniteRecursionGuard.get() == 0) {
+    if (m_ThreadedInfiniteRecursionGuard == 0) {
         try {
             Post(call, ret);
         } catch (const std::exception& e) {

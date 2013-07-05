@@ -27,5 +27,11 @@
 #undef min
 #endif
 
+#ifdef _WIN32
+#define THREAD_LOCAL __declspec(thread) 
+#else
+#define THREAD_LOCAL thread_local
+#endif
+
 #endif
 

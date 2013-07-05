@@ -17,24 +17,31 @@
 #include "gl-state.h"
 #include "display.h"
 
-DGLThreadState::DGLThreadState():m_Current(NULL), m_EGLApi(EGL_OPENGL_ES_API) {}
+void DGLThreadState::reset() {
+    priv.m_Current = NULL;
+    priv.m_EGLApi  = EGL_OPENGL_ES_API;
+}
 
 void DGLThreadState::release() {
-    s_CurrentThreadState.reset(NULL);
+    get()->reset();
 }
 
 DGLThreadState* DGLThreadState::get() {
-    DGLThreadState* ret = s_CurrentThreadState.get();
-    if (!ret) {
-        s_CurrentThreadState.reset(ret = new DGLThreadState());
+
+    static THREAD_LOCAL DGLThreadState ret;
+
+    static THREAD_LOCAL bool s_Initialized = false;
+    if (!s_Initialized) {
+        ret.reset();
     }
-    return ret;
+
+    return &ret;
 }
 
-boost::thread_specific_ptr<DGLThreadState> DGLThreadState::s_CurrentThreadState;
+
 
 dglState::GLContext* DGLThreadState::getCurrentCtx() {
-    return m_Current;
+    return priv.m_Current;
 }
 
 void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId, dglState::NativeSurfaceBase* readSurface) {
@@ -50,10 +57,10 @@ void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId, dglSta
 
     if (currentCtx != newCtx) {
         if (newCtx) {
-            m_Current = newCtx;
+            priv.m_Current = newCtx;
             newCtx->bound();
         } else {
-            m_Current = NULL;
+            priv.m_Current = NULL;
         }
 
         if (currentCtx) {
@@ -69,9 +76,9 @@ void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId, dglSta
 }
 
 void DGLThreadState::bindEGLApi(EGLenum api) {
-    m_EGLApi = api;
+    priv.m_EGLApi = api;
 }
 
 EGLenum DGLThreadState::getEGLApi() {
-    return m_EGLApi;
+    return priv.m_EGLApi;
 }
