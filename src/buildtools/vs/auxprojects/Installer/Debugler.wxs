@@ -67,7 +67,7 @@
 
             <Directory Id='QTPlatform' Name='platforms'>
               <Component Id='QTPlatform' Guid='{ECC85632-9C55-4B18-8C94-7373139B41D5}'>
-                <File Id='qwindowsDLL' Name='qwindows$(var.debugsuffix).dll' DiskId='1' Source='qwindows$(var.debugsuffix).dll' />
+                <File Id='qwindowsDLL' Name='qwindows$(var.debugsuffix).dll' DiskId='1' Source='qwindows$(var.debugsuffix).dll' KeyPath='yes' />
               </Component>
             </Directory>
                  
