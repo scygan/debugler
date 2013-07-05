@@ -154,14 +154,19 @@ public:
 
     void onDettachThread() {
         if (std::atomic_fetch_sub(&m_ThreadCount, 1) <= 1) {
-            std::lock_guard<std::mutex> lock(m_mutex);
-            m_condition.notify_one();
+            unlockLoaderThread();
         }
+    }
+
+    void unlockLoaderThread() {
+        m_condition.notify_one();
     }
 
     void lockLoaderThread() {
         std::unique_lock<std::mutex> lock(m_mutex);
-        m_condition.wait(lock);
+        while (m_ThreadCount) {
+            m_condition.wait(lock);
+        }
     }
 
 private: 
