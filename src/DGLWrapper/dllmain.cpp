@@ -146,6 +146,11 @@ class ThreadWatcher {
 public:
     ThreadWatcher():m_ThreadCount() {
         m_ThreadCount = 0;
+        m_NativeSemaphore = CreateSemaphore(NULL, 0, 0xffff, NULL);
+    }
+
+    ~ThreadWatcher() {
+        CloseHandle(m_NativeSemaphore);
     }
 
     void onAttachThread() {
@@ -159,19 +164,15 @@ public:
     }
 
     void unlockLoaderThread() {
-        m_condition.notify_one();
+        ReleaseSemaphore(m_NativeSemaphore, 1, NULL);
     }
 
     void lockLoaderThread() {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        while (m_ThreadCount) {
-            m_condition.wait(lock);
-        }
+        WaitForSingleObject(m_NativeSemaphore, INFINITE);
     }
 
 private: 
-    std::mutex m_mutex;
-    std::condition_variable m_condition;
+    HANDLE m_NativeSemaphore;
     std::atomic_int m_ThreadCount;
 } g_ThreadWatcher;
 #endif
