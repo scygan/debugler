@@ -33,6 +33,7 @@ DGLThreadState* DGLThreadState::get() {
     static THREAD_LOCAL bool s_Initialized = false;
     if (!s_Initialized) {
         ret.reset();
+        s_Initialized = true;
     }
 
     return &ret;
