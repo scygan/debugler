@@ -476,7 +476,7 @@ void DGLMainWindow::createToolBars() {
 
   void DGLMainWindow::about() {
     QMessageBox::about(this, tr("About Debuggler"),
-             tr("<b>Debugler" DGL_VERSION "</b>, The OpenGL debugger<br/><br/>"
+             tr("<b>Debugler " DGL_VERSION "</b>, The OpenGL debugger<br/><br/>"
                 "Copyright (C) 2013 Slawomir Cygan.<br/><br/> "
                 "<a href=\"https://github.com/debugler/debugler\"/>"));
  }
