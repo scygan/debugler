@@ -63,6 +63,8 @@
               <File Id='icuin51DLL' Name='icuin51.dll' DiskId='1' Source='icuin51.dll' />
               <File Id='icuuc51DLL' Name='icuuc51.dll' DiskId='1' Source='icuuc51.dll' />
               <File Id='icudt51DLL' Name='icudt51.dll' DiskId='1' Source='icudt51.dll' />
+              <File Id='libEGLDLL' Name='libEGL$(var.debugsuffix).dll' DiskId='1' Source='libEGL$(var.debugsuffix).dll' />
+              <File Id='libGLESv2DLL' Name='libGLESv2$(var.debugsuffix).dll' DiskId='1' Source='libGLESv2$(var.debugsuffix).dll' />
             </Component>
 
             <Directory Id='QTPlatform' Name='platforms'>

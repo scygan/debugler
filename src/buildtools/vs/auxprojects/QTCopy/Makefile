@@ -1,4 +1,4 @@
-all: $(OUT)\Qt5Gui$(D).dll $(OUT)\Qt5Widgets$(D).dll $(OUT)\Qt5Core$(D).dll $(OUT)\Qt5Xml$(D).dll $(OUT)\qwindows$(D).dll $(OUT)\icuin51.dll $(OUT)\icuuc51.dll $(OUT)\icudt51.dll 
+all: $(OUT)\Qt5Gui$(D).dll $(OUT)\Qt5Widgets$(D).dll $(OUT)\Qt5Core$(D).dll $(OUT)\Qt5Xml$(D).dll $(OUT)\qwindows$(D).dll $(OUT)\icuin51.dll $(OUT)\icuuc51.dll $(OUT)\icudt51.dll $(OUT)\libEGL$(D).dll $(OUT)\libGLESv2$(D).dll
 
 $(OUT)\Qt5Gui$(D).dll: $(QTDIR)\bin\Qt5Gui$(D).dll
 	copy $(QTDIR)\bin\Qt5Gui$(D).dll $(OUT)\Qt5Gui$(D).dll
@@ -23,4 +23,10 @@ $(OUT)\icuuc51.dll: $(QTDIR)\bin\icuuc51.dll
 	
 $(OUT)\icudt51.dll: $(QTDIR)\bin\icudt51.dll
 	copy $(QTDIR)\bin\icudt51.dll $(OUT)\icudt51.dll
+	
+$(OUT)\libEGL$(D).dll: $(QTDIR)\bin\libEGL$(D).dll
+	copy $(QTDIR)\bin\libEGL$(D).dll $(OUT)\libEGL$(D).dll
+	
+$(OUT)\libGLESv2$(D).dll: $(QTDIR)\bin\libGLESv2$(D).dll
+	copy $(QTDIR)\bin\libGLESv2$(D).dll $(OUT)\libGLESv2$(D).dll
 	
