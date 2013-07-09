@@ -33,10 +33,36 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="labelLinkStatus">
-          <property name="text">
-           <string>Link Status: Unknown</string>
-          </property>
+         <widget class="QWidget" name="widget" native="true">
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QLabel" name="labelLinkStatus">
+             <property name="text">
+              <string>Link Status: Unknown</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButtonLink">
+             <property name="text">
+              <string>link</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
@@ -79,5 +105,25 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pushButtonLink</sender>
+   <signal>clicked()</signal>
+   <receiver>DGLProgramViewItem</receiver>
+   <slot>forceLink()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>300</x>
+     <y>355</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>362</x>
+     <y>389</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>forceLink()</slot>
+ </slots>
 </ui>

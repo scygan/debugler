@@ -554,13 +554,13 @@ void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
             ret.get(name);
 
-            gc->ensureProgram(name);
+            gc->ensureProgram(name, entrp == glCreateProgramObjectARB_Call);
 
         } else if (entrp == glDeleteProgram_Call || entrp == glDeleteObjectARB_Call) {
 
             call.getArgs()[0].get(name);
 
-            dglState::GLProgramObj* program = gc->ensureProgram(name);
+            dglState::GLProgramObj* program = gc->ensureProgram(name, entrp == glDeleteObjectARB_Call);
             program->markDeleted();
             if (program->mayDelete()) {
                 gc->deleteProgram(name);
@@ -582,7 +582,7 @@ void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
                 //we may delete last program, if marked for deletion
 
-                dglState::GLProgramObj* currentProgram = gc->ensureProgram(currentProgramName);
+                dglState::GLProgramObj* currentProgram = gc->ensureProgram(currentProgramName, entrp == glUseProgramObjectARB_Call);
 
                 currentProgram->use(false);
                 if (currentProgram->mayDelete()) {
@@ -591,7 +591,7 @@ void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             }
 
             if (name != 0) {
-                gc->ensureProgram(name)->use(true);
+                gc->ensureProgram(name, entrp == glUseProgramObjectARB_Call)->use(true);
             }
         } else if (entrp == glLinkProgram_Call) {
 
@@ -659,14 +659,14 @@ void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             GLuint prog, shad;
             call.getArgs()[0].get(prog);
             call.getArgs()[1].get(shad);
-            gc->ensureProgram(prog)->attachShader(gc->ensureShader(shad, entrp == glAttachObjectARB_Call));
+            gc->ensureProgram(prog, entrp == glAttachObjectARB_Call)->attachShader(gc->ensureShader(shad, entrp == glAttachObjectARB_Call));
 
         } else if (entrp == glDetachShader_Call || entrp == glDetachObjectARB_Call) {
 
             GLuint prog, shad;
             call.getArgs()[0].get(prog);
             call.getArgs()[1].get(shad);
-            gc->ensureProgram(prog)->detachShader(gc->ensureShader(shad, entrp == glAttachObjectARB_Call));
+            gc->ensureProgram(prog, entrp == glDetachObjectARB_Call)->detachShader(gc->ensureShader(shad, entrp == glAttachObjectARB_Call));
 
         } else if (entrp == glShaderSourceARB_Call || entrp == glShaderSource_Call) {
 

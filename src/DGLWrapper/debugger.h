@@ -262,6 +262,10 @@ public:
      */
     void doHandleRequest(const dglnet::request::EditShaderSource&);
 
+    /** 
+     * Request handler - link program request
+     */
+    void doHandleRequest(const dglnet::request::ForceLinkProgram&);
 
     /**
      *  Abnormal termination exception class

@@ -19,8 +19,11 @@
 
 #include "dglshaderviewitem.h"
 
+#include <QMessageBox>
 
-DGLProgramViewItem::DGLProgramViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent), m_ResourceManager(resManager) {
+
+DGLProgramViewItem::DGLProgramViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent), DGLRequestHandler(resManager->getRequestManager()),
+        m_RequestManager(resManager->getRequestManager()), m_ResourceManager(resManager), m_Name(name) {
     m_Ui.setupUi(this);
 
     m_Label = new QLabel(this);
@@ -112,6 +115,19 @@ void DGLProgramViewItem::update(const dglnet::DGLResource& res) {
     m_Ui.tableWidgetUniforms->resizeRowsToContents();
 
 }
+
+void DGLProgramViewItem::onRequestFinished(const dglnet::message::RequestReply* reply) {
+    std::string replyStr;
+    if (!reply->isOk(replyStr)) {
+        QMessageBox::critical(this, "Cannot link program", QString::fromStdString(replyStr));
+    }
+    m_Listener->fire();
+}
+
+void DGLProgramViewItem::forceLink() {
+    m_RequestManager->request(new dglnet::request::ForceLinkProgram(m_Name.m_Context, m_Name.m_Name), this);
+}
+
 
 DGLProgramView::DGLProgramView(QWidget* parrent, DglController* controller):DGLTabbedView(parrent, controller) {
     setupNames("Shader Programs", "DGLProgramView");

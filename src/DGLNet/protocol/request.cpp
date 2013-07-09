@@ -22,5 +22,7 @@ namespace request {
     EditShaderSource::EditShaderSource(opaque_id_t context, gl_t shaderId, bool reset, std::string source):m_Context(context),
         m_ShaderId(shaderId), m_Reset(reset), m_Source(source) {}
 
-} //namespace resource
-} //namespace dglnet
+    ForceLinkProgram::ForceLinkProgram(opaque_id_t context, gl_t programId):m_Context(context),m_ProgramId(programId) {}
+
+}; //namespace resource
+}; //namespace dglnet

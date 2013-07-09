@@ -252,6 +252,8 @@ void DGLDebugController::doHandle(const dglnet::message::Request& msg) {
             reply.m_Reply = doHandleRequest(*dynamic_cast<const dglnet::request::QueryResource*>(msg.m_Request.get()));
         } else if (dynamic_cast<const dglnet::request::EditShaderSource*>(msg.m_Request.get())) {
             doHandleRequest(*dynamic_cast<const dglnet::request::EditShaderSource*>(msg.m_Request.get()));
+        } else if (dynamic_cast<const dglnet::request::ForceLinkProgram*>(msg.m_Request.get())) {
+            doHandleRequest(*dynamic_cast<const dglnet::request::ForceLinkProgram*>(msg.m_Request.get()));
         } else {
             reply.error("Cannot handle: unsupported request");
         }
@@ -318,7 +320,7 @@ boost::shared_ptr<dglnet::DGLResource> DGLDebugController::doHandleRequest(const
 void DGLDebugController::doHandleRequest(const dglnet::request::EditShaderSource& request) {
     dglState::GLContext* ctx = gc;
     if (!ctx) {
-        throw std::runtime_error("No OpenGL Context present, cannot issue query");
+        throw std::runtime_error("No OpenGL Context present, cannot issue request");
     }
     if (ctx->getId() != request.m_Context) {
         throw std::runtime_error("Object's parent context is not current now, cannot issue  query");
@@ -334,6 +336,29 @@ void DGLDebugController::doHandleRequest(const dglnet::request::EditShaderSource
     } else {
         obj->editSource(request.m_Source);
     }
+
+    std::string message;
+    if (ctx && !ctx->endQuery(message)) {
+        throw std::runtime_error(message);
+    }
+}
+
+void DGLDebugController::doHandleRequest(const dglnet::request::ForceLinkProgram& request) {
+    dglState::GLContext* ctx = gc;
+    if (!ctx) {
+        throw std::runtime_error("No OpenGL Context present, cannot issue request");
+    }
+    if (ctx->getId() != request.m_Context) {
+        throw std::runtime_error("Object's parent context is not current now, cannot issue  query");
+    }
+    ctx->startQuery();
+
+    dglState::GLProgramObj* obj = ctx->findProgram(static_cast<GLuint>(request.m_ProgramId));
+    if (!obj) {
+        throw std::runtime_error("Program does not exist");
+    }
+
+    obj->forceLink();
 
     std::string message;
     if (ctx && !ctx->endQuery(message)) {

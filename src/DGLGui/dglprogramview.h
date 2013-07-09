@@ -36,7 +36,7 @@ private:
 
 };
 
-class DGLProgramViewItem: public DGLTabbedViewItem {
+class DGLProgramViewItem: public DGLTabbedViewItem, public DGLRequestHandler {
     Q_OBJECT
 public:
     DGLProgramViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
@@ -44,12 +44,18 @@ public:
 private slots:
     void error(const std::string& message);
     void update(const dglnet::DGLResource& res);
+    void forceLink();
 
 private:
+
+    virtual void onRequestFinished(const dglnet::message::RequestReply* reply);
+
     Ui::DGLProgramViewItem m_Ui;
     QLabel* m_Label;
     DGLResourceListener* m_Listener;
+    DGLRequestManager* m_RequestManager;
     DGLResourceManager* m_ResourceManager;
+    dglnet::ContextObjectName m_Name;
 };
 
 #endif //DGLPROGRAMVIEW_H

@@ -72,12 +72,31 @@ public:
     std::string m_Source;
 };
 
+class ForceLinkProgram: public DGLRequest {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int) {
+        ar & boost::serialization::base_object<DGLRequest>(*this);
+        ar & m_Context;
+        ar & m_ProgramId;
+    }
+
+public:
+    ForceLinkProgram() {}
+    ForceLinkProgram(opaque_id_t context, gl_t programId);
+
+    opaque_id_t m_Context;
+    gl_t m_ProgramId;
+};
+
 } //namespace request
 } //namespace dglnet
 
 #ifdef REGISTER_CLASS
 REGISTER_CLASS(dglnet::request::QueryResource)
 REGISTER_CLASS(dglnet::request::EditShaderSource)
+REGISTER_CLASS(dglnet::request::ForceLinkProgram)
 #endif
 
 #endif //REQUEST_H

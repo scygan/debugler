@@ -117,7 +117,7 @@ private:
 
 class GLProgramObj: public GLObj {
 public:
-    GLProgramObj(GLuint name);
+    GLProgramObj(GLuint name, bool arbApi);
     GLProgramObj() {}
     ~GLProgramObj();
     void use(bool inUse); 
@@ -127,9 +127,12 @@ public:
     void detachShader(GLShaderObj*);
     std::set<GLShaderObj*>& getAttachedShaders();
 
+    void forceLink();
+
 private:
     int m_InUse;
     bool m_Deleted;
+    bool m_arbApi;
     std::set<GLShaderObj*> m_AttachedShaders;
 };
 
@@ -184,7 +187,7 @@ public:
     void deleteBuffer(GLuint name);
     GLFBObj* ensureFBO(GLuint name);
     void deleteFBO(GLuint name);
-    GLProgramObj* ensureProgram(GLuint name);
+    GLProgramObj* ensureProgram(GLuint name, bool arbApi);
     GLProgramObj* findProgram(GLuint name);
     void deleteProgram(GLuint name);
     GLShaderObj* ensureShader(GLuint name, bool fromArbAPI);

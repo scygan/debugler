@@ -236,7 +236,7 @@ GLenum GLBufferObj::getTarget() {
     return m_Target;
 }
 
-GLProgramObj::GLProgramObj(GLuint name):GLObj(name), m_InUse(false) {}
+GLProgramObj::GLProgramObj(GLuint name, bool arbApi):GLObj(name), m_arbApi(arbApi), m_InUse(false) {}
 
 GLProgramObj::~GLProgramObj() {
     auto i = m_AttachedShaders.begin();
@@ -269,6 +269,14 @@ void GLProgramObj::detachShader(GLShaderObj* shader) {
 
 std::set<GLShaderObj*>& GLProgramObj::getAttachedShaders() {
     return m_AttachedShaders;
+}
+
+void GLProgramObj::forceLink() {
+    if (m_arbApi) {
+        DIRECT_CALL_CHK(glLinkProgramARB)(getName());
+    } else {
+        DIRECT_CALL_CHK(glLinkProgram)(getName());
+    }
 }
 
 GLShaderObj::GLShaderObj(GLuint name, bool arbApi):GLObj(name), m_Deleted(false), m_DeleteCalled(false), m_Target(0), m_arbApi(arbApi), m_RefCount(0) {}
@@ -2514,10 +2522,10 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     return ret;
 }
 
-GLProgramObj* GLContext::ensureProgram(GLuint name) {
+GLProgramObj* GLContext::ensureProgram(GLuint name, bool arbApi) {
     std::map<GLuint, GLProgramObj>::iterator i = m_Programs.find(name);
     if (i == m_Programs.end()) {
-        i = m_Programs.insert(std::pair<GLuint, GLProgramObj>(name, GLProgramObj(name))).first;
+        i = m_Programs.insert(std::pair<GLuint, GLProgramObj>(name, GLProgramObj(name, arbApi))).first;
     }
     return &(*i).second;
 }
