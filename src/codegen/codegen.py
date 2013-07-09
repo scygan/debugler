@@ -180,6 +180,28 @@ for name, entrypoint in sorted(entrypoints.items()):
 	print >> wrappersFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType + " APIENTRY " + name + "(" + listToString(entrypoint.paramDeclList) + ") {"
 	print >> wrappersFile, "    assert(POINTER(" + name + "));"
 	
+	
+	#WA for <internalFormat> in glTexImage, glTextureImage
+	# - treats internalFormat as GLenum instead of GLint, so it can be nicely displayed.
+	if name.startswith("glTexImage") or name.startswith("glTextureImage"):
+		if "MultisampleCoverageNV" in name:
+			internalFormatIdx = 3;
+		else:
+			internalFormatIdx = 2;		
+		if name.startswith("glTextureImage"):
+			internalFormatIdx += 1
+		if entrypoint.paramList[internalFormatIdx].lower() == "internalformat":
+			if "GLenum" in entrypoint.paramDeclList[internalFormatIdx]:
+				pass#this is ok
+			elif "GLint" in entrypoint.paramDeclList[internalFormatIdx]:
+				#replace
+				entrypoint.paramDeclList[internalFormatIdx] = entrypoint.paramDeclList[internalFormatIdx].replace("GLint", "GLenum")
+			else:
+				raise Exception(name + '\'s 3rd parameter assumed GLuint or GLenum, got ' + entrypoint.paramDeclList[internalFormatIdx] + ', bailing out')
+		else:
+			raise Exception(name + '\'s 3rd parameter assumed internalFormat, got ' + entrypoint.paramDeclList[internalFormatIdx] + ', bailing out')
+			
+	
 	if not entrypoint.skipTrace:
 		print >> wrappersFile, "	CalledEntryPoint call( " + name + "_Call, " + str(len(entrypoint.paramList)) + ");"
 		i = 0
