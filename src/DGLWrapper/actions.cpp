@@ -55,9 +55,7 @@ RetValue ActionBase::DoPre(const CalledEntryPoint& call) {
 
 void ActionBase::DoPost(const CalledEntryPoint& call, const RetValue& ret) {
 
-    m_ThreadedInfiniteRecursionGuard--;
-
-    if (m_ThreadedInfiniteRecursionGuard == 0) {
+    if (m_ThreadedInfiniteRecursionGuard == 1) {
         try {
             Post(call, ret);
         } catch (const DGLDebugController::TeardownException&) {
@@ -67,6 +65,8 @@ void ActionBase::DoPost(const CalledEntryPoint& call, const RetValue& ret) {
             Os::fatal(e.what());
         }
     }
+
+    m_ThreadedInfiniteRecursionGuard--;
 }
 
 
