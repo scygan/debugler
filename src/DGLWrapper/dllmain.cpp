@@ -148,11 +148,17 @@ class ThreadWatcher {
 public:
     ThreadWatcher():m_ThreadCount() {
         m_ThreadCount = 0;
+
         m_NativeSemaphore = CreateSemaphore(NULL, 0, 0xffff, NULL);
+        if (!m_NativeSemaphore) {
+            Os::fatal("Cannot create loader semaphore (CreateSemaphore failed)");
+        }
     }
 
     ~ThreadWatcher() {
-        CloseHandle(m_NativeSemaphore);
+        if (!CloseHandle(m_NativeSemaphore)) {
+            Os::fatal("Cannot close loader semaphore (CloseHandle failed)");
+        }
     }
 
     void onAttachThread() {
@@ -166,11 +172,15 @@ public:
     }
 
     void unlockLoaderThread() {
-        ReleaseSemaphore(m_NativeSemaphore, 1, NULL);
+        if (!ReleaseSemaphore(m_NativeSemaphore, 1, NULL)) {
+            Os::fatal("Cannot unlock loader thread (ReleaseSemaphore failed)");
+        }
     }
 
     void lockLoaderThread() {
-        WaitForSingleObject(m_NativeSemaphore, INFINITE);
+        if (WaitForSingleObject(m_NativeSemaphore, INFINITE) != WAIT_OBJECT_0) {
+            Os::fatal("Cannot loack loader thread (WaitForSingleObject failed)");
+        }
     }
 
 private: 
