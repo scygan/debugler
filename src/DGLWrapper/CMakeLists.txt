@@ -25,6 +25,6 @@ else()
 	set(libs pthread elf)
 endif()
 
-target_link_libraries(dglwrapper dglnet dglcommon boost_serialization boost_system boost_thread dl ${libs})
+target_link_libraries(dglwrapper dglnet dglcommon boost_serialization boost_system dl ${libs})
 
 install (TARGETS dglwrapper DESTINATION lib)

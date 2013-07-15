@@ -9,5 +9,5 @@ add_executable(ut
     ${ut_SOURCES}
 )
 
-target_link_libraries(ut gtest dglgui dglcommon dglnet boost_serialization boost_system boost_thread pthread rt)
+target_link_libraries(ut gtest dglgui dglcommon dglnet boost_serialization boost_system pthread rt)
 
