@@ -27,11 +27,19 @@
 #undef min
 #endif
 
+//C++11 N2659 "Thread-Local Storage" walkarounds
 #ifdef _WIN32
-#define THREAD_LOCAL __declspec(thread) 
+    #define THREAD_LOCAL __declspec(thread) 
+#elif defined(__GNUC__)
+    #if __GNUC__ > 4 || (__GNUC__ == 4 && (__GNUC_MINOR__ >= 8  ))
+        #define THREAD_LOCAL thread_local
+    #else
+        #define THREAD_LOCAL __thread
+    #endif
 #else
-#define THREAD_LOCAL thread_local
+    #define THREAD_LOCAL thread_local
 #endif
+
 
 #endif
 
