@@ -86,6 +86,9 @@ namespace {
         ASSERT_STREQ(GetEntryPointName(glXChooseFBConfig_Call), "glXChooseFBConfig");
         ASSERT_STREQ(GetEntryPointName(glXGetProcAddress_Call), "glXGetProcAddress");
 
+        //glxext.h
+        ASSERT_STREQ(GetEntryPointName(glXCreateContextAttribsARB_Call), "glXCreateContextAttribsARB");
+
         //null
         ASSERT_STREQ(GetEntryPointName(NO_ENTRYPOINT), "<unknown>");
     }
@@ -135,7 +138,10 @@ namespace {
         EXPECT_EQ(LIBRARY_EGL_EXT, ut_PointerLibraries[eglCreateImageKHR_Call]);
 
         //glx.h
-        EXPECT_EQ(LIBRARY_GLX, ut_PointerLibraries[glXChooseFBConfig_Call]);
+        EXPECT_EQ(LIBRARY_GLX | LIBRARY_GLX_EXT, ut_PointerLibraries[glXChooseFBConfig_Call]);
+
+        //glxext.h
+        EXPECT_EQ(LIBRARY_GLX_EXT, ut_PointerLibraries[glXCreateContextAttribsARB_Call]);
 
     }
 
