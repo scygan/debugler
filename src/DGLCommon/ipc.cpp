@@ -22,7 +22,11 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp> 
 #include <boost/interprocess/sync/interprocess_semaphore.hpp>
-#include <boost/interprocess/windows_shared_memory.hpp>
+#ifdef _WIN32
+    #include <boost/interprocess/windows_shared_memory.hpp>
+#else
+     #include <boost/interprocess/shared_memory_object.hpp>
+#endif
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/make_shared.hpp>
 #include <sstream>
@@ -36,7 +40,12 @@ public:
         std::ostringstream uuidStream;
         uuidStream << boost::uuids::random_generator()();
         m_uuid = uuidStream.str();
+#ifdef _WIN32
         m_shmem = boost::make_shared<boost::interprocess::windows_shared_memory>(boost::interprocess::create_only, m_uuid.c_str(), boost::interprocess::read_write, sizeof(MemoryRegion));
+#else
+        m_shmem = boost::make_shared<boost::interprocess::shared_memory_object>(boost::interprocess::create_only, m_uuid.c_str(), boost::interprocess::read_write);
+        m_shmem->truncate(sizeof(MemoryRegion));
+#endif
         m_shmemregion = boost::make_shared<boost::interprocess::mapped_region>(*m_shmem, boost::interprocess::read_write);
 
         //inplace
@@ -44,7 +53,11 @@ public:
     }
 
     DGLIPCImpl(std::string uuid):m_uuid(uuid),m_region(NULL), m_regionowner(false) {
+#ifdef _WIN32
         m_shmem = boost::make_shared<boost::interprocess::windows_shared_memory>(boost::interprocess::open_only, m_uuid.c_str(), boost::interprocess::read_write);
+#else
+        m_shmem = boost::make_shared<boost::interprocess::shared_memory_object>(boost::interprocess::open_only, m_uuid.c_str(), boost::interprocess::read_write);
+#endif
         m_shmemregion = boost::make_shared<boost::interprocess::mapped_region>(*m_shmem, boost::interprocess::read_write);
         m_region = reinterpret_cast<MemoryRegion*>(m_shmemregion->get_address());
     }
@@ -92,7 +105,11 @@ private:
     MemoryRegion* m_region;
 
     std::string m_uuid;
+#ifdef _WIN32
     boost::shared_ptr<boost::interprocess::windows_shared_memory> m_shmem;
+#else
+    boost::shared_ptr<boost::interprocess::shared_memory_object> m_shmem;
+#endif
     boost::shared_ptr<boost::interprocess::mapped_region> m_shmemregion;
     bool m_regionowner;
 };
