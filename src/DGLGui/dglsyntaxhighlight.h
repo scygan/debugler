@@ -1,6 +1,7 @@
 #ifndef DGLSYNTAXHIGHLIGHT_H
 #define DGLSYNTAXHIGHLIGHT_H
 
+#include "dglqtgui.h"
 #include <QSyntaxHighlighter>
 #include <boost/shared_ptr.hpp>
 #include <stack>

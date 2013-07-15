@@ -17,6 +17,8 @@
 #ifndef DGLBREAKPOINTDIALOG_H
 #define DGLBREAKPOINTDIALOG_H
 
+#include "dglqtgui.h"
+
 #include "ui_dglbreakpointdialog.h"
 #include "dglcontroller.h"
 

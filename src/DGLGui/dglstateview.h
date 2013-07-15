@@ -17,11 +17,10 @@
 #ifndef DGLSTATEVIEW_H
 #define DGLSTATEVIEW_H
 
-#include <QDockWidget>
-
-
 #include "dglcontroller.h"
 #include "ui_dglstateview.h"
+
+#include <QDockWidget>
 
 
 class DGLStateView : public QDockWidget {

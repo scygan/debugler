@@ -116,11 +116,11 @@ DGLTextureView::DGLTextureView(QWidget* parrent, DglController* controller):DGLT
     setupNames("Textures", "DGLTextureView");
    	
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showTexture(uint, uint)), this, SLOT(showTexture(uint, uint))));
+    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showTexture(opaque_id_t, gl_t)), this, SLOT(showTexture(opaque_id_t, gl_t))));
         
 }
 
-void DGLTextureView::showTexture(uint ctx, uint name) {
+void DGLTextureView::showTexture(opaque_id_t ctx, gl_t name) {
     ensureTabDisplayed(ctx, name);
 }
 
@@ -128,6 +128,6 @@ DGLTabbedViewItem* DGLTextureView::createTab(const dglnet::ContextObjectName& id
     return new DGLTextureViewItem(id, m_Controller->getResourceManager(), this);
 }
 
-QString DGLTextureView::getTabName(uint id, uint /*target*/) {
+QString DGLTextureView::getTabName(gl_t id, gl_t /*target*/) {
     return QString("Texture ") + QString::number(id);
 }

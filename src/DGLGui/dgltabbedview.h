@@ -17,12 +17,9 @@
 #ifndef DGLTABBEDVIEW_H
 #define DGLTABBEDVIEW_H
 
+#include "dglqtgui.h"
 #include <QDockWidget>
 #include <QTabWidget>
-#pragma warning(push)
-#pragma warning(disable:4512) // assignment operator could not be generated
-#include <QtGui>
-#pragma warning(pop)
 
 #include "DGLCommon//gl-types.h"
 
@@ -52,14 +49,14 @@ public:
         void closeTab(int);
 
 protected:
-    void ensureTabDisplayed(uint ctxid, uint id, uint target = 0);
+    void ensureTabDisplayed(opaque_id_t ctxid, gl_t id, gl_t target = 0);
     DGLTabbedViewItem* getTab(const dglnet::ContextObjectName& id);
     void setupNames(const char* title, const char* objName);
 
     DglController* m_Controller;
 private: 
     virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id) = 0;
-    virtual QString getTabName(uint id, uint target) = 0;
+    virtual QString getTabName(gl_t id, gl_t target) = 0;
     QTabWidget m_TabWidget;    
 };
 

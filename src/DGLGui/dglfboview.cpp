@@ -71,10 +71,10 @@ DGLFBOView::DGLFBOView(QWidget* parrent, DglController* controller):DGLTabbedVie
     setupNames("Framebuffer Objects", "DGLFBOView");
 
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showFBO(uint, uint)), this, SLOT(showFBO(uint, uint))));
+    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showFBO(opaque_id_t, gl_t)), this, SLOT(showFBO(opaque_id_t, gl_t))));
 }
 
-void DGLFBOView::showFBO(uint ctx, uint bufferEnum) {
+void DGLFBOView::showFBO(opaque_id_t ctx, gl_t bufferEnum) {
     ensureTabDisplayed(ctx, bufferEnum);
 }
 
@@ -82,6 +82,6 @@ DGLTabbedViewItem* DGLFBOView::createTab(const dglnet::ContextObjectName& id) {
     return new DGLFBOViewItem(id, m_Controller->getResourceManager(), this);
 }
 
-QString DGLFBOView::getTabName(uint id, uint /*target*/) {
+QString DGLFBOView::getTabName(gl_t id, gl_t /*target*/) {
     return QString("FBO ") + QString::number(id);
 }

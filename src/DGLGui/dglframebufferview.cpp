@@ -47,10 +47,10 @@ DGLFramebufferView::DGLFramebufferView(QWidget* parrent, DglController* controll
     setupNames("Frame Buffers", "DGLFramebufferView");
 
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showFramebuffer(uint, uint)), this, SLOT(showFramebuffer(uint, uint))));
+    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showFramebuffer(opaque_id_t, gl_t)), this, SLOT(showFramebuffer(opaque_id_t, gl_t))));
 }
 
-void DGLFramebufferView::showFramebuffer(uint ctx, uint bufferEnum) {
+void DGLFramebufferView::showFramebuffer(opaque_id_t ctx, gl_t bufferEnum) {
     ensureTabDisplayed(ctx, bufferEnum);
 }
 
@@ -58,7 +58,7 @@ DGLTabbedViewItem* DGLFramebufferView::createTab(const dglnet::ContextObjectName
     return new DGLFramebufferViewItem(id, m_Controller->getResourceManager(), this);
 }
 
-QString DGLFramebufferView::getTabName(uint id, uint /*target*/) {
+QString DGLFramebufferView::getTabName(gl_t id, gl_t /*target*/) {
     switch (id) {
         case GL_FRONT_RIGHT:
             return "Front right buffer"; 

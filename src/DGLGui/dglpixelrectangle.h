@@ -17,6 +17,7 @@
 #ifndef DGLPIXELRECTANGLE_H
 #define DGLPIXELRECTANGLE_H
 
+#include "dglqtgui.h"
 #include <QGraphicsScene>
 #include <QGraphicsView>
 

@@ -49,10 +49,10 @@ DGLBufferView::DGLBufferView(QWidget* parrent, DglController* controller):DGLTab
     setupNames("Vertex Buffers", "DGLBufferView");
 
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showBuffer(uint, uint)), this, SLOT(showBuffer(uint, uint))));
+    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showBuffer(opaque_id_t, gl_t)), this, SLOT(showBuffer(opaque_id_t, gl_t))));
 }
 
-void DGLBufferView::showBuffer(uint ctx, uint name) {
+void DGLBufferView::showBuffer(opaque_id_t ctx, gl_t name) {
     ensureTabDisplayed(ctx, name);
 }
 
@@ -60,6 +60,6 @@ DGLTabbedViewItem* DGLBufferView::createTab(const dglnet::ContextObjectName& id)
     return new DGLBufferViewItem(id, m_Controller->getResourceManager(), this);
 }
 
-QString DGLBufferView::getTabName(uint id, uint /*target*/) {
+QString DGLBufferView::getTabName(gl_t id, gl_t /*target*/) {
     return QString("Vertex Buffer ") + QString::number(id);
 }

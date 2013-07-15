@@ -22,7 +22,7 @@
 #include <vector>
 
 struct GLDataType {
-    GLenum type;
+    gl_t type;
     unsigned int byteSize;
     bool packed;
     void (*blitFunc) (const int* outputOffsets, int width, int height, const void * src, void* dst, int srcStride, int dstStride, int srcPixelSize, int dstPixelSize, int srcComponents, std::pair<float, float>* scale);
@@ -31,21 +31,21 @@ struct GLDataType {
 }; 
 
 struct GLDataFormat {
-    GLenum format;
+    gl_t format;
     unsigned int components;
 };
 
 struct GLInternalFormat {
-    GLenum internalFormat;
-    GLenum dataFormat;
-    GLenum dataType;
+    gl_t internalFormat;
+    gl_t dataFormat;
+    gl_t dataType;
 };
 
 class GLFormats {
 public:
-    static GLInternalFormat* getInternalFormat(GLenum internalFormat);
-    static GLDataFormat* getDataFormat(GLenum dataFormat);
-    static GLDataType* getDataType(GLenum dataType);  
+    static GLInternalFormat* getInternalFormat(gl_t internalFormat);
+    static GLDataFormat* getDataFormat(gl_t dataFormat);
+    static GLDataType* getDataType(gl_t dataType);  
 };
 
 class DGLPixelTransfer {
@@ -53,8 +53,8 @@ public:
     DGLPixelTransfer(std::vector<GLint> _rgbaSizes, std::vector<GLint> _depthStencilSizes, GLenum internalFormat);
 
     bool isValid();
-    GLenum getFormat();
-    GLenum getType();
+    gl_t getFormat();
+    gl_t getType();
     unsigned int getPixelSize();
 
 private:

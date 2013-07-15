@@ -479,4 +479,9 @@
       <Filter>Resource Files\qrc-sources\icons</Filter>
     </CustomBuild>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dglqtgui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

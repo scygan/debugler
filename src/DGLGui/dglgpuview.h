@@ -17,9 +17,9 @@
 #ifndef DGLGPUVIEW_H
 #define DGLGPUVIEW_H
 
+
+#include "dglqtgui.h"
 #include <QDockWidget>
-
-
 #include "dglcontroller.h"
 #include "ui_dglgpuview.h"
 

@@ -19,7 +19,13 @@
 #include <DGLNet/protocol/resource.h>
 
 #include <QGraphicsView>
+
+#pragma warning(push)
+#pragma warning(disable:4251) // needs to have dll-interface to be used by clients of class 
 #include <QGraphicsPixmapItem>
+#pragma warning(pop)
+
+
 #include <QResizeEvent>
 #include <sstream>
 
@@ -150,22 +156,22 @@ void DGLPixelRectangleView::onMouseLeft() {
 }
 
 void DGLPixelRectangleView::showChannelR(bool show) {
-    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_R, show?1.0:0.0, 0.0);
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_R, show?1.0f:0.0f, 0.0f);
 }
 void DGLPixelRectangleView::showChannelG(bool show) {
-    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_G, show?1.0:0.0, 0.0);
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_G, show?1.0f:0.0f, 0.0f);
 }
 void DGLPixelRectangleView::showChannelB(bool show) {
-    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_B, show?1.0:0.0, 0.0);
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_B, show?1.0f:0.0f, 0.0f);
 }
 void DGLPixelRectangleView::showChannelA(bool show) {
-    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_A, show?1.0:0.0, show?0.0:1.0);
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_A, show?1.0f:0.0f, show?0.0f:1.0f);
 }
 void DGLPixelRectangleView::showChannelD(bool show) {
-    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_D, show?1.0:0.0, 0.0);
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_D, show?1.0f:0.0f, 0.0f);
 }
 void DGLPixelRectangleView::showChannelS(bool show) {
-    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_S, show?1.0:0.0, 0.0);
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_S, show?1.0f:0.0f, 0.0f);
 }
 
 void DGLPixelRectangleView::updateFormatSizeInfo(const dglnet::resource::DGLPixelRectangle* pixelRectangle) {
@@ -242,7 +248,7 @@ bool DGLPixelRectangleScene::inside(const QPoint& pos) {
 void DGLPixelRectangleScene::doRecalcSizes() {
     if (!m_Item) return;
 
-    m_Scale = std::min(m_Scene.sceneRect().width() / m_Image.size().width(),
+    m_Scale = (float)std::min(m_Scene.sceneRect().width() / m_Image.size().width(),
         m_Scene.sceneRect().height() / m_Image.size().height());
 
     //rescale
@@ -250,6 +256,6 @@ void DGLPixelRectangleScene::doRecalcSizes() {
 
     //move
     QRectF r = m_Item->sceneBoundingRect();
-    m_Pos = QPoint((m_Scene.sceneRect().width() - r.width()) / 2.0, (m_Scene.sceneRect().height() - r.height()) / 2.0);
+    m_Pos = QPoint(static_cast<int>((m_Scene.sceneRect().width() - r.width()) / 2.0 + 0.5), static_cast<int>((m_Scene.sceneRect().height() - r.height()) / 2.0 + 0.5));
     m_Item->setPos(m_Pos);
 }

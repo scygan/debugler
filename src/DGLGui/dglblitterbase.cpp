@@ -25,7 +25,7 @@ DGLBlitterBase::DGLBlitterBase() {
     }
 }
 
-void DGLBlitterBase::blit(unsigned int width, unsigned int height, unsigned int rowBytes, GLenum format, GLenum type, const void* data) {
+void DGLBlitterBase::blit(unsigned int width, unsigned int height, unsigned int rowBytes, gl_t format, gl_t type, const void* data) {
 
     m_SrcStride = rowBytes;
     m_Width = width;

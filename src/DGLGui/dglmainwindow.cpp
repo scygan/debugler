@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-
+#include "dglqtgui.h"
 #include <QMessageBox>
 #include <QSettings>
 #include <QFile>
@@ -519,7 +519,7 @@ void DGLMainWindow::createToolBars() {
                  m_RunDialog.getModeEGL()));         
 
              bool timeout; 
-             while ((timeout = !process->waitReady(10))) {
+             while ((timeout = !process->waitReady(10)) == true) {
                  QApplication::processEvents();
                  if (progress.wasCanceled())
                      break;

@@ -17,12 +17,8 @@
 #ifndef DGLTREEVIEW_H
 #define DGLTREEVIEW_H
 
+#include "dglqtgui.h"
 #include <QDockWidget>
-#include <QTreeWidget>
-#pragma warning(push)
-#pragma warning(disable:4512) // assignment operator could not be generated
-#include <QtGui>
-#pragma warning(pop)
 
 #include "DGLCommon//gl-types.h"
 
@@ -48,7 +44,7 @@ public:
 public slots:
     void setConnected(bool);
     void debugeeInfo(const std::string&);
-    void breakedWithStateReports(uint currentContextId, const std::vector<dglnet::message::BreakedCall::ContextReport>&);
+    void breakedWithStateReports(opaque_id_t currentContextId, const std::vector<dglnet::message::BreakedCall::ContextReport>&);
 
     void onDoubleClicked(QTreeWidgetItem*, int);
 

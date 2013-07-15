@@ -158,7 +158,7 @@ void DGLTraceView::gotCallTraceChunkChunk(uint offset, const std::vector<CalledE
         ret << " debug: " << m_DebugOutput;
         }*/
         std::string func = trace[trace.size() - 1 - i + offset].toString();
-        GLenum error = trace[trace.size() - 1 - i + offset].getError();
+        gl_t error = trace[trace.size() - 1 - i + offset].getError();
         std::string debugOutput = trace[trace.size() - 1 - i + offset].getDebugOutput();
 
         QListWidgetItem *item = new QListWidgetItem();

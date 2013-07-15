@@ -17,6 +17,7 @@
 #ifndef DGLCONFIGDIALOG_H
 #define DGLCONFIGDIALOG_H
 
+#include "dglqtgui.h"
 #include "ui_dglconfigdialog.h"
 #include "dglcontroller.h"
 

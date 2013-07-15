@@ -17,13 +17,8 @@
 #ifndef DGLTRACEVIEW_H
 #define DGLTRACEVIEW_H
 
+#include "dglqtgui.h"
 #include <QDockWidget>
-#include <QListWidget>
-#pragma warning(push)
-#pragma warning(disable:4512) // assignment operator could not be generated
-#include <QtGui>
-#pragma warning(pop)
-
 
 #include "DGLCommon//gl-types.h"
 

@@ -17,6 +17,7 @@
 #ifndef DGLGLSLEDITOR_H
 #define DGLGLSLEDITOR_H
 
+#include "dglqtgui.h"
 #include <QPlainTextEdit>
 
 class DGLGLSLEditor : public QPlainTextEdit {

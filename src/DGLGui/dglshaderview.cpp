@@ -208,10 +208,10 @@ DGLShaderView::DGLShaderView(QWidget* parrent, DglController* controller):DGLTab
     setupNames("Shaders", "DGLShaderView");
 
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showShader(uint, uint, uint)), this, SLOT(showShader(uint, uint, uint))));
+    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showShader(opaque_id_t, gl_t, gl_t)), this, SLOT(showShader(opaque_id_t, gl_t, gl_t))));
 }
 
-void DGLShaderView::showShader(uint ctx, uint name, uint target) {
+void DGLShaderView::showShader(opaque_id_t ctx, gl_t name, gl_t target) {
     ensureTabDisplayed(ctx, name, target);
 }
 
@@ -219,6 +219,6 @@ DGLTabbedViewItem* DGLShaderView::createTab(const dglnet::ContextObjectName& id)
     return new DGLShaderViewItem(id, m_Controller->getResourceManager(), this);
 }
 
-QString DGLShaderView::getTabName(uint id, uint target) {
+QString DGLShaderView::getTabName(gl_t id, gl_t target) {
     return QString::fromStdString(GetShaderStageName(target)) + QString(" Shader ") + QString::number(id);
 }

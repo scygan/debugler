@@ -29,11 +29,11 @@ public:
     DGLBufferView(QWidget* parrent, DglController* controller);
 
     public slots:
-        void showBuffer(uint ctx, uint name);
+        void showBuffer(opaque_id_t ctx, gl_t name);
 
 private:
         virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
-        virtual QString getTabName(uint id, uint target);
+        virtual QString getTabName(gl_t id, gl_t target) override;
 };
 
 class DGLBufferViewItem: public DGLTabbedViewItem {

@@ -444,7 +444,7 @@ struct GLInternalFormat g_InternalFormats[] = {
 };
 
 
-GLInternalFormat* GLFormats::getInternalFormat(GLenum internalFormat) {
+GLInternalFormat* GLFormats::getInternalFormat(gl_t internalFormat) {
     for (size_t i = 0; i < sizeof(g_InternalFormats)/sizeof(g_InternalFormats[0]); i++) {
         if (g_InternalFormats[i].internalFormat == internalFormat) {
             return &g_InternalFormats[i];
@@ -453,7 +453,7 @@ GLInternalFormat* GLFormats::getInternalFormat(GLenum internalFormat) {
     return NULL;
 }
 
-GLDataFormat* GLFormats::getDataFormat(GLenum dataFormat) {
+GLDataFormat* GLFormats::getDataFormat(gl_t dataFormat) {
     for (size_t i = 0; i < sizeof(g_DataFormats)/sizeof(g_DataFormats[0]); i++) {
         if (g_DataFormats[i].format == dataFormat) {
             return &g_DataFormats[i];
@@ -462,7 +462,7 @@ GLDataFormat* GLFormats::getDataFormat(GLenum dataFormat) {
     return NULL;
 }
 
-GLDataType* GLFormats::getDataType(GLenum dataType) {
+GLDataType* GLFormats::getDataType(gl_t dataType) {
     for (size_t i = 0; i < sizeof(g_DataTypes)/sizeof(g_DataTypes[0]); i++) {
         if (g_DataTypes[i].type == dataType) {
             return &g_DataTypes[i];
@@ -552,13 +552,13 @@ bool DGLPixelTransfer::isValid() {
 }
 
 
-GLenum DGLPixelTransfer::getFormat() {
+gl_t DGLPixelTransfer::getFormat() {
     if (!isValid())
         throw std::runtime_error("DGLPixelTransfer::getFormat called, but pixel transfer is not valid.");
     return m_DataFormat->format;
 }
 
-GLenum DGLPixelTransfer::getType() {
+gl_t DGLPixelTransfer::getType() {
     if (!isValid())
         throw std::runtime_error("DGLPixelTransfer::getFormat called, but pixel transfer is not valid.");
     return m_DataType->type;

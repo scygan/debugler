@@ -17,8 +17,8 @@
 #ifndef DGLMAINWINDOW_H
 #define DGLMAINWINDOW_H
 
+#include "dglqtgui.h"
 #include <QMainWindow>
-
 #include <QListWidget>
 #include <QSignalMapper>
 

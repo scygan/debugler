@@ -133,10 +133,10 @@ DGLProgramView::DGLProgramView(QWidget* parrent, DglController* controller):DGLT
     setupNames("Shader Programs", "DGLProgramView");
 
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showProgram(uint, uint)), this, SLOT(showProgram(uint, uint))));
+    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showProgram(opaque_id_t, gl_t)), this, SLOT(showProgram(opaque_id_t, gl_t))));
 }
 
-void DGLProgramView::showProgram(uint ctx, uint name) {
+void DGLProgramView::showProgram(opaque_id_t ctx, gl_t name) {
     ensureTabDisplayed(ctx, name);
 }
 
@@ -144,6 +144,6 @@ DGLTabbedViewItem* DGLProgramView::createTab(const dglnet::ContextObjectName& id
     return new DGLProgramViewItem(id, m_Controller->getResourceManager(), this);
 }
 
-QString DGLProgramView::getTabName(uint id, uint /*target*/) {
+QString DGLProgramView::getTabName(gl_t id, gl_t /*target*/) {
     return QString("Program Shader ") + QString::number(id);
 }

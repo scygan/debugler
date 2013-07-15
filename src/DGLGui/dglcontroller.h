@@ -25,13 +25,9 @@
 
 #include <DGLCommon/def.h>
 
-#include <QObject>
+#include "dglqtgui.h"
 #include <QTimer>
 #include <QSocketNotifier>
-#pragma warning(push)
-#pragma warning(disable:4512) // assignment operator could not be generated
-#include <QtGui>
-#pragma warning(pop)
 
 class DGLRequestManager;
 
@@ -173,12 +169,12 @@ class DGLViewRouter:public QObject {
 public:
     void show(const dglnet::ContextObjectName& name, dglnet::DGLResource::ObjectType type);
 signals:
-    void showTexture(uint ctx, uint name);
-    void showBuffer(uint ctx, uint name);
-    void showFramebuffer(uint ctx, uint bufferEnum);
-    void showFBO(uint ctx, uint name);
-    void showShader(uint ctx, uint name, uint target);
-    void showProgram(uint ctx, uint name);
+    void showTexture(opaque_id_t ctx, gl_t name);
+    void showBuffer(opaque_id_t ctx, gl_t name);
+    void showFramebuffer(opaque_id_t ctx, gl_t bufferEnum);
+    void showFBO(opaque_id_t ctx, gl_t name);
+    void showShader(opaque_id_t ctx, gl_t name, gl_t target);
+    void showProgram(opaque_id_t ctx, gl_t name);
 };
 
 /** 
@@ -308,7 +304,7 @@ signals:
     void setRunning(bool);
 
     void breaked(CalledEntryPoint, uint);
-    void breakedWithStateReports(uint, const std::vector<dglnet::message::BreakedCall::ContextReport>&);
+    void breakedWithStateReports(opaque_id_t, const std::vector<dglnet::message::BreakedCall::ContextReport>&);
 
     void gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&);
 

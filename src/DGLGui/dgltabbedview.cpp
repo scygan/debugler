@@ -51,7 +51,7 @@ void DGLTabbedView::closeTab(int idx) {
 }
 
 
-void DGLTabbedView::ensureTabDisplayed(uint ctxId, uint objName, uint target) {
+void DGLTabbedView::ensureTabDisplayed(opaque_id_t ctxId, gl_t objName, gl_t target) {
     bool found = false; 
     for (int i = 0; i < m_TabWidget.count(); i++) {
         DGLTabbedViewItem* widget = dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));

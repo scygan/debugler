@@ -32,8 +32,8 @@ DGLTreeView::DGLTreeView(QWidget* parrent, DglController* controller):QDockWidge
     CONNASSERT(connect(controller, SIGNAL(setConnected(bool)), this, SLOT(setConnected(bool))));
     CONNASSERT(connect(controller, SIGNAL(debugeeInfo(const std::string&)), this, SLOT(debugeeInfo(const std::string&))));
     CONNASSERT(connect(controller, SIGNAL(setBreaked(bool)), &m_TreeWidget, SLOT(setEnabled(bool))));
-    CONNASSERT(connect(controller, SIGNAL(breakedWithStateReports(uint, const std::vector<dglnet::message::BreakedCall::ContextReport>&)),
-        this, SLOT(breakedWithStateReports(uint, const std::vector<dglnet::message::BreakedCall::ContextReport>&))));
+    CONNASSERT(connect(controller, SIGNAL(breakedWithStateReports(opaque_id_t, const std::vector<dglnet::message::BreakedCall::ContextReport>&)),
+        this, SLOT(breakedWithStateReports(opaque_id_t, const std::vector<dglnet::message::BreakedCall::ContextReport>&))));
     
     //internal
     CONNASSERT(QObject::connect(&m_TreeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
@@ -155,7 +155,7 @@ public:
 template<typename ObjType>
 class DGLObjectNodeWidget: public QClickableTreeWidgetItem {
 public:
-    DGLObjectNodeWidget(uint ctxId, QString header, QString iconPath):m_CtxId(ctxId),m_IconPath(iconPath) {
+    DGLObjectNodeWidget(opaque_id_t ctxId, QString header, QString iconPath):m_CtxId(ctxId),m_IconPath(iconPath) {
         setText(0, header);
         setIcon(0, QIcon(iconPath));
     }
@@ -169,7 +169,7 @@ public:
             }
         }
 
-        typedef typename std::map<uint, ObjType>::iterator map_iter;
+        typedef typename std::map<gl_t, ObjType>::iterator map_iter;
         map_iter i = m_Childs.begin();
         while (i != m_Childs.end()) {
             map_iter next = i; next++;
@@ -181,14 +181,14 @@ public:
         }
     }
 private:
-    std::map<uint, ObjType> m_Childs;
-    uint m_CtxId;
+    std::map<gl_t, ObjType> m_Childs;
+    opaque_id_t m_CtxId;
     QString m_IconPath;
 };
 
 class DGLCtxTreeWidget: public QClickableTreeWidgetItem  {
 public:
-    DGLCtxTreeWidget(uint ctxId):m_Id(ctxId),
+    DGLCtxTreeWidget(opaque_id_t ctxId):m_Id(ctxId),
           m_TextureNode(ctxId, "Textures", ":/icons/textures.png"),
           m_BufferNode(ctxId, "Vertex Buffers", ":/icons/buffer.png"),
           m_FBONode(ctxId, "Framebuffer objects", ":/icons/fbo.png"),
@@ -203,13 +203,13 @@ public:
         addChild(&m_FramebufferNode);
         setIcon(0, QIcon(":/icons/context.png"));
     }
-    uint getId() { return m_Id; }
+    opaque_id_t getId() { return m_Id; }
 
     void update(const dglnet::message::BreakedCall::ContextReport& report, bool current) {
         QFont fnt = font(0);
         fnt.setBold(current);
         setFont(0,fnt);
-        assert(m_Id = report.m_Id);
+        assert(m_Id == report.m_Id);
         setText(0, QString("Context 0x") + QString::number(report.m_Id, 16) + (current?QString(" (current)"):QString("")));
         m_TextureNode.update(report.m_TextureSpace);
         m_BufferNode.update(report.m_BufferSpace);
@@ -221,7 +221,7 @@ public:
     }
 
 private:
-    uint m_Id; 
+    opaque_id_t m_Id; 
     DGLObjectNodeWidget<DGLTextureWidget> m_TextureNode;
     DGLObjectNodeWidget<DGLBufferWidget> m_BufferNode;
     DGLObjectNodeWidget<DGLFBOWidget> m_FBONode;
@@ -231,7 +231,7 @@ private:
 };
 
 
-void DGLTreeView::breakedWithStateReports(uint currentContextId, const std::vector<dglnet::message::BreakedCall::ContextReport>& report) {
+void DGLTreeView::breakedWithStateReports(opaque_id_t currentContextId, const std::vector<dglnet::message::BreakedCall::ContextReport>& report) {
     for(size_t i = 0; i < report.size(); i++) {
         DGLCtxTreeWidget*  widget = 0; 
         for (int j = 0; j < m_TreeWidget.topLevelItemCount(); j++) {

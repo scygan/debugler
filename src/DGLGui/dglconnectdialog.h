@@ -17,8 +17,8 @@
 #ifndef DGLCONNECTDIALOG_H
 #define DGLCONNECTDIALOG_H
 
+#include "dglqtgui.h"
 #include <QIntValidator>
-
 #include "ui_dglconnectdialog.h"
 
 class DGLConnectDialog : public QDialog
