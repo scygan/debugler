@@ -77,8 +77,8 @@
 
     ActionBase::SetNext<ContextAction>(glXCreateContext_Call);
     ActionBase::SetNext<ContextAction>(glXCreateNewContext_Call);
+    ActionBase::SetNext<ContextAction>(glXCreateContextAttribsARB_Call);
 
-//    ActionBase::SetNext<ContextAction>(glXCreateContextAttribsARB_Call); //TODO: no glxext .yet
     ActionBase::SetNext<ContextAction>(glXMakeContextCurrent_Call);
     ActionBase::SetNext<ContextAction>(glXMakeCurrent_Call);
     ActionBase::SetNext<ContextAction>(glXDestroyContext_Call);
@@ -87,10 +87,13 @@
     ActionBase::SetNext<ContextAction>(eglMakeCurrent_Call);
     ActionBase::SetNext<ContextAction>(eglDestroyContext_Call);
     ActionBase::SetNext<ContextAction>(eglReleaseThread_Call);
-	ActionBase::SetNext<ContextAction>(eglBindAPI_Call);
+    ActionBase::SetNext<ContextAction>(eglBindAPI_Call);
 
     ActionBase::SetNext<DebugContextAction>(wglCreateContext_Call);
     ActionBase::SetNext<DebugContextAction>(wglCreateContextAttribsARB_Call);
+    ActionBase::SetNext<DebugContextAction>(glXCreateContext_Call);
+    ActionBase::SetNext<DebugContextAction>(glXCreateNewContext_Call);
+    ActionBase::SetNext<DebugContextAction>(glXCreateContextAttribsARB_Call);
 
     ActionBase::SetNext<TextureAction>(glGenTextures_Call);
     ActionBase::SetNext<TextureAction>(glGenTexturesEXT_Call);

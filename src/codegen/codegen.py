@@ -163,9 +163,15 @@ parse(inputDir + "/egl.h", "LIBRARY_EGL", True)
 parse(inputDir + "/eglext.h", "LIBRARY_EGL_EXT")
 
 parse(inputDir + "/glx.h", "LIBRARY_GLX", True)
+parse(inputDir + "/glxext.h", "LIBRARY_GLX_EXT")
+
+blacklist = ["glXAssociateDMPbufferSGIX", "glXCreateGLXVideoSourceSGIX", "glXDestroyGLXVideoSourceSGIX" ]
 
 #writeout files:
 for name, entrypoint in sorted(entrypoints.items()):
+	if name in blacklist:
+		continue;
+
 #list of entrypoints
 	entrypointPtrType = "PFN" + name.upper() + "PROC"
 	print >> functionListFile, entrypoint.getLibraryIfdef()

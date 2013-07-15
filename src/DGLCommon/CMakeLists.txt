@@ -25,11 +25,12 @@ add_custom_command(
         ${codegen_in}/wgl-notrace.h
         ${codegen_in}/wgl.h
         ${codegen_in}/wglext.h 
-		${codegen_in}/egl.h 
-		${codegen_in}/eglext.h 
-		${codegen_in}/gl2.h
-		${codegen_in}/gl3.h
-		${codegen_in}/glx.h
+        ${codegen_in}/egl.h 
+        ${codegen_in}/eglext.h 
+        ${codegen_in}/gl2.h
+        ${codegen_in}/gl3.h
+        ${codegen_in}/glx.h
+        ${codegen_in}/glxext.h
     COMMENT "Generating code from GL headers"
     VERBATIM
     )

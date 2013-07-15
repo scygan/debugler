@@ -44,6 +44,7 @@
 #else
 #ifndef __ANDROID__
     #define HAVE_LIBRARY_GLX
+    #define HAVE_LIBRARY_GLX_EXT
 #endif
 #endif
 

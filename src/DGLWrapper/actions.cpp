@@ -266,7 +266,7 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             break;
 #endif
 #ifdef HAVE_LIBRARY_GLX
-//      case glXCreateContextAttribsARB_Call:  TODO: no glxext yet.
+        case glXCreateContextAttribsARB_Call:
         case glXCreateContext_Call:
         case glXCreateNewContext_Call:
             ret.get(ctx);
@@ -423,10 +423,10 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
             assert(0);
     }
 
-    std::vector<int> newAttribList; 
+    std::vector<int> newAttribList;
     bool done = false;
     if (attribList != NULL) {
-        int i = 0; 
+        int i = 0;
         while (attribList[i]) {
             int attrib = attribList[i++], value = attribList[i++]; 
             if (attrib == WGL_CONTEXT_FLAGS_ARB) {
@@ -459,7 +459,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
     //call wglCreateContextAttribsARB only if supported by implementation. Otherwise do nothing - ctx will be created in wrapper function
     if (POINTER(wglCreateContextAttribsARB) || g_ApiLoader.loadExtPointer(wglCreateContextAttribsARB_Call)) {
         ret = DIRECT_CALL_CHK(wglCreateContextAttribsARB)(hdc, sharedCtx, &newAttribList[0]);
-    }	
+    }
 
     if (tmpCtx) {
         //unwind dummy ctx

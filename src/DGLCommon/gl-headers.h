@@ -34,7 +34,7 @@
 #else
 #ifndef __ANDROID__
 #include <codegen/input/glx.h>
-//#include <codegen/input/glxext.h>
+#include <codegen/input/glxext.h>
 #endif
 #endif
 
