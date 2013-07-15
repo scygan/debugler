@@ -25,7 +25,7 @@ namespace dglnet {
 class Server: public Transport {
 public: 
     Server(unsigned short port, MessageHandler*);
-    std::mutex& Server::getMtx();
+    std::mutex& getMtx();
     void accept();
 
 private:
