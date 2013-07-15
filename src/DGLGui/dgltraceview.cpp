@@ -163,7 +163,7 @@ void DGLTraceView::gotCallTraceChunkChunk(uint offset, const std::vector<CalledE
 
         QListWidgetItem *item = new QListWidgetItem();
         item->setData(Qt::UserRole, func.c_str());
-        item->setData(Qt::UserRole + 1, error);
+        item->setData(Qt::UserRole + 1, (uint)error);
         if (debugOutput.length()) {
             item->setData(Qt::UserRole + 2, debugOutput.c_str());
         }
