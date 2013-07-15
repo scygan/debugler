@@ -143,6 +143,25 @@
 
 }
 
+/**
+ * DGLwrapper routine called on library unload
+ */
+void TearDown() {
+    _g_Controller.reset();
+}
+
+
+#ifndef _WIN32
+void __attribute__ ((constructor)) DGLWrapperLoad(void) {
+    Initialize();
+}
+
+void __attribute__ ((destructor)) DGLWrapperUnload(void) {
+    TearDown();
+}
+#else
+
+
 #ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
 class ThreadWatcher {
 public:
@@ -215,25 +234,6 @@ extern "C" DGLWRAPPER_API void LoaderThread() {
     g_ThreadWatcher.lockLoaderThread();
 #endif
 }
-
-/**
- * DGLwrapper routine called on library unload
- */
-void TearDown() {
-    _g_Controller.reset();
-}
-
-
-#ifndef _WIN32
-void __attribute__ ((constructor)) DGLWrapperLoad(void) {
-    Initialize();
-}
-
-void __attribute__ ((destructor)) DGLWrapperUnload(void) {
-    TearDown();
-}
-#else
-
 /**
  * Main entrypoint of DGLwrapper library
  */
