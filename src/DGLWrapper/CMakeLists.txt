@@ -22,7 +22,7 @@ add_library(dglwrapper SHARED
 if (ANDROID)
 	set(libs log)
 else()
-	set(libs pthread elf)
+	set(libs pthread elf rt)
 endif()
 
 target_link_libraries(dglwrapper dglnet dglcommon boost_serialization boost_system dl ${libs})
