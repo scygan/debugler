@@ -3,6 +3,11 @@ cmake_minimum_required(VERSION 2.8)
 project(debugler)
 
 
+if(NOT DEFINED DGL_VERSION)
+    set(DGL_VERSION 0.0.0)
+endif()
+
+
 include_directories(
     .
     glheaders
