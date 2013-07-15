@@ -17,6 +17,10 @@
 #ifndef DGLCONTROLLER_H
 #define DGLCONTROLLER_H
 
+#include "dglqtgui.h"
+#include <QTimer>
+#include <QSocketNotifier>
+
 #include <DGLNet/client.h>
 #include <DGLNet/protocol/dglconfiguration.h>
 #include <DGLNet/protocol/resource.h>
@@ -24,10 +28,6 @@
 #include <boost/make_shared.hpp>
 
 #include <DGLCommon/def.h>
-
-#include "dglqtgui.h"
-#include <QTimer>
-#include <QSocketNotifier>
 
 class DGLRequestManager;
 
