@@ -365,7 +365,7 @@ const std::string& GLShaderObj::querySource() {
 
 void GLShaderObj::shaderSourceCalled() {
     if (isDeleted()) {
-        throw std::exception("glShaderSource was called, but shader already marked as deleted");
+        throw std::runtime_error("glShaderSource was called, but shader already marked as deleted");
     }
     m_OrigSource = querySource();
 }
@@ -376,7 +376,7 @@ bool GLShaderObj::isDeleted() const {
 
 void GLShaderObj::editSource(const std::string& source) {
     if (isDeleted()) {
-        throw std::exception("Error: trying to edit source of already deleted shader");
+        throw std::runtime_error("Error: trying to edit source of already deleted shader");
     }
 
     const char* sourcePtr = source.c_str();
