@@ -25,10 +25,10 @@
 #pragma warning(disable:4251) // 'QStyleOption::state' : class 'QFlags<Enum>' needs to have dll-interface to be used by clients of class 'QStyleOption'
 
 #include <QtGui>
-#include <QtWidgets/QLayoutItem>
-#include <QtWidgets/QListWidget>
-#include <QtWidgets/QTreeWidget>
-#include <QtWidgets/QTableWidget>
+#include <QLayoutItem>
+#include <QListWidget>
+#include <QTreeWidget>
+#include <QTableWidget>
 #pragma warning(pop)
 
 #endif
