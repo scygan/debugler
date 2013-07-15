@@ -48,6 +48,8 @@ QT4_WRAP_UI(dglgui_FORMS_HEADERS ${dglgui_FORMS})
 
 QT4_ADD_RESOURCES(dglgui_RESOURCES_RCC ${dglgui_RESOURCES})
 
+add_definitions(-DDGL_VERSION="${DGL_VERSION}")
+
 include(${QT_USE_FILE})
 
 include_directories(
