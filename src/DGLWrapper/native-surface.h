@@ -77,6 +77,9 @@ public:
 
     virtual int getWidth(); 
     virtual int getHeight();
+
+    static GLXFBConfig* getFbConfigForVisual(Display *dpy, VisualID visualID, GLXFBConfig** memToFree);
+
 private:
     int m_RGBASizes[4];
     int m_DepthSize, m_StencilSize;

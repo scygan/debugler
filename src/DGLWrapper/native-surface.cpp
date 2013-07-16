@@ -236,25 +236,8 @@ NativeSurfaceGLX::NativeSurfaceGLX(const DGLDisplayState* _dpy, opaque_id_t id):
         XWindowAttributes attribs;
         XGetWindowAttributes(dpy, win, &attribs);
 
-        const int visualID = XVisualIDFromVisual(attribs.visual);
+        config = getFbConfigForVisual(dpy, XVisualIDFromVisual(attribs.visual), &memToFree);
 
-        int nElements; 
-        GLXFBConfig* configs = DIRECT_CALL_CHK(glXGetFBConfigs)(dpy, DefaultScreen(dpy), &nElements);
-
-        config = NULL;
-        if (nElements) {
-            memToFree = configs;
-        }
-
-        for (int i =0; i < nElements; i++) {
-            int id;
-            if (DIRECT_CALL_CHK(glXGetFBConfigAttrib)(dpy, configs[i], GLX_VISUAL_ID, &id) == Success) {
-                if (id == visualID) {
-                    config = &configs[i];
-                    break;
-                }
-            }
-        }
     }
 
     if (!config) {
@@ -282,6 +265,27 @@ NativeSurfaceGLX::NativeSurfaceGLX(const DGLDisplayState* _dpy, opaque_id_t id):
     }
 
     XFree(memToFree);
+}
+
+GLXFBConfig* NativeSurfaceGLX::getFbConfigForVisual(Display *dpy, VisualID visualID, GLXFBConfig** memToFree) {
+    GLXFBConfig* ret = NULL;
+    int nElements; 
+    GLXFBConfig* configs = DIRECT_CALL_CHK(glXGetFBConfigs)(dpy, DefaultScreen(dpy), &nElements);
+
+    if (nElements) {
+        (*memToFree) = configs;
+    }
+
+    for (int i =0; i < nElements; i++) {
+        int id;
+        if (DIRECT_CALL_CHK(glXGetFBConfigAttrib)(dpy, configs[i], GLX_VISUAL_ID, &id) == Success) {
+            if (id == visualID) {
+                ret = &configs[i];
+                break;
+            }
+        }
+    }
+    return ret;
 }
 
 bool NativeSurfaceGLX::isDoubleBuffered() {

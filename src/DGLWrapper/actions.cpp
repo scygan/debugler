@@ -468,7 +468,75 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
         anyContextPresent = true;
     }
 #else
-#pragma warning "DebugContextAction::Pre not implemented"
+    Display *dpy;
+    GLXFBConfig config = NULL;
+    GLXContext sharedContext;
+    Bool direct = True;
+    const int *attribList = NULL;
+    int renderType; //not really used
+
+    XVisualInfo* vis;
+
+    GLXFBConfig* memToFree = NULL;
+
+    switch (call.getEntrypoint()) {
+        case glXCreateContext_Call:
+            call.getArgs()[0].get(dpy);
+            call.getArgs()[1].get(vis);
+            call.getArgs()[2].get(sharedContext);
+            call.getArgs()[3].get(direct);
+            config = *dglState::NativeSurfaceGLX::getFbConfigForVisual(dpy, vis->visualid, &memToFree);
+            assert(config);
+            break;
+        case glXCreateNewContext_Call:
+            call.getArgs()[0].get(dpy);
+            call.getArgs()[1].get(config);
+            call.getArgs()[2].get(renderType);
+            call.getArgs()[3].get(sharedContext);
+            call.getArgs()[4].get(direct);
+            break;
+        case glXCreateContextAttribsARB_Call:
+            call.getArgs()[0].get(dpy);
+            call.getArgs()[1].get(config);
+            call.getArgs()[2].get(sharedContext);
+            call.getArgs()[3].get(direct);
+            call.getArgs()[4].get(attribList);
+        default:
+            assert(0);
+    }
+
+    std::vector<int> newAttribList;
+    bool done = false;
+    if (attribList != NULL) {
+        int i = 0;
+        while (attribList[i]) {
+            int attrib = attribList[i++], value = attribList[i++]; 
+            if (attrib == GLX_CONTEXT_FLAGS_ARB) {
+                if (!g_Config.m_ForceDebugContextES && (value & GLX_CONTEXT_ES2_PROFILE_BIT_EXT)) {
+                    return ret;
+                }
+                value |= GLX_CONTEXT_DEBUG_BIT_ARB;
+                done = true;
+            }
+            newAttribList.push_back(attrib);
+            newAttribList.push_back(value);
+        }
+    }
+    newAttribList.push_back(0);
+    if (!done) {
+        newAttribList[newAttribList.size() - 1] = GLX_CONTEXT_FLAGS_ARB;
+        newAttribList.push_back(GLX_CONTEXT_DEBUG_BIT_ARB);
+        newAttribList.push_back(0);
+    }
+
+    //call glXCreateContextAttribsARB only if supported by implementation. Otherwise do nothing - ctx will be created in wrapper function
+    if (POINTER(glXCreateContextAttribsARB) || g_ApiLoader.loadExtPointer(glXCreateContextAttribsARB_Call)) {
+        ret = DIRECT_CALL_CHK(glXCreateContextAttribsARB)(dpy, config, sharedContext, direct, &newAttribList[0]);
+    }
+
+    if (memToFree) {
+        XFree(memToFree);
+    }
 #endif
     return ret;
 }
