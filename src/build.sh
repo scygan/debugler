@@ -1,4 +1,4 @@
-
+#!/bin/bash
 if [ "$DGL_VERSION" != "" ]; then
     version="-DDGL_VERSION=$DGL_VERSION"
 else
