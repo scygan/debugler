@@ -786,7 +786,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
             
             GLvoid* ptr;
             if ((ptr = resource->m_FacesLevels[face].back()->getPtr()) != NULL) {
-                DIRECT_CALL_CHK(glGetTexImage)(levelTarget, level, transfer.getFormat(), transfer.getType(), ptr);
+                DIRECT_CALL_CHK(glGetTexImage)(levelTarget, level, (GLenum)transfer.getFormat(), (GLenum)transfer.getType(), ptr);
             }
         }
     }
@@ -932,7 +932,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(gl_t _bufferE
 
     GLvoid* ptr;
     if ((ptr = resource->m_PixelRectangle->getPtr()) != NULL)
-        DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, transfer.getFormat(), transfer.getType(), ptr);
+        DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, (GLenum)transfer.getFormat(), (GLenum)transfer.getType(), ptr);
 
     return ret;
 }
@@ -1118,7 +1118,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
 
         GLvoid* ptr = resource->m_Attachments.back().m_PixelRectangle->getPtr();
         if (ptr) {
-            DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, transfer.getFormat(), transfer.getType(), ptr);
+            DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, (GLenum)transfer.getFormat(), (GLenum)transfer.getType(), ptr);
         }
 
         //there should be no errors. Otherwise something nasty happened

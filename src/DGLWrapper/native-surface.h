@@ -78,7 +78,9 @@ public:
     virtual int getWidth(); 
     virtual int getHeight();
 
+#ifdef HAVE_LIBRARY_GLX
     static GLXFBConfig* getFbConfigForVisual(Display *dpy, VisualID visualID, GLXFBConfig** memToFree);
+#endif
 
 private:
     int m_RGBASizes[4];
