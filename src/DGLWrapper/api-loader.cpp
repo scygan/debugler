@@ -99,7 +99,12 @@ std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
 #ifdef _WIN32
             return "libEGL.dll";
 #else
+    #ifdef __ANDROID__
+            //on Android libraries are not opened by SONAME
+            return "libEGL.so";
+    #else
             return "libEGL.so.1";
+    #endif
 #endif
         case LIBRARY_GL:
         case LIBRARY_WGL:
@@ -114,7 +119,12 @@ std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
 #ifdef _WIN32
             return "libGLESv2.dll";
 #else
+    #ifdef __ANDROID__
+            //on Android libraries are not opened by SONAME
+            return "libGLESv2.so";
+    #else
             return "libGLESv2.so.1";
+    #endif
 #endif
         default:
             assert(!"unknown library");

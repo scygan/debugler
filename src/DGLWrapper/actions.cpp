@@ -31,8 +31,13 @@
 boost::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];
 
 RetValue ActionBase::DoPre(const CalledEntryPoint& call) {
-    
-    if (DGLThreadState::get()->enterActionProcessing()) {
+#ifdef __ANDROID__
+    DGLThreadState::get()->enterActionProcessing();
+    //we dont enter action processing for Android, for now
+    if (true) {
+#else
+    if (!DGLThreadState::get()->enterActionProcessing()) {
+#endif   
         //	This is unlikely, but may happen sometimes - OpenGL implementation called us. 
         //If we dont catch it here, we will deadlock later, or likely get into infinite recursion.
         return RetValue();
@@ -50,8 +55,12 @@ RetValue ActionBase::DoPre(const CalledEntryPoint& call) {
 }
 
 void ActionBase::DoPost(const CalledEntryPoint& call, const RetValue& ret) {
-
+#ifdef __ANDROID__
+    //we dont enter action processing for Android, for now
+    if (false) {
+#else
     if (DGLThreadState::get()->inActionProcessing()) {
+#endif
         try {
             Post(call, ret);
         } catch (const DGLDebugController::TeardownException&) {
