@@ -33,9 +33,9 @@ class DGLThreadState {
 public:
 
     /**
-     * Initializer, reset to default state
+     * Resets APIs to default state
      */
-    void reset();
+    void resetAPI();
 
     /**
      * Setter for current context (should be called just after *MakeCurrent-like calls).
@@ -50,7 +50,7 @@ public:
     /**
      *  Release current TSS - should be called on eglReleaseThread
      */
-    static void release();
+    static void releaseAPI();
 
      /**
      *  Get current TSS
@@ -67,8 +67,27 @@ public:
      */
     EGLenum getEGLApi();
 
+    /** 
+     *  Try enter actions processing
+     *  bumps recursion guard
+     *  returns true if actions should be processed
+     */
+    bool enterActionProcessing();
 
-    struct  Priv {
+    /** 
+    *  Check if we are in action processing
+    *  returns true if actions should are processed
+    */
+    bool inActionProcessing();
+
+    /**
+     * Leave action processing
+     * leaves recursion guard
+     */
+    void leaveActionProcessing();
+
+
+    struct  PrivAPI {
         /**
          * Thread-space pointer to current context object
          */
@@ -78,7 +97,18 @@ public:
          * Current EGL api
          */
         EGLenum m_EGLApi;
-    } priv;
+
+    } privAPI;
+
+
+    struct  PrivDebuggerState {
+        /*
+         * Current action recursion level
+         */
+        int m_ActionRecursionLevel;
+    } privDebugger;
+
+
 };
 
 #define gc DGLThreadState::get()->getCurrentCtx()

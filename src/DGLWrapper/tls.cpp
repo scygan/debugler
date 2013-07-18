@@ -17,13 +17,13 @@
 #include "gl-state.h"
 #include "display.h"
 
-void DGLThreadState::reset() {
-    priv.m_Current = NULL;
-    priv.m_EGLApi  = EGL_OPENGL_ES_API;
+void DGLThreadState::resetAPI() {
+    privAPI.m_Current = NULL;
+    privAPI.m_EGLApi  = EGL_OPENGL_ES_API;
 }
 
-void DGLThreadState::release() {
-    get()->reset();
+void DGLThreadState::releaseAPI() {
+    get()->resetAPI();
 }
 
 DGLThreadState* DGLThreadState::get() {
@@ -32,7 +32,8 @@ DGLThreadState* DGLThreadState::get() {
 
     static THREAD_LOCAL bool s_Initialized = false;
     if (!s_Initialized) {
-        ret.reset();
+        ret.resetAPI();
+        ret.privDebugger.m_ActionRecursionLevel = 0;
         s_Initialized = true;
     }
 
@@ -42,7 +43,7 @@ DGLThreadState* DGLThreadState::get() {
 
 
 dglState::GLContext* DGLThreadState::getCurrentCtx() {
-    return priv.m_Current;
+    return privAPI.m_Current;
 }
 
 void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId, dglState::NativeSurfaceBase* readSurface) {
@@ -58,10 +59,10 @@ void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId, dglSta
 
     if (currentCtx != newCtx) {
         if (newCtx) {
-            priv.m_Current = newCtx;
+            privAPI.m_Current = newCtx;
             newCtx->bound();
         } else {
-            priv.m_Current = NULL;
+            privAPI.m_Current = NULL;
         }
 
         if (currentCtx) {
@@ -77,9 +78,22 @@ void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId, dglSta
 }
 
 void DGLThreadState::bindEGLApi(EGLenum api) {
-    priv.m_EGLApi = api;
+    privAPI.m_EGLApi = api;
 }
 
 EGLenum DGLThreadState::getEGLApi() {
-    return priv.m_EGLApi;
+    return privAPI.m_EGLApi;
+}
+
+bool DGLThreadState::enterActionProcessing() {
+    privDebugger.m_ActionRecursionLevel++;
+    return inActionProcessing();
+}
+
+bool DGLThreadState::inActionProcessing() {
+    return privDebugger.m_ActionRecursionLevel == 1;
+}
+
+void DGLThreadState::leaveActionProcessing() {
+    privDebugger.m_ActionRecursionLevel--;
 }

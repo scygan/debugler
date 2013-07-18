@@ -30,13 +30,9 @@
 
 boost::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];
 
-THREAD_LOCAL int ActionBase::m_ThreadedInfiniteRecursionGuard = 0;
-
 RetValue ActionBase::DoPre(const CalledEntryPoint& call) {
     
-    m_ThreadedInfiniteRecursionGuard++;
-
-    if (m_ThreadedInfiniteRecursionGuard > 1) {
+    if (DGLThreadState::get()->enterActionProcessing()) {
         //	This is unlikely, but may happen sometimes - OpenGL implementation called us. 
         //If we dont catch it here, we will deadlock later, or likely get into infinite recursion.
         return RetValue();
@@ -55,7 +51,7 @@ RetValue ActionBase::DoPre(const CalledEntryPoint& call) {
 
 void ActionBase::DoPost(const CalledEntryPoint& call, const RetValue& ret) {
 
-    if (m_ThreadedInfiniteRecursionGuard == 1) {
+    if (DGLThreadState::get()->inActionProcessing()) {
         try {
             Post(call, ret);
         } catch (const DGLDebugController::TeardownException&) {
@@ -66,7 +62,7 @@ void ActionBase::DoPost(const CalledEntryPoint& call, const RetValue& ret) {
         }
     }
 
-    m_ThreadedInfiniteRecursionGuard--;
+    DGLThreadState::get()->leaveActionProcessing();
 }
 
 
@@ -388,7 +384,7 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
         case eglReleaseThread_Call:
             ret.get(eglBool);
             if (eglBool) {
-                DGLThreadState::release();
+                DGLThreadState::releaseAPI();
             }
             break;
     }
@@ -467,7 +463,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
         DIRECT_CALL_CHK(wglDeleteContext)(tmpCtx);
         anyContextPresent = true;
     }
-#else
+#elif HAVE_LIBRARY_GLX
     Display *dpy;
     GLXFBConfig config = NULL;
     GLXContext sharedContext;

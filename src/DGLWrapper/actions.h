@@ -66,7 +66,6 @@ protected:
      */
     virtual void Post(const CalledEntryPoint&, const RetValue& ret = RetValue());
 private:
-    static THREAD_LOCAL int m_ThreadedInfiniteRecursionGuard;
 
     void SetPrev(const boost::shared_ptr<ActionBase>& prev);
     boost::shared_ptr<ActionBase> m_PrevAction;
