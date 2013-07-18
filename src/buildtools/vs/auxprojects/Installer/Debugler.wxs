@@ -13,7 +13,7 @@
     <?define programFilesFolder = "ProgramFilesFolder" ?>
   <?endif ?>
 
-  <?ifndef $(env.DGL_VERSION)?>
+  <?ifndef env.DGL_VERSION?>
     <?define version = "0.0.0" ?>
   <?else?>
     <?define version = $(env.DGL_VERSION) ?>
