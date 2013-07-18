@@ -227,10 +227,16 @@ int main(int argc, char** argv) {
                 throw std::runtime_error("Cannot create process");
         }
 #else
+
+#ifndef __ANDROID__
         pid_t pid = fork();
         if (pid == -1) {
             throw std::runtime_error("Cannot fork process");
         }
+#else
+        // on Android loader process is not forker - just replaced by debugee
+        pid_t pid = 0;
+#endif
         if (pid == 0) {
             std::vector<std::vector<char> > argvs(arguments.size()); 
             std::vector<char*> argv(arguments.size());
