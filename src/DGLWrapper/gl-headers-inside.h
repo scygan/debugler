@@ -30,6 +30,7 @@
 
 //override some dllimports from Khronos headers do dllexports
 #define EGLAPI DGLWRAPPER_API
+#define GL_API DGLWRAPPER_API
 
 #include "DGLCommon/gl-headers.h"
 

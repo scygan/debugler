@@ -45,7 +45,7 @@ MSAADownSampler::MSAADownSampler(GLenum attTarget, GLenum att, GLuint fboName, G
         GLint lastTexture = getBoundTexture(GL_TEXTURE_2D);
         
         DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D, m_DownsampledResource);
-        DIRECT_CALL_CHK(glTexImage2D)(GL_TEXTURE_2D, 0, attInternalFormat, width, height, 0, transfer->getFormat(), transfer->getType(), NULL);
+        DIRECT_CALL_CHK(glTexImage2D)(GL_TEXTURE_2D, 0, attInternalFormat, width, height, 0, (GLenum)transfer->getFormat(), (GLenum)transfer->getType(), NULL);
 
         DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D, lastTexture);
 

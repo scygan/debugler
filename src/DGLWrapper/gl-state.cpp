@@ -437,6 +437,8 @@ bool GLContextVersion::check(Type type, int majorVersion, int minorVersion) {
         return false;
     }
 
+    //TODO make ES1 uncompatible with ES2
+
     if (majorVersion == m_MajorVersion && minorVersion > m_MinorVersion) {
         return false;
     }

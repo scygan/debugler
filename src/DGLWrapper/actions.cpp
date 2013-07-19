@@ -334,6 +334,9 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                         for (int i = 0; attribList[i] != EGL_NONE; i += 2) {
                             if (attribList[i] == EGL_CONTEXT_CLIENT_VERSION) {
                                 switch (attribList[i + 1]) {
+                                    case 1: 
+                                        lib = LIBRARY_ES1;
+                                        break;
                                     case 2: 
                                         lib = LIBRARY_ES2;
                                         break;

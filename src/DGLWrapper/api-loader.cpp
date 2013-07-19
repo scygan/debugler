@@ -114,6 +114,18 @@ std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
 #else
             return "libGL.so.1";
 #endif
+        case LIBRARY_ES1:
+#ifdef _WIN32
+            return "libGLESv1_CM.dll";
+#else
+#ifdef __ANDROID__
+            //on Android libraries are not opened by SONAME
+            return "libGLESv1_CM.so";
+#else
+            return "libGLESv1_CM.so.1";
+#endif
+#endif
+            break;
         case LIBRARY_ES2:
         case LIBRARY_ES3:
 #ifdef _WIN32
@@ -135,7 +147,8 @@ std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
 bool APILoader::isLibGL(const char* name) {
     std::string nameStr(name);
     return nameStr.find("libGL") != std::string::npos ||
-        nameStr.find("libGLES") != std::string::npos ||
+        nameStr.find("libGLESv2") != std::string::npos ||
+        nameStr.find("libGLESv1_CM") != std::string::npos ||
         nameStr.find("libEGL") != std::string::npos;
 }
 

@@ -105,7 +105,7 @@ namespace {
 
     TEST_F(DGLCommonUT, codegen_libraries) {
         //gl.h + gl2.h
-        EXPECT_EQ(LIBRARY_GL | LIBRARY_ES2 | LIBRARY_ES3, ut_PointerLibraries[glEnable_Call]);
+        EXPECT_EQ(LIBRARY_GL | LIBRARY_ES2 | LIBRARY_ES1 | LIBRARY_ES3, ut_PointerLibraries[glEnable_Call]);
 
         //all ES2 entryps are should be shared with GL or GL_EXT
         for (int i = 0; i < NUM_ENTRYPOINTS; i++) {

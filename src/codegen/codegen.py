@@ -112,7 +112,7 @@ def parse(path, library, genNonExtTypedefs = False, skipTrace = False):
 			else:
 				for param in entrypointParams:
 					#print param
-					paramMatch = re.match("^[ ]*(const|CONST|)[ ]*(struct|)[ ]*((?:unsigned )?[a-zA-Z0-9_]*)[ ]*(\*?)[ ]*(const|CONST|)[ ]*(\*?)[ ]*([a-zA-Z0-9_]*) *$", param)
+					paramMatch = re.match("^[ ]*(const|CONST|)[ ]*(struct|)[ ]*((?:unsigned )?[a-zA-Z0-9_]*)[ ]*(\*?)[ ]*(const|CONST|)[ ]*(\*?)[ ]*([a-zA-Z0-9_]*)(\[.*\])? *$", param)
 					#print paramMatch.groups()
 					paramName = paramMatch.group(7)
 					
@@ -135,6 +135,8 @@ def parse(path, library, genNonExtTypedefs = False, skipTrace = False):
 					if paramMatch.group(6):
 						paramDecl += paramMatch.group(6)
 					paramDecl += paramName
+					if paramMatch.group(8):
+						paramDecl += paramMatch.group(8)
 					paramDeclList.append(paramDecl)
 				
 			if entryPointName in entrypoints:
@@ -152,7 +154,10 @@ print >> defFile, "EXPORTS"
 parse(inputDir + "/GL.h", "LIBRARY_GL", True)
 parse(inputDir + "/glext.h", "LIBRARY_GL_EXT")
 
+parse(inputDir + "/GLESv1/gl.h", "LIBRARY_ES1", True)
+parse(inputDir + "/GLESv1/glext.h", "LIBRARY_ES1")
 parse(inputDir + "/gl2.h", "LIBRARY_ES2", True)
+parse(inputDir + "/gl2ext.h", "LIBRARY_ES2_EXT")
 parse(inputDir + "/gl3.h", "LIBRARY_ES3", True)
 
 parse(inputDir + "/wgl.h", "LIBRARY_WGL", True)

@@ -27,7 +27,10 @@ add_custom_command(
         ${codegen_in}/wglext.h 
         ${codegen_in}/egl.h 
         ${codegen_in}/eglext.h 
+		${codegen_in}/GLESv1/gl.h
+		${codegen_in}/GLESv1/glext.h
         ${codegen_in}/gl2.h
+		${codegen_in}/gl2ext.h
         ${codegen_in}/gl3.h
         ${codegen_in}/glx.h
         ${codegen_in}/glxext.h
