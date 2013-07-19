@@ -472,7 +472,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
         DIRECT_CALL_CHK(wglDeleteContext)(tmpCtx);
         anyContextPresent = true;
     }
-#elif HAVE_LIBRARY_GLX
+#elif defined(HAVE_LIBRARY_GLX)
     Display *dpy;
     GLXFBConfig config = NULL;
     GLXContext sharedContext;
