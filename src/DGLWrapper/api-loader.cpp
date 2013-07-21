@@ -40,6 +40,29 @@
 #include "dl-intercept.h"
 #endif
 
+
+#ifdef _WIN32
+#define LIBGL_NAME     "opengl32.dll"
+#define LIBGLES1_NAME  "libGLESv1_CM.dll"
+#define LIBGLES2_NAME  "libGLESv2.dll"
+#define LIBEGL_NAME    "libEGL.dll"
+#define STRIP_VERSION(X) X
+#elif defined(__ANDROID__)
+//on Android libraries are not opened by SONAME
+#define LIBGL_NAME    "libGL.so"
+#define LIBGLES1_NAME "libGLESv1_CM.so"
+#define LIBGLES2_NAME "libGLESv2.so"
+#define LIBEGL_NAME   "libEGL.so"
+#define STRIP_VERSION(X) X
+#else
+#define LIBGL_NAME    "libGL.so.1"
+#define LIBGLES1_NAME "libGLESv1_CM.so.1"
+#define LIBGLES2_NAME "libGLESv2.so.1"
+#define LIBEGL_NAME   "libEGL.so.1"
+#define STRIP_VERSION(X) std::string(X).substr(0, std::string(X).length() - strlen(".1"))
+#endif
+
+
 //here direct pointers are kept (pointers to entrypoints exposed by underlying OpenGL32 implementation
 //use DIRECT_CALL(name) to call one of these pointers
 LoadedPointer g_DirectPointers[Entrypoints_NUM] = {
@@ -96,48 +119,16 @@ bool APILoader::loadExtPointer(Entrypoint entryp) {
 std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
     switch (apiLibrary) {
         case LIBRARY_EGL:
-#ifdef _WIN32
-            return "libEGL.dll";
-#else
-    #ifdef __ANDROID__
-            //on Android libraries are not opened by SONAME
-            return "libEGL.so";
-    #else
-            return "libEGL.so.1";
-    #endif
-#endif
+            return LIBEGL_NAME;
         case LIBRARY_GL:
         case LIBRARY_WGL:
         case LIBRARY_GLX:
-#ifdef _WIN32
-            return "opengl32.dll";
-#else
-            return "libGL.so.1";
-#endif
+            return LIBGL_NAME;
         case LIBRARY_ES1:
-#ifdef _WIN32
-            return "libGLESv1_CM.dll";
-#else
-#ifdef __ANDROID__
-            //on Android libraries are not opened by SONAME
-            return "libGLESv1_CM.so";
-#else
-            return "libGLESv1_CM.so.1";
-#endif
-#endif
-            break;
+            return LIBGLES1_NAME;
         case LIBRARY_ES2:
         case LIBRARY_ES3:
-#ifdef _WIN32
-            return "libGLESv2.dll";
-#else
-    #ifdef __ANDROID__
-            //on Android libraries are not opened by SONAME
-            return "libGLESv2.so";
-    #else
-            return "libGLESv2.so.1";
-    #endif
-#endif
+            return LIBGLES2_NAME;
         default:
             assert(!"unknown library");
             throw std::runtime_error("Unknown GL library name");
@@ -146,10 +137,10 @@ std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
 
 bool APILoader::isLibGL(const char* name) {
     std::string nameStr(name);
-    bool ret = nameStr.find("libGL.so") != std::string::npos ||
-        nameStr.find("libGLESv2.so") != std::string::npos ||
-        nameStr.find("libGLESv1_CM.so") != std::string::npos ||
-        nameStr.find("libEGL.so") != std::string::npos;
+    bool ret = nameStr.find(STRIP_VERSION(LIBGL_NAME)) != std::string::npos ||
+        nameStr.find(STRIP_VERSION(LIBGLES1_NAME)) != std::string::npos ||
+        nameStr.find(STRIP_VERSION(LIBGLES2_NAME)) != std::string::npos ||
+        nameStr.find(STRIP_VERSION(LIBEGL_NAME)) != std::string::npos;
 
     Os::info("isLibGL(%s) == %d", name, (int) ret);
 
