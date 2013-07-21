@@ -31,13 +31,8 @@
 boost::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];
 
 RetValue ActionBase::DoPre(const CalledEntryPoint& call) {
-#ifdef __ANDROID__
-    DGLThreadState::get()->enterActionProcessing();
-    //we dont enter action processing for Android, for now
-    if (true) {
-#else
+
     if (!DGLThreadState::get()->enterActionProcessing()) {
-#endif   
         //	This is unlikely, but may happen sometimes - OpenGL implementation called us. 
         //If we dont catch it here, we will deadlock later, or likely get into infinite recursion.
         return RetValue();
@@ -55,12 +50,7 @@ RetValue ActionBase::DoPre(const CalledEntryPoint& call) {
 }
 
 void ActionBase::DoPost(const CalledEntryPoint& call, const RetValue& ret) {
-#ifdef __ANDROID__
-    //we dont enter action processing for Android, for now
-    if (false) {
-#else
     if (DGLThreadState::get()->inActionProcessing()) {
-#endif
         try {
             Post(call, ret);
         } catch (const DGLDebugController::TeardownException&) {
@@ -102,6 +92,7 @@ void ActionBase::PrevPost(const CalledEntryPoint& call, const RetValue& ret) {
 RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
     RetValue ret = PrevPre(call);
 
+#ifndef __ANDROID__
     std::lock_guard<std::mutex> server_lock(getController()->getServer().getMtx());
 
     //do a fast non-blocking poll to get "interrupt" message, etc.."
@@ -119,6 +110,7 @@ RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
         //iterate block & loop until someone unbreaks us
         getController()->run_one();
     }
+#endif
 
     //now there should be no breaks
 
@@ -129,8 +121,9 @@ RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
 }
 
 void DefaultAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
+#ifndef __ANDROID__
     std::lock_guard<std::mutex> server_lock(getController()->getServer().getMtx());
-
+#endif
     CallHistory& history = getController()->getCallHistory();
 
     GLenum error;
