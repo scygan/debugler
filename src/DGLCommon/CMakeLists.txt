@@ -10,6 +10,7 @@ set(codegen_out ${CMAKE_CURRENT_BINARY_DIR}/../codegen/)
 set(codegen_GENERATED
     ${codegen_out}/nonExtTypedefs.inl
     ${codegen_out}/wrappers.inl
+    ${codegen_out}/exporters.inl
     ${codegen_out}/functionList.inl
     ${codegen_out}/enum.inl
 )
