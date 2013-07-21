@@ -142,8 +142,6 @@ bool APILoader::isLibGL(const char* name) {
         nameStr.find(STRIP_VERSION(LIBGLES2_NAME)) != std::string::npos ||
         nameStr.find(STRIP_VERSION(LIBEGL_NAME)) != std::string::npos;
 
-    Os::info("isLibGL(%s) == %d", name, (int) ret);
-
     return ret;
 
 }
@@ -156,15 +154,9 @@ void APILoader::setPointer(Entrypoint entryp, FUNC_PTR direct) {
 
 void APILoader::loadLibrary(ApiLibrary apiLibrary) {
 
-    Os::info("loadLibrary()");
     std::string libraryName = getLibraryName(apiLibrary);
 
-    Os::info("loadLibrary(%s)", libraryName.c_str());
-
-
     if (m_LoadedLibraries.find(libraryName) == m_LoadedLibraries.end()) {
-
-        Os::info("loadLibrary(): not loaded, yet");
 
         std::vector<std::string> libSearchPath;
 
