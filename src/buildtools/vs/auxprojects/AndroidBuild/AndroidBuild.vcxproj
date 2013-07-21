@@ -40,8 +40,11 @@
     <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release-Android-ARM'">
     <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)..\build\$(Configuration)\ TYPE=Release</NMakeBuildCommandLine>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug-Android-ARM'">
+    <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)..\build\$(Configuration)\ TYPE=Debug</NMakeBuildCommandLine>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>

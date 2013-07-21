@@ -16,4 +16,4 @@ $(OUT)\android-arm\bin\dglloader: $(OUT)\Makefile $(OUT)\android-arm\libs\armeab
 
 $(OUT)\Makefile:
 	cd $(OUT)
-	cmake -DCMAKE_TOOLCHAIN_FILE=..\..\src\buildtools\toolchains\android.toolchain.cmake -DCMAKE_BUILD_TYPE=$(TYPE) -DANDROID_ABI=armeabi ..\..\src\ -G "NMake Makefiles"
+	cmake -DCMAKE_TOOLCHAIN_FILE=..\..\src\buildtools\toolchains\android.toolchain.cmake -DCMAKE_BUILD_TYPE=$(TYPE) -DANDROID_ABI=armeabi ..\..\src\ -G "Eclipse CDT4 - NMake Makefiles"
