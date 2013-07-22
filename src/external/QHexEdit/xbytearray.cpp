@@ -36,10 +36,10 @@ QByteArray & XByteArray::data()
     return _data;
 }
 
-void XByteArray::setData(QByteArray data)
+void XByteArray::setData(QByteArray __data)
 {
-    _data = data;
-    _changedData = QByteArray(data.length(), char(0));
+    _data = __data;
+    _changedData = QByteArray(__data.length(), char(0));
 }
 
 bool XByteArray::dataChanged(int i)

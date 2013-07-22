@@ -23,7 +23,7 @@
 
 class DGLTraceViewDelegate : public QStyledItemDelegate {
 public:
-    DGLTraceViewDelegate(QObject *parent=0) : QStyledItemDelegate (parent){}
+    DGLTraceViewDelegate(QObject *_parent=0) : QStyledItemDelegate (_parent){}
 
     void paint ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const{
 
@@ -49,10 +49,10 @@ public:
         } else {
             painter->setPen(QPen(QColor("#ff2020")));
         }
-        
+
         r = QRect(option.rect.width() - 160, option.rect.y(), 150, option.rect.height() / 2);
         painter->drawText(r.left(), r.top(), r.width(), r.height(), Qt::AlignTop|Qt::AlignRight, error);
-        
+
         painter->setPen(QPen(QColor("#2020ff")));
         r = option.rect.adjusted(15, option.rect.height() / 2, 0, 0);
         painter->drawText(r.left(), r.top(), r.width(), r.height(), Qt::AlignTop|Qt::AlignLeft, index.data(Qt::UserRole + 2).toString());

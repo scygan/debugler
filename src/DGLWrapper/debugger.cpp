@@ -109,15 +109,15 @@ void CallHistory::add(const CalledEntryPoint& entryp) {
     m_cb.push_back(entryp);
 }
 
-void CallHistory::query(const dglnet::message::QueryCallTrace& query, dglnet::message::CallTrace& reply) {
+void CallHistory::query(const dglnet::message::QueryCallTrace& traceQuery, dglnet::message::CallTrace& reply) {
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    size_t startOffset = reply.m_StartOffset = query.m_StartOffset;
+    size_t startOffset = reply.m_StartOffset = traceQuery.m_StartOffset;
     if (startOffset >= m_cb.size())
         return; //queried non existent elements
 
     //trim query to sane range:
-    size_t endOffset = std::min(static_cast<size_t>(query.m_EndOffset),m_cb.size());
+    size_t endOffset = std::min(static_cast<size_t>(traceQuery.m_EndOffset),m_cb.size());
 
     boost::circular_buffer<CalledEntryPoint>::iterator begin, end;
     end = m_cb.end() - startOffset;

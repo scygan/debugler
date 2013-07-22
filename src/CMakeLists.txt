@@ -27,15 +27,30 @@ include_directories(SYSTEM
 
 
 if (NOT ANDROID)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 else()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
 endif()
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -pedantic -Wall -Wno-unknown-pragmas")# -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wswitch-default -Wundef -Wzero-as-null-pointer-constant") #-Wuseless-cast")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wno-unknown-pragmas -Wextra -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-include-dirs -Wnoexcept -Wsign-promo -Wstrict-null-sentinel")
+
+# These seems incompatible with Qt:
+#  -Wctor-dtor-privacy
+#  -Wzero-as-null-pointer-constant
+#  -Wsign-conversion
+#  -Wswitch-default
+
+# We cannot enable -Wredundant-decls, due to including on Khronos headers. May enable after switch to XML API specs.
+
+# We may consider enabling these, but they are rather hard.
+# -Wundef -Wold-style-cast -Wmissing-declarations -Woverloaded-virtual -Wstrict-overflow=5
+
+# Unsupported by current version of compiler:
+# -Wuseless-cast
 
 add_subdirectory(external/boost)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow")
 add_subdirectory(DGLCommon)
 add_subdirectory(DGLNet)
 if (NOT ANDROID)

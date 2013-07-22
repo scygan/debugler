@@ -177,14 +177,14 @@ namespace state_setters {
     };
     
     PixelStoreAlignment::StateEntry PixelStoreAlignment::s_StateTable[STATE_SIZE] = {
-        { GL_PACK_SWAP_BYTES,   GL_FALSE, false },
-        { GL_PACK_LSB_FIRST,    GL_FALSE, false },
-        { GL_PACK_ROW_LENGTH,   0,        true },
-        { GL_PACK_IMAGE_HEIGHT, 0,        false },
-        { GL_PACK_SKIP_ROWS,    0,        true },
-        { GL_PACK_SKIP_PIXELS,  0,        true },
-        { GL_PACK_SKIP_IMAGES,  0,        false },
-        { GL_PACK_ALIGNMENT,    4,        true },
+        { GL_PACK_SWAP_BYTES,   GL_FALSE, false, 0 },
+        { GL_PACK_LSB_FIRST,    GL_FALSE, false, 0 },
+        { GL_PACK_ROW_LENGTH,   0,        true,  0 },
+        { GL_PACK_IMAGE_HEIGHT, 0,        false, 0 },
+        { GL_PACK_SKIP_ROWS,    0,        true,  0 },
+        { GL_PACK_SKIP_PIXELS,  0,        true,  0 },
+        { GL_PACK_SKIP_IMAGES,  0,        false, 0 },
+        { GL_PACK_ALIGNMENT,    4,        true,  0 },
     };
 }
 #undef STATE_SIZE
@@ -1171,8 +1171,8 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
     GLProgramObj* program = &i->second;
 
     std::set<GLShaderObj*> attachedShaders = program->getAttachedShaders();
-    for (std::set<GLShaderObj*>::iterator i = attachedShaders.begin(); i != attachedShaders.end(); i++) {
-        resource->m_AttachedShaders.push_back(std::pair<gl_t, gl_t>((*i)->getName(), (*i)->getTarget()));
+    for (std::set<GLShaderObj*>::iterator it = attachedShaders.begin(); it != attachedShaders.end(); it++) {
+        resource->m_AttachedShaders.push_back(std::pair<gl_t, gl_t>((*it)->getName(), (*it)->getTarget()));
     }
 
     GLint linkStatus, infoLogLength; 
@@ -1202,14 +1202,14 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
         DIRECT_CALL_CHK(glGetProgramiv)(name, GL_ACTIVE_UNIFORMS, &activeUniforms);
         DIRECT_CALL_CHK(glGetProgramiv)(name, GL_ACTIVE_UNIFORM_MAX_LENGTH, &activeUniformsMaxNameLength);
         std::vector<GLchar> nameBuffer(activeUniformsMaxNameLength);
-        for (int i =0; i < activeUniforms; i++) {
+        for (int idx =0; idx < activeUniforms; idx++) {
             dglnet::resource::DGLResourceProgram::Uniform uniform;
             uniform.m_supportedType = false;
 
             GLsizei length;
             GLint size;
             GLenum type;
-            DIRECT_CALL_CHK(glGetActiveUniform)(name, i, activeUniformsMaxNameLength, &length, &size, &type, &nameBuffer[0]);
+            DIRECT_CALL_CHK(glGetActiveUniform)(name, idx, activeUniformsMaxNameLength, &length, &size, &type, &nameBuffer[0]);
 
             nameBuffer[length] = 0;
             uniform.m_name = &nameBuffer[0];
@@ -1364,26 +1364,26 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
 
                     if (baseType == GL_FLOAT) {
                         std::vector<GLfloat> value(uniform.m_value.size());
-                        for (int i = 0; i < size; i++) {
-                            DIRECT_CALL_CHK(glGetUniformfv)(name, uniform.m_location + i, &value[i * typeSize]);
+                        for (int loc = 0; loc < size; loc++) {
+                            DIRECT_CALL_CHK(glGetUniformfv)(name, uniform.m_location + loc, &value[loc * typeSize]);
                         }
                         std::copy(value.begin(), value.end(), uniform.m_value.begin());
                     } else if (baseType == GL_DOUBLE) {
                         std::vector<GLdouble> value(uniform.m_value.size());
-                        for (int i = 0; i < size; i++) {
-                            DIRECT_CALL_CHK(glGetUniformdv)(name, uniform.m_location + i, &value[i * typeSize]);
+                        for (int loc = 0; loc < size; loc++) {
+                            DIRECT_CALL_CHK(glGetUniformdv)(name, uniform.m_location + loc, &value[loc * typeSize]);
                         }
                         std::copy(value.begin(), value.end(), uniform.m_value.begin());
                     } else if (baseType == GL_INT) {
                         std::vector<GLint> value(uniform.m_value.size());
-                        for (int i = 0; i < size; i++) {
-                            DIRECT_CALL_CHK(glGetUniformiv)(name, uniform.m_location + i, &value[i * typeSize]);
+                        for (int loc = 0; loc < size; loc++) {
+                            DIRECT_CALL_CHK(glGetUniformiv)(name, uniform.m_location + loc, &value[loc * typeSize]);
                         }
                         std::copy(value.begin(), value.end(), uniform.m_value.begin());
                     } else if (baseType == GL_UNSIGNED_INT || baseType == GL_BOOL) {
                         std::vector<GLuint> value(uniform.m_value.size());
-                        for (int i = 0; i < size; i++) {
-                            DIRECT_CALL_CHK(glGetUniformuiv)(name, uniform.m_location + i, &value[i * typeSize]);
+                        for (int loc = 0; loc < size; loc++) {
+                            DIRECT_CALL_CHK(glGetUniformuiv)(name, uniform.m_location + loc, &value[loc * typeSize]);
                         }
                         std::copy(value.begin(), value.end(), uniform.m_value.begin());
                     } else  { assert(0); }
@@ -2588,10 +2588,10 @@ void GLContext::firstUse() {
         DIRECT_CALL_CHK(glGetIntegerv)(GL_NUM_EXTENSIONS, &maxExtensions);
         exts.resize(maxExtensions);
         for (int i = 0; i < maxExtensions; i++) {
-            exts[i] = (char*)DIRECT_CALL_CHK(glGetStringi)(GL_EXTENSIONS, i);
+            exts[i] = (const char*)DIRECT_CALL_CHK(glGetStringi)(GL_EXTENSIONS, i);
         }
     } else {
-        std::string allExts = (char*)DIRECT_CALL_CHK(glGetString)(GL_EXTENSIONS);
+        std::string allExts = (const char*)DIRECT_CALL_CHK(glGetString)(GL_EXTENSIONS);
         std::istringstream allExtsStream(allExts);
         std::copy(std::istream_iterator<std::string>(allExtsStream),
             std::istream_iterator<std::string>(),

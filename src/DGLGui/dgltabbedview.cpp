@@ -17,7 +17,7 @@
 #include "dgltabbedview.h"
 #include "dglgui.h"
 
-DGLTabbedViewItem::DGLTabbedViewItem(dglnet::ContextObjectName objectName, QWidget* parrent):QWidget(parrent),m_ObjectName(objectName) {}
+DGLTabbedViewItem::DGLTabbedViewItem(dglnet::ContextObjectName objName, QWidget* parrent):QWidget(parrent),m_ObjectName(objName) {}
 
 const dglnet::ContextObjectName& DGLTabbedViewItem::getObjName() {return m_ObjectName; }
 
@@ -54,12 +54,12 @@ void DGLTabbedView::closeTab(int idx) {
 void DGLTabbedView::ensureTabDisplayed(opaque_id_t ctxId, gl_t objName, gl_t target) {
     bool found = false; 
     for (int i = 0; i < m_TabWidget.count(); i++) {
-        DGLTabbedViewItem* widget = dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));
-        if (widget &&  widget->getObjName().m_Context == ctxId &&
-            widget->getObjName().m_Name == objName &&
-            widget->getObjName().m_Target == target) {
+        DGLTabbedViewItem* itemWidget = dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));
+        if (itemWidget && itemWidget->getObjName().m_Context == ctxId &&
+            itemWidget->getObjName().m_Name == objName &&
+            itemWidget->getObjName().m_Target == target) {
             found = true;
-            m_TabWidget.setCurrentIndex(m_TabWidget.indexOf(widget));
+            m_TabWidget.setCurrentIndex(m_TabWidget.indexOf(itemWidget));
         }
     }
     if (!found) {
@@ -71,9 +71,9 @@ void DGLTabbedView::ensureTabDisplayed(opaque_id_t ctxId, gl_t objName, gl_t tar
 
 DGLTabbedViewItem* DGLTabbedView::getTab(const dglnet::ContextObjectName& id) {
     for (int i = 0; i < m_TabWidget.count(); i++) {
-        DGLTabbedViewItem* widget = dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));
-        if (widget && widget->getObjName() == id) {
-            return widget;
+        DGLTabbedViewItem* itemWidget = dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));
+        if (itemWidget && itemWidget->getObjName() == id) {
+            return itemWidget;
         }
     }
     return NULL;

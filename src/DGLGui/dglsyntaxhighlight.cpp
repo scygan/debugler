@@ -393,7 +393,7 @@ private:
 };
 
 
-void DGLHLActionStay::doAction(DGLSyntaxHighlighterGLSL::HLState& state) const {
+void DGLHLActionStay::doAction(DGLSyntaxHighlighterGLSL::HLState& /*state*/) const {
 #ifdef HL_DEBUG
     qDebug() << "Action: stay, current context: " << state.getContext()->m_debugName << "\n";
 #endif
@@ -623,8 +623,8 @@ void DGLHLContext::link(const DGLHLData* data) {
         m_rules.push_back(boost::shared_ptr<DGLHLRuleBase>(DGLHLRuleBase::Create(data, element)));
     }
 }
-    
-DGLSyntaxHighlighterGLSL::DGLSyntaxHighlighterGLSL(QTextDocument *parent): QSyntaxHighlighter(parent) {
+
+DGLSyntaxHighlighterGLSL::DGLSyntaxHighlighterGLSL(QTextDocument *_parent): QSyntaxHighlighter(_parent) {
     if (!s_data) {
         s_data = boost::make_shared<DGLHLData>();
     }
@@ -653,7 +653,7 @@ void DGLSyntaxHighlighterGLSL::highlightBlock(const QString &text) {
             assert(res.format);
             //format all matched text with rule-dependent fotmat
             setFormat(pos + res.pos, res.size, res.format->getFormat());
-        }           
+        }
         pos+= res.pos + res.size;
 
         if (res.action)

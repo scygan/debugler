@@ -77,8 +77,8 @@ QPixmap qt_pixmapFromWinHICON(HICON icon);
 #define HICON_TO_QPIXMAP(hicon) qt_pixmapFromWinHICON(hicon)
 #endif
 
-DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WindowFlags flags)
-    : QMainWindow(parent, flags) {
+DGLMainWindow::DGLMainWindow(QWidget *_parent, Qt::WindowFlags flags)
+    : QMainWindow(_parent, flags) {
 
 #pragma warning(push)
 #pragma warning(disable:4127) //conditional expression is constant
@@ -117,10 +117,10 @@ DGLMainWindow::~DGLMainWindow() {
 
 }
 
-void DGLMainWindow::closeEvent(QCloseEvent *event) {
+void DGLMainWindow::closeEvent(QCloseEvent *_event) {
 
     if (m_controller.isConnected() && QMessageBox::question(this, "Confirm close", "Debugging session is in progress. Close application?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
-        event->ignore();
+        _event->ignore();
 
     } else {
         m_controller.disconnectServer();
@@ -134,7 +134,7 @@ void DGLMainWindow::closeEvent(QCloseEvent *event) {
 
         //Send even to parrent class
 
-        event->accept();
+        _event->accept();
     }
 }
 

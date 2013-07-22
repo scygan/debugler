@@ -233,10 +233,10 @@ public:
 
 
     //IMessageHandler methods:
-    virtual void doHandle(const dglnet::message::Hello&);
-    virtual void doHandle(const dglnet::message::BreakedCall&);
-    virtual void doHandle(const dglnet::message::CallTrace&);
-    virtual void doHandle(const dglnet::message::RequestReply&);
+    virtual void doHandle(const dglnet::message::Hello&) override;
+    virtual void doHandle(const dglnet::message::BreakedCall&) override;
+    virtual void doHandle(const dglnet::message::CallTrace&) override;
+    virtual void doHandle(const dglnet::message::RequestReply&) override;
 
     /** 
      * Method called by DGLclient, when disconnection condition is detected

@@ -96,9 +96,9 @@ namespace dglnet {
             m_Ok = false;
         }
 
-        bool RequestReply::isOk(std::string& error) const {
+        bool RequestReply::isOk(std::string& _error) const {
             if (!m_Ok) {
-                error = m_ErrorMsg;
+                _error = m_ErrorMsg;
             }
             return m_Ok;
         }

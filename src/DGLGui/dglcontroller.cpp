@@ -25,9 +25,9 @@ DGLRequestHandler::~DGLRequestHandler() {
 
 DGLRequestManager::DGLRequestManager(DglController* controller):m_Controller(controller) {}
 
-void DGLRequestManager::request(dglnet::DGLRequest* request, DGLRequestHandler* handler) {
+void DGLRequestManager::request(dglnet::DGLRequest* req, DGLRequestHandler* handler) {
 
-    dglnet::message::Request requestMessage(request);
+    dglnet::message::Request requestMessage(req);
     m_CurrentHandlers[requestMessage.getId()] = handler;
     m_Controller->sendMessage(&requestMessage);
 }
@@ -49,7 +49,7 @@ void DGLRequestManager::unregisterHandler(DGLRequestHandler* handler) {
 }
 
 
-DGLResourceListener::DGLResourceListener(dglnet::ContextObjectName objectName, dglnet::DGLResource::ObjectType type, DGLResourceManager* manager):DGLRequestHandler(manager->getRequestManager()), m_ObjectType(type), m_ObjectName(objectName), m_Manager(manager) {}
+DGLResourceListener::DGLResourceListener(dglnet::ContextObjectName obName, dglnet::DGLResource::ObjectType type, DGLResourceManager* manager):DGLRequestHandler(manager->getRequestManager()), m_ObjectType(type), m_ObjectName(obName), m_Manager(manager) {}
 
 DGLResourceListener::~DGLResourceListener() {
     m_Manager->unregisterListener(this);

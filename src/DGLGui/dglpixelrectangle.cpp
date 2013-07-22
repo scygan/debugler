@@ -35,7 +35,7 @@
 
 #include <DGLCommon/def.h>
 
-DGLPixRectQGraphicsView::DGLPixRectQGraphicsView(QWidget* parent):QGraphicsView(parent) {
+DGLPixRectQGraphicsView::DGLPixRectQGraphicsView(QWidget* _parent):QGraphicsView(_parent) {
     QPixmap* tile = new QPixmap(128, 128);
     tile->fill(Qt::white);
     QPainter pt(tile);
@@ -48,14 +48,14 @@ DGLPixRectQGraphicsView::DGLPixRectQGraphicsView(QWidget* parent):QGraphicsView(
     setMouseTracking(true);
 }
 
-void DGLPixRectQGraphicsView::resizeEvent (QResizeEvent * event) {
-    emit resized(event->size());
+void DGLPixRectQGraphicsView::resizeEvent (QResizeEvent * _event) {
+    emit resized(_event->size());
 }
-void DGLPixRectQGraphicsView::mouseMoveEvent ( QMouseEvent * event ) {
-    emit onMouseOver(event->pos());
-    QGraphicsView::mouseMoveEvent(event);
+void DGLPixRectQGraphicsView::mouseMoveEvent ( QMouseEvent * _event ) {
+    emit onMouseOver(_event->pos());
+    QGraphicsView::mouseMoveEvent(_event);
 }
-void DGLPixRectQGraphicsView::leaveEvent ( QEvent * /*event*/ ) {
+void DGLPixRectQGraphicsView::leaveEvent ( QEvent * /*_event*/ ) {
     emit onMouseLeft();
 }
 
@@ -95,7 +95,7 @@ private:
 };
 
 
-DGLPixelRectangleView::DGLPixelRectangleView(QWidget* parent):m_GraphicsView(parent), m_Scene(NULL) {
+DGLPixelRectangleView::DGLPixelRectangleView(QWidget* _parent):m_GraphicsView(_parent), m_Scene(NULL) {
     m_Ui = new Ui::DGLPixelRectangleView();
     m_Ui->setupUi(this);
     m_Ui->verticalLayout->insertWidget(0, &m_GraphicsView);
@@ -123,13 +123,13 @@ void DGLPixelRectangleView::setScene(DGLPixelRectangleScene *scene) {
 }
 
 void DGLPixelRectangleView::onMouseOver(const QPoint& barePos) {
-    QPoint pos = m_Scene->translate(barePos);
-    if (m_Scene->inside(pos)) {
+    QPoint currentPos = m_Scene->translate(barePos);
+    if (m_Scene->inside(currentPos)) {
 
-        std::pair<QColor, std::vector<AnyValue> > currColor = m_Scene->getColor(pos);
+        std::pair<QColor, std::vector<AnyValue> > currColor = m_Scene->getColor(currentPos);
 
         std::ostringstream tmp;
-        tmp << "(" << pos.x() << ", " << pos.y() << ") = [";
+        tmp << "(" << currentPos.x() << ", " << currentPos.y() << ") = [";
         for (size_t i = 0; i < currColor.second.size(); i++) {
             currColor.second[i].writeToSS(tmp);
             if (i != currColor.second.size() - 1) {
@@ -155,23 +155,23 @@ void DGLPixelRectangleView::onMouseLeft() {
     m_Ui->widgetColor->setPalette(pal);
 }
 
-void DGLPixelRectangleView::showChannelR(bool show) {
-    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_R, show?1.0f:0.0f, 0.0f);
+void DGLPixelRectangleView::showChannelR(bool _show) {
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_R, _show?1.0f:0.0f, 0.0f);
 }
-void DGLPixelRectangleView::showChannelG(bool show) {
-    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_G, show?1.0f:0.0f, 0.0f);
+void DGLPixelRectangleView::showChannelG(bool _show) {
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_G, _show?1.0f:0.0f, 0.0f);
 }
-void DGLPixelRectangleView::showChannelB(bool show) {
-    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_B, show?1.0f:0.0f, 0.0f);
+void DGLPixelRectangleView::showChannelB(bool _show) {
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_B, _show?1.0f:0.0f, 0.0f);
 }
-void DGLPixelRectangleView::showChannelA(bool show) {
-    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_A, show?1.0f:0.0f, show?0.0f:1.0f);
+void DGLPixelRectangleView::showChannelA(bool _show) {
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_A, _show?1.0f:0.0f, _show?0.0f:1.0f);
 }
-void DGLPixelRectangleView::showChannelD(bool show) {
-    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_D, show?1.0f:0.0f, 0.0f);
+void DGLPixelRectangleView::showChannelD(bool _show) {
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_D, _show?1.0f:0.0f, 0.0f);
 }
-void DGLPixelRectangleView::showChannelS(bool show) {
-    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_S, show?1.0f:0.0f, 0.0f);
+void DGLPixelRectangleView::showChannelS(bool _show) {
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_S, _show?1.0f:0.0f, 0.0f);
 }
 
 void DGLPixelRectangleView::updateFormatSizeInfo(const dglnet::resource::DGLPixelRectangle* pixelRectangle) {

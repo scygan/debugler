@@ -239,13 +239,13 @@ int main(int argc, char** argv) {
 #endif
         if (pid == 0) {
             std::vector<std::vector<char> > argvs(arguments.size()); 
-            std::vector<char*> argv(arguments.size());
+            std::vector<char*> argVector(arguments.size());
             for (size_t i = 0; i < arguments.size(); i++) {
                 std::copy(arguments[i].begin(), arguments[i].end(), std::back_inserter<std::vector<char> >(argvs[i]));
                 argvs[i].push_back('\0');
-                argv[i] = &argvs[i][0];
+                argVector[i] = &argvs[i][0];
             }
-            argv.push_back(NULL);
+            argVector.push_back(NULL);
 
             Os::setEnv("LD_PRELOAD", wrapperPath.c_str());
 
@@ -262,7 +262,7 @@ int main(int argc, char** argv) {
            }
 #endif
 
-            execvp(executable.c_str(), &argv[0]);
+            execvp(executable.c_str(), &argVector[0]);
             throw std::runtime_error("Cannot execute process");
         }
 #endif

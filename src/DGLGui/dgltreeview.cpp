@@ -91,6 +91,7 @@ public:
     DGLFBOWidget() {}
     DGLFBOWidget(dglnet::ContextObjectName name, QString iconPath):m_name(name) {
         setText(0, QString("FBO ") + QString::number(name.m_Name));
+        setIcon(0, QIcon(iconPath));
     }
     void handleDoubleClick(DglController* controller) {
         controller->getViewRouter()->show(m_name, dglnet::DGLResource::ObjectTypeFBO);
@@ -131,9 +132,9 @@ private:
 class DGLFramebufferWidget: public QClickableTreeWidgetItem {
 public:
     DGLFramebufferWidget() {}
-    DGLFramebufferWidget(dglnet::ContextObjectName type, QString iconPath):m_type(type) {
+    DGLFramebufferWidget(dglnet::ContextObjectName objName, QString iconPath):m_type(objName) {
         std::string name = "unknown";
-        switch (type.m_Name) {
+        switch (objName.m_Name) {
             case GL_FRONT_RIGHT:
                 name = "Front right buffer"; break;
             case GL_BACK_RIGHT:
@@ -233,20 +234,20 @@ private:
 
 void DGLTreeView::breakedWithStateReports(opaque_id_t currentContextId, const std::vector<dglnet::message::BreakedCall::ContextReport>& report) {
     for(size_t i = 0; i < report.size(); i++) {
-        DGLCtxTreeWidget*  widget = 0; 
+        DGLCtxTreeWidget*  treeWidget = 0; 
         for (int j = 0; j < m_TreeWidget.topLevelItemCount(); j++) {
             DGLCtxTreeWidget*  thisWidget = dynamic_cast<DGLCtxTreeWidget*>(m_TreeWidget.topLevelItem(j)); 
             if ( thisWidget && thisWidget->getId() == report[i].m_Id) {
-                widget = thisWidget; break;
+                treeWidget = thisWidget; break;
             }
         }
-        if (!widget) {
-            widget = new DGLCtxTreeWidget(report[i].m_Id); 
-            m_TreeWidget.addTopLevelItem(widget);
+        if (!treeWidget) {
+            treeWidget = new DGLCtxTreeWidget(report[i].m_Id); 
+            m_TreeWidget.addTopLevelItem(treeWidget);
         }
-        widget->update(report[i], report[i].m_Id == currentContextId);
-    }    
-    
+        treeWidget->update(report[i], report[i].m_Id == currentContextId);
+    }
+
     for (int j = 0; j < m_TreeWidget.topLevelItemCount(); j++) {
         DGLCtxTreeWidget* thisWidget = dynamic_cast<DGLCtxTreeWidget*>(m_TreeWidget.topLevelItem(j)); 
         bool found = false;

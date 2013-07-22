@@ -492,8 +492,8 @@ namespace {
 
        //Verify frag shader
        {
-           dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, fragId)));
-           client->sendMessage(&requestMessage);
+           dglnet::message::Request req(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, fragId)));
+           client->sendMessage(&req);
        }
        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
        ASSERT_TRUE(reply->isOk(nothing));
@@ -510,8 +510,8 @@ namespace {
 
        //Query back framebuffer
        {
-           dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeFramebuffer, dglnet::ContextObjectName(breaked->m_CurrentCtx, GL_BACK)));
-           client->sendMessage(&requestMessage);
+           dglnet::message::Request req(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeFramebuffer, dglnet::ContextObjectName(breaked->m_CurrentCtx, GL_BACK)));
+           client->sendMessage(&req);
        }
        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
        ASSERT_TRUE(reply->isOk(nothing));
@@ -526,16 +526,16 @@ namespace {
 
        //Reset shader to default
        {
-           dglnet::message::Request requestMessage(new dglnet::request::EditShaderSource(breaked->m_CurrentCtx, fragId, true));
-           client->sendMessage(&requestMessage);
+           dglnet::message::Request req(new dglnet::request::EditShaderSource(breaked->m_CurrentCtx, fragId, true));
+           client->sendMessage(&req);
        }
        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
        ASSERT_TRUE(reply->isOk(nothing));
 
        //Verify frag shader
        {
-           dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, fragId)));
-           client->sendMessage(&requestMessage);
+           dglnet::message::Request req(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, fragId)));
+           client->sendMessage(&req);
        }
        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
        ASSERT_TRUE(reply->isOk(nothing));

@@ -30,8 +30,8 @@ public:
     }
 
 protected:
-    void paintEvent(QPaintEvent *event) {
-        m_CodeEditor->lineNumberAreaPaintEvent(event);
+    void paintEvent(QPaintEvent *_event) {
+        m_CodeEditor->lineNumberAreaPaintEvent(_event);
     }
 
 private:
@@ -39,7 +39,7 @@ private:
 };
 
 
-DGLGLSLEditor::DGLGLSLEditor(QWidget *parent) : QPlainTextEdit(parent) {
+DGLGLSLEditor::DGLGLSLEditor(QWidget *_parent) : QPlainTextEdit(_parent) {
     lineNumberArea = new DGLLineNumberArea(this);
 
     CONNASSERT(connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int))));
@@ -63,13 +63,13 @@ int DGLGLSLEditor::lineNumberAreaWidth() {
     return space;
 }
 
-void DGLGLSLEditor::updateLineNumberArea(const QRect &rect, int dy) {
+void DGLGLSLEditor::updateLineNumberArea(const QRect &_rect, int dy) {
     if (dy)
         lineNumberArea->scroll(0, dy);
     else
-        lineNumberArea->update(0, rect.y(), lineNumberArea->width(), rect.height());
+        lineNumberArea->update(0, _rect.y(), lineNumberArea->width(), _rect.height());
 
-    if (rect.contains(viewport()->rect()))
+    if (_rect.contains(viewport()->rect()))
         updateLineNumberAreaWidth(0);
 }
 
@@ -85,7 +85,7 @@ void DGLGLSLEditor::updateLineNumberAreaWidth(int /* newBlockCount */) {
 }
 
 void DGLGLSLEditor::highlightCurrentLine() {
-    QList<QTextEdit::ExtraSelection> extraSelections;
+    QList<QTextEdit::ExtraSelection> newExtraSelections;
 
     if (!isReadOnly()) {
         QTextEdit::ExtraSelection selection;
@@ -96,21 +96,21 @@ void DGLGLSLEditor::highlightCurrentLine() {
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
         selection.cursor = textCursor();
         selection.cursor.clearSelection();
-        extraSelections.append(selection);
+        newExtraSelections.append(selection);
     }
 
-    setExtraSelections(extraSelections);
+    setExtraSelections(newExtraSelections);
 }
 
-void DGLGLSLEditor::lineNumberAreaPaintEvent(QPaintEvent *event) {
+void DGLGLSLEditor::lineNumberAreaPaintEvent(QPaintEvent *_event) {
     QPainter painter(lineNumberArea);
-    painter.fillRect(event->rect(), Qt::lightGray);
+    painter.fillRect(_event->rect(), Qt::lightGray);
     QTextBlock block = firstVisibleBlock();
     int blockNumber = block.blockNumber();
     int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
     int bottom = top + (int) blockBoundingRect(block).height();
-    while (block.isValid() && top <= event->rect().bottom()) {
-        if (block.isVisible() && bottom >= event->rect().top()) {
+    while (block.isValid() && top <= _event->rect().bottom()) {
+        if (block.isVisible() && bottom >= _event->rect().top()) {
             QString number = QString::number(blockNumber + 1);
             painter.setPen(Qt::black);
             painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(),

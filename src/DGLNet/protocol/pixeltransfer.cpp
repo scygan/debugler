@@ -262,13 +262,13 @@ namespace extract {
 
 
 GLDataType g_DataTypes[] = {
-    { GL_UNSIGNED_BYTE,                    1, false, blt::blitFunc<blt::blitUNORM8>,           extract::extract<uint8_t>           },
-    { GL_BYTE,                             1, false, blt::blitFunc<blt::blitSNORM8>,           extract::extract<int8_t>            },
-    { GL_UNSIGNED_SHORT,                   2, false, blt::blitFunc<blt::blitUNORM16>,          extract::extract<uint16_t>          },
-    { GL_SHORT,                            2, false, blt::blitFunc<blt::blitSNORM16>,          extract::extract<int16_t>           },
-    { GL_UNSIGNED_INT,                     4, false, blt::blitFunc<blt::blitUNORM32>,          extract::extract<uint32_t>          },
-    { GL_INT,                              4, false, blt::blitFunc<blt::blitSNORM32>,          extract::extract<int32_t>           },
-    { GL_FLOAT,                            4, false, blt::blitFunc<blt::blitFLOAT32>,          extract::extract<float>             },
+    { GL_UNSIGNED_BYTE,                    1, false, blt::blitFunc<blt::blitUNORM8>,           extract::extract<uint8_t>,        0 },
+    { GL_BYTE,                             1, false, blt::blitFunc<blt::blitSNORM8>,           extract::extract<int8_t>,         0 },
+    { GL_UNSIGNED_SHORT,                   2, false, blt::blitFunc<blt::blitUNORM16>,          extract::extract<uint16_t>,       0 },
+    { GL_SHORT,                            2, false, blt::blitFunc<blt::blitSNORM16>,          extract::extract<int16_t>,        0 },
+    { GL_UNSIGNED_INT,                     4, false, blt::blitFunc<blt::blitUNORM32>,          extract::extract<uint32_t>,       0 },
+    { GL_INT,                              4, false, blt::blitFunc<blt::blitSNORM32>,          extract::extract<int32_t>,        0 },
+    { GL_FLOAT,                            4, false, blt::blitFunc<blt::blitFLOAT32>,          extract::extract<float>,          0 },
     { GL_UNSIGNED_SHORT_4_4_4_4,           2, true,  blt::blitFunc<blt::blitUNORM4444>,        extract::extractUNORM4444,        4 },
     { GL_UNSIGNED_SHORT_5_5_5_1,           2, true,  blt::blitFunc<blt::blitUNORM5551>,        extract::extractUNORM5551,        4 },
     { GL_UNSIGNED_INT_2_10_10_10_REV,      4, true,  blt::blitFunc<blt::blitUNORM2101010_REV>, extract::extractUNORM2101010_REV, 4 },

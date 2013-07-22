@@ -11,7 +11,7 @@
 #include "qhexedit.h"
 
 
-QHexEdit::QHexEdit(QWidget *parent) : QScrollArea(parent)
+QHexEdit::QHexEdit(QWidget *_parent) : QScrollArea(_parent)
 {
     qHexEdit_p = new QHexEditPrivate(this);
     setWidget(qHexEdit_p);
@@ -44,14 +44,14 @@ int QHexEdit::lastIndexOf(const QByteArray & ba, int from) const
     return qHexEdit_p->lastIndexOf(ba, from);
 }
 
-void QHexEdit::remove(int pos, int len)
+void QHexEdit::remove(int _pos, int len)
 {
-    qHexEdit_p->remove(pos, len);
+    qHexEdit_p->remove(_pos, len);
 }
 
-void QHexEdit::replace( int pos, int len, const QByteArray & after)
+void QHexEdit::replace( int _pos, int len, const QByteArray & after)
 {
-    qHexEdit_p->replace(pos, len, after);
+    qHexEdit_p->replace(_pos, len, after);
 }
 
 QString QHexEdit::toReadableString()
@@ -117,9 +117,9 @@ int QHexEdit::cursorPosition()
 }
 
 
-void QHexEdit::setData(const QByteArray &data)
+void QHexEdit::setData(const QByteArray &_data)
 {
-    qHexEdit_p->setData(data);
+    qHexEdit_p->setData(_data);
 }
 
 QByteArray QHexEdit::data()
@@ -157,9 +157,9 @@ QColor QHexEdit::selectionColor()
     return qHexEdit_p->selectionColor();
 }
 
-void QHexEdit::setOverwriteMode(bool overwriteMode)
+void QHexEdit::setOverwriteMode(bool _overwriteMode)
 {
-    qHexEdit_p->setOverwriteMode(overwriteMode);
+    qHexEdit_p->setOverwriteMode(_overwriteMode);
 }
 
 bool QHexEdit::overwriteMode()
@@ -177,9 +177,9 @@ bool QHexEdit::isReadOnly()
     return qHexEdit_p->isReadOnly();
 }
 
-void QHexEdit::setFont(const QFont &font)
+void QHexEdit::setFont(const QFont &_font)
 {
-    qHexEdit_p->setFont(font);
+    qHexEdit_p->setFont(_font);
 }
 
 const QFont & QHexEdit::font() const
