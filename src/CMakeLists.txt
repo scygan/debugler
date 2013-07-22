@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
 
+if (ARCH EQUAL 32 OR ARCH EQUAL 64)
+    set (CMAKE_C_FLAGS "-m${ARCH}")
+    set (CMAKE_CXX_FLAGS "-m${ARCH}")
+endif()
+
 project(debugler)
 
 
