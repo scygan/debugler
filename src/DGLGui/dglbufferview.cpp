@@ -24,7 +24,7 @@ DGLBufferViewItem::DGLBufferViewItem(dglnet::ContextObjectName name, DGLResource
     m_VerticalLayout->addWidget(m_Editor);
     m_VerticalLayout->addWidget(m_Label);
 
-    m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectTypeBuffer);
+    m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectType::Buffer);
     m_Listener->setParent(this);
 
     CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));

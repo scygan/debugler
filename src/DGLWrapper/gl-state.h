@@ -148,7 +148,7 @@ private:
 
 class GLContextVersion {
 public:
-    enum Type {
+    enum class Type {
         DT, 
         ES,
         UNSUPPORTED,

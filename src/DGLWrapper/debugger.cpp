@@ -44,18 +44,18 @@ DGLIPC* getIPC() {
 
 DGLConfiguration g_Config;
 
-BreakState::BreakState():m_break(true),m_StepModeEnabled(false), m_StepMode(dglnet::message::ContinueBreak::STEP_DRAW_CALL) {}
+BreakState::BreakState():m_break(true),m_StepModeEnabled(false), m_StepMode(dglnet::message::ContinueBreak::StepMode::CALL) {}
 
 bool BreakState::mayBreakAt(const Entrypoint& e) {
     if (m_StepModeEnabled) {
         switch (m_StepMode) {
-            case dglnet::message::ContinueBreak::STEP_CALL:  
+            case dglnet::message::ContinueBreak::StepMode::CALL:  
                 m_break = true;
                 break;
-            case dglnet::message::ContinueBreak::STEP_DRAW_CALL:
+            case dglnet::message::ContinueBreak::StepMode::DRAW_CALL:
                 if (IsDrawCall(e)) m_break = true;
                 break;
-            case dglnet::message::ContinueBreak::STEP_FRAME:  
+            case dglnet::message::ContinueBreak::StepMode::FRAME:  
                 if (IsFrameDelimiter(e)) m_break = true;
                 break;
         }
@@ -281,28 +281,28 @@ boost::shared_ptr<dglnet::DGLResource> DGLDebugController::doHandleRequest(const
     }
     ctx->startQuery();
     switch (request.m_Type) {
-        case dglnet::DGLResource::ObjectTypeBuffer:
+        case dglnet::DGLResource::ObjectType::Buffer:
             resource = ctx->queryBuffer(request.m_ObjectName.m_Name);
             break;
-        case dglnet::DGLResource::ObjectTypeFramebuffer:
+        case dglnet::DGLResource::ObjectType::Framebuffer:
             resource = ctx->queryFramebuffer(request.m_ObjectName.m_Name);
             break;
-        case dglnet::DGLResource::ObjectTypeFBO:
+        case dglnet::DGLResource::ObjectType::FBO:
             resource = ctx->queryFBO(request.m_ObjectName.m_Name);
             break;
-        case dglnet::DGLResource::ObjectTypeTexture:
+        case dglnet::DGLResource::ObjectType::Texture:
             resource = ctx->queryTexture(request.m_ObjectName.m_Name);
             break;
-        case dglnet::DGLResource::ObjectTypeShader:
+        case dglnet::DGLResource::ObjectType::Shader:
             resource = ctx->queryShader(request.m_ObjectName.m_Name);
             break;
-        case dglnet::DGLResource::ObjectTypeProgram:
+        case dglnet::DGLResource::ObjectType::Program:
             resource = ctx->queryProgram(request.m_ObjectName.m_Name);
             break;
-        case dglnet::DGLResource::ObjectTypeGPU:
+        case dglnet::DGLResource::ObjectType::GPU:
             resource = ctx->queryGPU();
             break;
-        case dglnet::DGLResource::ObjectTypeState:
+        case dglnet::DGLResource::ObjectType::State:
             resource = ctx->queryState(request.m_ObjectName.m_Name);
             break;
         default:

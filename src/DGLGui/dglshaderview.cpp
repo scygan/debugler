@@ -58,7 +58,7 @@ DGLShaderViewItem::DGLShaderViewItem(dglnet::ContextObjectName name, DGLResource
 
     m_Highlighter = boost::make_shared<DGLSyntaxHighlighterGLSL>(m_Ui.checkBox_Highlight->isChecked()?m_GLSLEditor->document():NULL);
 
-    m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectTypeShader);
+    m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectType::Shader);
     m_Listener->setParent(this);
 
     editAction(EditAction::A_ERROR);

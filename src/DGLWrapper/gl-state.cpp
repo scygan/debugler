@@ -45,7 +45,7 @@ namespace state_setters {
     class DefaultPBO {
     public:
         DefaultPBO(GLContext* ctx):m_Ctx(ctx) {
-            if (m_Ctx->getVersion().check(GLContextVersion::DT, 2, 1) || m_Ctx->getVersion().check(GLContextVersion::ES, 3)) {
+            if (m_Ctx->getVersion().check(GLContextVersion::Type::DT, 2, 1) || m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3)) {
                 DIRECT_CALL_CHK(glGetIntegerv)(GL_PIXEL_PACK_BUFFER_BINDING, &m_PBO);
             } else {
                 m_PBO = 0;
@@ -67,23 +67,23 @@ namespace state_setters {
     class CurrentFramebuffer {
     public:
         CurrentFramebuffer(GLContext* ctx, GLuint name):m_Ctx(ctx) {
-            if (m_Ctx->getVersion().check(GLContextVersion::DT, 3) || m_Ctx->getVersion().check(GLContextVersion::ES, 3)) {
+            if (m_Ctx->getVersion().check(GLContextVersion::Type::DT, 3) || m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3)) {
                 //full FBO support
                 DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_FRAMEBUFFER_BINDING, &m_ReadFBO);
                 DIRECT_CALL_CHK(glGetIntegerv)(GL_DRAW_FRAMEBUFFER_BINDING, &m_DrawFBO);
                 DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, name);
-            } else if (m_Ctx->getVersion().check(GLContextVersion::ES, 2)) {
+            } else if (m_Ctx->getVersion().check(GLContextVersion::Type::ES, 2)) {
                 //only single draw+read fbo binding is supported
                 DIRECT_CALL_CHK(glGetIntegerv)(GL_FRAMEBUFFER_BINDING, &m_DrawFBO);
                 DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, name);
             }
         }
         ~CurrentFramebuffer() {
-            if (m_Ctx->getVersion().check(GLContextVersion::DT, 3) || m_Ctx->getVersion().check(GLContextVersion::ES, 3)) {
+            if (m_Ctx->getVersion().check(GLContextVersion::Type::DT, 3) || m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3)) {
                 //full FBO support
                 DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, m_ReadFBO);
                 DIRECT_CALL_CHK(glBindFramebuffer)(GL_DRAW_FRAMEBUFFER, m_DrawFBO);
-            } else if (m_Ctx->getVersion().check(GLContextVersion::ES, 2)) {
+            } else if (m_Ctx->getVersion().check(GLContextVersion::Type::ES, 2)) {
                 //only single draw+read fbo binding is supported
                 DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, m_DrawFBO);
             }
@@ -96,12 +96,12 @@ namespace state_setters {
     class ReadBuffer {
     public:
         ReadBuffer(GLContext* ctx):m_Ctx(ctx) {
-            if (m_Ctx->getVersion().check(GLContextVersion::ES, 3) || m_Ctx->getVersion().check(GLContextVersion::DT)) {
+            if (m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3) || m_Ctx->getVersion().check(GLContextVersion::Type::DT)) {
                 DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &m_ReadBuffer);
             }
         }
         ~ReadBuffer() {
-            if (m_Ctx->getVersion().check(GLContextVersion::ES, 3) || m_Ctx->getVersion().check(GLContextVersion::DT)) {
+            if (m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3) || m_Ctx->getVersion().check(GLContextVersion::Type::DT)) {
                 DIRECT_CALL_CHK(glReadBuffer)(m_ReadBuffer);
             }
         }
@@ -145,8 +145,8 @@ namespace state_setters {
         PixelStoreAlignment(GLContext* ctx):m_Ctx(ctx) {
             //dump and set pixel store state
             for (int i = 0; i < STATE_SIZE; i++) {
-                if (m_Ctx->getVersion().check(GLContextVersion::DT) ||
-                        s_StateTable[i].m_ES3 && m_Ctx->getVersion().check(GLContextVersion::ES, 3)) {
+                if (m_Ctx->getVersion().check(GLContextVersion::Type::DT) ||
+                       (s_StateTable[i].m_ES3 && m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3))) {
                     DIRECT_CALL_CHK(glGetIntegerv)(s_StateTable[i].m_Target, &s_StateTable[i].m_SavedState);
                     DIRECT_CALL_CHK(glPixelStorei)(s_StateTable[i].m_Target, s_StateTable[i].m_State);
                 }
@@ -154,8 +154,8 @@ namespace state_setters {
         }
         ~PixelStoreAlignment() {
             for (int i = 0; i < STATE_SIZE; i++) {
-                if (m_Ctx->getVersion().check(GLContextVersion::DT) ||
-                        s_StateTable[i].m_ES3 && m_Ctx->getVersion().check(GLContextVersion::ES, 3)) {
+                if (m_Ctx->getVersion().check(GLContextVersion::Type::DT) ||
+                        (s_StateTable[i].m_ES3 && m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3))) {
                     DIRECT_CALL_CHK(glPixelStorei)(s_StateTable[i].m_Target, s_StateTable[i].m_SavedState);
                 }
             }
@@ -460,9 +460,9 @@ void GLContextVersion::initialize(const char* cVersion) {
     std::string version = cVersion;
 
     int vOffset = -1;
-    if (m_Type == DT) {
+    if (m_Type == Type::DT) {
         vOffset = 0;
-    } else if (m_Type == ES) {
+    } else if (m_Type == Type::ES) {
         if (version.substr(0, strlen("OpenGL ES ")) == "OpenGL ES ") {
             vOffset = (int)strlen("OpenGL ES ");
         } else if (version.substr(0, strlen("OpenGL ES-")) == "OpenGL ES-") {
@@ -520,7 +520,7 @@ dglnet::message::BreakedCall::ContextReport GLContext::describe() {
             }
             ret.m_FramebufferSpace.insert(dglnet::ContextObjectName(m_Id, GL_FRONT_RIGHT));
         }
-        if (getVersion().check(GLContextVersion::ES, 3) || getVersion().check(GLContextVersion::DT)) {
+        if (getVersion().check(GLContextVersion::Type::ES, 3) || getVersion().check(GLContextVersion::Type::DT)) {
             //we have glReadBuffer, so we can read from front/back
             if (m_NativeReadSurface->isDoubleBuffered()) {
                 ret.m_FramebufferSpace.insert(dglnet::ContextObjectName(m_Id, GL_BACK));
@@ -645,7 +645,7 @@ void GLContext::startQuery() {
 
     m_InQuery = true;
 
-    if (m_Version.check(GLContextVersion::UNSUPPORTED)) {
+    if (m_Version.check(GLContextVersion::Type::UNSUPPORTED)) {
         throw std::runtime_error("Context version is not supported");
     }
 
@@ -768,14 +768,14 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_BLUE_SIZE, &rgbaSizes[2]);
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_ALPHA_SIZE, &rgbaSizes[3]);
 
-            if (getVersion().check(GLContextVersion::DT, 3, 2)) {
+            if (getVersion().check(GLContextVersion::Type::DT, 3, 2)) {
                 DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_SAMPLES, &samples);
             }
 
             std::vector<GLint> deptStencilSizes(2, 0);
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_DEPTH_SIZE, &deptStencilSizes[0]);
             
-            if (getVersion().check(GLContextVersion::DT, 3)) { 
+            if (getVersion().check(GLContextVersion::Type::DT, 3)) { 
                 DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_STENCIL_SIZE, &deptStencilSizes[1]);
             }
 
@@ -911,7 +911,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(gl_t _bufferE
     state_setters::PixelStoreAlignment defAlignment(this);
 
     //select read buffer
-    if (m_Version.check(GLContextVersion::ES, 3) || m_Version.check(GLContextVersion::DT)) {
+    if (m_Version.check(GLContextVersion::Type::ES, 3) || m_Version.check(GLContextVersion::Type::DT)) {
         DIRECT_CALL_CHK(glReadBuffer)(bufferEnum);
     }
 
@@ -1467,7 +1467,7 @@ dglnet::resource::DGLResourceState::StateItem GLContext::getStateInteger64v(cons
     ret.m_Name = name;
     std::vector<GLint64> val(length, 0);
 
-    if (getVersion().check(GLContextVersion::DT, 3, 2) || getVersion().check(GLContextVersion::ES, 3)) {
+    if (getVersion().check(GLContextVersion::Type::DT, 3, 2) || getVersion().check(GLContextVersion::Type::ES, 3)) {
         DIRECT_CALL_CHK(glGetInteger64v)(value, &val[0]);
     } else {
         std::vector<GLint> valInt(length, 0);
@@ -1548,7 +1548,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     boost::shared_ptr<dglnet::DGLResource> ret (resource = new dglnet::resource::DGLResourceState);
 
 #ifdef WA_ES_QUERY_STATE
-    if (!getVersion().check(GLContextVersion::DT))
+    if (!getVersion().check(GLContextVersion::Type::DT))
         return ret; //not really supported on non-DT
 #endif
 
@@ -1675,7 +1675,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     //TEXTURE MATRIX                               //COmpat!
     //(TRANSPOSE TEXTURE MATRIX)                   //COmpat!
     STATE_INTEGERV(GL_VIEWPORT, 4);
-    if (getVersion().check(GLContextVersion::DT)) {
+    if (getVersion().check(GLContextVersion::Type::DT)) {
         STATE_DOUBLEV(GL_DEPTH_RANGE, 2);
     } else  {
         STATE_FLOATV(GL_DEPTH_RANGE, 2);
@@ -2584,7 +2584,7 @@ void GLContext::firstUse() {
 
 	getVersion().initialize(reinterpret_cast<const char*>(DIRECT_CALL_CHK(glGetString)(GL_VERSION)));
 
-    if (getVersion().check(GLContextVersion::DT, 3) || getVersion().check(GLContextVersion::ES, 3)) {
+    if (getVersion().check(GLContextVersion::Type::DT, 3) || getVersion().check(GLContextVersion::Type::ES, 3)) {
         DIRECT_CALL_CHK(glGetIntegerv)(GL_NUM_EXTENSIONS, &maxExtensions);
         exts.resize(maxExtensions);
         for (int i = 0; i < maxExtensions; i++) {

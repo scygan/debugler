@@ -25,7 +25,7 @@ DGLFBOViewItem::DGLFBOViewItem(dglnet::ContextObjectName name, DGLResourceManage
     m_PixelRectangleScene = new DGLPixelRectangleScene();
     m_Ui.m_pixelRectangleView->setScene(m_PixelRectangleScene);
 
-    m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectTypeFBO);
+    m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectType::FBO);
     m_Listener->setParent(this);
 
     CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));

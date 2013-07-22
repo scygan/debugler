@@ -100,22 +100,22 @@ void DGLResourceManager::unregisterListener(DGLResourceListener* listener) {
 
 void DGLViewRouter::show(const dglnet::ContextObjectName& name, dglnet::DGLResource::ObjectType type) {
     switch (type) {
-        case dglnet::DGLResource::ObjectTypeBuffer:
+        case dglnet::DGLResource::ObjectType::Buffer:
             emit showBuffer(name.m_Context, name.m_Name);
             break;
-        case dglnet::DGLResource::ObjectTypeFramebuffer:
+        case dglnet::DGLResource::ObjectType::Framebuffer:
             emit showFramebuffer(name.m_Context, name.m_Name);
             break;
-        case dglnet::DGLResource::ObjectTypeFBO:
+        case dglnet::DGLResource::ObjectType::FBO:
             emit showFBO(name.m_Context, name.m_Name);
             break;
-        case dglnet::DGLResource::ObjectTypeTexture:
+        case dglnet::DGLResource::ObjectType::Texture:
             emit showTexture(name.m_Context, name.m_Name);
             break;
-        case dglnet::DGLResource::ObjectTypeShader:
+        case dglnet::DGLResource::ObjectType::Shader:
             emit showShader(name.m_Context, name.m_Name, name.m_Target);
             break;
-        case dglnet::DGLResource::ObjectTypeProgram:
+        case dglnet::DGLResource::ObjectType::Program:
             emit showProgram(name.m_Context, name.m_Name);
             break;
         default:
@@ -216,7 +216,7 @@ void DglController::debugStep() {
     setBreaked(false);
     setRunning(true);
     assert(isConnected());
-    dglnet::message::ContinueBreak message(dglnet::message::ContinueBreak::STEP_CALL);
+    dglnet::message::ContinueBreak message(dglnet::message::ContinueBreak::StepMode::CALL);
     m_DglClient->sendMessage(&message);
     newStatus("Running...");
 }
@@ -225,7 +225,7 @@ void DglController::debugStepDrawCall() {
     setBreaked(false);
     setRunning(true);
     assert(isConnected());
-    dglnet::message::ContinueBreak message(dglnet::message::ContinueBreak::STEP_DRAW_CALL);
+    dglnet::message::ContinueBreak message(dglnet::message::ContinueBreak::StepMode::DRAW_CALL);
     m_DglClient->sendMessage(&message);
     newStatus("Running...");
 }
@@ -234,7 +234,7 @@ void DglController::debugStepFrame() {
     setBreaked(false);
     setRunning(true);
     assert(isConnected());
-    dglnet::message::ContinueBreak message(dglnet::message::ContinueBreak::STEP_FRAME);
+    dglnet::message::ContinueBreak message(dglnet::message::ContinueBreak::StepMode::FRAME);
     m_DglClient->sendMessage(&message);
     newStatus("Running...");
 }

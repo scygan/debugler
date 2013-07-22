@@ -37,16 +37,16 @@ class DGLResource: public message::RequestReply::ReplyBase {
 public:
     virtual ~DGLResource() {}
 
-    enum ObjectType {
-        ObjectTypeTexture,
-        ObjectTypeFBO,
-        ObjectTypeFramebuffer,
-        ObjectTypeShader,
-        ObjectTypeProgram,
-        ObjectTypeBuffer,
-        ObjectTypeGPU,
-        ObjectTypeState,
-        ObjectTypeNone,
+    enum class ObjectType {
+        Texture,
+        FBO,
+        Framebuffer,
+        Shader,
+        Program,
+        Buffer,
+        GPU,
+        State,
+        Invalid
     };
 };
 

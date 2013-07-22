@@ -182,15 +182,15 @@ class ContinueBreak: public Message {
 
 public:
 
-   enum StepMode {
-       STEP_CALL,
-       STEP_DRAW_CALL,
-       STEP_FRAME
+   enum class StepMode {
+       CALL,
+       DRAW_CALL,
+       FRAME
    };
 
-   ContinueBreak():m_Breaked(false),m_InStepMode(false), m_StepMode(STEP_CALL) {}
+   ContinueBreak():m_Breaked(false),m_InStepMode(false), m_StepMode(StepMode::CALL) {}
    ContinueBreak(StepMode stepMode):m_Breaked(false),m_InStepMode(true), m_StepMode(stepMode) {}
-   ContinueBreak(bool breaked):m_Breaked(breaked),m_InStepMode(false), m_StepMode(STEP_CALL) {}
+   ContinueBreak(bool breaked):m_Breaked(breaked),m_InStepMode(false), m_StepMode(StepMode::CALL) {}
    bool isBreaked() const;
    std::pair<bool, StepMode> getStep() const;
 

@@ -271,7 +271,7 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             if (ctx) {
                 call.getArgs()[0].get(dpy);
                 DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy))->ensureContext(
-                        dglState::GLContextVersion::DT, reinterpret_cast<opaque_id_t>(ctx));
+                        dglState::GLContextVersion::Type::DT, reinterpret_cast<opaque_id_t>(ctx));
             }
             break;
         case glXMakeCurrent_Call:
@@ -347,13 +347,13 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                     g_ApiLoader.loadLibrary(lib);
 
                     DGLDisplayState::get((opaque_id_t)eglDpy)->ensureContext(
-                        dglState::GLContextVersion::ES, reinterpret_cast<opaque_id_t>(eglCtx));
+                        dglState::GLContextVersion::Type::ES, reinterpret_cast<opaque_id_t>(eglCtx));
 
                 } else if (DGLThreadState::get()->getEGLApi() == EGL_OPENGL_API) {
                     g_ApiLoader.loadLibrary(LIBRARY_GL);
 
                     DGLDisplayState::get((opaque_id_t)eglDpy)->ensureContext(
-                        dglState::GLContextVersion::DT, reinterpret_cast<opaque_id_t>(eglCtx));
+                        dglState::GLContextVersion::Type::DT, reinterpret_cast<opaque_id_t>(eglCtx));
                 }
                 
             }

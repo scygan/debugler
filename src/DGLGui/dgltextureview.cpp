@@ -25,7 +25,7 @@ DGLTextureViewItem::DGLTextureViewItem(dglnet::ContextObjectName name, DGLResour
     m_PixelRectangleScene = new DGLPixelRectangleScene();
     m_Ui.m_PixelRectangleView->setScene(m_PixelRectangleScene);
 
-    m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectTypeTexture);
+    m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectType::Texture);
     m_Listener->setParent(this);
 
     m_Ui.horizontalSlider_LOD->setDisabled(true);

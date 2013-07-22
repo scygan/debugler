@@ -42,7 +42,7 @@ class QueryResource: public DGLRequest {
         ar & m_ObjectName;
     }
 public:
-    QueryResource():m_Type(DGLResource::ObjectTypeNone) {}
+    QueryResource():m_Type(DGLResource::ObjectType::Invalid) {}
     QueryResource(DGLResource::ObjectType type, ContextObjectName name):m_Type(type), m_ObjectName(name) {}
     DGLResource::ObjectType m_Type;
     ContextObjectName m_ObjectName;

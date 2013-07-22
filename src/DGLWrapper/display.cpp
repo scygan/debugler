@@ -113,7 +113,7 @@ void DGLDisplayState::deleteContext(opaque_id_t id) {
 }
 
 void DGLDisplayState::lazyDeleteContext(opaque_id_t id) {
-    dglState::GLContext* ctx = &(*(ensureContext(dglState::GLContextVersion::UNSUPPORTED, id)->second));
+    dglState::GLContext* ctx = &(*(ensureContext(dglState::GLContextVersion::Type::UNSUPPORTED, id)->second));
     if (ctx->markForDeletionMayDelete()) {
         deleteContext(id);
     }

@@ -65,7 +65,7 @@ public:
     }
 
     virtual void handleDoubleClick(DglController* controller) {
-        controller->getViewRouter()->show(m_name, dglnet::DGLResource::ObjectTypeTexture);
+        controller->getViewRouter()->show(m_name, dglnet::DGLResource::ObjectType::Texture);
     }
 
 private:
@@ -80,7 +80,7 @@ public:
         setIcon(0, QIcon(iconPath));
     }
     void handleDoubleClick(DglController* controller) {
-        controller->getViewRouter()->show(m_name, dglnet::DGLResource::ObjectTypeBuffer);
+        controller->getViewRouter()->show(m_name, dglnet::DGLResource::ObjectType::Buffer);
     }
 private:
     dglnet::ContextObjectName m_name;
@@ -94,7 +94,7 @@ public:
         setIcon(0, QIcon(iconPath));
     }
     void handleDoubleClick(DglController* controller) {
-        controller->getViewRouter()->show(m_name, dglnet::DGLResource::ObjectTypeFBO);
+        controller->getViewRouter()->show(m_name, dglnet::DGLResource::ObjectType::FBO);
     }
 private:
     dglnet::ContextObjectName m_name;
@@ -108,7 +108,7 @@ public:
         setIcon(0, QIcon(iconPath));
     }
     void handleDoubleClick(DglController* controller) {
-        controller->getViewRouter()->show(m_name, dglnet::DGLResource::ObjectTypeShader);
+        controller->getViewRouter()->show(m_name, dglnet::DGLResource::ObjectType::Shader);
     }
 private:
     dglnet::ContextObjectName m_name;
@@ -122,7 +122,7 @@ public:
         setIcon(0, QIcon(iconPath));
     }
     void handleDoubleClick(DglController* controller) {
-        controller->getViewRouter()->show(m_name, dglnet::DGLResource::ObjectTypeProgram);
+        controller->getViewRouter()->show(m_name, dglnet::DGLResource::ObjectType::Program);
     }
 private:
     dglnet::ContextObjectName m_name;
@@ -148,7 +148,7 @@ public:
         setIcon(0, QIcon(iconPath));
     }
     void handleDoubleClick(DglController* controller) {
-        controller->getViewRouter()->show(m_type, dglnet::DGLResource::ObjectTypeFramebuffer);
+        controller->getViewRouter()->show(m_type, dglnet::DGLResource::ObjectType::Framebuffer);
     }
     dglnet::ContextObjectName m_type;
 };

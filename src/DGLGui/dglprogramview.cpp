@@ -38,7 +38,7 @@ DGLProgramViewItem::DGLProgramViewItem(dglnet::ContextObjectName name, DGLResour
     m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(1, new QTableWidgetItem("type"));
     m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(2, new QTableWidgetItem("value"));
 
-    m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectTypeProgram);
+    m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectType::Program);
     m_Listener->setParent(this);
 
     CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));

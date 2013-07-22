@@ -86,7 +86,7 @@ void DGLStateView::setConnected(bool connected) {
         m_Ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem("Parameter"));
         m_Ui->tableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem("Value"));
         
-        m_Listener = m_Controller->getResourceManager()->createListener(dglnet::ContextObjectName(), dglnet::DGLResource::ObjectTypeState);
+        m_Listener = m_Controller->getResourceManager()->createListener(dglnet::ContextObjectName(), dglnet::DGLResource::ObjectType::State);
         m_Listener->setParent(m_Ui->frame);
 
         CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));

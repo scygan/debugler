@@ -332,7 +332,7 @@ namespace {
                
                {
                    //advance one call
-                   dglnet::message::ContinueBreak step(dglnet::message::ContinueBreak::STEP_CALL);
+                   dglnet::message::ContinueBreak step(dglnet::message::ContinueBreak::StepMode::CALL);
                    client->sendMessage(&step);
                    ASSERT_TRUE(utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler()) != NULL);
                }
@@ -402,7 +402,7 @@ namespace {
            //step == 1: after first draw (GL_BACK  should contain quad)
            {
                //query framebuffer
-               dglnet::message::Request request(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeFramebuffer, dglnet::ContextObjectName(breaked->m_CurrentCtx, GL_BACK)));
+               dglnet::message::Request request(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Framebuffer, dglnet::ContextObjectName(breaked->m_CurrentCtx, GL_BACK)));
                client->sendMessage(&request);
            }
 
@@ -432,7 +432,7 @@ namespace {
            }
            
            //advance one call
-           dglnet::message::ContinueBreak stepCall(dglnet::message::ContinueBreak::STEP_CALL);
+           dglnet::message::ContinueBreak stepCall(dglnet::message::ContinueBreak::StepMode::CALL);
            client->sendMessage(&stepCall);
            ASSERT_TRUE(utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler()) != NULL);
        }
@@ -467,7 +467,7 @@ namespace {
        }
 
        {
-           dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, fragId)));
+           dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Shader, dglnet::ContextObjectName(breaked->m_CurrentCtx, fragId)));
            client->sendMessage(&requestMessage);
        }
 
@@ -494,7 +494,7 @@ namespace {
 
        //Verify frag shader
        {
-           dglnet::message::Request req(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, fragId)));
+           dglnet::message::Request req(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Shader, dglnet::ContextObjectName(breaked->m_CurrentCtx, fragId)));
            client->sendMessage(&req);
        }
        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
@@ -505,14 +505,14 @@ namespace {
 
        //Verify by drawing with edited shader
        {
-           dglnet::message::ContinueBreak stepDrawCall(dglnet::message::ContinueBreak::STEP_FRAME);
+           dglnet::message::ContinueBreak stepDrawCall(dglnet::message::ContinueBreak::StepMode::FRAME);
            client->sendMessage(&stepDrawCall);
            ASSERT_TRUE(utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler()) != NULL);
        }
 
        //Query back framebuffer
        {
-           dglnet::message::Request req(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeFramebuffer, dglnet::ContextObjectName(breaked->m_CurrentCtx, GL_BACK)));
+           dglnet::message::Request req(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Framebuffer, dglnet::ContextObjectName(breaked->m_CurrentCtx, GL_BACK)));
            client->sendMessage(&req);
        }
        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
@@ -536,7 +536,7 @@ namespace {
 
        //Verify frag shader
        {
-           dglnet::message::Request req(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, fragId)));
+           dglnet::message::Request req(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Shader, dglnet::ContextObjectName(breaked->m_CurrentCtx, fragId)));
            client->sendMessage(&req);
        }
        reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
@@ -577,7 +577,7 @@ namespace {
         EXPECT_EQ(1, breaked->m_CtxReports[0].m_ShaderSpace.size());
         shaderId = (GLuint)breaked->m_CtxReports[0].m_ShaderSpace.begin()->m_Name;
         {
-            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Shader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
             client->sendMessage(&requestMessage);
         }
         reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
@@ -601,7 +601,7 @@ namespace {
             if (shaderId != i->m_Name) shaderId = (GLuint)i->m_Name; else  shaderId = (GLuint)(++i)->m_Name;
         } else { ASSERT_TRUE(0); }
         {
-            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Shader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
             client->sendMessage(&requestMessage);
         }
         reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
@@ -621,7 +621,7 @@ namespace {
         //#test point: program has shader
         breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glDeleteShader_Call);
         {
-            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeProgram, dglnet::ContextObjectName(breaked->m_CurrentCtx, programId)));
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Program, dglnet::ContextObjectName(breaked->m_CurrentCtx, programId)));
             client->sendMessage(&requestMessage);
         }
         reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
@@ -632,7 +632,7 @@ namespace {
         //#test point: shader not deleted
         breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glDetachShader_Call);
         {
-            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Shader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
             client->sendMessage(&requestMessage);
         }
         reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
@@ -642,14 +642,14 @@ namespace {
         //#test point: shader deleted, program has no shader
         breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glDeleteProgram_Call);
         {
-            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Shader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
             client->sendMessage(&requestMessage);
         }
         reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
         ASSERT_TRUE(reply->isOk(nothing));
         EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get())->m_ShaderObjDeleted);
         {
-            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeProgram, dglnet::ContextObjectName(breaked->m_CurrentCtx, programId)));
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Program, dglnet::ContextObjectName(breaked->m_CurrentCtx, programId)));
             client->sendMessage(&requestMessage);
         }
         reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
@@ -670,14 +670,14 @@ namespace {
         //#test point: shader not deleted, program has shader
         breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glDeleteProgram_Call);
         {
-            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Shader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
             client->sendMessage(&requestMessage);
         }
         reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
         ASSERT_TRUE(reply->isOk(nothing));
         EXPECT_FALSE(dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get())->m_ShaderObjDeleted);
         {
-            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeProgram, dglnet::ContextObjectName(breaked->m_CurrentCtx, programId)));
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Program, dglnet::ContextObjectName(breaked->m_CurrentCtx, programId)));
             client->sendMessage(&requestMessage);
         }
         reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
@@ -688,7 +688,7 @@ namespace {
         //#test point: shader deleted
         breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glFlush_Call);
         {
-            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Shader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
             client->sendMessage(&requestMessage);
         }
         reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
@@ -711,7 +711,7 @@ namespace {
         //#test point: cached source
         breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glDeleteProgram_Call);
         {
-            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Shader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
             client->sendMessage(&requestMessage);
         }
         reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
@@ -736,7 +736,7 @@ namespace {
         //#test point: cached source
         breaked = utils::runUntilEntryPoint(client, getMessageHandler(), glFlush_Call);
         {
-            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectTypeShader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
+            dglnet::message::Request requestMessage(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Shader, dglnet::ContextObjectName(breaked->m_CurrentCtx, shaderId)));
             client->sendMessage(&requestMessage);
         }
         reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());

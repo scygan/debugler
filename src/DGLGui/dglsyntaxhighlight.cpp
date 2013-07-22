@@ -184,7 +184,7 @@ public:
 
     typedef std::vector<std::string> keywordList_t;
 
-    virtual ~DGLHLRuleDetect2Chars();
+    virtual ~DGLHLRuleDetect2Chars() {}
 
 private:
     virtual void tryMatch(const QString& str, uint& pos, int& matchSize) {
