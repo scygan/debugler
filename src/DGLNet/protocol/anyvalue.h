@@ -30,20 +30,21 @@ class PtrWrap {
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int) {
-        long long tmp = reinterpret_cast<long long>(m_value);
-        ar & tmp;
-        m_value = reinterpret_cast<T>(tmp);
+        ar & m_value;
     }
+
+    typedef int64_t pointer_store_t; //should be platform-independent, rather than intptr_t
+    static_assert(sizeof(int64_t)>=sizeof(intptr_t), "Pointer sizes larger than 8 bytes");
+
 public:
-    PtrWrap():m_value(NULL) {}
+    PtrWrap():m_value(0) {}
 
-    template<typename TCast>
-    PtrWrap(TCast v):m_value((T)v) {}
+    PtrWrap(intptr_t v):m_value(static_cast<pointer_store_t>(v)) {}
 
-    template<typename TBase>
-    operator TBase*() const {return reinterpret_cast<TBase*>(m_value);}
+    intptr_t getVal() const { return static_cast<intptr_t>(m_value); }
 private:
-    T m_value;
+
+    pointer_store_t m_value;
 };
 
 class GLenumWrap {
@@ -79,24 +80,24 @@ public:
     AnyValue(T v):m_value(v) {}
 
     template<typename TBase>
-    AnyValue(const TBase* v):m_value(PtrWrap<const void*>((const void*)v)) {}
+    AnyValue(const TBase* v):m_value(PtrWrap<const void*>((intptr_t)v)) {}
     template<typename TBase>
-    AnyValue(TBase* v):m_value(PtrWrap<void*>((void*)v)) {}
+    AnyValue(TBase* v):m_value(PtrWrap<void*>((intptr_t)v)) {}
 
     template<typename T>
     void get(T& v) const { v = boost::get<T>(m_value); }
-    //avoid memptr to function ptr cast (it is a compiler ext). 
-    void get(FUNC_PTR& v) const { v = (FUNC_PTR)boost::get<PtrWrap<FUNC_PTR> >(m_value); }
+
     template<typename TBase>
-    void get(const TBase*& v) const { v = (const TBase*)boost::get<PtrWrap<const void*> >(m_value); }
+    void get(const TBase*& v) const { v = (const TBase*)boost::get<PtrWrap<const void*> >(m_value).getVal(); }
+
     template<typename TBase>
-    void get(TBase*& v) const { v = (TBase*)boost::get<PtrWrap<void*> >(m_value); }
+    void get(TBase*& v) const { v = (TBase*)boost::get<PtrWrap<void*> >(m_value).getVal(); }
 
     void writeToSS(std::ostringstream& out) const;
 
 private:
     boost::variant<signed long long, unsigned long long, signed long, unsigned long, unsigned int, signed int, unsigned short, signed short, unsigned char, signed char, float, double,
-        PtrWrap<void*>, PtrWrap<const void*>, PtrWrap<FUNC_PTR>, GLenumWrap> m_value;
+        PtrWrap<void*>, PtrWrap<const void*>, GLenumWrap> m_value;
 };
 
 #endif //ANYVALUE_H

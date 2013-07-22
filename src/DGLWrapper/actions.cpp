@@ -805,13 +805,13 @@ RetValue DebugOutputCallback::Pre(const CalledEntryPoint& call) {
 
     Entrypoint entrp = call.getEntrypoint();
     if (gc && (entrp == glDebugMessageCallback_Call || entrp == glDebugMessageCallbackARB_Call)) {
-        GLDEBUGPROC callback;
+        FUNC_PTR callback;
         const GLvoid* userParam;
         call.getArgs()[0].get(callback);
         call.getArgs()[1].get(userParam);
 
         //register application's callback into out context
-        gc->setCustomDebugOutputCallback(callback);
+        gc->setCustomDebugOutputCallback((GLDEBUGPROC)callback);
 
         //call debug message callback now, to prevent override
         if (entrp == glDebugMessageCallback_Call) {
@@ -822,5 +822,5 @@ RetValue DebugOutputCallback::Pre(const CalledEntryPoint& call) {
 
         return RetValue::getVoidAlreadySet();
     }
-    return ret; 
+    return ret;
 }

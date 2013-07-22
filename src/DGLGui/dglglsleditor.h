@@ -25,6 +25,7 @@ class DGLGLSLEditor : public QPlainTextEdit {
 
 public:
     DGLGLSLEditor(QWidget *parent = 0);
+    virtual ~DGLGLSLEditor() {}
 
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();

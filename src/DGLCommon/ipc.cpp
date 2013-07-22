@@ -102,9 +102,11 @@ private:
         DebuggerMode m_debuggerMode;
         boost::interprocess::interprocess_semaphore m_remoteThreadSemaphore;
     };
-    MemoryRegion* m_region;
 
     std::string m_uuid;
+
+    MemoryRegion* m_region;
+
 #ifdef _WIN32
     boost::shared_ptr<boost::interprocess::windows_shared_memory> m_shmem;
 #else

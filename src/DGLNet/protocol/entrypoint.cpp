@@ -60,13 +60,10 @@ public:
     void operator()(float f) const { (*m_Stream) << f; }
     void operator()(double d) const { (*m_Stream) << d; }
     void operator()(PtrWrap<void*> i) const {
-        (*m_Stream) << std::hex << "0x" << (const void*)i << std::dec;
+        (*m_Stream) << std::hex << "0x" << i.getVal() << std::dec;
     }
     void operator()(PtrWrap<const void*> i) const {
-        (*m_Stream) << std::hex << "0x" << (const void*)i << std::dec;
-    }
-    void operator()(PtrWrap<FUNC_PTR> i) const {
-        (*m_Stream) << std::hex << "0x" << (FUNC_PTR)i << std::dec;
+        (*m_Stream) << std::hex << "0x" << i.getVal() << std::dec;
     }
     void operator()(GLenumWrap i) const {
         (*m_Stream) << GetGLEnumName(i.get());

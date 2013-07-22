@@ -236,7 +236,7 @@ GLenum GLBufferObj::getTarget() {
     return m_Target;
 }
 
-GLProgramObj::GLProgramObj(GLuint name, bool arbApi):GLObj(name), m_arbApi(arbApi), m_InUse(false) {}
+GLProgramObj::GLProgramObj(GLuint name, bool arbApi):GLObj(name), m_InUse(false), m_arbApi(arbApi) {}
 
 GLProgramObj::~GLProgramObj() {
     auto i = m_AttachedShaders.begin();
@@ -422,7 +422,7 @@ GLenum GLFBObj::getTarget() {
     return m_Target;
 }
 
-GLContextVersion::GLContextVersion(Type type):m_Type(type),m_Initialized(false) {}
+GLContextVersion::GLContextVersion(Type type):m_Initialized(false), m_Type(type) {}
 
 bool GLContextVersion::check(Type type, int majorVersion, int minorVersion) {
 

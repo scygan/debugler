@@ -85,7 +85,7 @@ int NativeSurfaceWGL::getHeight() {
     return m_Height;
 }
 #endif
-NativeSurfaceEGL::NativeSurfaceEGL(const DGLDisplayState* dpy, opaque_id_t pixfmt, opaque_id_t id):m_Dpy(dpy),NativeSurfaceBase(id) {
+NativeSurfaceEGL::NativeSurfaceEGL(const DGLDisplayState* dpy, opaque_id_t pixfmt, opaque_id_t id):NativeSurfaceBase(id), m_Dpy(dpy) {
     EGLBoolean ret = EGL_TRUE;
 
     EGLDisplay eglDpy = reinterpret_cast<EGLDisplay>(m_Dpy->getId());
@@ -175,13 +175,14 @@ private:
             } else {
                 assert(0);
             }
-            return 0; 
+            return 0;
         }
         if (error->error_code) {
            int errorBase, eventBase;
            glXQueryExtension(display, &errorBase, &eventBase);
            s_errorCode = error->error_code - errorBase;
        }
+       return 0;
     }
 
     static Display* s_disp;
@@ -200,7 +201,7 @@ Display* XErrorHandler::s_disp;
 int (*XErrorHandler::s_oldErrorHandler)(Display *, XErrorEvent *);
 
 
-NativeSurfaceGLX::NativeSurfaceGLX(const DGLDisplayState* _dpy, opaque_id_t id):m_Dpy(_dpy),NativeSurfaceBase(id), m_GLXDrawableGettersFailing(false) {
+NativeSurfaceGLX::NativeSurfaceGLX(const DGLDisplayState* _dpy, opaque_id_t id):NativeSurfaceBase(id), m_Dpy(_dpy), m_GLXDrawableGettersFailing(false) {
     
     GLXDrawable drawable = static_cast<GLXDrawable>(m_Id);
     Display* dpy = reinterpret_cast<Display*>(m_Dpy->getId());
@@ -279,7 +280,7 @@ GLXFBConfig* NativeSurfaceGLX::getFbConfigForVisual(Display *dpy, VisualID visua
     for (int i =0; i < nElements; i++) {
         int id;
         if (DIRECT_CALL_CHK(glXGetFBConfigAttrib)(dpy, configs[i], GLX_VISUAL_ID, &id) == Success) {
-            if (id == visualID) {
+            if (id == (int)visualID) {
                 ret = &configs[i];
                 break;
             }

@@ -46,4 +46,4 @@ extern "C" {
     //It does not hurt Windows, also.
     #include "codegen/exporters-ext.inl"
 #endif
-};
+}

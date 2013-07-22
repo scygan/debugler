@@ -88,8 +88,6 @@ DGLMainWindow::DGLMainWindow(QWidget *parent, Qt::WindowFlags flags)
     boost::shared_ptr<OsIcon> icon(Os::createIcon());
 #ifdef _WIN32
     setWindowIcon(QIcon(HICON_TO_QPIXMAP((HICON)icon->get())));
-#else
-#pragma message ( "no window icon on non-windows" )
 #endif
 
     //load designer UI 

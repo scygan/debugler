@@ -94,7 +94,7 @@ class ELFAnalyzer {
             }
 
             Elf_Data* edata = elf_getdata(scn, NULL);
-            for(int i = 0; i < shdr.sh_size / shdr.sh_entsize; i++) {
+            for(size_t i = 0; i < shdr.sh_size / shdr.sh_entsize; i++) {
                 GElf_Sym sym;
                 if (!gelf_getsym(edata, i, &sym)) {
                     throw std::runtime_error(E + "gelf_getsym failed: " + elf_errmsg(elf_errno()));
@@ -213,15 +213,15 @@ void DLIntercept::initialize() {
 #ifndef __ANDROID__
     ELFAnalyzer an("libdl");
 
-    char* baseAddr = reinterpret_cast<char*>(&dlclose) - an.symValue("dlclose");
+    char* baseAddr = reinterpret_cast<char*>((intptr_t)&dlclose) - an.symValue("dlclose");
 
     m_real_dlopen = reinterpret_cast<void* (*)(const char *filename, int flag)> (
-            baseAddr + an.symValue("dlopen"));
+            (intptr_t)(baseAddr + an.symValue("dlopen")));
     m_real_dlsym = reinterpret_cast<void* (*)(void*, const char*)> (
-            baseAddr + an.symValue("dlsym"));
+            (intptr_t)(baseAddr + an.symValue("dlsym")));
     try {
         m_real_dlvsym = reinterpret_cast<void* (*)(void*, const char*, const char*)>(
-            baseAddr + an.symValue("dlvsym"));
+            (intptr_t)(baseAddr + an.symValue("dlvsym")));
     } catch (const std::runtime_error& err) {        Os::nonFatal("dlvsym is not available in dynamic linker.\n");
         m_real_dlvsym = NULL;
     }
