@@ -255,7 +255,7 @@ extern "C" {
      *
      * Called directly by debugee
      */
-    void *dlopen(const char *filename, int flag) throw() {
+    void *dlopen(const char *filename, int flag) {
         try {
             return g_DLIntercept.dlopen(filename, flag);
         } catch (const std::exception& e) {
@@ -269,7 +269,7 @@ extern "C" {
      *
      * Called directly by debugee
      */
-    void *dlsym (void * handle, const char *name) throw() {
+    void *dlsym (void * handle, const char *name) {
         try {
             return g_DLIntercept.dlsym(handle, name);
         } catch (const std::exception& e) {
@@ -283,7 +283,7 @@ extern "C" {
      *
      * Called directly by debugee
      */
-    void *dlvsym (void * handle, const char *name, const char *version) throw() {
+    void *dlvsym (void * handle, const char *name, const char *version) {
         try {
             return g_DLIntercept.dlvsym(handle, name, version);
         } catch (const std::exception& e) {
