@@ -30,6 +30,7 @@ if not os.path.exists(outputDir):
 nonExtTypedefs = open(outputDir + "nonExtTypedefs.inl", "w")
 wrappersFile = open(outputDir + "wrappers.inl", "w")
 exportersFile = open(outputDir + "exporters.inl", "w")
+exportersExtFile = open(outputDir + "exporters-ext.inl", "w")
 functionListFile = open(outputDir + "functionList.inl", "w")
 defFile = open(outputDir + "OpenGL32.def", "w")
 enumFile = open(outputDir + "enum.inl", "w")
@@ -193,7 +194,12 @@ for name, entrypoint in sorted(entrypoints.items()):
 		print >> exportersFile, "    	return " + name + "_Wrapper(" + listToString(entrypoint.paramList) + ");"		
 		print >> exportersFile, "}"
 		print >> exportersFile, "#endif"
-
+	else:
+		print >> exportersExtFile, entrypoint.getLibraryIfdef()
+		print >> exportersExtFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType + " APIENTRY " + name + "(" + listToString(entrypoint.paramDeclList) + ") {"
+		print >> exportersExtFile, "    	return " + name + "_Wrapper(" + listToString(entrypoint.paramList) + ");"		
+		print >> exportersExtFile, "}"
+		print >> exportersExtFile, "#endif"
 
 #entrypoint wrappers
 

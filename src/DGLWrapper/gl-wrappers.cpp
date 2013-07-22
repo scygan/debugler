@@ -41,4 +41,9 @@ FUNC_PTR getWrapperPointer(Entrypoint entryp) {
 
 extern "C" {
 #include "codegen/exporters.inl"
+#ifndef __ANDROID__
+    //on Linuxes ABI is not really expected and all EXT symbols are exported
+    //It does not hurt Windows, also.
+    #include "codegen/exporters-ext.inl"
+#endif
 };

@@ -11,6 +11,7 @@ set(codegen_GENERATED
     ${codegen_out}/nonExtTypedefs.inl
     ${codegen_out}/wrappers.inl
     ${codegen_out}/exporters.inl
+    ${codegen_out}/exporters-ext.inl
     ${codegen_out}/functionList.inl
     ${codegen_out}/enum.inl
 )
