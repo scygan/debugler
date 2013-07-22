@@ -15,8 +15,8 @@ endif()
 
 include_directories(
     .
-    glheaders
     external
+    glheaders
     ${CMAKE_CURRENT_BINARY_DIR}
     )
 
@@ -33,7 +33,7 @@ else()
 endif()
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wno-unknown-pragmas -Wextra -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-include-dirs -Wnoexcept -Wsign-promo -Wstrict-null-sentinel")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -pedantic -Wall -Wno-unknown-pragmas -Wextra -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-include-dirs -Wnoexcept -Wsign-promo -Wstrict-null-sentinel")
 
 # These seems incompatible with Qt:
 #  -Wctor-dtor-privacy
@@ -41,23 +41,27 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wno-unknown-pragmas -We
 #  -Wsign-conversion
 #  -Wswitch-default
 
-# We cannot enable -Wredundant-decls, due to including on Khronos headers. May enable after switch to XML API specs.
+# We cannot enable -Wredundant-decls, due to including multiple Khronos headers. May enable after switch to XML API specs.
 
 # We may consider enabling these, but they are rather hard.
-# -Wundef -Wold-style-cast -Wmissing-declarations -Woverloaded-virtual -Wstrict-overflow=5
+# -Wold-style-cast -Wmissing-declarations -Woverloaded-virtual -Wstrict-overflow=5 -Wold-style-cast
 
 # Unsupported by current version of compiler:
 # -Wuseless-cast
 
 add_subdirectory(external/boost)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow")
+if (NOT ANDROID)
+    add_subdirectory(external/gtest)
+endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow -Wundef")
+
 add_subdirectory(DGLCommon)
 add_subdirectory(DGLNet)
 if (NOT ANDROID)
     add_subdirectory(external/QHexEdit)
     add_subdirectory(DGLGui)
     add_subdirectory(buildtools/cmake)
-    add_subdirectory(external/gtest)
     add_subdirectory(tests)
 endif()
 add_subdirectory(DGLWrapper)

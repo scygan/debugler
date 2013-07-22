@@ -107,7 +107,7 @@ std::string getWrapperPath() {
     std::string tmp = fileName;
     size_t splitPoint=tmp.find_last_of("/\\");
     return tmp.substr(0, splitPoint) + "\\" + ret;
-#elif __ANDROID__
+#elif defined(__ANDROID__)
     return "/data/local/tmp/libdglwrapper.so";
 #else
     return "libdglwrapper.so";
