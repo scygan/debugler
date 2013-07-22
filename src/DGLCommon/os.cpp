@@ -175,7 +175,7 @@ void Os::fatal(const char* fmt, ...) {
     va_end(args);
 
 #ifdef __ANDROID__
-    __android_log_print(ANDROID_LOG_FATAL, LOG_TAG, message.c_str());
+    __android_log_print(ANDROID_LOG_FATAL, LOG_TAG, "%s", message.c_str());
 #endif
     fprintf(stderr, "Error: %s\n", message.c_str());
     exit(EXIT_FAILURE);
@@ -233,7 +233,7 @@ void Os::nonFatal(const char* fmt, ...) {
     va_end(args);
 
 #ifdef __ANDROID__
-    __android_log_print(ANDROID_LOG_WARN, LOG_TAG, message.c_str());
+    __android_log_print(ANDROID_LOG_WARN, LOG_TAG, "%s", message.c_str());
 #endif
     fprintf(stderr, "Warning: %s\n", message.c_str());
 }
@@ -247,7 +247,7 @@ void Os::info(const char* fmt, ...) {
 
 
 #ifdef __ANDROID__
-    __android_log_print(ANDROID_LOG_INFO, LOG_TAG, message.c_str());
+    __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "%s", message.c_str());
 #endif
     fprintf(stdout, "%s\n", message.c_str());
 }
