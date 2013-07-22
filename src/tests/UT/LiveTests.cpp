@@ -53,16 +53,18 @@ namespace {
 
         public:
         class MessageHandler: public dglnet::MessageHandler {
+#define MAKE_HANDLER(T) \
+            virtual void doHandle##T(const dglnet::message::T& msg) override { mLastMessage = new dglnet::message::T(msg); }
 
-            virtual void doHandle(const dglnet::message::Hello& msg) { mLastMessage = new dglnet::message::Hello(msg); }
-            virtual void doHandle(const dglnet::message::Configuration& msg) { mLastMessage = new dglnet::message::Configuration(msg); }
-            virtual void doHandle(const dglnet::message::BreakedCall& msg) { mLastMessage = new dglnet::message::BreakedCall(msg); }
-            virtual void doHandle(const dglnet::message::ContinueBreak& msg) { mLastMessage = new dglnet::message::ContinueBreak(msg); }
-            virtual void doHandle(const dglnet::message::QueryCallTrace& msg) { mLastMessage = new dglnet::message::QueryCallTrace(msg); }
-            virtual void doHandle(const dglnet::message::CallTrace& msg) { mLastMessage = new dglnet::message::CallTrace(msg); }
-            virtual void doHandle(const dglnet::message::Request& msg) { mLastMessage = new dglnet::message::Request(msg); }
-            virtual void doHandle(const dglnet::message::RequestReply& msg) { mLastMessage = new dglnet::message::RequestReply(msg); }
-            virtual void doHandle(const dglnet::message::SetBreakPoints& msg) { mLastMessage = new dglnet::message::SetBreakPoints(msg); }
+            MAKE_HANDLER(Hello);
+            MAKE_HANDLER(Configuration);
+            MAKE_HANDLER(BreakedCall);
+            MAKE_HANDLER(ContinueBreak);
+            MAKE_HANDLER(QueryCallTrace);
+            MAKE_HANDLER(CallTrace);
+            MAKE_HANDLER(Request);
+            MAKE_HANDLER(RequestReply);
+            MAKE_HANDLER(SetBreakPoints);
             void doHandleDisconnect(const std::string &msg) { mDisconnected = true; mDisconnectedReason = msg; }
 
         public:

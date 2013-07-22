@@ -23,39 +23,39 @@
 
 namespace dglnet {
 
-    void MessageHandler::doHandle(const message::Hello&) {
+    void MessageHandler::doHandleHello(const message::Hello&) {
         unsupported();
     }
 
-    void MessageHandler::doHandle(const message::Configuration&) {
+    void MessageHandler::doHandleConfiguration(const message::Configuration&) {
         unsupported();
     }
 
-    void MessageHandler::doHandle(const message::BreakedCall&) {
+    void MessageHandler::doHandleBreakedCall(const message::BreakedCall&) {
         unsupported();
     }
 
-    void MessageHandler::doHandle(const message::ContinueBreak&) {
+    void MessageHandler::doHandleContinueBreak(const message::ContinueBreak&) {
         unsupported();
     }
 
-    void MessageHandler::doHandle(const message::QueryCallTrace&) {
+    void MessageHandler::doHandleQueryCallTrace(const message::QueryCallTrace&) {
         unsupported();
     }
 
-    void MessageHandler::doHandle(const message::CallTrace&) {
+    void MessageHandler::doHandleCallTrace(const message::CallTrace&) {
         unsupported();
     }
 
-    void MessageHandler::doHandle(const message::Request&) {
+    void MessageHandler::doHandleRequest(const message::Request&) {
         unsupported();
     }
 
-    void MessageHandler::doHandle(const message::RequestReply&) {
+    void MessageHandler::doHandleRequestReply(const message::RequestReply&) {
         unsupported();
     }
 
-    void MessageHandler::doHandle(const message::SetBreakPoints&) {
+    void MessageHandler::doHandleSetBreakPoints(const message::SetBreakPoints&) {
         unsupported();
     }
 

@@ -33,7 +33,7 @@ else()
 endif()
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wno-unknown-pragmas -Wextra -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-include-dirs -Wnoexcept -Wsign-promo -Wstrict-null-sentinel")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wno-unknown-pragmas -Wextra -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-include-dirs -Wnoexcept -Wsign-promo -Wstrict-null-sentinel -Woverloaded-virtual")
 
 # These seems incompatible with Qt:
 #  -Wctor-dtor-privacy
@@ -44,7 +44,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wno-unknown-pragmas -We
 # We cannot enable -Wredundant-decls, due to including multiple Khronos headers. May enable after switch to XML API specs.
 
 # We may consider enabling these, but they are rather hard.
-# -Wold-style-cast -Wmissing-declarations -Woverloaded-virtual -Wstrict-overflow=5 -Wold-style-cast
+# -Wold-style-cast -Wmissing-declarations -Wstrict-overflow=5 -Wold-style-cast
 
 # Unsupported by current version of compiler:
 # -Wuseless-cast

@@ -230,27 +230,27 @@ public:
     /** 
      * Message handler - pass configuration message to global configuration object
      */
-    void doHandle(const dglnet::message::Configuration&);
+    void doHandleConfiguration(const dglnet::message::Configuration&) override;
 
     /** 
      * Message handler - pass continue & break message to breakstate object
      */
-    void doHandle(const dglnet::message::ContinueBreak&);
+    void doHandleContinueBreak(const dglnet::message::ContinueBreak&) override;
 
     /** 
      * Message handler - pass history query message to call history object
      */
-    void doHandle(const dglnet::message::QueryCallTrace&);
+    void doHandleQueryCallTrace(const dglnet::message::QueryCallTrace&) override;
 
     /** 
      * Message handler - pass new breakpoint list message to breakstate object
      */
-    void doHandle(const dglnet::message::SetBreakPoints&);
+    void doHandleSetBreakPoints(const dglnet::message::SetBreakPoints&) override;
 
     /** 
      * Message handler - handle general request message
      */
-    void doHandle(const dglnet::message::Request&);
+    void doHandleRequest(const dglnet::message::Request&) override;
 
     /** 
      * Request handler - query resource request

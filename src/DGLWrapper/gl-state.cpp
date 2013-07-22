@@ -218,7 +218,7 @@ GLenum GLTextureObj::getTextureLevelTarget(int face) {
             GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
             GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
         };
-        assert(face < sizeof(cubeMapFaces)/sizeof(cubeMapFaces[0]));
+        assert((size_t)face < sizeof(cubeMapFaces)/sizeof(cubeMapFaces[0]));
         return cubeMapFaces[face];
     } else {
         return getTarget();

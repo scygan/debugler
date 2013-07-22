@@ -393,9 +393,11 @@ private:
 };
 
 
-void DGLHLActionStay::doAction(DGLSyntaxHighlighterGLSL::HLState& /*state*/) const {
+void DGLHLActionStay::doAction(DGLSyntaxHighlighterGLSL::HLState& state) const {
 #ifdef HL_DEBUG
     qDebug() << "Action: stay, current context: " << state.getContext()->m_debugName << "\n";
+#else
+    (void)state;
 #endif
 }
 

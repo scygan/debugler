@@ -46,17 +46,15 @@ namespace message {
 
 class MessageHandler {
 public:
-    virtual void doHandle(const message::Hello&);
-    virtual void doHandle(const message::Configuration&);
-    virtual void doHandle(const message::BreakedCall&);
-    virtual void doHandle(const message::ContinueBreak&);
-    virtual void doHandle(const message::QueryCallTrace&);
-    virtual void doHandle(const message::CallTrace&);
-
-    virtual void doHandle(const message::Request&);
-    virtual void doHandle(const message::RequestReply&);
-
-    virtual void doHandle(const message::SetBreakPoints&);
+    virtual void doHandleHello         (const message::Hello&);
+    virtual void doHandleConfiguration (const message::Configuration&);
+    virtual void doHandleBreakedCall   (const message::BreakedCall&);
+    virtual void doHandleContinueBreak (const message::ContinueBreak&);
+    virtual void doHandleQueryCallTrace(const message::QueryCallTrace&);
+    virtual void doHandleCallTrace     (const message::CallTrace&);
+    virtual void doHandleRequest       (const message::Request&);
+    virtual void doHandleRequestReply  (const message::RequestReply&);
+    virtual void doHandleSetBreakPoints(const message::SetBreakPoints&);
 
     virtual void doHandleDisconnect(const std::string& why) = 0;
     virtual ~MessageHandler() {}
@@ -88,7 +86,7 @@ class Hello: public Message {
         ar & m_ProcessName;
     }
 
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+    virtual void handle(MessageHandler* h) const { h->doHandleHello(*this); }
 
 public:
     Hello() {}
@@ -109,7 +107,7 @@ class Configuration: public Message {
         ar & m_config.m_ForceDebugContextES;
     }
 
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+    virtual void handle(MessageHandler* h) const { h->doHandleConfiguration(*this); }
 
 public:
     Configuration() {}
@@ -130,7 +128,7 @@ class BreakedCall: public Message {
         ar & m_CurrentCtx;
     }
 
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+    virtual void handle(MessageHandler* h) const { h->doHandleBreakedCall(*this); }
 
 public:
 
@@ -180,7 +178,7 @@ class ContinueBreak: public Message {
         ar & m_StepMode;
     }
 
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+    virtual void handle(MessageHandler* h) const { h->doHandleContinueBreak(*this); }
 
 public:
 
@@ -212,7 +210,7 @@ class QueryCallTrace: public Message {
         ar & m_EndOffset;
     }
 
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+    virtual void handle(MessageHandler* h) const { h->doHandleQueryCallTrace(*this); }
 
 public:
     QueryCallTrace(){}
@@ -232,7 +230,7 @@ class CallTrace: public Message {
         ar & m_Trace;
     }
 
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+    virtual void handle(MessageHandler* h) const { h->doHandleCallTrace(*this); }
 
 public:
     CallTrace(){}
@@ -259,7 +257,7 @@ class Request: public Message {
         ar & m_Request;
     }
 
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+    virtual void handle(MessageHandler* h) const { h->doHandleRequest(*this); }
 
     value_t m_RequestId;
     static value_t s_RequestId;
@@ -288,7 +286,7 @@ public:
     void error(std::string msg);
     bool isOk(std::string& error) const;
 
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+    virtual void handle(MessageHandler* h) const { h->doHandleRequestReply(*this); }
 
     class ReplyBase {
         public:
@@ -316,7 +314,7 @@ class SetBreakPoints: public Message {
         ar & m_BreakPoints;
     }
 
-    virtual void handle(MessageHandler* h) const { h->doHandle(*this); }
+    virtual void handle(MessageHandler* h) const { h->doHandleSetBreakPoints(*this); }
 
 public:
     SetBreakPoints() {}

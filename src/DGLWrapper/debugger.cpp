@@ -226,24 +226,24 @@ CallHistory& DGLDebugController::getCallHistory() {
     return m_CallHistory;
 }
 
-void DGLDebugController::doHandle(const dglnet::message::Configuration& msg) {
+void DGLDebugController::doHandleConfiguration(const dglnet::message::Configuration& msg) {
     g_Config =  msg.m_config;
 }
-void DGLDebugController::doHandle(const dglnet::message::ContinueBreak& msg) {
+void DGLDebugController::doHandleContinueBreak(const dglnet::message::ContinueBreak& msg) {
     m_BreakState.handle(msg);
 }
 
-void DGLDebugController::doHandle(const dglnet::message::QueryCallTrace& msg) {
+void DGLDebugController::doHandleQueryCallTrace(const dglnet::message::QueryCallTrace& msg) {
     dglnet::message::CallTrace reply;
     m_CallHistory.query(msg, reply);
     m_Server->sendMessage(&reply);
 }
 
-void DGLDebugController::doHandle(const dglnet::message::SetBreakPoints& msg) {
+void DGLDebugController::doHandleSetBreakPoints(const dglnet::message::SetBreakPoints& msg) {
     getBreakState().handle(msg);
 }
 
-void DGLDebugController::doHandle(const dglnet::message::Request& msg) {
+void DGLDebugController::doHandleRequest(const dglnet::message::Request& msg) {
     dglnet::message::RequestReply reply;
 
     try {

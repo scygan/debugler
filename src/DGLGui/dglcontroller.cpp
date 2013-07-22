@@ -248,7 +248,7 @@ void DglController::queryCallTrace(uint startOffset, uint endOffset) {
     m_DglClient->sendMessage(&message);
 }
 
-void DglController::doHandle(const dglnet::message::Hello & msg) {
+void DglController::doHandleHello(const dglnet::message::Hello & msg) {
     //we are connected now
     m_Connected = true;
     debugeeInfo(msg.m_ProcessName);
@@ -256,7 +256,7 @@ void DglController::doHandle(const dglnet::message::Hello & msg) {
     setDisconnected(false);
 }
 
-void DglController::doHandle(const dglnet::message::BreakedCall & msg) {
+void DglController::doHandleBreakedCall(const dglnet::message::BreakedCall & msg) {
     if (!m_ConfiguredAndBkpointsSet) {
         //this is the first time debugee was stopped, before any execution
         //we must upload some configuration to it
@@ -277,11 +277,11 @@ void DglController::doHandle(const dglnet::message::BreakedCall & msg) {
     newStatus("Breaked execution.");
 }
 
-void DglController::doHandle(const dglnet::message::CallTrace& msg) {
+void DglController::doHandleCallTrace(const dglnet::message::CallTrace& msg) {
     gotCallTraceChunkChunk(msg.m_StartOffset, msg.m_Trace);
 }
 
-void DglController::doHandle(const dglnet::message::RequestReply& msg) {
+void DglController::doHandleRequestReply(const dglnet::message::RequestReply& msg) {
     getRequestManager()->handle(msg);
 }
 
