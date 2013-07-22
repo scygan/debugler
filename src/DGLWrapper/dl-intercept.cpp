@@ -231,13 +231,13 @@ void DLIntercept::initialize() {
 
     //We strongly rely on DGLLoader to get those symbols..
 
-    char* baseAddr = reinterpret_cast<char*>(&dlclose);
+    char* baseAddr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlclose));
 
     m_real_dlopen = reinterpret_cast<void* (*)(const char *filename, int flag)> (
-        baseAddr + atoi(Os::getEnv("dlopen_addr").c_str()));
+        reinterpret_cast<intptr_t>(baseAddr + atoi(Os::getEnv("dlopen_addr").c_str())));
 
     m_real_dlsym = reinterpret_cast<void* (*)(void*, const char*)> (
-        baseAddr + atoi(Os::getEnv("dlsym_addr").c_str()));
+        reinterpret_cast<intptr_t>(baseAddr + atoi(Os::getEnv("dlsym_addr").c_str())));
 
     m_real_dlvsym = NULL;
 
