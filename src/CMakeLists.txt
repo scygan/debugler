@@ -44,7 +44,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wno-unknown-pragmas -We
 # We cannot enable -Wredundant-decls, due to including multiple Khronos headers. May enable after switch to XML API specs.
 
 # We may consider enabling these, but they are rather hard.
-# -Wold-style-cast -Wmissing-declarations -Wstrict-overflow=5 -Wold-style-cast
+# -Wold-style-cast -Wmissing-declarations -Wstrict-overflow=5
 
 # Unsupported by current version of compiler:
 # -Wuseless-cast
