@@ -146,7 +146,7 @@ public:
             ar & m_FramebufferSpace;
         }
     public:
-        ContextReport() {}
+        ContextReport():m_Id(0) {}
         ContextReport(opaque_id_t id):m_Id(id) {}
         opaque_id_t m_Id;
         std::set<ContextObjectName> m_TextureSpace;
@@ -159,7 +159,7 @@ public:
 
 
     BreakedCall(CalledEntryPoint entryp, value_t traceSize, opaque_id_t currentCtx, std::vector<ContextReport> ctxReports):m_entryp(entryp), m_TraceSize(traceSize), m_CtxReports(ctxReports), m_CurrentCtx(currentCtx) {}
-    BreakedCall() {}
+    BreakedCall():m_entryp(NO_ENTRYPOINT, 0), m_TraceSize(0), m_CurrentCtx(0) {}
 
     CalledEntryPoint m_entryp;
     value_t m_TraceSize;
@@ -188,9 +188,9 @@ public:
        STEP_FRAME
    };
 
-   ContinueBreak(){}
+   ContinueBreak():m_Breaked(false),m_InStepMode(false), m_StepMode(STEP_CALL) {}
    ContinueBreak(StepMode stepMode):m_Breaked(false),m_InStepMode(true), m_StepMode(stepMode) {}
-   ContinueBreak(bool breaked):m_Breaked(breaked),m_InStepMode(false) {}
+   ContinueBreak(bool breaked):m_Breaked(breaked),m_InStepMode(false), m_StepMode(STEP_CALL) {}
    bool isBreaked() const;
    std::pair<bool, StepMode> getStep() const;
 
@@ -213,7 +213,7 @@ class QueryCallTrace: public Message {
     virtual void handle(MessageHandler* h) const { h->doHandleQueryCallTrace(*this); }
 
 public:
-    QueryCallTrace(){}
+    QueryCallTrace():m_StartOffset(0), m_EndOffset(0) {}
     QueryCallTrace(value_t startOffset, value_t endOffset):m_StartOffset(startOffset), m_EndOffset(endOffset) {}
 
     value_t m_StartOffset;
@@ -233,7 +233,7 @@ class CallTrace: public Message {
     virtual void handle(MessageHandler* h) const { h->doHandleCallTrace(*this); }
 
 public:
-    CallTrace(){}
+    CallTrace():m_StartOffset(0) {}
     CallTrace(const std::vector<CalledEntryPoint>& trace, int start):m_StartOffset(start), m_Trace(trace) {}
 
     value_t m_StartOffset;

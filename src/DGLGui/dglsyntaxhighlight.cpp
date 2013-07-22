@@ -94,6 +94,7 @@ bool DGLHLTextCharFormat::s_defaultFormatsInitialized = false;
 
 class DGLHLActionBase {
 public:
+	virtual ~DGLHLActionBase() {}
     virtual void doAction(DGLSyntaxHighlighterGLSL::HLState& state) const = 0;
 
     static DGLHLActionBase* Create(const DGLHLData* data, const QString name);
@@ -107,6 +108,7 @@ class DGLHLActionStay: public DGLHLActionBase {
 class DGLHLActionPop: public DGLHLActionBase {
 public:
     DGLHLActionPop(int counter):m_counter(counter) {}
+    ~DGLHLActionPop() {}
 private:
     virtual void doAction(DGLSyntaxHighlighterGLSL::HLState& state) const;
     int m_counter;
@@ -115,6 +117,7 @@ private:
 class DGLHLActionSetContext: public DGLHLActionBase {
 public:
     DGLHLActionSetContext(const DGLHLContext* context):m_context(context) {}
+    ~DGLHLActionSetContext() {}
 private:
     virtual void doAction(DGLSyntaxHighlighterGLSL::HLState& state) const;
     const DGLHLContext* m_context;
@@ -122,6 +125,9 @@ private:
 
 class DGLHLRuleBase {
 public:
+
+	virtual ~DGLHLRuleBase() {}
+
     virtual void tryMatch(const QString& str, uint& pos, int& matchSize) = 0;
 
     const DGLHLTextCharFormat* getFormat() {
@@ -158,6 +164,7 @@ public:
 #endif
             ),
         m_char(_char) {}
+    virtual ~DGLHLRuleDetectChar() {}
 private:
     virtual void tryMatch(const QString& str, uint& pos, int& matchSize) {
         matchSize = 1;
@@ -176,6 +183,8 @@ public:
                 ),m_regex(QRegExp::escape(QString(char1) + QString(char2))) {}
 
     typedef std::vector<std::string> keywordList_t;
+
+    virtual ~DGLHLRuleDetect2Chars();
 
 private:
     virtual void tryMatch(const QString& str, uint& pos, int& matchSize) {
@@ -238,6 +247,7 @@ public:
             , QString(__FUNCTION__)
 #endif
         ) {}
+    virtual ~DGLHLRuleDecimal() {}
 private:
     virtual void tryMatch(const QString& /*str*/, uint& /*pos*/, int& /*matchSize*/) {
         assert(!"not implemented");
@@ -330,6 +340,7 @@ DGLHLRuleBase* DGLHLRuleBase::Create(const DGLHLData* data, const QDomElement& x
     } else {
         FATAL;
     }
+    return NULL;
 }
 
 class DGLHLContext {

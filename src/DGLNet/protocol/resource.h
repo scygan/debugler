@@ -46,6 +46,7 @@ public:
         ObjectTypeBuffer,
         ObjectTypeGPU,
         ObjectTypeState,
+        ObjectTypeNone,
     };
 };
 
