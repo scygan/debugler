@@ -566,7 +566,7 @@ void DGLMainWindow::createToolBars() {
      //This action enables breaking on various events, like GL error or debug output
      //tell DGLController to configure it's debugee
 
-     m_controller.getConfig().m_BreakOnCompilerError = setBreakOnGLErrorAct->isChecked();
+     m_controller.getConfig().m_BreakOnGLError = setBreakOnGLErrorAct->isChecked();
      m_controller.getConfig().m_BreakOnDebugOutput = setBreakOnDebugOutputAct->isChecked();
      m_controller.getConfig().m_BreakOnCompilerError = setBreakOnCompilerErrAct->isChecked();
      m_controller.sendConfig();
@@ -581,7 +581,7 @@ void DGLMainWindow::errorMessage(const QString& title, const QString& msg) {
 }
 
 void DGLMainWindow::showConfig() {
-    setBreakOnGLErrorAct->setChecked(m_controller.getConfig().m_BreakOnCompilerError);
+    setBreakOnGLErrorAct->setChecked(m_controller.getConfig().m_BreakOnGLError);
     setBreakOnDebugOutputAct->setChecked(m_controller.getConfig().m_BreakOnDebugOutput);
     setBreakOnCompilerErrAct->setChecked(m_controller.getConfig().m_BreakOnCompilerError);
 }
