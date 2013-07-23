@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+#include "dglmainwindow.h"
+
 #include "dglqtgui.h"
 #include <QMessageBox>
 #include <QSettings>
@@ -20,7 +22,6 @@
 #include <QToolBar>
 #include <QProgressDialog>
 
-#include "dglmainwindow.h"
 #include "dglbreakpointdialog.h"
 #include "dglconfigdialog.h"
 #include "dgltraceview.h"

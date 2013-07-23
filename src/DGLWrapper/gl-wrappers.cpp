@@ -13,12 +13,12 @@
 * limitations under the License.
 */
 
+#define DGL_WRAPPERS_INSIDE
+#include "gl-wrappers.h"
 
 #include <cassert>
-#include "gl-headers-inside.h"
 #include "pointers.h"
 #include "actions.h"
-#include "gl-wrappers.h"
 
 extern "C" {
 #include "codegen/wrappers.inl"

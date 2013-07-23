@@ -15,7 +15,7 @@
 
 #pragma warning(push)
 #pragma warning(disable:4996) 
-#include "ipc.h"
+#include "ipc.h" //intentionally inside warning disable, as next header instances some warning-full lcode here.
 #include <boost/uuid/uuid.hpp>
 #pragma warning(pop)
 

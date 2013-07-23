@@ -13,16 +13,15 @@
 * limitations under the License.
 */
 
-
-#include <cstdlib>
-#include <cassert>
-
 #include "api-loader.h"
+
 #include "pointers.h"
 
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include <cstdlib>
+#include <cassert>
 
 #ifdef USE_DETOURS
 #include "detours/detours.h"

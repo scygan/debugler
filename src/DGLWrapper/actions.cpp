@@ -14,11 +14,10 @@
 */
 
 
-//#include <boost/make_shared.hpp>
+#include "actions.h"
 
 #include "gl-wrappers.h"
 #include "debugger.h"
-#include "actions.h"
 #include "pointers.h"
 #include "api-loader.h"
 #include "tls.h"

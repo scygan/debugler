@@ -13,10 +13,9 @@
 * limitations under the License.
 */
 
-#include<cstdio>
-
 #include "gl-types.h"
 
+#include<cstdio>
 #include<map>
 #include<set>
 #include<sstream>

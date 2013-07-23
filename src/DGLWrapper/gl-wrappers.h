@@ -13,6 +13,11 @@
 * limitations under the License.
 */
 
+#ifdef DGL_WRAPPERS_INSIDE
+//this one slightly changes gl-types semantics. Needed if _we_ are implementing (wrapping) GL API.
+#include "gl-headers-inside.h"
+#endif
+
 #include <DGLCommon/gl-types.h>
 
 FUNC_PTR getWrapperPointer(Entrypoint entryp);

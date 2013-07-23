@@ -13,10 +13,10 @@
 * limitations under the License.
 */
 
+#include "dglrundialog.h"
 
 #include <QFileInfo>
 #include <QDir>
-#include "dglrundialog.h"
 #include "dglgui.h"
 
 #include <QFileDialog>
