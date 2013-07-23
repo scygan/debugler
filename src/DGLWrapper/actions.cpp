@@ -236,7 +236,7 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
         case wglCreateContextAttribsARB_Call:
             ret.get(ctx);
             if (NULL != ctx) {
-                DGLDisplayState::defDpy()->ensureContext(dglState::GLContextVersion::DT, reinterpret_cast<opaque_id_t>(ctx));
+                DGLDisplayState::defDpy()->ensureContext(dglState::GLContextVersion::Type::DT, reinterpret_cast<opaque_id_t>(ctx));
             }
             break;
         case wglMakeCurrent_Call:

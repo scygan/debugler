@@ -77,7 +77,7 @@ APILoader::APILoader():m_LoadedApiLibraries(LIBRARY_NONE),m_GlueLibrary(LIBRARY_
 
 FUNC_PTR APILoader::loadGLPointer(LoadedLib library, Entrypoint entryp) {
 #ifdef _WIN32
-    return GetProcAddress((HINSTANCE)library, GetEntryPointName(entryp));
+    return reinterpret_cast<FUNC_PTR>(GetProcAddress((HINSTANCE)library, GetEntryPointName(entryp)));
 #else
     //(int) -> see http://www.trilithium.com/johan/2004/12/problem-with-dlsym/
     return reinterpret_cast<FUNC_PTR>((ptrdiff_t)dlsym(library, GetEntryPointName(entryp)));
@@ -96,7 +96,7 @@ bool APILoader::loadExtPointer(Entrypoint entryp) {
         switch (m_GlueLibrary) {
 #ifdef HAVE_LIBRARY_WGL
         case LIBRARY_WGL:
-            ptr  = DIRECT_CALL(wglGetProcAddress)(GetEntryPointName(entryp));
+            ptr  = reinterpret_cast<FUNC_PTR>(DIRECT_CALL(wglGetProcAddress)(GetEntryPointName(entryp)));
             break;
 #endif
 #ifdef HAVE_LIBRARY_GLX
@@ -229,7 +229,7 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary) {
         if (g_DirectPointers[i].ptr) {
             //this entrypoint was loaded from OpenGL32.dll, detour it!
 #if defined(USE_DETOURS) || defined(USE_MHOOK)            
-            FUNC_PTR * hookPtr = getWrapperPointer(i);
+            FUNC_PTR hookPtr = getWrapperPointer(i);
 #endif            
 #ifdef USE_DETOURS
             DetourAttach(&(PVOID&)g_DirectPointers[i].ptr, hookPtr);
