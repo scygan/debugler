@@ -86,7 +86,7 @@ namespace {
         MessageHandler& getMessageHandler() { return m_MessageHandler; }
 
         boost::shared_ptr<dglnet::Client> getClientFor(std::string sampleName) {
-            DGLProcess* process = DGLProcess::Create(
+            DGLDebugeeProcess* process = DGLDebugeeProcess::Create(
 #ifdef _WIN32
                 "C:\\Python27\\python.exe", "..", "..\\..\\src\\tests\\samples\\" + sampleName,
 #else

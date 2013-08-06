@@ -534,7 +534,7 @@ void DGLMainWindow::createToolBars() {
              //randomize connection port
              int port = rand() % (0xffff - 1024) + 1024;
 
-             boost::shared_ptr<DGLProcess> process(DGLProcess::Create(
+             boost::shared_ptr<DGLDebugeeProcess> process(DGLDebugeeProcess::Create(
                  m_RunDialog.getExecutable(),
                  m_RunDialog.getPath(),
                  m_RunDialog.getCommandLineArgs(), port, 

@@ -19,13 +19,25 @@
 
 
 #include<string>
+#include<memory>
 
-class DGLProcess {
+class DGLBaseProcess {
 public:
-    virtual ~DGLProcess() {}
+    virtual ~DGLBaseProcess() {}
+
+    static DGLBaseProcess* Create(std::string cmd, std::string path, std::string args);
+};
+
+
+class DGLDebugeeProcess {
+public:
+    virtual ~DGLDebugeeProcess() {}
     virtual bool waitReady(int msec) = 0;
 
-    static DGLProcess* Create(std::string cmd, std::string path, std::string args, int port, bool modeEGL);
+    static DGLDebugeeProcess* Create(std::string cmd, std::string path, std::string args, int port, bool modeEGL);
+
+protected:
+    std::shared_ptr<DGLBaseProcess> m_process;
 };
 
 
