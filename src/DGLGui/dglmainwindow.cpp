@@ -36,6 +36,7 @@
 #include "dglstateview.h"
 #include "dglgui.h"
 #include "dglprocess.h"
+#include "dgladbinterface.h"
 
 #include <DGLCommon/os.h>
 
@@ -56,6 +57,7 @@
 #define DGL_GEOMETRY_SETTINGS DGL_SETTINGS(geometry)
 #define DGL_WINDOW_STATE_SETTINGS DGL_SETTINGS(windowState)
 #define DGL_ColorScheme_SETTINGS DGL_SETTINGS(ColorScheme)
+#define DGL_ADB_PATH_SETTINGS DGL_SETTINGS(AdbPath)
 
 
 /**
@@ -132,6 +134,7 @@ void DGLMainWindow::closeEvent(QCloseEvent *_event) {
         settings.setValue(DGL_GEOMETRY_SETTINGS, saveGeometry());
         settings.setValue(DGL_WINDOW_STATE_SETTINGS, saveState());
         settings.setValue(DGL_ColorScheme_SETTINGS, m_ColorScheme);
+        settings.setValue(DGL_ADB_PATH_SETTINGS, QString::fromStdString(DGLAdbInterface::get()->getAdbPath()).toUtf8());
 
         //Send even to parrent class
 
@@ -216,6 +219,7 @@ void DGLMainWindow::createMenus() {
      fileMenu = menuBar()->addMenu(tr("&File"));
      fileMenu->addAction(runAct);
      fileMenu->addAction(attachAct);
+     fileMenu->addAction(attachAndroidAct);
      fileMenu->addAction(disconnectAct);
      fileMenu->addSeparator();
      fileMenu->addAction(quitAct);
@@ -299,6 +303,12 @@ void DGLMainWindow::createToolBars() {
      CONNASSERT(connect(&m_controller, SIGNAL(setDisconnected(bool)), attachAct, SLOT(setEnabled(bool))));
      attachAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_A));
 
+
+     attachAndroidAct = new QAction(tr("&Attach to Android App"), this);
+     attachAndroidAct->setStatusTip(tr("Attach to IP target"));
+     CONNASSERT(connect(attachAndroidAct, SIGNAL(triggered()), this, SLOT(attachAndroidApp())));
+     CONNASSERT(connect(&m_controller, SIGNAL(setDisconnected(bool)), attachAndroidAct, SLOT(setEnabled(bool))));
+     
      disconnectAct = new QAction(tr("&Disconnect"), this);
      disconnectAct->setStatusTip(tr("Disconnect an terminate application"));
      CONNASSERT(connect(disconnectAct, SIGNAL(triggered()), this, SLOT(disconnect())));
@@ -422,6 +432,8 @@ void DGLMainWindow::createToolBars() {
       QSettings settings(DGL_COMPANY, DGL_PRODUCT);
       restoreGeometry(settings.value(DGL_GEOMETRY_SETTINGS).toByteArray());
       restoreState(settings.value(DGL_WINDOW_STATE_SETTINGS).toByteArray());
+
+      DGLAdbInterface::get()->setAdbPath(settings.value(DGL_ADB_PATH_SETTINGS).toString().toStdString());
       
       //decode and set actual color scheme from settings
 
@@ -462,6 +474,7 @@ void DGLMainWindow::createToolBars() {
       DGLConfigDialog dialog(m_controller.getConfig());
       if (dialog.exec() == QDialog::Accepted) {
           m_controller.sendConfig(dialog.getConfig());
+          DGLAdbInterface::get()->setAdbPath(dialog.getAdbPath().toStdString());
       }
   }
 
@@ -492,6 +505,16 @@ void DGLMainWindow::createToolBars() {
          m_controller.connectServer(m_ConnectDialog.getAddress(), m_ConnectDialog.getPort());
      }
  }
+
+ void DGLMainWindow::attachAndroidApp() {
+
+     //execute connection dialog to obtain connection parameters
+
+     if (m_ConnectAndroidDialog.exec() == QDialog::Accepted) {
+         throw std::runtime_error("unimplemented");
+     }
+ }
+
 
  void DGLMainWindow::runDialog() {
 

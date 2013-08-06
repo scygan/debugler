@@ -14,30 +14,39 @@
 */
 
 
-#ifndef DGLCONFIGDIALOG_H
-#define DGLCONFIGDIALOG_H
+#ifndef DGLADBINTERFACE_H
+#define DGLADBINTERFACE_H
 
-#include "dglqtgui.h"
-#include "ui_dglconfigdialog.h"
-#include "dglcontroller.h"
 
-class DGLConfigDialog : public QDialog {
-    Q_OBJECT
+#include <memory>
+#include <string>
+#include <vector>
 
-public:
-    DGLConfigDialog(const DGLConfiguration& configuration);
-    ~DGLConfigDialog();
+class DGLAdbDevice {
 
-    const DGLConfiguration* getConfig();
-    QString getAdbPath();
-
-public slots: 
-    void toggleDebugFlagRenderingContext(bool);
-    void adbBrowseDialog();
-
-private:
-    Ui_ConfigDialog m_Ui;
-    DGLConfiguration m_Configuration;
 };
 
-#endif // DGLCONNECTDIALOG_H
+
+class DGLAdbInterface {
+public:
+    
+    static DGLAdbInterface* get();
+
+    void setAdbPath(std::string path);
+    std::string getAdbPath();
+
+    void killServer();
+    void connect(std::string address);
+
+    std::vector<DGLAdbDevice> getDevices();
+
+private:
+
+    void invokeAdb(std::vector<std::string> params);
+
+    std::string m_adbPath;
+
+    static std::shared_ptr<DGLAdbInterface> s_self;
+};
+
+#endif

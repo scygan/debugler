@@ -27,6 +27,7 @@
 #include "dglcontroller.h"
 #include "dglrundialog.h"
 #include "dglconnectdialog.h"
+#include "dglconnectandroiddialog.h"
 
 /**
  * Number of avaliable color schemes
@@ -64,6 +65,11 @@ private slots:
      * Slot for displaing "Attach to process window..." 
      */
     void attach();
+
+    /**
+     * Slot for displaing "Attach to Android App window..." 
+     */
+    void attachAndroidApp();
 
      /**
      * Slot for displaing "Run application window..." 
@@ -160,6 +166,7 @@ private:
 
     QAction *runAct;
     QAction *attachAct;
+    QAction *attachAndroidAct;
     QAction *disconnectAct;
     QAction *debugInterruptAct;
     QAction *debugContinueAct;
@@ -199,6 +206,7 @@ private:
 
     DGLRunDialog m_RunDialog;
     DGLConnectDialog m_ConnectDialog;
+    DGLConnectAndroidDialog m_ConnectAndroidDialog;
 };
 
 #endif // DGLMAINWINDOW_H

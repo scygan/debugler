@@ -14,30 +14,53 @@
 */
 
 
-#ifndef DGLCONFIGDIALOG_H
-#define DGLCONFIGDIALOG_H
+#ifndef DGLCONNECTANDROIDDIALOG_H
+#define DGLCONNECTANDROIDDIALOG_H
 
 #include "dglqtgui.h"
-#include "ui_dglconfigdialog.h"
-#include "dglcontroller.h"
 
-class DGLConfigDialog : public QDialog {
+#include "ui_dglconnectandroid.h"
+
+#include "ui_dglconnectandroidadb.h"
+
+
+class DGLConnectAndroidAdbDialog : public QDialog
+{
     Q_OBJECT
 
 public:
-    DGLConfigDialog(const DGLConfiguration& configuration);
-    ~DGLConfigDialog();
-
-    const DGLConfiguration* getConfig();
-    QString getAdbPath();
-
-public slots: 
-    void toggleDebugFlagRenderingContext(bool);
-    void adbBrowseDialog();
+    DGLConnectAndroidAdbDialog();
+    ~DGLConnectAndroidAdbDialog();
+    std::string getAddress();
 
 private:
-    Ui_ConfigDialog m_Ui;
-    DGLConfiguration m_Configuration;
+
+    Ui::DGLConnectAndroidAdbDialogClass m_ui;
 };
+
+class DGLConnectAndroidDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    DGLConnectAndroidDialog();
+    ~DGLConnectAndroidDialog();
+
+public slots:
+    void adbKillServer();
+    void adbConnect();
+    
+private:
+    void reloadDevices();
+
+
+    DGLConnectAndroidAdbDialog m_ConnectDialog;
+
+
+    Ui::DGLConnectAndroidDialogClass m_ui;
+};
+
+
+
 
 #endif // DGLCONNECTDIALOG_H

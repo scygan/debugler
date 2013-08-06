@@ -18,6 +18,9 @@
 #include "dglconfigdialog.h"
 #include "dglgui.h"
 
+#include <QFileDialog>
+
+
 DGLConfigDialog::DGLConfigDialog(const DGLConfiguration& configuration):m_Configuration(configuration) {
     m_Ui.setupUi(this);
 
@@ -43,4 +46,16 @@ void DGLConfigDialog::toggleDebugFlagRenderingContext(bool enabled) {
     if (!enabled) {
         m_Ui.checkBoxDebugContextES->setChecked(enabled);
     }
+}
+
+void DGLConfigDialog::adbBrowseDialog() {
+    QFileInfo info(m_Ui.lineEdit_Adb->text());
+    QString res = QFileDialog::getOpenFileName( this, tr( "Choose adb executable" ), info.absoluteFilePath(), tr( "Executables (*.exe)" ) );
+    if (!res.isNull()) {
+        m_Ui.lineEdit_Adb->setText(QDir::toNativeSeparators(res));
+    }
+}
+
+QString DGLConfigDialog::getAdbPath() {
+    return m_Ui.lineEdit_Adb->text();
 }
