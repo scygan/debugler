@@ -471,7 +471,7 @@ void DGLMainWindow::createToolBars() {
   }
 
   void DGLMainWindow::configure() {
-      DGLConfigDialog dialog(m_controller.getConfig());
+      DGLConfigDialog dialog(m_controller.getConfig(),  DGLAdbInterface::get()->getAdbPath());
       if (dialog.exec() == QDialog::Accepted) {
           m_controller.sendConfig(dialog.getConfig());
           DGLAdbInterface::get()->setAdbPath(dialog.getAdbPath().toStdString());

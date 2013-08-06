@@ -25,7 +25,7 @@ DGLAdbInterface* DGLAdbInterface::get() {
 }
 
 void DGLAdbInterface::setAdbPath(std::string path) {
-    path = m_adbPath;
+    m_adbPath = path;
 }
 
 std::string DGLAdbInterface::getAdbPath() {

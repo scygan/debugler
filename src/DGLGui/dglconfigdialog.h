@@ -25,7 +25,7 @@ class DGLConfigDialog : public QDialog {
     Q_OBJECT
 
 public:
-    DGLConfigDialog(const DGLConfiguration& configuration);
+    DGLConfigDialog(const DGLConfiguration& configuration, std::string adbPath);
     ~DGLConfigDialog();
 
     const DGLConfiguration* getConfig();

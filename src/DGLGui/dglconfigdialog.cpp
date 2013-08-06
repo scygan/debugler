@@ -21,13 +21,15 @@
 #include <QFileDialog>
 
 
-DGLConfigDialog::DGLConfigDialog(const DGLConfiguration& configuration):m_Configuration(configuration) {
+DGLConfigDialog::DGLConfigDialog(const DGLConfiguration& configuration, std::string adbPath):m_Configuration(configuration) {
     m_Ui.setupUi(this);
 
     m_Configuration.m_ForceDebugContextES = (m_Configuration.m_ForceDebugContextES && m_Configuration.m_ForceDebugContext);
 
     m_Ui.checkBoxDebugContext->setChecked(m_Configuration.m_ForceDebugContext);
     m_Ui.checkBoxDebugContextES->setChecked(m_Configuration.m_ForceDebugContextES);
+
+    m_Ui.lineEdit_Adb->setText(QString::fromStdString(adbPath));
 }
     
 
