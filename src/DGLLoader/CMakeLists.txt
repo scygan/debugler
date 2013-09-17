@@ -1,5 +1,5 @@
 set(dglloader_SOURCES 
-    main.cpp
+    main.cpp process.cpp
     )
 
 

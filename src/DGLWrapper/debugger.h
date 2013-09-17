@@ -279,7 +279,7 @@ private:
     /**
      * Server object
      */
-    boost::shared_ptr<dglnet::Server> m_Server;
+    std::shared_ptr<dglnet::Server> m_Server;
 
     /** 
      * Call history object
@@ -289,7 +289,7 @@ private:
     /**
      * Status presenter (baloon presenter)
      */
-    boost::shared_ptr<OsStatusPresenter> m_presenter;
+    std::shared_ptr<OsStatusPresenter> m_presenter;
 
     /**
      * True if served notified disconnection and it's destruction is pending
@@ -306,7 +306,7 @@ private:
 /** 
  *  Global controller object instance
  */
-extern boost::shared_ptr<DGLDebugController> _g_Controller;
+extern std::shared_ptr<DGLDebugController> _g_Controller;
 
 /** 
  *  Global controller object instance getter

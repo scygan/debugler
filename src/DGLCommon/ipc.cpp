@@ -86,11 +86,11 @@ public:
         return m_region->m_debuggerMode;
     }
 
-    virtual void setDebuggerPort(int port) override {
+    virtual void setDebuggerPort(unsigned short port) override {
         m_region->m_debuggerPort = port;
     }
 
-    virtual int getDebuggerPort() override {
+    virtual unsigned short getDebuggerPort() override {
         return m_region->m_debuggerPort;
     }
 
@@ -98,7 +98,7 @@ private:
 
     struct MemoryRegion {
         MemoryRegion():m_debuggerPort(5555), m_debuggerMode(DebuggerMode::DEFAULT), m_remoteThreadSemaphore(0) {}
-        int m_debuggerPort;
+        unsigned short m_debuggerPort;
         DebuggerMode m_debuggerMode;
         boost::interprocess::interprocess_semaphore m_remoteThreadSemaphore;
     };

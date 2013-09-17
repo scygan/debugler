@@ -21,6 +21,7 @@
 #include <QMainWindow>
 #include <QListWidget>
 #include <QSignalMapper>
+#include <QProgressDialog>
 
 #include "ui_dglmainwindow.h"
 
@@ -28,6 +29,8 @@
 #include "dglrundialog.h"
 #include "dglconnectdialog.h"
 #include "dglconnectandroiddialog.h"
+
+#include "dglprocess.h"
 
 /**
  * Number of avaliable color schemes
@@ -71,10 +74,20 @@ private slots:
      */
     void attachAndroidApp();
 
-     /**
+    /**
      * Slot for displaing "Run application window..." 
      */
     void runDialog();
+
+    /**
+     * Debugee process event handler 
+     */
+    void processHandler(bool ok, std::string errormsg);
+
+    /**
+     * Debugee process ready event handler 
+     */
+    void processReadyHandler();
 
     /**
      * Slot for disconnecting current connection
@@ -207,6 +220,16 @@ private:
     DGLRunDialog m_RunDialog;
     DGLConnectDialog m_ConnectDialog;
     DGLConnectAndroidDialog m_ConnectAndroidDialog;
+    
+    /** 
+     * Current debugee process
+     */
+    DGLDebugeeQTProcess* m_process;
+
+    /**
+     * Process starting busy progress dialog
+     */
+    std::shared_ptr<QProgressDialog> m_BusyDialog;
 };
 
 #endif // DGLMAINWINDOW_H

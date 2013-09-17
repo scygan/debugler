@@ -322,8 +322,8 @@ public slots:
 
 private:
 
-    boost::shared_ptr<dglnet::Client> m_DglClient;
-    boost::shared_ptr<QSocketNotifier> m_NotifierRead, m_NotifierWrite;
+    std::shared_ptr<dglnet::Client> m_DglClient;
+    std::shared_ptr<QSocketNotifier> m_NotifierRead, m_NotifierWrite;
     QTimer m_Timer;
 
     /**

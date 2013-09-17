@@ -20,12 +20,13 @@
 #ifdef _WIN32
     #include <windows.h>
     #include "CompleteInject/CompleteInject.h"
+    #define snprintf _snprintf
 #endif
+
+#include "process.h"
 
 #include <cstdlib>
 #include <stdexcept>
-#include <string>
-#include <vector>
 #include <sstream>
 #include <cstdio>
 #include <stdint.h>
@@ -114,22 +115,6 @@ std::string getWrapperPath() {
 #endif
 }
 
-std::string getCurrentDirectory() { 
-#ifndef _WIN32
-    #define MAX_PATH PATH_MAX
-#endif
-     char path[MAX_PATH];
-
-#ifdef _WIN32
-     if (!GetCurrentDirectory(MAX_PATH, path)) {
-#else
-     if (!getcwd(path, MAX_PATH)) {
-#endif
-        throw std::runtime_error("GetCurrentDirectory failed");
-     }
-     return path;
-}
-
 namespace po = boost::program_options;
 using namespace std;
 
@@ -177,16 +162,13 @@ int main(int argc, char** argv) {
 
         std::string executable = vm["execute"].as< vector<string> >()[0];
         std::vector<std::string> arguments;
-        std::string argumentString;
+
         for (size_t i = 0; i < vm["execute"].as< vector<string> >().size(); i++) {
             arguments.push_back(vm["execute"].as< vector<string> >()[i]);
-            argumentString += (i > 0?" ":"") + arguments[i];
         }
 
         std::string wrapperPath = getWrapperPath();
-        std::string path = getCurrentDirectory();
-
-        Os::info("Executable: %s\nPath: %s\nArguments: %s\nWrapper: %s\n\n\n", executable.c_str(), path.c_str(), argumentString.c_str(), wrapperPath.c_str());
+        Os::info("Executable: %s\nWrapper: %s\n\n\n", executable.c_str(), wrapperPath.c_str());
 
         boost::shared_ptr<DGLIPC> dglIPC = DGLIPC::Create();
         Os::setEnv("dgl_uuid", dglIPC->getUUID().c_str());
@@ -197,84 +179,46 @@ int main(int argc, char** argv) {
 
         if (vm.count("port")) {
             std::istringstream portStr(vm["port"].as< vector<string> >()[0]);
-            int port; 
+            unsigned short port; 
             portStr >> port;
             dglIPC->setDebuggerPort(port);
         }
 
+        DGLProcess process(executable, arguments);
+
+        if (process.getHandle() == 0) {
+            //we are in forked out process
 #ifdef _WIN32
-        //prepare some structures for CreateProcess output
-        STARTUPINFOA startupInfo;
-        memset(&startupInfo, 0, sizeof(startupInfo));
-        startupInfo.cb = sizeof(startupInfo);
-        PROCESS_INFORMATION processInformation; 
-        memset(&processInformation, 0, sizeof(processInformation));
-
-        //try run process (suspended - will not run user thread)
-
-        if (CreateProcessA(
-            executable.c_str(),
-            (LPSTR)argumentString.c_str(),
-            NULL, 
-            NULL,
-            FALSE, 
-            CREATE_SUSPENDED,
-            NULL,
-            path.c_str(),
-            &startupInfo, 
-            &processInformation) == 0 ) {
-
-                throw std::runtime_error("Cannot create process");
-        }
+            assert(!"forked out on windows");
 #else
-
-#ifndef __ANDROID__
-        pid_t pid = fork();
-        if (pid == -1) {
-            throw std::runtime_error("Cannot fork process");
-        }
-#else
-        // on Android loader process is not forker - just replaced by debugee
-        pid_t pid = 0;
-#endif
-        if (pid == 0) {
-            std::vector<std::vector<char> > argvs(arguments.size()); 
-            std::vector<char*> argVector(arguments.size());
-            for (size_t i = 0; i < arguments.size(); i++) {
-                std::copy(arguments[i].begin(), arguments[i].end(), std::back_inserter<std::vector<char> >(argvs[i]));
-                argvs[i].push_back('\0');
-                argVector[i] = &argvs[i][0];
-            }
-            argVector.push_back(NULL);
-
             Os::setEnv("LD_PRELOAD", wrapperPath.c_str());
 
 #ifdef __ANDROID__
-           const char* baseAddr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlclose));
-           {
-               int addr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlopen)) - baseAddr;
-               std::ostringstream str; str << addr;
-               Os::setEnv("dlopen_addr", str.str().c_str());
-           }
-           {
-               int addr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlsym)) - baseAddr;
-               std::ostringstream str; str << addr;
-               Os::setEnv("dlsym_addr", str.str().c_str());
-           }
+            const char* baseAddr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlclose));
+            {
+                int addr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlopen)) - baseAddr;
+                std::ostringstream str; str << addr;
+                Os::setEnv("dlopen_addr", str.str().c_str());
+            }
+            {
+                int addr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlsym)) - baseAddr;
+                std::ostringstream str; str << addr;
+                Os::setEnv("dlsym_addr", str.str().c_str());
+            }
 #endif
+            process.do_execvp();
 
-            execvp(executable.c_str(), &argVector[0]);
-            throw std::runtime_error("Cannot execute process");
-        }
 #endif
+        }
+
 
 #ifdef _WIN32        
 #ifdef _WIN64
-        if (!isProcess64Bit(processInformation.hProcess)) {
+        if (!isProcess64Bit(process.getHandle())) {
             throw std::runtime_error("Incompatible loader version: used 64bit, but process is not 64bit");
         }
 #else
-        if (isProcess64Bit(processInformation.hProcess)) {
+        if (isProcess64Bit(process.getHandle())) {
             throw std::runtime_error("Incompatible loader version: used 32bit, but process is not 32bit");
         }
 #endif
@@ -284,10 +228,10 @@ int main(int argc, char** argv) {
         //inject thread with wrapper library loading code, run through DLLMain and InitializeThread() function
 
 #ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
-        Inject(processInformation.hProcess, wrapperPath.c_str(), "LoaderThread");
+        Inject(process.getHandle(), wrapperPath.c_str(), "LoaderThread");
         dglIPC->waitForRemoteThreadSemaphore();
 #else
-        HANDLE thread = Inject(processInformation.hProcess, wrapperPath.c_str(), "LoaderThread");
+        HANDLE thread = Inject(process.getHandle(), wrapperPath.c_str(), "LoaderThread");
         //wait for loader thread to finish dll inject
         WaitForSingleObject(thread, INFINITE);
 #endif
@@ -295,7 +239,7 @@ int main(int argc, char** argv) {
         //resume process - now user thread is running
         //whole OpenGL should be wrapped by now
 
-        if (ResumeThread(processInformation.hThread) == -1) {
+        if (ResumeThread(process.getMainThread()) == -1) {
             throw std::runtime_error("Cannot resume process");
         }
 #endif
@@ -304,37 +248,11 @@ int main(int argc, char** argv) {
 
         ipcMessage->status = EXIT_FAILURE;
 
-#ifdef _WIN32        
-        //generic, GetLastError() aware error printer
-
-        if ( DWORD lastError = GetLastError()) {
-
-            char* errorText;
-            FormatMessageA(
-                FORMAT_MESSAGE_FROM_SYSTEM
-                |FORMAT_MESSAGE_ALLOCATE_BUFFER
-                |FORMAT_MESSAGE_IGNORE_INSERTS,  
-                NULL,
-                GetLastError(),
-                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                (LPSTR)&errorText,
-                0,
-                NULL);
-
-            _snprintf(ipcMessage->message, 1000, "%s: %s\n", e.what(), errorText);
-
-            LocalFree(errorText);
-
-        } else {
-            _snprintf(ipcMessage->message, 1000, "%s\n", e.what());
-        }
-#else
-        if (errno) {
-            snprintf(ipcMessage->message, 1000, "%s: %s\n", e.what(), strerror(errno));
+        if (int osError = Os::getLastosError()) {
+            snprintf(ipcMessage->message, 1000, "%s: %s\n", e.what(), Os::translateOsError(osError).c_str());
         } else {
             snprintf(ipcMessage->message, 1000, "%s\n", e.what());
         }
-#endif
     }
 
     Os::info("%s", ipcMessage->message);

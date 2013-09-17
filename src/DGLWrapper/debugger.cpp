@@ -24,11 +24,11 @@
 #include <boost/interprocess/sync/named_semaphore.hpp>
 
 
-boost::shared_ptr<DGLDebugController> _g_Controller;
+std::shared_ptr<DGLDebugController> _g_Controller;
 
 DGLDebugController* getController() {
     if (!_g_Controller.get()) {
-        _g_Controller = boost::make_shared<DGLDebugController>();
+        _g_Controller = std::make_shared<DGLDebugController>();
     }
     return _g_Controller.get();
 }
@@ -163,8 +163,8 @@ void DGLDebugController::doHandleDisconnect(const std::string&) {
 dglnet::Server& DGLDebugController::getServer() {
     if (!m_Server) {
 
-        int port = getIPC()->getDebuggerPort();
-        m_Server = boost::make_shared<dglnet::Server>(port, this);
+        unsigned short port = getIPC()->getDebuggerPort();
+        m_Server = std::make_shared<dglnet::Server>(port, this);
         
         std::string semaphore = Os::getEnv("dgl_semaphore");
         if (semaphore.length()) {
@@ -177,7 +177,7 @@ dglnet::Server& DGLDebugController::getServer() {
 
         }
 
-        m_presenter = boost::shared_ptr<OsStatusPresenter>(Os::createStatusPresenter());
+        m_presenter = std::shared_ptr<OsStatusPresenter>(Os::createStatusPresenter());
         {
             std::ostringstream msg;
             msg << Os::getProcessName() << ": wating for debugger on port " << port << ".";

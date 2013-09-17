@@ -140,6 +140,28 @@ void Os::setCurrentModuleHandle(void * handle) {
 
 void* Os::m_CurrentHandle = NULL;
 
+
+int Os::getLastosError() {
+    return (int)GetLastError();
+}
+
+std::string Os::translateOsError(int error) {
+    char* errorText;
+    FormatMessageA(
+        FORMAT_MESSAGE_FROM_SYSTEM
+        |FORMAT_MESSAGE_ALLOCATE_BUFFER
+        |FORMAT_MESSAGE_IGNORE_INSERTS,  
+        NULL,
+        error,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPSTR)&errorText,
+        0,
+        NULL);
+    std::string  ret(errorText);
+    LocalFree(errorText);
+    return ret;
+}
+
 #else
 
 #include <cstdio>
@@ -223,6 +245,15 @@ OsStatusPresenter* Os::createStatusPresenter() {
 }
 
 
+int Os::getLastosError() {
+    return errno;
+}
+
+std::string Os::translateOsError(int error) {
+    return strerror(error);
+}
+
+
 #endif
 
 void Os::nonFatal(const char* fmt, ...) {
@@ -272,4 +303,5 @@ std::string Os::vargsToString(const char* fmt, va_list args) {
 #endif
     return std::string(&buff[0]);
 }
+
 

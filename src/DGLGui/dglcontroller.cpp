@@ -137,7 +137,7 @@ void DglController::connectServer(const std::string& host, const std::string& po
     //we are not disconnected, but not yet connected - so we do not set m_Connected
     m_Disconnected = false; 
 
-    m_DglClient = boost::make_shared<dglnet::Client>(this, this);
+    m_DglClient = std::make_shared<dglnet::Client>(this, this);
     m_DglClient->connectServer(host, port);
     m_Timer.start();
 }
@@ -151,8 +151,8 @@ void DglController::onSocket() {
     // Timer disable try count: 2
     // m_Timer.stop();
 
-    m_NotifierRead = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Read); 
-    m_NotifierWrite = boost::make_shared<QSocketNotifier>(m_DglClient->getSocketFD(), QSocketNotifier::Write); 
+    m_NotifierRead = std::make_shared<QSocketNotifier>((qintptr)m_DglClient->getSocketFD(), QSocketNotifier::Read); 
+    m_NotifierWrite = std::make_shared<QSocketNotifier>((qintptr)m_DglClient->getSocketFD(), QSocketNotifier::Write); 
     m_NotifierWrite->setEnabled(false);
     CONNASSERT(connect(&*m_NotifierRead, SIGNAL(activated(int)), this, SLOT(poll())));
     CONNASSERT(connect(&*m_NotifierWrite, SIGNAL(activated(int)), this, SLOT(poll())));

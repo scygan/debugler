@@ -28,7 +28,7 @@ public:
     DGLRunDialog();
     ~DGLRunDialog();
     std::string getExecutable();
-    std::string getCommandLineArgs();
+    std::vector<std::string> getCommandLineArgs();
     std::string getPath();
     bool getModeEGL();
 

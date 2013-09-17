@@ -25,6 +25,8 @@
 #include <thread>
 #include <chrono>
 
+#include "LiveProcessWrapper.h"
+
 namespace {
 
     class LiveTest : public ::testing::Test {
@@ -32,9 +34,6 @@ namespace {
 
         LiveTest() {
             if (once) {
-#ifdef _WIN32
-                SetCurrentDirectory("..");
-#endif
                 once = false;
             }
 
@@ -85,18 +84,11 @@ namespace {
         public:
         MessageHandler& getMessageHandler() { return m_MessageHandler; }
 
-        boost::shared_ptr<dglnet::Client> getClientFor(std::string sampleName) {
-            DGLDebugeeProcess* process = DGLDebugeeProcess::Create(
-#ifdef _WIN32
-                "C:\\Python27\\python.exe", "..", "..\\..\\src\\tests\\samples\\" + sampleName,
-#else
-                "python", "..", CMAKE_CURRENT_SOURCE_DIR"/../samples/" + sampleName,
-#endif
-                8888, false);
-            while (!process->waitReady(100)) {}
-            delete process;
+        std::shared_ptr<dglnet::Client> getClientFor(std::string sampleName) {
+            
+            m_ProcessWrapper = std::make_shared<LiveProcessWrapper>(sampleName);
 
-            boost::shared_ptr<dglnet::Client> client(new dglnet::Client(&m_Controller, &m_MessageHandler));
+            std::shared_ptr<dglnet::Client> client(new dglnet::Client(&m_Controller, &m_MessageHandler));
             client->connectServer("127.0.0.1", "8888");
 
             return client;
@@ -111,6 +103,9 @@ namespace {
         }
 
         static bool once;
+
+        std::shared_ptr<LiveProcessWrapper> m_ProcessWrapper;
+
     };
     bool LiveTest::once = true;
 
@@ -144,7 +139,7 @@ namespace {
             return dynamic_cast<T*>(msg);
         }
 
-        dglnet::message::BreakedCall* runUntilEntryPoint(boost::shared_ptr<dglnet::Client> client, LiveTest::MessageHandler& handler, Entrypoint entryp) {
+        dglnet::message::BreakedCall* runUntilEntryPoint(std::shared_ptr<dglnet::Client> client, LiveTest::MessageHandler& handler, Entrypoint entryp) {
             //set break point
             {
                 std::set<Entrypoint> breakpoints;
@@ -201,7 +196,7 @@ namespace {
 
     TEST_F(LiveTest, connect_disconnect) {
 
-        boost::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
+        std::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
 
         dglnet::message::Hello * hello = utils::receiveMessage<dglnet::message::Hello>(client.get(), getMessageHandler());
         ASSERT_TRUE(hello != NULL);
@@ -215,7 +210,7 @@ namespace {
     }
 
    TEST_F(LiveTest, continue_break) {
-       boost::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
+       std::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
 
        utils::receiveMessage<dglnet::message::Hello>(client.get(), getMessageHandler());
        dglnet::message::BreakedCall* breaked = utils::receiveMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler());
@@ -251,7 +246,7 @@ namespace {
    }
 
    TEST_F(LiveTest, breakpoint) {
-       boost::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
+       std::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
 
        utils::receiveMessage<dglnet::message::Hello>(client.get(), getMessageHandler());
        dglnet::message::BreakedCall* breaked = utils::receiveMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler());
@@ -286,7 +281,7 @@ namespace {
    }
 
    TEST_F(LiveTest, entryp_retvals) {
-       boost::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
+       std::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
 
        dglnet::message::BreakedCall* breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler());
        ASSERT_TRUE(breaked != NULL);
@@ -384,7 +379,7 @@ namespace {
    }
 
    TEST_F(LiveTest, framebuffer_query) {
-       boost::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
+       std::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
 
        dglnet::message::BreakedCall* breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler());
        ASSERT_TRUE(breaked != NULL);
@@ -441,7 +436,7 @@ namespace {
    }
     
    TEST_F(LiveTest, edit_shader) {
-       boost::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
+       std::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
 
        dglnet::message::BreakedCall* breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler());
        ASSERT_TRUE(breaked != NULL);
@@ -554,7 +549,7 @@ namespace {
         std::string nothing;
         GLuint shaderId, programId;
 
-        boost::shared_ptr<dglnet::Client> client = getClientFor("shader_handling.py");
+        std::shared_ptr<dglnet::Client> client = getClientFor("shader_handling.py");
         
         dglnet::message::BreakedCall* breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler());
         ASSERT_TRUE(breaked != NULL);
@@ -744,6 +739,8 @@ namespace {
         EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get())->m_ShaderObjDeleted);
         EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(reply->m_Reply.get())->m_Source.find("gl_Position") != std::string::npos);
         //glFlush(); #flush is only to mark case end
+
+        client->abort();
    }
 
 

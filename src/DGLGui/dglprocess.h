@@ -21,28 +21,71 @@
 #include<string>
 #include<memory>
 
-class DGLBaseProcess {
+#include <QProcess>
+#include <QTimer>
+
+#include <boost/interprocess/sync/named_semaphore.hpp>
+#include <boost/interprocess/managed_shared_memory.hpp>
+
+class DGLBaseQTProcess: public QObject {
+
+    Q_OBJECT
 public:
-    virtual ~DGLBaseProcess() {}
+    DGLBaseQTProcess();
 
-    static DGLBaseProcess* Create(std::string cmd, std::string path, std::string args);
-};
+    virtual void run(std::string cmd, std::string path, std::vector<std::string> args, bool takeOutput = false);
+    void exit();
 
+    signals:
+        void processEvent(bool ok, std::string errormsg);
 
-class DGLDebugeeProcess {
-public:
-    virtual ~DGLDebugeeProcess() {}
-    virtual bool waitReady(int msec) = 0;
-
-    static DGLDebugeeProcess* Create(std::string cmd, std::string path, std::string args, int port, bool modeEGL);
-
+    private slots:
+        void processStarted();
+        void processError(QProcess::ProcessError);
 protected:
-    std::shared_ptr<DGLBaseProcess> m_process;
+    QProcess m_process;
 };
 
 
+class DGLDebugeeQTProcess: public DGLBaseQTProcess {
+    Q_OBJECT
+public:
+    DGLDebugeeQTProcess(int port, bool modeEGL);
+    virtual ~DGLDebugeeQTProcess();
+    
+    int getPort();
+
+    virtual void run(std::string cmd, std::string path, std::vector<std::string> args, bool takeOutput = false);
+
+    static DGLDebugeeQTProcess* Create();
+
+signals:
+    void processReady();
+    
+private slots:
+    void startPolling();
+    void pollReady();
+
+private:
+
+    struct IPCMessage {
+        IPCMessage(uint32_t s):status(s) { message[0] = 0; };
+        uint32_t status;
+        char message[1000];
+    };
 
 
+    int m_Port;
+    bool m_Loaded;
+    bool m_ModeEGL;
 
+    std::string m_PortStr, m_SemLoaderStr, m_SemOpenGLStr;
+
+    boost::interprocess::named_semaphore m_SemLoader, m_SemOpenGL;
+    boost::interprocess::shared_memory_object  m_ShObj;
+    boost::interprocess::mapped_region m_MappedRegion;
+
+    QTimer* m_PollTimer;
+};
 
 #endif //DGLPROGRAMVIEW_H

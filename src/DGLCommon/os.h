@@ -52,6 +52,11 @@ public:
     static OsIcon* createIcon();
 
     static void setCurrentModuleHandle(void * handle);
+
+    static int getLastosError();
+
+    static std::string translateOsError(int error);
+
 private:
     static void* m_CurrentHandle;
 

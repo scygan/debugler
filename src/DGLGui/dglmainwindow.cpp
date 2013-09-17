@@ -35,7 +35,6 @@
 #include "dglgpuview.h"
 #include "dglstateview.h"
 #include "dglgui.h"
-#include "dglprocess.h"
 #include "dgladbinterface.h"
 
 #include <DGLCommon/os.h>
@@ -81,7 +80,7 @@ QPixmap qt_pixmapFromWinHICON(HICON icon);
 #endif
 
 DGLMainWindow::DGLMainWindow(QWidget *_parent, Qt::WindowFlags flags)
-    : QMainWindow(_parent, flags) {
+    : QMainWindow(_parent, flags),m_process(NULL) {
 
 #pragma warning(push)
 #pragma warning(disable:4127) //conditional expression is constant
@@ -524,36 +523,28 @@ void DGLMainWindow::createToolBars() {
 
          try {
 
-             QProgressDialog progress("Starting debugging session (waiting for application to try use OpenGL)...", "Cancel", 0, 1, this);
-             progress.setWindowModality(Qt::WindowModal);
-             progress.setValue(0);
+             m_BusyDialog = std::make_shared<QProgressDialog>("Starting debugging session (waiting for application to try use OpenGL)...", "Cancel", 0, 1, this);
 
-             QProgressBar*  bar = new QProgressBar(&progress); progress.setBar(bar); bar->setMaximum(0); bar->setMinimum(0); bar->setValue(-1);
+             m_BusyDialog->setWindowModality(Qt::WindowModal);
+             m_BusyDialog->setValue(0);
+             
+             QProgressBar*  bar = new QProgressBar(m_BusyDialog.get()); m_BusyDialog->setBar(bar);
+             bar->setMaximum(0); bar->setMinimum(0); bar->setValue(-1);
 
 
              //randomize connection port
              int port = rand() % (0xffff - 1024) + 1024;
 
-             boost::shared_ptr<DGLDebugeeProcess> process(DGLDebugeeProcess::Create(
-                 m_RunDialog.getExecutable(),
+             m_process = new DGLDebugeeQTProcess(port, m_RunDialog.getModeEGL());
+
+             m_process->setParent(this);
+
+             CONNASSERT(connect(m_process, SIGNAL(processEvent(bool, std::string)), this, SLOT(processHandler(bool, std::string))));
+             CONNASSERT(connect(m_process, SIGNAL(processReady()), this, SLOT(processReadyHandler())));
+
+             m_process->run(m_RunDialog.getExecutable(),
                  m_RunDialog.getPath(),
-                 m_RunDialog.getCommandLineArgs(), port, 
-                 m_RunDialog.getModeEGL()));         
-
-             bool timeout; 
-             while ((timeout = !process->waitReady(10)) == true) {
-                 QApplication::processEvents();
-                 if (progress.wasCanceled())
-                     break;
-             }
-             if (timeout) {
-                 throw std::runtime_error("Timed out waiting for application to use OpenGL");
-             }
-
-             //application should be running server by now, connect to it and begin debugging
-
-             std::ostringstream portStr; portStr << port;
-             m_controller.connectServer("127.0.0.1", portStr.str());
+                 m_RunDialog.getCommandLineArgs());
 
          } catch (const std::runtime_error& err) {
             QMessageBox::critical(NULL, tr("Fatal Error"),
@@ -561,12 +552,35 @@ void DGLMainWindow::createToolBars() {
          }
      }
  }
- 
+
+ void DGLMainWindow::processHandler(bool ok, std::string errormsg) {
+     if (!ok) {
+         QMessageBox::critical(NULL, tr("Fatal Error"),
+             QString::fromStdString(errormsg));
+
+         m_process->exit();
+         m_process = NULL;
+         m_BusyDialog.reset();
+     }
+ }
+
+ void DGLMainWindow::processReadyHandler() {
+     std::ostringstream portStr; portStr << m_process->getPort();
+     m_controller.connectServer("127.0.0.1", portStr.str());
+ }
+
+
  void DGLMainWindow::disconnect() {
 
      // call DGLcontroller to terminate it's connection
 
      m_controller.disconnectServer();
+
+     if (m_process) {
+         m_process->exit();
+         m_process = NULL;
+     }
+
  }
 
  void DGLMainWindow::addDeleteBreakPoints() {

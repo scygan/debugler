@@ -23,7 +23,7 @@ namespace dglnet {
 
 class  TransportHeader;
 
-class Transport: public boost::enable_shared_from_this<Transport> {
+class Transport: public std::enable_shared_from_this<Transport> {
 public: 
     Transport(MessageHandler* messageHandler);
     virtual ~Transport();
@@ -40,7 +40,7 @@ protected:
     virtual void notifyStartSend();
     virtual void notifyEndSend();
 
-    boost::shared_ptr<Transport> get_shared_from_base() {
+    std::shared_ptr<Transport> get_shared_from_base() {
         return shared_from_this();
     }
 

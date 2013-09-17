@@ -35,8 +35,8 @@ public:
     virtual void setDebuggerMode(DebuggerMode) = 0;
     virtual DebuggerMode getDebuggerMode() = 0;
 
-    virtual void setDebuggerPort(int) = 0;
-    virtual int getDebuggerPort() = 0;
+    virtual void setDebuggerPort(unsigned short) = 0;
+    virtual unsigned short getDebuggerPort() = 0;
     
     static boost::shared_ptr<DGLIPC> Create();
     static boost::shared_ptr<DGLIPC> CreateFromUUID(std::string uuid);

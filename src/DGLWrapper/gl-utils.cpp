@@ -57,7 +57,7 @@ MSAADownSampler::MSAADownSampler(GLenum attTarget, GLenum att, GLuint fboName, G
 
         DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D_ARRAY, m_DownsampledResource);
         //depth is 1 here. we need only one slice of array to downsample to
-        DIRECT_CALL_CHK(glTexImage3D)(GL_TEXTURE_2D_ARRAY, 0, attInternalFormat, width, height, 1, 0, transfer->getFormat(), transfer->getType(), NULL);
+        DIRECT_CALL_CHK(glTexImage3D)(GL_TEXTURE_2D_ARRAY, 0, attInternalFormat, width, height, 1, 0, (GLenum)transfer->getFormat(), (GLenum)transfer->getType(), NULL);
 
         DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D_ARRAY, lastTexture);
     } else {

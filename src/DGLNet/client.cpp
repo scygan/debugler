@@ -68,8 +68,8 @@ namespace dglnet {
     }
 
 
-    boost::shared_ptr<Client> Client::shared_from_this() {
-        return boost::static_pointer_cast<Client>(get_shared_from_base());
+    std::shared_ptr<Client> Client::shared_from_this() {
+        return std::static_pointer_cast<Client>(get_shared_from_base());
     }
 }
 

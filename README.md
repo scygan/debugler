@@ -21,7 +21,9 @@ Needed:
 
  * Python 2.7.*, http://www.python.org/download/
 
- * Qt 5.0.1-rc1, http://download.qt-project.org/development_releases/qt/5.1/5.1.0-rc1/qt-windows-opensource-5.1.0-rc1-msvc2012-x86-offline.exe
+ * Qt 5.1.1, http://www.nic.funet.fi/pub/mirrors/download.qt-project.org/official_releases/qt/5.1/5.1.1/qt-windows-opensource-5.1.1-msvc2012-x86-offline.exe
+ 
+ Debugler can build with <b>older versions</b>, but it <b> does not work </b> due to https://bugreports.qt-project.org/browse/QTBUG-29391
 
  * Set <b>QTDIR</b> environment variable to QT installation directory (like C:\Qt\Qt5.1.0\5.1.0-rc1\msvc2012).
 

@@ -46,7 +46,7 @@ private:
     void onConnect(const boost::system::error_code &err);
     virtual void notifyStartSend() override;
     virtual void notifyEndSend() override;
-    boost::shared_ptr<Client> shared_from_this();
+    std::shared_ptr<Client> shared_from_this();
 
     IController* m_controller;
     boost::asio::ip::tcp::resolver m_Resolver;
