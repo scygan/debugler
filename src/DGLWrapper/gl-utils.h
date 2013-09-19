@@ -21,17 +21,22 @@
 
 class DGLPixelTransfer;
 
+namespace dglState {
+class GLContext;
+}
+
 namespace glutils {
 
 class MSAADownSampler {
 public:
-MSAADownSampler(GLenum attTarget, GLenum att, GLuint fboName, GLenum attInternalFormat, DGLPixelTransfer* transfer, int width, int height);
+MSAADownSampler(dglState::GLContext* context, GLenum attTarget, GLenum att, GLuint fboName, GLenum attInternalFormat, DGLPixelTransfer* transfer, int width, int height);
 ~MSAADownSampler();
 
 GLuint getDownsampledFBO();
 
 
 private:
+    dglState::GLContext* m_Context;
     GLuint m_DownSampledFBO;
     GLuint m_DownsampledResourceTarget;
     GLuint m_DownsampledResource;

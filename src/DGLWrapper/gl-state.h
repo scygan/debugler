@@ -270,6 +270,7 @@ public:
         SeparateReadDrawFramebufferObjects,
         DrawBuffersMRT,
         TextureMultisample,
+        RenderBufferMultisample,
         TextureQueryStencilBits,
         ReadBufferSelector,
         CanQueryFramebufferAttachmentBitSize,

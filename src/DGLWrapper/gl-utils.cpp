@@ -26,7 +26,7 @@
 
 namespace glutils {
 
-MSAADownSampler::MSAADownSampler(GLenum attTarget, GLenum att, GLuint fboName, GLenum attInternalFormat, DGLPixelTransfer* transfer, int width, int height):m_DownSampledFBO(0), m_DownsampledResourceTarget(attTarget), m_DownsampledResource(0), m_FBO(fboName) {
+MSAADownSampler::MSAADownSampler(dglState::GLContext* context, GLenum attTarget, GLenum att, GLuint fboName, GLenum attInternalFormat, DGLPixelTransfer* transfer, int width, int height):m_Context(context), m_DownSampledFBO(0), m_DownsampledResourceTarget(attTarget), m_DownsampledResource(0), m_FBO(fboName) {
     //this is a multisample render target. We must downsample it before reading
 
     if (m_DownsampledResourceTarget == GL_RENDERBUFFER) {
@@ -80,8 +80,10 @@ MSAADownSampler::MSAADownSampler(GLenum attTarget, GLenum att, GLuint fboName, G
 
     if (att != GL_DEPTH_ATTACHMENT && att != GL_STENCIL_ATTACHMENT && att != GL_DEPTH_STENCIL_ATTACHMENT) {
         //select buffers for downsampling
-        DIRECT_CALL_CHK(glReadBuffer)(att); 
-        DIRECT_CALL_CHK(glDrawBuffer)(att); 
+        if (m_Context->hasCapability(dglState::GLContext::ContextCap::ReadBufferSelector))
+            DIRECT_CALL_CHK(glReadBuffer)(att); 
+        if (m_Context->hasCapability(dglState::GLContext::ContextCap::DrawBuffersMRT))
+            DIRECT_CALL_CHK(glDrawBuffer)(att); 
 
         blitMask |= GL_COLOR_BUFFER_BIT;
     } else {

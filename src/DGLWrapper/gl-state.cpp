@@ -1048,7 +1048,10 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(attTarget, level, GL_TEXTURE_WIDTH, &width);
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(attTarget, level, GL_TEXTURE_HEIGHT, &height);
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(attTarget, level, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(attTarget, level, GL_TEXTURE_SAMPLES, &samples);
+            
+            if (hasCapability(ContextCap::TextureMultisample)) {
+                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(attTarget, level, GL_TEXTURE_SAMPLES, &samples);
+            }
 
             DIRECT_CALL_CHK(glBindTexture)(bindableTarget, lastTexture);
 
@@ -1067,7 +1070,10 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
             DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &width);
             DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
             DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_INTERNAL_FORMAT, &internalFormat);
-            DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_SAMPLES, &samples);
+
+            if (hasCapability(ContextCap::RenderBufferMultisample)) {
+                DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_SAMPLES, &samples);
+            }
 
             if (samples) {
                 multisampled = true;
@@ -1151,7 +1157,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
 
         boost::shared_ptr<glutils::MSAADownSampler> downSampler;
         if (multisampled) {
-            downSampler = boost::make_shared<glutils::MSAADownSampler>(attTarget, attachments[i], name, internalFormat, &transfer, width, height);
+            downSampler = boost::make_shared<glutils::MSAADownSampler>(this, attTarget, attachments[i], name, internalFormat, &transfer, width, height);
             DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, downSampler->getDownsampledFBO());
         }
 
@@ -2664,6 +2670,7 @@ bool GLContext::hasCapability(ContextCap cap) {
                 version.check(GLContextVersion::Type::ES, 3);
             
         case ContextCap::FramebufferObjects:
+            return
                 version.check(GLContextVersion::Type::DT, 3) || 
                 version.check(GLContextVersion::Type::ES, 2);
 
@@ -2687,6 +2694,10 @@ bool GLContext::hasCapability(ContextCap cap) {
         case ContextCap::TextureMultisample:
             return
                 version.check(GLContextVersion::Type::DT, 3, 2);
+
+        case ContextCap::RenderBufferMultisample:
+            return
+                version.check(GLContextVersion::Type::DT, 3);
 
         case ContextCap::TextureQueryStencilBits:
             return
