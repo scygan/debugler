@@ -960,7 +960,12 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
 
     //get maximum number of color attachments
     GLint maxColorAttachments; 
-    DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
+
+    if (getVersion().check(GLContextVersion::Type::ES, 3) || getVersion().check(GLContextVersion::Type::DT, 3)) {
+        DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
+    } else {
+        maxColorAttachments = 1;
+    }
 
     //fill table with color attachments to look for
     std::vector<GLenum> attachments(maxColorAttachments);
@@ -1005,10 +1010,17 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
         DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i],
             GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &attmntName);
         
+
+        bool canQueryBitSizesFromFbo =  getVersion().check(GLContextVersion::Type::ES, 3) || getVersion().check(GLContextVersion::Type::DT, 3);
+
         //now look for the attached object and query internal format and dimensions
         GLint width = 0, height = 0, internalFormat = 0, samples = 0;
         GLenum attTarget;
         bool multisampled = false;
+
+        std::vector<GLint> rgbaSizes(4, 0);
+        std::vector<GLint> deptStencilSizes(2, 0);
+
         if (type == GL_TEXTURE) {
 
             if (!DIRECT_CALL_CHK(glIsTexture)(attmntName)) {
@@ -1060,6 +1072,31 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
                 multisampled = true;
             }
 
+            if (!canQueryBitSizesFromFbo) {
+                if (attachments[i] >= GL_COLOR_ATTACHMENT0 &&
+                    attachments[i] < GL_COLOR_ATTACHMENT0 + (GLenum)maxColorAttachments) {
+
+                        DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_RED_SIZE, &rgbaSizes[0]);
+                        DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_GREEN_SIZE, &rgbaSizes[1]);
+                        DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_BLUE_SIZE, &rgbaSizes[2]);
+                        DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_ALPHA_SIZE, &rgbaSizes[3]);
+
+                } else if (attachments[i] == GL_DEPTH_ATTACHMENT) {
+
+                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_DEPTH_SIZE, &deptStencilSizes[0]);
+
+                } else if (attachments[i] == GL_STENCIL_ATTACHMENT) {
+
+                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_STENCIL_SIZE, &deptStencilSizes[1]);
+
+                } else if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
+
+                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_DEPTH_SIZE, &deptStencilSizes[0]);
+                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(GL_RENDERBUFFER, GL_RENDERBUFFER_STENCIL_SIZE, &deptStencilSizes[1]);
+
+                }
+            }
+
             DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, lastRenderBuffer);
         } else {
             assert(0);
@@ -1069,38 +1106,37 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
         queryCheckError();
 
 
-        std::vector<GLint> rgbaSizes(4, 0);
-        std::vector<GLint> deptStencilSizes(2, 0);
+        if (canQueryBitSizesFromFbo) {
+            if (attachments[i] >= GL_COLOR_ATTACHMENT0 &&
+                attachments[i] < GL_COLOR_ATTACHMENT0 + (GLenum)maxColorAttachments) {
 
-        if (attachments[i] >= GL_COLOR_ATTACHMENT0 &&
-            attachments[i] < GL_COLOR_ATTACHMENT0 + (GLenum)maxColorAttachments) {
-                
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
-                GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &rgbaSizes[0]);
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
-                GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, &rgbaSizes[1]);
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
-                GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, &rgbaSizes[2]);
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
-                GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &rgbaSizes[3]);
+                    DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
+                        GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &rgbaSizes[0]);
+                    DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
+                        GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, &rgbaSizes[1]);
+                    DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
+                        GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, &rgbaSizes[2]);
+                    DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
+                        GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &rgbaSizes[3]);
 
-        } else if (attachments[i] == GL_DEPTH_ATTACHMENT) {
+            } else if (attachments[i] == GL_DEPTH_ATTACHMENT) {
 
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
-                GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &deptStencilSizes[0]);
+                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
+                    GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &deptStencilSizes[0]);
 
-        } else if (attachments[i] == GL_STENCIL_ATTACHMENT) {
+            } else if (attachments[i] == GL_STENCIL_ATTACHMENT) {
 
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
-                GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &deptStencilSizes[1]);
+                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
+                    GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &deptStencilSizes[1]);
 
-        } else if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
+            } else if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
 
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
-                GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &deptStencilSizes[0]);
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
-                GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &deptStencilSizes[1]);
+                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
+                    GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &deptStencilSizes[0]);
+                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i], 
+                    GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &deptStencilSizes[1]);
 
+            }
         }
           
         //there should be no errors. Otherwise something nasty happened
