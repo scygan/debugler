@@ -112,18 +112,23 @@ namespace state_setters {
 
     class DrawBuffers {
     public:
-        DrawBuffers() {
-            GLint maxDrawBuffers;
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_DRAW_BUFFERS, &maxDrawBuffers);
-            m_DrawBuffers.resize(maxDrawBuffers);
-            for (GLint i = 0; i < maxDrawBuffers; i++) {
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_DRAW_BUFFER0 + i, &m_DrawBuffers[i]);
-            }
+        DrawBuffers(GLContext* ctx):m_Ctx(ctx) {
+            if (m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3) || m_Ctx->getVersion().check(GLContextVersion::Type::DT, 2)) {
+                GLint maxDrawBuffers;
+                DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_DRAW_BUFFERS, &maxDrawBuffers);
+                m_DrawBuffers.resize(maxDrawBuffers);
+                for (GLint i = 0; i < maxDrawBuffers; i++) {
+                    DIRECT_CALL_CHK(glGetIntegerv)(GL_DRAW_BUFFER0 + i, &m_DrawBuffers[i]);
+                }
+            }            
         }
         ~DrawBuffers() {
-            DIRECT_CALL_CHK(glDrawBuffers)(static_cast<GLsizei>(m_DrawBuffers.size()), reinterpret_cast<GLenum*>(&m_DrawBuffers[0]));
+            if (m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3) || m_Ctx->getVersion().check(GLContextVersion::Type::DT, 2)) {
+                DIRECT_CALL_CHK(glDrawBuffers)(static_cast<GLsizei>(m_DrawBuffers.size()), reinterpret_cast<GLenum*>(&m_DrawBuffers[0]));
+            }
         }
     private:
+        GLContext* m_Ctx;
         std::vector<GLint> m_DrawBuffers;        
     };
 
@@ -947,7 +952,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
     boost::shared_ptr<dglnet::DGLResource> ret (resource = new dglnet::resource::DGLResourceFBO());
  
     state_setters::ReadBuffer readBuffer(this);
-    state_setters::DrawBuffers drawBuffers; //we may touch draw buffer when downsampling MSAA buffers
+    state_setters::DrawBuffers drawBuffers(this); //we may touch draw buffer when downsampling MSAA buffers
     state_setters::RenderBuffer renderBuffer;
     state_setters::DefaultPBO defPBO(this);
     state_setters::CurrentFramebuffer currentFBO(this, name);
