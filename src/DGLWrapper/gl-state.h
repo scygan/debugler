@@ -263,6 +263,26 @@ public:
      */
     GLContextVersion& getVersion();
 
+    
+    enum class ContextCap {
+        PixelBufferObjects,
+        FramebufferObjects,
+        SeparateReadDrawFramebufferObjects,
+        DrawBuffersMRT,
+        TextureMultisample,
+        TextureQueryStencilBits,
+        ReadBufferSelector,
+        CanQueryFramebufferAttachmentBitSize,
+        MultipleFramebufferAttachments,
+        Has64BitGetters,
+        HasGetStringI,
+    };
+    
+    /**
+     * Context capability check
+     */
+    bool hasCapability(ContextCap);
+
 private:
     void queryCheckError();
     

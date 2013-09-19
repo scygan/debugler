@@ -45,7 +45,7 @@ namespace state_setters {
     class DefaultPBO {
     public:
         DefaultPBO(GLContext* ctx):m_Ctx(ctx) {
-            if (m_Ctx->getVersion().check(GLContextVersion::Type::DT, 2, 1) || m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3)) {
+            if (m_Ctx->hasCapability(GLContext::ContextCap::PixelBufferObjects)) {
                 DIRECT_CALL_CHK(glGetIntegerv)(GL_PIXEL_PACK_BUFFER_BINDING, &m_PBO);
             } else {
                 m_PBO = 0;
@@ -67,25 +67,29 @@ namespace state_setters {
     class CurrentFramebuffer {
     public:
         CurrentFramebuffer(GLContext* ctx, GLuint name):m_Ctx(ctx) {
-            if (m_Ctx->getVersion().check(GLContextVersion::Type::DT, 3) || m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3)) {
-                //full FBO support
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_FRAMEBUFFER_BINDING, &m_ReadFBO);
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_DRAW_FRAMEBUFFER_BINDING, &m_DrawFBO);
-                DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, name);
-            } else if (m_Ctx->getVersion().check(GLContextVersion::Type::ES, 2)) {
-                //only single draw+read fbo binding is supported
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_FRAMEBUFFER_BINDING, &m_DrawFBO);
-                DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, name);
+            if (m_Ctx->hasCapability(GLContext::ContextCap::FramebufferObjects)) {
+                if (m_Ctx->hasCapability(GLContext::ContextCap::SeparateReadDrawFramebufferObjects)) {
+                    //full FBO support
+                    DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_FRAMEBUFFER_BINDING, &m_ReadFBO);
+                    DIRECT_CALL_CHK(glGetIntegerv)(GL_DRAW_FRAMEBUFFER_BINDING, &m_DrawFBO);
+                    DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, name);
+                } else {
+                    //only single draw+read fbo binding is supported
+                    DIRECT_CALL_CHK(glGetIntegerv)(GL_FRAMEBUFFER_BINDING, &m_DrawFBO);
+                    DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, name);
+                }
             }
         }
         ~CurrentFramebuffer() {
-            if (m_Ctx->getVersion().check(GLContextVersion::Type::DT, 3) || m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3)) {
-                //full FBO support
-                DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, m_ReadFBO);
-                DIRECT_CALL_CHK(glBindFramebuffer)(GL_DRAW_FRAMEBUFFER, m_DrawFBO);
-            } else if (m_Ctx->getVersion().check(GLContextVersion::Type::ES, 2)) {
-                //only single draw+read fbo binding is supported
-                DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, m_DrawFBO);
+            if (m_Ctx->hasCapability(GLContext::ContextCap::FramebufferObjects)) {
+                if (m_Ctx->hasCapability(GLContext::ContextCap::SeparateReadDrawFramebufferObjects)) {
+                    //full FBO support
+                    DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, m_ReadFBO);
+                    DIRECT_CALL_CHK(glBindFramebuffer)(GL_DRAW_FRAMEBUFFER, m_DrawFBO);
+                } else {
+                    //only single draw+read fbo binding is supported
+                    DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, m_DrawFBO);
+                }
             }
         }
     private:
@@ -96,12 +100,12 @@ namespace state_setters {
     class ReadBuffer {
     public:
         ReadBuffer(GLContext* ctx):m_Ctx(ctx) {
-            if (m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3) || m_Ctx->getVersion().check(GLContextVersion::Type::DT)) {
+            if (m_Ctx->hasCapability(GLContext::ContextCap::ReadBufferSelector)) {
                 DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &m_ReadBuffer);
             }
         }
         ~ReadBuffer() {
-            if (m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3) || m_Ctx->getVersion().check(GLContextVersion::Type::DT)) {
+            if (m_Ctx->hasCapability(GLContext::ContextCap::ReadBufferSelector)) {
                 DIRECT_CALL_CHK(glReadBuffer)(m_ReadBuffer);
             }
         }
@@ -113,7 +117,7 @@ namespace state_setters {
     class DrawBuffers {
     public:
         DrawBuffers(GLContext* ctx):m_Ctx(ctx) {
-            if (m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3) || m_Ctx->getVersion().check(GLContextVersion::Type::DT, 2)) {
+            if (m_Ctx->hasCapability(GLContext::ContextCap::DrawBuffersMRT)) {
                 GLint maxDrawBuffers;
                 DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_DRAW_BUFFERS, &maxDrawBuffers);
                 m_DrawBuffers.resize(maxDrawBuffers);
@@ -123,7 +127,7 @@ namespace state_setters {
             }            
         }
         ~DrawBuffers() {
-            if (m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3) || m_Ctx->getVersion().check(GLContextVersion::Type::DT, 2)) {
+            if (m_Ctx->hasCapability(GLContext::ContextCap::DrawBuffersMRT)) {
                 DIRECT_CALL_CHK(glDrawBuffers)(static_cast<GLsizei>(m_DrawBuffers.size()), reinterpret_cast<GLenum*>(&m_DrawBuffers[0]));
             }
         }
@@ -525,7 +529,7 @@ dglnet::message::BreakedCall::ContextReport GLContext::describe() {
             }
             ret.m_FramebufferSpace.insert(dglnet::ContextObjectName(m_Id, GL_FRONT_RIGHT));
         }
-        if (getVersion().check(GLContextVersion::Type::ES, 3) || getVersion().check(GLContextVersion::Type::DT)) {
+        if (hasCapability(ContextCap::ReadBufferSelector)) {
             //we have glReadBuffer, so we can read from front/back
             if (m_NativeReadSurface->isDoubleBuffered()) {
                 ret.m_FramebufferSpace.insert(dglnet::ContextObjectName(m_Id, GL_BACK));
@@ -773,14 +777,14 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_BLUE_SIZE, &rgbaSizes[2]);
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_ALPHA_SIZE, &rgbaSizes[3]);
 
-            if (getVersion().check(GLContextVersion::Type::DT, 3, 2)) {
+            if (hasCapability(ContextCap::TextureMultisample)) {
                 DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_SAMPLES, &samples);
             }
 
             std::vector<GLint> deptStencilSizes(2, 0);
             DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_DEPTH_SIZE, &deptStencilSizes[0]);
             
-            if (getVersion().check(GLContextVersion::Type::DT, 3)) { 
+            if (hasCapability(ContextCap::TextureQueryStencilBits)) { 
                 DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_STENCIL_SIZE, &deptStencilSizes[1]);
             }
 
@@ -961,7 +965,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
     //get maximum number of color attachments
     GLint maxColorAttachments; 
 
-    if (getVersion().check(GLContextVersion::Type::ES, 3) || getVersion().check(GLContextVersion::Type::DT, 3)) {
+    if (hasCapability(ContextCap::MultipleFramebufferAttachments)) {
         DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
     } else {
         maxColorAttachments = 1;
@@ -1009,9 +1013,6 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
         GLint attmntName;
         DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(GL_FRAMEBUFFER, attachments[i],
             GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &attmntName);
-        
-
-        bool canQueryBitSizesFromFbo =  getVersion().check(GLContextVersion::Type::ES, 3) || getVersion().check(GLContextVersion::Type::DT, 3);
 
         //now look for the attached object and query internal format and dimensions
         GLint width = 0, height = 0, internalFormat = 0, samples = 0;
@@ -1072,7 +1073,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
                 multisampled = true;
             }
 
-            if (!canQueryBitSizesFromFbo) {
+            if (!hasCapability(ContextCap::CanQueryFramebufferAttachmentBitSize)) {
                 if (attachments[i] >= GL_COLOR_ATTACHMENT0 &&
                     attachments[i] < GL_COLOR_ATTACHMENT0 + (GLenum)maxColorAttachments) {
 
@@ -1106,7 +1107,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
         queryCheckError();
 
 
-        if (canQueryBitSizesFromFbo) {
+        if (hasCapability(ContextCap::CanQueryFramebufferAttachmentBitSize)) {
             if (attachments[i] >= GL_COLOR_ATTACHMENT0 &&
                 attachments[i] < GL_COLOR_ATTACHMENT0 + (GLenum)maxColorAttachments) {
 
@@ -1155,8 +1156,10 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
         }
 
         if (attachments[i] != GL_DEPTH_ATTACHMENT && attachments[i] != GL_STENCIL_ATTACHMENT && attachments[i] != GL_DEPTH_STENCIL_ATTACHMENT) {
-            //select color attachment 
-            DIRECT_CALL_CHK(glReadBuffer)(attachments[i]); 
+            //select color attachment
+            if (hasCapability(ContextCap::ReadBufferSelector)) {
+                DIRECT_CALL_CHK(glReadBuffer)(attachments[i]); 
+            }
         }
 
         GLvoid* ptr = resource->m_Attachments.back().m_PixelRectangle->getPtr();
@@ -1508,7 +1511,7 @@ dglnet::resource::DGLResourceState::StateItem GLContext::getStateInteger64v(cons
     ret.m_Name = name;
     std::vector<GLint64> val(length, 0);
 
-    if (getVersion().check(GLContextVersion::Type::DT, 3, 2) || getVersion().check(GLContextVersion::Type::ES, 3)) {
+    if (hasCapability(ContextCap::Has64BitGetters)) {
         DIRECT_CALL_CHK(glGetInteger64v)(value, &val[0]);
     } else {
         std::vector<GLint> valInt(length, 0);
@@ -2625,7 +2628,7 @@ void GLContext::firstUse() {
 
 	getVersion().initialize(reinterpret_cast<const char*>(DIRECT_CALL_CHK(glGetString)(GL_VERSION)));
 
-    if (getVersion().check(GLContextVersion::Type::DT, 3) || getVersion().check(GLContextVersion::Type::ES, 3)) {
+    if (hasCapability(ContextCap::HasGetStringI)) {
         DIRECT_CALL_CHK(glGetIntegerv)(GL_NUM_EXTENSIONS, &maxExtensions);
         exts.resize(maxExtensions);
         for (int i = 0; i < maxExtensions; i++) {
@@ -2649,6 +2652,68 @@ void GLContext::firstUse() {
     if (debugOutputSupported) {
         DIRECT_CALL_CHK(glEnable)(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
         DIRECT_CALL_CHK(glDebugMessageCallbackARB)(debugOutputCallback, NULL);
+    }
+}
+
+bool GLContext::hasCapability(ContextCap cap) {
+    GLContextVersion version = getVersion();
+    switch (cap) {
+        case ContextCap::PixelBufferObjects:
+            return 
+                version.check(GLContextVersion::Type::DT, 2, 1) || 
+                version.check(GLContextVersion::Type::ES, 3);
+            
+        case ContextCap::FramebufferObjects:
+                version.check(GLContextVersion::Type::DT, 3) || 
+                version.check(GLContextVersion::Type::ES, 2);
+
+        case ContextCap::SeparateReadDrawFramebufferObjects:
+            return 
+                hasCapability(ContextCap::FramebufferObjects) && (
+                    version.check(GLContextVersion::Type::DT, 3) || 
+                    version.check(GLContextVersion::Type::ES, 3)
+                );
+
+        case ContextCap::ReadBufferSelector:
+            return 
+                version.check(GLContextVersion::Type::ES, 3) ||
+                version.check(GLContextVersion::Type::DT);
+
+        case ContextCap::DrawBuffersMRT:
+            return
+                version.check(GLContextVersion::Type::ES, 3) ||
+                version.check(GLContextVersion::Type::DT, 2);
+
+        case ContextCap::TextureMultisample:
+            return
+                version.check(GLContextVersion::Type::DT, 3, 2);
+
+        case ContextCap::TextureQueryStencilBits:
+            return
+                version.check(GLContextVersion::Type::DT, 3);
+
+        case ContextCap::MultipleFramebufferAttachments:
+            hasCapability(ContextCap::FramebufferObjects) && (
+                version.check(GLContextVersion::Type::ES, 3) ||
+                version.check(GLContextVersion::Type::DT, 3)
+            );
+
+        case ContextCap::CanQueryFramebufferAttachmentBitSize:
+            hasCapability(ContextCap::FramebufferObjects) && (
+                version.check(GLContextVersion::Type::ES, 3) ||
+                version.check(GLContextVersion::Type::DT, 3)
+            );
+
+        case ContextCap::Has64BitGetters:
+            return version.check(GLContextVersion::Type::DT, 3, 2) ||
+                   version.check(GLContextVersion::Type::ES, 3);
+
+        case ContextCap::HasGetStringI:
+            return version.check(GLContextVersion::Type::DT, 3) ||
+                   version.check(GLContextVersion::Type::ES, 3);
+        default:
+            assert(0);
+            return false;
     }
 }
 
