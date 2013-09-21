@@ -22,7 +22,10 @@
 #include <DGLCommon/os.h>
 
 #ifdef _WIN32
-#include <windows.h>
+    #include <windows.h>
+    #de
+#else
+    #define MAX_PATH PATH_MAX
 #endif
 
 #include "dglgui.h"
@@ -34,7 +37,7 @@ DGLBaseQTProcess::DGLBaseQTProcess() {
     CONNASSERT(connect(&m_process, SIGNAL(started()), this, SLOT(processStarted())));
     CONNASSERT(connect(&m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(processError(QProcess::ProcessError))));
     
-};
+}
 
 void DGLBaseQTProcess::run(std::string exec, std::string path, std::vector<std::string> args, bool takeOutput) {
  
@@ -43,9 +46,15 @@ void DGLBaseQTProcess::run(std::string exec, std::string path, std::vector<std::
         arguments << QString::fromStdString(args[i]);
     }
 
-    if (path.length()) {
+    if (path.length()) {        
         char absolutePath[MAX_PATH];
-        _fullpath(absolutePath, path.c_str(), MAX_PATH);
+#ifdef _WIN32        
+        if (!_fullpath(absolutePath, path.c_str(), MAX_PATH)) {
+#else
+        if (!realpath(path.c_str(), absolutePath)) {
+#endif
+            throw std::runtime_error(Os::translateOsError(Os::getLastosError()));
+        }
         m_process.setWorkingDirectory(absolutePath);
     }
 

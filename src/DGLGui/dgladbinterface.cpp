@@ -16,6 +16,7 @@
 
 #include "dgladbinterface.h"
 
+#include <stdexcept>
 
 DGLAdbInterface* DGLAdbInterface::get() {
     if (!s_self) {

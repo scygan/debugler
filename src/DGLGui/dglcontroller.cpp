@@ -145,14 +145,23 @@ void DglController::connectServer(const std::string& host, const std::string& po
 void DglController::onSocket() {
     
     //Hey! If you are trying to disable the timer-based polling here, please increment the following counter.
-    //You would not succeed... on windows some socketnotifies activate()-s are missed, so we got stuck and 
+    //You would not succeed... on windows some socketnotifies activate()-s are missed, so we get stuck and 
     //wait forever for read data. 
 
     // Timer disable try count: 2
     // m_Timer.stop();
+    //
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    #define QSOCK_T int
+#else
+    #define QSOCK_T qintptr
+#endif
 
-    m_NotifierRead = std::make_shared<QSocketNotifier>((qintptr)m_DglClient->getSocketFD(), QSocketNotifier::Read); 
-    m_NotifierWrite = std::make_shared<QSocketNotifier>((qintptr)m_DglClient->getSocketFD(), QSocketNotifier::Write); 
+    m_NotifierRead = std::make_shared<QSocketNotifier>((QSOCK_T)m_DglClient->getSocketFD(), QSocketNotifier::Read); 
+    m_NotifierWrite = std::make_shared<QSocketNotifier>((QSOCK_T)m_DglClient->getSocketFD(), QSocketNotifier::Write); 
+
+#undef QSOCK_T
+
     m_NotifierWrite->setEnabled(false);
     CONNASSERT(connect(&*m_NotifierRead, SIGNAL(activated(int)), this, SLOT(poll())));
     CONNASSERT(connect(&*m_NotifierWrite, SIGNAL(activated(int)), this, SLOT(poll())));

@@ -20,6 +20,8 @@
 #include "dgladbinterface.h"
 #include <QMessageBox>
 
+#include <stdexcept>
+
 DGLConnectAndroidDialog::DGLConnectAndroidDialog() {
     
     m_ui.setupUi(this);

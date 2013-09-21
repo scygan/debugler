@@ -28,6 +28,8 @@
 #include <shellapi.h>
 #endif
 
+#include <stdexcept>
+
 #include <DGLCommon/os.h>
 
 DGLRunDialog::DGLRunDialog() {
@@ -56,39 +58,6 @@ std::vector<std::string> DGLRunDialog::getCommandLineArgs() {
     //some magic here. We have arguments from user, but we must pre-parse them and split into and array.
     // due to laziness some weird system-specific functions are used here.
 #ifdef _WIN32
-
-#else
-    wordexp_t wordExp;
-  
-    int ret = wordexp(m_ui.lineEdit_CommandLineArgs->text().toUtf8(), &wordExp, 0);
-    switch (ret) {
-        case WRDE_BADCHAR:
-            throw std::runtime_error("Program arguments: Illegal occurrence of newline or one of |, &, ;, <, >, (, ), {, }.");
-        case WRDE_BADVAL:
-            assert(!"no  WRDE_UNDEF was set, but got WRDE_BADVAL");
-            throw std::runtime_error("Program arguments: An undefined shell variable was referenced");
-        case WRDE_CMDSUB:
-            assert(!" WRDE_NOCMD flag not set, but got WRDE_CMDSUB");
-            throw std::runtime_error("Program arguments: Command substitution occurred");
-        case WRDE_NOSPACE:
-            wordfree(&wordExp);
-            throw std::runtime_error("Program arguments: Out of memory.");
-        case WRDE_SYNTAX:
-            throw std::runtime_error("Program arguments: syntax error");
-        case 0:
-            break;
-        default:
-            throw std::runtime_error("Program arguments: unknown error");
-    }
-
-    ret.resize(we_wordv);
-    for (size_t i = 0; i < ret.size(); i++) {
-        ret[i] = wordExp.we_wordv[i];
-    }
-
-    wordfree(&wordExp);
-
-#endif
     int numArgs;
     if (!m_ui.lineEdit_CommandLineArgs->text().isEmpty()) {
         LPWSTR* strings = CommandLineToArgvW(m_ui.lineEdit_CommandLineArgs->text().toStdWString().c_str(), &numArgs);
@@ -108,6 +77,38 @@ std::vector<std::string> DGLRunDialog::getCommandLineArgs() {
         }
         LocalFree(strings);
     }
+#else
+    wordexp_t wordExp;
+  
+    int status = wordexp(m_ui.lineEdit_CommandLineArgs->text().toUtf8(), &wordExp, 0);
+    switch (status) {
+        case WRDE_BADCHAR:
+            throw std::runtime_error("Program arguments: Illegal occurrence of newline or one of |, &, ;, <, >, (, ), {, }.");
+        case WRDE_BADVAL:
+            assert(!"no  WRDE_UNDEF was set, but got WRDE_BADVAL");
+            throw std::runtime_error("Program arguments: An undefined shell variable was referenced");
+        case WRDE_CMDSUB:
+            assert(!" WRDE_NOCMD flag not set, but got WRDE_CMDSUB");
+            throw std::runtime_error("Program arguments: Command substitution occurred");
+        case WRDE_NOSPACE:
+            wordfree(&wordExp);
+            throw std::runtime_error("Program arguments: Out of memory.");
+        case WRDE_SYNTAX:
+            throw std::runtime_error("Program arguments: syntax error");
+        case 0:
+            break;
+        default:
+            throw std::runtime_error("Program arguments: unknown error");
+    }
+
+    ret.resize(wordExp.we_wordc);
+    for (size_t i = 0; i < ret.size(); i++) {
+        ret[i] = wordExp.we_wordv[i];
+    }
+
+    wordfree(&wordExp);
+
+#endif
     return ret;
   
 }

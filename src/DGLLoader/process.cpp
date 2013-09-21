@@ -17,6 +17,10 @@
 
 #include <stdexcept>
 
+#ifndef _WIN32
+    #include <sys/types.h>
+    #include <unistd.h>
+#endif
 
 
 DGLProcess::DGLProcess(std::string executable, std::vector<std::string> args, bool forceFork):m_executable(executable), m_args(args) {
@@ -58,7 +62,7 @@ DGLProcess::DGLProcess(std::string executable, std::vector<std::string> args, bo
     
     m_pid = 0;
 
-#ifndef __ANDROID__
+#ifdef __ANDROID__
     if (forceFork) {
         //on Android fork only, if force fork is set.
         //app_process does not like to be forked.
@@ -71,7 +75,6 @@ DGLProcess::DGLProcess(std::string executable, std::vector<std::string> args, bo
             throw std::runtime_error("Cannot fork process");
         }
     }   
-}
 #endif
 }
 

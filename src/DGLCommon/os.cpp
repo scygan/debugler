@@ -18,7 +18,9 @@
 #include <vector>
 #include <cstdarg>
 #ifdef _WIN32
-#define va_copy(dest, src) (dest = src)
+    #define va_copy(dest, src) (dest = src)
+#else
+    #include <cstring>
 #endif
 
 #ifdef _WIN32
