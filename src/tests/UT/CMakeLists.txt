@@ -16,9 +16,6 @@ QT4_WRAP_CPP(ut_HEADERS_MOC ${ut_HEADERS})
 include(${QT_USE_FILE})
 add_definitions(${QT_DEFINITIONS})
 
-
-add_definitions(-DCMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
-
 add_executable(ut
     ${ut_SOURCES}
     ${ut_HEADERS_MOC}

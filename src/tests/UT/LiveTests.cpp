@@ -197,28 +197,28 @@ namespace {
 
     TEST_F(LiveTest, connect_disconnect) {
 
-        std::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
+        std::shared_ptr<dglnet::Client> client = getClientFor("simple");
 
         dglnet::message::Hello * hello = utils::receiveMessage<dglnet::message::Hello>(client.get(), getMessageHandler());
         ASSERT_TRUE(hello != NULL);
 #ifdef _WIN32
-        EXPECT_EQ("python.exe", hello->m_ProcessName);
+        EXPECT_EQ("samples.exe", hello->m_ProcessName);
 #else
-        EXPECT_TRUE(std::string::npos != hello->m_ProcessName.find("python"));
+        EXPECT_TRUE(std::string::npos != hello->m_ProcessName.find("samples"));
 #endif
         client->abort();
         EXPECT_TRUE(client.unique());
     }
 
    TEST_F(LiveTest, continue_break) {
-       std::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
+       std::shared_ptr<dglnet::Client> client = getClientFor("simple");
 
        utils::receiveMessage<dglnet::message::Hello>(client.get(), getMessageHandler());
        dglnet::message::BreakedCall* breaked = utils::receiveMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler());
        ASSERT_TRUE(breaked != NULL);
 
 #ifdef _WIN32
-       EXPECT_EQ(wglGetCurrentContext_Call, breaked->m_entryp.getEntrypoint());
+       EXPECT_EQ(wglCreateContext_Call, breaked->m_entryp.getEntrypoint());
 #else
        EXPECT_EQ(glXGetCurrentContext_Call, breaked->m_entryp.getEntrypoint());
 #endif
@@ -247,14 +247,14 @@ namespace {
    }
 
    TEST_F(LiveTest, breakpoint) {
-       std::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
+       std::shared_ptr<dglnet::Client> client = getClientFor("simple");
 
        utils::receiveMessage<dglnet::message::Hello>(client.get(), getMessageHandler());
        dglnet::message::BreakedCall* breaked = utils::receiveMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler());
        ASSERT_TRUE(breaked != NULL);
 
 #ifdef _WIN32
-       EXPECT_EQ(wglGetCurrentContext_Call, breaked->m_entryp.getEntrypoint());
+       EXPECT_EQ(wglCreateContext_Call, breaked->m_entryp.getEntrypoint());
 #else
        EXPECT_EQ(glXGetCurrentContext_Call, breaked->m_entryp.getEntrypoint());
 #endif
@@ -282,20 +282,20 @@ namespace {
    }
 
    TEST_F(LiveTest, entryp_retvals) {
-       std::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
+       std::shared_ptr<dglnet::Client> client = getClientFor("simple");
 
        dglnet::message::BreakedCall* breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler());
        ASSERT_TRUE(breaked != NULL);
 
 #ifdef _WIN32
-#define _glCreateContext_Call wglCreateContext_Call
+#define _glMakeCurrent_Call wglMakeCurrent_Call
 #else
-#define _glCreateContext_Call glXCreateNewContext_Call
+#define _glMakeCurrent_Call XXXTODO
 #endif
        {
            //set breakpoints && disable other breaking stuff
            std::set<Entrypoint> breakpoints;
-           breakpoints.insert(_glCreateContext_Call);
+           breakpoints.insert(_glMakeCurrent_Call);
            breakpoints.insert(glGetError_Call);
            breakpoints.insert(glCreateShader_Call);
            dglnet::message::SetBreakPoints breakPointMessage(breakpoints);
@@ -310,18 +310,18 @@ namespace {
            client->sendMessage(&continueMsg);
        }
 
-       bool wglCreateContext_done = false;
+       bool wglMakeCurrent_done = false;
        bool glGetError_done = false;
        bool glCreateShader_done = false;
 
-       while (!wglCreateContext_done || !glGetError_done || !glCreateShader_done) {
+       while (!wglMakeCurrent_done || !glGetError_done || !glCreateShader_done) {
            breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler());
            ASSERT_TRUE(breaked != NULL);
 
            {
                //we should be breaked on one of earlier breakpoints
                ASSERT_TRUE(
-                   breaked->m_entryp.getEntrypoint() == _glCreateContext_Call ||
+                   breaked->m_entryp.getEntrypoint() == _glMakeCurrent_Call ||
                    breaked->m_entryp.getEntrypoint() == glGetError_Call ||
                    breaked->m_entryp.getEntrypoint() == glCreateShader_Call
                    );
@@ -343,18 +343,18 @@ namespace {
                ASSERT_TRUE(callTrace != NULL);
 
 #ifdef _WIN32
-               HGLRC ctx;
+               BOOL ctxStatus;
 #else
-               GLXContext ctx;
+               XXXTODO ctxStatus;
 #endif
                GLenum error;
                GLuint shader;
 
                switch (callTrace->m_Trace[0].getEntrypoint()) {
-                   case _glCreateContext_Call:
-                       wglCreateContext_done = true;
-                       callTrace->m_Trace[0].getRetVal().get(ctx);
-                       EXPECT_TRUE(ctx != NULL);
+                   case _glMakeCurrent_Call:
+                       wglMakeCurrent_done = true;
+                       callTrace->m_Trace[0].getRetVal().get(ctxStatus);
+                       EXPECT_TRUE(ctxStatus == TRUE);
                        break;
                    case glGetError_Call:
                        glGetError_done = true;
@@ -380,7 +380,7 @@ namespace {
    }
 
    TEST_F(LiveTest, framebuffer_query) {
-       std::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
+       std::shared_ptr<dglnet::Client> client = getClientFor("simple");
 
        dglnet::message::BreakedCall* breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler());
        ASSERT_TRUE(breaked != NULL);
@@ -437,7 +437,7 @@ namespace {
    }
     
    TEST_F(LiveTest, edit_shader) {
-       std::shared_ptr<dglnet::Client> client = getClientFor("simple.py");
+       std::shared_ptr<dglnet::Client> client = getClientFor("simple");
 
        dglnet::message::BreakedCall* breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler());
        ASSERT_TRUE(breaked != NULL);
@@ -550,7 +550,7 @@ namespace {
         std::string nothing;
         GLuint shaderId, programId;
 
-        std::shared_ptr<dglnet::Client> client = getClientFor("shader_handling.py");
+        std::shared_ptr<dglnet::Client> client = getClientFor("shader_handling");
         
         dglnet::message::BreakedCall* breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler());
         ASSERT_TRUE(breaked != NULL);

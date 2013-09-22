@@ -27,6 +27,12 @@
     <ClCompile Include="..\..\external\glew-1.10.0\src\glew.c">
       <Filter>GLEW</Filter>
     </ClCompile>
+    <ClCompile Include="shader_handling.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fbo_msaa.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sample.h">

@@ -35,19 +35,10 @@ src\built.bat
 
 ####Running unit tests
 
- * Install python setup tools: https://pypi.python.org/pypi/setuptools/
-
- * Install required modules:
-```
-C:\Python27\scripts\easy_install pyopengl
-```
- * Test python install by running <b>debugler\src\tests\samples\simple.py</b>
-   On my machine i had this problem: http://stackoverflow.com/questions/10188595/pyopengl-typeerror-nonetype-object-is-not-callable
-   Resolved by copying missing DLLs as described
-
  * Run
   ```
-  build\Win32\Release\UT\ut.exe
+  cd build\Win32\Release\
+  UT\ut.exe
   ```
 
 ### Build for Linux

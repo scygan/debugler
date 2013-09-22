@@ -33,11 +33,11 @@ public:
 
          std::vector<std::string> args;
 #ifdef _WIN32
-        std::string exec = "C:\\Python27\\python.exe";
-        args.push_back("..\\..\\..\\src\\tests\\samples\\" + sampleName);
+        std::string exec = "samples\\samples.exe";
+        args.push_back(sampleName);
 #else
-        std::string exec = "python";
-        args.push_back(CMAKE_CURRENT_SOURCE_DIR"/../samples/" + sampleName);
+        std::string exec = "..\samples\samples";
+        args.push_back(sampleName);
 #endif
         QEventLoop loop;
         CONNASSERT(connect(this, SIGNAL(done()), &loop, SLOT(quit())));
