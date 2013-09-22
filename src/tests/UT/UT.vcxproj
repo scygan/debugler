@@ -42,19 +42,19 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">Qt5Cored.lib;Winmm.lib;Imm32.lib;DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib;gtest.lib;%(AdditionalDependencies)</AdditionalDependencies>
-	  <AdditionalDependencies Condition="'$(Configuration)'=='Release'">Qt5Core.lib;Winmm.lib;Imm32.lib;DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib;gtest.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)'=='Release'">Qt5Core.lib;Winmm.lib;Imm32.lib;DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib;gtest.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>_VARIADIC_MAX=10;%(PreprocessorDefinitions);QT_CORE_LIB;QT_DLL</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;.\..\..\dump\$(ConfigurationName)\GeneratedFiles;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;.\..\..\..\dump\$(ConfigurationName)\GeneratedFiles;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_LiveProcessWrapper.cpp">
+    <ClCompile Include="..\..\..\dump\Debug\GeneratedFiles\moc_LiveProcessWrapper.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_LiveProcessWrapper.cpp">
+    <ClCompile Include="..\..\..\dump\Release\GeneratedFiles\moc_LiveProcessWrapper.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="DGLCommonUT.cpp" />
@@ -64,14 +64,14 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="LiveProcessWrapper.h">
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing LiveProcessWrapper.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp"  -D_VARIADIC_MAX=10 "-D\"$(INHERIT)\"" -DQT_CORE_LIB -DUSE_MSVC -DWIN32 -DBOOST_ALL_NO_LIB -DBOOST_ALL_COMPILE_IN_PLACE -DBOOST_THREAD_BUILD_LIB -D_WIN32_WINNT=0x0501 -DQT_NO_OPENGL -DWIN32_LEAN_AND_MEAN "-DDGL_VERSION=\"$(DGL_VERSION)\"" "-D$(NOINHERIT)\." -DNDEBUG "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I.\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I$(SolutionDir)\." "-I$(SolutionDir)\external\boost" "-I$(SolutionDir)\boost" "-I$(SolutionDir)\external" "-I$(SolutionDir)\external\gtest\include" "-I$(SolutionDir)\..\dump" "-I$(SolutionDir)\glheaders" "-I$(NOINHERIT)\."</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\..\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\..\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp"  -D_VARIADIC_MAX=10 "-D\"$(INHERIT)\"" -DQT_CORE_LIB -DQT_DLL -DUSE_MSVC -DWIN32 -DBOOST_ALL_NO_LIB -DBOOST_ALL_COMPILE_IN_PLACE -DBOOST_THREAD_BUILD_LIB -D_WIN32_WINNT=0x0501 -DQT_NO_OPENGL -DWIN32_LEAN_AND_MEAN "-DDGL_VERSION=\"$(DGL_VERSION)\"" "-D$(NOINHERIT)\." -DNDEBUG "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I.\..\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I$(SolutionDir)\." "-I$(SolutionDir)\external\boost" "-I$(SolutionDir)\boost" "-I$(SolutionDir)\external" "-I$(SolutionDir)\external\gtest\include" "-I$(SolutionDir)\..\dump" "-I$(SolutionDir)\glheaders" "-I$(NOINHERIT)\."</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing LiveProcessWrapper.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp"  -D_VARIADIC_MAX=10 "-D\"$(INHERIT)\"" -DQT_CORE_LIB -DUSE_MSVC -DWIN32 -DBOOST_ALL_NO_LIB -DBOOST_ALL_COMPILE_IN_PLACE -DBOOST_THREAD_BUILD_LIB -D_WIN32_WINNT=0x0501 -DQT_NO_OPENGL -DWIN32_LEAN_AND_MEAN "-DDGL_VERSION=\"$(DGL_VERSION)\"" "-D$(NOINHERIT)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I.\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I$(SolutionDir)\." "-I$(SolutionDir)\external\boost" "-I$(SolutionDir)\boost" "-I$(SolutionDir)\external" "-I$(SolutionDir)\external\gtest\include" "-I$(SolutionDir)\..\dump" "-I$(SolutionDir)\glheaders" "-I$(NOINHERIT)\."</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\..\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\..\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp"  -D_VARIADIC_MAX=10 "-D\"$(INHERIT)\"" -DQT_CORE_LIB -DQT_DLL -DUSE_MSVC -DWIN32 -DBOOST_ALL_NO_LIB -DBOOST_ALL_COMPILE_IN_PLACE -DBOOST_THREAD_BUILD_LIB -D_WIN32_WINNT=0x0501 -DQT_NO_OPENGL -DWIN32_LEAN_AND_MEAN "-DDGL_VERSION=\"$(DGL_VERSION)\"" "-D$(NOINHERIT)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I.\..\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I$(SolutionDir)\." "-I$(SolutionDir)\external\boost" "-I$(SolutionDir)\boost" "-I$(SolutionDir)\external" "-I$(SolutionDir)\external\gtest\include" "-I$(SolutionDir)\..\dump" "-I$(SolutionDir)\glheaders" "-I$(NOINHERIT)\."</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
@@ -79,7 +79,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties Qt5Version_x0020_Win32="$(DefaultQtVersion)" MocDir=".\..\..\dump\$(ConfigurationName)\GeneratedFiles" />
+      <UserProperties Qt5Version_x0020_Win32="$(DefaultQtVersion)" MocDir=".\..\..\..\dump\$(ConfigurationName)\GeneratedFiles" UicDir=".\..\..\..\dump\$(ConfigurationName)\GeneratedFiles" RccDir=".\..\..\..\dump\$(ConfigurationName)\GeneratedFiles" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

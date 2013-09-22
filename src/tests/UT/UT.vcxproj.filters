@@ -42,10 +42,10 @@
     <ClCompile Include="DGLCommonUT.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_LiveProcessWrapper.cpp">
+    <ClCompile Include="..\..\..\dump\Debug\GeneratedFiles\moc_LiveProcessWrapper.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_LiveProcessWrapper.cpp">
+    <ClCompile Include="..\..\..\dump\Release\GeneratedFiles\moc_LiveProcessWrapper.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
   </ItemGroup>

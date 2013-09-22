@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{2c4834bf-82ac-4e25-8552-2f13aa820b4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Heade Files">
+      <UniqueIdentifier>{5038bf00-cfc7-400c-a56b-883d25ac82da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GLEW">
+      <UniqueIdentifier>{ef174d36-04d4-425a-97df-a2de02be496a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="simple.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="platform_glfw.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sample.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\glew-1.10.0\src\glew.c">
+      <Filter>GLEW</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="sample.h">
+      <Filter>Heade Files</Filter>
+    </ClInclude>
+    <ClInclude Include="platform.h">
+      <Filter>Heade Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
