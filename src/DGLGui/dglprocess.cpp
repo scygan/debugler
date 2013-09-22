@@ -23,7 +23,6 @@
 
 #ifdef _WIN32
     #include <windows.h>
-    #de
 #else
     #define MAX_PATH PATH_MAX
 #endif
