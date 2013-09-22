@@ -24,8 +24,10 @@
 #include <QProcess>
 #include <QTimer>
 
-#include <boost/interprocess/sync/named_semaphore.hpp>
-#include <boost/interprocess/managed_shared_memory.hpp>
+#ifndef Q_MOC_RUN
+    #include <boost/interprocess/sync/named_semaphore.hpp>
+    #include <boost/interprocess/managed_shared_memory.hpp>
+#endif
 
 class DGLBaseQTProcess: public QObject {
 
