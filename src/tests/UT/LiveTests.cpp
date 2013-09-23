@@ -183,6 +183,9 @@ namespace {
                         ASSERT_TRUE(abs(a - rowPtr[4 * x + 3]) <= 1);
                     }
                     if (x < 0.2 * width || x > 0.8 * width || y < 0.2 * height || y > 0.8 * height) {
+                        if (abs(rowPtr[4 * x + 0]) > 0) {
+                            printf("%d %d %d %d\n", rowPtr[4 * x + 0], rowPtr[4 * x + 1], rowPtr[4 * x + 2], rowPtr[4 * x + 3]);fflush(stdout);
+                        }
                         ASSERT_TRUE(abs(rowPtr[4 * x + 0]) <= 1);
                         ASSERT_TRUE(abs(rowPtr[4 * x + 1]) <= 1);
                         ASSERT_TRUE(abs(rowPtr[4 * x + 2]) <= 1);
@@ -220,7 +223,7 @@ namespace {
 #ifdef _WIN32
        EXPECT_EQ(wglCreateContext_Call, breaked->m_entryp.getEntrypoint());
 #else
-       EXPECT_EQ(glXGetCurrentContext_Call, breaked->m_entryp.getEntrypoint());
+       EXPECT_EQ(glXQueryExtension_Call, breaked->m_entryp.getEntrypoint());
 #endif
        EXPECT_EQ(0, breaked->m_TraceSize);
        EXPECT_EQ(0, breaked->m_CtxReports.size());
@@ -256,7 +259,7 @@ namespace {
 #ifdef _WIN32
        EXPECT_EQ(wglCreateContext_Call, breaked->m_entryp.getEntrypoint());
 #else
-       EXPECT_EQ(glXGetCurrentContext_Call, breaked->m_entryp.getEntrypoint());
+       EXPECT_EQ(glXQueryExtension_Call, breaked->m_entryp.getEntrypoint());
 #endif
        EXPECT_EQ(0, breaked->m_TraceSize);
        EXPECT_EQ(0, breaked->m_CtxReports.size());
@@ -290,7 +293,7 @@ namespace {
 #ifdef _WIN32
 #define _glMakeCurrent_Call wglMakeCurrent_Call
 #else
-#define _glMakeCurrent_Call XXXTODO
+#define _glMakeCurrent_Call glXMakeCurrent_Call
 #endif
        {
            //set breakpoints && disable other breaking stuff
@@ -345,7 +348,7 @@ namespace {
 #ifdef _WIN32
                BOOL ctxStatus;
 #else
-               XXXTODO ctxStatus;
+               Bool ctxStatus;
 #endif
                GLenum error;
                GLuint shader;
@@ -390,7 +393,12 @@ namespace {
            dglnet::message::Configuration config(getUsualConfig());
            client->sendMessage(&config);
        }
-      
+
+       //skip first frame (rendering broken on some implementations)
+       breaked = utils::runUntilEntryPoint(client,  getMessageHandler(), glDrawArrays_Call);
+       breaked = utils::runUntilEntryPoint(client,  getMessageHandler(), glClear_Call);
+
+       //break just before drawcall
        breaked = utils::runUntilEntryPoint(client,  getMessageHandler(), glDrawArrays_Call);
 
        for (int step = 0; step < 2; step++) {
@@ -499,13 +507,15 @@ namespace {
        ASSERT_EQ(source, shaderResource->m_Source);
        ASSERT_EQ(shaderResource->m_CompileStatus.second, GL_TRUE);
 
-       //Verify by drawing with edited shader
-       {
+
+       //Skip few frames (first frames rendering broken on some implementations). 
+       for (int i = 0; i < 4; i++) {
            dglnet::message::ContinueBreak stepDrawCall(dglnet::message::ContinueBreak::StepMode::FRAME);
            client->sendMessage(&stepDrawCall);
            ASSERT_TRUE(utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler()) != NULL);
        }
 
+       //Verify by drawing with edited shader
        //Query back framebuffer
        {
            dglnet::message::Request req(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Framebuffer, dglnet::ContextObjectName(breaked->m_CurrentCtx, GL_BACK)));

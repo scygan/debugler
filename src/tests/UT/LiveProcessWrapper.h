@@ -36,7 +36,7 @@ public:
         std::string exec = "samples\\samples.exe";
         args.push_back(sampleName);
 #else
-        std::string exec = "..\samples\samples";
+        std::string exec = "../samples/samples";
         args.push_back(sampleName);
 #endif
         QEventLoop loop;
