@@ -28,8 +28,11 @@
 #ifndef _internal_h_
 #define _internal_h_
 
-
+#ifdef _WIN32
+#include "config-predefined-win32.h"
+#else
 #include "config.h"
+#endif
 
 #if defined(_GLFW_USE_OPENGL)
  // This is the default for glfw3.h
