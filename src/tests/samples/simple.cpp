@@ -17,6 +17,7 @@
 
 #include <sstream>
 #include <vector>
+#include <stdexcept>
 
 namespace gl {
 

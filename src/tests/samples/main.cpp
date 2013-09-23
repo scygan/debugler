@@ -75,6 +75,7 @@ int main(int argc, char** argv) {
 
 
         sample->startup();
+        window->swapBuffers();
 
         while(!window->pendingClose()) {
             sample->render();
