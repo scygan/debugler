@@ -41,16 +41,22 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">Qt5Cored.lib;Winmm.lib;Imm32.lib;DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib;gtest.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)'=='Release'">Qt5Core.lib;Winmm.lib;Imm32.lib;DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib;gtest.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">Qt5Cored.lib;Qt5Guid.lib;;Qt5Widgetsd.lib;Qt5Xmld.lib;Winmm.lib;Imm32.lib;DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib;gtest.lib;Qt5Guid.lib;Qt5Widgetsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)'=='Release'">Qt5Core.lib;Qt5Gui.lib;;Qt5Widgets.lib;Qt5Xml.lib;Winmm.lib;Imm32.lib;DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib;gtest.lib;Qt5Guid.lib;Qt5Widgetsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <PreprocessorDefinitions>_VARIADIC_MAX=10;%(PreprocessorDefinitions);QT_CORE_LIB;QT_DLL</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;.\..\..\..\dump\$(ConfigurationName)\GeneratedFiles;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_VARIADIC_MAX=10;%(PreprocessorDefinitions);QT_CORE_LIB;QT_DLL;QT_GUI_LIB;QT_WIDGETS_LIB</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;.\..\..\..\dump\$(ConfigurationName)\GeneratedFiles;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\dump\$(ConfigurationName)\GeneratedFiles\qrc_dglmainwindow.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\..\..\dump\Debug\GeneratedFiles\moc_LiveProcessWrapper.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -58,6 +64,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="DGLCommonUT.cpp" />
+    <ClCompile Include="DGLGui.cpp" />
     <ClCompile Include="DGLNetUT.cpp" />
     <ClCompile Include="LiveTests.cpp" />
     <ClCompile Include="main.cpp" />
@@ -72,6 +79,18 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\..\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp"  -D_VARIADIC_MAX=10 "-D\"$(INHERIT)\"" -DQT_CORE_LIB -DQT_DLL -DUSE_MSVC -DWIN32 -DBOOST_ALL_NO_LIB -DBOOST_ALL_COMPILE_IN_PLACE -DBOOST_THREAD_BUILD_LIB -D_WIN32_WINNT=0x0501 -DQT_NO_OPENGL -DWIN32_LEAN_AND_MEAN "-DDGL_VERSION=\"$(DGL_VERSION)\"" "-D$(NOINHERIT)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I.\..\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I$(SolutionDir)\." "-I$(SolutionDir)\external\boost" "-I$(SolutionDir)\boost" "-I$(SolutionDir)\external" "-I$(SolutionDir)\external\gtest\include" "-I$(SolutionDir)\..\dump" "-I$(SolutionDir)\glheaders" "-I$(NOINHERIT)\."</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\DGLGui\dglmainwindow.qrc">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath);..\..\DGLGui\res\checkbox.png;..\..\DGLGui\res\darkorange.stylesheet;..\..\DGLGui\res\down_arrow.png;..\..\DGLGui\res\handle.png;..\..\DGLGui\res\default.stylesheet;..\..\DGLGui\icons\buffer.png;..\..\DGLGui\icons\context.png;..\..\DGLGui\icons\fbo.png;..\..\DGLGui\icons\framebuffer.png;..\..\DGLGui\icons\shader.png;..\..\DGLGui\icons\textures.png;..\..\DGLGui\icons\program.png;..\..\DGLGui\res\glsl.xml;%(AdditionalInputs)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Rcc%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\..\..\..\dump\$(ConfigurationName)\GeneratedFiles\qrc_%(Filename).cpp;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\rcc.exe" -name "%(Filename)" -no-compress "%(FullPath)" -o .\..\..\..\dump\$(ConfigurationName)\GeneratedFiles\qrc_%(Filename).cpp</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath);..\..\DGLGui\res\checkbox.png;..\..\DGLGui\res\darkorange.stylesheet;..\..\DGLGui\res\down_arrow.png;..\..\DGLGui\res\handle.png;..\..\DGLGui\res\default.stylesheet;..\..\DGLGui\icons\buffer.png;..\..\DGLGui\icons\context.png;..\..\DGLGui\icons\fbo.png;..\..\DGLGui\icons\framebuffer.png;..\..\DGLGui\icons\shader.png;..\..\DGLGui\icons\textures.png;..\..\DGLGui\icons\program.png;..\..\DGLGui\res\glsl.xml;%(AdditionalInputs)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Rcc%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\..\..\..\dump\$(ConfigurationName)\GeneratedFiles\qrc_%(Filename).cpp;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\rcc.exe" -name "%(Filename)" -no-compress "%(FullPath)" -o .\..\..\..\dump\$(ConfigurationName)\GeneratedFiles\qrc_%(Filename).cpp</Command>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

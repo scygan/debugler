@@ -21,8 +21,6 @@
 
 #include <QPlainTextEdit>
 
-#include <iostream>
-
 using namespace std;
 
 namespace {
@@ -44,33 +42,64 @@ namespace {
         QPlainTextEdit editor;
         DGLSyntaxHighlighterGLSL highlighter(editor.document());
     }
+    
+    template <typename T> class vector_inserter{
+    public:
+        std::deque<T> v;
+        vector_inserter& operator()(T const& val) { v.push_back(val);return *this; }
+        vector_inserter& operator,(T val){ return (*this)(val); }
 
-    TEST_F(DGLGui, syntax_highlighter_parse150) {
+        template <typename T2>
+        operator std::vector<T2>() const { return std::vector<T2>(v.begin(), v.end()); }
+    };
+    template<typename T>
+    vector_inserter<T> list_of(const T& val) {
+        return vector_inserter<T>()(val);
+    }
+
+    TEST_F(DGLGui, syntax_highlighter_parse) {
         QPlainTextEdit editor;
         DGLSyntaxHighlighterGLSL highlighter(editor.document());
 
-        const char* shader = 
-            "#version 330\n"
-            "\n"
-            "uniform sampler2D img;\n"
-            "in vec2 texcoord;\n"
-            "\n"
-            "void main()\n"
-            "{\n"
-            "    vec4 texcolor = texture2D(img,texcoord);\n"
-            "    gl_FragColor = texcolor;\n"
-            "}\n";
+        std::vector<std::vector<std::string> > strings = (
+            list_of(list_of((std::string)"#version 330")),
+                    list_of((std::string)""),
+                    list_of((std::string)"uniform")(" ")("sampler2D")(" img;"),
+                    list_of((std::string)"in")(" ")("vec2")(" texcoord;"),
+                    list_of((std::string)"void")(" main() {"),
+                    list_of((std::string)"    ")("vec4")(" texcolor = ")("texture2D")("(img,texcoord);"),
+                    list_of((std::string)"    ")("gl_FragColor")(" = texcolor;"),
+                    list_of((std::string)"}"));     
+  
+        
 
-        struct expectedRange  {
+        struct ExpFormat {
             int start;
             int length;
+            ExpFormat(int s, int l):start(s),length(l) {}
         };
+        std::vector<std::vector<ExpFormat> > expected;
 
-        std::vector<std::vector<expectedRange> > expected = {
-            
-        };
+        std::ostringstream shader;
+        for (size_t i = 0; i < strings.size(); i++) {
+            std::vector<ExpFormat> e;
+            size_t l = 0;
+            for (size_t j = 0; j < strings[i].size(); j++) {
+                shader << strings[i][j];
+                if (strings[i][j].size()) {
+                    e.push_back(ExpFormat(l, strings[i][j].size()));
+                }
+                l += strings[i][j].size();
+            }
+            shader << std::endl;
+            expected.push_back(e);
+        }
 
-        editor.appendPlainText(shader);
+        expected.push_back(std::vector<ExpFormat>());
+        
+        editor.appendPlainText(shader.str().c_str());
+
+        //cout << shader.str();
 
         QCoreApplication::processEvents();
 
@@ -78,22 +107,25 @@ namespace {
         for (QTextBlock it = editor.document()->begin(); it != editor.document()->end(); it = it.next()) {
             QTextLayout * layout = it.layout();
 
-            cout << "{ ";
+            //cout << "{ ";
             int format = 0;
-            for (QList<QTextLayout::FormatRange>::iterator i = layout->additionalFormats().begin(); i != layout->additionalFormats().end(); ++i) {
-                  cout << "{ " << i->start << ", " << i->length << " }, ";
+            
+            QList<QTextLayout::FormatRange>  formatRangeList = layout->additionalFormats();
 
-//                ASSERT_TRUE(format < (int) expected[line].size());
+            for (QList<QTextLayout::FormatRange>::iterator i = formatRangeList.begin(); i != formatRangeList.end(); ++i) {
+              //  cout << "{ " << i->start << ", " << i->length << " }, ";
 
-//                EXPECT_EQ(expected[line][format].start, i->start);
-//                EXPECT_EQ(expected[line][format].length, i->length);
+                ASSERT_TRUE(format < (int) expected[line].size());
+
+                EXPECT_EQ(expected[line][format].start, i->start);
+                EXPECT_EQ(expected[line][format].length, i->length);
 
                 format++;
             }
 
-            cout << "},\n";
+            //cout << "},\n";
 
-//            ASSERT_TRUE(line < (int)expected.size());
+            ASSERT_TRUE(line < (int)expected.size());
             line++;
         }
 
