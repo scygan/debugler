@@ -35,14 +35,14 @@
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
 
-// The Xf86VidMode extension provides fallback gamma control
+//// The Xf86VidMode extension provides fallback gamma control
 #include <X11/extensions/xf86vmode.h>
 
 // The XRandR extension provides mode setting and gamma control
-#include <X11/extensions/Xrandr.h>
+//#include <X11/extensions/Xrandr.h>
 
 // The XInput2 extension provides improved input events
-#include <X11/extensions/XInput2.h>
+//#include <X11/extensions/XInput2.h>
 
 // The Xkb extension provides improved keyboard support
 #include <X11/XKBlib.h>
@@ -208,9 +208,9 @@ typedef struct _GLFWlibraryX11
 //------------------------------------------------------------------------
 typedef struct _GLFWmonitorX11
 {
-    RROutput        output;
-    RRCrtc          crtc;
-    RRMode          oldMode;
+//    RROutput        output;
+//    RRCrtc          crtc;
+//    RRMode          oldMode;
 
 } _GLFWmonitorX11;
 

@@ -39,7 +39,7 @@
 void _glfwInitGammaRamp(void)
 {
     // RandR gamma support is only available with version 1.2 and above
-    if (_glfw.x11.randr.available &&
+/*    if (_glfw.x11.randr.available &&
         (_glfw.x11.randr.versionMajor > 1 ||
          (_glfw.x11.randr.versionMajor == 1 &&
           _glfw.x11.randr.versionMinor >= 2)))
@@ -60,6 +60,7 @@ void _glfwInitGammaRamp(void)
 
         XRRFreeScreenResources(rr);
     }
+    */
 }
 
 
@@ -69,7 +70,7 @@ void _glfwInitGammaRamp(void)
 
 void _glfwPlatformGetGammaRamp(_GLFWmonitor* monitor, GLFWgammaramp* ramp)
 {
-    if (_glfw.x11.randr.available && !_glfw.x11.randr.gammaBroken)
+/*    if (_glfw.x11.randr.available && !_glfw.x11.randr.gammaBroken)
     {
         const size_t size = XRRGetCrtcGammaSize(_glfw.x11.display,
                                                 monitor->x11.crtc);
@@ -84,7 +85,7 @@ void _glfwPlatformGetGammaRamp(_GLFWmonitor* monitor, GLFWgammaramp* ramp)
 
         XRRFreeGamma(gamma);
     }
-    else if (_glfw.x11.vidmode.available)
+    else */if (_glfw.x11.vidmode.available)
     {
         int size;
         XF86VidModeGetGammaRampSize(_glfw.x11.display, _glfw.x11.screen, &size);
@@ -99,7 +100,7 @@ void _glfwPlatformGetGammaRamp(_GLFWmonitor* monitor, GLFWgammaramp* ramp)
 
 void _glfwPlatformSetGammaRamp(_GLFWmonitor* monitor, const GLFWgammaramp* ramp)
 {
-    if (_glfw.x11.randr.available && !_glfw.x11.randr.gammaBroken)
+/*    if (_glfw.x11.randr.available && !_glfw.x11.randr.gammaBroken)
     {
         XRRCrtcGamma* gamma = XRRAllocGamma(ramp->size);
 
@@ -110,7 +111,7 @@ void _glfwPlatformSetGammaRamp(_GLFWmonitor* monitor, const GLFWgammaramp* ramp)
         XRRSetCrtcGamma(_glfw.x11.display, monitor->x11.crtc, gamma);
         XRRFreeGamma(gamma);
     }
-    else if (_glfw.x11.vidmode.available)
+    else */if (_glfw.x11.vidmode.available)
     {
         XF86VidModeSetGammaRamp(_glfw.x11.display,
                                 _glfw.x11.screen,

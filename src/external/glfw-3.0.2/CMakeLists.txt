@@ -11,9 +11,9 @@ set(GLFW_VERSION_FULL "${GLFW_VERSION}.${GLFW_VERSION_PATCH}${GLFW_VERSION_EXTRA
 set(LIB_SUFFIX "" CACHE STRING "Takes an empty string or 64. Directory where lib will be installed: lib or lib64")
 
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
-option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" ON)
-option(GLFW_BUILD_TESTS "Build the GLFW test programs" ON)
-option(GLFW_INSTALL "Generate installation target" ON)
+option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" OFF)
+option(GLFW_BUILD_TESTS "Build the GLFW test programs" OFF)
+option(GLFW_INSTALL "Generate installation target" OFF)
 option(GLFW_DOCUMENT_INTERNALS "Include internals in documentation" OFF)
 
 if (WIN32)
@@ -73,8 +73,8 @@ endif()
 
 find_package(Threads REQUIRED)
 
-set(DOXYGEN_SKIP_DOT TRUE)
-find_package(Doxygen)
+#set(DOXYGEN_SKIP_DOT TRUE)
+#find_package(Doxygen)
 
 if (GLFW_DOCUMENT_INTERNALS)
     set(GLFW_INTERNAL_DOCS "${GLFW_SOURCE_DIR}/src/internal.h ${GLFW_SOURCE_DIR}/docs/internal.dox")
@@ -84,7 +84,7 @@ endif()
 # Set compiler specific flags
 #--------------------------------------------------------------------
 if (UNIX)
-    add_definitions(-Wall)
+    #add_definitions(-Wall)
 
     if (BUILD_SHARED_LIBS)
         add_definitions(-fvisibility=hidden)
@@ -190,22 +190,22 @@ if (_GLFW_X11)
     endif()
 
     # Check for XRandR (modern resolution switching and gamma control)
-    if (NOT X11_Xrandr_FOUND)
-        message(FATAL_ERROR "The RandR library and headers were not found")
-    endif()
+#   if (NOT X11_Xrandr_FOUND)
+#       message(FATAL_ERROR "The RandR library and headers were not found")
+#   endif()
 
-    list(APPEND glfw_INCLUDE_DIRS ${X11_Xrandr_INCLUDE_PATH})
-    list(APPEND glfw_LIBRARIES ${X11_Xrandr_LIB})
-    set(GLFW_PKG_DEPS "${GLFW_PKG_DEPS} xrandr")
+#    list(APPEND glfw_INCLUDE_DIRS ${X11_Xrandr_INCLUDE_PATH})
+#    list(APPEND glfw_LIBRARIES ${X11_Xrandr_LIB})
+#    set(GLFW_PKG_DEPS "${GLFW_PKG_DEPS} xrandr")
 
-    # Check for XInput (high-resolution cursor motion)
-    if (NOT X11_Xinput_FOUND)
-        message(FATAL_ERROR "The XInput library and headers were not found")
-    endif()
+#    # Check for XInput (high-resolution cursor motion)
+#    if (NOT X11_Xinput_FOUND)
+#        message(FATAL_ERROR "The XInput library and headers were not found")
+#    endif()
 
-    list(APPEND glfw_INCLUDE_DIRS ${X11_Xinput_INCLUDE_PATH})
-    list(APPEND glfw_LIBRARIES ${X11_Xinput_LIB})
-    set(GLFW_PKG_DEPS "${GLFW_PKG_DEPS} xi")
+#    list(APPEND glfw_INCLUDE_DIRS ${X11_Xinput_INCLUDE_PATH})
+#    list(APPEND glfw_LIBRARIES ${X11_Xinput_LIB})
+#    set(GLFW_PKG_DEPS "${GLFW_PKG_DEPS} xi")
 
     # Check for Xf86VidMode (fallback gamma control)
     if (NOT X11_xf86vmode_FOUND)

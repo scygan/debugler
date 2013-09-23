@@ -271,7 +271,7 @@ static GLboolean createWindow(_GLFWwindow* window,
     if (_glfw.x11.xi.available)
     {
         // Select for XInput2 events
-
+/*
         XIEventMask eventmask;
         unsigned char mask[] = { 0 };
 
@@ -281,12 +281,13 @@ static GLboolean createWindow(_GLFWwindow* window,
         XISetMask(mask, XI_Motion);
 
         XISelectEvents(_glfw.x11.display, window->x11.handle, &eventmask, 1);
+*/
     }
 
     _glfwPlatformSetWindowTitle(window, wndconfig->title);
 
-    XRRSelectInput(_glfw.x11.display, window->x11.handle,
-                   RRScreenChangeNotifyMask);
+//    XRRSelectInput(_glfw.x11.display, window->x11.handle,
+//                   RRScreenChangeNotifyMask);
 
     _glfwPlatformGetWindowPos(window, &window->x11.xpos, &window->x11.ypos);
     _glfwPlatformGetWindowSize(window, &window->x11.width, &window->x11.height);
@@ -777,7 +778,7 @@ static void processEvent(XEvent *event)
             if (event->xcookie.extension == _glfw.x11.xi.majorOpcode &&
                 XGetEventData(_glfw.x11.display, &event->xcookie))
             {
-                if (event->xcookie.evtype == XI_Motion)
+/*              if (event->xcookie.evtype == XI_Motion)
                 {
                     XIDeviceEvent* data = (XIDeviceEvent*) event->xcookie.data;
 
@@ -811,7 +812,7 @@ static void processEvent(XEvent *event)
                         window->x11.cursorPosX = data->event_x;
                         window->x11.cursorPosY = data->event_y;
                     }
-                }
+                }*/
             }
 
             XFreeEventData(_glfw.x11.display, &event->xcookie);
@@ -820,7 +821,7 @@ static void processEvent(XEvent *event)
 
         default:
         {
-            switch (event->type - _glfw.x11.randr.eventBase)
+/*          switch (event->type - _glfw.x11.randr.eventBase)
             {
                 case RRScreenChangeNotify:
                 {
@@ -828,7 +829,7 @@ static void processEvent(XEvent *event)
                     break;
                 }
             }
-
+*/
             break;
         }
     }

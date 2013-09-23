@@ -437,12 +437,12 @@ static GLboolean initExtensions(void)
                                   &_glfw.x11.vidmode.errorBase);
 
     // Check for RandR extension
-    _glfw.x11.randr.available =
-        XRRQueryExtension(_glfw.x11.display,
-                          &_glfw.x11.randr.eventBase,
-                          &_glfw.x11.randr.errorBase);
+    _glfw.x11.randr.available = 0;
+//        XRRQueryExtension(_glfw.x11.display,
+//                          &_glfw.x11.randr.eventBase,
+//                          &_glfw.x11.randr.errorBase);
 
-    if (_glfw.x11.randr.available)
+  /*  if (_glfw.x11.randr.available)
     {
         if (!XRRQueryVersion(_glfw.x11.display,
                              &_glfw.x11.randr.versionMajor,
@@ -459,9 +459,9 @@ static GLboolean initExtensions(void)
         {
             _glfw.x11.randr.available = GL_FALSE;
         }
-    }
+    }*/
 
-    if (XQueryExtension(_glfw.x11.display,
+/*    if (XQueryExtension(_glfw.x11.display,
                         "XInputExtension",
                         &_glfw.x11.xi.majorOpcode,
                         &_glfw.x11.xi.eventBase,
@@ -476,7 +476,7 @@ static GLboolean initExtensions(void)
         {
             _glfw.x11.xi.available = GL_TRUE;
         }
-    }
+    }*/
 
     // Check if Xkb is supported on this display
     _glfw.x11.xkb.versionMajor = 1;
