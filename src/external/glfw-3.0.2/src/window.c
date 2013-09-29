@@ -104,7 +104,7 @@ void _glfwInputWindowIconify(_GLFWwindow* window, int iconified)
     if (window->iconified == iconified)
         return;
 
-    window->iconified = iconified;
+    window->iconified = (GLboolean) iconified;
 
     if (window->callbacks.iconify)
         window->callbacks.iconify((GLFWwindow*) window, iconified);
@@ -118,7 +118,7 @@ void _glfwInputFramebufferSize(_GLFWwindow* window, int width, int height)
 
 void _glfwInputWindowVisibility(_GLFWwindow* window, int visible)
 {
-    window->visible = visible;
+    window->visible = (GLboolean) visible;
 }
 
 void _glfwInputWindowDamage(_GLFWwindow* window)
@@ -326,25 +326,25 @@ GLFWAPI void glfwWindowHint(int target, int hint)
             _glfw.hints.auxBuffers = hint;
             break;
         case GLFW_STEREO:
-            _glfw.hints.stereo = hint;
+            _glfw.hints.stereo = (GLboolean) hint;
             break;
         case GLFW_REFRESH_RATE:
             _glfw.hints.refreshRate = hint;
             break;
         case GLFW_RESIZABLE:
-            _glfw.hints.resizable = hint;
+            _glfw.hints.resizable = (GLboolean) hint;
             break;
         case GLFW_DECORATED:
-            _glfw.hints.decorated = hint;
+            _glfw.hints.decorated = (GLboolean) hint;
             break;
         case GLFW_VISIBLE:
-            _glfw.hints.visible = hint;
+            _glfw.hints.visible = (GLboolean) hint;
             break;
         case GLFW_SAMPLES:
             _glfw.hints.samples = hint;
             break;
         case GLFW_SRGB_CAPABLE:
-            _glfw.hints.sRGB = hint;
+            _glfw.hints.sRGB = (GLboolean) hint;
             break;
         case GLFW_CLIENT_API:
             _glfw.hints.clientAPI = hint;
@@ -359,10 +359,10 @@ GLFWAPI void glfwWindowHint(int target, int hint)
             _glfw.hints.glRobustness = hint;
             break;
         case GLFW_OPENGL_FORWARD_COMPAT:
-            _glfw.hints.glForward = hint;
+            _glfw.hints.glForward = (GLboolean) hint;
             break;
         case GLFW_OPENGL_DEBUG_CONTEXT:
-            _glfw.hints.glDebug = hint;
+            _glfw.hints.glDebug = (GLboolean) hint;
             break;
         case GLFW_OPENGL_PROFILE:
             _glfw.hints.glProfile = hint;
@@ -421,7 +421,7 @@ GLFWAPI void glfwSetWindowShouldClose(GLFWwindow* handle, int value)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
     _GLFW_REQUIRE_INIT();
-    window->closed = value;
+    window->closed = (GLboolean) value;
 }
 
 GLFWAPI void glfwSetWindowTitle(GLFWwindow* handle, const char* title)

@@ -94,7 +94,7 @@ static void setStickyKeys(_GLFWwindow* window, int enabled)
         }
     }
 
-    window->stickyKeys = enabled;
+    window->stickyKeys = (GLboolean)enabled;
 }
 
 // Set sticky mouse buttons mode for the specified window
@@ -116,7 +116,7 @@ static void setStickyMouseButtons(_GLFWwindow* window, int enabled)
         }
     }
 
-    window->stickyMouseButtons = enabled;
+    window->stickyMouseButtons = (GLboolean)enabled;
 }
 
 

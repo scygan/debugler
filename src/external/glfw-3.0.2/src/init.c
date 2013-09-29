@@ -94,7 +94,11 @@ void _glfwInputError(int error, const char* format, ...)
             va_list vl;
 
             va_start(vl, format);
+#ifdef _WIN32
+            count = vsnprintf_s(buffer, sizeof(buffer), sizeof(buffer), format, vl);
+#else
             count = vsnprintf(buffer, sizeof(buffer), format, vl);
+#endif
             va_end(vl);
 
             if (count < 0)

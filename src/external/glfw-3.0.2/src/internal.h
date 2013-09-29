@@ -120,6 +120,7 @@ typedef struct _GLFWmonitor     _GLFWmonitor;
         return x;                                    \
     }
 
+#pragma warning( disable : 4152 )
 // Swaps the provided pointers
 #define _GLFW_SWAP_POINTERS(x, y) \
     {                             \

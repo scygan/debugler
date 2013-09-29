@@ -163,7 +163,11 @@ _GLFWmonitor** _glfwPlatformGetMonitors(int* count)
         free(name);
         DeleteDC(dc);
 
+#ifdef _WIN32
+        wcscpy_s(monitors[found]->win32.name, sizeof(monitors[found]->win32.name)/sizeof(monitors[found]->win32.name[0]), adapter.DeviceName);
+#else
         wcscpy(monitors[found]->win32.name, adapter.DeviceName);
+#endif
         found++;
     }
 

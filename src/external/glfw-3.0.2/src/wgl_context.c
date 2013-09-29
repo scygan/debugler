@@ -212,14 +212,14 @@ static GLboolean choosePixelFormat(_GLFWwindow* window,
             u->accumBlueBits = getPixelFormatAttrib(window, n, WGL_ACCUM_BLUE_BITS_ARB);
             u->accumAlphaBits = getPixelFormatAttrib(window, n, WGL_ACCUM_ALPHA_BITS_ARB);
 
-            u->auxBuffers = getPixelFormatAttrib(window, n, WGL_AUX_BUFFERS_ARB);
-            u->stereo = getPixelFormatAttrib(window, n, WGL_STEREO_ARB);
+            u->auxBuffers = (GLboolean)getPixelFormatAttrib(window, n, WGL_AUX_BUFFERS_ARB);
+            u->stereo = (GLboolean)getPixelFormatAttrib(window, n, WGL_STEREO_ARB);
 
             if (window->wgl.ARB_multisample)
                 u->samples = getPixelFormatAttrib(window, n, WGL_SAMPLES_ARB);
 
             if (window->wgl.ARB_framebuffer_sRGB)
-                u->sRGB = getPixelFormatAttrib(window, n, WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB);
+                u->sRGB = (GLboolean) getPixelFormatAttrib(window, n, WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB);
         }
         else
         {

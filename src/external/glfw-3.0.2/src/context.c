@@ -67,7 +67,11 @@ static GLboolean parseGLVersion(int* api, int* major, int* minor, int* rev)
         }
     }
 
+#ifdef _WIN32
+    if (!sscanf_s(version, "%d.%d.%d", &_major, &_minor, &_rev, strlen(version)))
+#else
     if (!sscanf(version, "%d.%d.%d", &_major, &_minor, &_rev))
+#endif
     {
         _glfwInputError(GLFW_PLATFORM_ERROR,
                         "No version found in context version string");

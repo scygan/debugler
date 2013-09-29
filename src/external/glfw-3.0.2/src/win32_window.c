@@ -426,8 +426,8 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                     _glfwSetVideoMode(window->monitor, &window->videoMode);
             }
 
-            _glfwInputWindowFocus(window, focused);
-            _glfwInputWindowIconify(window, iconified);
+            _glfwInputWindowFocus(window, (GLboolean)focused);
+            _glfwInputWindowIconify(window, (GLboolean)iconified);
             return 0;
         }
 
@@ -724,7 +724,8 @@ static void getFullWindowSize(_GLFWwindow* window,
                               int clientWidth, int clientHeight,
                               int* fullWidth, int* fullHeight)
 {
-    RECT rect = { 0, 0, clientWidth, clientHeight };
+    RECT rect; rect.left = 0; rect.top = 0; rect.right = clientWidth; rect.bottom = clientHeight;
+    
     AdjustWindowRectEx(&rect, window->win32.dwStyle,
                        FALSE, window->win32.dwExStyle);
     *fullWidth = rect.right - rect.left;
@@ -963,7 +964,9 @@ void _glfwPlatformGetWindowPos(_GLFWwindow* window, int* xpos, int* ypos)
 
 void _glfwPlatformSetWindowPos(_GLFWwindow* window, int xpos, int ypos)
 {
-    RECT rect = { xpos, ypos, xpos, ypos };
+    RECT rect;
+    rect.left = xpos; rect.top = ypos; rect.right = xpos; rect.bottom = ypos;
+
     AdjustWindowRectEx(&rect, window->win32.dwStyle,
                        FALSE, window->win32.dwExStyle);
     SetWindowPos(window->win32.handle, NULL, rect.left, rect.top, 0, 0,
@@ -1100,7 +1103,7 @@ void _glfwPlatformWaitEvents(void)
 
 void _glfwPlatformSetCursorPos(_GLFWwindow* window, double xpos, double ypos)
 {
-    POINT pos = { (int) xpos, (int) ypos };
+    POINT pos; pos.x = (int)xpos; pos.y = (int)ypos;
     ClientToScreen(window->win32.handle, &pos);
     SetCursorPos(pos.x, pos.y);
 
