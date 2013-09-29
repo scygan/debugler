@@ -580,7 +580,7 @@ DGLHLRuleKeyword::DGLHLRuleKeyword(const DGLHLData* data, std::string _string, Q
     const keywordList_t* list = data->getKeywordList(_string);
     QString regexStr;
     for (size_t i = 0; i < list->size(); i++) {
-        regexStr += QString(i?"|":"") + "\\b" + QRegExp::escape((*list)[i]);
+        regexStr += QString(i?"|":"") + "\\b" + QRegExp::escape((*list)[i]) + "\\b";
     }
     m_regex = QRegExp(regexStr);
 }
