@@ -60,23 +60,59 @@ namespace {
     TEST_F(DGLGui, syntax_highlighter_parse) {
         QPlainTextEdit editor;
         DGLSyntaxHighlighterGLSL highlighter(editor.document());
-
-        std::vector<std::vector<std::string> > strings = (
-            list_of(list_of((std::string)"#version 330")),
-                    list_of((std::string)""),
-                    list_of((std::string)"uniform")(" ")("sampler2D")(" img;"),
-                    list_of((std::string)"in")(" ")("vec2")(" texcoord;"),
-                    list_of((std::string)"void")(" main() {"),
-                    list_of((std::string)"    ")("vec4")(" texcolor = ")("texture2D")("(img,texcoord);"),
-                    list_of((std::string)"    ")("gl_FragColor")(" = texcolor;"),
-                    list_of((std::string)"}"));     
-  
         
+        enum class Format {
+            UNFORMATTED,
+            KEYWORD,
+            KEYWORDBOLD,
+            NUMBER,
+        };
+
+        struct U {
+            U(char* s):m_s(s) {};
+            std::string m_s;
+        };
+
+        struct K {
+            K(char* s):m_s(s) {};
+            std::string m_s;
+        };
+
+        struct B {
+            B(char* s):m_s(s) {};
+            std::string m_s;
+        };
+
+        struct N {
+            N(char* s):m_s(s) {};
+            std::string m_s;
+        };
+        
+        struct S {
+            S(U u):m_s(u.m_s), m_format(Format::UNFORMATTED) {};
+            S(N n):m_s(n.m_s), m_format(Format::NUMBER) {};
+            S(K k):m_s(k.m_s), m_format(Format::KEYWORD) {};
+            S(B b):m_s(b.m_s), m_format(Format::KEYWORDBOLD) {};
+            std::string m_s;
+            Format m_format;
+        };
+
+        std::vector<std::vector<S> > strings = (
+            list_of(list_of((S)(N)"#version 330")),
+                    list_of((S)(U)""),
+                    list_of((S)(B)"uniform")((U)" ")((K)"sampler2D")((U)" samplerImg;"),
+                    list_of((S)(B)"in")((U)" ")((K)"vec2")((U)" texcoord;"),
+                    list_of((S)(K)"void")((U)" main() {"),
+                    list_of((S)(U)"    ")((K)"vec4")((U)" texcolor = ")((B)"texture2D")((U)"(samplerImg,texcoord);"),
+                    list_of((S)(U)"    ")((B)"gl_FragColor")((U)" = texcolor;"),
+                    list_of((S)(U)"}"));     
+  
 
         struct ExpFormat {
             int start;
             int length;
-            ExpFormat(int s, int l):start(s),length(l) {}
+            Format format;
+            ExpFormat(int s, int l, Format f):start(s),length(l),format(f) {}
         };
         std::vector<std::vector<ExpFormat> > expected;
 
@@ -85,11 +121,11 @@ namespace {
             std::vector<ExpFormat> e;
             size_t l = 0;
             for (size_t j = 0; j < strings[i].size(); j++) {
-                shader << strings[i][j];
-                if (strings[i][j].size()) {
-                    e.push_back(ExpFormat(l, strings[i][j].size()));
+                shader << strings[i][j].m_s;
+                if (strings[i][j].m_s.size()) {
+                    e.push_back(ExpFormat(l, strings[i][j].m_s.size(), strings[i][j].m_format));
                 }
-                l += strings[i][j].size();
+                l += strings[i][j].m_s.size();
             }
             shader << std::endl;
             expected.push_back(e);
@@ -113,12 +149,38 @@ namespace {
             QList<QTextLayout::FormatRange>  formatRangeList = layout->additionalFormats();
 
             for (QList<QTextLayout::FormatRange>::iterator i = formatRangeList.begin(); i != formatRangeList.end(); ++i) {
-              //  cout << "{ " << i->start << ", " << i->length << " }, ";
+                //cout << "{ " << i->start << ", " << i->length << " }, ";
 
                 ASSERT_TRUE(format < (int) expected[line].size());
 
+                //cout << "|" << strings[line][format].m_s << "|" << endl;
+
                 EXPECT_EQ(expected[line][format].start, i->start);
                 EXPECT_EQ(expected[line][format].length, i->length);
+
+                QColor expectedColor; 
+                int expectedFontWeight = QFont::Normal;
+                switch (expected[line][format].format) {
+                    case Format::NUMBER:
+                        expectedColor = Qt::darkMagenta;
+                        expectedFontWeight = QFont::Bold;
+                        break;
+                    case Format::KEYWORDBOLD:
+                        expectedFontWeight = QFont::Bold;
+                    case Format::KEYWORD:
+                        expectedColor = Qt::darkYellow;
+                        break;
+                    case Format::UNFORMATTED:
+                        expectedColor = Qt::black;
+                        break;
+                }
+
+                //cout << i->format.foreground().color().red() << ", " << i->format.foreground().color().green() << ", " << i->format.foreground().color().blue() << ", " << i->format.foreground().color().alpha() << endl;
+                //cout << expectedColor.red() << ", " << expectedColor.green() << ", " << expectedColor.blue() << ", " << expectedColor.alpha() << endl;
+
+                EXPECT_EQ(expectedColor, i->format.foreground().color());
+
+                EXPECT_EQ(expectedFontWeight, i->format.fontWeight());
 
                 format++;
             }
