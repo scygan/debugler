@@ -14,14 +14,14 @@
     <ClCompile Include="..\..\external\glew-1.10.0\src\glew.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_VARIADIC_MAX=10;%(PreprocessorDefinitions);QT_CORE_LIB;QT_DLL</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="fbo_msaa.cpp" />
+    <ClCompile Include="samples\fbo_msaa.cpp" />
     <ClCompile Include="glutil.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="platform_glfw.cpp" />
     <ClCompile Include="sample.cpp" />
-    <ClCompile Include="shader_handling.cpp" />
-    <ClCompile Include="simple.cpp" />
-    <ClCompile Include="texture.cpp" />
+    <ClCompile Include="samples\shader_handling.cpp" />
+    <ClCompile Include="samples\simple.cpp" />
+    <ClCompile Include="samples\texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="platform.h" />
@@ -63,7 +63,7 @@
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>GLEW_STATIC;_VARIADIC_MAX=10;%(PreprocessorDefinitions);QT_CORE_LIB;QT_DLL</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\external\glfw-3.0.2\include;..\..\external\glew-1.10.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\..\external\glfw-3.0.2\include;..\..\external\glew-1.10.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -10,11 +10,11 @@
     <Filter Include="Header Files">
       <UniqueIdentifier>{5038bf00-cfc7-400c-a56b-883d25ac82da}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Samples">
+      <UniqueIdentifier>{ef4d0f3f-9af6-41da-ac95-d77bc3788e50}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="simple.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -27,17 +27,20 @@
     <ClCompile Include="..\..\external\glew-1.10.0\src\glew.c">
       <Filter>GLEW</Filter>
     </ClCompile>
-    <ClCompile Include="shader_handling.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="fbo_msaa.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="glutil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="texture.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="samples\texture.cpp">
+      <Filter>Samples</Filter>
+    </ClCompile>
+    <ClCompile Include="samples\simple.cpp">
+      <Filter>Samples</Filter>
+    </ClCompile>
+    <ClCompile Include="samples\shader_handling.cpp">
+      <Filter>Samples</Filter>
+    </ClCompile>
+    <ClCompile Include="samples\fbo_msaa.cpp">
+      <Filter>Samples</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

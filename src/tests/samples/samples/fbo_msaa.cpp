@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-#include "sample.h"
+#include <sample.h>
 
 #include <sstream>
 
