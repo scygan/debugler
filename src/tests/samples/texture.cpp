@@ -16,7 +16,8 @@
 #include "sample.h"
 #include "glutil.h"
 
-class SampleSimple: public Sample {
+
+class SampleTexture: public Sample {
     
     virtual void startup() override {
             glGenBuffers(1, &m_vbo);
@@ -39,20 +40,34 @@ class SampleSimple: public Sample {
             const char* vshSrc = 
                 "#version 120\n"
                 "attribute vec4 position;\n"
+                "varying vec2 texPos;\n"
                 "\n"
                 "void main() {\n"
                 "    gl_Position = position;\n"
+                "    texPos = position.xy * 0.5 + 0.5;\n"
                 "}\n";
 
             const char* fshSrc = 
                 "#version 120\n"
+                "uniform sampler2D sampler0;\n"
+                "varying vec2 texPos;\n"
                 "void main()\n"
                 "{\n"
-                "    gl_FragColor = vec4(0.4, 0.5, 0.8, 1.0);\n"
+                "    gl_FragColor = texture2D(sampler0, texPos);\n"
                 "}\n";
 
             m_program = gl::CreateProgram(vshSrc, fshSrc);
             glUseProgram(m_program->Name());
+
+
+            glGenTextures(1, &m_tex);
+            glBindTexture(GL_TEXTURE_2D, m_tex);
+
+
+            GLubyte color[] = { 102, 127, 204, 255 };   
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, color);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
 
     virtual void render() override {
@@ -63,13 +78,15 @@ class SampleSimple: public Sample {
 
     virtual void shutdown() override {
         glDeleteBuffers(1, &m_vbo);
+        glDeleteTextures(1, &m_tex);
     }
 
 private:
     GLuint m_vbo;
+    GLuint m_tex;
     gl::ProgramPtr m_program;
 };
 
-std::shared_ptr<Sample> Sample::Create_Simple() {
-    return std::make_shared<SampleSimple>();
+std::shared_ptr<Sample> Sample::Create_Texture() {
+    return std::make_shared<SampleTexture>();
 }

@@ -171,8 +171,20 @@ namespace {
             return ret;
         }
 
-
         void checkColor(GLubyte* ptr, int width, int height, int rowBytes, int r, int g, int b, int a) {
+            for (int y = 0; y < height; y++) {
+                GLubyte* rowPtr = y * rowBytes + ptr;
+                for (int x = 0; x < width; x++) {
+                    ASSERT_TRUE(abs(r - rowPtr[4 * x + 0]) <= 1);
+                    ASSERT_TRUE(abs(g - rowPtr[4 * x + 1]) <= 1);
+                    ASSERT_TRUE(abs(b - rowPtr[4 * x + 2]) <= 1);
+                    ASSERT_TRUE(abs(a - rowPtr[4 * x + 3]) <= 1);
+                }
+            }
+        }
+
+
+        void checkColorRect(GLubyte* ptr, int width, int height, int rowBytes, int r, int g, int b, int a) {
             for (int y = 0; y < height; y++) {
                 GLubyte* rowPtr = y * rowBytes + ptr;
                 for (int x = 0; x < width; x++) {
@@ -424,12 +436,12 @@ namespace {
            EXPECT_EQ(0, framebufferResource->m_PixelRectangle->m_InternalFormat);
 
            if (step) {
-               utils::checkColor((GLubyte*)framebufferResource->m_PixelRectangle->getPtr(),
+               utils::checkColorRect((GLubyte*)framebufferResource->m_PixelRectangle->getPtr(),
                    framebufferResource->m_PixelRectangle->m_Width,
                    framebufferResource->m_PixelRectangle->m_Height,
                    framebufferResource->m_PixelRectangle->m_RowBytes, 102, 127, 204, 255);
            } else {
-               utils::checkColor((GLubyte*)framebufferResource->m_PixelRectangle->getPtr(),
+               utils::checkColorRect((GLubyte*)framebufferResource->m_PixelRectangle->getPtr(),
                    framebufferResource->m_PixelRectangle->m_Width,
                    framebufferResource->m_PixelRectangle->m_Height,
                    framebufferResource->m_PixelRectangle->m_RowBytes, 0, 0, 0, 0);
@@ -443,6 +455,60 @@ namespace {
 
        client->abort();
    }
+
+   TEST_F(LiveTest, texture_query) {
+       std::shared_ptr<dglnet::Client> client = getClientFor("texture");
+
+       dglnet::message::BreakedCall* breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler());
+       ASSERT_TRUE(breaked != NULL);
+
+       {
+           //disable breaking stuff
+           dglnet::message::Configuration config(getUsualConfig());
+           client->sendMessage(&config);
+       }
+
+       breaked = utils::runUntilEntryPoint(client,  getMessageHandler(), glDrawArrays_Call);
+
+       ASSERT_EQ(1, breaked->m_CtxReports.size());
+       ASSERT_EQ(1, breaked->m_CtxReports[0].m_TextureSpace.size());
+
+       EXPECT_EQ(GL_TEXTURE_2D, breaked->m_CtxReports[0].m_TextureSpace.begin()->m_Target);
+
+
+       {
+           //query texture
+           dglnet::message::Request request(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Texture, dglnet::ContextObjectName(breaked->m_CurrentCtx, breaked->m_CtxReports[0].m_TextureSpace.begin()->m_Name)));
+           client->sendMessage(&request);
+       }
+
+       dglnet::message::RequestReply* reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
+       std::string nothing;
+       ASSERT_TRUE(reply->isOk(nothing));
+       dglnet::resource::DGLResourceTexture * textureResource = dynamic_cast<dglnet::resource::DGLResourceTexture*>(reply->m_Reply.get());
+       ASSERT_TRUE(textureResource != NULL);
+
+       //std::vector<std::vector< ::boost::shared_ptr<dglnet::resource::DGLPixelRectangle> > > m_FacesLevels;
+       ASSERT_EQ(1, textureResource->m_FacesLevels.size());
+       ASSERT_EQ(1, textureResource->m_FacesLevels[0].size());
+
+       dglnet::resource::DGLPixelRectangle* rect = textureResource->m_FacesLevels[0][0].get();
+
+       ASSERT_EQ(GL_RGBA, rect->m_GLFormat);
+       ASSERT_EQ(GL_UNSIGNED_BYTE, rect->m_GLType);
+       EXPECT_EQ(0, rect->m_Samples);
+       EXPECT_EQ(1, rect->m_Width);
+       EXPECT_EQ(1, rect->m_Height);
+       EXPECT_EQ(GL_RGBA8, rect->m_InternalFormat);
+
+       utils::checkColor((GLubyte*)rect->getPtr(),
+           rect->m_Width,
+           rect->m_Height,
+           rect->m_RowBytes, 102, 127, 204, 255);
+
+       client->abort();
+   }
+
     
    TEST_F(LiveTest, edit_shader) {
        std::shared_ptr<dglnet::Client> client = getClientFor("simple");
@@ -526,7 +592,7 @@ namespace {
        dglnet::resource::DGLResourceFramebuffer* framebufferResource = dynamic_cast<dglnet::resource::DGLResourceFramebuffer*>(reply->m_Reply.get());
        ASSERT_TRUE(framebufferResource != NULL);
 
-       utils::checkColor((GLubyte*)framebufferResource->m_PixelRectangle->getPtr(),
+       utils::checkColorRect((GLubyte*)framebufferResource->m_PixelRectangle->getPtr(),
                framebufferResource->m_PixelRectangle->m_Width,
                framebufferResource->m_PixelRectangle->m_Height,
                framebufferResource->m_PixelRectangle->m_RowBytes, 204, 127, 102, 255);

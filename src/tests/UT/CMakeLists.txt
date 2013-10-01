@@ -3,10 +3,9 @@ find_package(Qt4 REQUIRED)
 set(QT_USE_QTXML TRUE)
 
 set(ut_SOURCES
-    DGLCommonUT.cpp DGLNetUT.cpp LiveTests.cpp
+    DGLCommonUT.cpp DGLNetUT.cpp LiveTests.cpp DGLGui.cpp
     main.cpp
     )
-#    DGLGui.cpp
 
 set(ut_HEADERS
    LiveProcessWrapper.h

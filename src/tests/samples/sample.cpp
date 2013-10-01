@@ -24,5 +24,7 @@ std::shared_ptr<Sample> Sample::Create(const std::string& sample) {
         return Create_SampleFboMSAA();
     if (sample == "shader_handling")
         return Create_ShaderHandling();
+    if (sample == "texture")
+        return Create_Texture();
     throw std::runtime_error("Unknown sample to run");
 }

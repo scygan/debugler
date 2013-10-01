@@ -34,4 +34,5 @@ private:
     static std::shared_ptr<Sample> Create_Simple();
     static std::shared_ptr<Sample> Create_SampleFboMSAA();
     static std::shared_ptr<Sample> Create_ShaderHandling();
+    static std::shared_ptr<Sample> Create_Texture();
  };

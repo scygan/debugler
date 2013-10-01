@@ -15,15 +15,18 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_VARIADIC_MAX=10;%(PreprocessorDefinitions);QT_CORE_LIB;QT_DLL</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="fbo_msaa.cpp" />
+    <ClCompile Include="glutil.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="platform_glfw.cpp" />
     <ClCompile Include="sample.cpp" />
     <ClCompile Include="shader_handling.cpp" />
     <ClCompile Include="simple.cpp" />
+    <ClCompile Include="texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="platform.h" />
     <ClInclude Include="sample.h" />
+    <ClInclude Include="glutil.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1CD99A24-16C6-46A8-8C31-2C31BBD42E7B}</ProjectGuid>
