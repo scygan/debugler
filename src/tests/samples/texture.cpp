@@ -87,6 +87,5 @@ private:
     gl::ProgramPtr m_program;
 };
 
-std::shared_ptr<Sample> Sample::Create_Texture() {
-    return std::make_shared<SampleTexture>();
-}
+
+REGISTER_SAMPLE(SampleTexture, "texture");

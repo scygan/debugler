@@ -15,6 +15,7 @@
 
 #include <memory>
 #include <string>
+#include <map>
 
 #include <GL/glew.h>
 
@@ -28,11 +29,17 @@ public:
     ~Sample() {}
 
 
-    static std::shared_ptr<Sample> Create(const std::string& sample);
+    static std::shared_ptr<Sample> getSample(const std::string& sample);
 
+
+    static bool registerSample(Sample* sample, const std::string& name);
 private:
-    static std::shared_ptr<Sample> Create_Simple();
-    static std::shared_ptr<Sample> Create_SampleFboMSAA();
-    static std::shared_ptr<Sample> Create_ShaderHandling();
-    static std::shared_ptr<Sample> Create_Texture();
- };
+
+    static std::map<std::string, std::shared_ptr<Sample>> * getRegistry();
+    
+};
+
+
+#define REGISTER_SAMPLE(CLASS, NAME) \
+    bool CLASS##registeredInfo =  CLASS::registerSample(new CLASS(), NAME)
+    

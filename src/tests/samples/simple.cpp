@@ -70,6 +70,4 @@ private:
     gl::ProgramPtr m_program;
 };
 
-std::shared_ptr<Sample> Sample::Create_Simple() {
-    return std::make_shared<SampleSimple>();
-}
+REGISTER_SAMPLE(SampleSimple, "simple");

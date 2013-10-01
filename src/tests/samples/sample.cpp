@@ -17,14 +17,21 @@
 
 #include <stdexcept>
 
-std::shared_ptr<Sample> Sample::Create(const std::string& sample) {
-    if (sample == "simple")
-        return Create_Simple();
-    if (sample == "fbo_msaa")
-        return Create_SampleFboMSAA();
-    if (sample == "shader_handling")
-        return Create_ShaderHandling();
-    if (sample == "texture")
-        return Create_Texture();
-    throw std::runtime_error("Unknown sample to run");
+
+std::map<std::string, std::shared_ptr<Sample>> * Sample::getRegistry() {
+    static std::map<std::string, std::shared_ptr<Sample>> * s_Registry = new std::map<std::string, std::shared_ptr<Sample>>();
+    return s_Registry;
+}
+
+bool Sample::registerSample(Sample* sample, const std::string& name) {
+    (*getRegistry())[name] = std::shared_ptr<Sample>(sample);
+    return true;
+}
+
+std::shared_ptr<Sample> Sample::getSample(const std::string& sample) {
+    auto res = getRegistry()->find(sample);
+    if (res == getRegistry()->end()) {
+        throw std::runtime_error("Unknown sample to run");
+    }
+    return res->second;
 }

@@ -71,8 +71,7 @@ int main(int argc, char** argv) {
 
         window->makeCurrent();
 
-        std::shared_ptr<Sample> sample = Sample::Create(sampleName);
-
+        std::shared_ptr<Sample> sample = Sample::getSample(sampleName);
 
         sample->startup();
         window->swapBuffers();

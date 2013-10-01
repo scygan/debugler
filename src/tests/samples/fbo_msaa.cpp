@@ -51,6 +51,4 @@ private:
     GLuint m_rbo, m_textures[2], m_fbo;
 };
 
-std::shared_ptr<Sample> Sample::Create_SampleFboMSAA() {
-    return std::make_shared<SampleFboMSAA>();
-}
+REGISTER_SAMPLE(SampleFboMSAA, "fbo_msaa");

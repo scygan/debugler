@@ -91,6 +91,4 @@ class SampleShaderHandling: public Sample {
     virtual void shutdown() override {}
 };
 
-std::shared_ptr<Sample> Sample::Create_ShaderHandling() {
-    return std::make_shared<SampleShaderHandling>();
-}
+REGISTER_SAMPLE(SampleShaderHandling, "shader_handling");
