@@ -17,6 +17,7 @@
 #include <GL/glew.h>
 
 #include <memory>
+#include <string>
 
 namespace gl {
 
