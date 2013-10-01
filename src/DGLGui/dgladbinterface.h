@@ -22,8 +22,25 @@
 #include <string>
 #include <vector>
 
-class DGLAdbDevice {
+#include "dglprocess.h"
 
+class DGLAdbCookie: public DGLBaseQTProcess {
+    Q_OBJECT
+public:
+    DGLAdbCookie(const std::string& adbPath, const std::vector<std::string> params);
+    
+    void process();
+
+signals:
+    void done(std::vector<std::string> data);
+    void failed(std::string reason);
+
+private slots:
+    void processEvent(bool ok, std::string errormsg);
+
+private:
+    std::string m_adbPath;
+    std::vector<std::string> m_params;
 };
 
 
@@ -35,14 +52,14 @@ public:
     void setAdbPath(std::string path);
     std::string getAdbPath();
 
-    void killServer();
-    void connect(std::string address);
+    DGLAdbCookie* killServer();
+    DGLAdbCookie* connect(std::string address);
 
-    std::vector<DGLAdbDevice> getDevices();
+    //std::vector<DGLAdbDevice> getDevices();
 
 private:
 
-    void invokeAdb(std::vector<std::string> params);
+    DGLAdbCookie* invokeAdb(std::vector<std::string> params);
 
     std::string m_adbPath;
 

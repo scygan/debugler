@@ -22,6 +22,8 @@
 
 #include <stdexcept>
 
+#include "dglgui.h"
+
 DGLConnectAndroidDialog::DGLConnectAndroidDialog() {
     
     m_ui.setupUi(this);
@@ -32,32 +34,28 @@ DGLConnectAndroidDialog::~DGLConnectAndroidDialog() {}
 
 void DGLConnectAndroidDialog::adbKillServer() {
 
-    try {
-        DGLAdbInterface::get()->killServer();
-    } catch (const std::runtime_error& e) {
-        QMessageBox::critical(this, tr("Adb kill-server error"), QString(e.what()));
-    }
-    
-    reloadDevices();
+    DGLAdbCookie* cookie = DGLAdbInterface::get()->killServer();
+    CONNASSERT(connect(cookie, SIGNAL(failed(std::string)), this, SLOT(adbFailed(std::string))));
+    CONNASSERT(connect(cookie, SIGNAL(done(std::vector<std::string>())), this, SLOT(reloadDevices())));
+    cookie->process();
 }
 
 void DGLConnectAndroidDialog::adbConnect() {
 
     if (m_ConnectDialog.exec() == QDialog::Accepted) {
-        
-        try {
-            DGLAdbInterface::get()->connect(m_ConnectDialog.getAddress());
-        } catch (const std::runtime_error& e) {
-            QMessageBox::critical(this, tr("Adb connect error"), QString(e.what()));
-        }
-
-        reloadDevices();
+        DGLAdbCookie* cookie = DGLAdbInterface::get()->connect(m_ConnectDialog.getAddress());
+        CONNASSERT(connect(cookie, SIGNAL(failed(std::string)), this, SLOT(adbFailed(std::string))));
+        CONNASSERT(connect(cookie, SIGNAL(done(std::vector<std::string>())), this, SLOT(reloadDevices())));
+        cookie->process();
     }
 }
 
-
 void DGLConnectAndroidDialog::reloadDevices() {
     throw std::runtime_error("unimplemented");
+}
+
+void DGLConnectAndroidDialog::adbFailed(std::string reason) {
+    QMessageBox::critical(this, tr("ADB Error"), QString::fromStdString(reason));
 }
 
 

@@ -287,6 +287,12 @@
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglprocess.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dgladbinterface.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dgladbinterface.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">
@@ -505,12 +511,12 @@
     <CustomBuild Include="dglprocess.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="dgladbinterface.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dglqtgui.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dgladbinterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

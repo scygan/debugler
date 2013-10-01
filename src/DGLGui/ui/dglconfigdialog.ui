@@ -142,7 +142,7 @@
    <sender>toolButton_Dir</sender>
    <signal>clicked()</signal>
    <receiver>ConfigDialog</receiver>
-   <slot>adbBrowse()</slot>
+   <slot>adbBrowseDialog()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>368</x>

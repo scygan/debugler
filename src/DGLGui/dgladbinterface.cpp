@@ -15,8 +15,34 @@
 
 
 #include "dgladbinterface.h"
-
+#include <QMessageBox>
 #include <stdexcept>
+
+#include "dglgui.h"
+
+DGLAdbCookie::DGLAdbCookie(const std::string& adbPath, const std::vector<std::string> params):m_adbPath(adbPath), m_params(params) {
+    CONNASSERT(connect(this, SIGNAL(processEvent(bool, std::string)), this, SLOT(processEvent(bool, std::string))));
+}
+
+void DGLAdbCookie::process() {
+    if (!m_adbPath.size()) {
+        emit failed(tr("ADB path is not set, go to Tools->Configuration->Android to set it.").toStdString());
+    } else {
+        run(m_adbPath, "", m_params, true);
+    }
+}
+
+void DGLAdbCookie::processEvent(bool ok, std::string errormsg) {
+    if (!ok) {
+        emit failed(errormsg);
+        disconnect();
+        deleteLater();
+    } else {
+        emit done(std::vector<std::string>());
+    }
+    
+}
+
 
 DGLAdbInterface* DGLAdbInterface::get() {
     if (!s_self) {
@@ -33,26 +59,23 @@ std::string DGLAdbInterface::getAdbPath() {
     return m_adbPath;
 }
 
-void DGLAdbInterface::killServer() {
+DGLAdbCookie* DGLAdbInterface::killServer() {
     std::vector<std::string> params; 
     params.push_back("kill-server");
-    invokeAdb(params);
+    return invokeAdb(params);
 }
 
-void DGLAdbInterface::connect(std::string address) {
+DGLAdbCookie* DGLAdbInterface::connect(std::string address) {
     std::vector<std::string> params;
     params.push_back("connect");
     params.push_back(address);
-    invokeAdb(params);
-}
-
-std::vector<DGLAdbDevice> DGLAdbInterface::getDevices() {
-    throw std::runtime_error("unimplemented");
+    return invokeAdb(params);
 }
 
 
-void DGLAdbInterface::invokeAdb(std::vector<std::string> params) {
-    throw std::runtime_error("unimplemented");
+DGLAdbCookie* DGLAdbInterface::invokeAdb(std::vector<std::string> params) {
+    DGLAdbCookie* ret = new DGLAdbCookie(m_adbPath, params);;
+    return ret;
 }
 
 

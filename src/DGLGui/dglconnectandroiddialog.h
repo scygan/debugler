@@ -49,6 +49,8 @@ public:
 public slots:
     void adbKillServer();
     void adbConnect();
+
+    void adbFailed(std::string reason);
     
 private:
     void reloadDevices();
