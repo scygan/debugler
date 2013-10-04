@@ -39,7 +39,7 @@ set(dglgui_FORMS
     ui/dglshaderview.ui
     ui/dglstateview.ui
     ui/dgltextureviewitem.ui
-	ui/dglconfigdialog.ui
+    ui/dglconfigdialog.ui
 	ui/dglconnectandroid.ui
 	ui/dglconnectandroidadb.ui
     )

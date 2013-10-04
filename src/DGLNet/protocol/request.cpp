@@ -24,5 +24,5 @@ namespace request {
 
     ForceLinkProgram::ForceLinkProgram(opaque_id_t context, gl_t programId):m_Context(context),m_ProgramId(programId) {}
 
-}; //namespace resource
-}; //namespace dglnet
+} //namespace resource
+} //namespace dglnet

@@ -182,7 +182,7 @@ namespace state_setters {
             bool m_ES3;
             GLint m_SavedState;
         } s_StateTable[STATE_SIZE];
-		GLContext* m_Ctx;
+        GLContext* m_Ctx;
     };
     
     PixelStoreAlignment::StateEntry PixelStoreAlignment::s_StateTable[STATE_SIZE] = {
@@ -2624,15 +2624,14 @@ void APIENTRY GLContext::debugOutputCallback(GLenum source, GLenum type, GLuint 
     }
 }
 
-
 void GLContext::firstUse() {
     GLint maxExtensions; 
-    
+
     std::vector<std::string> exts;
-    
+
     bool debugOutputSupported = false;
 
-	getVersion().initialize(reinterpret_cast<const char*>(DIRECT_CALL_CHK(glGetString)(GL_VERSION)));
+    getVersion().initialize(reinterpret_cast<const char*>(DIRECT_CALL_CHK(glGetString)(GL_VERSION)));
 
     if (hasCapability(ContextCap::HasGetStringI)) {
         DIRECT_CALL_CHK(glGetIntegerv)(GL_NUM_EXTENSIONS, &maxExtensions);
@@ -2653,8 +2652,8 @@ void GLContext::firstUse() {
             debugOutputSupported = true;
         if (strcmp("GL_NVX_gpu_memory_info", exts[i].c_str()) == 0)
             m_HasNVXMemoryInfo = true;
-    }   
-    
+    }
+
     if (debugOutputSupported) {
         DIRECT_CALL_CHK(glEnable)(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
         DIRECT_CALL_CHK(glDebugMessageCallbackARB)(debugOutputCallback, NULL);
