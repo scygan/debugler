@@ -1,0 +1,12 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@r{@i{# test_nonewlines.lang}}
+@r{@i{# test that newlines in expressions are simply discarded}}
+@r{@i{# see the corresponding test_newlines.lang}}
+
+@t{@i{keyword}} = @t{"foo|lang"}
+
+(@t{@i{keyword}},@t{@i{normal}},@t{@i{classname}}) = @t{`(\<struct)([[:blank:]]+)([[:alnum:]_]+)`}
+
+@t{@i{preproc}} = @t{'^[[:blank:]]*#([[:blank:]]*[[:word:]]*)'}
+@end example

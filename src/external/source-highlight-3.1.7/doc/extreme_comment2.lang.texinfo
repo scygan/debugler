@@ -1,0 +1,9 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@b{environment} @t{@i{comment}} = @t{'^[[:blank:]]*#[[:blank:]]*if[[:blank:]]+0'} @b{begin}
+  @t{@i{comment}} @b{start} @t{'^[[:blank:]]*#[[:blank:]]*(else|endif)'} @b{exit}
+@b{end}
+
+@b{include} @t{"cpp.lang"}
+
+@end example

@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libsource-highlight-qt3
+Description: Qt3 highlighting library using GNU Source-highlight library.
+Version: @VERSION@
+Libs: -L${libdir} @QT_LDFLAGS@ -lsource-highlight-qt3 @SRCHILITE_LIBS@ @QT_LIBS@
+Cflags: -I${includedir} @QT_CXXFLAGS@ @QT_CPPFLAGS@ @SRCHILITE_CFLAGS@
+

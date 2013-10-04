@@ -1,0 +1,54 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@b{struct} StyleFormatterFactory: @b{public} srchilite::FormatterFactory @{
+    StyleFormatterMap formatterMap;
+
+    @b{bool} hasFormatter(@b{const} string &key) @b{const} @{
+        @b{return} formatterMap.find(key) != formatterMap.end();
+    @}
+
+    @b{bool} createFormatter(@b{const} string &key, @b{const} string &color,
+            @b{const} string &bgcolor,
+            srchilite::StyleConstantsPtr styleconstants) @{
+
+        @b{if} (hasFormatter(key))
+            @b{return} @b{false};
+
+        StyleFormatter *formatter = @b{new} StyleFormatter(key);
+        formatterMap[key] = StyleFormatterPtr(formatter);
+
+        @b{if} (styleconstants.get()) @{
+            @b{for} (srchilite::StyleConstantsIterator it =
+                    styleconstants->begin(); it
+                    != styleconstants->end(); ++it) @{
+                @b{switch} (*it) @{
+                @b{case} srchilite::ISBOLD:
+                    formatter->bold = @b{true};
+                    @b{break};
+                @b{case} srchilite::ISITALIC:
+                    formatter->italic = @b{true};
+                    @b{break};
+                @b{case} srchilite::ISUNDERLINE:
+                    formatter->underline = @b{true};
+                    @b{break};
+                @b{case} srchilite::ISFIXED:
+                    formatter->fixed = @b{true};
+                    @b{break};
+                @b{case} srchilite::ISNOTFIXED:
+                    formatter->not_fixed = @b{true};
+                    @b{break};
+                @b{case} srchilite::ISNOREF: @r{@i{// ignore references here}}
+                    @b{break};
+                @}
+            @}
+        @}
+
+        formatter->color = color;
+        formatter->bgColor = bgcolor;
+
+        @b{return} @b{true};
+    @}
+@};
+
+
+@end example

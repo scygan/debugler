@@ -1,0 +1,32 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+diff -rc2P source-highlight-2.1.1/source-highlight.spec ...
+@i{*** source-highlight-2.1.1/source-highlight.spec ...}
+@i{--- source-highlight-2.1.2/source-highlight.spec ...}
+@i{***************}
+@i{*** 7,12 ****}
+  Summary:   syntax highlighting for source documents
+  Name:      source-highlight
+@i{! Version:   2.1.1}
+@i{! Release:   2.1.1}
+  License:   GPL
+  Group:     Utilities/Console
+@i{--- 7,12 ----}
+  Summary:   syntax highlighting for source documents
+  Name:      source-highlight
+@i{! Version:   2.1.2}
+@i{! Release:   2.1.2}
+  License:   GPL
+  Group:     Utilities/Console
+diff -rc2P source-highlight-2.1.1/src/latex.outlang ...
+@i{*** source-highlight-2.1.1/src/latex.outlang ...}
+@i{--- source-highlight-2.1.2/src/latex.outlang ...}
+@i{***************}
+@i{*** 35,37 ****}
+@i{--- 35,38 ----}
+  "--" "-\\/-"
+  "---" "-\\/-\\/-"
+@i{+ "\"" "\"@{@}" # avoids problems with some inputenc}
+  end
+
+@end example

@@ -1,0 +1,18 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+diff -ruP source-highlight-2.1.1/source-highlight.spec ...
+@i{--- source-highlight-2.1.1/source-highlight.spec ...}
+@i{+++ source-highlight-2.1.2/source-highlight.spec ...}
+@b{@@@@ -6,8 +6,8 @@@@}
+ 
+ Summary:   syntax highlighting for source documents
+ Name:      source-highlight
+@i{-Version:   2.1.1}
+@i{-Release:   2.1.1}
+@i{+Version:   2.1.2}
+@i{+Release:   2.1.2}
+ License:   GPL
+ Group:     Utilities/Console
+ Source:    ftp://ftp.gnu.org/gnu/source-highlight/%@{name@}-%@{version@}.tar.gz
+
+@end example

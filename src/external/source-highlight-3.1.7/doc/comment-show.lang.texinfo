@@ -1,0 +1,17 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@b{vardef} @t{@i{TODO}} = @t{'(TODO|FIXME)([:]?)'}
+
+@b{environment} @t{@i{comment}} @b{delim} @t{"/**"} @t{"*/"} @b{multiline} @b{begin}
+  @t{@i{type}} = @t{'@@[[:alpha:]]+'}
+  @t{@i{todo}} = @t{@i{$TODO}}
+@b{end}
+
+@b{state} @t{@i{cbracket}} @b{delim} @t{"@{"} @t{"@}"} @b{escape} @t{"\\"} @b{multiline} @b{nested} @b{begin}
+  @t{@i{keyword}} = @t{"if|then|else|endif"}
+@b{end}
+
+@t{@i{string}} @b{delim} @t{"<"} @t{">"}
+
+@t{@i{string2}} @b{delim} @t{"<<"} @t{">>"} @b{multiline}
+@end example

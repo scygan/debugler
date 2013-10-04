@@ -1,0 +1,12 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@b{#include} @t{"srchilite/langdefmanager.h"}
+@b{#include} @t{"srchilite/instances.h"}
+
+@b{int} main() @{
+  @r{@i{// we highlight C++ code for simplicity}}
+  srchilite::SourceHighlighter highlighter
+    (srchilite::Instances::getLangDefManager().getHighlightState(
+            DATADIR, @t{"cpp.lang"}));
+
+@end example

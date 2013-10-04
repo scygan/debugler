@@ -1,0 +1,28 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@r{@i{# c_comment.lang}}
+
+@r{@i{# comments with documentation tags}}
+@b{environment} @t{@i{comment}} @b{start} @t{"///"} @b{begin}
+  @b{include} @t{"url.lang"}
+  @b{include} @t{"html_simple.lang"}
+  @t{@i{type}} = @t{'@@[[:alpha:]]+'}
+  @b{include} @t{"todo.lang"}
+@b{end}
+
+@t{@i{comment}} @b{start} @t{"//"}
+
+@r{@i{# comments with documentation tags}}
+@b{environment} @t{@i{comment}} @b{delim} @t{"/**"} @t{"*/"} @b{multiline} @b{begin}
+  @b{include} @t{"url.lang"}
+  @b{include} @t{"html_simple.lang"}
+  @t{@i{type}} = @t{'@@[[:alpha:]]+'}
+  @b{include} @t{"todo.lang"}
+@b{end}
+
+@r{@i{# standard comments}}
+@b{environment} @t{@i{comment}} @b{delim} @t{"/*"} @t{"*/"} @b{multiline} @b{begin}
+  @b{include} @t{"url.lang"}
+  @b{include} @t{"todo.lang"}
+@b{end}
+@end example

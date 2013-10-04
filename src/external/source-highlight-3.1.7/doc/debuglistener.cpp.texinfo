@@ -1,0 +1,42 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@b{void} DebugListener::notify(@b{const} HighlightEvent &event) @{
+    @b{switch} (event.type) @{
+    @b{case} HighlightEvent::FORMAT:
+        @r{@i{// print information about the rule}}
+        @b{if} (event.token.rule) @{
+            os << event.token.rule->getAdditionalInfo() << endl;
+            os << @t{"expression: }\"@t{"} << event.token.rule->toString() << @t{"}\"@t{"}
+                    << endl;
+        @}
+
+        @r{@i{// now format the matched strings}}
+        @b{for} (MatchedElements::const_iterator it = event.token.matched.begin(); it
+                != event.token.matched.end(); ++it) @{
+            os << @t{"formatting }\"@t{"} << it->second << @t{"}\"@t{ as "} << it->first
+                    << endl;
+        @}
+        step();
+        @b{break};
+    @b{case} HighlightEvent::FORMATDEFAULT:
+        os << @t{"formatting }\"@t{"} << event.token.matched.front().second
+                << @t{"}\"@t{ as default"} << endl;
+        step();
+        @b{break};
+    @b{case} HighlightEvent::ENTERSTATE:
+        os << @t{"entering state: "} << event.token.rule->getNextState()->getId()
+                << endl;
+        @b{break};
+    @b{case} HighlightEvent::EXITSTATE:
+        @b{int} level = event.token.rule->getExitLevel();
+        os << @t{"exiting state, level: "};
+        @b{if} (level < 0)
+            os << @t{"all"};
+        @b{else}
+            os << level;
+        os << endl;
+        @b{break};
+    @}
+@}
+
+@end example

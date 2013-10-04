@@ -1,7 +1,7 @@
 set(dglwrapper_SOURCES 
     api-loader.cpp  debugger.cpp
     gl-state.cpp gl-wrappers.cpp
-    tracer.cpp
+    actions.cpp
 #dllmain.cpp should be at the end, until all static ctors are fixed:
     dllmain.cpp
     )

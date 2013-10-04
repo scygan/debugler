@@ -1,0 +1,16 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@t{01:} @r{@i{/*}}
+@t{02:} @r{@i{  This is to demonstrate --debug-lang}}
+@t{03:} @r{@i{  }}@t{http://www.lorenzobettini.it}
+@t{04:} @r{@i{*/}}
+@t{05:} 
+@t{06:} @b{package} hello;
+@t{07:} 
+@t{08:} @b{public} @b{class} Hello @{
+@t{09:}         @r{@i{// just some greetings ;-)  /*}}
+@t{10:}     @b{int} i = 10;
+@t{11:}     System.out.println(@t{"Hello World!"});
+@t{12:} @}
+@t{13:} 
+@end example

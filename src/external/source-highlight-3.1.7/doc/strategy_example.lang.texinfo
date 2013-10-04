@@ -1,0 +1,7 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@r{@i{# an example for explaining the strategy of source-highlight}}
+@t{@i{type}} = @t{"int"}
+@t{@i{keyword}} = @t{"null"}
+@t{@i{symbol}} = @t{"="}
+@end example

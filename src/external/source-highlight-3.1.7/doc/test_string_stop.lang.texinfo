@@ -1,0 +1,21 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@t{@i{keyword}} = @t{"if|class"}
+
+@t{@i{type}} = @t{'int'}
+
+@t{@i{comment}} @b{delim} @t{"/*"} @t{"*/"}
+
+@r{@i{# thus this won't catch "/* */ /" as a regexp,}}
+@r{@i{# since comment elem definition comes first}}
+@t{@i{regexp}} = @t{'/.*/.*/'}
+
+@r{@i{# this won't match if ( ) as a function,}}
+@r{@i{# since keyword elem definition comes first}}
+@t{@i{function}} = @t{'([[:alpha:]]|_)[[:word:]]*[[:blank:]]*\(*[[:blank:]]*\)'}
+
+@r{@i{# the following order is conceptually wrong,}}
+@r{@i{# since "//" won't be highlighted as a comment, but as two symbols}}
+@t{@i{symbol}} = @t{"/"}
+@t{@i{comment}} @b{start} @t{"//"}
+@end example

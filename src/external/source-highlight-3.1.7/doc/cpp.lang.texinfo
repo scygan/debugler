@@ -1,0 +1,19 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@r{@i{# definitions for C++}}
+@r{@i{# most of it is shared with c.lang}}
+
+(@t{@i{keyword}},@t{@i{normal}},@t{@i{classname}}) = 
+  @t{`(\<(?:class|struct|typename))([[:blank:]]+)([[:alnum:]_]+)`}
+
+@t{@i{keyword}} = @t{"class|const_cast|delete"},
+  @t{"dynamic_cast|explicit|false|friend"},
+  @t{"inline|mutable|namespace|new|operator|private|protected"},
+  @t{"public|reinterpret_cast|static_cast"},
+  @t{"template|this|throw|true"},
+  @t{"try|typeid|typename"},
+  @t{"using|virtual"}
+
+@b{include} @t{"c.lang"}
+
+@end example

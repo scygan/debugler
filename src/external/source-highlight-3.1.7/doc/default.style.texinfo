@@ -1,0 +1,75 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@b{bgcolor} @t{"white"}; @r{@i{// the background color for documents}}
+@t{@i{context}} @b{gray}; @r{@i{// the color for context lines (when specified with line ranges)}}
+
+@t{@i{keyword}} @b{blue} @b{b} ; @r{@i{// for language keywords}}
+@t{@i{type}} @b{darkgreen} ; @r{@i{// for basic types}}
+@t{@i{usertype}} @b{teal} ; @r{@i{// for user defined types}}
+@t{@i{string}} @b{red} @b{f} ; @r{@i{// for strings and chars}}
+@t{@i{regexp}} @b{orange} @b{f} ; @r{@i{// for strings and chars}}
+@t{@i{specialchar}} @b{pink} @b{f} ; @r{@i{// for special chars, e.g., \n, \t, \\}}
+@t{@i{comment}} @b{brown} @b{i}, @b{noref}; @r{@i{// for comments}}
+@t{@i{number}} @b{purple} ;       @r{@i{// for literal numbers}}
+@t{@i{preproc}} @b{darkblue} @b{b} ; @r{@i{// for preproc directives (e.g. #include, import)}}
+@t{@i{symbol}} @b{darkred} ; @r{@i{// for simbols (e.g. <, >, +)}}
+@t{@i{function}} @b{black} @b{b}; @r{@i{// for function calls and declarations}}
+@t{@i{cbracket}} @b{red}; @r{@i{// for block brackets (e.g. @{, @})}}
+@t{@i{todo}} @b{bg:cyan} @b{b};       @r{@i{// for TODO and FIXME}}
+@t{@i{code}} @b{bg:brightgreen} @b{b}; @r{@i{// for code snippets}}
+
+@r{@i{//Predefined variables and functions (for instance glsl)}}
+@t{@i{predef_var}} @b{darkblue} ;
+@t{@i{predef_func}} @b{darkblue} @b{b} ;
+
+@r{@i{// for OOP}}
+@t{@i{classname}} @b{teal} ; @r{@i{// for class names, e.g., in Java and C++}}
+
+@r{@i{// line numbers}}
+@b{linenum} @b{black} @b{f};
+
+@r{@i{// Internet related}}
+@t{@i{url}} @b{blue} @b{u}, @b{f};
+
+@r{@i{// other elements for ChangeLog and Log files}}
+@t{@i{date}} @b{blue} @b{b} ;
+@t{@i{time}}, @t{@i{file}} @b{darkblue} @b{b} ;
+@t{@i{ip}}, @t{@i{name}} @b{darkgreen} ;
+
+@r{@i{// for Prolog, Perl...}}
+@t{@i{variable}} @b{darkgreen} ;
+
+@r{@i{// explicit for Latex}}
+@t{@i{italics}} @b{darkgreen} @b{i};
+@t{@i{bold}} @b{darkgreen} @b{b};
+@t{@i{underline}} @b{darkgreen} @b{u};
+@t{@i{fixed}} @b{green} @b{f};
+@t{@i{argument}} @b{darkgreen};
+@t{@i{optionalargument}} @b{purple};
+@t{@i{math}} @b{orange};
+@t{@i{bibtex}} @b{blue};
+
+@r{@i{// for diffs}}
+@t{@i{oldfile}} @b{orange};
+@t{@i{newfile}} @b{darkgreen};
+@t{@i{difflines}} @b{blue}; 
+
+@r{@i{// for css}}
+@t{@i{selector}} @b{purple};
+@t{@i{property}} @b{blue};
+@t{@i{value}} @b{darkgreen} @b{i};
+
+@r{@i{// for oz}}
+@t{@i{atom}} @b{orange};
+@t{@i{meta}} @b{i};
+
+@r{@i{// for file system}}
+@t{@i{path}} @b{orange};
+
+@r{@i{// for C (or other language) labels}}
+@t{@i{label}} @b{teal} @b{b};
+
+@r{@i{// for errors}}
+@t{@i{error}} @b{purple};
+@t{@i{warning}} @b{darkgreen};
+@end example

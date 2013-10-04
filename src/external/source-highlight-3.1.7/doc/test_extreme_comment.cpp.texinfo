@@ -1,0 +1,18 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@r{@i{// test special #if 0 treatment}}
+
+@b{int} main() @{
+@b{#if} 0 @r{@i{// equivalent to a comment}}
+  @b{int} i = 10;
+  printf(@t{"this should never be executed}\n@t{"});
+  @b{return} 1;
+@b{#else}
+  printf(@t{"Hello world!}\n@t{"});
+  @b{return} 0;
+@b{#endif}
+
+  printf(@t{"never reach here!}\n@t{"});
+@}
+
+@end example

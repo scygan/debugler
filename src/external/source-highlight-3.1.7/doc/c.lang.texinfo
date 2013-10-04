@@ -1,0 +1,47 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@r{@i{# definitions for C}}
+@b{include} @t{"c_comment.lang"}
+
+@t{@i{label}} = @t{'^[[:blank:]]*[[:alnum:]]+:[[:blank:]]*\z'}
+
+(@t{@i{keyword}},@t{@i{normal}},@t{@i{classname}}) = 
+  @t{`(\<struct)([[:blank:]]+)([[:alnum:]_]+)`}
+
+@b{state} @t{@i{preproc}} @b{start} @t{'^[[:blank:]]*#(?:[[:blank:]]*include)'} @b{begin}
+        @t{@i{string}} @b{delim} @t{"<"} @t{">"} 
+        @t{@i{string}} @b{delim} @t{"\""} @t{"\""} @b{escape} @t{"\\"}
+        @b{include} @t{"c_comment.lang"}
+@b{end}
+
+@t{@i{preproc}} = @t{'^[[:blank:]]*#([[:blank:]]*[[:word:]]*)'}
+
+@b{include} @t{"number.lang"}
+
+@b{include} @t{"c_string.lang"}
+
+@t{@i{keyword}} = @t{"__asm|__cdecl|__declspec|__export|__far16"},
+  @t{"__fastcall|__fortran|__import"},
+  @t{"__pascal|__rtti|__stdcall|_asm|_cdecl"},
+  @t{"__except|_export|_far16|_fastcall"},
+  @t{"__finally|_fortran|_import|_pascal|_stdcall|__thread|__try|asm|auto"},
+  @t{"break|case|catch|cdecl|const|continue|default"},
+  @t{"do|else|enum|extern|for|goto"},
+  @t{"if|pascal"},
+  @t{"register|return|sizeof|static"},
+  @t{"struct|switch"},
+  @t{"typedef|union"},
+  @t{"volatile|while"}
+
+@t{@i{type}} = @t{"bool|char|double|float|int|long"},
+  @t{"short|signed|unsigned|void|wchar_t"}
+
+@b{include} @t{"symbols.lang"}
+
+@t{@i{cbracket}} = @t{"@{|@}"}
+
+@b{include} @t{"function.lang"}
+
+@b{include} @t{"clike_vardeclaration.lang"}
+
+@end example

@@ -1,0 +1,64 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+
+@b{#ifdef} HAVE_CONFIG_H
+@b{#include} @t{"config.h"}
+@b{#endif}
+
+@b{#include} @t{<iostream>}
+@b{#include} @t{"srchilite/langdefmanager.h"}
+@b{#include} @t{"srchilite/regexrulefactory.h"}
+@b{#include} @t{"srchilite/sourcehighlighter.h"}
+@b{#include} @t{"srchilite/formattermanager.h"}
+@b{#include} @t{"infoformatter.h"}
+
+@b{using} @b{namespace} std;
+
+@b{#ifndef} DATADIR
+@b{#define} DATADIR @t{""}
+@b{#endif}
+
+@b{int} main() @{
+    srchilite::RegexRuleFactory ruleFactory;
+    srchilite::LangDefManager langDefManager(&ruleFactory);
+
+    @r{@i{// we highlight C++ code for simplicity}}
+    srchilite::SourceHighlighter highlighter(langDefManager.getHighlightState(
+            DATADIR, @t{"cpp.lang"}));
+
+    srchilite::FormatterManager formatterManager(InfoFormatterPtr(
+            @b{new} InfoFormatter));
+    InfoFormatterPtr keywordFormatter(@b{new} InfoFormatter(@t{"keyword"}));
+
+    formatterManager.addFormatter(@t{"keyword"}, keywordFormatter);
+    formatterManager.addFormatter(@t{"string"}, InfoFormatterPtr(@b{new} InfoFormatter(
+            @t{"string"})));
+    @r{@i{// for "type" we use the same formatter as for "keyword"}}
+    formatterManager.addFormatter(@t{"type"}, keywordFormatter);
+    formatterManager.addFormatter(@t{"comment"}, InfoFormatterPtr(
+            @b{new} InfoFormatter(@t{"comment"})));
+    formatterManager.addFormatter(@t{"symbol"}, InfoFormatterPtr(@b{new} InfoFormatter(
+            @t{"symbol"})));
+    formatterManager.addFormatter(@t{"number"}, InfoFormatterPtr(@b{new} InfoFormatter(
+            @t{"number"})));
+    formatterManager.addFormatter(@t{"preproc"}, InfoFormatterPtr(
+            @b{new} InfoFormatter(@t{"preproc"})));
+    highlighter.setFormatterManager(&formatterManager);
+
+    @r{@i{// make sure it uses additional information}}
+    srchilite::FormatterParams params;
+    highlighter.setFormatterParams(&params);
+
+    string line;
+    @r{@i{// we now highlight a line a time}}
+    @b{while} (getline(cin, line)) @{
+        @r{@i{// reset position counter within a line}}
+        params.start = 0;
+
+        highlighter.highlightParagraph(line);
+    @}
+
+    @b{return} 0;
+@}
+
+@end example

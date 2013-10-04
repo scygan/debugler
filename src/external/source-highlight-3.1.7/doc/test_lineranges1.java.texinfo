@@ -1,0 +1,17 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@t{12:} @r{@i{  written by}}
+@t{13:} @r{@i{  Lorenzo Bettini}}
+@t{14:} @r{@i{  }}@t{http://www.lorenzobettini.it}
+@t{15:} @r{@i{  }}@t{http://www.gnu.org/software/src-highlite}
+@t{16:} @r{@i{*/}}
+@t{17:} 
+@t{18:} @b{package} hello;
+@t{29:} @r{@i{ * }}@b{@@author}@r{@i{ Lorenzo Bettini}}
+@t{30:} @r{@i{ * }}@b{@@version}@r{@i{ 2.0}}
+@t{31:} @r{@i{ */}} @r{@i{/// class}}
+@t{32:} @b{public} @b{class} Hello @{
+@t{33:}     @b{int} foo = 1998 ;
+@t{34:}     @b{int} hex_foo = 0xCAFEBABE;
+
+@end example

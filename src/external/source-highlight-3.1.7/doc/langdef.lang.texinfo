@@ -1,0 +1,25 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@r{@i{# this is the language definition for the}}
+@r{@i{# language definition syntax itself}}
+@t{@i{comment}} @b{start} @t{"#"}
+
+@t{@i{preproc}} = @t{"include"}
+
+@t{@i{string}} @b{delim} @t{"\""} @t{"\""} @b{escape} @t{"\\"} @b{multiline}
+@t{@i{regexp}} @b{delim} @t{"'"} @t{"'"} @b{escape} @t{"\\"} @b{multiline}
+@t{@i{regexp}} @b{delim} @t{"`"} @t{"`"} @b{escape} @t{"\\"} @b{multiline}
+
+@t{@i{keyword}} = @t{"state|environment|begin|end|delim|escape|start"},
+          @t{"multiline|nested|vardef|exitall|exit"},
+          @t{"redef|subst|nonsensitive"}
+
+@t{@i{symbol}} = @t{"=|+|,|(|)"}
+
+@b{vardef} @t{@i{ID}} = @t{'[[:word:]]+'}
+
+@t{@i{variable}} = @t{'\$'} + @t{@i{$ID}}
+
+@t{@i{variable}} = @t{@i{$ID}}
+
+@end example

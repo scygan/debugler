@@ -32,7 +32,7 @@
     <ClInclude Include="gl-state.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tracer.h">
+    <ClInclude Include="actions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="debugger.h">
@@ -67,7 +67,7 @@
     <ClCompile Include="gl-wrappers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tracer.cpp">
+    <ClCompile Include="actions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gl-state.cpp">

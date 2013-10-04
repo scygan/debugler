@@ -1,0 +1,19 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@r{@i{# treat the preprocess statement}}
+@r{@i{#  #if 0}}
+@r{@i{#    ...}}
+@r{@i{#  #else}}
+@r{@i{# as a comment}}
+
+@b{environment} @t{@i{comment}} = @t{'^[[:blank:]]*#[[:blank:]]*if[[:blank:]]+0'} @b{begin}
+  @t{@i{comment}} @b{start} @t{'^[[:blank:]]*#[[:blank:]]*else'} @b{exit}
+  @t{@i{comment}} @b{delim} @t{'^[[:blank:]]*#[[:blank:]]*if'} 
+                @t{'^[[:blank:]]*#[[:blank:]]*endif'} @b{multiline} @b{nested}
+  
+@b{end}
+
+@b{include} @t{"cpp.lang"}
+
+
+@end example

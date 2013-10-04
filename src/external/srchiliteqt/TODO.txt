@@ -1,0 +1,48 @@
+specialized FormatterManager:
+- has a pointer to the QSyntaxHighlighter
+- returns an instance of Formatter instance which implements format
+  by using setFormat on the highlighter using the specific QFont or
+  QTextCharFormat 
+
+or simply
+
+call setQSourceHighlighter on the formatter (V)
+
+exception when passing a wrong QSyntaxHighlighter derived class?
+
+can the QTextBlock be formatted directly without passing through QSyntaxHighlighter
+
+provide a way to reload a lang def file.
+
+provide a way to specify --data-dir
+
+QTDIR and QT_QTDIR must be substituted appropriately
+use --with-qt-dir
+
+background color for qt3 cannot be specified?
+
+At least for qt3, use also normal style, otherwise, if something were
+highlighted in a previous state, we must make sure it is highlighted back
+(also with normal font).
+
+for lua.lang
+
+--[=[
+--[[
+--[=[
+comment
+]=]
+]]
+]=]
+class
+if
+
+THIS WORKS NOW!
+
+0.1 release
+
+document OutputFormatComboBox
+
+default.style: is it used in source-highlight-qt?
+
+static functions for library version

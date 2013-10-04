@@ -1,0 +1,5 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@b{vardef} @t{@i{FUNCTION}} = @t{'([[:alpha:]]|_)[[:word:]]*(?=[[:blank:]]*\()'}
+@t{@i{function}} = @t{@i{$FUNCTION}}
+@end example

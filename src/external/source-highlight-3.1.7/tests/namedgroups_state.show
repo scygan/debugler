@@ -1,0 +1,6 @@
+STATE 1 default: normal
+  rule (keyword normal type symbol) "(Hello|Ciao)([[:blank:]]*)([mM]ondo|[wW]orld)([[:punct:]]*)" (exit level: 0, next: 2)
+    STATE 2 default: normal
+      rule (comment) "\<(?:comment)\>" (exit level: 0, next: 0)
+      rule (keyword normal type) "(end)( )(of line)" (exit level: 1, next: 0)
+  rule (comment) "\<(?:highlight)\>" (exit level: 0, next: 0)

@@ -159,7 +159,7 @@
     <ClInclude Include="gl-wrappers.h" />
     <ClInclude Include="pointers.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="tracer.h" />
+    <ClInclude Include="actions.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\external\mhook\disasm-lib\cpu.c" />
@@ -171,7 +171,7 @@
     <ClCompile Include="api-loader.cpp" />
     <ClCompile Include="gl-state.cpp" />
     <ClCompile Include="gl-wrappers.cpp" />
-    <ClCompile Include="tracer.cpp" />
+    <ClCompile Include="actions.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

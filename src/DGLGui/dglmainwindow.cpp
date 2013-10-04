@@ -1,3 +1,19 @@
+/* Copyright (C) 2013 Slawomir Cygan <slawomir.cygan@gmail.com>
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+
 #include <QMessageBox>
 #include <QSettings>
 #include <QFile>
@@ -423,10 +439,9 @@ void DGLMainWindow::createToolBars() {
 
   void DGLMainWindow::about() {
     QMessageBox::about(this, tr("About Debuggler"),
-             tr("The <b>Debuggler</b>, OpenGL debugger<br><br> Slawomir Cygan: Eng. thesis,"
-                "Gdansk University of Technology<br>"
-                "Faculty of Electronics, Telecommunications and Informatics<br>"
-                "Department of Computer Architecture, 2012."));
+             tr("<b>Debugler</b>, The OpenGL debugger<br/><br/>"
+                "Copyright (C) 2013 Slawomir Cygan.<br/><br/> "
+                "<a href=\"https://github.com/debugler/debugler\"/>"));
  }
 
  void DGLMainWindow::attach() {

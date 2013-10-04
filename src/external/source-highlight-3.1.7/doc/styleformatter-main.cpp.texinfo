@@ -1,0 +1,58 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+
+@b{#ifdef} HAVE_CONFIG_H
+@b{#include} @t{"config.h"}
+@b{#endif}
+
+@b{#include} @t{<iostream>}
+@b{#include} @t{"srchilite/langdefmanager.h"}
+@b{#include} @t{"srchilite/regexrulefactory.h"}
+@b{#include} @t{"srchilite/sourcehighlighter.h"}
+@b{#include} @t{"srchilite/formattermanager.h"}
+@b{#include} @t{"srchilite/stylefileparser.h"} @r{@i{// for parsing style files}}
+@b{#include} @t{"styleformatterfactory.h"}
+
+@b{using} @b{namespace} std;
+
+@b{#ifndef} DATADIR
+@b{#define} DATADIR @t{""}
+@b{#endif}
+
+@b{int} main() @{
+    srchilite::RegexRuleFactory ruleFactory;
+    srchilite::LangDefManager langDefManager(&ruleFactory);
+
+    @r{@i{// we highlight C++ code for simplicity}}
+    srchilite::SourceHighlighter highlighter(langDefManager.getHighlightState(
+            DATADIR, @t{"cpp.lang"}));
+
+    @r{@i{// our factory for our formatters}}
+    StyleFormatterFactory factory;
+
+    @r{@i{// the background color for the document (not used here)}}
+    string docBgColor;
+
+    @r{@i{// let's parse the default.style and create our formatters}}
+    srchilite::StyleFileParser::parseStyleFile(DATADIR, @t{"default.style"},
+            &factory, docBgColor);
+
+    @r{@i{// now we need to fill up the formatter manager with our formatters}}
+    srchilite::FormatterManager formatterManager(StyleFormatterPtr(
+            @b{new} StyleFormatter));
+    @b{for} (StyleFormatterMap::const_iterator it = factory.formatterMap.begin(); it
+            != factory.formatterMap.end(); ++it) @{
+        formatterManager.addFormatter(it->first, it->second);
+    @}
+    highlighter.setFormatterManager(&formatterManager);
+
+    string line;
+    @r{@i{// we now highlight a line a time}}
+    @b{while} (getline(cin, line)) @{
+        highlighter.highlightParagraph(line);
+    @}
+
+    @b{return} 0;
+@}
+
+@end example

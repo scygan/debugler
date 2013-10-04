@@ -1,0 +1,37 @@
+@c Generator: GNU source-highlight, by Lorenzo Bettini, http://www.gnu.org/software/src-highlite
+@example
+@b{struct} StyleFormatter: @b{public} srchilite::Formatter @{
+    @r{@i{/// the language element represented by this formatter}}
+    std::string elem;
+
+    @b{bool} bold, italic, underline, fixed, not_fixed;
+
+    std::string color;
+
+    std::string bgColor;
+
+    StyleFormatter(@b{const} std::string &elem_ = @t{"normal"}) :
+        elem(elem_), bold(@b{false}), italic(@b{false}), underline(@b{false}),
+                fixed(@b{false}), not_fixed(@b{false}) @{
+    @}
+
+    @b{virtual} @b{void} format(@b{const} std::string &s,
+            @b{const} srchilite::FormatterParams *params = 0) @{
+        @r{@i{// do not print anything if normal or string to format is empty}}
+        @b{if} (elem != @t{"normal"} || !s.size()) @{
+            std::cout << elem << @t{": }\"@t{"} << s << @t{"}\"@t{"} << std::endl;
+            std::cout << @t{"formatted as: "} << (bold ? @t{"bold "} : @t{""})
+                    << (italic ? @t{"italic "} : @t{""}) << (underline ? @t{"underline "}
+                    : @t{""});
+            std::cout << (color.size() ? @t{"color: "} + color + @t{" "} : @t{""});
+            std::cout << (bgColor.size() ? @t{"bgcolor: "} + bgColor : @t{""})
+                    << std::endl;
+        @}
+    @}
+@};
+
+@r{@i{/// shared pointer for StyleFormatter}}
+@b{typedef} boost::shared_ptr<StyleFormatter> StyleFormatterPtr;
+
+
+@end example
