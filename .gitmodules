@@ -1,0 +1,3 @@
+[submodule "src/external/glsl-trace-injector"]
+	path = src/external/glsl-trace-injector
+	url = git@github.com:scygan/glsl-trace-injector.git
