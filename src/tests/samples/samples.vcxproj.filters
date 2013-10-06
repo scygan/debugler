@@ -39,6 +39,10 @@
     <ClCompile Include="samples\fbo_msaa.cpp">
       <Filter>Samples</Filter>
     </ClCompile>
+    <ClCompile Include="samples\glsltrace.cpp">
+      <Filter>Samples</Filter>
+    </ClCompile>
+
     <ClCompile Include="samples\resize.cpp">
       <Filter>Samples</Filter>
     </ClCompile>
