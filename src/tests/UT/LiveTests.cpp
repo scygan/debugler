@@ -456,6 +456,59 @@ namespace {
        client->abort();
    }
 
+   TEST_F(LiveTest, framebuffer_resize) {
+       std::shared_ptr<dglnet::Client> client = getClientFor("resize");
+
+       dglnet::message::BreakedCall* breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler());
+       ASSERT_TRUE(breaked != NULL);
+
+       {
+           //disable breaking stuff
+           dglnet::message::Configuration config(getUsualConfig());
+           client->sendMessage(&config);
+       }
+
+       //skip first frame (rendering broken on some implementations)
+       breaked = utils::runUntilEntryPoint(client,  getMessageHandler(), glDrawArrays_Call);
+       breaked = utils::runUntilEntryPoint(client,  getMessageHandler(), glClear_Call);
+
+       for (int step = 0; step < 2; step++) {
+           //step == 0: frame 2
+           //step == 1: frame 3
+
+           breaked = utils::runUntilEntryPoint(client,  getMessageHandler(), glDrawArrays_Call);
+           //advance one call
+           dglnet::message::ContinueBreak stepCall(dglnet::message::ContinueBreak::StepMode::CALL);
+           client->sendMessage(&stepCall);
+           ASSERT_TRUE(utils::receiveUntilMessage<dglnet::message::BreakedCall>(client.get(), getMessageHandler()) != NULL);
+
+           {
+               //query framebuffer
+               dglnet::message::Request request(new dglnet::request::QueryResource(dglnet::DGLResource::ObjectType::Framebuffer, dglnet::ContextObjectName(breaked->m_CurrentCtx, GL_BACK)));
+               client->sendMessage(&request);
+           }
+
+           dglnet::message::RequestReply* reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(client.get(), getMessageHandler());
+           std::string nothing;
+           ASSERT_TRUE(reply->isOk(nothing));
+           dglnet::resource::DGLResourceFramebuffer * framebufferResource = dynamic_cast<dglnet::resource::DGLResourceFramebuffer*>(reply->m_Reply.get());
+           ASSERT_TRUE(framebufferResource != NULL);
+
+           int expectedSize = step == 0 ? 200 : 400;
+
+           EXPECT_EQ(expectedSize, framebufferResource->m_PixelRectangle->m_Width);
+           EXPECT_EQ(expectedSize, framebufferResource->m_PixelRectangle->m_Height);
+
+           utils::checkColorRect((GLubyte*)framebufferResource->m_PixelRectangle->getPtr(),
+               framebufferResource->m_PixelRectangle->m_Width,
+               framebufferResource->m_PixelRectangle->m_Height,
+               framebufferResource->m_PixelRectangle->m_RowBytes, 102, 127, 204, 255);
+
+           dglnet::message::ContinueBreak stepFrame(dglnet::message::ContinueBreak::StepMode::FRAME);
+       }
+       client->abort();
+   }
+
    TEST_F(LiveTest, texture_query) {
        std::shared_ptr<dglnet::Client> client = getClientFor("texture");
 

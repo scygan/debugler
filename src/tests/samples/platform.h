@@ -1,3 +1,5 @@
+#ifndef PLATFORM_H
+#define PLATFORM_H
 /* Copyright (C) 2013 Slawomir Cygan <slawomir.cygan@gmail.com>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +22,7 @@ public:
     virtual void makeCurrent() = 0;
     virtual void swapBuffers() = 0;
     virtual bool pendingClose() = 0;
+    virtual void resize(int newWidth, int newHeight) = 0;
 };
 
 class Platform {
@@ -31,3 +34,4 @@ public:
 
     void pollEvents();
 };
+#endif

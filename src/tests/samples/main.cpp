@@ -73,6 +73,8 @@ int main(int argc, char** argv) {
 
         std::shared_ptr<Sample> sample = Sample::getSample(sampleName);
 
+        sample->setWindow(window.get());
+
         sample->startup();
         window->swapBuffers();
 

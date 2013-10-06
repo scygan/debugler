@@ -55,7 +55,6 @@ public:
     virtual int getWidth(); 
     virtual int getHeight(); 
 private:
-    int m_Width, m_Height;
     bool m_Stereo, m_DoubleBuffered;
     int m_RGBASizes[4];
     int m_DepthSize, m_StencilSize;

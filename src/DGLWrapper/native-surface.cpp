@@ -50,10 +50,6 @@ NativeSurfaceWGL::NativeSurfaceWGL(const DGLDisplayState*, opaque_id_t id):Nativ
     m_RGBASizes[3] = pfd.cAlphaBits;
     m_StencilSize = pfd.cStencilBits;
     m_DepthSize = pfd.cDepthBits;
-    RECT rc;
-    GetClientRect(WindowFromDC(hdc), &rc);
-    m_Width = rc.right - rc.left;
-    m_Height = rc.bottom - rc.top;
 }
 
 bool NativeSurfaceWGL::isDoubleBuffered() {
@@ -78,11 +74,17 @@ int NativeSurfaceWGL::getDepthSize() {
 
 
 int NativeSurfaceWGL::getWidth() {
-    return m_Width;
+    RECT rc;
+    HDC hdc = reinterpret_cast<HDC>(m_Id);
+    GetClientRect(WindowFromDC(hdc), &rc);
+    return rc.right - rc.left;
 }
 
 int NativeSurfaceWGL::getHeight() {
-    return m_Height;
+    RECT rc;
+    HDC hdc = reinterpret_cast<HDC>(m_Id);
+    GetClientRect(WindowFromDC(hdc), &rc);
+    return rc.bottom - rc.top;
 }
 #endif
 NativeSurfaceEGL::NativeSurfaceEGL(const DGLDisplayState* dpy, opaque_id_t pixfmt, opaque_id_t id):NativeSurfaceBase(id), m_Dpy(dpy) {

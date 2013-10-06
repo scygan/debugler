@@ -35,3 +35,11 @@ std::shared_ptr<Sample> Sample::getSample(const std::string& sample) {
     }
     return res->second;
 }
+
+void  Sample::setWindow(PlatWindowCtx* window) {
+    m_window = window;
+}
+
+PlatWindowCtx*  Sample::getWindow() {
+    return m_window;
+}

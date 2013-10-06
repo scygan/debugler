@@ -47,6 +47,10 @@ public:
         return glfwWindowShouldClose(m_window) != 0;
     }
 
+    virtual void resize(int newWidth, int newHeight) {
+        glfwSetWindowSize(m_window, newWidth, newHeight);
+    }
+
 private:
      GLFWwindow* m_window;
      static bool glewInitDone;

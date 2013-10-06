@@ -19,6 +19,8 @@
 
 #include <GL/glew.h>
 
+#include "platform.h"
+
 class Sample {
 public:
 
@@ -33,10 +35,16 @@ public:
 
 
     static bool registerSample(Sample* sample, const std::string& name);
+
+    void setWindow(PlatWindowCtx*);
+
+    PlatWindowCtx* getWindow();
+
 private:
 
     static std::map<std::string, std::shared_ptr<Sample>> * getRegistry();
     
+    PlatWindowCtx* m_window;
 };
 
 
