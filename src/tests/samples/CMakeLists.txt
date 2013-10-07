@@ -7,10 +7,10 @@ set(samples_SOURCES
     ../../external/glew-1.10.0/src/glew.c
     platform_glfw.cpp sample.cpp
     glutil.cpp
-    samples\shader_handling.cpp
-    samples\simple.cpp
-    samples\texture.cpp
-    samples\fbo_msaa.cpp
+    samples/shader_handling.cpp
+    samples/simple.cpp
+    samples/texture.cpp
+    samples/fbo_msaa.cpp
     )
 
 include_directories(../../external/glfw-3.0.2/include)
