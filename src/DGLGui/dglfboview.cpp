@@ -15,7 +15,6 @@
 
 
 #include "dglfboview.h"
-#include "dglgui.h"
 
 #include "ui_dglfboviewitem.h"
 

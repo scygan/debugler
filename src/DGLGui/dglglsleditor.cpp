@@ -14,7 +14,6 @@
 */
 
 #include "dglglsleditor.h"
-#include "dglgui.h"
 
 #include <QPainter>
 #include <QTextBlock>

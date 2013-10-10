@@ -15,7 +15,6 @@
 
 
 #include "dglstateview.h"
-#include "dglgui.h"
 
 #include <set>
 #include <climits>

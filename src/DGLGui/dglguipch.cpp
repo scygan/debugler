@@ -13,30 +13,4 @@
 * limitations under the License.
 */
 
-
-#ifndef DGLGUI_H
-#define DGLGUI_H
-
-#ifdef _WIN32
-//Precompiled headers:
-#include "dglqtgui.h"
-#include "dglcontroller.h"
-#include "dglpixelrectangle.h"
-#include "dglmainwindow.h"
-#include "dgltabbedview.h"
-#endif
-
-#include<cassert>
-
-#ifdef NDEBUG
-#define CONNASSERT(x) x
-#else
-#define CONNASSERT(x) assert(x)
-
-#ifdef HAVE_VLD
-#include <vld.h>
-#endif
-
-#endif
-
-#endif
+#include "dglgui.h"

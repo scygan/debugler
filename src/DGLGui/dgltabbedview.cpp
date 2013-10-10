@@ -15,7 +15,6 @@
 
 
 #include "dgltabbedview.h"
-#include "dglgui.h"
 
 DGLTabbedViewItem::DGLTabbedViewItem(dglnet::ContextObjectName objName, QWidget* parrent):QWidget(parrent),m_ObjectName(objName) {}
 

@@ -22,8 +22,6 @@
 
 #include <stdexcept>
 
-#include "dglgui.h"
-
 DGLConnectAndroidDialog::DGLConnectAndroidDialog() {
     
     m_ui.setupUi(this);

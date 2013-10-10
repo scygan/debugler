@@ -15,7 +15,6 @@
 
 
 #include "dgltreeview.h"
-#include "dglgui.h"
 
 #include <set>
 #include <climits>

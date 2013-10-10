@@ -15,7 +15,6 @@
 
 
 #include "dgltextureview.h"
-#include "dglgui.h"
 
 #include <DGLCommon/def.h>
 

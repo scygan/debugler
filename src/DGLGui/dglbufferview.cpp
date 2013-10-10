@@ -15,7 +15,6 @@
 
 
 #include "dglbufferview.h"
-#include "dglgui.h"
 
 DGLBufferViewItem::DGLBufferViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
     m_Editor = new QHexEdit(this);

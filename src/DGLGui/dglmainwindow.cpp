@@ -34,7 +34,6 @@
 #include "dglprogramview.h"
 #include "dglgpuview.h"
 #include "dglstateview.h"
-#include "dglgui.h"
 #include "dgladbinterface.h"
 
 #include <DGLCommon/os.h>

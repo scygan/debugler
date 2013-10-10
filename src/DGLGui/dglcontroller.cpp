@@ -15,7 +15,6 @@
 
 
 #include "dglcontroller.h"
-#include "dglgui.h"
 
 DGLRequestHandler::DGLRequestHandler(DGLRequestManager* manager):m_Manager(manager) {}
 

@@ -17,7 +17,6 @@
 
 #include <QFileInfo>
 #include <QDir>
-#include "dglgui.h"
 
 #include <QFileDialog>
 

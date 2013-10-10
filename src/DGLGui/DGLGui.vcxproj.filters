@@ -56,56 +56,14 @@
     <ClCompile Include="dglcontroller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dgltraceview.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dgltraceview.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="dgltraceview.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglconnectdialog.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglcontroller.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglmainwindow.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglconnectdialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglmainwindow.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglcontroller.cpp">
-      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="dgltreeview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dgltreeview.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dgltreeview.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dgltextureview.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dgltextureview.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="dgltextureview.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglbreakpointdialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglbreakpointdialog.cpp">
-      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="dglbreakpointdialog.cpp">
       <Filter>Source Files</Filter>
@@ -113,26 +71,8 @@
     <ClCompile Include="dglbufferview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglbufferview.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglbufferview.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dgltabbedview.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dgltabbedview.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="dgltabbedview.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglframebufferview.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglframebufferview.cpp">
-      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="dglframebufferview.cpp">
       <Filter>Source Files</Filter>
@@ -140,74 +80,20 @@
     <ClCompile Include="dglfboview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglfboview.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglfboview.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglshaderview.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglshaderview.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="dglshaderview.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglprogramview.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglprogramview.cpp">
-      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="dglprogramview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglshaderviewitem.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglshaderviewitem.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="dglrundialog.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglrundialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglrundialog.cpp">
-      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="dglgpuview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglgpuview.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglgpuview.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglpixelrectangle.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglpixelrectangle.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="dglpixelrectangle.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_qhexedit.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_qhexedit.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_qhexedit_p.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_qhexedit_p.cpp">
-      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="..\external\CompleteInject\CompleteInject.cpp">
       <Filter>ComleteInject</Filter>
@@ -220,12 +106,6 @@
     </ClCompile>
     <ClCompile Include="..\external\QHexEdit\xbytearray.cpp">
       <Filter>QHexEdit</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglstateview.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglstateview.cpp">
-      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="dglstateview.cpp">
       <Filter>Source Files</Filter>
@@ -242,20 +122,8 @@
     <ClCompile Include="dglsyntaxhighlight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglsyntaxhighlight.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglsyntaxhighlight.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="dglblitterbase.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglglsleditor.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglglsleditor.cpp">
-      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="dglglsleditor.cpp">
       <Filter>Source Files</Filter>
@@ -263,17 +131,140 @@
     <ClCompile Include="dglconfigdialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglconfigdialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglconfigdialog.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="dgladbinterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dglconnectandroiddialog.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dglguipch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_qhexedit_p.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_qhexedit_p.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_qhexedit.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_qhexedit.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dgltreeview.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dgltreeview.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dgltraceview.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dgltraceview.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dgltextureview.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dgltextureview.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dgltabbedview.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dgltabbedview.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglsyntaxhighlight.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglsyntaxhighlight.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglstateview.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglstateview.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglshaderviewitem.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglshaderviewitem.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglshaderview.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglshaderview.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglrundialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglrundialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglprogramview.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglprogramview.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglprocess.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglprocess.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglpixelrectangle.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglpixelrectangle.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglmainwindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglmainwindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglgpuview.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglgpuview.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglglsleditor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglglsleditor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglframebufferview.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglframebufferview.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglfboview.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglfboview.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglcontroller.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglcontroller.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglconnectdialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglconnectdialog.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglconnectandroiddialog.cpp">
       <Filter>Generated Files\Debug</Filter>
@@ -281,10 +272,22 @@
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglconnectandroiddialog.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglprocess.cpp">
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglconfigdialog.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglprocess.cpp">
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglconfigdialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglbufferview.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglbufferview.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglbreakpointdialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglbreakpointdialog.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dgladbinterface.cpp">

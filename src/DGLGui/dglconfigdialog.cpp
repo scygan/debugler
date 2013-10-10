@@ -16,7 +16,6 @@
 
 
 #include "dglconfigdialog.h"
-#include "dglgui.h"
 
 #include <QFileDialog>
 

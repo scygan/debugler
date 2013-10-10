@@ -16,7 +16,6 @@
 
 
 #include "dglbreakpointdialog.h"
-#include "dglgui.h"
 
 class DGLBreakPointDialogItem: public QListWidgetItem {
 public:

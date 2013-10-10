@@ -18,8 +18,6 @@
 #include <QMessageBox>
 #include <stdexcept>
 
-#include "dglgui.h"
-
 DGLAdbCookie::DGLAdbCookie(const std::string& adbPath, const std::vector<std::string> params):m_adbPath(adbPath), m_params(params) {
     CONNASSERT(connect(this, SIGNAL(processEvent(bool, std::string)), this, SLOT(processEvent(bool, std::string))));
 }

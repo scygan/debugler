@@ -27,9 +27,6 @@
     #define MAX_PATH PATH_MAX
 #endif
 
-#include "dglgui.h"
-
-
 DGLBaseQTProcess::DGLBaseQTProcess() {
  
 

@@ -15,8 +15,6 @@
 
 
 #include "dglframebufferview.h"
-#include "dglgui.h"
-
 
 
 DGLFramebufferViewItem::DGLFramebufferViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {

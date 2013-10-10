@@ -31,8 +31,6 @@
 
 #include <boost/make_shared.hpp>
 
-#include "dglgui.h"
-
 #include <DGLCommon/def.h>
 
 DGLPixRectQGraphicsView::DGLPixRectQGraphicsView(QWidget* _parent):QGraphicsView(_parent) {

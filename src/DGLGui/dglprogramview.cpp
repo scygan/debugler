@@ -15,7 +15,6 @@
 
 
 #include "dglprogramview.h"
-#include "dglgui.h"
 
 #include "dglshaderviewitem.h"
 

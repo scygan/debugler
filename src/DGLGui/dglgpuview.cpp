@@ -15,7 +15,6 @@
 
 
 #include "dglgpuview.h"
-#include "dglgui.h"
 
 #include <set>
 #include <climits>

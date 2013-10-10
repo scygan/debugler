@@ -15,7 +15,6 @@
 
 
 #include "dgltraceview.h"
-#include "dglgui.h"
 
 #include <QScrollBar>
 #include <QStyledItemDelegate>
