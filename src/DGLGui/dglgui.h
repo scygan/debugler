@@ -17,7 +17,7 @@
 #ifndef DGLGUI_H
 #define DGLGUI_H
 
-#ifdef _WIN32
+#ifdef DGLGUI_PCH
 //Precompiled headers:
 #include "dglqtgui.h"
 #include "dglcontroller.h"

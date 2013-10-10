@@ -50,7 +50,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>QT_LARGEFILE_SUPPORT;QT_CORE_LIB;QT_GUI_LIB;%(PreprocessorDefinitions);QT_XML_LIB;QT_WIDGETS_LIB;QT_DLL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DGLGUI_PCH;QT_LARGEFILE_SUPPORT;QT_CORE_LIB;QT_GUI_LIB;%(PreprocessorDefinitions);QT_XML_LIB;QT_WIDGETS_LIB;QT_DLL</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir);$(QTDIR)\include;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;.\..\..\dump\GeneratedFiles;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtWidgets;.\..\..\dump\$(ConfigurationName)\GeneratedFiles;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>dglgui.h</PrecompiledHeaderFile>
