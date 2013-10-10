@@ -28,38 +28,12 @@
     <ClCompile Include="libs\serialization\src\basic_pointer_iserializer.cpp" />
     <ClCompile Include="libs\serialization\src\basic_pointer_oserializer.cpp" />
     <ClCompile Include="libs\serialization\src\basic_serializer_map.cpp" />
-    <ClCompile Include="libs\serialization\src\basic_text_iprimitive.cpp" />
-    <ClCompile Include="libs\serialization\src\basic_text_oprimitive.cpp" />
-    <ClCompile Include="libs\serialization\src\basic_text_wiprimitive.cpp" />
-    <ClCompile Include="libs\serialization\src\basic_text_woprimitive.cpp" />
-    <ClCompile Include="libs\serialization\src\basic_xml_archive.cpp" />
-    <ClCompile Include="libs\serialization\src\binary_iarchive.cpp" />
-    <ClCompile Include="libs\serialization\src\binary_oarchive.cpp" />
-    <ClCompile Include="libs\serialization\src\binary_wiarchive.cpp" />
-    <ClCompile Include="libs\serialization\src\binary_woarchive.cpp" />
     <ClCompile Include="libs\serialization\src\codecvt_null.cpp" />
     <ClCompile Include="libs\serialization\src\extended_type_info.cpp" />
-    <ClCompile Include="libs\serialization\src\extended_type_info_no_rtti.cpp" />
     <ClCompile Include="libs\serialization\src\extended_type_info_typeid.cpp" />
-    <ClCompile Include="libs\serialization\src\polymorphic_iarchive.cpp" />
-    <ClCompile Include="libs\serialization\src\polymorphic_oarchive.cpp" />
     <ClCompile Include="libs\serialization\src\shared_ptr_helper.cpp" />
-    <ClCompile Include="libs\serialization\src\text_iarchive.cpp" />
-    <ClCompile Include="libs\serialization\src\text_oarchive.cpp" />
-    <ClCompile Include="libs\serialization\src\text_wiarchive.cpp" />
-    <ClCompile Include="libs\serialization\src\text_woarchive.cpp" />
     <ClCompile Include="libs\serialization\src\utf8_codecvt_facet.cpp" />
     <ClCompile Include="libs\serialization\src\void_cast.cpp" />
-    <ClCompile Include="libs\serialization\src\xml_archive_exception.cpp" />
-    <ClCompile Include="libs\serialization\src\xml_grammar.cpp" />
-    <ClCompile Include="libs\serialization\src\xml_iarchive.cpp" />
-    <ClCompile Include="libs\serialization\src\xml_oarchive.cpp" />
-    <ClCompile Include="libs\serialization\src\xml_wgrammar.cpp" />
-    <ClCompile Include="libs\serialization\src\xml_wiarchive.cpp" />
-    <ClCompile Include="libs\serialization\src\xml_woarchive.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="libs\serialization\src\basic_xml_grammar.ipp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{13B36CE3-1A60-4184-8DAC-836D59E885AC}</ProjectGuid>
@@ -69,15 +43,15 @@
   <PropertyGroup Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
-  <PropertyGroup Label="Configuration" >
+  <PropertyGroup Label="Configuration">
     <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-    <ImportGroup Condition="'$(Configuration)'=='Debug'" Label="PropertySheets">
+  <ImportGroup Condition="'$(Configuration)'=='Debug'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-	<Import Project="$(SolutionDir)\buildtools\vs\props\debugler.debug.props" />
+    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.debug.props" />
     <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)'=='Release'" Label="PropertySheets">
@@ -89,8 +63,8 @@
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
-		<PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-		<WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <Link>
     </Link>
