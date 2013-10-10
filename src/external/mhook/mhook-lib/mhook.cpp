@@ -85,7 +85,7 @@ inline void __cdecl odprintf(PCWSTR format, ...) {
 				buf[len++] = L'\r';
 				buf[len++] = L'\n';
 				buf[len] = 0;
-				//OutputDebugStringW(buf);
+				OutputDebugStringW(buf);
 			}
 			free(buf);
 		}
@@ -98,6 +98,7 @@ inline void __cdecl odprintf(PCWSTR format, ...) {
 //=========================================================================
 #define MHOOKS_MAX_CODE_BYTES	32
 #define MHOOKS_MAX_RIPS			 4
+#define MHOOKS_MAX_EIPS			 4
 
 //=========================================================================
 // The trampoline structure - stores every bit of info about a hook
@@ -128,7 +129,9 @@ struct MHOOKS_PATCHDATA
 	S64				nLimitUp;
 	S64				nLimitDown;
 	DWORD			nRipCnt;
+    DWORD			nEipCnt;
 	MHOOKS_RIPINFO	rips[MHOOKS_MAX_RIPS];
+    MHOOKS_RIPINFO	eips[MHOOKS_MAX_EIPS];
 };
 
 //=========================================================================
@@ -360,6 +363,16 @@ static void FixupIPRelativeAddressing(PBYTE pbNew, PBYTE pbOriginal, MHOOKS_PATC
 		*(PDWORD)(pbNew + pdata->rips[i].dwOffset) = dwNewDisplacement;
 	}
 #else
+    S64 diff = pbNew - pbOriginal;
+    for (DWORD i = 0; i < pdata->nEipCnt; i++) {
+        DWORD dwNewDisplacement = (DWORD)(pdata->eips[i].nDisplacement - diff);
+        ODPRINTF((L"mhooks: fixing up EIP instruction operand for code at 0x%p: "
+            L"old displacement: 0x%8.8x, new displacement: 0x%8.8x", 
+            pbNew + pdata->eips[i].dwOffset, 
+            (DWORD)pdata->eips[i].nDisplacement, 
+            dwNewDisplacement));
+        *(PDWORD)(pbNew + pdata->eips[i].dwOffset) = dwNewDisplacement;
+    }
     (void)pbNew;
     (void)pbOriginal;
     (void)pdata;
@@ -408,17 +421,15 @@ static DWORD DisassembleAndSkip(PVOID pFunction, DWORD dwMinLen, MHOOKS_PATCHDAT
 
 			if (pins->Type == ITYPE_RET      ||
 			    pins->Type == ITYPE_BRANCHCC ||
-			    pins->Type == ITYPE_CALL     ||
 			    pins->Type == ITYPE_CALLCC) {
-
                     if (pins->X86.Relative)
+                        //we cannot relocate above instructions for now
                         break;
                     else 
                         isSequential = false;
             }
 
             if (isFunctionEmpty && pins->Type != ITYPE_DEBUG) {
-                
                 //We are after ret of an empty function. We allow debug traps only    
                 break;
             }
@@ -429,10 +440,27 @@ static DWORD DisassembleAndSkip(PVOID pFunction, DWORD dwMinLen, MHOOKS_PATCHDAT
                 isSequential = true; 
             }
 
+            BOOL bProcessEip = FALSE;
+            int offset = 3;
+
+            if (pins->Type == ITYPE_CALL) {
+                isSequential = false;
+                if (pins->X86.Relative) {
+                    if ((pins->X86.OperandSize == 4) && (pins->OperandCount == 1) &&
+                        (pins->Operands[0].Flags & OP_IPREL) && (pins->Operands[0].Register == X86_REG_EIP) && (pins->Operands[0].Length == 4)) {
+                        //relocate call  [eip+ilen+immed]
+                        ODPRINTF((L"mhooks: DisassembleAndSkip: found OP_IPREL on operand %d with displacement 0x%x (in memory: 0x%x)", 0, pins->X86.Displacement, *(PDWORD)(pLoc+1)));
+                        bProcessEip = TRUE;
+                        offset = 1;
+                    } else {
+                        //cannot relocate for now.
+                        break;
+                    }
+                }
+            }
+
 			#if defined _M_X64
 				BOOL bProcessRip = FALSE;
-                int offset = 3;
-                
 				// mov or lea to register from rip+imm32
 				if ((pins->Type == ITYPE_MOV || pins->Type == ITYPE_LEA) && (pins->X86.Relative) && 
 					(pins->X86.OperandSize == 8) && (pins->OperandCount == 2) &&
@@ -531,6 +559,25 @@ static DWORD DisassembleAndSkip(PVOID pFunction, DWORD dwMinLen, MHOOKS_PATCHDAT
 					}
 				}
 			#endif
+
+            if (bProcessEip) {
+                // calculate displacement relative to function start
+                S64 nAdjustedDisplacement = pins->X86.Displacement + (pLoc - (U8*)pFunction);
+                // store displacement values furthest from zero (both positive and negative)
+                if (nAdjustedDisplacement < pdata->nLimitDown)
+                    pdata->nLimitDown = nAdjustedDisplacement;
+                if (nAdjustedDisplacement > pdata->nLimitUp)
+                    pdata->nLimitUp = nAdjustedDisplacement;
+                // store patch info
+                if (pdata->nEipCnt < MHOOKS_MAX_EIPS) {
+                    pdata->eips[pdata->nEipCnt].dwOffset = dwRet + offset;
+                    pdata->eips[pdata->nEipCnt].nDisplacement = pins->X86.Displacement;
+                    pdata->nEipCnt++;
+                } else {
+                    // no room for patch info, stop disassembly
+                    break;
+                }
+            }
 
 			dwRet += pins->Length;
             if (isSequential)
