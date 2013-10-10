@@ -170,7 +170,7 @@ int main(int argc, char** argv) {
         std::string wrapperPath = getWrapperPath();
         Os::info("Executable: %s\nWrapper: %s\n\n\n", executable.c_str(), wrapperPath.c_str());
 
-        boost::shared_ptr<DGLIPC> dglIPC = DGLIPC::Create();
+        std::shared_ptr<DGLIPC> dglIPC = DGLIPC::Create();
         Os::setEnv("dgl_uuid", dglIPC->getUUID().c_str());
 
         if (vm.count("egl")) {

@@ -34,7 +34,7 @@ DGLDebugController* getController() {
 }
 
 DGLIPC* getIPC() {
-    static boost::shared_ptr<DGLIPC> s_IPC;
+    static std::shared_ptr<DGLIPC> s_IPC;
 
     if (!s_IPC.get()) {
         s_IPC = DGLIPC::CreateFromUUID(Os::getEnv("dgl_uuid"));

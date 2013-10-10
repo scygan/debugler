@@ -22,6 +22,7 @@
 #include <stack>
 #include <set>
 #include <vector>
+#include <memory>
 
 class DGLHLData;
 class DGLHLContext;
@@ -45,7 +46,7 @@ protected:
     void highlightBlock(const QString &text);
 
 private:
-    static boost::shared_ptr<DGLHLData> s_data;
+    static std::shared_ptr<DGLHLData> s_data;
 
     std::vector<const HLState*> m_hlStateByIdx;
     std::map<HLState, int> m_hlStateMap;

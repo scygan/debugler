@@ -27,7 +27,7 @@
 #include <DGLNet/server.h>
 #include <DGLCommon/gl-types.h>
 
-boost::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];
+std::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];
 
 RetValue ActionBase::DoPre(const CalledEntryPoint& call) {
 
@@ -64,7 +64,7 @@ void ActionBase::DoPost(const CalledEntryPoint& call, const RetValue& ret) {
 }
 
 
-void ActionBase::SetPrev(const boost::shared_ptr<ActionBase>& prev) {
+void ActionBase::SetPrev(const std::shared_ptr<ActionBase>& prev) {
     m_PrevAction = prev;
 }
 

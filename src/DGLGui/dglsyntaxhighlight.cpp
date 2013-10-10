@@ -14,7 +14,6 @@
 */
 
 #include "dglsyntaxhighlight.h"
-#include<boost/make_shared.hpp>
 #include<stdexcept>
 
 #include <QFile>
@@ -412,9 +411,9 @@ public:
 #endif
 
 private:
-    std::vector<boost::shared_ptr<DGLHLRuleBase> > m_rules;
+    std::vector<std::shared_ptr<DGLHLRuleBase> > m_rules;
     const DGLHLTextCharFormat* m_DefaultFormat;
-    boost::shared_ptr<DGLHLActionBase> m_LineEndAction;
+    std::shared_ptr<DGLHLActionBase> m_LineEndAction;
     QDomElement m_xml;
 };
 
@@ -622,7 +621,7 @@ DGLHLContext::DGLHLContext(const QDomElement& xml, const DGLHLData* data): m_xml
         FATAL;
     }
 
-    m_LineEndAction = boost::make_shared<DGLHLActionStay>();
+    m_LineEndAction = std::make_shared<DGLHLActionStay>();
 
     for (int i = 0; i < xml.attributes().count(); i++) {
         QString name = xml.attributes().item(i).toAttr().nodeName();
@@ -635,7 +634,7 @@ DGLHLContext::DGLHLContext(const QDomElement& xml, const DGLHLData* data): m_xml
         } else if (name == "attribute") {
             m_DefaultFormat = data->getFormat(val.toStdString());
         } else if (name == "lineEndContext") {
-            m_LineEndAction = boost::shared_ptr<DGLHLActionBase>(DGLHLActionBase::Create(data, val));       
+            m_LineEndAction = std::shared_ptr<DGLHLActionBase>(DGLHLActionBase::Create(data, val));       
         } else {
             FATAL;
         }
@@ -648,13 +647,13 @@ void DGLHLContext::link(const DGLHLData* data) {
         if (element.isNull()) {
             continue;
         }
-        m_rules.push_back(boost::shared_ptr<DGLHLRuleBase>(DGLHLRuleBase::Create(data, element)));
+        m_rules.push_back(std::shared_ptr<DGLHLRuleBase>(DGLHLRuleBase::Create(data, element)));
     }
 }
 
 DGLSyntaxHighlighterGLSL::DGLSyntaxHighlighterGLSL(QTextDocument *_parent): QSyntaxHighlighter(_parent) {
     if (!s_data) {
-        s_data = boost::make_shared<DGLHLData>();
+        s_data = std::make_shared<DGLHLData>();
     }
 }
 
@@ -738,4 +737,4 @@ bool DGLSyntaxHighlighterGLSL::HLState::operator<(const HLState& other) const {
     }
 }
 
-boost::shared_ptr<DGLHLData> DGLSyntaxHighlighterGLSL::s_data;
+std::shared_ptr<DGLHLData> DGLSyntaxHighlighterGLSL::s_data;
