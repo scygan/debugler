@@ -19,7 +19,6 @@
 
 #include <map>
 #include <queue>
-#include <boost/shared_ptr.hpp>
 
 #include <DGLCommon/gl-types.h>
 #include <DGLNet/protocol/message.h>

@@ -17,13 +17,13 @@
 //#include <DGLNet/gl-serialized.h>
 #include <utility>
 
-#include <boost/shared_ptr.hpp>
 #include <vector>
+#include <memory>
 #include <DGLCommon/def.h>
 #include <DGLNet/protocol/entrypoint.h>
 
 class ActionBase;
-extern boost::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];
+extern std::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];
 
 class ActionBase {
 public:
@@ -41,8 +41,8 @@ public:
 
     template<typename SpecificActionType> 
     static void SetNext(Entrypoint entryp) {
-        boost::shared_ptr<ActionBase> prev = g_Actions[entryp];
-        g_Actions[entryp] = boost::shared_ptr<ActionBase>(new SpecificActionType());
+        std::shared_ptr<ActionBase> prev = g_Actions[entryp];
+        g_Actions[entryp] = std::shared_ptr<ActionBase>(new SpecificActionType());
         g_Actions[entryp]->SetPrev(prev);
     }
 protected:
@@ -67,8 +67,8 @@ protected:
     virtual void Post(const CalledEntryPoint&, const RetValue& ret = RetValue());
 private:
 
-    void SetPrev(const boost::shared_ptr<ActionBase>& prev);
-    boost::shared_ptr<ActionBase> m_PrevAction;
+    void SetPrev(const std::shared_ptr<ActionBase>& prev);
+    std::shared_ptr<ActionBase> m_PrevAction;
 };
 
 class DefaultAction: public ActionBase {
@@ -131,6 +131,6 @@ class DebugOutputCallback: public ActionBase {
 template<typename Action>
 void SetAllActions() {
     for (int i = 0; i < NUM_ENTRYPOINTS; i++) {
-        g_Actions[i] = boost::shared_ptr<ActionBase>(new Action());
+        g_Actions[i] = std::shared_ptr<ActionBase>(new Action());
     }
 }

@@ -17,7 +17,6 @@
 #define DEBUGGER_H
 
 #include <DGLNet/server.h>
-#include <boost/shared_ptr.hpp>
 #include <boost/circular_buffer.hpp>
 
 #include <DGLNet/protocol/dglconfiguration.h>

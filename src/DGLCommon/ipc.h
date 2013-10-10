@@ -18,7 +18,7 @@
 #define IPC_H
 
 #include<string>
-#include<boost/shared_ptr.hpp>
+#include<memory>
 
 class DGLIPC {
 public:
@@ -38,8 +38,8 @@ public:
     virtual void setDebuggerPort(unsigned short) = 0;
     virtual unsigned short getDebuggerPort() = 0;
     
-    static boost::shared_ptr<DGLIPC> Create();
-    static boost::shared_ptr<DGLIPC> CreateFromUUID(std::string uuid);
+    static std::shared_ptr<DGLIPC> Create();
+    static std::shared_ptr<DGLIPC> CreateFromUUID(std::string uuid);
 
 protected:
     DGLIPC() {}

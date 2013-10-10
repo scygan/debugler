@@ -119,12 +119,12 @@ private:
 
 
 
-boost::shared_ptr<DGLIPC> DGLIPC::Create() {
-    return boost::shared_ptr<DGLIPC>(new DGLIPCImpl());
+std::shared_ptr<DGLIPC> DGLIPC::Create() {
+    return std::shared_ptr<DGLIPC>(new DGLIPCImpl());
 }
 
-boost::shared_ptr<DGLIPC> DGLIPC::CreateFromUUID(std::string uuid) {
-    return boost::shared_ptr<DGLIPC>(new DGLIPCImpl(uuid));
+std::shared_ptr<DGLIPC> DGLIPC::CreateFromUUID(std::string uuid) {
+    return std::shared_ptr<DGLIPC>(new DGLIPCImpl(uuid));
 }
 
 
