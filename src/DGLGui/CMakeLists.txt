@@ -23,7 +23,7 @@ set(dglgui_HEADERS
     dgltabbedview.h dgltextureview.h dgltraceview.h
     dgltreeview.h dglsyntaxhighlight.h
     dglconfigdialog.h dglglsleditor.h dglconnectandroiddialog.h
-    dglprocess.h #dglblitterbase.h  dgladbinterface.h<- no need for Qt moc here.
+    dglprocess.h dgladbinterface.h #dglblitterbase.h <- no need for Qt moc here.
     )
 
 set(dglgui_FORMS
