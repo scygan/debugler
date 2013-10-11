@@ -17,7 +17,7 @@
 #ifndef ANYVALUE_H
 #define ANYVALUE_H
 
-#include <boost/variant.hpp>
+#include <boost/variant/variant.hpp>
 #include <boost/variant/get.hpp>
 
 #include <DGLNet/serializer-fwd.h>

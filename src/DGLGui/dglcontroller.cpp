@@ -136,7 +136,7 @@ void DglController::connectServer(const std::string& host, const std::string& po
     //we are not disconnected, but not yet connected - so we do not set m_Connected
     m_Disconnected = false; 
 
-    m_DglClient = std::make_shared<dglnet::Client>(this, this);
+    m_DglClient = dglnet::Client::Create(this, this);
     m_DglClient->connectServer(host, port);
     m_Timer.start();
 }

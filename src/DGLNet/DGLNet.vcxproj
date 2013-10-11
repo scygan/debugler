@@ -38,7 +38,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client.h" />
-    <ClInclude Include="message.h" />
     <ClInclude Include="protocol\anyvalue.h" />
     <ClInclude Include="protocol\ctxobjname.h" />
     <ClInclude Include="protocol\entrypoint.h" />
@@ -49,6 +48,7 @@
     <ClInclude Include="serializer-fwd.h" />
     <ClInclude Include="server.h" />
     <ClInclude Include="transport.h" />
+    <ClInclude Include="transport_detail.h" />
   </ItemGroup>
   <PropertyGroup Label="Configuration">
     <PlatformToolset>v110</PlatformToolset>

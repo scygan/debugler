@@ -22,6 +22,8 @@
 
 namespace dglnet {
 
+class ServerDetail;
+
 class Server: public Transport {
 public: 
     Server(unsigned short port, MessageHandler*);
@@ -29,9 +31,7 @@ public:
     void accept();
 
 private:
-
-    boost::asio::ip::tcp::endpoint m_endpoint;
-    boost::asio::ip::tcp::acceptor m_acceptor;
+    std::shared_ptr<ServerDetail> m_detail;
     std::mutex m_mutex;
 };
 

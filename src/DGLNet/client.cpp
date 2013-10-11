@@ -13,63 +13,79 @@
 * limitations under the License.
 */
 
+#include "client.h"
+#include "transport_detail.h"
 
 #include<string>
 #include <boost/bind.hpp>
 
 #include <boost/asio/placeholders.hpp>
 
-#include "client.h"
+
 
 
 namespace dglnet {
 
-    Client::Client(IController* controller, MessageHandler* handler):Transport(handler),m_controller(controller), m_Resolver(m_io_service) {}
+    Client::Client(MessageHandler* messageHandler):Transport(messageHandler) {}
 
-    void Client::connectServer(std::string host, std::string port) {
-        boost::asio::ip::tcp::resolver::query query(host, port);
-        m_Resolver.async_resolve(query, boost::bind(&Client::onResolve, shared_from_this(),
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::iterator));
-        m_controller->onSetStatus("Looking up server...");
-    }
+    class ClientImpl: public Client {
+    public: 
 
-    Client::socket_fd_t Client::getSocketFD() {
-        return m_socket.native_handle();
-    }
+        ClientImpl(IController* controller, MessageHandler* messageHandler):Client(messageHandler),m_controller(controller), m_Resolver(Transport::m_detail->m_io_service) {}
 
-    void Client::onResolve(const boost::system::error_code& err,
-        boost::asio::ip::tcp::resolver::iterator endpoint_iterator) {
-        if (!err) {
-            m_socket.async_connect(*endpoint_iterator, boost::bind(&Client::onConnect, shared_from_this(),
-                boost::asio::placeholders::error));
-            m_controller->onSetStatus("Connecting...");
-            m_controller->onSocket();
-        } else {
-            notifyDisconnect(err.message());
+        virtual void connectServer(std::string host, std::string port) {
+            boost::asio::ip::tcp::resolver::query query(host, port);
+            m_Resolver.async_resolve(query, boost::bind(&ClientImpl::onResolve, shared_from_this(),
+                boost::asio::placeholders::error,
+                boost::asio::placeholders::iterator));
+            m_controller->onSetStatus("Looking up server...");
         }
-    }
 
-    void Client::onConnect(const boost::system::error_code &err) {
-        if (!err) {
-            m_controller->onSetStatus("Connected.");
-            read();
-        } else {
-            notifyDisconnect(err.message());
+        virtual socket_fd_t getSocketFD() {
+            return Transport::m_detail->m_socket.native_handle();
         }
-    }
-
-    void Client::notifyStartSend() {
-        m_controller->onSocketStartSend();
-    }
-
-    void Client::notifyEndSend() {
-        m_controller->onSocketStopSend();
-    }
 
 
-    std::shared_ptr<Client> Client::shared_from_this() {
-        return std::static_pointer_cast<Client>(get_shared_from_base());
+    private:
+        virtual void onResolve(const boost::system::error_code& err,
+            boost::asio::ip::tcp::resolver::iterator endpoint_iterator) {
+                if (!err) {
+                    Transport::m_detail->m_socket.async_connect(*endpoint_iterator, boost::bind(&ClientImpl::onConnect, shared_from_this(),
+                        boost::asio::placeholders::error));
+                    m_controller->onSetStatus("Connecting...");
+                    m_controller->onSocket();
+                } else {
+                    notifyDisconnect(err.message());
+                }
+        }
+
+        virtual void onConnect(const boost::system::error_code &err) {
+            if (!err) {
+                m_controller->onSetStatus("Connected.");
+                read();
+            } else {
+                notifyDisconnect(err.message());
+            }
+        }
+
+        virtual void notifyStartSend() override {
+            m_controller->onSocketStartSend();
+        }
+
+        virtual void notifyEndSend() override {
+            m_controller->onSocketStopSend();
+        }
+
+        std::shared_ptr<ClientImpl> shared_from_this() {
+            return std::static_pointer_cast<ClientImpl>(get_shared_from_base());
+        }
+
+        IController* m_controller;
+        boost::asio::ip::tcp::resolver m_Resolver;
+    };
+
+    std::shared_ptr<Client> Client::Create(IController* controller, MessageHandler* messageHandler) {
+        return std::make_shared<ClientImpl>(controller, messageHandler);
     }
 }
 

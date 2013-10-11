@@ -13,36 +13,17 @@
 * limitations under the License.
 */
 
-
-#include<string>
-
 #include "transport.h"
 
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/ip/tcp.hpp>
 
 namespace dglnet {
 
-class IController {
-public:
-    virtual void onSetStatus(std::string) = 0;
-    virtual void onSocket() = 0;
-    virtual void onSocketStartSend() = 0;
-    virtual void onSocketStopSend() = 0;
-
-    virtual ~IController() {}
-};
-
-
-class Client: public Transport {
-public: 
-    virtual ~Client() {}
-    virtual void connectServer(std::string host, std::string port) = 0;
-
-    typedef uint64_t socket_fd_t;
-    virtual socket_fd_t getSocketFD() = 0;
-    static std::shared_ptr<Client> Create(IController* controller, MessageHandler* messageHandler);
-
-protected:
-    Client(MessageHandler* messageHandler);
-};
-
-}//namespace dglnet
+    class TransportDetail {
+    public:
+        TransportDetail();
+        boost::asio::io_service m_io_service;
+        boost::asio::ip::tcp::socket m_socket;
+    };
+}

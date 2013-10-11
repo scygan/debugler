@@ -89,7 +89,7 @@ namespace {
             
             m_ProcessWrapper = std::make_shared<LiveProcessWrapper>(sampleName);
 
-            std::shared_ptr<dglnet::Client> client(new dglnet::Client(&m_Controller, &m_MessageHandler));
+            std::shared_ptr<dglnet::Client> client = dglnet::Client::Create(&m_Controller, &m_MessageHandler);
             client->connectServer("127.0.0.1", "8888");
 
             return client;

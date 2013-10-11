@@ -16,23 +16,31 @@
 
 #include "server.h"
 
+#include "transport_detail.h"
 #include <boost/bind.hpp>
 
 namespace dglnet {
 
-    Server::Server(unsigned short port, MessageHandler* handler):Transport(handler),m_endpoint(boost::asio::ip::tcp::v4(), port), m_acceptor(m_io_service) {
-        m_acceptor.open(m_endpoint.protocol());
-        m_acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
-        m_acceptor.bind(m_endpoint);
-        m_acceptor.listen();
+    class ServerDetail {
+        public:
+        ServerDetail(short port, boost::asio::io_service& io_service):m_endpoint(boost::asio::ip::tcp::v4(), port), m_acceptor(io_service) {}
+        boost::asio::ip::tcp::endpoint m_endpoint;
+        boost::asio::ip::tcp::acceptor m_acceptor;
+    };
+
+    Server::Server(unsigned short port, MessageHandler* handler):Transport(handler),m_detail(std::make_shared<ServerDetail>(port, Transport::m_detail->m_io_service)) {
+        m_detail->m_acceptor.open(m_detail->m_endpoint.protocol());
+        m_detail->m_acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+        m_detail->m_acceptor.bind(m_detail->m_endpoint);
+        m_detail->m_acceptor.listen();
     }
     void Server::accept() {
         boost::system::error_code ec;
-        ec = m_acceptor.accept(m_socket, ec);
+        ec = m_detail->m_acceptor.accept(Transport::m_detail->m_socket, ec);
         if (ec) {
             notifyDisconnect(ec.message());
         }
-        m_acceptor.close();
+        m_detail->m_acceptor.close();
         read();
     }
 

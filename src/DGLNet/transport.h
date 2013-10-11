@@ -12,16 +12,24 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+#ifndef TRANSPORT_H
+#define TRANSPORT_H
 
-#include <boost/asio/io_service.hpp>
 #include <DGLNet/protocol/message.h>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/streambuf.hpp>
+#include <boost/asio/basic_streambuf_fwd.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/system/error_code.hpp>
+
+namespace boost {
+    namespace asio {
+        typedef basic_streambuf<> streambuf;
+    }
+}
 
 namespace dglnet {
 
 class  TransportHeader;
+class TransportDetail;
 
 class Transport: public std::enable_shared_from_this<Transport> {
 public: 
@@ -32,9 +40,6 @@ public:
     void run_one();
     void abort();
 protected:
-    boost::asio::io_service m_io_service;
-    boost::asio::ip::tcp::socket m_socket;
-    
     void read();
     void notifyDisconnect(const std::string& why = "");
     virtual void notifyStartSend();
@@ -44,6 +49,8 @@ protected:
         return shared_from_this();
     }
 
+    std::shared_ptr<TransportDetail> m_detail;
+
 private:
     void writeQueue();
 
@@ -52,7 +59,7 @@ private:
     void onWrite(std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> >, const boost::system::error_code &ec);
     
     
-    void onMessage(const Message& msg);
+    void onMessage(const Message& msg);   
 
     MessageHandler* m_messageHandler;
 
@@ -62,7 +69,8 @@ private:
 
 };
 
-
 }
+
+#endif
 
 
