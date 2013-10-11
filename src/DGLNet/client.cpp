@@ -35,9 +35,9 @@ namespace dglnet {
 
         virtual void connectServer(std::string host, std::string port) {
             boost::asio::ip::tcp::resolver::query query(host, port);
-            m_Resolver.async_resolve(query, boost::bind(&ClientImpl::onResolve, shared_from_this(),
-                boost::asio::placeholders::error,
-                boost::asio::placeholders::iterator));
+            m_Resolver.async_resolve(query, std::bind(&ClientImpl::onResolve, shared_from_this(),
+                std::placeholders::_1,
+                std::placeholders::_2));
             m_controller->onSetStatus("Looking up server...");
         }
 
@@ -50,8 +50,8 @@ namespace dglnet {
         virtual void onResolve(const boost::system::error_code& err,
             boost::asio::ip::tcp::resolver::iterator endpoint_iterator) {
                 if (!err) {
-                    Transport::m_detail->m_socket.async_connect(*endpoint_iterator, boost::bind(&ClientImpl::onConnect, shared_from_this(),
-                        boost::asio::placeholders::error));
+                    Transport::m_detail->m_socket.async_connect(*endpoint_iterator, std::bind(&ClientImpl::onConnect, shared_from_this(),
+                        std::placeholders::_1));
                     m_controller->onSetStatus("Connecting...");
                     m_controller->onSocket();
                 } else {

@@ -45,8 +45,6 @@
 #include <boost/asio/streambuf.hpp>
 
 #include <sstream>
-#include <boost/bind.hpp>
-
 
 namespace dglnet {
 
@@ -88,8 +86,8 @@ namespace dglnet {
 
     void Transport::read() {
         TransportHeader* header = new TransportHeader();
-        boost::asio::async_read(m_detail->m_socket, boost::asio::buffer(header, sizeof(TransportHeader)), boost::bind(&Transport::onReadHeader, shared_from_this(), header,
-            boost::asio::placeholders::error));
+        boost::asio::async_read(m_detail->m_socket, boost::asio::buffer(header, sizeof(TransportHeader)), std::bind(&Transport::onReadHeader, shared_from_this(), header,
+            std::placeholders::_1));
     }
 
     void Transport::onReadHeader(TransportHeader* header, const boost::system::error_code &ec) {
@@ -98,8 +96,8 @@ namespace dglnet {
         } else {
             boost::asio::streambuf*  stream = new boost::asio::streambuf;
             stream->prepare(header->getSize());
-            boost::asio::async_read(m_detail->m_socket, *stream, boost::asio::transfer_exactly(header->getSize()), boost::bind(&Transport::onReadArchive, shared_from_this(),
-                stream, boost::asio::placeholders::error));
+            boost::asio::async_read(m_detail->m_socket, *stream, boost::asio::transfer_exactly(header->getSize()), std::bind(&Transport::onReadArchive, shared_from_this(),
+                stream, std::placeholders::_1));
         }
         delete header;
     }
@@ -158,8 +156,8 @@ namespace dglnet {
 
         std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> > sentData;
         std::swap(m_WriteQueue, sentData);
-        boost::asio::async_write(m_detail->m_socket, buffers, boost::bind(&Transport::onWrite, shared_from_this(),
-                sentData, boost::asio::placeholders::error));
+        boost::asio::async_write(m_detail->m_socket, buffers, std::bind(&Transport::onWrite, shared_from_this(),
+                sentData, std::placeholders::_1));
     }
 
     void Transport::onWrite(std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> > sentData, const boost::system::error_code &ec) {
