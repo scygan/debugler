@@ -557,7 +557,7 @@ void DGLMainWindow::createToolBars() {
          QMessageBox::critical(NULL, tr("Fatal Error"),
              QString::fromStdString(errormsg));
 
-         m_process->exit();
+         m_process->exit(false);
          m_process = NULL;
          m_BusyDialog.reset();
      }
@@ -576,7 +576,7 @@ void DGLMainWindow::createToolBars() {
      m_controller.disconnectServer();
 
      if (m_process) {
-         m_process->exit();
+         m_process->exit(false);
          m_process = NULL;
      }
 

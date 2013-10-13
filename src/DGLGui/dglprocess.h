@@ -36,7 +36,7 @@ public:
     DGLBaseQTProcess();
 
     virtual void run(std::string cmd, std::string path, std::vector<std::string> args, bool takeOutput = false);
-    void exit();
+    void exit(bool wait);
 
     signals:
         void processEvent(bool ok, std::string errormsg);

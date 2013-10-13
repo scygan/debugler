@@ -58,9 +58,12 @@ void DGLBaseQTProcess::run(std::string exec, std::string path, std::vector<std::
 }
 
 
-void DGLBaseQTProcess::exit() {
+void DGLBaseQTProcess::exit(bool wait) {
     disconnect();
     m_process.terminate();
+    if (wait) {
+        m_process.waitForFinished();
+    }
     deleteLater();
 }
 

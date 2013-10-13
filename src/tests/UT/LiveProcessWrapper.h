@@ -55,6 +55,7 @@ public:
 
     ~LiveProcessWrapper() {
         disconnect();
+        m_process->exit(true);
         delete m_process;
     }
 
