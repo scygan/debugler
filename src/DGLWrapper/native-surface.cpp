@@ -232,7 +232,7 @@ NativeSurfaceGLX::NativeSurfaceGLX(const DGLDisplayState* _dpy, opaque_id_t id):
         
         m_GLXDrawableGettersFailing = true;
 
-        Window win = reinterpret_cast<Window>(id);
+        Window win = static_cast<Window>(id);
 
         //in such case try to talk directly with X
         
