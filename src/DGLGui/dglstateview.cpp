@@ -19,6 +19,7 @@
 #include <set>
 #include <climits>
 #include <iomanip>
+#include <sstream>
 
 DGLStateView::DGLStateView(QWidget* parrent, DglController* controller):QDockWidget(tr("OpenGL State"), parrent), m_Listener(NULL), m_Controller(controller), m_Ui(NULL) {
     setObjectName("DGLStateView");

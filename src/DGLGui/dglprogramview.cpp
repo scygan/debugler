@@ -19,6 +19,7 @@
 #include "dglshaderviewitem.h"
 
 #include <QMessageBox>
+#include <sstream>
 
 
 DGLProgramViewItem::DGLProgramViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent), DGLRequestHandler(resManager->getRequestManager()),

@@ -17,6 +17,7 @@
 #include "glutil.h"
 
 #include <thread>
+#include <chrono>
 
 class SampleResize: public Sample {
     
@@ -68,6 +69,7 @@ class SampleResize: public Sample {
             glViewport(0, 0, 400, 400);
         }
         i++;
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

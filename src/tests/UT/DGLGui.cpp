@@ -69,22 +69,22 @@ namespace {
         };
 
         struct U {
-            U(char* s):m_s(s) {};
+            U(const char* s):m_s(s) {};
             std::string m_s;
         };
 
         struct K {
-            K(char* s):m_s(s) {};
+            K(const char* s):m_s(s) {};
             std::string m_s;
         };
 
         struct B {
-            B(char* s):m_s(s) {};
+            B(const char* s):m_s(s) {};
             std::string m_s;
         };
 
         struct N {
-            N(char* s):m_s(s) {};
+            N(const char* s):m_s(s) {};
             std::string m_s;
         };
         

@@ -166,7 +166,7 @@ protected:
             );
 
 private:
-    boost::shared_ptr<DGLHLActionBase> m_action;
+    std::shared_ptr<DGLHLActionBase> m_action;
     const DGLHLTextCharFormat* m_format;
 };
 
@@ -451,9 +451,9 @@ class DGLHLData {
 public:
     DGLHLData():m_case_sensitive(true) {
         const QString paths[] = {"glsl.xml", ":/res/glsl.xml"};
-        boost::shared_ptr<QFile> file;
+        std::shared_ptr<QFile> file;
         for (size_t i = 0; i < sizeof(paths)/sizeof(paths[0]) && !file; i++) {
-            file = boost::make_shared<QFile>(paths[i]);
+            file = std::make_shared<QFile>(paths[i]);
             if (!file->open(QFile::ReadOnly)) {
                 file.reset(); //not file->reset() !!
             }
@@ -509,7 +509,7 @@ public:
                     FATAL;
                 }
 
-                m_contexts[contextItem.attribute("name", "").toStdString()] = boost::make_shared<DGLHLContext>(contextItem, this);
+                m_contexts[contextItem.attribute("name", "").toStdString()] = std::make_shared<DGLHLContext>(contextItem, this);
 
                 if (m_contexts.size() == 1) {
                     m_defContext = (*m_contexts.begin()).second.get();
@@ -565,7 +565,7 @@ private:
 
     std::map<std::string, DGLHLRuleKeyword::keywordList_t> m_lists;
     
-    std::map<std::string, boost::shared_ptr<DGLHLContext> > m_contexts;
+    std::map<std::string, std::shared_ptr<DGLHLContext> > m_contexts;
     DGLHLContext* m_defContext;
 
     std::map<std::string, DGLHLTextCharFormat> m_formats;
@@ -609,7 +609,7 @@ DGLHLRuleBase::DGLHLRuleBase(const DGLHLData* data, QString formatName, QString 
         , QString debugRuleName
 #endif
         ) {
-    m_action = boost::shared_ptr<DGLHLActionBase>(DGLHLActionBase::Create(data, actionName));
+    m_action = std::shared_ptr<DGLHLActionBase>(DGLHLActionBase::Create(data, actionName));
     m_format = data->getFormat(formatName.toStdString());
 #ifdef HL_DEBUG
     m_debugRuleName =  formatName + ":" + debugRuleName;

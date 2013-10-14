@@ -468,9 +468,9 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
         anyContextPresent = true;
     }
 #elif defined(HAVE_LIBRARY_GLX)
-    Display *dpy;
+    Display *dpy = NULL;
     GLXFBConfig config = NULL;
-    GLXContext sharedContext;
+    GLXContext sharedContext = NULL;
     Bool direct = True;
     const int *attribList = NULL;
     int renderType; //not really used

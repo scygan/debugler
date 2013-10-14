@@ -59,7 +59,7 @@ namespace dglnet {
         value_t m_size;
     };
 
-    TransportDetail::TransportDetail():m_socket(m_io_service) {};
+    TransportDetail::TransportDetail():m_socket(m_io_service) {}
 
     Transport::Transport(MessageHandler* handler):m_detail(std::make_shared<TransportDetail>()),m_messageHandler(handler),m_WriteReady(true),m_Abort(false) {}
 
