@@ -56,7 +56,7 @@
 #else
 #define LIBGL_NAME    "libGL.so.1"
 #define LIBGLES1_NAME "libGLESv1_CM.so.1"
-#define LIBGLES2_NAME "libGLESv2.so.1"
+#define LIBGLES2_NAME "libGLESv2.so.2"
 #define LIBEGL_NAME   "libEGL.so.1"
 #define STRIP_VERSION(X) std::string(X).substr(0, std::string(X).length() - strlen(".1"))
 #endif
