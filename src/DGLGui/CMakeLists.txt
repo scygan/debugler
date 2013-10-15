@@ -71,6 +71,6 @@ add_library(dglgui
 )
 
 add_executable(debugler main.cpp)
-target_link_libraries(debugler dglgui QHexEdit dglcommon dglnet ${QT_LIBRARIES} boost_system boost_serialization)
+target_link_libraries(debugler dglgui QHexEdit dglcommon dglnet ${QT_LIBRARIES} boost_system boost_serialization pthread rt)
 
 install (TARGETS debugler DESTINATION bin)
