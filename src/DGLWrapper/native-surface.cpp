@@ -325,7 +325,7 @@ int NativeSurfaceGLX::getWidth() {
         return width;
 
     } else {
-        Window win = reinterpret_cast<Window>(m_Id);
+        Window win = static_cast<Window>(m_Id);
 
         XWindowAttributes attribs;
         XGetWindowAttributes(dpy, win, &attribs);
@@ -346,7 +346,7 @@ int NativeSurfaceGLX::getHeight() {
         return height;
 
     } else {
-        Window win = reinterpret_cast<Window>(m_Id);
+        Window win = static_cast<Window>(m_Id);
 
         XWindowAttributes attribs;
         XGetWindowAttributes(dpy, win, &attribs);
