@@ -31,12 +31,12 @@ class DGLSyntaxHighlighterGLSL : public QSyntaxHighlighter {
     Q_OBJECT
 
 public:
-    DGLSyntaxHighlighterGLSL(QTextDocument *parent = 0);
+    DGLSyntaxHighlighterGLSL(bool essl, QTextDocument *parent);
 
     class HLState: public std::stack<const DGLHLContext*, std::vector<const DGLHLContext*>> {
     public:
         bool operator<(const HLState& other ) const;
-        HLState(const DGLHLData* data); 
+        HLState(const DGLHLData* data, bool essl); 
         const DGLHLContext* getContext();
     private:
         const DGLHLContext* operator[](size_t i) const;
@@ -50,6 +50,7 @@ private:
 
     std::vector<const HLState*> m_hlStateByIdx;
     std::map<HLState, int> m_hlStateMap;
+    bool m_essl;
 };
 
 #endif //DGLSYNTAXHIGHLIGHT_H

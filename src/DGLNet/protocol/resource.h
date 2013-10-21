@@ -171,12 +171,13 @@ class DGLResourceShader: public DGLResource {
         ar & ::boost::serialization::base_object<DGLResource>(*this);
         ar & m_Source;
         ar & m_ShaderObjDeleted;
+        ar & m_IsESSLDefault;
         ar & m_CompileStatus;
     }
 
 public:
     std::string m_Source;
-    bool m_ShaderObjDeleted;
+    bool m_ShaderObjDeleted, m_IsESSLDefault;
     std::pair<std::string, gl_t> m_CompileStatus;
 };
 

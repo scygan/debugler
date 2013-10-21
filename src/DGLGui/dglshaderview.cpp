@@ -55,8 +55,6 @@ DGLShaderViewItem::DGLShaderViewItem(dglnet::ContextObjectName name, DGLResource
     m_Ui.verticalLayout->setStretch(0, 4);
     m_Ui.verticalLayout->setStretch(2, 1);
 
-    m_Highlighter = boost::make_shared<DGLSyntaxHighlighterGLSL>(m_Ui.checkBox_Highlight->isChecked()?m_GLSLEditor->document():NULL);
-
     m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectType::Shader);
     m_Listener->setParent(this);
 
@@ -161,6 +159,11 @@ void DGLShaderViewItem::update(const dglnet::DGLResource& res) {
     m_Ui.groupBox1->show();
     m_Label->hide();
     const dglnet::resource::DGLResourceShader* resource = dynamic_cast<const dglnet::resource::DGLResourceShader*>(&res);
+
+    if (!m_Highlighter) {
+        m_Highlighter = boost::make_shared<DGLSyntaxHighlighterGLSL>(resource->m_IsESSLDefault,
+            m_Ui.checkBox_Highlight->isChecked()?m_GLSLEditor->document():NULL);
+    }
 
     m_Ui.textEditLinker->setText(QString::fromStdString(resource->m_CompileStatus.first));
 

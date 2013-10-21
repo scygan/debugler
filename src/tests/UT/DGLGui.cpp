@@ -40,7 +40,7 @@ namespace {
 
     TEST_F(DGLGui, syntax_highlighter_create) {
         QPlainTextEdit editor;
-        DGLSyntaxHighlighterGLSL highlighter(editor.document());
+        DGLSyntaxHighlighterGLSL highlighter(false, editor.document());
     }
     
     template <typename T> class vector_inserter{
@@ -59,7 +59,7 @@ namespace {
 
     TEST_F(DGLGui, syntax_highlighter_parse) {
         QPlainTextEdit editor;
-        DGLSyntaxHighlighterGLSL highlighter(editor.document());
+        DGLSyntaxHighlighterGLSL highlighter(false, editor.document());
         
         enum class Format {
             UNFORMATTED,

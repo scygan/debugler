@@ -512,7 +512,10 @@ public:
                 m_contexts[contextItem.attribute("name", "").toStdString()] = std::make_shared<DGLHLContext>(contextItem, this);
 
                 if (m_contexts.size() == 1) {
-                    m_defContext = (*m_contexts.begin()).second.get();
+                    m_defContextGLSL = (*m_contexts.begin()).second.get();
+                }
+                if (contextItem.attribute("name", "") == "v100ES") {
+                    m_defContextESSL = (*m_contexts.begin()).second.get();
                 }
             }
         }
@@ -531,8 +534,13 @@ public:
         }
     }
 
-    const DGLHLContext* getDefaultContext() const {
-        return m_defContext;
+    const DGLHLContext* getDefaultContext(bool essl) const {
+        if (essl) {
+            if (m_defContextESSL) {
+                return m_defContextESSL;
+            }
+        }
+        return m_defContextGLSL;
     }
 
     const DGLHLContext* getContext(std::string name) const {
@@ -566,7 +574,8 @@ private:
     std::map<std::string, DGLHLRuleKeyword::keywordList_t> m_lists;
     
     std::map<std::string, std::shared_ptr<DGLHLContext> > m_contexts;
-    DGLHLContext* m_defContext;
+    DGLHLContext* m_defContextGLSL;
+    DGLHLContext* m_defContextESSL;
 
     std::map<std::string, DGLHLTextCharFormat> m_formats;
 };
@@ -651,14 +660,14 @@ void DGLHLContext::link(const DGLHLData* data) {
     }
 }
 
-DGLSyntaxHighlighterGLSL::DGLSyntaxHighlighterGLSL(QTextDocument *_parent): QSyntaxHighlighter(_parent) {
+DGLSyntaxHighlighterGLSL::DGLSyntaxHighlighterGLSL(bool essl, QTextDocument *_parent): QSyntaxHighlighter(_parent),m_essl(essl) {
     if (!s_data) {
         s_data = std::make_shared<DGLHLData>();
     }
 }
 
 void DGLSyntaxHighlighterGLSL::highlightBlock(const QString &text) {
-    HLState currentState(s_data.get());
+    HLState currentState(s_data.get(), m_essl);
 
     int previousStateIdx = previousBlockState();
 
@@ -710,8 +719,8 @@ void DGLSyntaxHighlighterGLSL::highlightBlock(const QString &text) {
     setCurrentBlockState(i.first->second);
 }
 
-DGLSyntaxHighlighterGLSL::HLState::HLState(const DGLHLData* data) {
-    push(data->getDefaultContext());
+DGLSyntaxHighlighterGLSL::HLState::HLState(const DGLHLData* data, bool essl) {
+    push(data->getDefaultContext(essl));
 }
 
 const DGLHLContext* DGLSyntaxHighlighterGLSL::HLState::getContext() {

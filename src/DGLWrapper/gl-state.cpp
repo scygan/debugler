@@ -1177,6 +1177,8 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryShader(gl_t _name) {
 
     resource->m_ShaderObjDeleted = shader->isDeleted();
 
+    resource->m_IsESSLDefault = getVersion().check(GLContextVersion::Type::ES);
+
     return ret;
 }
 
