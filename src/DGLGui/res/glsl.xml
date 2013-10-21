@@ -989,7 +989,7 @@
 			<context name="version" attribute="Preprocessor" lineEndContext="#pop">
 				<!-- GLSL version detection -->
 				<StringDetect attribute="Preprocessor" String="100" context="v100ES"/> <!-- ES 2.0 -->
-				<StringDetect attribute="Preprocessor" String="110" context="#pop"/> <!-- 110 is the default -->
+				<StringDetect attribute="Preprocessor" String="110" context="v110"/> <!-- 110  -->
 				<StringDetect attribute="Preprocessor" String="120" context="v120"/>
 				<StringDetect attribute="Preprocessor" String="130" context="v130"/>
 				<StringDetect attribute="Preprocessor" String="140" context="v140"/>
@@ -1071,6 +1071,7 @@
 				<Detect2Chars attribute="Comment" context="CommentSingleLine" char="/" char1="/"/>
 				<Detect2Chars attribute="Comment" context="CommentMultiLine" char="/" char1="*" beginRegion="Comment"/>
 				<!-- preprocessor -->
+				<StringDetect attribute="Preprocessor" String="#version" context="version"/>
 				<DetectChar attribute="Preprocessor" context="Preprocessor" char="#" firstNonSpace="true"/>
 			</context>
 			
