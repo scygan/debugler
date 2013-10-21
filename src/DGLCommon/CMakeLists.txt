@@ -19,7 +19,7 @@ add_custom_command(
     OUTPUT ${codegen_GENERATED}
     COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/../codegen/codegen.py 
         ${codegen_in} ${codegen_out}
-    MAIN_DEPENDENCY ../codegen/input/glext.h
+        MAIN_DEPENDENCY ../codegen/input/GL/glext.h
     DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/../codegen/codegen.py
         ${codegen_in}/GL/GL.h
