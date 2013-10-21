@@ -287,13 +287,57 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 #endif
 #ifdef HAVE_LIBRARY_GLX
         case glXCreateContextAttribsARB_Call:
+            ret.get(ctx);
+            if (ctx) {
+                GLXFBConfig config;
+                const int *attribList;
+                call.getArgs()[0].get(dpy);
+                call.getArgs()[1].get(config);
+                call.getArgs()[4].get(attribList);
+
+                std::vector<gl_t> attributes;
+                if (attribList) {
+                    int i = 0; 
+                    while (attribList[i] != None) {
+                        attributes.push_back(attribList[i++]);
+                        attributes.push_back(attribList[i++]);
+                    }
+                }
+
+                DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy), DGLDisplayState::Type::GLX)->createContext(
+                        dglState::GLContextVersion::Type::DT,
+                        dglState::GLContextCreationData(entryp, (opaque_id_t)config, attributes),
+                        reinterpret_cast<opaque_id_t>(ctx));
+            }
+            break;
         case glXCreateContext_Call:
+            ret.get(ctx);
+            if (ctx) {
+                GLXFBConfig* memToFree;
+                XVisualInfo *  vis;
+                call.getArgs()[0].get(dpy);
+                call.getArgs()[1].get(vis);
+                DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy), DGLDisplayState::Type::GLX)->createContext(
+                        dglState::GLContextVersion::Type::DT,
+                        dglState::GLContextCreationData(entryp,
+                            (opaque_id_t)*dglState::NativeSurfaceGLX::getFbConfigForVisual(dpy, vis->visualid, &memToFree), std::vector<gl_t>()),
+                        reinterpret_cast<opaque_id_t>(ctx));
+                if (memToFree) {
+                    XFree(memToFree);
+                }
+            }
+            break;
+
         case glXCreateNewContext_Call:
             ret.get(ctx);
             if (ctx) {
+                GLXFBConfig  config;
                 call.getArgs()[0].get(dpy);
-                DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy))->ensureContext(
-                        dglState::GLContextVersion::Type::DT, reinterpret_cast<opaque_id_t>(ctx));
+                call.getArgs()[1].get(config);
+                DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy), DGLDisplayState::Type::GLX)->createContext(
+                        dglState::GLContextVersion::Type::DT,
+                        dglState::GLContextCreationData(entryp, (opaque_id_t)config, std::vector<gl_t>()),
+                        reinterpret_cast<opaque_id_t>(ctx));
             }
             break;
         case glXMakeCurrent_Call:
@@ -314,25 +358,25 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                     call.getArgs()[2].get(readDrawable);
                     call.getArgs()[3].get(ctx);
                 }
-                                
+
                 dglState::NativeSurfaceBase* readSurface = NULL;
                 if (readDrawable) {
-                    readSurface = DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy))->ensureSurface<dglState::NativeSurfaceGLX>
+                    readSurface = DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy), DGLDisplayState::Type::GLX)->ensureSurface<dglState::NativeSurfaceGLX>
                         ((opaque_id_t)readDrawable)->second.get();
                 }
                 dglState::NativeSurfaceBase* drawSurface = NULL;
                 if (drawDrawable) {
-                    drawSurface = DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy))->ensureSurface<dglState::NativeSurfaceGLX>
+                    drawSurface = DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy), DGLDisplayState::Type::GLX)->ensureSurface<dglState::NativeSurfaceGLX>
                         ((opaque_id_t)drawDrawable)->second.get();
                 }
-                DGLThreadState::get()->bindContext(DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy)), 
+                DGLThreadState::get()->bindContext(DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy),  DGLDisplayState::Type::GLX),
                     reinterpret_cast<opaque_id_t>(ctx), drawSurface, readSurface);
             }
             break;
         case glXDestroyContext_Call:
             call.getArgs()[0].get(dpy);
             call.getArgs()[0].get(ctx);
-            DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy))->lazyDeleteContext(reinterpret_cast<opaque_id_t>(ctx));
+            DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy), DGLDisplayState::Type::GLX)->lazyDeleteContext(reinterpret_cast<opaque_id_t>(ctx));
             break;
 #endif
         case eglBindAPI_Call:
