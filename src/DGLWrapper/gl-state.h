@@ -24,6 +24,8 @@
 #include <DGLNet/protocol/message.h>
 #include <DGLNet/protocol/resource.h>
 
+#include "gl-statesetters.h"
+
 class DGLDisplayState;
 
 namespace dglState {
@@ -154,7 +156,7 @@ public:
     };
     GLContextVersion(Type type);
 
-    bool check(Type type, int majorVersion = 0, int minorVersion = 0);
+    bool check(Type type, int majorVersion = 0, int minorVersion = 0) const;
     void initialize(const char* cVersion);
 private:
     
@@ -166,9 +168,26 @@ private:
 
 class NativeSurfaceBase;
 
+
+
+class GLContextCreationData {
+public:
+    GLContextCreationData();
+    GLContextCreationData(Entrypoint entryp, opaque_id_t pixelFormat, const std::vector<gl_t>& attribs);
+    Entrypoint getEntryPoint() const;
+    opaque_id_t getPixelFormat() const;
+    const std::vector<gl_t>& getAttribs() const;
+private:
+    Entrypoint m_Entrypoint;
+    opaque_id_t m_pixelFormat;
+    std::vector<gl_t> m_attribs;
+};
+
+class GLAuxContext;
+
 class GLContext {
 public:
-    GLContext(GLContextVersion version, opaque_id_t id);
+    GLContext(const DGLDisplayState* dpy, GLContextVersion version, opaque_id_t id, const GLContextCreationData& creationData);
     std::map<GLuint, GLTextureObj> m_Textures;
     std::map<GLuint, GLBufferObj> m_Buffers;
     std::map<GLuint, GLProgramObj> m_Programs;
@@ -177,8 +196,9 @@ public:
 
     dglnet::message::BreakedCall::ContextReport describe();
 
-    NativeSurfaceBase* getNativeReadSurface();
-    void setNativeReadSurface(NativeSurfaceBase*);
+    NativeSurfaceBase* getNativeReadSurface() const;
+    NativeSurfaceBase* getNativeDrawSurface() const;
+    void setNativeSurfaces(NativeSurfaceBase* read, NativeSurfaceBase* draw);
 
     GLTextureObj* ensureTexture(GLuint name);
     void deleteTexture(GLuint name);
@@ -201,7 +221,25 @@ public:
     boost::shared_ptr<dglnet::DGLResource> queryGPU();
     boost::shared_ptr<dglnet::DGLResource> queryState(gl_t name);
 
-    opaque_id_t getId();
+    /**
+     * texture level query (dispatches to proper query)
+     */
+    boost::shared_ptr<dglnet::resource::DGLPixelRectangle> queryTextureLevel(gl_t _name, GLenum target, int level, state_setters::PixelStoreAlignment&);
+
+
+    /**
+     * texture level query (OpenGL, using getters)
+     */
+    boost::shared_ptr<dglnet::resource::DGLPixelRectangle> queryTextureLevelGetters(GLenum target, int level, state_setters::PixelStoreAlignment& defAlignment);
+
+    /**
+     * texture level query (OpenGL ES, using auxiliary ctx)
+     */
+    boost::shared_ptr<dglnet::resource::DGLPixelRectangle> queryTextureLevelAuxCtx(gl_t _name, GLenum target, int level);
+
+
+
+    opaque_id_t getId() const;
 
     std::pair<bool, GLenum> getPokedError();
     GLenum peekError();
@@ -260,7 +298,7 @@ public:
     /**
      * Getter for context version
      */
-    GLContextVersion& getVersion();
+    const GLContextVersion& getVersion() const;
 
     
     enum class ContextCap {
@@ -276,12 +314,29 @@ public:
         MultipleFramebufferAttachments,
         Has64BitGetters,
         HasGetStringI,
+        TextureQueries
     };
     
     /**
      * Context capability check
      */
     bool hasCapability(ContextCap);
+
+    /**
+     * Getter for context creation data
+     */
+    const GLContextCreationData& getContextCreationData() const;
+
+    /**
+     * Auxiliary context getter
+     */
+    GLAuxContext* getAuxContext();
+
+
+    /**
+     *  Getter for parent display
+     */
+    const DGLDisplayState* getDisplay() const;
 
 private:
     void queryCheckError();
@@ -300,9 +355,14 @@ private:
     opaque_id_t m_Id;
 
     /**
-     * Handle to native surface (drawable)
+     * Handle to native surface (drawable), read
      */
     NativeSurfaceBase* m_NativeReadSurface;
+
+    /**
+     * Handle to native surface (drawable), write
+     */
+    NativeSurfaceBase* m_NativeDrawSurface;
 
     /**
      * Queue for errors poked from glGetError(), not yet delivered to application
@@ -384,6 +444,23 @@ private:
      * True if queries are now performed on contexts
      */
     bool m_InQuery;
+
+    
+    /**
+     * Context creation data - context attributes used on creation of this ctx.
+     */
+    GLContextCreationData m_CreationData;
+
+    /**
+     * Auxiliary context (used on demand, when query cannot be performed on this ctx).
+     */
+    std::shared_ptr<GLAuxContext> m_AuxContext;
+
+
+    /**
+     * Parent display
+     */
+    const DGLDisplayState* m_Display;
 
 };
 

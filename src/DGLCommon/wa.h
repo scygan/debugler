@@ -26,7 +26,7 @@
 // Buggy ARM Mali OpenGL ES 3.0 emulator: EGL_CONFIG_ID queried using eglQuerySurface does not match any eglConfig
 #define WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
 
- //Buggu ARM Mali OpenGL ES emulator on Windows: 
+ //Buggy ARM Mali OpenGL ES emulator on Windows: 
     //do not exit remote loader thread before app tear down
     //  Normally we would just return from this (empty) function causing loader
     //  thread to exit (leaving app in suspended state - no user threads). 

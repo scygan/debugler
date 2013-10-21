@@ -29,175 +29,16 @@
 #include <sstream>
 
 #include "pointers.h"
-#include "api-loader.h"
 #include "native-surface.h"
 #include "gl-utils.h"
 #include "tls.h"
+#include "gl-auxcontext.h"
 
 #include <DGLCommon/def.h>
 #include <DGLNet/protocol/pixeltransfer.h>
 
 
 namespace dglState {
-
-namespace state_setters {
-
-    class DefaultPBO {
-    public:
-        DefaultPBO(GLContext* ctx):m_Ctx(ctx) {
-            if (m_Ctx->hasCapability(GLContext::ContextCap::PixelBufferObjects)) {
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_PIXEL_PACK_BUFFER_BINDING, &m_PBO);
-            } else {
-                m_PBO = 0;
-            }
-            if (m_PBO) {
-                DIRECT_CALL_CHK(glBindBuffer)(GL_PIXEL_PACK_BUFFER, 0);
-            }
-        }
-        ~DefaultPBO() {
-            if (m_PBO) {
-                DIRECT_CALL_CHK(glBindBuffer)(GL_PIXEL_PACK_BUFFER, m_PBO);
-            }
-        }
-    private:
-		GLContext* m_Ctx;
-        GLint m_PBO;
-    };
-
-    class CurrentFramebuffer {
-    public:
-        CurrentFramebuffer(GLContext* ctx, GLuint name):m_Ctx(ctx) {
-            if (m_Ctx->hasCapability(GLContext::ContextCap::FramebufferObjects)) {
-                if (m_Ctx->hasCapability(GLContext::ContextCap::SeparateReadDrawFramebufferObjects)) {
-                    //full FBO support
-                    DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_FRAMEBUFFER_BINDING, &m_ReadFBO);
-                    DIRECT_CALL_CHK(glGetIntegerv)(GL_DRAW_FRAMEBUFFER_BINDING, &m_DrawFBO);
-                    DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, name);
-                } else {
-                    //only single draw+read fbo binding is supported
-                    DIRECT_CALL_CHK(glGetIntegerv)(GL_FRAMEBUFFER_BINDING, &m_DrawFBO);
-                    DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, name);
-                }
-            }
-        }
-        ~CurrentFramebuffer() {
-            if (m_Ctx->hasCapability(GLContext::ContextCap::FramebufferObjects)) {
-                if (m_Ctx->hasCapability(GLContext::ContextCap::SeparateReadDrawFramebufferObjects)) {
-                    //full FBO support
-                    DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, m_ReadFBO);
-                    DIRECT_CALL_CHK(glBindFramebuffer)(GL_DRAW_FRAMEBUFFER, m_DrawFBO);
-                } else {
-                    //only single draw+read fbo binding is supported
-                    DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, m_DrawFBO);
-                }
-            }
-        }
-    private:
-		GLContext* m_Ctx;
-        GLint m_ReadFBO, m_DrawFBO;
-    };
-
-    class ReadBuffer {
-    public:
-        ReadBuffer(GLContext* ctx):m_Ctx(ctx) {
-            if (m_Ctx->hasCapability(GLContext::ContextCap::ReadBufferSelector)) {
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &m_ReadBuffer);
-            }
-        }
-        ~ReadBuffer() {
-            if (m_Ctx->hasCapability(GLContext::ContextCap::ReadBufferSelector)) {
-                DIRECT_CALL_CHK(glReadBuffer)(m_ReadBuffer);
-            }
-        }
-    private:
-		GLContext* m_Ctx;
-        GLint m_ReadBuffer;
-    };
-
-    class DrawBuffers {
-    public:
-        DrawBuffers(GLContext* ctx):m_Ctx(ctx) {
-            if (m_Ctx->hasCapability(GLContext::ContextCap::DrawBuffersMRT)) {
-                GLint maxDrawBuffers;
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_DRAW_BUFFERS, &maxDrawBuffers);
-                m_DrawBuffers.resize(maxDrawBuffers);
-                for (GLint i = 0; i < maxDrawBuffers; i++) {
-                    DIRECT_CALL_CHK(glGetIntegerv)(GL_DRAW_BUFFER0 + i, &m_DrawBuffers[i]);
-                }
-            }            
-        }
-        ~DrawBuffers() {
-            if (m_Ctx->hasCapability(GLContext::ContextCap::DrawBuffersMRT)) {
-                DIRECT_CALL_CHK(glDrawBuffers)(static_cast<GLsizei>(m_DrawBuffers.size()), reinterpret_cast<GLenum*>(&m_DrawBuffers[0]));
-            }
-        }
-    private:
-        GLContext* m_Ctx;
-        std::vector<GLint> m_DrawBuffers;        
-    };
-
-    class RenderBuffer {
-    public:
-        RenderBuffer() {
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_RENDERBUFFER_BINDING, &m_RenderBuffer);
-        }
-        ~RenderBuffer() {
-            DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, m_RenderBuffer);
-        }
-    private:
-        GLint m_RenderBuffer;
-    };
-
-    class PixelStoreAlignment {
-#define STATE_SIZE 8
-    public:
-        PixelStoreAlignment(GLContext* ctx):m_Ctx(ctx) {
-            //dump and set pixel store state
-            for (int i = 0; i < STATE_SIZE; i++) {
-                if (m_Ctx->getVersion().check(GLContextVersion::Type::DT) ||
-                       (s_StateTable[i].m_ES3 && m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3))) {
-                    DIRECT_CALL_CHK(glGetIntegerv)(s_StateTable[i].m_Target, &s_StateTable[i].m_SavedState);
-                    DIRECT_CALL_CHK(glPixelStorei)(s_StateTable[i].m_Target, s_StateTable[i].m_State);
-                }
-            }
-        }
-        ~PixelStoreAlignment() {
-            for (int i = 0; i < STATE_SIZE; i++) {
-                if (m_Ctx->getVersion().check(GLContextVersion::Type::DT) ||
-                        (s_StateTable[i].m_ES3 && m_Ctx->getVersion().check(GLContextVersion::Type::ES, 3))) {
-                    DIRECT_CALL_CHK(glPixelStorei)(s_StateTable[i].m_Target, s_StateTable[i].m_SavedState);
-                }
-            }
-        }
-    public:
-        int getAligned(int x) {
-            int a = s_StateTable[7].m_State;
-            return (x + a - 1) & (-a);
-        }
-    private:
-
-        static struct StateEntry {
-            GLenum m_Target;
-            GLint m_State;
-            bool m_ES3;
-            GLint m_SavedState;
-        } s_StateTable[STATE_SIZE];
-        GLContext* m_Ctx;
-    };
-    
-    PixelStoreAlignment::StateEntry PixelStoreAlignment::s_StateTable[STATE_SIZE] = {
-        { GL_PACK_SWAP_BYTES,   GL_FALSE, false, 0 },
-        { GL_PACK_LSB_FIRST,    GL_FALSE, false, 0 },
-        { GL_PACK_ROW_LENGTH,   0,        true,  0 },
-        { GL_PACK_IMAGE_HEIGHT, 0,        false, 0 },
-        { GL_PACK_SKIP_ROWS,    0,        true,  0 },
-        { GL_PACK_SKIP_PIXELS,  0,        true,  0 },
-        { GL_PACK_SKIP_IMAGES,  0,        false, 0 },
-        { GL_PACK_ALIGNMENT,    4,        true,  0 },
-    };
-}
-#undef STATE_SIZE
-
 
 GLObj::GLObj():m_Name(0) {}
 
@@ -433,7 +274,7 @@ GLenum GLFBObj::getTarget() {
 
 GLContextVersion::GLContextVersion(Type type):m_Initialized(false), m_Type(type) {}
 
-bool GLContextVersion::check(Type type, int majorVersion, int minorVersion) {
+bool GLContextVersion::check(Type type, int majorVersion, int minorVersion) const {
 
     if (type != m_Type) {
         return false;
@@ -496,9 +337,24 @@ void GLContextVersion::initialize(const char* cVersion) {
     m_Initialized = true;
 }
 
+GLContextCreationData::GLContextCreationData():m_Entrypoint(NO_ENTRYPOINT),m_pixelFormat(0) {}
 
-GLContext::GLContext(GLContextVersion version, opaque_id_t id): m_Version(version), m_Id(id), m_NativeReadSurface(NULL), m_HasNVXMemoryInfo(false),
-    m_HasDebugOutput(false), m_DebugOutputCallback(NULL), m_InImmediateMode(false),m_EverBound(false), m_RefCount(0), m_ToBeDeleted(false), m_InQuery(false)  {}
+GLContextCreationData::GLContextCreationData(Entrypoint entryp, gl_t pixelFormat, const std::vector<gl_t>& attribs):m_Entrypoint(entryp),m_pixelFormat(pixelFormat), m_attribs(attribs) {}
+
+Entrypoint GLContextCreationData::getEntryPoint() const {
+    return m_Entrypoint;
+}
+
+opaque_id_t GLContextCreationData::getPixelFormat() const {
+    return m_pixelFormat;
+}
+
+const std::vector<gl_t>& GLContextCreationData::getAttribs() const {
+    return m_attribs;
+}
+
+GLContext::GLContext(const DGLDisplayState* display, GLContextVersion version, opaque_id_t id, const GLContextCreationData& creationData): m_Version(version), m_Id(id), m_NativeReadSurface(NULL), m_NativeDrawSurface(NULL), m_HasNVXMemoryInfo(false),
+    m_HasDebugOutput(false), m_DebugOutputCallback(NULL), m_InImmediateMode(false),m_EverBound(false), m_RefCount(0), m_ToBeDeleted(false), m_InQuery(false), m_CreationData(creationData), m_Display(display) {}
 
 dglnet::message::BreakedCall::ContextReport GLContext::describe() {
     dglnet::message::BreakedCall::ContextReport ret(m_Id);
@@ -542,12 +398,17 @@ dglnet::message::BreakedCall::ContextReport GLContext::describe() {
     return ret;
 }
 
-NativeSurfaceBase* GLContext::getNativeReadSurface() {
+NativeSurfaceBase* GLContext::getNativeReadSurface() const {
     return m_NativeReadSurface;
 }
 
-void GLContext::setNativeReadSurface(NativeSurfaceBase* surface) {
-    m_NativeReadSurface = surface;
+NativeSurfaceBase* GLContext::getNativeDrawSurface() const {
+    return m_NativeDrawSurface;
+}
+
+void GLContext::setNativeSurfaces(NativeSurfaceBase* read ,NativeSurfaceBase* draw) {
+    m_NativeReadSurface = read;
+    m_NativeDrawSurface = draw;
 }
 
 GLTextureObj* GLContext::ensureTexture(GLuint name) {
@@ -708,7 +569,7 @@ bool GLContext::unboundMayDelete() {
     return m_ToBeDeleted && m_RefCount <= 0;
 }
 
-GLContextVersion& GLContext::getVersion() {
+const GLContextVersion& GLContext::getVersion() const {
     return m_Version;
 }
 
@@ -755,49 +616,12 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
     for (size_t face = 0; face < resource->m_FacesLevels.size(); face++) {
         for (int level = 0;; level++) {
 
-            GLint height, width, samples = 0;
-
-            GLenum levelTarget = tex->getTextureLevelTarget((int)face);
-
-            GLint internalFormat;
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
-
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_WIDTH, &width);
-            if (tex->getTarget() == GL_TEXTURE_1D) {
-                height = 1;
-            } else {
-                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_HEIGHT, &height);
-            }
-            if (!width || !height || DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
+            boost::shared_ptr<dglnet::resource::DGLPixelRectangle> rect = queryTextureLevel(name, tex->getTextureLevelTarget((int)face), level, defAlignment);
+            
+            if (!rect) {
                 break;
-         
-            std::vector<GLint> rgbaSizes(4, 0);
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_RED_SIZE, &rgbaSizes[0]);
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_GREEN_SIZE, &rgbaSizes[1]);
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_BLUE_SIZE, &rgbaSizes[2]);
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_ALPHA_SIZE, &rgbaSizes[3]);
-
-            if (hasCapability(ContextCap::TextureMultisample)) {
-                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_SAMPLES, &samples);
-            }
-
-            std::vector<GLint> deptStencilSizes(2, 0);
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_DEPTH_SIZE, &deptStencilSizes[0]);
-            
-            if (hasCapability(ContextCap::TextureQueryStencilBits)) { 
-                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_STENCIL_SIZE, &deptStencilSizes[1]);
-            }
-
-            queryCheckError();
-
-            DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, internalFormat);
-
-            resource->m_FacesLevels[face].push_back(boost::make_shared<dglnet::resource::DGLPixelRectangle>(width, height, defAlignment.getAligned(width * transfer.getPixelSize()),
-                transfer.getFormat(), transfer.getType(), internalFormat, samples));
-            
-            GLvoid* ptr;
-            if ((ptr = resource->m_FacesLevels[face].back()->getPtr()) != NULL) {
-                DIRECT_CALL_CHK(glGetTexImage)(levelTarget, level, (GLenum)transfer.getFormat(), (GLenum)transfer.getType(), ptr);
+            } else {
+                resource->m_FacesLevels[face].push_back(rect);
             }
         }
     }
@@ -805,6 +629,155 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
     //restore state
     if (lastTexture != tex->getName()) {
         DIRECT_CALL_CHK(glBindTexture)(tex->getTarget(), lastTexture);
+    }
+    return ret;
+}
+
+boost::shared_ptr<dglnet::resource::DGLPixelRectangle> GLContext::queryTextureLevel(gl_t name, GLenum target, int level, state_setters::PixelStoreAlignment& defAlignment) {
+    if (hasCapability(ContextCap::TextureQueries)) {
+        return queryTextureLevelGetters(target, level, defAlignment);
+    } else {
+        return queryTextureLevelAuxCtx(name, target, level);
+    }
+}
+
+
+bool textureProbeSizeES(GLenum target, int level, const int sizes[3]) {
+
+    int nothing = 0;
+
+    switch (target) {
+        case GL_TEXTURE_1D:
+            DIRECT_CALL_CHK(glTexSubImage1D)(target, level, sizes[0], 0, GL_RGBA, GL_UNSIGNED_BYTE, &nothing);
+            break;
+        case GL_TEXTURE_2D:
+        case GL_TEXTURE_RECTANGLE:
+        case GL_TEXTURE_1D_ARRAY:
+        case GL_TEXTURE_CUBE_MAP_POSITIVE_X:
+        case GL_TEXTURE_CUBE_MAP_NEGATIVE_X:
+        case GL_TEXTURE_CUBE_MAP_POSITIVE_Y:
+        case GL_TEXTURE_CUBE_MAP_NEGATIVE_Y:
+        case GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
+        case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
+            DIRECT_CALL_CHK(glTexSubImage2D)(target, level, sizes[0], sizes[1], 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, &nothing);
+            break;
+        default:
+            assert(0);
+            return false;
+    }
+    GLenum error = DIRECT_CALL_CHK(glGetError)();
+    if (error == GL_NO_ERROR) {
+        return true;
+    }
+    while (DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR) {}
+
+    return false;
+}
+
+
+int texturBisectSizeES(GLenum target, int level, int coord, int maxSize) {
+    int sizes[3] = { 0, 0, 0 };
+
+    int minSize = 0;
+
+    while (true) {
+        int middle = (minSize + maxSize) / 2;
+        if (middle == minSize) {
+            return minSize;
+        }
+        sizes[coord] = middle;
+        if (textureProbeSizeES(target, level, sizes)) {
+            minSize = middle;
+        } else {
+            maxSize = middle;
+        }
+    }
+}
+
+
+boost::shared_ptr<dglnet::resource::DGLPixelRectangle> GLContext::queryTextureLevelAuxCtx(gl_t name, GLenum target, int level) {
+
+    boost::shared_ptr<dglnet::resource::DGLPixelRectangle> ret;
+
+    queryCheckError();
+
+    GLint probeSizes[3] = { 1, 1, 1 };
+    if (!textureProbeSizeES(target, level, probeSizes) || level > 0 /* no multilevel support for now*/) {
+        //empty level
+        return ret;
+    }
+
+    GLint maxSize = 16384;
+    DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_TEXTURE_SIZE, &maxSize);
+
+    int width = texturBisectSizeES(target, level, 0, maxSize);
+    int height = texturBisectSizeES(target, level, 1, maxSize);
+
+    try {
+        GLAuxContext * auxCtx = getAuxContext();
+        {
+            GLAuxContextSession auxsess = auxCtx->makeCurrent();
+
+            std::vector<GLint> rgbaSizes(4, 0); std::vector<GLint> deptStencilSizes(2, 0);
+            DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, GL_RGBA8);
+
+            ret = boost::make_shared<dglnet::resource::DGLPixelRectangle>(width, height, ALIGNED(width * transfer.getPixelSize(), 4),
+                transfer.getFormat(), transfer.getType(), 0, 0);
+
+            auxCtx->queries.auxGetTexImage((GLuint)name, target, level, (GLenum)transfer.getFormat(), (GLenum)transfer.getType(), width, height, ret->getPtr());
+        }
+    } catch (const std::runtime_error& e) {
+        throw std::runtime_error(std::string("Texture query : Got error on auxiliary context operation:\n") + e.what());
+    }
+       
+    return ret;
+}
+
+boost::shared_ptr<dglnet::resource::DGLPixelRectangle> GLContext::queryTextureLevelGetters(GLenum target, int level, state_setters::PixelStoreAlignment& defAlignment) {
+
+    GLint height, width, samples = 0;
+
+    boost::shared_ptr<dglnet::resource::DGLPixelRectangle> ret;    
+
+    GLint internalFormat;
+    DIRECT_CALL_CHK(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
+
+    DIRECT_CALL_CHK(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_WIDTH, &width);
+    if (target == GL_TEXTURE_1D) {
+        height = 1;
+    } else {
+        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_HEIGHT, &height);
+    }
+    if (!width || !height || DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
+        return ret;
+
+    std::vector<GLint> rgbaSizes(4, 0);
+    DIRECT_CALL_CHK(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_RED_SIZE, &rgbaSizes[0]);
+    DIRECT_CALL_CHK(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_GREEN_SIZE, &rgbaSizes[1]);
+    DIRECT_CALL_CHK(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_BLUE_SIZE, &rgbaSizes[2]);
+    DIRECT_CALL_CHK(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_ALPHA_SIZE, &rgbaSizes[3]);
+
+    if (hasCapability(ContextCap::TextureMultisample)) {
+        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_SAMPLES, &samples);
+    }
+
+    std::vector<GLint> deptStencilSizes(2, 0);
+    DIRECT_CALL_CHK(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_DEPTH_SIZE, &deptStencilSizes[0]);
+
+    if (hasCapability(ContextCap::TextureQueryStencilBits)) { 
+        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_STENCIL_SIZE, &deptStencilSizes[1]);
+    }
+
+    queryCheckError();
+
+    DGLPixelTransfer transfer(rgbaSizes, deptStencilSizes, internalFormat);
+
+    ret = boost::make_shared<dglnet::resource::DGLPixelRectangle>(width, height, defAlignment.getAligned(width * transfer.getPixelSize()),
+        transfer.getFormat(), transfer.getType(), internalFormat, samples);
+
+    GLvoid* ptr;
+    if ((ptr = ret->getPtr()) != NULL) {
+        DIRECT_CALL_CHK(glGetTexImage)(target, level, (GLenum)transfer.getFormat(), (GLenum)transfer.getType(), ptr);
     }
     return ret;
 }
@@ -2614,7 +2587,7 @@ GLShaderObj* GLContext::findShader(GLuint name) {
 }
 
 
-opaque_id_t GLContext::getId() {
+opaque_id_t GLContext::getId() const {
     return m_Id;
 }
 
@@ -2631,7 +2604,7 @@ void GLContext::firstUse() {
 
     bool debugOutputSupported = false;
 
-    getVersion().initialize(reinterpret_cast<const char*>(DIRECT_CALL_CHK(glGetString)(GL_VERSION)));
+    m_Version.initialize(reinterpret_cast<const char*>(DIRECT_CALL_CHK(glGetString)(GL_VERSION)));
 
     if (hasCapability(ContextCap::HasGetStringI)) {
         DIRECT_CALL_CHK(glGetIntegerv)(GL_NUM_EXTENSIONS, &maxExtensions);
@@ -2721,10 +2694,29 @@ bool GLContext::hasCapability(ContextCap cap) {
         case ContextCap::HasGetStringI:
             return version.check(GLContextVersion::Type::DT, 3) ||
                    version.check(GLContextVersion::Type::ES, 3);
+
+        case ContextCap::TextureQueries:
+            return version.check(GLContextVersion::Type::DT);
+
         default:
             assert(0);
             return false;
     }
+}
+
+const GLContextCreationData& GLContext::getContextCreationData() const {
+    return m_CreationData;
+}
+
+GLAuxContext* GLContext::getAuxContext() {
+    if (!m_AuxContext) {
+        m_AuxContext = std::make_shared<GLAuxContext>(this);
+    }
+    return m_AuxContext.get();
+}
+
+const DGLDisplayState* GLContext::getDisplay() const {
+    return m_Display;
 }
 
 } //namespace dglState

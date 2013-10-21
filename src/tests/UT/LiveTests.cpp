@@ -549,7 +549,7 @@ namespace {
 
        ASSERT_EQ(GL_RGBA, rect->m_GLFormat);
        ASSERT_EQ(GL_UNSIGNED_BYTE, rect->m_GLType);
-       EXPECT_EQ(0, rect->m_Samples);
+       EXPECT_TRUE(rect->m_Samples == 0 || rect->m_Samples == 1);
        EXPECT_EQ(1, rect->m_Width);
        EXPECT_EQ(1, rect->m_Height);
        EXPECT_EQ(GL_RGBA8, rect->m_InternalFormat);

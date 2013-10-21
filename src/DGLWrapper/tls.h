@@ -40,7 +40,7 @@ public:
     /**
      * Setter for current context (should be called just after *MakeCurrent-like calls).
      */
-    void bindContext(DGLDisplayState* dpy, opaque_id_t id, dglState::NativeSurfaceBase* readSurface);
+    void bindContext(DGLDisplayState* dpy, opaque_id_t id, dglState::NativeSurfaceBase* drawSurface, dglState::NativeSurfaceBase* readSurface);
 
     /**
      * Getter for current context (should be called just after *MakeCurrent-like calls).

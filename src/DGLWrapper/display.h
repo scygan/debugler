@@ -37,10 +37,17 @@ class DGLDisplayState {
      */
     typedef std::map<opaque_id_t, boost::shared_ptr<dglState::NativeSurfaceBase> >::iterator SurfaceListIter;
 public:
+
+    enum class Type {
+        GLX,
+        EGL,
+        WGL,
+    };
+
     /**
      * Ctor
      */
-    DGLDisplayState(opaque_id_t id);
+    DGLDisplayState(opaque_id_t id, Type type);
 
     /**
      * Native id getter
@@ -50,17 +57,22 @@ public:
     /**
      * Getter for default display on display-less configurations (like WGL).
      */
-    static DGLDisplayState* defDpy();
+    static DGLDisplayState* defDpy(DGLDisplayState::Type type);
 
     /**
      * Getter for specific display on display-able configurations (like EGL, GLX).
      */
-    static DGLDisplayState* get(opaque_id_t dpy);
+    static DGLDisplayState* get(opaque_id_t dpy, DGLDisplayState::Type type);
 
     /**
-     * Getter for ctx object by given id (created if not exist)
+     * Creates new context
      */
-    ContextListIter ensureContext(dglState::GLContextVersion version, opaque_id_t id, bool lock = true);
+    void createContext(dglState::GLContextVersion version, dglState::GLContextCreationData creationData, opaque_id_t id);
+
+    /**
+     * Getter for ctx object by given id
+     */
+    ContextListIter getContext(dglState::GLContextVersion version, opaque_id_t id);
 
     /**
      * Getter for native surface object by given id (created if not exist). Not usable for EGL
@@ -99,6 +111,11 @@ public:
      */
     static std::vector<dglnet::message::BreakedCall::ContextReport> describeAll();
 
+    /**
+     * Getter for display type
+     */
+    Type getType() const;
+
 private:
 
     /**
@@ -135,6 +152,11 @@ private:
      * Display ID as seen from native API
      */
     opaque_id_t m_Id;
+
+    /**
+     * Display type
+     */
+    Type m_type;
 };
 
 

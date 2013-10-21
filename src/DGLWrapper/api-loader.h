@@ -13,6 +13,9 @@
 * limitations under the License.
 */
 
+#ifndef API_LOADER_H
+#define API_LOADER_H
+
 
 #include <DGLCommon/gl-types.h>
 
@@ -109,6 +112,8 @@ private:
 };
 
 extern APILoader g_ApiLoader;
+
+#endif //API_LOADER_H 
 
 
 

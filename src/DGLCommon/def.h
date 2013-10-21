@@ -40,6 +40,7 @@
     #define THREAD_LOCAL thread_local
 #endif
 
+#define ALIGNED(X, A) ((X + A - 1) & (-A))
 
 #endif
 

@@ -46,7 +46,7 @@ dglState::GLContext* DGLThreadState::getCurrentCtx() {
     return privAPI.m_Current;
 }
 
-void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId, dglState::NativeSurfaceBase* readSurface) {
+void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId, dglState::NativeSurfaceBase* drawSurface, dglState::NativeSurfaceBase* readSurface) {
 
     dglState::GLContext* currentCtx = gc;
     dglState::GLContext* newCtx = NULL;
@@ -54,7 +54,7 @@ void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId, dglSta
     if (currentCtx && currentCtx->getId() == ctxId) {
         newCtx = currentCtx;
     } else if (ctxId) {
-        newCtx = &(*(dpy->ensureContext(dglState::GLContextVersion::Type::UNSUPPORTED, ctxId)->second));
+        newCtx = &(*(dpy->getContext(dglState::GLContextVersion::Type::UNSUPPORTED, ctxId)->second));
     }
 
     if (currentCtx != newCtx) {
@@ -73,7 +73,7 @@ void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId, dglSta
     }
 
     if (gc) {
-        gc->setNativeReadSurface(readSurface);
+        gc->setNativeSurfaces(readSurface, drawSurface);
     }    
 }
 

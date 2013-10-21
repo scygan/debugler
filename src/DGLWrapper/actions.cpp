@@ -203,7 +203,7 @@ void SurfaceAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
         EGLConfig config;     
         call.getArgs()[1].get(config);
         
-        DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy))->addSurface<dglState::NativeSurfaceEGL>(
+        DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy), DGLDisplayState::Type::EGL)->addSurface<dglState::NativeSurfaceEGL>(
             reinterpret_cast<opaque_id_t>(surface), reinterpret_cast<opaque_id_t>(config));
     }
 }
@@ -212,19 +212,16 @@ void SurfaceAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 #ifdef HAVE_LIBRARY_WGL
     HGLRC ctx;
-    HDC device;
     BOOL retBool;
 #endif    
 #ifdef HAVE_LIBRARY_GLX
     GLXContext ctx;
-    GLXDrawable drawable;
+    GLXDrawable readDrawable, drawDrawable;
     Display* dpy;
     Bool retBool;
 #endif
     EGLBoolean eglBool;
-    EGLSurface eglReadSurface;
     EGLContext eglCtx;
-    EGLDisplay eglDpy;
     GLenumWrap enumWrapped;
 
     Entrypoint entryp = call.getEntrypoint();
@@ -232,33 +229,59 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     switch (entryp) {
 #ifdef HAVE_LIBRARY_WGL
         case wglCreateContext_Call:
+            ret.get(ctx);
+            if (NULL != ctx) {
+                HDC device;
+                call.getArgs()[0].get(device);
+                DGLDisplayState::defDpy(DGLDisplayState::Type::WGL)->createContext(dglState::GLContextVersion::Type::DT,
+                    dglState::GLContextCreationData(entryp, (opaque_id_t)GetPixelFormat(device), std::vector<gl_t>()), 
+                    reinterpret_cast<opaque_id_t>(ctx));
+            }
+            break;
         case wglCreateContextAttribsARB_Call:
             ret.get(ctx);
             if (NULL != ctx) {
-                DGLDisplayState::defDpy()->ensureContext(dglState::GLContextVersion::Type::DT, reinterpret_cast<opaque_id_t>(ctx));
+                HDC device;
+                const int* attribList;
+                call.getArgs()[0].get(device);
+                call.getArgs()[2].get(attribList);
+
+                std::vector<gl_t> attributes;
+                if (attribList) {
+                    int i = 0; 
+                    while (attribList[i]) {
+                        attributes.push_back(attribList[i++]);
+                        attributes.push_back(attribList[i++]);
+                    }
+                }
+
+                DGLDisplayState::defDpy(DGLDisplayState::Type::WGL)->createContext(dglState::GLContextVersion::Type::DT,
+                    dglState::GLContextCreationData(entryp, (opaque_id_t)GetPixelFormat(device), attributes), 
+                    reinterpret_cast<opaque_id_t>(ctx));
             }
             break;
         case wglMakeCurrent_Call:
             ret.get(retBool);
             if (retBool) {
+                HDC device;
                 call.getArgs()[0].get(device);
                 call.getArgs()[1].get(ctx);
 
                 dglState::NativeSurfaceBase* surface = NULL;
                 if (device) {
-                    surface = DGLDisplayState::defDpy()->ensureSurface<dglState::NativeSurfaceWGL>
+                    surface = DGLDisplayState::defDpy(DGLDisplayState::Type::WGL)->ensureSurface<dglState::NativeSurfaceWGL>
                         ((opaque_id_t)device)->second.get();
                 }
 
-                DGLThreadState::get()->bindContext(DGLDisplayState::defDpy(), 
-                    reinterpret_cast<opaque_id_t>(ctx), surface);
+                DGLThreadState::get()->bindContext(DGLDisplayState::defDpy(DGLDisplayState::Type::WGL), 
+                    reinterpret_cast<opaque_id_t>(ctx), surface, surface);
             }
             break;
         case wglDeleteContext_Call:
             ret.get(retBool);
             if (retBool) {
                 call.getArgs()[0].get(ctx);
-                DGLDisplayState::defDpy()->deleteContext(reinterpret_cast<opaque_id_t>(ctx));
+                DGLDisplayState::defDpy(DGLDisplayState::Type::WGL)->deleteContext(reinterpret_cast<opaque_id_t>(ctx));
             }
             break;
 #endif
@@ -281,22 +304,29 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
                 if (entryp == glXMakeCurrent_Call) {
 
-                    call.getArgs()[1].get(drawable);
+                    call.getArgs()[1].get(readDrawable);
+                    drawDrawable = readDrawable;
                     call.getArgs()[2].get(ctx);
 
                 } else if (entryp == glXMakeContextCurrent_Call) {
 
-                    call.getArgs()[2].get(drawable); //read drawable
+                    call.getArgs()[1].get(drawDrawable);
+                    call.getArgs()[2].get(readDrawable);
                     call.getArgs()[3].get(ctx);
                 }
                                 
-                dglState::NativeSurfaceBase* surface = NULL;
-                if (drawable) {
-                    surface = DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy))->ensureSurface<dglState::NativeSurfaceGLX>
-                        ((opaque_id_t)drawable)->second.get();
+                dglState::NativeSurfaceBase* readSurface = NULL;
+                if (readDrawable) {
+                    readSurface = DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy))->ensureSurface<dglState::NativeSurfaceGLX>
+                        ((opaque_id_t)readDrawable)->second.get();
+                }
+                dglState::NativeSurfaceBase* drawSurface = NULL;
+                if (drawDrawable) {
+                    drawSurface = DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy))->ensureSurface<dglState::NativeSurfaceGLX>
+                        ((opaque_id_t)drawDrawable)->second.get();
                 }
                 DGLThreadState::get()->bindContext(DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy)), 
-                    reinterpret_cast<opaque_id_t>(ctx), surface);
+                    reinterpret_cast<opaque_id_t>(ctx), drawSurface, readSurface);
             }
             break;
         case glXDestroyContext_Call:
@@ -315,74 +345,98 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
         case eglCreateContext_Call:
             ret.get(eglCtx);
             if (NULL != eglCtx) {
+                EGLDisplay eglDpy;
+                EGLConfig eglConfig;
+                EGLint const * attribList;
                 call.getArgs()[0].get(eglDpy);
+                call.getArgs()[1].get(eglConfig);
+                call.getArgs()[3].get(attribList);
+
+                std::vector<gl_t> attributes;
+                if (attribList) {
+                    int i = 0; 
+                    while (attribList[i] != EGL_NONE) {
+                        attributes.push_back(attribList[i++]);
+                        attributes.push_back(attribList[i++]);
+                    }
+                }
+
                 if (DGLThreadState::get()->getEGLApi() == EGL_OPENGL_ES_API) {
-                    EGLint const* attribList;
-                    call.getArgs()[3].get(attribList);
 
                     ApiLibrary lib = LIBRARY_ES2;
 
-                    if (attribList) {
-                        for (int i = 0; attribList[i] != EGL_NONE; i += 2) {
-                            if (attribList[i] == EGL_CONTEXT_CLIENT_VERSION) {
-                                switch (attribList[i + 1]) {
-                                    case 1: 
-                                        lib = LIBRARY_ES1;
-                                        break;
-                                    case 2: 
-                                        lib = LIBRARY_ES2;
-                                        break;
-                                    case 3:
-                                        lib = LIBRARY_ES3;
-                                        break;
-                                    default:
-                                        assert(0);
-                                        return;
-                                }
+                    for (size_t i = 0; i <  attributes.size(); i += 2) {
+                        if (attributes[i] == EGL_CONTEXT_CLIENT_VERSION || attributes[i] == EGL_CONTEXT_MAJOR_VERSION_KHR) {
+                            switch (attributes[i + 1]) {
+                            case 1: 
+                                lib = LIBRARY_ES1;
+                                break;
+                            case 2: 
+                                lib = LIBRARY_ES2;
+                                break;
+                            case 3:
+                                lib = LIBRARY_ES3;
+                                break;
+                            default:
+                                assert(0);
+                                return;
                             }
                         }
                     }
 
                     g_ApiLoader.loadLibrary(lib);
 
-                    DGLDisplayState::get((opaque_id_t)eglDpy)->ensureContext(
-                        dglState::GLContextVersion::Type::ES, reinterpret_cast<opaque_id_t>(eglCtx));
+                    DGLDisplayState::get((opaque_id_t)eglDpy, DGLDisplayState::Type::EGL)->createContext(
+                        dglState::GLContextVersion::Type::ES, dglState::GLContextCreationData(entryp, (opaque_id_t)eglConfig, attributes), reinterpret_cast<opaque_id_t>(eglCtx));
 
                 } else if (DGLThreadState::get()->getEGLApi() == EGL_OPENGL_API) {
                     g_ApiLoader.loadLibrary(LIBRARY_GL);
 
-                    DGLDisplayState::get((opaque_id_t)eglDpy)->ensureContext(
-                        dglState::GLContextVersion::Type::DT, reinterpret_cast<opaque_id_t>(eglCtx));
+                    DGLDisplayState::get((opaque_id_t)eglDpy, DGLDisplayState::Type::EGL)->createContext(
+                        dglState::GLContextVersion::Type::DT, dglState::GLContextCreationData(entryp, (opaque_id_t)eglConfig, attributes), reinterpret_cast<opaque_id_t>(eglCtx));
                 }
-                
             }
             break;
         case eglMakeCurrent_Call:
             ret.get(eglBool);
             if (eglBool) {
+                EGLDisplay eglDpy;
+                EGLSurface eglReadSurface;
+                EGLSurface eglDrawSurface;
                 call.getArgs()[0].get(eglDpy);
+                call.getArgs()[1].get(eglDrawSurface);
                 call.getArgs()[2].get(eglReadSurface);
                 call.getArgs()[3].get(eglCtx);
 
-                dglState::NativeSurfaceBase* surface = NULL;
+                dglState::NativeSurfaceBase* readSurface = NULL;
                 if (eglReadSurface) {
 #ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
-                    surface = DGLDisplayState::get((opaque_id_t)eglDpy)->getSurface((opaque_id_t)eglReadSurface)->second.get();
+                    readSurface = DGLDisplayState::get((opaque_id_t)eglDpy, DGLDisplayState::Type::EGL)->getSurface((opaque_id_t)eglReadSurface)->second.get();
 #else
-                    surface = DGLDisplayState::get((opaque_id_t)eglDpy)->ensureSurface((opaque_id_t)eglReadSurface)->second.get();
+                    readSurface = DGLDisplayState::get((opaque_id_t)eglDpy, DGLDisplayState::Type::EGL)->ensureSurface((opaque_id_t)eglReadSurface)->second.get();
 #endif
                 }
+                dglState::NativeSurfaceBase* drawSurface = NULL;
+                if (eglDrawSurface) {
+#ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
+                    drawSurface = DGLDisplayState::get((opaque_id_t)eglDpy, DGLDisplayState::Type::EGL)->getSurface((opaque_id_t)eglDrawSurface)->second.get();
+#else
+                    drawSurface = DGLDisplayState::get((opaque_id_t)eglDpy, DGLDisplayState::Type::EGL)->ensureSurface((opaque_id_t)eglDrawSurface)->second.get();
+#endif
+                }
+
                 DGLThreadState::get()->bindContext(
-                    DGLDisplayState::get((opaque_id_t)eglDpy), 
-                    reinterpret_cast<opaque_id_t>(eglCtx), surface);
+                    DGLDisplayState::get((opaque_id_t)eglDpy, DGLDisplayState::Type::EGL), 
+                    reinterpret_cast<opaque_id_t>(eglCtx), drawSurface, readSurface);
             }
             break;
         case eglDestroyContext_Call:
-            call.getArgs()[0].get(eglDpy);
             ret.get(eglBool);
             if (eglBool) {
+                EGLDisplay eglDpy;
+                call.getArgs()[0].get(eglDpy);
                 call.getArgs()[1].get(eglCtx);
-                DGLDisplayState::get((opaque_id_t)eglDpy)->lazyDeleteContext(reinterpret_cast<opaque_id_t>(eglCtx));
+                DGLDisplayState::get((opaque_id_t)eglDpy, DGLDisplayState::Type::EGL)->lazyDeleteContext(reinterpret_cast<opaque_id_t>(eglCtx));
             }
             break;
         case eglReleaseThread_Call:

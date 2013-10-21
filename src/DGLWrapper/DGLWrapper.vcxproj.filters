@@ -65,6 +65,12 @@
     <ClInclude Include="gl-utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gl-auxcontext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gl-statesetters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -107,6 +113,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gl-utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gl-auxcontext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gl-statesetters.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

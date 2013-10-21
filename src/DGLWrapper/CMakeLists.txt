@@ -4,6 +4,7 @@ set(dglwrapper_SOURCES
     actions.cpp native-surface.cpp
 	dl-intercept.cpp display.cpp
 	tls.cpp gl-utils.cpp
+	gl-auxcontext.cpp gl-statesetters.cpp
 #dllmain.cpp should be at the end, until all static ctors are fixed:
     dllmain.cpp
     )
