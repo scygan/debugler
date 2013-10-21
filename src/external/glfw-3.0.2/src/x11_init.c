@@ -431,10 +431,10 @@ static GLboolean initExtensions(void)
                                            False);
 
     // Check for XF86VidMode extension
-    _glfw.x11.vidmode.available =
-        XF86VidModeQueryExtension(_glfw.x11.display,
-                                  &_glfw.x11.vidmode.eventBase,
-                                  &_glfw.x11.vidmode.errorBase);
+    _glfw.x11.vidmode.available = 0;
+//        XF86VidModeQueryExtension(_glfw.x11.display,
+//                                  &_glfw.x11.vidmode.eventBase,
+//                                  &_glfw.x11.vidmode.errorBase);
 
     // Check for RandR extension
     _glfw.x11.randr.available = 0;

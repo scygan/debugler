@@ -85,7 +85,7 @@ void _glfwPlatformGetGammaRamp(_GLFWmonitor* monitor, GLFWgammaramp* ramp)
 
         XRRFreeGamma(gamma);
     }
-    else */if (_glfw.x11.vidmode.available)
+    else if (_glfw.x11.vidmode.available)
     {
         int size;
         XF86VidModeGetGammaRampSize(_glfw.x11.display, _glfw.x11.screen, &size);
@@ -95,7 +95,7 @@ void _glfwPlatformGetGammaRamp(_GLFWmonitor* monitor, GLFWgammaramp* ramp)
         XF86VidModeGetGammaRamp(_glfw.x11.display,
                                 _glfw.x11.screen,
                                 ramp->size, ramp->red, ramp->green, ramp->blue);
-    }
+    }*/
 }
 
 void _glfwPlatformSetGammaRamp(_GLFWmonitor* monitor, const GLFWgammaramp* ramp)
@@ -111,7 +111,7 @@ void _glfwPlatformSetGammaRamp(_GLFWmonitor* monitor, const GLFWgammaramp* ramp)
         XRRSetCrtcGamma(_glfw.x11.display, monitor->x11.crtc, gamma);
         XRRFreeGamma(gamma);
     }
-    else */if (_glfw.x11.vidmode.available)
+    else if (_glfw.x11.vidmode.available)
     {
         XF86VidModeSetGammaRamp(_glfw.x11.display,
                                 _glfw.x11.screen,
@@ -119,6 +119,6 @@ void _glfwPlatformSetGammaRamp(_GLFWmonitor* monitor, const GLFWgammaramp* ramp)
                                 (unsigned short*) ramp->red,
                                 (unsigned short*) ramp->green,
                                 (unsigned short*) ramp->blue);
-    }
+    }*/
 }
 
