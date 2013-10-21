@@ -34,11 +34,13 @@ class SampleTexture: public Sample {
             glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
 
             glClearColor(0.0, 0.0, 0.0, 0.0);
-            glClearDepth(1.0);
+            glClearDepthf(1.0);
 
 
             const char* vshSrc = 
+#ifndef OPENGL_ES2
                 "#version 120\n"
+#endif
                 "attribute vec4 position;\n"
                 "varying vec2 texPos;\n"
                 "\n"
@@ -48,7 +50,11 @@ class SampleTexture: public Sample {
                 "}\n";
 
             const char* fshSrc = 
+#ifdef OPENGL_ES2
+                "precision mediump float;\n"
+#else
                 "#version 120\n"
+#endif
                 "uniform sampler2D sampler0;\n"
                 "varying vec2 texPos;\n"
                 "void main()\n"
@@ -64,8 +70,12 @@ class SampleTexture: public Sample {
             glBindTexture(GL_TEXTURE_2D, m_tex);
 
 
-            GLubyte color[] = { 102, 127, 204, 255 };   
+            GLubyte color[] = { 102, 127, 204, 255 };
+#ifdef OPENGL_ES2
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, color);
+#else
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, color);
+#endif
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }

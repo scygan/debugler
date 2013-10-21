@@ -13,8 +13,11 @@
 * limitations under the License.
 */
 
-
+#ifdef OPENGL_ES2
+#include <GLES2/gl2.h>
+#else
 #include <GL/glew.h>
+#endif
 
 #include <memory>
 #include <string>

@@ -10,10 +10,10 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalLibraryDirectories>$(AdditionalLibraryDirectories);$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLNet;$(SolutionDir)\..\dump\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\gtest;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLGUI;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\libboost_program_options;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\libboost_serialization;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\libboost_system;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\libboost_thread;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\libboost_regexp;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(AdditionalLibraryDirectories);$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLNet;$(SolutionDir)\..\dump\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\gtest;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLGUI;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\libboost_program_options;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\libboost_serialization;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\libboost_system;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\libboost_thread;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\libboost_regexp;$(SolutionDir)\buildtools\vs\auxlibs\$(Platform);</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)\.;$(SolutionDir)\external\boost\;$(SolutionDir)\boost;$(SolutionDir)\external\;$(SolutionDir)\external\gtest\include;$(SolutionDir)\..\dump\;$(SolutionDir)\glheaders;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\.;$(SolutionDir)\codegen\input;$(SolutionDir)\external\boost\;$(SolutionDir)\boost;$(SolutionDir)\external\;$(SolutionDir)\external\gtest\include;$(SolutionDir)\..\dump\;$(SolutionDir)\glheaders;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>USE_MSVC;WIN32;BOOST_ALL_NO_LIB;_WIN32_WINNT=0x0501;QT_NO_OPENGL;WIN32_LEAN_AND_MEAN;DGL_VERSION="$(DGL_VERSION)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
@@ -21,7 +21,7 @@
       <DisableSpecificWarnings>4481;4127</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>$(AdditionalLibraryDirectories);$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLNet;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLGUI</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(AdditionalLibraryDirectories);$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLNet;$(SolutionDir)\..\build\$(Platform)\$(Configuration)\DGLGUI;</AdditionalLibraryDirectories>
       <TargetMachine Condition="'$(Platform)'=='Win32'">MachineX86</TargetMachine>
       <TargetMachine Condition="'$(Platform)'=='x64'">MachineX64</TargetMachine>
     </Lib>

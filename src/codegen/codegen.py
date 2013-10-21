@@ -153,24 +153,24 @@ def parse(path, library, genNonExtTypedefs = False, skipTrace = False):
 
 print >> defFile, "EXPORTS"
 
-parse(inputDir + "/GL.h", "LIBRARY_GL", True)
-parse(inputDir + "/glext.h", "LIBRARY_GL_EXT")
+parse(inputDir + "/GL/GL.h", "LIBRARY_GL", True)
+parse(inputDir + "/GL/glext.h", "LIBRARY_GL_EXT")
 
 parse(inputDir + "/GLESv1/gl.h", "LIBRARY_ES1", True)
 parse(inputDir + "/GLESv1/glext.h", "LIBRARY_ES1")
-parse(inputDir + "/gl2.h", "LIBRARY_ES2", True)
-parse(inputDir + "/gl2ext.h", "LIBRARY_ES2_EXT")
-parse(inputDir + "/gl3.h", "LIBRARY_ES3", True)
+parse(inputDir + "/GLES2/gl2.h", "LIBRARY_ES2", True)
+parse(inputDir + "/GLES2/gl2ext.h", "LIBRARY_ES2_EXT")
+parse(inputDir + "/GLES3/gl3.h", "LIBRARY_ES3", True)
 
-parse(inputDir + "/wgl.h", "LIBRARY_WGL", True)
-parse(inputDir + "/wgl-notrace.h", "LIBRARY_WGL", True, True)
-parse(inputDir + "/wglext.h", "LIBRARY_WGL_EXT")
+parse(inputDir + "/GL/wgl.h", "LIBRARY_WGL", True)
+parse(inputDir + "/GL/wgl-notrace.h", "LIBRARY_WGL", True, True)
+parse(inputDir + "/GL/wglext.h", "LIBRARY_WGL_EXT")
 
-parse(inputDir + "/egl.h", "LIBRARY_EGL", True)
-parse(inputDir + "/eglext.h", "LIBRARY_EGL_EXT")
+parse(inputDir + "/EGL/egl.h", "LIBRARY_EGL", True)
+parse(inputDir + "/EGL/eglext.h", "LIBRARY_EGL_EXT")
 
-parse(inputDir + "/glx.h", "LIBRARY_GLX", True)
-parse(inputDir + "/glxext.h", "LIBRARY_GLX_EXT")
+parse(inputDir + "/GL/glx.h", "LIBRARY_GLX", True)
+parse(inputDir + "/GL/glxext.h", "LIBRARY_GLX_EXT")
 
 blacklist = ["glXAssociateDMPbufferSGIX", "glXCreateGLXVideoSourceSGIX", "glXDestroyGLXVideoSourceSGIX" ]
 

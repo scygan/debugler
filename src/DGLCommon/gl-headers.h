@@ -26,19 +26,19 @@
 
 
 //Only headers needed to compile debugger + some corrections
-#include <codegen/input/egl.h>
-#include <codegen/input/eglext.h>
-#include <codegen/input/GL.h>
-#include <codegen/input/glext.h>
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <GL/GL.h>
+#include <GL/glext.h>
 #undef __gl_h_
-#include <codegen/input/GLESv1/gl.h>
+#include <GLESv1/gl.h>
 #undef __glext_h_
-#include <codegen/input/GLESv1/glext.h>
+#include <GLESv1/glext.h>
 
 #undef GL_EXT_separate_shader_objects
 #undef GL_KHR_debug
 #undef GL_EXT_draw_buffers
-#include <codegen/input/gl2ext.h>
+#include <GLES2/gl2ext.h>
 //fix some errors in gl2ext:
 #define PFNGLBLITFRAMEBUFFERNVPROC                PFNBLITFRAMEBUFFERNVPROC
 #define PFNGLDRAWARRAYSINSTANCEDNVPROC            PFNDRAWARRAYSINSTANCEDNVPROC
@@ -48,11 +48,11 @@
 #define PFNGLFRAMEBUFFERTEXTURE3DOESPROC          PFNGLFRAMEBUFFERTEXTURE3DOES
 
 #ifdef _WIN32
-#include <codegen/input/wglext.h>
+#include <GL/wglext.h>
 #else
 #ifndef __ANDROID__
-#include <codegen/input/glx.h>
-#include <codegen/input/glxext.h>
+#include <GL/glx.h>
+#include <GL/glxext.h>
 #endif
 #endif
 

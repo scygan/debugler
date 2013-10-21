@@ -14,7 +14,9 @@
 */
 
 #include "platform.h"
+#ifndef OPENGL_ES2
 #include <GL/glew.h>
+#endif
 #include <GLFW/glfw3.h>
 
 #include <stdexcept>
@@ -22,14 +24,20 @@
 class GLWFPlatWindowCtx: public PlatWindowCtx {
 public:
     GLWFPlatWindowCtx():m_window(NULL) {
+#ifdef OPENGL_ES2
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+#endif
         m_window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
         if (!m_window) {
             throw std::runtime_error("Cannot create glwf window");
         }
+ 
     }
 
     virtual void makeCurrent() override {
         glfwMakeContextCurrent(m_window);
+#ifndef OPENGL_ES2
         if (!glewInitDone) {
             if (glewInit() != GLEW_OK)
                 throw std::runtime_error("Cannot init glew.");
@@ -37,6 +45,7 @@ public:
 
             fprintf(stdout, "Using GLEW %s\n", glewGetString(GLEW_VERSION));
         }
+#endif
     }
 
     virtual void swapBuffers() override {

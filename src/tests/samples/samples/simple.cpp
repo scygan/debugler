@@ -33,11 +33,13 @@ class SampleSimple: public Sample {
             glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
 
             glClearColor(0.0, 0.0, 0.0, 0.0);
-            glClearDepth(1.0);
+            glClearDepthf(1.0);
 
 
             const char* vshSrc = 
+#ifndef OPENGL_ES2
                 "#version 120\n"
+#endif
                 "attribute vec4 position;\n"
                 "\n"
                 "void main() {\n"
@@ -45,7 +47,11 @@ class SampleSimple: public Sample {
                 "}\n";
 
             const char* fshSrc = 
+#ifdef OPENGL_ES2
+                "precision mediump float;\n"
+#else
                 "#version 120\n"
+#endif
                 "void main()\n"
                 "{\n"
                 "    gl_FragColor = vec4(0.4, 0.5, 0.8, 1.0);\n"

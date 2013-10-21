@@ -22,20 +22,20 @@ add_custom_command(
     MAIN_DEPENDENCY ../codegen/input/glext.h
     DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/../codegen/codegen.py
-        ${codegen_in}/GL.h
-        ${codegen_in}/glext.h
-        ${codegen_in}/wgl-notrace.h
-        ${codegen_in}/wgl.h
-        ${codegen_in}/wglext.h 
-        ${codegen_in}/egl.h 
-        ${codegen_in}/eglext.h 
+        ${codegen_in}/GL/GL.h
+        ${codegen_in}/GL/glext.h
+        ${codegen_in}/GL/wgl-notrace.h
+        ${codegen_in}/GL/wgl.h
+        ${codegen_in}/GL/wglext.h 
+        ${codegen_in}/EGL/egl.h 
+        ${codegen_in}/EGL/eglext.h 
 		${codegen_in}/GLESv1/gl.h
 		${codegen_in}/GLESv1/glext.h
-        ${codegen_in}/gl2.h
-		${codegen_in}/gl2ext.h
-        ${codegen_in}/gl3.h
-        ${codegen_in}/glx.h
-        ${codegen_in}/glxext.h
+        ${codegen_in}/GLES2/gl2.h
+		${codegen_in}/GLES2/gl2ext.h
+        ${codegen_in}/GLES3/gl3.h
+        ${codegen_in}/GL/glx.h
+        ${codegen_in}/GL/glxext.h
     COMMENT "Generating code from GL headers"
     VERBATIM
     )

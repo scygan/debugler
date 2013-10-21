@@ -44,7 +44,7 @@
 // Define this to 1 if building GLFW for GLX
 //#define _GLFW_GLX
 // Define this to 1 if building GLFW for WGL
-#define _GLFW_WGL
+//#define _GLFW_WGL
 // Define this to 1 if building GLFW for NSGL
 //#define _GLFW_NSGL
 

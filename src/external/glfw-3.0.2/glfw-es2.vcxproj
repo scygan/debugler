@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{126CAA69-F774-4B1D-A4E5-2BD1CAAD2201}</ProjectGuid>
+    <ProjectGuid>{EBF0059A-D8DD-4BEA-92F4-FB5FFC332D07}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
@@ -37,7 +37,7 @@
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>
     <ClCompile>
-		<PreprocessorDefinitions>_GLFW_WGL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+		<PreprocessorDefinitions>_GLFW_EGL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Lib />
   </ItemDefinitionGroup>
@@ -50,7 +50,7 @@
     <ClCompile Include="src\joystick.c" />
     <ClCompile Include="src\monitor.c" />
     <ClCompile Include="src\time.c" />
-    <ClCompile Include="src\wgl_context.c" />
+    <ClCompile Include="src\egl_context.c" />
     <ClCompile Include="src\win32_clipboard.c" />
     <ClCompile Include="src\win32_gamma.c" />
     <ClCompile Include="src\win32_init.c" />

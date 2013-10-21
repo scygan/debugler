@@ -58,7 +58,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <ForcedIncludeFiles>DGLWrapper.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)/external/boost/;$(SolutionDir)/boost;$(SolutionDir)/external/;$(SolutionDir)/external/gtest/include;$(SolutionDir)/../dump/;$(SolutionDir)/glheaders/;$(ProjectDir)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>$(SolutionDir)..\dump\codegen\OpenGL32.def</ModuleDefinitionFile>

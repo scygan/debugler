@@ -10,16 +10,29 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="glutil.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="platform_glfw.cpp" />
+    <ClCompile Include="sample.cpp" />
+    <ClCompile Include="samples\simple.cpp" />
+    <ClCompile Include="samples\texture.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="platform.h" />
+    <ClInclude Include="sample.h" />
+    <ClInclude Include="glutil.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{126CAA69-F774-4B1D-A4E5-2BD1CAAD2201}</ProjectGuid>
-    <Keyword>Win32Proj</Keyword>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration">
-    <PlatformToolset>v110</PlatformToolset>
+    <ProjectGuid>{20EF2947-E2F6-4D02-BDF0-4E720FB9926F}</ProjectGuid>
+    <RootNamespace>samples</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -37,29 +50,17 @@
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>
     <ClCompile>
-		<PreprocessorDefinitions>_GLFW_WGL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <Lib />
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>glfw-es2.lib;libGLESv2.lib;libEGL.lib;libboost_program_options.lib;Winmm.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Platform)\$(Configuration)\glfw-es2;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <ClCompile>
+      <PreprocessorDefinitions>GLEW_STATIC;_VARIADIC_MAX=10;%(PreprocessorDefinitions);QT_CORE_LIB;QT_DLL;OPENGL_ES2</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;..\..\external\glfw-3.0.2\include;..\..\external\glew-1.10.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="src\clipboard.c" />
-    <ClCompile Include="src\context.c" />
-    <ClCompile Include="src\gamma.c" />
-    <ClCompile Include="src\init.c" />
-    <ClCompile Include="src\input.c" />
-    <ClCompile Include="src\joystick.c" />
-    <ClCompile Include="src\monitor.c" />
-    <ClCompile Include="src\time.c" />
-    <ClCompile Include="src\wgl_context.c" />
-    <ClCompile Include="src\win32_clipboard.c" />
-    <ClCompile Include="src\win32_gamma.c" />
-    <ClCompile Include="src\win32_init.c" />
-    <ClCompile Include="src\win32_joystick.c" />
-    <ClCompile Include="src\win32_monitor.c" />
-    <ClCompile Include="src\win32_time.c" />
-    <ClCompile Include="src\win32_window.c" />
-    <ClCompile Include="src\window.c" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
