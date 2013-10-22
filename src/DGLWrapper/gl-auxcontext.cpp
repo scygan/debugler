@@ -215,6 +215,7 @@ void GLAuxContext::GLQueries::setupInitialState() {
     };
     DIRECT_CALL_CHK(glBufferData)(GL_ARRAY_BUFFER, sizeof(triangleStrip), triangleStrip, GL_STATIC_DRAW);
     DIRECT_CALL_CHK(glVertexAttribPointer)(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
+    DIRECT_CALL_CHK(glEnableVertexAttribArray)(0);
 
     vshobj = DIRECT_CALL_CHK(glCreateShader)(GL_VERTEX_SHADER);
     const char * vsh = 
