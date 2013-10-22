@@ -170,10 +170,6 @@ opaque_id_t GLAuxContext::choosePixelFormat(opaque_id_t preferred, opaque_id_t d
 
         EGLint attributes [] = {
             EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
-            EGL_RED_SIZE, 1,
-            EGL_GREEN_SIZE, 1,
-            EGL_BLUE_SIZE, 1,
-            EGL_ALPHA_SIZE, 1,
             EGL_RENDERABLE_TYPE, renderableType,
             EGL_NONE
         };

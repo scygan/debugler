@@ -642,7 +642,7 @@ boost::shared_ptr<dglnet::resource::DGLPixelRectangle> GLContext::queryTextureLe
 }
 
 
-bool textureProbeSizeES(GLenum target, int level, const int sizes[3]) {
+bool GLContext::textureProbeSizeES(GLenum target, int level, const int sizes[3]) {
 
     int nothing = 0;
 
@@ -675,7 +675,7 @@ bool textureProbeSizeES(GLenum target, int level, const int sizes[3]) {
 }
 
 
-int texturBisectSizeES(GLenum target, int level, int coord, int maxSize) {
+int GLContext::textureBisectSizeES(GLenum target, int level, int coord, int maxSize) {
     int sizes[3] = { 0, 0, 0 };
 
     int minSize = 0;
@@ -710,8 +710,8 @@ boost::shared_ptr<dglnet::resource::DGLPixelRectangle> GLContext::queryTextureLe
     GLint maxSize = 16384;
     DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_TEXTURE_SIZE, &maxSize);
 
-    int width = texturBisectSizeES(target, level, 0, maxSize);
-    int height = texturBisectSizeES(target, level, 1, maxSize);
+    int width = textureBisectSizeES(target, level, 0, maxSize);
+    int height = textureBisectSizeES(target, level, 1, maxSize);
 
     try {
         GLAuxContext * auxCtx = getAuxContext();
