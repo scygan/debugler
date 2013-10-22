@@ -538,6 +538,8 @@ public:
         if (essl) {
             if (m_defContextESSL) {
                 return m_defContextESSL;
+            } else {
+                assert(0);
             }
         }
         return m_defContextGLSL;
