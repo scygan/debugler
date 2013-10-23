@@ -127,6 +127,15 @@ void GLProgramObj::forceLink() {
     } else {
         DIRECT_CALL_CHK(glLinkProgram)(getName());
     }
+
+    GLint currentProgram = 0; 
+    DIRECT_CALL_CHK(glGetIntegerv)(GL_CURRENT_PROGRAM, & currentProgram);
+    if (currentProgram == (GLint)getName()) {
+        //reinstall program 
+        DIRECT_CALL_CHK(glUseProgram)(getName());
+    }
+
+    
 }
 
 GLShaderObj::GLShaderObj(GLuint name, bool arbApi):GLObj(name), m_Deleted(false), m_DeleteCalled(false), m_Target(0), m_arbApi(arbApi), m_RefCount(0) {}
@@ -634,7 +643,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
 }
 
 boost::shared_ptr<dglnet::resource::DGLPixelRectangle> GLContext::queryTextureLevel(gl_t name, GLenum target, int level, state_setters::PixelStoreAlignment& defAlignment) {
-    if (hasCapability(ContextCap::TextureQueries)) {
+    if (hasCapability(ContextCap::TextureGetters)) {
         return queryTextureLevelGetters(target, level, defAlignment);
     } else {
         return queryTextureLevelAuxCtx(name, target, level);
@@ -2697,7 +2706,7 @@ bool GLContext::hasCapability(ContextCap cap) {
             return version.check(GLContextVersion::Type::DT, 3) ||
                    version.check(GLContextVersion::Type::ES, 3);
 
-        case ContextCap::TextureQueries:
+        case ContextCap::TextureGetters:
             return version.check(GLContextVersion::Type::DT);
 
         default:
