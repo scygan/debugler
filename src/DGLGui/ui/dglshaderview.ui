@@ -114,7 +114,7 @@
    <sender>pushButtonResetEdits</sender>
    <signal>clicked()</signal>
    <receiver>DGLShaderViewItem</receiver>
-   <slot>editCancel()</slot>
+   <slot>editReset()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>329</x>
@@ -145,7 +145,7 @@
  </connections>
  <slots>
   <slot>saveShader()</slot>
-  <slot>editCancel()</slot>
+  <slot>editReset()</slot>
   <slot>editStart()</slot>
   <slot>editTextChanged()</slot>
  </slots>

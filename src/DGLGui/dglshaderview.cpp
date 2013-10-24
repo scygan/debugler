@@ -44,8 +44,9 @@ private:
 
 
 DGLShaderViewItem::DGLShaderViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent),
-        DGLRequestHandler(resManager->getRequestManager()), m_RequestManager(resManager->getRequestManager()), m_Name(name), m_EditState(EditState::S_ERRED_OR_UNAVAIL) {
+        m_EditRequestHandler(this, resManager->getRequestManager()), m_ResetRequestHandler(this, resManager->getRequestManager()), m_RequestManager(resManager->getRequestManager()), m_Name(name) {
     m_Ui.setupUi(this);
+
     m_GLSLEditor = new DGLGLSLEditor(this);
 
     m_Label = new QLabel(this);
@@ -58,7 +59,8 @@ DGLShaderViewItem::DGLShaderViewItem(dglnet::ContextObjectName name, DGLResource
     m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectType::Shader);
     m_Listener->setParent(this);
 
-    editAction(EditAction::A_ERROR);
+    //cannot edit shader now: no shader to edit
+    setState(EditState::S_UNAVAILABLE);
 
     CONNASSERT(connect(m_Ui.checkBox_Highlight, SIGNAL(toggled(bool)), this, SLOT(toggleHighlight(bool))));
 
@@ -71,51 +73,75 @@ DGLShaderViewItem::DGLShaderViewItem(dglnet::ContextObjectName name, DGLResource
 }
 
 DGLShaderViewItem::~DGLShaderViewItem() {
-    editAction(EditAction::A_ERROR);
+    //notify: no shader to edit during destruction
+    editAction(EditAction::A_NOTIFY_ERROR);
 }
 
 void DGLShaderViewItem::editAction(EditAction action) {
 
-    if (action == EditAction::A_ERROR) {
-        //move to errored or uninitialized state
-        //in this state only "Edit" is visible, but disabled
-        m_EditState = EditState::S_ERRED_OR_UNAVAIL;
-        m_GLSLEditor->setReadOnly(true);
-        m_Ui.pushButtonEdit->setDisabled(true);
-        m_Ui.pushButtonEdit->show();
-        m_Ui.pushButtonResetEdits->hide();
-        
-    } else if (m_EditState == EditState::S_ERRED_OR_UNAVAIL && action == EditAction::A_NOERROR) {
-        //move to DISABLED state, and allow user to click Edit button
-        m_EditState = EditState::S_DISABLED;
-        m_Ui.pushButtonEdit->setEnabled(true);
-
-    } else if (m_EditState == EditState::S_DISABLED && action == EditAction::A_ENABLE) {
+    if (action == EditAction::A_NOTIFY_ERROR) {
+        if (m_EditState ==  EditState::S_EDITING) {
+            setState(EditState::S_PAUSE);
+        } else if (m_EditState !=  EditState::S_PAUSE) {
+            setState(EditState::S_UNAVAILABLE);
+        }
+    } else if (action == EditAction::A_NOTIFY_NOERROR) {
+        if (m_EditState == EditState::S_PAUSE) {
+            setState(EditState::S_EDITING);
+        } else if (m_EditState == EditState::S_UNAVAILABLE) {
+            setState(EditState::S_NOT_EDITING);
+        }
+    } else if (m_EditState == EditState::S_NOT_EDITING && action == EditAction::A_ENABLE) {
         
         //Start shader editing
 
-        m_EditState = EditState::S_ENABLED;
-        m_Ui.pushButtonEdit->hide();
-        m_Ui.pushButtonResetEdits->show();
-        m_GLSLEditor->setReadOnly(false);
-
+        setState(EditState::S_EDITING);
+        
         //do first edit - just to test if it is possible
         editTextChanged();
 
-    } else if (m_EditState == EditState::S_ENABLED && action == EditAction::A_DISABLE) {
+    } else if (m_EditState == EditState::S_EDITING && action == EditAction::A_DISABLE) {
 
         //Stop shader editing
+        setState(EditState::S_NOT_EDITING);
 
-        m_EditState = EditState::S_DISABLED;
-        m_Ui.pushButtonEdit->show();
-        m_Ui.pushButtonResetEdits->hide();
-        m_GLSLEditor->setReadOnly(true);
-
-    } else if (m_EditState == EditState::S_ENABLED && action == EditAction::A_EDIT) {
+    } else if (m_EditState == EditState::S_EDITING && action == EditAction::A_EDIT) {
         m_RequestManager->request(new dglnet::request::EditShaderSource(
             m_Name.m_Context, m_Name.m_Name, false, m_GLSLEditor->toPlainText().toStdString())
-            , this);
+            , &m_EditRequestHandler);
     }
+}
+
+void DGLShaderViewItem::setState(EditState editState) {
+    switch (editState) {
+        case EditState::S_UNAVAILABLE:
+            m_GLSLEditor->setReadOnly(true);
+            m_Ui.pushButtonEdit->setDisabled(true);
+            m_Ui.pushButtonEdit->show();
+            m_Ui.pushButtonResetEdits->hide();
+            break;
+        case EditState::S_NOT_EDITING:
+            m_GLSLEditor->setReadOnly(true);
+            m_Ui.pushButtonEdit->show();
+            m_Ui.pushButtonEdit->setEnabled(true);
+            m_Ui.pushButtonResetEdits->hide();
+            break;
+        case EditState::S_PAUSE:
+            m_GLSLEditor->setReadOnly(true);
+            m_Ui.pushButtonEdit->hide();
+            m_Ui.pushButtonResetEdits->show();
+            m_Ui.pushButtonResetEdits->setEnabled(false);
+            break;
+        case EditState::S_EDITING:
+            m_GLSLEditor->setReadOnly(false);
+            m_Ui.pushButtonEdit->hide();
+            m_Ui.pushButtonResetEdits->show();
+            m_Ui.pushButtonResetEdits->setEnabled(true);
+            break;
+        default:
+            assert(0);
+    }
+    m_EditState = editState;
 }
 
 void DGLShaderViewItem::error(const std::string& message) {
@@ -123,7 +149,8 @@ void DGLShaderViewItem::error(const std::string& message) {
     m_Ui.groupBox1->hide();
     m_Label->setText(QString::fromStdString(message));
     m_Label->show();
-    editAction(EditAction::A_ERROR);
+    //notify: no shader to edit due to error
+    editAction(EditAction::A_NOTIFY_ERROR);
 }
 
 void DGLShaderViewItem::saveShader() {
@@ -141,12 +168,10 @@ void DGLShaderViewItem::editStart() {
     editAction(EditAction::A_ENABLE);
 }
 
-void DGLShaderViewItem::editCancel() {
+void DGLShaderViewItem::editReset() {
     
     m_RequestManager->request(new dglnet::request::EditShaderSource(
-        m_Name.m_Context, m_Name.m_Name, true), this);
-
-    editAction(EditAction::A_DISABLE);
+        m_Name.m_Context, m_Name.m_Name, true), &m_ResetRequestHandler);
 }
 
 void DGLShaderViewItem::editTextChanged() {
@@ -170,7 +195,7 @@ void DGLShaderViewItem::update(const dglnet::DGLResource& res) {
     QString newSource = QString::fromStdString(resource->m_Source);
     if (newSource != m_GLSLEditor->toPlainText()) {
         //take off shader editing for a moment
-        EditState lastEditState = EditState::S_ERRED_OR_UNAVAIL;
+        EditState lastEditState = EditState::S_PAUSE;
         std::swap(m_EditState, lastEditState);
 
         m_GLSLEditor->clear();
@@ -181,9 +206,11 @@ void DGLShaderViewItem::update(const dglnet::DGLResource& res) {
 
     if (resource->m_ShaderObjDeleted) {
         m_Ui.shaderStatus->setText(tr("Shader object already deleted. Shown cached source."));
-        editAction(EditAction::A_ERROR);
+        //no shader to edit:
+        editAction(EditAction::A_NOTIFY_ERROR);
     } else {
-        editAction(EditAction::A_NOERROR);
+        //have shader to edit
+        editAction(EditAction::A_NOTIFY_NOERROR);
         if (!resource->m_CompileStatus.second) {
             m_Ui.shaderStatus->setText(tr("Compile status: failed"));
         } else {
@@ -196,13 +223,27 @@ void DGLShaderViewItem::toggleHighlight(bool enabled) {
     m_Highlighter->setDocument(enabled ? m_GLSLEditor->document() : NULL );
 }
 
-void DGLShaderViewItem::onRequestFinished(const dglnet::message::RequestReply* reply) {
+DGLShaderViewItem::EditRequestHandler::EditRequestHandler(DGLShaderViewItem* parrent, DGLRequestManager* manager):DGLRequestHandler(manager), m_Parrent(parrent) {}
+
+void DGLShaderViewItem::EditRequestHandler::onRequestFinished(const dglnet::message::RequestReply* reply) {
     std::string replyStr;
     if (!reply->isOk(replyStr)) {
-        QMessageBox::critical(this, "Cannot edit shader", QString::fromStdString(replyStr));
-        editAction(EditAction::A_DISABLE);
+        QMessageBox::critical(m_Parrent, "Cannot edit shader", QString::fromStdString(replyStr));
+        m_Parrent->editAction(EditAction::A_NOTIFY_ERROR);
     }
-    m_Listener->fire();
+    m_Parrent->m_Listener->fire();
+}
+
+DGLShaderViewItem::ResetRequestHandler::ResetRequestHandler(DGLShaderViewItem* parrent, DGLRequestManager* manager):DGLRequestHandler(manager), m_Parrent(parrent) {}
+
+void DGLShaderViewItem::ResetRequestHandler::onRequestFinished(const dglnet::message::RequestReply* reply) {
+    std::string replyStr;
+    if (!reply->isOk(replyStr)) {
+        QMessageBox::critical(m_Parrent, "Cannot reset shader edits", QString::fromStdString(replyStr));
+    } else {
+        m_Parrent->editAction(EditAction::A_DISABLE);
+    }
+    m_Parrent->m_Listener->fire();
 }
 
     

@@ -23,7 +23,7 @@
 
 class DGLGLSLEditor;
 
-class DGLShaderViewItem: public DGLTabbedViewItem, public DGLRequestHandler {
+class DGLShaderViewItem: public DGLTabbedViewItem {
     Q_OBJECT
 public:
     DGLShaderViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
@@ -32,7 +32,7 @@ public:
 public slots:
     void saveShader();
     void editStart();
-    void editCancel();
+    void editReset();
     void editTextChanged();
 
 private slots:
@@ -42,22 +42,42 @@ private slots:
 private:
 
     enum class EditState {
-        S_ERRED_OR_UNAVAIL,
-        S_DISABLED,
-        S_ENABLED        
+        S_UNAVAILABLE,  //no shader to edit
+        S_PAUSE,         //editing pause (no shader to edit arised while editing. may resume edits later)
+        S_NOT_EDITING,  //can enter edit
+        S_EDITING       //editing now
     };
 
     enum class EditAction {
-        A_NOERROR,
-        A_ERROR,
-        A_DISABLE,        
-        A_ENABLE,
-        A_EDIT,
+        A_NOTIFY_NOERROR,   //notify: has shader to edit
+        A_NOTIFY_ERROR,     //notify: error or no shader to edit
+        A_DISABLE,   //disable shader editing (and reset to default source)
+        A_ENABLE,    //enter shader editing
+        A_EDIT,      //edit shader
     };
 
     void editAction(EditAction);
 
-    virtual void onRequestFinished(const dglnet::message::RequestReply* reply);
+    void setState(EditState);
+
+    class EditRequestHandler: public DGLRequestHandler {
+    public:
+        EditRequestHandler(DGLShaderViewItem*, DGLRequestManager*);
+    private:
+        virtual void onRequestFinished(const dglnet::message::RequestReply* reply) override;
+        DGLShaderViewItem* m_Parrent;
+    } m_EditRequestHandler;
+
+    class ResetRequestHandler: public DGLRequestHandler {
+    public:
+        ResetRequestHandler(DGLShaderViewItem*, DGLRequestManager*);
+    private:
+        virtual void onRequestFinished(const dglnet::message::RequestReply* reply) override;
+        DGLShaderViewItem* m_Parrent;
+    } m_ResetRequestHandler;
+    
+    friend class EditRequestHandler;
+    friend class ResetRequestHandler;
 
     Ui::DGLShaderViewItem m_Ui;
     QLabel* m_Label;
