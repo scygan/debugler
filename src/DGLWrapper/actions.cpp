@@ -24,45 +24,9 @@
 #include "display.h"
 #include "native-surface.h"
 
-#include <DGLNet/server.h>
 #include <DGLCommon/gl-types.h>
 
 std::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];
-
-RetValue ActionBase::DoPre(const CalledEntryPoint& call) {
-
-    if (!DGLThreadState::get()->enterActionProcessing()) {
-        //	This is unlikely, but may happen sometimes - OpenGL implementation called us. 
-        //If we dont catch it here, we will deadlock later, or likely get into infinite recursion.
-        return RetValue();
-    } else {
-        try {
-            return Pre(call);
-        } catch (const DGLDebugController::TeardownException&) {
-            _g_Controller.reset();
-            Os::terminate();
-        } catch (const std::exception& e) {
-            Os::fatal(e.what());
-        }
-    }
-    return RetValue();
-}
-
-void ActionBase::DoPost(const CalledEntryPoint& call, const RetValue& ret) {
-    if (DGLThreadState::get()->inActionProcessing()) {
-        try {
-            Post(call, ret);
-        } catch (const DGLDebugController::TeardownException&) {
-            _g_Controller.reset();
-            Os::terminate();
-        } catch (const std::exception& e) {
-            Os::fatal(e.what());
-        }
-    }
-
-    DGLThreadState::get()->leaveActionProcessing();
-}
-
 
 void ActionBase::SetPrev(const std::shared_ptr<ActionBase>& prev) {
     m_PrevAction = prev;

@@ -33,7 +33,7 @@ DGLThreadState* DGLThreadState::get() {
     static THREAD_LOCAL bool s_Initialized = false;
     if (!s_Initialized) {
         ret.resetAPI();
-        ret.privDebugger.m_ActionRecursionLevel = 0;
+        ret.privDebugger.m_ActionProcessing = false;
         s_Initialized = true;
     }
 
@@ -86,14 +86,14 @@ EGLenum DGLThreadState::getEGLApi() {
 }
 
 bool DGLThreadState::enterActionProcessing() {
-    privDebugger.m_ActionRecursionLevel++;
-    return inActionProcessing();
-}
-
-bool DGLThreadState::inActionProcessing() {
-    return privDebugger.m_ActionRecursionLevel == 1;
+    if (privDebugger.m_ActionProcessing) {
+        return false;
+    } else {
+        privDebugger.m_ActionProcessing = true;
+        return true;
+    }
 }
 
 void DGLThreadState::leaveActionProcessing() {
-    privDebugger.m_ActionRecursionLevel--;
+   privDebugger.m_ActionProcessing = false;
 }

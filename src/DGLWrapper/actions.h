@@ -28,16 +28,16 @@ extern std::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];
 class ActionBase {
 public:
     virtual ~ActionBase() {}
+    
+    /** 
+     * Default, empty Pre() action. Subclasses may want to reimplement this
+     */
+    virtual RetValue Pre(const CalledEntryPoint&);
 
     /** 
-     * Entrypoint fo r Pre() tracing, called by wrappers
+     * Default, empty Post() action. Subclasses may want to reimplement this
      */
-    virtual RetValue DoPre(const CalledEntryPoint&);
-
-    /** 
-     * Entrypoint fo r Post() tracing, called by wrappers
-     */
-    virtual void DoPost(const CalledEntryPoint&, const RetValue& ret = RetValue());
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret = RetValue());
 
     template<typename SpecificActionType> 
     static void SetNext(Entrypoint entryp) {
@@ -56,15 +56,6 @@ protected:
      */
     void PrevPost(const CalledEntryPoint&, const RetValue& ret);
 
-     /** 
-     * Default, empty Pre() action. Subclasses may want to reimplement this
-     */
-    virtual RetValue Pre(const CalledEntryPoint&);
-
-    /** 
-     * Default, empty Post() action. Subclasses may want to reimplement this
-     */
-    virtual void Post(const CalledEntryPoint&, const RetValue& ret = RetValue());
 private:
 
     void SetPrev(const std::shared_ptr<ActionBase>& prev);

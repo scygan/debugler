@@ -74,12 +74,6 @@ public:
      */
     bool enterActionProcessing();
 
-    /** 
-    *  Check if we are in action processing
-    *  returns true if actions should are processed
-    */
-    bool inActionProcessing();
-
     /**
      * Leave action processing
      * leaves recursion guard
@@ -103,9 +97,9 @@ public:
 
     struct  PrivDebuggerState {
         /*
-         * Current action recursion level
+         * Current action recursion guard
          */
-        int m_ActionRecursionLevel;
+        int m_ActionProcessing;
     } privDebugger;
 
 
