@@ -87,9 +87,9 @@ bool isProcess64Bit(HANDLE hProcess) {
 
 
 struct IPCMessage {
-    IPCMessage(uint32_t s):status(s) { message[0] = 0; };
-    uint32_t status;
-    char message[1000];
+    IPCMessage():m_ok(true) { m_message[0] = 0; };
+    int8_t m_message[1000];
+    int8_t m_ok;
 };
 
 
@@ -120,8 +120,10 @@ using namespace std;
 
 int main(int argc, char** argv) {
 
-    IPCMessage message(EXIT_SUCCESS);
+    IPCMessage message;
     IPCMessage* ipcMessage = &message; 
+
+    DGLProcess::native_process_handle_t childHandle = 0;
 
     try {
 
@@ -209,6 +211,8 @@ int main(int argc, char** argv) {
             process.do_execvp();
 
 #endif
+        } else {
+            childHandle = process.getHandle();
         }
 
 
@@ -246,16 +250,29 @@ int main(int argc, char** argv) {
 
     } catch (const std::exception& e) {
 
-        ipcMessage->status = EXIT_FAILURE;
+        static_assert(sizeof(char) == sizeof(ipcMessage->m_message[0]), "Wrong IPC message element size");
 
         if (int osError = Os::getLastosError()) {
-            snprintf(ipcMessage->message, 1000, "%s: %s\n", e.what(), Os::translateOsError(osError).c_str());
+            snprintf((char*)ipcMessage->m_message, 1000, "%s: %s\n", e.what(), Os::translateOsError(osError).c_str());
         } else {
-            snprintf(ipcMessage->message, 1000, "%s\n", e.what());
+            snprintf((char*)ipcMessage->m_message, 1000, "%s\n", e.what());
         }
+
+        if (childHandle) {
+            //We were able to start child process, but furhter setup failed.
+            //Kill the child ASAP.
+#ifdef _WIN32
+            TerminateProcess(childHandle, EXIT_FAILURE);
+#else
+            kill(childHandle, SIGPIPE);
+#endif
+            childHandle = 0;
+        }
+
+        ipcMessage->m_ok = false;
     }
 
-    Os::info("%s", ipcMessage->message);
+    Os::info("%s", ipcMessage->m_message);
 
     std::string shmemName = Os::getEnv("dgl_loader_shmem");
     if (shmemName.length()) {
@@ -271,5 +288,25 @@ int main(int argc, char** argv) {
         sem.post();
     }
 
-    return ipcMessage->status;
+    if (!ipcMessage->m_ok) {
+        assert(!childHandle);
+
+        //failure - we were not able to setup properly exit code. 
+        //The failure reason is passed via IPC. Parrent process should check IPC data to distinguish
+        //loader failure vs. non-zero exit code from loader's child.
+        return EXIT_FAILURE;
+    } else {
+    
+        //Wait for child process to exit. Return child process exit code.
+#ifdef _WIN32
+        DWORD exitCode;
+        WaitForSingleObject( childHandle, INFINITE );
+        GetExitCodeProcess( childHandle, &exitCode);
+        return exitCode;
+#else
+        int exitCode;
+        waitpid(childHandle, &exitCode, WEXITSTATUS);
+        return exitCode;
+#endif
+    }
 }

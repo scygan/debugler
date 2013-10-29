@@ -24,10 +24,13 @@
 
 #include "dglprocess.h"
 
+class DGLAdbOutputFilter;
+
 class DGLAdbCookie: public DGLBaseQTProcess {
     Q_OBJECT
 public:
-    DGLAdbCookie(const std::string& adbPath, const std::vector<std::string> params);
+    DGLAdbCookie(const std::string& adbPath, const std::vector<std::string> params,
+        std::shared_ptr<DGLAdbOutputFilter> filter = std::shared_ptr<DGLAdbOutputFilter>());
     
     void process();
 
@@ -36,11 +39,13 @@ signals:
     void failed(std::string reason);
 
 private slots:
-    void processEvent(bool ok, std::string errormsg);
+    void handleProcessError(QProcess::ProcessError);
+    void handleProcessFinished(int, QProcess::ExitStatus);
 
 private:
     std::string m_adbPath;
     std::vector<std::string> m_params;
+    std::shared_ptr<DGLAdbOutputFilter> m_OutputFilter;
 };
 
 
@@ -54,6 +59,8 @@ public:
 
     DGLAdbCookie* killServer();
     DGLAdbCookie* connect(std::string address);
+    DGLAdbCookie* getDevices();
+
 
     //std::vector<DGLAdbDevice> getDevices();
 

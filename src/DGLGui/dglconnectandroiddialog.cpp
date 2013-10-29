@@ -25,7 +25,7 @@
 DGLConnectAndroidDialog::DGLConnectAndroidDialog() {
     
     m_ui.setupUi(this);
-       
+    //reloadDevices();       
 }
 
 DGLConnectAndroidDialog::~DGLConnectAndroidDialog() {}
@@ -49,7 +49,25 @@ void DGLConnectAndroidDialog::adbConnect() {
 }
 
 void DGLConnectAndroidDialog::reloadDevices() {
-    throw std::runtime_error("unimplemented");
+     DGLAdbCookie* cookie = DGLAdbInterface::get()->getDevices();
+     CONNASSERT(connect(cookie, SIGNAL(failed(std::string)), this, SLOT(adbFailed(std::string))));
+     CONNASSERT(connect(cookie, SIGNAL(done(std::vector<std::string>)), this, SLOT(gotDevices(std::vector<std::string>))));
+}
+
+void DGLConnectAndroidDialog::gotDevices(std::vector<std::string> devices) {
+    
+    std::sort(devices.begin(), devices.end());
+
+    int j = 0;
+    for (size_t i = 0; i < devices.size(); i++) {
+        while (j < m_ui.comboBox->count() && devices[i] < m_ui.comboBox->itemText(j).toStdString()) {
+            m_ui.comboBox->removeItem(j);
+        }
+        if (m_ui.comboBox->itemText(j).toStdString() != devices[i]) {
+            m_ui.comboBox->insertItem(j, QIcon(), QString::fromStdString(devices[i]));
+        }
+        j++;
+    }
 }
 
 void DGLConnectAndroidDialog::adbFailed(std::string reason) {

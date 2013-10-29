@@ -41,7 +41,7 @@ public:
     void abort();
 protected:
     void read();
-    void notifyDisconnect(const std::string& why = "");
+    void notifyDisconnect(const boost::system::error_code &ec);
     virtual void notifyStartSend();
     virtual void notifyEndSend();
 

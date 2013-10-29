@@ -35,15 +35,25 @@ class DGLBaseQTProcess: public QObject {
 public:
     DGLBaseQTProcess();
 
+    /**
+     * Starts process with parameters
+     */
     virtual void run(std::string cmd, std::string path, std::vector<std::string> args, bool takeOutput = false);
+
+    /** 
+     * Request process exit
+     * 
+     * Signals may be emitted from derived classes.
+     */
     void exit(bool wait);
 
-    signals:
-        void processEvent(bool ok, std::string errormsg);
+    /**
+     * Request process exit and deletion of current object
+     *
+     * No signals will be emited
+     */
+    void requestDelete();
 
-    private slots:
-        void processStarted();
-        void processError(QProcess::ProcessError);
 protected:
     QProcess m_process;
 };
@@ -63,17 +73,23 @@ public:
 
 signals:
     void processReady();
+    void processError(std::string errorMsg);
+    void processFinished(int);
+    void processCrashed();
     
 private slots:
     void startPolling();
     void pollReady();
 
+    void handleProcessError(QProcess::ProcessError);
+    void handleProcessFinished(int, QProcess::ExitStatus);
+
 private:
 
     struct IPCMessage {
-        IPCMessage(uint32_t s):status(s) { message[0] = 0; };
-        uint32_t status;
-        char message[1000];
+        IPCMessage():m_ok(true) { m_message[0] = 0; };
+        int8_t m_message[1000];
+        int8_t m_ok;
     };
 
 

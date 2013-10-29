@@ -291,11 +291,6 @@ signals:
     /** 
      * Signal for setting GUI state
      */
-    void setDisconnected(bool);
-
-    /** 
-     * Signal for setting GUI state
-     */
     void setBreaked(bool);
 
     /** 
@@ -309,7 +304,7 @@ signals:
     void gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&);
 
     void newStatus(const QString&);
-    void error(const QString&, const QString&);
+    void connectionLost(const QString&, const QString&);
   
 public slots:
     void poll();

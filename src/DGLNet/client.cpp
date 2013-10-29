@@ -47,24 +47,24 @@ namespace dglnet {
 
 
     private:
-        virtual void onResolve(const boost::system::error_code& err,
+        virtual void onResolve(const boost::system::error_code& ec,
             boost::asio::ip::tcp::resolver::iterator endpoint_iterator) {
-                if (!err) {
+                if (!ec) {
                     Transport::m_detail->m_socket.async_connect(*endpoint_iterator, std::bind(&ClientImpl::onConnect, shared_from_this(),
                         std::placeholders::_1));
                     m_controller->onSetStatus("Connecting...");
                     m_controller->onSocket();
                 } else {
-                    notifyDisconnect(err.message());
+                    notifyDisconnect(ec);
                 }
         }
 
-        virtual void onConnect(const boost::system::error_code &err) {
-            if (!err) {
+        virtual void onConnect(const boost::system::error_code &ec) {
+            if (!ec) {
                 m_controller->onSetStatus("Connected.");
                 read();
             } else {
-                notifyDisconnect(err.message());
+                notifyDisconnect(ec);
             }
         }
 

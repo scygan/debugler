@@ -58,11 +58,11 @@ private slots:
     void about();
 
     /** 
-     * Slot displaying error message
+     * Slot for dglcontroller connection lost
      * @param Error title
      * @param Error message
      */
-    void errorMessage(const QString&, const QString&);
+    void connectionLost(const QString&, const QString&);
 
     /**
      * Slot for displaing "Attach to process window..." 
@@ -80,9 +80,19 @@ private slots:
     void runDialog();
 
     /**
-     * Debugee process event handler 
+     * Debugee process crash handler 
      */
-    void processHandler(bool ok, std::string errormsg);
+    void processCrashHandler();
+
+    /**
+     * Debugee process exit handler 
+     */
+    void processExitHandler(int);
+
+    /**
+     * Debugee process starup error event handler 
+     */
+    void processErrorHandler(std::string);
 
     /**
      * Debugee process ready event handler 
@@ -157,6 +167,7 @@ private:
       * Method intercepring main window close event
       */
     virtual void closeEvent(QCloseEvent *event);
+
 
     // menus
 

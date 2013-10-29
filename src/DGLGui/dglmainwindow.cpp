@@ -124,7 +124,7 @@ void DGLMainWindow::closeEvent(QCloseEvent *_event) {
         _event->ignore();
 
     } else {
-        m_controller.disconnectServer();
+        disconnect();
 
         //store QSettings
 
@@ -139,7 +139,6 @@ void DGLMainWindow::closeEvent(QCloseEvent *_event) {
         _event->accept();
     }
 }
-
 
 void DGLMainWindow::createDockWindows() {
     //Create all dock windows.
@@ -298,14 +297,14 @@ void DGLMainWindow::createToolBars() {
      attachAct = new QAction(tr("&Attach to"), this);
      attachAct->setStatusTip(tr("Attach to IP target"));
      CONNASSERT(connect(attachAct, SIGNAL(triggered()), this, SLOT(attach())));
-     CONNASSERT(connect(&m_controller, SIGNAL(setDisconnected(bool)), attachAct, SLOT(setEnabled(bool))));
+     CONNASSERT(connect(&m_controller, SIGNAL(setConnected(bool)), attachAct, SLOT(setDisabled(bool))));
      attachAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_A));
 
 
      attachAndroidAct = new QAction(tr("&Attach to Android App"), this);
      attachAndroidAct->setStatusTip(tr("Attach to IP target"));
      CONNASSERT(connect(attachAndroidAct, SIGNAL(triggered()), this, SLOT(attachAndroidApp())));
-     CONNASSERT(connect(&m_controller, SIGNAL(setDisconnected(bool)), attachAndroidAct, SLOT(setEnabled(bool))));
+     CONNASSERT(connect(&m_controller, SIGNAL(setConnected(bool)), attachAndroidAct, SLOT(setDisabled(bool))));
      
      disconnectAct = new QAction(tr("&Disconnect"), this);
      disconnectAct->setStatusTip(tr("Disconnect an terminate application"));
@@ -419,7 +418,7 @@ void DGLMainWindow::createToolBars() {
       //connect some signals from DGLcontroller to UI
 
       CONNASSERT(connect(&m_controller, SIGNAL(newStatus(const QString&)), m_ui.statusBar, SLOT(showMessage(const QString&))));
-      CONNASSERT(connect(&m_controller, SIGNAL(error(const QString&, const QString&)), this, SLOT(errorMessage(const QString&, const QString&))));
+      CONNASSERT(connect(&m_controller, SIGNAL(connectionLost(const QString&, const QString&)), this, SLOT(connectionLost(const QString&, const QString&))));
       CONNASSERT(connect(&m_controller, SIGNAL(debugeeInfo(const std::string&)), this, SLOT(debugeeInfo(const std::string&))));
   }
 
@@ -520,6 +519,8 @@ void DGLMainWindow::createToolBars() {
 
      if (m_RunDialog.exec() == QDialog::Accepted) {
 
+         disconnect();
+
          try {
 
              m_BusyDialog = std::make_shared<QProgressDialog>("Starting debugging session (waiting for application to try use OpenGL)...", "Cancel", 0, 1, this);
@@ -529,6 +530,7 @@ void DGLMainWindow::createToolBars() {
              
              QProgressBar*  bar = new QProgressBar(m_BusyDialog.get()); m_BusyDialog->setBar(bar);
              bar->setMaximum(0); bar->setMinimum(0); bar->setValue(-1);
+             CONNASSERT(connect(m_BusyDialog.get(), SIGNAL(canceled()), this, SLOT(disconnect())));
 
 
              //randomize connection port
@@ -538,48 +540,59 @@ void DGLMainWindow::createToolBars() {
 
              m_process->setParent(this);
 
-             CONNASSERT(connect(m_process, SIGNAL(processEvent(bool, std::string)), this, SLOT(processHandler(bool, std::string))));
              CONNASSERT(connect(m_process, SIGNAL(processReady()), this, SLOT(processReadyHandler())));
+             CONNASSERT(connect(m_process, SIGNAL(processError(std::string)), this, SLOT(processErrorHandler(std::string))));
+             CONNASSERT(connect(m_process, SIGNAL(processFinished(int)), this, SLOT(processExitHandler(int))));
+             CONNASSERT(connect(m_process, SIGNAL(processCrashed()), this, SLOT(processCrashHandler())));
 
              m_process->run(m_RunDialog.getExecutable(),
                  m_RunDialog.getPath(),
                  m_RunDialog.getCommandLineArgs());
 
          } catch (const std::runtime_error& err) {
+            if (m_process) {
+                m_process->requestDelete(); m_process = NULL;
+            }
             QMessageBox::critical(NULL, tr("Fatal Error"),
                 QString::fromStdString(err.what()));
          }
      }
  }
 
- void DGLMainWindow::processHandler(bool ok, std::string errormsg) {
-     if (!ok) {
-         QMessageBox::critical(NULL, tr("Fatal Error"),
-             QString::fromStdString(errormsg));
+void DGLMainWindow::processCrashHandler() {
+    disconnect();
+    QMessageBox::critical(this, tr("Process crashed"),
+        tr("Loader process has crashed."));
+}
 
-         m_process->exit(false);
-         m_process = NULL;
-         m_BusyDialog.reset();
-     }
- }
+void DGLMainWindow::processErrorHandler(std::string err) {
+    disconnect();
+    QMessageBox::critical(this, tr("Fatal Error"),
+        QString::fromStdString(err));
+}
 
- void DGLMainWindow::processReadyHandler() {
-     std::ostringstream portStr; portStr << m_process->getPort();
-     m_controller.connectServer("127.0.0.1", portStr.str());
- }
+void DGLMainWindow::processExitHandler(int code) {
+    disconnect();
+    QMessageBox::information(NULL, tr("Process Exited"),
+        tr("Process has exited with code ") + QString::number(code) + ".");
+
+}
+
+void DGLMainWindow::processReadyHandler() {
+
+    m_BusyDialog->reset();
+
+    std::ostringstream portStr; portStr << m_process->getPort();
+    m_controller.connectServer("127.0.0.1", portStr.str());
+}
 
 
- void DGLMainWindow::disconnect() {
-
-     // call DGLcontroller to terminate it's connection
-
-     m_controller.disconnectServer();
-
-     if (m_process) {
-         m_process->exit(false);
-         m_process = NULL;
-     }
-
+void DGLMainWindow::disconnect() {
+    m_controller.disconnectServer();
+    if (m_process) {
+        m_process->requestDelete(); m_process = NULL;
+    }
+    m_BusyDialog.reset();
  }
 
  void DGLMainWindow::addDeleteBreakPoints() {
@@ -607,13 +620,19 @@ void DGLMainWindow::createToolBars() {
      m_controller.getConfig().m_BreakOnCompilerError = setBreakOnCompilerErrAct->isChecked();
      m_controller.sendConfig();
      showConfig();
- }
+}
+ 
+void DGLMainWindow::connectionLost(const QString& title, const QString& msg) {
+    if (m_process) {
+        //we still have a process, that should terminate now
 
-void DGLMainWindow::errorMessage(const QString& title, const QString& msg) {
-
-    //all fatals should eventually end here
-
-    QMessageBox::critical(this, title, msg);
+        //m_process has still handler slots connected here, so user 
+        //will be informed about process exit.
+        m_process->exit(false);
+    } else {
+        disconnect();
+        QMessageBox::critical(this, title, msg);
+    }
 }
 
 void DGLMainWindow::showConfig() {

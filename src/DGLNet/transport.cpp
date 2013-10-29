@@ -92,7 +92,7 @@ namespace dglnet {
 
     void Transport::onReadHeader(TransportHeader* header, const boost::system::error_code &ec) {
         if (ec) {
-            notifyDisconnect(ec.message());
+            notifyDisconnect(ec);
         } else {
             boost::asio::streambuf*  stream = new boost::asio::streambuf;
             stream->prepare(header->getSize());
@@ -104,7 +104,7 @@ namespace dglnet {
 
     void Transport::onReadArchive(boost::asio::streambuf* stream, const boost::system::error_code &ec) {
         if (ec) {
-            notifyDisconnect(ec.message());
+            notifyDisconnect(ec);
         } else {
             std::istream iArchiveStream(stream);
             assert(iArchiveStream.good());
@@ -174,7 +174,7 @@ namespace dglnet {
         }
         
         if (ec) {
-            notifyDisconnect(ec.message());
+            notifyDisconnect(ec);
         }
     }
 
@@ -182,9 +182,9 @@ namespace dglnet {
         msg.handle(m_messageHandler);
     }
 
-    void Transport::notifyDisconnect(const std::string& why) {
+    void Transport::notifyDisconnect(const boost::system::error_code &ec) {
         if (m_Abort) return;
-        m_messageHandler->doHandleDisconnect(why);
+        m_messageHandler->doHandleDisconnect(ec.message());
     }
     
     void Transport::notifyStartSend() {}

@@ -27,13 +27,7 @@
     #define MAX_PATH PATH_MAX
 #endif
 
-DGLBaseQTProcess::DGLBaseQTProcess() {
- 
-
-    CONNASSERT(connect(&m_process, SIGNAL(started()), this, SLOT(processStarted())));
-    CONNASSERT(connect(&m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(processError(QProcess::ProcessError))));
-    
-}
+DGLBaseQTProcess::DGLBaseQTProcess() {}
 
 void DGLBaseQTProcess::run(std::string exec, std::string path, std::vector<std::string> args, bool takeOutput) {
  
@@ -54,27 +48,33 @@ void DGLBaseQTProcess::run(std::string exec, std::string path, std::vector<std::
         m_process.setWorkingDirectory(absolutePath);
     }
 
+    if (takeOutput) {
+        m_process.setProcessChannelMode(QProcess::MergedChannels);
+    }
+
     m_process.start(QString::fromStdString(exec), arguments);
 }
 
 
 void DGLBaseQTProcess::exit(bool wait) {
-    disconnect();
     m_process.terminate();
     if (wait) {
         m_process.waitForFinished();
     }
+}
+
+void DGLBaseQTProcess::requestDelete() {
+    //no more signals will be emited
+    disconnect();
+    
+    //if process is still running terminate it
+    if (m_process.state() != QProcess::NotRunning) {
+        exit(false);
+    }
+
+    //request destruction of current object
     deleteLater();
 }
-
-void DGLBaseQTProcess::processStarted() {
-    emit processEvent(true, "");
-}
-
-void DGLBaseQTProcess::processError(QProcess::ProcessError) {
-    emit processEvent(false, m_process.errorString().toStdString());
-}
-
 
 DGLDebugeeQTProcess::DGLDebugeeQTProcess(int port, bool modeEGL):
     m_Port(port), m_Loaded(false), m_ModeEGL(modeEGL),
@@ -86,6 +86,8 @@ DGLDebugeeQTProcess::DGLDebugeeQTProcess(int port, bool modeEGL):
 
     CONNASSERT(connect(m_PollTimer, SIGNAL(timeout()), this, SLOT(pollReady())));
     CONNASSERT(connect(&m_process, SIGNAL(started()), this, SLOT(startPolling())));
+    CONNASSERT(connect(&m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(handleProcessError(QProcess::ProcessError))));
+    CONNASSERT(connect(&m_process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(handleProcessFinished(int, QProcess::ExitStatus))));
 }
 
 DGLDebugeeQTProcess::~DGLDebugeeQTProcess() {
@@ -171,23 +173,42 @@ void DGLDebugeeQTProcess::startPolling() {
 
 void DGLDebugeeQTProcess::pollReady() {
     if (m_Loaded) {
-        if (m_SemOpenGL.timed_wait(boost::get_system_time()/* + boost::posix_time::milliseconds(1)*/)) {
+        if (m_SemOpenGL.try_wait()) {
             m_PollTimer->stop();
             emit processReady();
         }
     } else {
-        if (m_SemLoader.timed_wait(boost::get_system_time()/* + boost::posix_time::milliseconds(1)*/)) {
-
-            IPCMessage* ipcMessage = (IPCMessage*)m_MappedRegion.get_address();
-
-            if (ipcMessage->status != EXIT_SUCCESS) {
-                m_PollTimer->stop();
-                emit processEvent(false, ipcMessage->message);
-            }
-
+        if (m_SemLoader.try_wait()) {
             m_Loaded = true;
             pollReady();
         }
+    }
+}
+
+void DGLDebugeeQTProcess::handleProcessError(QProcess::ProcessError) {
+    emit processError(m_process.errorString().toStdString());
+}
+
+void DGLDebugeeQTProcess::handleProcessFinished(int code, QProcess::ExitStatus status) {
+    
+    m_PollTimer->stop();
+
+    if (status == QProcess::CrashExit) {
+        //this is loader process that crashed!
+        emit processCrashed();
+    } else {
+        //check in IPC if loader was successful
+        if (m_Loaded ||  m_SemLoader.try_wait()) {
+            IPCMessage* ipcMessage = (IPCMessage*)m_MappedRegion.get_address();
+
+            if (ipcMessage) {
+                static_assert(sizeof(char) == sizeof(ipcMessage->m_message[0]), "Wrong IPC message element size");
+                if (!ipcMessage->m_ok) {
+                    emit processError((char*)ipcMessage->m_message);
+                }
+            }
+        }
+        emit processFinished(code);
     }
 }
 

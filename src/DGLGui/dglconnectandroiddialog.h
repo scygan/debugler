@@ -51,13 +51,13 @@ public slots:
     void adbConnect();
 
     void adbFailed(std::string reason);
+    void gotDevices(std::vector<std::string> devices);
     
 private:
     void reloadDevices();
 
 
     DGLConnectAndroidAdbDialog m_ConnectDialog;
-
 
     Ui::DGLConnectAndroidDialogClass m_ui;
 };

@@ -38,7 +38,7 @@ namespace dglnet {
         boost::system::error_code ec;
         ec = m_detail->m_acceptor.accept(Transport::m_detail->m_socket, ec);
         if (ec) {
-            notifyDisconnect(ec.message());
+            notifyDisconnect(ec);
         }
         m_detail->m_acceptor.close();
         read();

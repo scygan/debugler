@@ -18,29 +18,66 @@
 #include <QMessageBox>
 #include <stdexcept>
 
-DGLAdbCookie::DGLAdbCookie(const std::string& adbPath, const std::vector<std::string> params):m_adbPath(adbPath), m_params(params) {
-    CONNASSERT(connect(this, SIGNAL(processEvent(bool, std::string)), this, SLOT(processEvent(bool, std::string))));
+
+class DGLAdbOutputFilter {
+public:
+    virtual std::vector<std::string> filter(std::vector<std::string>& in) = 0;
+    virtual ~DGLAdbOutputFilter() {}
+};
+
+class DGLDeviceOutputFilter: public DGLAdbOutputFilter {
+    std::vector<std::string> filter(std::vector<std::string>& in) {
+        return in;
+    }
+};
+
+
+DGLAdbCookie::DGLAdbCookie(const std::string& adbPath, const std::vector<std::string> params, 
+                           std::shared_ptr<DGLAdbOutputFilter> filter):m_adbPath(adbPath), m_params(params), m_OutputFilter(filter) {
+    CONNASSERT(connect(&m_process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(handleProcessFinished(int, QProcess::ExitStatus))));
+    CONNASSERT(connect(&m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(handleProcessError(QProcess::ProcessError))));
 }
 
 void DGLAdbCookie::process() {
     if (!m_adbPath.size()) {
         emit failed(tr("ADB path is not set, go to Tools->Configuration->Android to set it.").toStdString());
     } else {
-        run(m_adbPath, "", m_params, true);
+        run(m_adbPath, "", m_params, m_OutputFilter.get() != nullptr);
     }
 }
 
-void DGLAdbCookie::processEvent(bool ok, std::string errormsg) {
-    if (!ok) {
-        emit failed(errormsg);
+void DGLAdbCookie::handleProcessError(QProcess::ProcessError) {
+    emit failed(m_process.errorString().toStdString());
+    disconnect();
+    deleteLater();
+}
+
+void DGLAdbCookie::handleProcessFinished(int code, QProcess::ExitStatus status) {
+    if (status == QProcess::NormalExit) {
+        if (code) {
+            std::ostringstream msg;
+            msg << "Adb process exit code:" << code << ".";
+            emit failed(msg.str());
+        } else {
+            //success
+            QByteArray qData = m_process.readAll();
+            QList<QByteArray> qLines = qData.split('\n');
+            std::vector<std::string> lines;
+            foreach ( QByteArray qLine, qLines) {
+                lines.push_back(QString(qLine.replace("\r", QByteArray())).toStdString());
+            }
+            if (m_OutputFilter.get()) {
+                emit done(m_OutputFilter->filter(lines));
+            } else {
+                emit done(lines);
+            }
+        }
+    } else {
+        emit failed("ADB process crashed");
         disconnect();
         deleteLater();
-    } else {
-        emit done(std::vector<std::string>());
     }
-    
 }
-
 
 DGLAdbInterface* DGLAdbInterface::get() {
     if (!s_self) {
@@ -70,6 +107,10 @@ DGLAdbCookie* DGLAdbInterface::connect(std::string address) {
     return invokeAdb(params);
 }
 
+DGLAdbCookie* DGLAdbInterface::getDevices() {
+    std::vector<std::string> params(1, "devices");
+    return invokeAdb(params);
+}
 
 DGLAdbCookie* DGLAdbInterface::invokeAdb(std::vector<std::string> params) {
     DGLAdbCookie* ret = new DGLAdbCookie(m_adbPath, params);;

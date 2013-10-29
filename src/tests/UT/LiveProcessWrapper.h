@@ -28,10 +28,11 @@ public:
 
         m_process->setParent(this);
 
-        CONNASSERT(connect(m_process, SIGNAL(processEvent(bool, std::string)), this, SLOT(processHandler(bool, std::string))));
         CONNASSERT(connect(m_process, SIGNAL(processReady()), this, SLOT(processReadyHandler())));
+        CONNASSERT(connect(m_process, SIGNAL(processError(std::string)), this, SLOT(processErrorHandler(std::string))));
+        CONNASSERT(connect(m_process, SIGNAL(processCrashed()), this, SLOT(processCrashHandler())));
 
-         std::vector<std::string> args;
+        std::vector<std::string> args;
 #ifdef _WIN32
         std::string exec = "samples\\samples.exe";
         args.push_back(sampleName);
@@ -63,12 +64,15 @@ signals:
     void done();
 
 private slots:
-    void processHandler(bool ok, std::string errormsg) {
-        if (!ok) {
-            m_errorInfo = errormsg;
-            emit done();
-            m_Done = true;
-        }
+    void processError(std::string errorMsg) {
+        m_errorInfo = errorMsg;
+        emit done();
+        m_Done = true;
+    }
+    void processCrashed() {
+        m_errorInfo = "Process crashed";
+        emit done();
+        m_Done = true;
     }
 
     void processReadyHandler() {
