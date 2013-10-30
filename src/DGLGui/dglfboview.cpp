@@ -27,8 +27,8 @@ DGLFBOViewItem::DGLFBOViewItem(dglnet::ContextObjectName name, DGLResourceManage
     m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectType::FBO);
     m_Listener->setParent(this);
 
-    CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));
-    CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
+    CONNASSERT(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&)));
+    CONNASSERT(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&)));
 
 }
 
@@ -70,7 +70,7 @@ DGLFBOView::DGLFBOView(QWidget* parrent, DglController* controller):DGLTabbedVie
     setupNames("Framebuffer Objects", "DGLFBOView");
 
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showFBO(opaque_id_t, gl_t)), this, SLOT(showFBO(opaque_id_t, gl_t))));
+    CONNASSERT(controller->getViewRouter(), SIGNAL(showFBO(opaque_id_t, gl_t)), this, SLOT(showFBO(opaque_id_t, gl_t)));
 }
 
 void DGLFBOView::showFBO(opaque_id_t ctx, gl_t bufferEnum) {

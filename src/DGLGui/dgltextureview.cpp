@@ -29,11 +29,11 @@ DGLTextureViewItem::DGLTextureViewItem(dglnet::ContextObjectName name, DGLResour
 
     m_Ui.horizontalSlider_LOD->setDisabled(true);
 
-    CONNASSERT(connect(m_Ui.horizontalSlider_LOD,SIGNAL(sliderMoved(int)),this,SLOT(levelSliderMoved(int))));
-    CONNASSERT(connect(m_Ui.comboBoxCM,SIGNAL(currentIndexChanged(int)),this,SLOT(faceComboChanged(int))));
+    CONNASSERT(m_Ui.horizontalSlider_LOD,SIGNAL(sliderMoved(int)),this,SLOT(levelSliderMoved(int)));
+    CONNASSERT(m_Ui.comboBoxCM,SIGNAL(currentIndexChanged(int)),this,SLOT(faceComboChanged(int)));
 
-    CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));
-    CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
+    CONNASSERT(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&)));
+    CONNASSERT(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&)));
 
     m_Ui.labelCM->hide();
     m_Ui.comboBoxCM->hide();
@@ -115,7 +115,7 @@ DGLTextureView::DGLTextureView(QWidget* parrent, DglController* controller):DGLT
     setupNames("Textures", "DGLTextureView");
    	
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showTexture(opaque_id_t, gl_t)), this, SLOT(showTexture(opaque_id_t, gl_t))));
+    CONNASSERT(controller->getViewRouter(), SIGNAL(showTexture(opaque_id_t, gl_t)), this, SLOT(showTexture(opaque_id_t, gl_t)));
         
 }
 

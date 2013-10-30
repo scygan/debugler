@@ -125,7 +125,7 @@ void DGLViewRouter::show(const dglnet::ContextObjectName& name, dglnet::DGLResou
 
 DglController::DglController():m_Disconnected(true), m_Connected(false), m_ConfiguredAndBkpointsSet(false), m_BreakPointController(this), m_RequestManager(this), m_ResourceManager(getRequestManager()) {
     m_Timer.setInterval(10);
-    CONNASSERT(connect(&m_Timer, SIGNAL(timeout()), this, SLOT(poll())));
+    CONNASSERT(&m_Timer, SIGNAL(timeout()), this, SLOT(poll()));
 }
 
 void DglController::connectServer(const std::string& host, const std::string& port) {
@@ -162,8 +162,8 @@ void DglController::onSocket() {
 #undef QSOCK_T
 
     m_NotifierWrite->setEnabled(false);
-    CONNASSERT(connect(&*m_NotifierRead, SIGNAL(activated(int)), this, SLOT(poll())));
-    CONNASSERT(connect(&*m_NotifierWrite, SIGNAL(activated(int)), this, SLOT(poll())));
+    CONNASSERT(&*m_NotifierRead, SIGNAL(activated(int)), this, SLOT(poll()));
+    CONNASSERT(&*m_NotifierWrite, SIGNAL(activated(int)), this, SLOT(poll()));
 }
 
 void DglController::onSocketStartSend() {

@@ -33,8 +33,8 @@ DGLConnectAndroidDialog::~DGLConnectAndroidDialog() {}
 void DGLConnectAndroidDialog::adbKillServer() {
 
     DGLAdbCookie* cookie = DGLAdbInterface::get()->killServer();
-    CONNASSERT(connect(cookie, SIGNAL(failed(std::string)), this, SLOT(adbFailed(std::string))));
-    CONNASSERT(connect(cookie, SIGNAL(done(std::vector<std::string>())), this, SLOT(reloadDevices())));
+    CONNASSERT(cookie, SIGNAL(failed(std::string)), this, SLOT(adbFailed(std::string)));
+    CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>())), this, SLOT(reloadDevices()));
     cookie->process();
 }
 
@@ -42,16 +42,16 @@ void DGLConnectAndroidDialog::adbConnect() {
 
     if (m_ConnectDialog.exec() == QDialog::Accepted) {
         DGLAdbCookie* cookie = DGLAdbInterface::get()->connect(m_ConnectDialog.getAddress());
-        CONNASSERT(connect(cookie, SIGNAL(failed(std::string)), this, SLOT(adbFailed(std::string))));
-        CONNASSERT(connect(cookie, SIGNAL(done(std::vector<std::string>())), this, SLOT(reloadDevices())));
+        CONNASSERT(cookie, SIGNAL(failed(std::string)), this, SLOT(adbFailed(std::string)));
+        CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>())), this, SLOT(reloadDevices()));
         cookie->process();
     }
 }
 
 void DGLConnectAndroidDialog::reloadDevices() {
      DGLAdbCookie* cookie = DGLAdbInterface::get()->getDevices();
-     CONNASSERT(connect(cookie, SIGNAL(failed(std::string)), this, SLOT(adbFailed(std::string))));
-     CONNASSERT(connect(cookie, SIGNAL(done(std::vector<std::string>)), this, SLOT(gotDevices(std::vector<std::string>))));
+     CONNASSERT(cookie, SIGNAL(failed(std::string)), this, SLOT(adbFailed(std::string)));
+     CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this, SLOT(gotDevices(std::vector<std::string>)));
 }
 
 void DGLConnectAndroidDialog::gotDevices(std::vector<std::string> devices) {

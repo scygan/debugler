@@ -28,15 +28,15 @@ DGLTreeView::DGLTreeView(QWidget* parrent, DglController* controller):QDockWidge
     
     setWidget(&m_TreeWidget);
     //inbound
-    CONNASSERT(connect(controller, SIGNAL(setConnected(bool)), this, SLOT(setConnected(bool))));
-    CONNASSERT(connect(controller, SIGNAL(debugeeInfo(const std::string&)), this, SLOT(debugeeInfo(const std::string&))));
-    CONNASSERT(connect(controller, SIGNAL(setBreaked(bool)), &m_TreeWidget, SLOT(setEnabled(bool))));
-    CONNASSERT(connect(controller, SIGNAL(breakedWithStateReports(opaque_id_t, const std::vector<dglnet::message::BreakedCall::ContextReport>&)),
-        this, SLOT(breakedWithStateReports(opaque_id_t, const std::vector<dglnet::message::BreakedCall::ContextReport>&))));
+    CONNASSERT(controller, SIGNAL(setConnected(bool)), this, SLOT(setConnected(bool)));
+    CONNASSERT(controller, SIGNAL(debugeeInfo(const std::string&)), this, SLOT(debugeeInfo(const std::string&)));
+    CONNASSERT(controller, SIGNAL(setBreaked(bool)), &m_TreeWidget, SLOT(setEnabled(bool)));
+    CONNASSERT(controller, SIGNAL(breakedWithStateReports(opaque_id_t, const std::vector<dglnet::message::BreakedCall::ContextReport>&)),
+        this, SLOT(breakedWithStateReports(opaque_id_t, const std::vector<dglnet::message::BreakedCall::ContextReport>&)));
     
     //internal
-    CONNASSERT(QObject::connect(&m_TreeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
-        this, SLOT(onDoubleClicked(QTreeWidgetItem*, int))));
+    CONNASSERT(&m_TreeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
+        this, SLOT(onDoubleClicked(QTreeWidgetItem*, int)));
 }
 
 

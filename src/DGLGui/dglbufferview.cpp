@@ -26,8 +26,8 @@ DGLBufferViewItem::DGLBufferViewItem(dglnet::ContextObjectName name, DGLResource
     m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectType::Buffer);
     m_Listener->setParent(this);
 
-    CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));
-    CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
+    CONNASSERT(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&)));
+    CONNASSERT(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&)));
 }
 
 void DGLBufferViewItem::error(const std::string& message) {
@@ -48,7 +48,7 @@ DGLBufferView::DGLBufferView(QWidget* parrent, DglController* controller):DGLTab
     setupNames("Vertex Buffers", "DGLBufferView");
 
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showBuffer(opaque_id_t, gl_t)), this, SLOT(showBuffer(opaque_id_t, gl_t))));
+    CONNASSERT(controller->getViewRouter(), SIGNAL(showBuffer(opaque_id_t, gl_t)), this, SLOT(showBuffer(opaque_id_t, gl_t)));
 }
 
 void DGLBufferView::showBuffer(opaque_id_t ctx, gl_t name) {

@@ -62,12 +62,12 @@ DGLShaderViewItem::DGLShaderViewItem(dglnet::ContextObjectName name, DGLResource
     //cannot edit shader now: no shader to edit
     setState(EditState::S_UNAVAILABLE);
 
-    CONNASSERT(connect(m_Ui.checkBox_Highlight, SIGNAL(toggled(bool)), this, SLOT(toggleHighlight(bool))));
+    CONNASSERT(m_Ui.checkBox_Highlight, SIGNAL(toggled(bool)), this, SLOT(toggleHighlight(bool)));
 
-    CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));
-    CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
+    CONNASSERT(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&)));
+    CONNASSERT(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&)));
 
-    CONNASSERT(connect(m_GLSLEditor,SIGNAL(textChanged()),this,SLOT(editTextChanged())));
+    CONNASSERT(m_GLSLEditor,SIGNAL(textChanged()),this,SLOT(editTextChanged()));
 
 
 }
@@ -251,7 +251,7 @@ DGLShaderView::DGLShaderView(QWidget* parrent, DglController* controller):DGLTab
     setupNames("Shaders", "DGLShaderView");
 
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showShader(opaque_id_t, gl_t, gl_t)), this, SLOT(showShader(opaque_id_t, gl_t, gl_t))));
+    CONNASSERT(controller->getViewRouter(), SIGNAL(showShader(opaque_id_t, gl_t, gl_t)), this, SLOT(showShader(opaque_id_t, gl_t, gl_t)));
 }
 
 void DGLShaderView::showShader(opaque_id_t ctx, gl_t name, gl_t target) {

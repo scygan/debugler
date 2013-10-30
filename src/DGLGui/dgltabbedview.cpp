@@ -28,11 +28,11 @@ DGLTabbedView::DGLTabbedView(QWidget* parrent, DglController* controller):QDockW
     m_TabWidget.setEnabled(true);
 
     //inbound
-    CONNASSERT(connect(controller, SIGNAL(setConnected(bool)), this, SLOT(setConnected(bool))));
-    CONNASSERT(connect(controller, SIGNAL(setBreaked(bool)), &m_TabWidget, SLOT(setEnabled(bool))));
+    CONNASSERT(controller, SIGNAL(setConnected(bool)), this, SLOT(setConnected(bool)));
+    CONNASSERT(controller, SIGNAL(setBreaked(bool)), &m_TabWidget, SLOT(setEnabled(bool)));
 
     //internal
-    CONNASSERT(connect(&m_TabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(closeTab(int))));
+    CONNASSERT(&m_TabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(closeTab(int)));
 }
 
 

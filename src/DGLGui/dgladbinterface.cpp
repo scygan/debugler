@@ -34,8 +34,8 @@ class DGLDeviceOutputFilter: public DGLAdbOutputFilter {
 
 DGLAdbCookie::DGLAdbCookie(const std::string& adbPath, const std::vector<std::string> params, 
                            std::shared_ptr<DGLAdbOutputFilter> filter):m_adbPath(adbPath), m_params(params), m_OutputFilter(filter) {
-    CONNASSERT(connect(&m_process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(handleProcessFinished(int, QProcess::ExitStatus))));
-    CONNASSERT(connect(&m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(handleProcessError(QProcess::ProcessError))));
+    CONNASSERT(&m_process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(handleProcessFinished(int, QProcess::ExitStatus)));
+    CONNASSERT(&m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(handleProcessError(QProcess::ProcessError)));
 }
 
 void DGLAdbCookie::process() {

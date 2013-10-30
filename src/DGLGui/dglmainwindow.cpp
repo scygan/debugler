@@ -281,81 +281,81 @@ void DGLMainWindow::createToolBars() {
      quitAct = new QAction(tr("&Quit"), this);
      quitAct->setShortcuts(QKeySequence::Quit);
      quitAct->setStatusTip(tr("Quit the application"));
-     CONNASSERT(connect(quitAct, SIGNAL(triggered()), this, SLOT(close())));
+     CONNASSERT(quitAct, SIGNAL(triggered()), this, SLOT(close()));
      quitAct->setShortcut(QKeySequence(Qt::ALT + Qt::Key_F4));
 
      aboutAct = new QAction(tr("&About"), this);
      aboutAct->setStatusTip(tr("Show the application's About box"));
-     CONNASSERT(connect(aboutAct, SIGNAL(triggered()), this, SLOT(about())));
+     CONNASSERT(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
      aboutAct->setShortcut(QKeySequence(Qt::Key_F1));
 
      runAct = new QAction(tr("&Run application ..."), this);
      runAct->setStatusTip(tr("Opens run application dialog window"));
-     CONNASSERT(connect(runAct, SIGNAL(triggered()), this, SLOT(runDialog())));
+     CONNASSERT(runAct, SIGNAL(triggered()), this, SLOT(runDialog()));
      runAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
 
      attachAct = new QAction(tr("&Attach to"), this);
      attachAct->setStatusTip(tr("Attach to IP target"));
-     CONNASSERT(connect(attachAct, SIGNAL(triggered()), this, SLOT(attach())));
-     CONNASSERT(connect(&m_controller, SIGNAL(setConnected(bool)), attachAct, SLOT(setDisabled(bool))));
+     CONNASSERT(attachAct, SIGNAL(triggered()), this, SLOT(attach()));
+     CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), attachAct, SLOT(setDisabled(bool)));
      attachAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_A));
 
 
      attachAndroidAct = new QAction(tr("&Attach to Android App"), this);
      attachAndroidAct->setStatusTip(tr("Attach to IP target"));
-     CONNASSERT(connect(attachAndroidAct, SIGNAL(triggered()), this, SLOT(attachAndroidApp())));
-     CONNASSERT(connect(&m_controller, SIGNAL(setConnected(bool)), attachAndroidAct, SLOT(setDisabled(bool))));
+     CONNASSERT(attachAndroidAct, SIGNAL(triggered()), this, SLOT(attachAndroidApp()));
+     CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), attachAndroidAct, SLOT(setDisabled(bool)));
      
      disconnectAct = new QAction(tr("&Disconnect"), this);
      disconnectAct->setStatusTip(tr("Disconnect an terminate application"));
-     CONNASSERT(connect(disconnectAct, SIGNAL(triggered()), this, SLOT(disconnect())));
-     CONNASSERT(connect(&m_controller, SIGNAL(setConnected(bool)), disconnectAct, SLOT(setEnabled(bool))));
+     CONNASSERT(disconnectAct, SIGNAL(triggered()), this, SLOT(disconnect()));
+     CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), disconnectAct, SLOT(setEnabled(bool)));
      disconnectAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
      disconnectAct->setEnabled(false);
 
      debugContinueAct = new QAction(tr("&Continue"), this);
      debugContinueAct->setStatusTip(tr("Continue program execution"));
-     CONNASSERT(connect(debugContinueAct, SIGNAL(triggered()), &m_controller, SLOT(debugContinue())));
-     CONNASSERT(connect(&m_controller, SIGNAL(setConnected(bool)), debugContinueAct, SLOT(setEnabled(bool))));
-     CONNASSERT(connect(&m_controller, SIGNAL(setBreaked(bool)), debugContinueAct, SLOT(setEnabled(bool))));
+     CONNASSERT(debugContinueAct, SIGNAL(triggered()), &m_controller, SLOT(debugContinue()));
+     CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), debugContinueAct, SLOT(setEnabled(bool)));
+     CONNASSERT(&m_controller, SIGNAL(setBreaked(bool)), debugContinueAct, SLOT(setEnabled(bool)));
      debugContinueAct->setShortcut(QKeySequence(Qt::Key_F5));
      debugContinueAct->setEnabled(false);
 
      debugInterruptAct = new QAction(tr("&Interrupt (on GL)"), this);
      debugInterruptAct->setStatusTip(tr("Interrupt program execution on GL call"));
-     CONNASSERT(connect(debugInterruptAct, SIGNAL(triggered()), &m_controller, SLOT(debugInterrupt())));
-     CONNASSERT(connect(&m_controller, SIGNAL(setConnected(bool)), debugInterruptAct, SLOT(setEnabled(bool))));
-     CONNASSERT(connect(&m_controller, SIGNAL(setRunning(bool)), debugInterruptAct, SLOT(setEnabled(bool))));
+     CONNASSERT(debugInterruptAct, SIGNAL(triggered()), &m_controller, SLOT(debugInterrupt()));
+     CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), debugInterruptAct, SLOT(setEnabled(bool)));
+     CONNASSERT(&m_controller, SIGNAL(setRunning(bool)), debugInterruptAct, SLOT(setEnabled(bool)));
      debugInterruptAct->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_F5));
      debugInterruptAct->setEnabled(false);
 
      debugStepAct = new QAction(tr("&Step into"), this);
      debugStepAct->setStatusTip(tr("Step one GL call"));
-     CONNASSERT(connect(debugStepAct, SIGNAL(triggered()), &m_controller, SLOT(debugStep())));
-     CONNASSERT(connect(&m_controller, SIGNAL(setConnected(bool)), debugStepAct, SLOT(setEnabled(bool))));
-     CONNASSERT(connect(&m_controller, SIGNAL(setBreaked(bool)), debugStepAct, SLOT(setEnabled(bool))));
+     CONNASSERT(debugStepAct, SIGNAL(triggered()), &m_controller, SLOT(debugStep()));
+     CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), debugStepAct, SLOT(setEnabled(bool)));
+     CONNASSERT(&m_controller, SIGNAL(setBreaked(bool)), debugStepAct, SLOT(setEnabled(bool)));
      debugStepAct->setShortcut(QKeySequence(Qt::Key_F11));
      debugStepAct->setEnabled(false);
 
      debugStepDrawCallAct = new QAction(tr("&Drawcall step"), this);
      debugStepDrawCallAct->setStatusTip(tr("Step one GL drawing call"));
-     CONNASSERT(connect(debugStepDrawCallAct, SIGNAL(triggered()), &m_controller, SLOT(debugStepDrawCall())));
-     CONNASSERT(connect(&m_controller, SIGNAL(setConnected(bool)), debugStepDrawCallAct, SLOT(setEnabled(bool))));
-     CONNASSERT(connect(&m_controller, SIGNAL(setBreaked(bool)), debugStepDrawCallAct, SLOT(setEnabled(bool))));
+     CONNASSERT(debugStepDrawCallAct, SIGNAL(triggered()), &m_controller, SLOT(debugStepDrawCall()));
+     CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), debugStepDrawCallAct, SLOT(setEnabled(bool)));
+     CONNASSERT(&m_controller, SIGNAL(setBreaked(bool)), debugStepDrawCallAct, SLOT(setEnabled(bool)));
      debugStepDrawCallAct->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_F11));
      debugStepDrawCallAct->setEnabled(false);
 
      debugStepFrameAct = new QAction(tr("&Frame step"), this);
      debugStepFrameAct->setStatusTip(tr("Step one GL frame"));
-     CONNASSERT(connect(debugStepFrameAct, SIGNAL(triggered()), &m_controller, SLOT(debugStepFrame())));
-     CONNASSERT(connect(&m_controller, SIGNAL(setConnected(bool)), debugStepFrameAct, SLOT(setEnabled(bool))));
-     CONNASSERT(connect(&m_controller, SIGNAL(setBreaked(bool)), debugStepFrameAct, SLOT(setEnabled(bool))));
+     CONNASSERT(debugStepFrameAct, SIGNAL(triggered()), &m_controller, SLOT(debugStepFrame()));
+     CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), debugStepFrameAct, SLOT(setEnabled(bool)));
+     CONNASSERT(&m_controller, SIGNAL(setBreaked(bool)), debugStepFrameAct, SLOT(setEnabled(bool)));
      debugStepFrameAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F11));
      debugStepFrameAct->setEnabled(false);
 
      addDeleteBreakPointsAct = new QAction(tr("&Breakpoints..."), this);
      addDeleteBreakPointsAct->setStatusTip(tr("Add or remove breakpoints"));
-     CONNASSERT(connect(addDeleteBreakPointsAct, SIGNAL(triggered()), this, SLOT(addDeleteBreakPoints())));
+     CONNASSERT(addDeleteBreakPointsAct, SIGNAL(triggered()), this, SLOT(addDeleteBreakPoints()));
      addDeleteBreakPointsAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
 
      setBreakOnGLErrorAct = new QAction(tr("Break on GL error"), this);
@@ -365,7 +365,7 @@ void DGLMainWindow::createToolBars() {
 
      setBreakOnGLErrorAct->setCheckable(true);
      setBreakOnGLErrorAct->setChecked(m_controller.getConfig().m_BreakOnGLError);
-     CONNASSERT(connect(setBreakOnGLErrorAct, SIGNAL(toggled(bool)), this, SLOT(setBreakOnWhatever(bool))));
+     CONNASSERT(setBreakOnGLErrorAct, SIGNAL(toggled(bool)), this, SLOT(setBreakOnWhatever(bool)));
 
      setBreakOnDebugOutputAct = new QAction(tr("Break on debug output"), this);
      setBreakOnDebugOutputAct->setStatusTip(tr("Break execution on debug output message"));
@@ -374,7 +374,7 @@ void DGLMainWindow::createToolBars() {
 
      setBreakOnDebugOutputAct->setCheckable(true);
      setBreakOnDebugOutputAct->setChecked(m_controller.getConfig().m_BreakOnGLError);
-     CONNASSERT(connect(setBreakOnDebugOutputAct, SIGNAL(toggled(bool)), this, SLOT(setBreakOnWhatever(bool))));
+     CONNASSERT(setBreakOnDebugOutputAct, SIGNAL(toggled(bool)), this, SLOT(setBreakOnWhatever(bool)));
 
      setBreakOnCompilerErrAct = new QAction(tr("Break on compiler/linker error"), this);
      setBreakOnCompilerErrAct->setStatusTip(tr("Break execution on debug GLSL compiler or linker error"));
@@ -383,7 +383,7 @@ void DGLMainWindow::createToolBars() {
 
      setBreakOnCompilerErrAct->setCheckable(true);
      setBreakOnCompilerErrAct->setChecked(m_controller.getConfig().m_BreakOnCompilerError);
-     CONNASSERT(connect(setBreakOnCompilerErrAct, SIGNAL(toggled(bool)), this, SLOT(setBreakOnWhatever(bool))));
+     CONNASSERT(setBreakOnCompilerErrAct, SIGNAL(toggled(bool)), this, SLOT(setBreakOnWhatever(bool)));
      
     
      //Only one color scheme can be choosed - put all related actions to action group
@@ -401,25 +401,25 @@ void DGLMainWindow::createToolBars() {
          //connect all color scheme actions to one mapper, so we can connect it later to only one signal
 
          m_SetColorSchemeSignalMapper.setMapping(setColorSchemeActs[i], i);
-         CONNASSERT(connect(setColorSchemeActs[i], SIGNAL(triggered()), &m_SetColorSchemeSignalMapper, SLOT(map())));
+         CONNASSERT(setColorSchemeActs[i], SIGNAL(triggered()), &m_SetColorSchemeSignalMapper, SLOT(map()));
      }
 
      //mapper maps connected actions to one emitted signal by int parameter. Connect this signal to "this"
 
-     CONNASSERT(connect(&m_SetColorSchemeSignalMapper, SIGNAL(mapped(int)), this, SLOT(setColorScheme(int))));
+     CONNASSERT(&m_SetColorSchemeSignalMapper, SIGNAL(mapped(int)), this, SLOT(setColorScheme(int)));
 
      configurationAct= new QAction(tr("Configuration..."), this);
      configurationAct->setStatusTip(tr("Configuration options"));
-     CONNASSERT(connect(configurationAct, SIGNAL(triggered()), this, SLOT(configure())));
+     CONNASSERT(configurationAct, SIGNAL(triggered()), this, SLOT(configure()));
  }
 
   void DGLMainWindow::createInteractions() {
 
       //connect some signals from DGLcontroller to UI
 
-      CONNASSERT(connect(&m_controller, SIGNAL(newStatus(const QString&)), m_ui.statusBar, SLOT(showMessage(const QString&))));
-      CONNASSERT(connect(&m_controller, SIGNAL(connectionLost(const QString&, const QString&)), this, SLOT(connectionLost(const QString&, const QString&))));
-      CONNASSERT(connect(&m_controller, SIGNAL(debugeeInfo(const std::string&)), this, SLOT(debugeeInfo(const std::string&))));
+      CONNASSERT(&m_controller, SIGNAL(newStatus(const QString&)), m_ui.statusBar, SLOT(showMessage(const QString&)));
+      CONNASSERT(&m_controller, SIGNAL(connectionLost(const QString&, const QString&)), this, SLOT(connectionLost(const QString&, const QString&)));
+      CONNASSERT(&m_controller, SIGNAL(debugeeInfo(const std::string&)), this, SLOT(debugeeInfo(const std::string&)));
   }
 
   void DGLMainWindow::readSettings() {
@@ -530,7 +530,7 @@ void DGLMainWindow::createToolBars() {
              
              QProgressBar*  bar = new QProgressBar(m_BusyDialog.get()); m_BusyDialog->setBar(bar);
              bar->setMaximum(0); bar->setMinimum(0); bar->setValue(-1);
-             CONNASSERT(connect(m_BusyDialog.get(), SIGNAL(canceled()), this, SLOT(disconnect())));
+             CONNASSERT(m_BusyDialog.get(), SIGNAL(canceled()), this, SLOT(disconnect()));
 
 
              //randomize connection port
@@ -540,10 +540,10 @@ void DGLMainWindow::createToolBars() {
 
              m_process->setParent(this);
 
-             CONNASSERT(connect(m_process, SIGNAL(processReady()), this, SLOT(processReadyHandler())));
-             CONNASSERT(connect(m_process, SIGNAL(processError(std::string)), this, SLOT(processErrorHandler(std::string))));
-             CONNASSERT(connect(m_process, SIGNAL(processFinished(int)), this, SLOT(processExitHandler(int))));
-             CONNASSERT(connect(m_process, SIGNAL(processCrashed()), this, SLOT(processCrashHandler())));
+             CONNASSERT(m_process, SIGNAL(processReady()), this, SLOT(processReadyHandler()));
+             CONNASSERT(m_process, SIGNAL(processError(std::string)), this, SLOT(processErrorHandler(std::string)));
+             CONNASSERT(m_process, SIGNAL(processFinished(int)), this, SLOT(processExitHandler(int)));
+             CONNASSERT(m_process, SIGNAL(processCrashed()), this, SLOT(processCrashHandler()));
 
              m_process->run(m_RunDialog.getExecutable(),
                  m_RunDialog.getPath(),

@@ -29,9 +29,9 @@
 #include<cassert>
 
 #ifdef NDEBUG
-#define CONNASSERT(x) x
+#define CONNASSERT(obj1, slot, obj2, signal) connect(obj1, slot, obj2, signal)
 #else
-#define CONNASSERT(x) assert(x)
+#define CONNASSERT(obj1, slot, obj2, signal) assert(connect(obj1, slot, obj2, signal))
 
 #ifdef HAVE_VLD
 #include <vld.h>

@@ -27,7 +27,7 @@ DGLStateView::DGLStateView(QWidget* parrent, DglController* controller):QDockWid
     setConnected(false);
    
     //inbound
-    CONNASSERT(connect(controller, SIGNAL(setConnected(bool)), this, SLOT(setConnected(bool))));
+    CONNASSERT(controller, SIGNAL(setConnected(bool)), this, SLOT(setConnected(bool)));
 }
 
 void DGLStateView::update(const dglnet::DGLResource& res) {
@@ -89,8 +89,8 @@ void DGLStateView::setConnected(bool connected) {
         m_Listener = m_Controller->getResourceManager()->createListener(dglnet::ContextObjectName(), dglnet::DGLResource::ObjectType::State);
         m_Listener->setParent(m_Ui->frame);
 
-        CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));
-        CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
+        CONNASSERT(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&)));
+        CONNASSERT(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&)));
     }
 }
 

@@ -84,10 +84,10 @@ DGLDebugeeQTProcess::DGLDebugeeQTProcess(int port, bool modeEGL):
     m_SemOpenGL(boost::interprocess::open_or_create, m_SemOpenGLStr.c_str(), 0), 
     m_PollTimer(new QTimer(this)){
 
-    CONNASSERT(connect(m_PollTimer, SIGNAL(timeout()), this, SLOT(pollReady())));
-    CONNASSERT(connect(&m_process, SIGNAL(started()), this, SLOT(startPolling())));
-    CONNASSERT(connect(&m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(handleProcessError(QProcess::ProcessError))));
-    CONNASSERT(connect(&m_process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(handleProcessFinished(int, QProcess::ExitStatus))));
+    CONNASSERT(m_PollTimer, SIGNAL(timeout()), this, SLOT(pollReady()));
+    CONNASSERT(&m_process, SIGNAL(started()), this, SLOT(startPolling()));
+    CONNASSERT(&m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(handleProcessError(QProcess::ProcessError)));
+    CONNASSERT(&m_process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(handleProcessFinished(int, QProcess::ExitStatus)));
 }
 
 DGLDebugeeQTProcess::~DGLDebugeeQTProcess() {

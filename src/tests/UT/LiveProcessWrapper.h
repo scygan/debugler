@@ -28,9 +28,9 @@ public:
 
         m_process->setParent(this);
 
-        CONNASSERT(connect(m_process, SIGNAL(processReady()), this, SLOT(processReadyHandler())));
-        CONNASSERT(connect(m_process, SIGNAL(processError(std::string)), this, SLOT(processErrorHandler(std::string))));
-        CONNASSERT(connect(m_process, SIGNAL(processCrashed()), this, SLOT(processCrashHandler())));
+        CONNASSERT(m_process, SIGNAL(processReady()), this, SLOT(processReadyHandler()));
+        CONNASSERT(m_process, SIGNAL(processError(std::string)), this, SLOT(processErrorHandler(std::string)));
+        CONNASSERT(m_process, SIGNAL(processCrashed()), this, SLOT(processCrashHandler()));
 
         std::vector<std::string> args;
 #ifdef _WIN32
@@ -41,7 +41,7 @@ public:
         args.push_back(sampleName);
 #endif
         QEventLoop loop;
-        CONNASSERT(connect(this, SIGNAL(done()), &loop, SLOT(quit())));
+        CONNASSERT(this, SIGNAL(done()), &loop, SLOT(quit()));
 
         m_process->run(exec, "", args);
         

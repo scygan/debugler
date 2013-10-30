@@ -25,8 +25,8 @@ DGLFramebufferViewItem::DGLFramebufferViewItem(dglnet::ContextObjectName name, D
     m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectType::Framebuffer);
     m_Listener->setParent(this);
 
-    CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));
-    CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
+    CONNASSERT(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&)));
+    CONNASSERT(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&)));
 }
 
 void DGLFramebufferViewItem::error(const std::string& message) {
@@ -45,7 +45,7 @@ DGLFramebufferView::DGLFramebufferView(QWidget* parrent, DglController* controll
     setupNames("Frame Buffers", "DGLFramebufferView");
 
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showFramebuffer(opaque_id_t, gl_t)), this, SLOT(showFramebuffer(opaque_id_t, gl_t))));
+    CONNASSERT(controller->getViewRouter(), SIGNAL(showFramebuffer(opaque_id_t, gl_t)), this, SLOT(showFramebuffer(opaque_id_t, gl_t)));
 }
 
 void DGLFramebufferView::showFramebuffer(opaque_id_t ctx, gl_t bufferEnum) {

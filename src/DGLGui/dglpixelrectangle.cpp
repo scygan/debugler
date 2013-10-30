@@ -107,15 +107,15 @@ DGLPixelRectangleView::DGLPixelRectangleView(QWidget* _parent):m_GraphicsView(_p
     m_Ui->widgetColor->setAutoFillBackground(true);
 
     //process Mouse events ourselves
-    CONNASSERT(connect(&m_GraphicsView, SIGNAL(onMouseOver(QPoint)), this, SLOT(onMouseOver(QPoint))));
-    CONNASSERT(connect(&m_GraphicsView, SIGNAL(onMouseLeft()), this, SLOT(onMouseLeft())));
+    CONNASSERT(&m_GraphicsView, SIGNAL(onMouseOver(QPoint)), this, SLOT(onMouseOver(QPoint)));
+    CONNASSERT(&m_GraphicsView, SIGNAL(onMouseLeft()), this, SLOT(onMouseLeft()));
 }
 
 void DGLPixelRectangleView::setScene(DGLPixelRectangleScene *scene) {
     m_Scene = scene;
 
     //pass resize events directly to scene for size recalc
-    CONNASSERT(connect(&m_GraphicsView, SIGNAL(resized(const QSize&)), scene, SLOT(resize(const QSize&))));
+    CONNASSERT(&m_GraphicsView, SIGNAL(resized(const QSize&)), scene, SLOT(resize(const QSize&)));
 
     m_GraphicsView.setScene(scene->getScene());
 }

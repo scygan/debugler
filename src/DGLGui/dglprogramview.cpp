@@ -41,8 +41,8 @@ DGLProgramViewItem::DGLProgramViewItem(dglnet::ContextObjectName name, DGLResour
     m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectType::Program);
     m_Listener->setParent(this);
 
-    CONNASSERT(connect(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&))));
-    CONNASSERT(connect(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&))));
+    CONNASSERT(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&)));
+    CONNASSERT(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&)));
 }
 
 void DGLProgramViewItem::error(const std::string& message) {
@@ -133,7 +133,7 @@ DGLProgramView::DGLProgramView(QWidget* parrent, DglController* controller):DGLT
     setupNames("Shader Programs", "DGLProgramView");
 
     //inbound
-    CONNASSERT(connect(controller->getViewRouter(), SIGNAL(showProgram(opaque_id_t, gl_t)), this, SLOT(showProgram(opaque_id_t, gl_t))));
+    CONNASSERT(controller->getViewRouter(), SIGNAL(showProgram(opaque_id_t, gl_t)), this, SLOT(showProgram(opaque_id_t, gl_t)));
 }
 
 void DGLProgramView::showProgram(opaque_id_t ctx, gl_t name) {

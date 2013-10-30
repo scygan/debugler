@@ -38,9 +38,9 @@ DGLRunDialog::DGLRunDialog() {
     m_ui.radioButton_ModeWGLGLX->setText("GLX");
 #endif
     
-    CONNASSERT(connect(m_ui.lineEdit_Executable, SIGNAL(editingFinished()),this,SLOT(updatePath())));
-    CONNASSERT(connect(m_ui.toolButton_Exec, SIGNAL(clicked()),this,SLOT(browseExecutable())));
-    CONNASSERT(connect(m_ui.toolButton_Dir, SIGNAL(clicked()),this,SLOT(browseDirectory())));
+    CONNASSERT(m_ui.lineEdit_Executable, SIGNAL(editingFinished()),this,SLOT(updatePath()));
+    CONNASSERT(m_ui.toolButton_Exec, SIGNAL(clicked()),this,SLOT(browseExecutable()));
+    CONNASSERT(m_ui.toolButton_Dir, SIGNAL(clicked()),this,SLOT(browseDirectory()));
     m_ui.lineEdit_Executable->setFocus();
 }
 
