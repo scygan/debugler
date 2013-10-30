@@ -22,7 +22,7 @@
 #include <QDebug>
 
 #ifndef NDEBUG
-#define HL_DEBUG
+//#define HL_DEBUG
 #endif
 
 #define FATAL { throw std::runtime_error("Cannot parse syntax highlighting file."); }

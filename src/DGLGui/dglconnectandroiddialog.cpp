@@ -21,11 +21,16 @@
 #include <QMessageBox>
 
 #include <stdexcept>
+#include <DGLCommon/def.h>
 
 DGLConnectAndroidDialog::DGLConnectAndroidDialog() {
-    
     m_ui.setupUi(this);
-    //reloadDevices();       
+    m_ReloadTimer.setInterval(1000);
+
+
+    CONNASSERT(&m_ReloadTimer, SIGNAL(timeout()), this, SLOT(reloadDevices()));
+    CONNASSERT(this, SIGNAL(finished(int)), &m_ReloadTimer, SLOT(stop()));
+
 }
 
 DGLConnectAndroidDialog::~DGLConnectAndroidDialog() {}
@@ -34,7 +39,7 @@ void DGLConnectAndroidDialog::adbKillServer() {
 
     DGLAdbCookie* cookie = DGLAdbInterface::get()->killServer();
     CONNASSERT(cookie, SIGNAL(failed(std::string)), this, SLOT(adbFailed(std::string)));
-    CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>())), this, SLOT(reloadDevices()));
+    CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this, SLOT(reloadDevices()));
     cookie->process();
 }
 
@@ -43,15 +48,19 @@ void DGLConnectAndroidDialog::adbConnect() {
     if (m_ConnectDialog.exec() == QDialog::Accepted) {
         DGLAdbCookie* cookie = DGLAdbInterface::get()->connect(m_ConnectDialog.getAddress());
         CONNASSERT(cookie, SIGNAL(failed(std::string)), this, SLOT(adbFailed(std::string)));
-        CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>())), this, SLOT(reloadDevices()));
+        CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this, SLOT(reloadDevices()));
         cookie->process();
     }
 }
 
 void DGLConnectAndroidDialog::reloadDevices() {
+     
+     m_ReloadTimer.start();
+
      DGLAdbCookie* cookie = DGLAdbInterface::get()->getDevices();
      CONNASSERT(cookie, SIGNAL(failed(std::string)), this, SLOT(adbFailed(std::string)));
      CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this, SLOT(gotDevices(std::vector<std::string>)));
+     cookie->process();
 }
 
 void DGLConnectAndroidDialog::gotDevices(std::vector<std::string> devices) {
@@ -70,7 +79,13 @@ void DGLConnectAndroidDialog::gotDevices(std::vector<std::string> devices) {
     }
 }
 
+void DGLConnectAndroidDialog::showEvent(QShowEvent * event) {
+    reloadDevices();
+    QDialog::showEvent(event);
+}
+
 void DGLConnectAndroidDialog::adbFailed(std::string reason) {
+    m_ReloadTimer.stop();
     QMessageBox::critical(this, tr("ADB Error"), QString::fromStdString(reason));
 }
 

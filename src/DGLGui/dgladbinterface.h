@@ -30,7 +30,7 @@ class DGLAdbCookie: public DGLBaseQTProcess {
     Q_OBJECT
 public:
     DGLAdbCookie(const std::string& adbPath, const std::vector<std::string> params,
-        std::shared_ptr<DGLAdbOutputFilter> filter = std::shared_ptr<DGLAdbOutputFilter>());
+        std::shared_ptr<DGLAdbOutputFilter> filter);
     
     void process();
 
@@ -66,7 +66,8 @@ public:
 
 private:
 
-    DGLAdbCookie* invokeAdb(std::vector<std::string> params);
+    DGLAdbCookie* invokeAdb(std::vector<std::string> params, std::shared_ptr<DGLAdbOutputFilter> filter 
+        = std::shared_ptr<DGLAdbOutputFilter>());
 
     std::string m_adbPath;
 

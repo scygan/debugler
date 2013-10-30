@@ -64,12 +64,12 @@ signals:
     void done();
 
 private slots:
-    void processError(std::string errorMsg) {
+    void processErrorHandler(std::string errorMsg) {
         m_errorInfo = errorMsg;
         emit done();
         m_Done = true;
     }
-    void processCrashed() {
+    void processCrashHandler() {
         m_errorInfo = "Process crashed";
         emit done();
         m_Done = true;

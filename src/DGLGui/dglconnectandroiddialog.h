@@ -52,10 +52,17 @@ public slots:
 
     void adbFailed(std::string reason);
     void gotDevices(std::vector<std::string> devices);
+
+private slots:
+
+    void reloadDevices();
     
 private:
-    void reloadDevices();
 
+    virtual void showEvent(QShowEvent * event) override;
+ 
+
+    QTimer m_ReloadTimer;
 
     DGLConnectAndroidAdbDialog m_ConnectDialog;
 

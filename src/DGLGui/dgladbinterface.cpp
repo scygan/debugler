@@ -21,13 +21,53 @@
 
 class DGLAdbOutputFilter {
 public:
-    virtual std::vector<std::string> filter(std::vector<std::string>& in) = 0;
+    virtual bool filter(const std::vector<std::string>& input, std::vector<std::string>& output) = 0;
     virtual ~DGLAdbOutputFilter() {}
 };
 
+class DGLConnectOutputFilter: public DGLAdbOutputFilter {
+    virtual bool filter(const std::vector<std::string>& input, std::vector<std::string>&) override {
+
+        const char* pattern = "connected to ";
+
+        if (input.size() && input[0].substr(0, strlen(pattern)) == pattern) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+};
+
+class DGLEmptyOutputFilter: public DGLAdbOutputFilter {
+    virtual bool filter(const std::vector<std::string>& input, std::vector<std::string>&) override {
+        
+        for (size_t i = 0; i < input.size(); i++) {
+            if (input[i].size()) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
 class DGLDeviceOutputFilter: public DGLAdbOutputFilter {
-    std::vector<std::string> filter(std::vector<std::string>& in) {
-        return in;
+    virtual bool filter(const std::vector<std::string>& input, std::vector<std::string>& output) override {
+        if (!input.size() || input[0] != "List of devices attached ") {
+            return false;
+        }
+
+        for (size_t i = 1; i < input.size(); i++) {
+            if (!input[i].size()) {
+                continue;
+            }
+            size_t pos = input[i].find('\t');
+            if (pos != std::string::npos && pos > 0) {
+                output.push_back(input[i].substr(0, pos));
+            } else {
+                output.push_back(input[i]);
+            }
+        }
+        return true;
     }
 };
 
@@ -56,7 +96,8 @@ void DGLAdbCookie::handleProcessFinished(int code, QProcess::ExitStatus status) 
     if (status == QProcess::NormalExit) {
         if (code) {
             std::ostringstream msg;
-            msg << "Adb process exit code:" << code << ".";
+            msg << "Adb process exit code :" << code << ":" << std::endl;
+            msg << QString(m_process.readAll()).toStdString();
             emit failed(msg.str());
         } else {
             //success
@@ -64,10 +105,21 @@ void DGLAdbCookie::handleProcessFinished(int code, QProcess::ExitStatus status) 
             QList<QByteArray> qLines = qData.split('\n');
             std::vector<std::string> lines;
             foreach ( QByteArray qLine, qLines) {
-                lines.push_back(QString(qLine.replace("\r", QByteArray())).toStdString());
+                if (qLine[0] != '*')
+                    lines.push_back(QString(qLine.replace("\r", QByteArray())).toStdString());
             }
             if (m_OutputFilter.get()) {
-                emit done(m_OutputFilter->filter(lines));
+                std::vector<std::string> filteredLines;
+                if (m_OutputFilter->filter(lines, filteredLines)) {
+                    emit done(filteredLines);
+                } else {
+                     std::ostringstream msg;
+                     msg << "Cannot parse adb output: " << std::endl;
+                     for (size_t i = 0 ; i < lines.size(); i++ ) {
+                         msg << lines[i] << std::endl;
+                     }
+                     emit failed(msg.str());
+                }
             } else {
                 emit done(lines);
             }
@@ -97,23 +149,23 @@ std::string DGLAdbInterface::getAdbPath() {
 DGLAdbCookie* DGLAdbInterface::killServer() {
     std::vector<std::string> params; 
     params.push_back("kill-server");
-    return invokeAdb(params);
+    return invokeAdb(params, std::make_shared<DGLEmptyOutputFilter>());
 }
 
 DGLAdbCookie* DGLAdbInterface::connect(std::string address) {
     std::vector<std::string> params;
     params.push_back("connect");
     params.push_back(address);
-    return invokeAdb(params);
+    return invokeAdb(params, std::make_shared<DGLConnectOutputFilter>());
 }
 
 DGLAdbCookie* DGLAdbInterface::getDevices() {
     std::vector<std::string> params(1, "devices");
-    return invokeAdb(params);
+    return invokeAdb(params, std::make_shared<DGLDeviceOutputFilter>());
 }
 
-DGLAdbCookie* DGLAdbInterface::invokeAdb(std::vector<std::string> params) {
-    DGLAdbCookie* ret = new DGLAdbCookie(m_adbPath, params);;
+DGLAdbCookie* DGLAdbInterface::invokeAdb(std::vector<std::string> params, std::shared_ptr<DGLAdbOutputFilter> filter) {
+    DGLAdbCookie* ret = new DGLAdbCookie(m_adbPath, params, filter);;
     return ret;
 }
 
