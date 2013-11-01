@@ -32,61 +32,256 @@ public:
             tracePre();
         }
     }
-#define VAR_CTOR(COUNT, TEMPL_ARG, FUNC_ARG, PARAMS)                                                                           \
-    template<TEMPL_ARG>                                                                                                        \
-    DGLWrapperCookie(Entrypoint entrypoint, FUNC_ARG):m_Call(entrypoint, COUNT), m_ThreadState(DGLThreadState::get()) {        \
-        m_ProcessActions = m_ThreadState->enterActionProcessing();                                                             \
-        if (m_ProcessActions) {                                                                                                \
-            PARAMS ;                                                                                                           \
-            tracePre();                                                                                                        \
-        }                                                                                                                      \
-    } 
+    template<typename T1>
+    DGLWrapperCookie(Entrypoint entrypoint, T1 arg1):m_Call(entrypoint, 1), m_ThreadState(DGLThreadState::get()) {
+        m_ProcessActions = m_ThreadState->enterActionProcessing();
+        if (m_ProcessActions) {
+            m_Call << arg1;
+            tracePre();
+        }
+    }
+    template<typename T1, typename T2>
+    DGLWrapperCookie(Entrypoint entrypoint, T1 arg1, T2 arg2):m_Call(entrypoint, 2), m_ThreadState(DGLThreadState::get()) {
+        m_ProcessActions = m_ThreadState->enterActionProcessing();
+        if (m_ProcessActions) {
+            m_Call << arg1;
+            m_Call << arg2;
+            tracePre();
+        }
+    }
+    template<typename T1, typename T2, typename T3>
+    DGLWrapperCookie(Entrypoint entrypoint, T1 arg1, T2 arg2, T3 arg3):m_Call(entrypoint, 3), m_ThreadState(DGLThreadState::get()) {
+        m_ProcessActions = m_ThreadState->enterActionProcessing();
+        if (m_ProcessActions) {
+            m_Call << arg1;
+            m_Call << arg2;
+            m_Call << arg3;
+            tracePre();
+        }
+    }
+    template<typename T1, typename T2, typename T3, typename T4>
+    DGLWrapperCookie(Entrypoint entrypoint, T1 arg1, T2 arg2, T3 arg3, T4 arg4):m_Call(entrypoint, 4), m_ThreadState(DGLThreadState::get()) {
+        m_ProcessActions = m_ThreadState->enterActionProcessing();
+        if (m_ProcessActions) {
+            m_Call << arg1;
+            m_Call << arg2;
+            m_Call << arg3;
+            m_Call << arg4;
+            tracePre();
+        }
+    }
+    template<typename T1, typename T2, typename T3, typename T4, typename T5>
+    DGLWrapperCookie(Entrypoint entrypoint, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5):m_Call(entrypoint, 5), m_ThreadState(DGLThreadState::get()) {
+        m_ProcessActions = m_ThreadState->enterActionProcessing();
+        if (m_ProcessActions) {
+            m_Call << arg1;
+            m_Call << arg2;
+            m_Call << arg3;
+            m_Call << arg4;
+            m_Call << arg5;
+            tracePre();
+        }
+    }
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+    DGLWrapperCookie(Entrypoint entrypoint, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6):m_Call(entrypoint, 6), m_ThreadState(DGLThreadState::get()) {
+        m_ProcessActions = m_ThreadState->enterActionProcessing();
+        if (m_ProcessActions) {
+            m_Call << arg1;
+            m_Call << arg2;
+            m_Call << arg3;
+            m_Call << arg4;
+            m_Call << arg5;
+            m_Call << arg6;
+            tracePre();
+        }
+    }
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
+    DGLWrapperCookie(Entrypoint entrypoint, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7):m_Call(entrypoint, 7), m_ThreadState(DGLThreadState::get()) {
+        m_ProcessActions = m_ThreadState->enterActionProcessing();
+        if (m_ProcessActions) {
+            m_Call << arg1;
+            m_Call << arg2;
+            m_Call << arg3;
+            m_Call << arg4;
+            m_Call << arg5;
+            m_Call << arg6;
+            m_Call << arg7;
+            tracePre();
+        }
+    }
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
+    DGLWrapperCookie(Entrypoint entrypoint, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8):m_Call(entrypoint, 8), m_ThreadState(DGLThreadState::get()) {
+        m_ProcessActions = m_ThreadState->enterActionProcessing();
+        if (m_ProcessActions) {
+            m_Call << arg1;
+            m_Call << arg2;
+            m_Call << arg3;
+            m_Call << arg4;
+            m_Call << arg5;
+            m_Call << arg6;
+            m_Call << arg7;
+            m_Call << arg8;
+            tracePre();
+        }
+    }
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
+    DGLWrapperCookie(Entrypoint entrypoint, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9):m_Call(entrypoint, 9), m_ThreadState(DGLThreadState::get()) {
+        m_ProcessActions = m_ThreadState->enterActionProcessing();
+        if (m_ProcessActions) {
+            m_Call << arg1;
+            m_Call << arg2;
+            m_Call << arg3;
+            m_Call << arg4;
+            m_Call << arg5;
+            m_Call << arg6;
+            m_Call << arg7;
+            m_Call << arg8;
+            m_Call << arg9;
+            tracePre();
+        }
+    }
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10>
+    DGLWrapperCookie(Entrypoint entrypoint, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10):m_Call(entrypoint, 10), m_ThreadState(DGLThreadState::get()) {
+        m_ProcessActions = m_ThreadState->enterActionProcessing();
+        if (m_ProcessActions) {
+            m_Call << arg1;
+            m_Call << arg2;
+            m_Call << arg3;
+            m_Call << arg4;
+            m_Call << arg5;
+            m_Call << arg6;
+            m_Call << arg7;
+            m_Call << arg8;
+            m_Call << arg9;
+            m_Call << arg10;
+            tracePre();
+        }
+    }
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11>
+    DGLWrapperCookie(Entrypoint entrypoint, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11):m_Call(entrypoint, 11), m_ThreadState(DGLThreadState::get()) {
+        m_ProcessActions = m_ThreadState->enterActionProcessing();
+        if (m_ProcessActions) {
+            m_Call << arg1;
+            m_Call << arg2;
+            m_Call << arg3;
+            m_Call << arg4;
+            m_Call << arg5;
+            m_Call << arg6;
+            m_Call << arg7;
+            m_Call << arg8;
+            m_Call << arg9;
+            m_Call << arg10;
+            m_Call << arg11;
+            tracePre();
+        }
+    }
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12>
+    DGLWrapperCookie(Entrypoint entrypoint, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12):m_Call(entrypoint, 12), m_ThreadState(DGLThreadState::get()) {
+        m_ProcessActions = m_ThreadState->enterActionProcessing();
+        if (m_ProcessActions) {
+            m_Call << arg1;
+            m_Call << arg2;
+            m_Call << arg3;
+            m_Call << arg4;
+            m_Call << arg5;
+            m_Call << arg6;
+            m_Call << arg7;
+            m_Call << arg8;
+            m_Call << arg9;
+            m_Call << arg10;
+            m_Call << arg11;
+            m_Call << arg12;
+            tracePre();
+        }
+    }
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13>
+    DGLWrapperCookie(Entrypoint entrypoint, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13):m_Call(entrypoint, 13), m_ThreadState(DGLThreadState::get()) {
+        m_ProcessActions = m_ThreadState->enterActionProcessing();
+        if (m_ProcessActions) {
+            m_Call << arg1;
+            m_Call << arg2;
+            m_Call << arg3;
+            m_Call << arg4;
+            m_Call << arg5;
+            m_Call << arg6;
+            m_Call << arg7;
+            m_Call << arg8;
+            m_Call << arg9;
+            m_Call << arg10;
+            m_Call << arg11;
+            m_Call << arg12;
+            m_Call << arg13;
+            tracePre();
+        }
+    }
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14>
+    DGLWrapperCookie(Entrypoint entrypoint, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14):m_Call(entrypoint, 14), m_ThreadState(DGLThreadState::get()) {
+        m_ProcessActions = m_ThreadState->enterActionProcessing();
+        if (m_ProcessActions) {
+            m_Call << arg1;
+            m_Call << arg2;
+            m_Call << arg3;
+            m_Call << arg4;
+            m_Call << arg5;
+            m_Call << arg6;
+            m_Call << arg7;
+            m_Call << arg8;
+            m_Call << arg9;
+            m_Call << arg10;
+            m_Call << arg11;
+            m_Call << arg12;
+            m_Call << arg13;
+            m_Call << arg14;
+            tracePre();
+        }
+    }
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15>
+    DGLWrapperCookie(Entrypoint entrypoint, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15):m_Call(entrypoint, 15), m_ThreadState(DGLThreadState::get()) {
+        m_ProcessActions = m_ThreadState->enterActionProcessing();
+        if (m_ProcessActions) {
+            m_Call << arg1;
+            m_Call << arg2;
+            m_Call << arg3;
+            m_Call << arg4;
+            m_Call << arg5;
+            m_Call << arg6;
+            m_Call << arg7;
+            m_Call << arg8;
+            m_Call << arg9;
+            m_Call << arg10;
+            m_Call << arg11;
+            m_Call << arg12;
+            m_Call << arg13;
+            m_Call << arg14;
+            m_Call << arg15;
+            tracePre();
+        }
+    }
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15, typename T16>
+    DGLWrapperCookie(Entrypoint entrypoint, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15, T16 arg16):m_Call(entrypoint, 16), m_ThreadState(DGLThreadState::get()) {
+        m_ProcessActions = m_ThreadState->enterActionProcessing();
+        if (m_ProcessActions) {
+            m_Call << arg1;
+            m_Call << arg2;
+            m_Call << arg3;
+            m_Call << arg4;
+            m_Call << arg5;
+            m_Call << arg6;
+            m_Call << arg7;
+            m_Call << arg8;
+            m_Call << arg9;
+            m_Call << arg10;
+            m_Call << arg11;
+            m_Call << arg12;
+            m_Call << arg13;
+            m_Call << arg14;
+            m_Call << arg15;
+            m_Call << arg16;
+            tracePre();
+        }
+    }
 
-#define TEMPL_ARG(n) typename T##n
-#define FUNC_ARG(n) T##n arg##n
-#define PARAMS(n)   m_Call << arg##n
-#define DEFINITION ,
-#define STATEMENT ;
 
-#define EXPAND_1(EXPAND_ARG, JOIN) EXPAND_ARG(1)
-#define EXPAND_2(EXPAND_ARG, JOIN) EXPAND_1(EXPAND_ARG, JOIN) JOIN EXPAND_ARG(2)
-#define EXPAND_3(EXPAND_ARG, JOIN) EXPAND_2(EXPAND_ARG, JOIN) JOIN EXPAND_ARG(3)
-#define EXPAND_4(EXPAND_ARG, JOIN) EXPAND_3(EXPAND_ARG, JOIN) JOIN EXPAND_ARG(4)
-#define EXPAND_5(EXPAND_ARG, JOIN) EXPAND_4(EXPAND_ARG, JOIN) JOIN EXPAND_ARG(5)
-#define EXPAND_6(EXPAND_ARG, JOIN) EXPAND_5(EXPAND_ARG, JOIN) JOIN EXPAND_ARG(6)
-#define EXPAND_7(EXPAND_ARG, JOIN) EXPAND_6(EXPAND_ARG, JOIN) JOIN EXPAND_ARG(7)
-#define EXPAND_8(EXPAND_ARG, JOIN) EXPAND_7(EXPAND_ARG, JOIN) JOIN EXPAND_ARG(8)
-#define EXPAND_9(EXPAND_ARG, JOIN) EXPAND_8(EXPAND_ARG, JOIN) JOIN EXPAND_ARG(9)
-#define EXPAND_10(EXPAND_ARG, JOIN) EXPAND_9(EXPAND_ARG, JOIN) JOIN EXPAND_ARG(10)
-#define EXPAND_11(EXPAND_ARG, JOIN) EXPAND_10(EXPAND_ARG, JOIN) JOIN EXPAND_ARG(11)
-#define EXPAND_12(EXPAND_ARG, JOIN) EXPAND_11(EXPAND_ARG, JOIN) JOIN EXPAND_ARG(12)
-#define EXPAND_13(EXPAND_ARG, JOIN) EXPAND_12(EXPAND_ARG, JOIN) JOIN EXPAND_ARG(13)
-#define EXPAND_14(EXPAND_ARG, JOIN) EXPAND_13(EXPAND_ARG, JOIN) JOIN EXPAND_ARG(14)
-#define EXPAND_15(EXPAND_ARG, JOIN) EXPAND_14(EXPAND_ARG, JOIN) JOIN EXPAND_ARG(15)
-#define EXPAND_16(EXPAND_ARG, JOIN) EXPAND_15(EXPAND_ARG, JOIN) JOIN EXPAND_ARG(16)
-#define EXPAND_17(EXPAND_ARG, JOIN) EXPAND_16(EXPAND_ARG, JOIN) JOIN EXPAND_ARG(17)
-#define EXPAND_18(EXPAND_ARG, JOIN) EXPAND_17(EXPAND_ARG, JOIN) JOIN EXPAND_ARG(18)
-
-
-
-    VAR_CTOR(1, EXPAND_1(TEMPL_ARG, DEFINITION), EXPAND_1(FUNC_ARG, DEFINITION), EXPAND_1(PARAMS, STATEMENT))
-    VAR_CTOR(2, EXPAND_2(TEMPL_ARG, DEFINITION), EXPAND_2(FUNC_ARG, DEFINITION), EXPAND_2(PARAMS, STATEMENT))
-    VAR_CTOR(3, EXPAND_3(TEMPL_ARG, DEFINITION), EXPAND_3(FUNC_ARG, DEFINITION), EXPAND_3(PARAMS, STATEMENT))
-    VAR_CTOR(4, EXPAND_4(TEMPL_ARG, DEFINITION), EXPAND_4(FUNC_ARG, DEFINITION), EXPAND_4(PARAMS, STATEMENT))
-    VAR_CTOR(5, EXPAND_5(TEMPL_ARG, DEFINITION), EXPAND_5(FUNC_ARG, DEFINITION), EXPAND_5(PARAMS, STATEMENT))    
-    VAR_CTOR(6, EXPAND_6(TEMPL_ARG, DEFINITION), EXPAND_6(FUNC_ARG, DEFINITION), EXPAND_6(PARAMS, STATEMENT))
-    VAR_CTOR(7, EXPAND_7(TEMPL_ARG, DEFINITION), EXPAND_7(FUNC_ARG, DEFINITION), EXPAND_7(PARAMS, STATEMENT))
-    VAR_CTOR(8, EXPAND_8(TEMPL_ARG, DEFINITION), EXPAND_8(FUNC_ARG, DEFINITION), EXPAND_8(PARAMS, STATEMENT))
-    VAR_CTOR(9, EXPAND_9(TEMPL_ARG, DEFINITION), EXPAND_9(FUNC_ARG, DEFINITION), EXPAND_9(PARAMS, STATEMENT))
-    VAR_CTOR(10, EXPAND_10(TEMPL_ARG, DEFINITION), EXPAND_10(FUNC_ARG, DEFINITION), EXPAND_10(PARAMS, STATEMENT))
-    VAR_CTOR(11, EXPAND_11(TEMPL_ARG, DEFINITION), EXPAND_11(FUNC_ARG, DEFINITION), EXPAND_11(PARAMS, STATEMENT))
-    VAR_CTOR(12, EXPAND_12(TEMPL_ARG, DEFINITION), EXPAND_12(FUNC_ARG, DEFINITION), EXPAND_12(PARAMS, STATEMENT))
-    VAR_CTOR(13, EXPAND_13(TEMPL_ARG, DEFINITION), EXPAND_13(FUNC_ARG, DEFINITION), EXPAND_13(PARAMS, STATEMENT))
-    VAR_CTOR(14, EXPAND_14(TEMPL_ARG, DEFINITION), EXPAND_14(FUNC_ARG, DEFINITION), EXPAND_14(PARAMS, STATEMENT))
-    VAR_CTOR(15, EXPAND_15(TEMPL_ARG, DEFINITION), EXPAND_15(FUNC_ARG, DEFINITION), EXPAND_15(PARAMS, STATEMENT))
-    VAR_CTOR(16, EXPAND_16(TEMPL_ARG, DEFINITION), EXPAND_16(FUNC_ARG, DEFINITION), EXPAND_16(PARAMS, STATEMENT))
-    VAR_CTOR(17, EXPAND_17(TEMPL_ARG, DEFINITION), EXPAND_17(FUNC_ARG, DEFINITION), EXPAND_17(PARAMS, STATEMENT))
-    VAR_CTOR(18, EXPAND_18(TEMPL_ARG, DEFINITION), EXPAND_18(FUNC_ARG, DEFINITION), EXPAND_18(PARAMS, STATEMENT))
 
     ~DGLWrapperCookie() {
         if (m_ProcessActions) {

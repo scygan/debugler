@@ -21,6 +21,9 @@
     #include <windows.h>
     #include "CompleteInject/CompleteInject.h"
     #define snprintf _snprintf
+#else
+    #include <sys/types.h>
+    #include <sys/wait.h>
 #endif
 
 #include "process.h"
@@ -305,8 +308,8 @@ int main(int argc, char** argv) {
         return exitCode;
 #else
         int exitCode;
-        waitpid(childHandle, &exitCode, WEXITSTATUS);
-        return exitCode;
+        waitpid(childHandle, &exitCode, 0);
+        return WEXITSTATUS(exitCode);
 #endif
     }
 }

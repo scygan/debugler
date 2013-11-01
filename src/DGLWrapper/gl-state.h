@@ -237,8 +237,8 @@ public:
      */
     boost::shared_ptr<dglnet::resource::DGLPixelRectangle> queryTextureLevelAuxCtx(gl_t _name, GLenum target, int level);
 
-    bool GLContext::textureProbeSizeES(GLenum target, int level, const int sizes[3]);
-    int GLContext::textureBisectSizeES(GLenum target, int level, int coord, int maxSize);
+    bool textureProbeSizeES(GLenum target, int level, const int sizes[3]);
+    int textureBisectSizeES(GLenum target, int level, int coord, int maxSize);
 
     opaque_id_t getId() const;
 

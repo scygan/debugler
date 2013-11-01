@@ -17,6 +17,7 @@
 #include "os.h"
 #include <vector>
 #include <cstdarg>
+#include <cerrno>
 #ifdef _WIN32
     #define va_copy(dest, src) (dest = src)
 #else
