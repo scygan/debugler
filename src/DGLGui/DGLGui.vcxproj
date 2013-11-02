@@ -120,6 +120,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglprovisionandroidwizard.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglrundialog.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -224,6 +228,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglprovisionandroidwizard.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglrundialog.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -291,6 +299,7 @@
     <ClCompile Include="dglpixelrectangle.cpp" />
     <ClCompile Include="dglprocess.cpp" />
     <ClCompile Include="dglprogramview.cpp" />
+    <ClCompile Include="dglprovisionandroidwizard.cpp" />
     <ClCompile Include="dglrundialog.cpp" />
     <ClCompile Include="dglshaderview.cpp" />
     <ClCompile Include="dglstateview.cpp" />
@@ -2024,6 +2033,24 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing dglprocess.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe" -b dglgui.h "%(FullPath)" -o ".\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp"  -DQT_LARGEFILE_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB "-D\"$(INHERIT)\"" -DQT_XML_LIB -DQT_WIDGETS_LIB -DQT_DLL -DUSE_MSVC -DWIN32 -DBOOST_ALL_NO_LIB -DBOOST_ALL_COMPILE_IN_PLACE -DBOOST_THREAD_BUILD_LIB -D_WIN32_WINNT=0x0501 -DQT_NO_OPENGL -DWIN32_LEAN_AND_MEAN "-DDGL_VERSION=\"$(DGL_VERSION)\"" -DNDEBUG  "-I$(ProjectDir)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtCore" "-I.\..\..\dump\GeneratedFiles" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\QtWidgets" "-I.\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I$(SolutionDir)\." "-I$(SolutionDir)\external\boost" "-I$(SolutionDir)\boost" "-I$(SolutionDir)\external" "-I$(SolutionDir)\external\gtest\include" "-I$(SolutionDir)\..\dump" "-I$(SolutionDir)\glheaders" "-I$(NOINHERIT)\." "-fdglgui.h" "-f../../../src/DGLGui/dglprocess.h"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="dglprovisionandroidwizard.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing dglprovisionandroidwizard.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe" -b dglgui.h "%(FullPath)" -o ".\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp" "-fdglgui.h" "-f../../../src/DGLGui/dglprovisionandroidwizard.h"  -DDGLGUI_PCH -DQT_LARGEFILE_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB "-D\"$(INHERIT)\"" -DQT_XML_LIB -DQT_WIDGETS_LIB -DQT_DLL -DUSE_MSVC -DWIN32 -DBOOST_ALL_NO_LIB -D_WIN32_WINNT=0x0501 -DQT_NO_OPENGL -DWIN32_LEAN_AND_MEAN "-DDGL_VERSION=\"$(DGL_VERSION)\"" -D_DEBUG "-I$(ProjectDir)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtCore" "-I.\..\..\dump\GeneratedFiles" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\QtWidgets" "-I.\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I$(SolutionDir)\." "-I$(SolutionDir)\codegen\input" "-I$(SolutionDir)\external\boost" "-I$(SolutionDir)\boost" "-I$(SolutionDir)\external" "-I$(SolutionDir)\external\gtest\include" "-I$(SolutionDir)\..\dump" "-I$(SolutionDir)\glheaders" "-I$(NOINHERIT)\."</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing dglprovisionandroidwizard.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe" -b dglgui.h "%(FullPath)" -o ".\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp" "-fdglgui.h" "-f../../../src/DGLGui/dglprovisionandroidwizard.h"  -DDGLGUI_PCH -DQT_LARGEFILE_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB "-D\"$(INHERIT)\"" -DQT_XML_LIB -DQT_WIDGETS_LIB -DQT_DLL -DUSE_MSVC -DWIN32 -DBOOST_ALL_NO_LIB -D_WIN32_WINNT=0x0501 -DQT_NO_OPENGL -DWIN32_LEAN_AND_MEAN "-DDGL_VERSION=\"$(DGL_VERSION)\"" -D_DEBUG "-I$(ProjectDir)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtCore" "-I.\..\..\dump\GeneratedFiles" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\QtWidgets" "-I.\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I$(SolutionDir)\." "-I$(SolutionDir)\codegen\input" "-I$(SolutionDir)\external\boost" "-I$(SolutionDir)\boost" "-I$(SolutionDir)\external" "-I$(SolutionDir)\external\gtest\include" "-I$(SolutionDir)\..\dump" "-I$(SolutionDir)\glheaders" "-I$(NOINHERIT)\."</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing dglprovisionandroidwizard.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe" -b dglgui.h "%(FullPath)" -o ".\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp" "-fdglgui.h" "-f../../../src/DGLGui/dglprovisionandroidwizard.h"  -DDGLGUI_PCH -DQT_LARGEFILE_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB "-D\"$(INHERIT)\"" -DQT_XML_LIB -DQT_WIDGETS_LIB -DQT_DLL -DUSE_MSVC -DWIN32 -DBOOST_ALL_NO_LIB -D_WIN32_WINNT=0x0501 -DQT_NO_OPENGL -DWIN32_LEAN_AND_MEAN "-DDGL_VERSION=\"$(DGL_VERSION)\"" -DNDEBUG "-I$(ProjectDir)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtCore" "-I.\..\..\dump\GeneratedFiles" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\QtWidgets" "-I.\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I$(SolutionDir)\." "-I$(SolutionDir)\codegen\input" "-I$(SolutionDir)\external\boost" "-I$(SolutionDir)\boost" "-I$(SolutionDir)\external" "-I$(SolutionDir)\external\gtest\include" "-I$(SolutionDir)\..\dump" "-I$(SolutionDir)\glheaders" "-I$(NOINHERIT)\."</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing dglprovisionandroidwizard.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe" -b dglgui.h "%(FullPath)" -o ".\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp" "-fdglgui.h" "-f../../../src/DGLGui/dglprovisionandroidwizard.h"  -DDGLGUI_PCH -DQT_LARGEFILE_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB "-D\"$(INHERIT)\"" -DQT_XML_LIB -DQT_WIDGETS_LIB -DQT_DLL -DUSE_MSVC -DWIN32 -DBOOST_ALL_NO_LIB -D_WIN32_WINNT=0x0501 -DQT_NO_OPENGL -DWIN32_LEAN_AND_MEAN "-DDGL_VERSION=\"$(DGL_VERSION)\"" -DNDEBUG "-I$(ProjectDir)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtCore" "-I.\..\..\dump\GeneratedFiles" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\QtWidgets" "-I.\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I$(SolutionDir)\." "-I$(SolutionDir)\codegen\input" "-I$(SolutionDir)\external\boost" "-I$(SolutionDir)\boost" "-I$(SolutionDir)\external" "-I$(SolutionDir)\external\gtest\include" "-I$(SolutionDir)\..\dump" "-I$(SolutionDir)\glheaders" "-I$(NOINHERIT)\."</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>

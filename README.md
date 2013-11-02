@@ -18,6 +18,12 @@ The OpenGL 2.1+, OpenGL ES 2.0/3.0 debugger for Windows and Linux
 
 Needed: 
  * Microsoft Visual Studio 2012
+ 
+ * Wix Toolset
+ 
+ * CMake for windows, with cmake in <b>PATH</b>
+ 
+ * Android NDK r8e
 
  * Python 2.7.*, http://www.python.org/download/
 
@@ -25,7 +31,7 @@ Needed:
  
  Debugler can build with <b>older versions</b>, but it <b> does not work </b> due to https://bugreports.qt-project.org/browse/QTBUG-29391
 
- * Set <b>QTDIR</b> environment variable to QT installation directory (like C:\Qt\Qt5.1.0\5.1.0-rc1\msvc2012).
+ * Set <b>QTDIR</b> environment variable to QT installation directory (like C:\Qt\Qt5.1.0\5.1.0-rc1\msvc2012), set <b>ANDROID_NDK</b> environment variable to NDK directory
 
  * Run 
 ```

@@ -78,7 +78,26 @@
                 <File Id='qwindowsDLL' Name='qwindows$(var.debugsuffix).dll' DiskId='1' Source='qwindows$(var.debugsuffix).dll' KeyPath='yes' />
               </Component>
             </Directory>
-                 
+            
+            
+            <Directory Id='AndroidARMDir' Name='android-armeabi'>
+              <Component Id='AndroidARMSupport' Guid='{4627FD07-4783-45B2-8296-E53C64898AE8}' KeyPath='yes'>
+                <File Id='dglloader_arm' Name='dglloader' DiskId='1' Source='..\..\android-armeabi\Release\bin\armeabi\dglloader' />
+                <File Id='libdglwrapper_arm' Name='libdglwrapper.so' DiskId='1' Source='..\..\android-armeabi\Release\libs\armeabi\libdglwrapper.so' />
+              </Component>
+            </Directory>
+            <Directory Id='AndroidX86Dir' Name='android-x86'>
+              <Component Id='AndroidX86Support' Guid='{6690C513-7A73-4050-8066-7F22F6F46C42}' KeyPath='yes'>
+                <File Id='dglloader_x86' Name='dglloader' DiskId='1' Source='..\..\android-x86\Release\bin\x86\dglloader' />
+                <File Id='libdglwrapper_x86' Name='libdglwrapper.so' DiskId='1' Source='..\..\android-x86\Release\libs\x86\libdglwrapper.so' />
+              </Component>
+            </Directory>
+            <Directory Id='AndroidMIPSDir' Name='android-mips'>
+              <Component Id='AndroidMIPSSupport' Guid='{1F44853E-1E2F-4446-B1EC-C1141EB4EFFF}' KeyPath='yes'>
+                <File Id='dglloader_mips' Name='dglloader' DiskId='1' Source='..\..\android-mips\Release\bin\mips\dglloader' />
+                <File Id='libdglwrapper_mips' Name='libdglwrapper.so' DiskId='1' Source='..\..\android-mips\Release\libs\mips\libdglwrapper.so' />
+              </Component>
+            </Directory>
 
           </Directory>
         </Directory>
@@ -116,6 +135,10 @@
       <?endif?>
       <ComponentRef Id='WrapperLibrary' />
       <ComponentRef Id='ProgramMenuDir' />
+    
+      <ComponentRef Id='AndroidARMSupport' />
+      <ComponentRef Id='AndroidMIPSSupport' />
+      <ComponentRef Id='AndroidX86Support' />
     </Feature>
 
 

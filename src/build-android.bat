@@ -1,1 +1,0 @@
-%windir%\Microsoft.NET\Framework\v4.0.30319\MSBuild debugler.sln /p:VisualStudioVersion=11.0 /m /nologo /t:Build /p:Configuration=Release-Android-ARM;platform=Win32
