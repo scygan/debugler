@@ -45,7 +45,7 @@
     <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)..\build\android-armeabi\$(Configuration)\ TYPE=Release ABI=armeabi</NMakeBuildCommandLine>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)..\build\android-armeabi\android\$(Configuration)\ TYPE=Debug ABI=armeabi</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)..\build\android-armeabi\$(Configuration)\ TYPE=Debug ABI=armeabi</NMakeBuildCommandLine>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
