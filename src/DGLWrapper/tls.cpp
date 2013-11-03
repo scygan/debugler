@@ -94,6 +94,10 @@ bool DGLThreadState::enterActionProcessing() {
     }
 }
 
+bool DGLThreadState::inActionProcessing() {
+    return privDebugger.m_ActionProcessing;
+}
+
 void DGLThreadState::leaveActionProcessing() {
    privDebugger.m_ActionProcessing = false;
 }

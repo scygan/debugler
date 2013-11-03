@@ -74,6 +74,11 @@ public:
      */
     bool enterActionProcessing();
 
+    /** 
+     *  True if currently in action processing
+     */
+    bool inActionProcessing();
+
     /**
      * Leave action processing
      * leaves recursion guard
