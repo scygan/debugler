@@ -157,7 +157,7 @@ parse(inputDir + "/GL/GL.h", "LIBRARY_GL", True)
 parse(inputDir + "/GL/glext.h", "LIBRARY_GL_EXT")
 
 parse(inputDir + "/GLESv1/gl.h", "LIBRARY_ES1", True)
-parse(inputDir + "/GLESv1/glext.h", "LIBRARY_ES1")
+parse(inputDir + "/GLESv1/glext.h", "LIBRARY_ES1_EXT")
 parse(inputDir + "/GLES2/gl2.h", "LIBRARY_ES2", True)
 parse(inputDir + "/GLES2/gl2ext.h", "LIBRARY_ES2_EXT")
 parse(inputDir + "/GLES3/gl3.h", "LIBRARY_ES3", True)
