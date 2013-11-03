@@ -188,7 +188,13 @@ for name, entrypoint in sorted(entrypoints.items()):
     print >> functionListFile,"#endif"
     
 #entrypoint exporters
-    if any(coreLib in entrypoint.libraries.split('|') for coreLib in ["LIBRARY_WGL", "LIBRARY_GLX", "LIBRARY_EGL", "LIBRARY_GL", "LIBRARY_ES1", "LIBRARY_ES2", "LIBRARY_ES3" ]):
+    coreLib = False
+    for coreLib1 in entrypoint.libraries.split('|'):
+        for coreLib2 in ["LIBRARY_WGL", "LIBRARY_GLX", "LIBRARY_EGL", "LIBRARY_GL", "LIBRARY_ES1", "LIBRARY_ES2", "LIBRARY_ES3" ]:
+            if coreLib1.strip() == coreLib2.strip():
+                coreLib = True
+
+    if coreLib:
         print >> exportersFile, entrypoint.getLibraryIfdef()
         print >> exportersFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType + " APIENTRY " + name + "(" + listToString(entrypoint.paramDeclList) + ") {"
         print >> exportersFile, "        return " + name + "_Wrapper(" + listToString(entrypoint.paramList) + ");"        
