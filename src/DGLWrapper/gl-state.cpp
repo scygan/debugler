@@ -324,6 +324,10 @@ void GLContextVersion::initialize(const char* cVersion) {
     } else if (m_Type == Type::ES) {
         if (version.substr(0, strlen("OpenGL ES ")) == "OpenGL ES ") {
             vOffset = (int)strlen("OpenGL ES ");
+        } else if (version.substr(0, strlen("OpenGL ES-CM ")) == "OpenGL ES-CM ") {
+            vOffset = (int)strlen("OpenGL ES-CM ");
+        } else if (version.substr(0, strlen("OpenGL ES-CL ")) == "OpenGL ES-CL ") {
+            vOffset = (int)strlen("OpenGL ES-CL ");
         } else if (version.substr(0, strlen("OpenGL ES-")) == "OpenGL ES-") {
             vOffset = (int)strlen("OpenGL ES-");
         } else {
