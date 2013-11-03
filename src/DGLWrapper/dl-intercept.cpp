@@ -200,7 +200,7 @@ void *DLIntercept::dlopen (const char *filename, int flag) {
 
     void* ret = real_dlopen(filename, flag);
 
-    if (filename && g_ApiLoader.isLibGL(filename)) {    
+    if (ret && filename && g_ApiLoader.isLibGL(filename)) {    
         mSupportedLibraries[reinterpret_cast<uint64_t>(ret)] = true;
     }
 
