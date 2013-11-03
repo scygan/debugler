@@ -199,16 +199,20 @@ int main(int argc, char** argv) {
             Os::setEnv("LD_PRELOAD", wrapperPath.c_str());
 
 #ifdef __ANDROID__
-            const char* baseAddr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlclose));
             {
-                int addr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlopen)) - baseAddr;
-                std::ostringstream str; str << addr;
-                Os::setEnv("dlopen_addr", str.str().c_str());
-            }
-            {
-                int addr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlsym)) - baseAddr;
-                std::ostringstream str; str << addr;
-                Os::setEnv("dlsym_addr", str.str().c_str());
+                const char* baseAddr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlclose));
+                if (!Os::getEnv("dlopen_addr").length()) {
+
+                    int addr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlopen)) - baseAddr;
+                    std::ostringstream str; str << addr;
+                    Os::setEnv("dlopen_addr", str.str().c_str());
+
+                }
+                 if (!Os::getEnv("dlsym_addr").length()) {
+                     int addr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlsym)) - baseAddr;
+                     std::ostringstream str; str << addr;
+                     Os::setEnv("dlsym_addr", str.str().c_str());
+                 }
             }
 #endif
             process.do_execvp();
