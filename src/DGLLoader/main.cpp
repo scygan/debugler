@@ -188,10 +188,14 @@ int main(int argc, char** argv) {
         }
 
         if (vm.count("port")) {
-            std::istringstream portStr(vm["port"].as< vector<string> >()[0]);
-            unsigned short port; 
-            portStr >> port;
-            dglIPC->setDebuggerPort(port);
+            std::string portStr = vm["port"].as< vector<string> >()[0];
+            if (portStr.find("unix:") == 0) {
+                dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::UNIX, portStr.substr(strlen("unix:")));
+            } else if (portStr.find("tcp:") == 0) {
+                dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::TCP, portStr.substr(strlen("tcp:")));
+            } else {
+                dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::TCP, portStr);
+            }
         }
 
         DGLProcess process(executable, arguments);

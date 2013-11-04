@@ -32,14 +32,19 @@ public:
         EGL
     };
 
+    enum class DebuggerPortType {
+        TCP, 
+        UNIX
+    };
+
     virtual void setWaitForConnection(bool) = 0;
     virtual bool getWaitForConnection() = 0;
 
     virtual void setDebuggerMode(DebuggerMode) = 0;
     virtual DebuggerMode getDebuggerMode() = 0;
 
-    virtual void setDebuggerPort(unsigned short) = 0;
-    virtual unsigned short getDebuggerPort() = 0;
+    virtual void setDebuggerPort(DebuggerPortType, const std::string&) = 0;
+    virtual DebuggerPortType getDebuggerPort(std::string&) = 0;
     
     static std::shared_ptr<DGLIPC> Create();
     static std::shared_ptr<DGLIPC> CreateFromUUID(std::string uuid);

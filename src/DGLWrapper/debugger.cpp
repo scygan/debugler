@@ -19,6 +19,8 @@
 #include "native-surface.h"
 #include "tls.h"
 
+#include <DGLNet/server.h>
+
 #include <sstream>
 #include <boost/make_shared.hpp>
 #include <boost/interprocess/sync/named_semaphore.hpp>
@@ -168,35 +170,57 @@ void DGLDebugController::doHandleDisconnect(const std::string&) {
     m_Disconnected = true;
 }
 
-dglnet::Server& DGLDebugController::getServer() {
+dglnet::ITransport& DGLDebugController::getServer() {
     if (!m_Server) {
+        std::string  port;
+        DGLIPC::DebuggerPortType portType = getIPC()->getDebuggerPort(port);
+        switch (portType) {
+            case DGLIPC::DebuggerPortType::TCP:
+                getServerImpl<dglnet::ServerTcp>(port);
+                break;
 
-        unsigned short port = getIPC()->getDebuggerPort();
-        m_Server = std::make_shared<dglnet::Server>(port, this);
-        
-        std::string semaphore = Os::getEnv("dgl_semaphore");
-        if (semaphore.length()) {
-
-            //this is a rather dirty WA for local debugging
-            //we fire given semaphore, when we are ready for connection (now!)
-
-            boost::interprocess::named_semaphore sem(boost::interprocess::open_only, semaphore.c_str());
-            sem.post();
-
+            case DGLIPC::DebuggerPortType::UNIX:
+#ifndef _WIN32
+                getServerImpl<dglnet::ServerUnixDomain>(port);
+#else
+                throw std::runtime_error("Unix sockets are not supported on Windows.");
+#endif
+                break;
+            default: 
+                assert(0);
         }
-
-        m_presenter = std::shared_ptr<OsStatusPresenter>(Os::createStatusPresenter());
-        {
-            std::ostringstream msg;
-            msg << Os::getProcessName() << ": wating for debugger on port " << port << ".";
-            m_presenter->setStatus(msg.str());
-        }
-                        
-        m_Server->accept(getIPC()->getWaitForConnection());
-
     }
     return *m_Server;
 }
+
+std::mutex& DGLDebugController::getServerMtx() {
+    return m_ServerMutex;
+}
+
+template<class server_type>
+void DGLDebugController::getServerImpl(const std::string& port) {
+
+    std::shared_ptr<server_type> server = std::make_shared<server_type>(port, this);
+    m_Server = std::static_pointer_cast<dglnet::ITransport>(server);
+
+    std::string semaphore = Os::getEnv("dgl_semaphore");
+
+    if (semaphore.length()) {
+        //this is a rather dirty WA for local debugging
+        //we fire given semaphore, when we are ready for connection (now!)
+
+        boost::interprocess::named_semaphore sem(boost::interprocess::open_only, semaphore.c_str());
+        sem.post();
+    }
+    m_presenter = std::shared_ptr<OsStatusPresenter>(Os::createStatusPresenter());
+    {
+        std::ostringstream msg;
+        msg << Os::getProcessName() << ": wating for debugger on port " << port << ".";
+        m_presenter->setStatus(msg.str());
+    }
+    server->accept(getIPC()->getWaitForConnection());
+}
+
 
 void DGLDebugController::run_one() {
     getServer().run_one();
@@ -219,7 +243,6 @@ void DGLDebugController::tearDown() {
 
     throw TeardownException();    
 }
-
 
 BreakState& DGLDebugController::getBreakState() {
     return m_BreakState;

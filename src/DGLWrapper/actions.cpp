@@ -55,8 +55,7 @@ void ActionBase::PrevPost(const CalledEntryPoint& call, const RetValue& ret) {
 RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
     RetValue ret = PrevPre(call);
 
-#ifndef __ANDROID__
-    std::lock_guard<std::mutex> server_lock(getController()->getServer().getMtx());
+    std::lock_guard<std::mutex> server_lock(getController()->getServerMtx());
 
     //do a fast non-blocking poll to get "interrupt" message, etc.."
     getController()->poll();
@@ -73,7 +72,6 @@ RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
         //iterate block & loop until someone unbreaks us
         getController()->run_one();
     }
-#endif
 
     //now there should be no breaks
 
@@ -84,9 +82,9 @@ RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
 }
 
 void DefaultAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
-#ifndef __ANDROID__
-    std::lock_guard<std::mutex> server_lock(getController()->getServer().getMtx());
-#endif
+
+    std::lock_guard<std::mutex> server_lock(getController()->getServerMtx());
+
     CallHistory& history = getController()->getCallHistory();
 
     GLenum error;

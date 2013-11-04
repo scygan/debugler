@@ -16,7 +16,7 @@
 #ifndef DEBUGGER_H
 #define DEBUGGER_H
 
-#include <DGLNet/server.h>
+#include <DGLNet/transport.h>
 #include <boost/circular_buffer.hpp>
 
 #include <DGLNet/protocol/dglconfiguration.h>
@@ -25,6 +25,8 @@
 #include <DGLCommon/ipc.h>
 
 #include "gl-state.h"
+
+#include <mutex>
 
 /**
  * class for break state - breaking and continuing application execution
@@ -211,7 +213,12 @@ public:
     /** 
      * Getter for connected server object
      */
-    dglnet::Server& getServer();
+    dglnet::ITransport& getServer();
+
+    /** 
+     * Getter for mutex guarding server
+     */
+    std::mutex& getServerMtx();
 
     /** 
      * Run one event on associated server;
@@ -286,7 +293,13 @@ private:
     /**
      * Server object
      */
-    std::shared_ptr<dglnet::Server> m_Server;
+    std::shared_ptr<dglnet::ITransport> m_Server;
+
+    /**
+     * Mutex locking server object
+     */
+    std::mutex m_ServerMutex;
+
 
     /** 
      * Call history object
@@ -307,6 +320,13 @@ private:
      * Application abnormal terminator
      */
     void tearDown();
+
+
+    /** 
+     *  Constructs and sets server of given type
+     */ 
+    template<class server_type>
+    void getServerImpl(const std::string& port);
 
 };
 

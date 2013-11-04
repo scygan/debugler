@@ -23,22 +23,44 @@
 namespace boost {
     namespace asio {
         typedef basic_streambuf<> streambuf;
+        namespace local {
+            class stream_protocol;
+        }
+        namespace ip {
+            class tcp;
+        }
     }
 }
 
 namespace dglnet {
 
 class  TransportHeader;
+
+template<class proto>
 class TransportDetail;
 
-class Transport: public std::enable_shared_from_this<Transport> {
+class ITransport: public std::enable_shared_from_this<ITransport> {
+public:
+    virtual ~ITransport() {}
+    virtual void sendMessage(const Message* msg) = 0;
+    virtual void poll() = 0; 
+    virtual void run_one() = 0;
+    virtual void abort() = 0;
+
+    std::shared_ptr<ITransport> get_shared_from_base() {
+        return shared_from_this();
+    }
+};
+
+template<class proto>
+class Transport: public ITransport {
 public: 
     Transport(MessageHandler* messageHandler);
     virtual ~Transport();
-    void sendMessage(const Message* msg);
-    void poll();
-    void run_one();
-    void abort();
+    virtual void sendMessage(const Message* msg) override;
+    virtual void poll() override;
+    virtual void run_one() override;
+    virtual void abort() override;
 protected:
     void read();
     void notifyConnect();
@@ -46,11 +68,7 @@ protected:
     virtual void notifyStartSend();
     virtual void notifyEndSend();
 
-    std::shared_ptr<Transport> get_shared_from_base() {
-        return shared_from_this();
-    }
-
-    std::shared_ptr<TransportDetail> m_detail;
+    std::shared_ptr<TransportDetail<proto> > m_detail;
 
 private:
     void writeQueue();
@@ -61,6 +79,8 @@ private:
     
     
     void onMessage(const Message& msg);   
+
+    std::shared_ptr<Transport<proto> > shared_from_this();
 
     MessageHandler* m_messageHandler;
 

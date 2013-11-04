@@ -19,9 +19,7 @@
 #include<string>
 #include <boost/bind.hpp>
 
-#include <boost/asio/placeholders.hpp>
-
-
+#include <boost/asio/ip/tcp.hpp>
 
 
 namespace dglnet {

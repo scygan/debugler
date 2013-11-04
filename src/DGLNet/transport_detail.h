@@ -16,14 +16,15 @@
 #include "transport.h"
 
 #include <boost/asio/io_service.hpp>
-#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/basic_stream_socket.hpp>
 
 namespace dglnet {
 
+    template<class proto>
     class TransportDetail {
     public:
         TransportDetail();
         boost::asio::io_service m_io_service;
-        boost::asio::ip::tcp::socket m_socket;
+        boost::asio::basic_stream_socket<proto> m_socket;
     };
 }

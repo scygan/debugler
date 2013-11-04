@@ -22,23 +22,27 @@
 
 namespace dglnet {
 
+template<class proto>
 class ServerDetail;
 
-class Server: public Transport {
+template<class proto>
+class Server: public Transport<proto> {
 public: 
-    Server(unsigned short port, MessageHandler*);
-    std::mutex& getMtx();
-    void accept(bool wait);
+    Server(const std::string& port, MessageHandler*);
+    
+    virtual void accept(bool wait);
 
 private:
 
-    void onAccept(const boost::system::error_code &ec);
+    virtual void onAccept(const boost::system::error_code &ec);
 
-    std::shared_ptr<Server> shared_from_this();
+    std::shared_ptr<Server<proto> > shared_from_this();
 
-    std::shared_ptr<ServerDetail> m_detail;
-    std::mutex m_mutex;
+    std::shared_ptr<ServerDetail<proto> > m_detail;
 };
+
+typedef  Server<boost::asio::ip::tcp> ServerTcp;
+typedef  Server<boost::asio::local::stream_protocol> ServerUnixDomain;
 
 }
 

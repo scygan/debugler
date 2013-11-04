@@ -31,8 +31,7 @@ public:
     virtual ~IController() {}
 };
 
-
-class Client: public Transport {
+class Client: public Transport<boost::asio::ip::tcp> {
 public: 
     virtual ~Client() {}
     virtual void connectServer(std::string host, std::string port) = 0;

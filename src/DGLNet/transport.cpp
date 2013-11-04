@@ -44,6 +44,9 @@
 #include <boost/asio/placeholders.hpp>
 #include <boost/asio/streambuf.hpp>
 
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/local/stream_protocol.hpp>
+
 #include <sstream>
 
 namespace dglnet {
@@ -59,15 +62,19 @@ namespace dglnet {
         value_t m_size;
     };
 
-    TransportDetail::TransportDetail():m_socket(m_io_service) {}
+    template <class proto>
+    TransportDetail<proto>::TransportDetail():m_socket(m_io_service) {}
 
-    Transport::Transport(MessageHandler* handler):m_detail(std::make_shared<TransportDetail>()),m_messageHandler(handler),m_WriteReady(true),m_Abort(false) {}
+    template<class proto>
+    Transport<proto>::Transport(MessageHandler* handler):m_detail(std::make_shared<TransportDetail<proto> >()),m_messageHandler(handler),m_WriteReady(true),m_Abort(false) {}
 
-    Transport::~Transport() {
+    template<class proto>
+    Transport<proto>::~Transport() {
         if (!m_Abort) abort();
     }
 
-    void Transport::abort() {
+    template<class proto>
+    void Transport<proto>::abort() {
         m_Abort = true;
         try {
             m_detail->m_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
@@ -76,33 +83,38 @@ namespace dglnet {
         } catch( ... ) {}
     }
     
-    void Transport::poll() {
+    template<class proto>
+    void Transport<proto>::poll() {
         while (m_detail->m_io_service.poll());
     }
 
-    void Transport::run_one() {
+    template<class proto>
+    void Transport<proto>::run_one() {
         m_detail->m_io_service.run_one();
     }
 
-    void Transport::read() {
+    template<class proto>
+    void Transport<proto>::read() {
         TransportHeader* header = new TransportHeader();
-        boost::asio::async_read(m_detail->m_socket, boost::asio::buffer(header, sizeof(TransportHeader)), std::bind(&Transport::onReadHeader, shared_from_this(), header,
+        boost::asio::async_read(m_detail->m_socket, boost::asio::buffer(header, sizeof(TransportHeader)), std::bind(&Transport<proto>::onReadHeader, shared_from_this(), header,
             std::placeholders::_1));
     }
 
-    void Transport::onReadHeader(TransportHeader* header, const boost::system::error_code &ec) {
+    template<class proto>
+    void Transport<proto>::onReadHeader(TransportHeader* header, const boost::system::error_code &ec) {
         if (ec) {
             notifyDisconnect(ec);
         } else {
             boost::asio::streambuf*  stream = new boost::asio::streambuf;
             stream->prepare(header->getSize());
-            boost::asio::async_read(m_detail->m_socket, *stream, boost::asio::transfer_exactly(header->getSize()), std::bind(&Transport::onReadArchive, shared_from_this(),
+            boost::asio::async_read(m_detail->m_socket, *stream, boost::asio::transfer_exactly(header->getSize()), std::bind(&Transport<proto>::onReadArchive, shared_from_this(),
                 stream, std::placeholders::_1));
         }
         delete header;
     }
 
-    void Transport::onReadArchive(boost::asio::streambuf* stream, const boost::system::error_code &ec) {
+    template<class proto>
+    void Transport<proto>::onReadArchive(boost::asio::streambuf* stream, const boost::system::error_code &ec) {
         if (ec) {
             notifyDisconnect(ec);
         } else {
@@ -124,7 +136,8 @@ namespace dglnet {
         delete stream;
     }
 
-    void Transport::sendMessage(const Message* msg) {
+    template<class proto>
+    void Transport<proto>::sendMessage(const Message* msg) {
         //create and push new stream to queue
         boost::asio::streambuf* stream = new boost::asio::streambuf;        
         {
@@ -144,7 +157,8 @@ namespace dglnet {
         }
     }
     
-    void Transport::writeQueue() {
+    template<class proto>
+    void Transport<proto>::writeQueue() {
         m_WriteReady = false;
         
         std::vector<boost::asio::const_buffer> buffers(m_WriteQueue.size() * 2);
@@ -156,11 +170,12 @@ namespace dglnet {
 
         std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> > sentData;
         std::swap(m_WriteQueue, sentData);
-        boost::asio::async_write(m_detail->m_socket, buffers, std::bind(&Transport::onWrite, shared_from_this(),
+        boost::asio::async_write(m_detail->m_socket, buffers, std::bind(&Transport<proto>::onWrite, shared_from_this(),
                 sentData, std::placeholders::_1));
     }
 
-    void Transport::onWrite(std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> > sentData, const boost::system::error_code &ec) {
+    template<class proto>
+    void Transport<proto>::onWrite(std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> > sentData, const boost::system::error_code &ec) {
         for (size_t i = 0; i < sentData.size(); i++) {
             delete sentData[i].first;
             delete sentData[i].second;
@@ -178,20 +193,37 @@ namespace dglnet {
         }
     }
 
-    void Transport::onMessage(const Message& msg) {
+    template<class proto>
+    void Transport<proto>::onMessage(const Message& msg) {
         msg.handle(m_messageHandler);
     }
 
-    void Transport::notifyConnect() {
+    template<class proto>
+    std::shared_ptr<Transport<proto> > Transport<proto>::shared_from_this() {
+        return std::static_pointer_cast<Transport<proto> >(get_shared_from_base());
+    }
+
+    template<class proto>
+    void Transport<proto>::notifyConnect() {
         m_messageHandler->doHandleConnect();
     }
 
-    void Transport::notifyDisconnect(const boost::system::error_code &ec) {
+    template<class proto>
+    void Transport<proto>::notifyDisconnect(const boost::system::error_code &ec) {
         if (m_Abort) return;
         m_messageHandler->doHandleDisconnect(ec.message());
     }
     
-    void Transport::notifyStartSend() {}
+    template<class proto>
+    void Transport<proto>::notifyStartSend() {}
 
-    void Transport::notifyEndSend() {}
+    template<class proto>
+    void Transport<proto>::notifyEndSend() {}
+
+
+
+    template class Transport<boost::asio::ip::tcp>;
+#ifdef BOOST_ASIO_HAS_LOCAL_SOCKETS
+    template class Transport<boost::asio::local::stream_protocol>;
+#endif
 }

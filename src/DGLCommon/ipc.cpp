@@ -31,6 +31,8 @@
 #include <boost/make_shared.hpp>
 #include <sstream>
 
+#include <DGLCommon/def.h>
+
 #pragma warning(disable:4503)
 
 class DGLIPCImpl: public DGLIPC {
@@ -94,22 +96,31 @@ public:
         return m_region->m_debuggerMode;
     }
 
-    virtual void setDebuggerPort(unsigned short port) override {
-        m_region->m_debuggerPort = port;
+    virtual void setDebuggerPort(DebuggerPortType type, const std::string& port) {
+        m_region->m_debuggerPortType = type;
+        strncpy(m_region->m_debuggerPortName, port.c_str(), c_debuggerPortNameLen);
+        m_region->m_debuggerPortName[c_debuggerPortNameLen - 1] = '\0';
     }
 
-    virtual unsigned short getDebuggerPort() override {
-        return m_region->m_debuggerPort;
+    virtual DebuggerPortType getDebuggerPort(std::string& port) {
+        m_region->m_debuggerPortName[c_debuggerPortNameLen - 1] = '\0';
+        port = m_region->m_debuggerPortName;
+        return m_region->m_debuggerPortType;
     }
 
 private:
 
+    static const int c_debuggerPortNameLen = 1000;
+
     struct MemoryRegion {
-        MemoryRegion():m_debuggerPort(5555), m_debuggerMode(DebuggerMode::DEFAULT), m_remoteThreadSemaphore(0), m_WaitForConnection(true) {}
-        unsigned short m_debuggerPort;
+        MemoryRegion():m_debuggerPortType(DebuggerPortType::TCP),m_debuggerMode(DebuggerMode::DEFAULT), m_remoteThreadSemaphore(0), m_WaitForConnection(true) {
+            strncpy(m_debuggerPortName, "5555", c_debuggerPortNameLen);
+        }
+        char m_debuggerPortName[c_debuggerPortNameLen];
+        DebuggerPortType m_debuggerPortType;
         DebuggerMode m_debuggerMode;
-        bool m_WaitForConnection;
         boost::interprocess::interprocess_semaphore m_remoteThreadSemaphore;
+        bool m_WaitForConnection;
     };
 
     std::string m_uuid;

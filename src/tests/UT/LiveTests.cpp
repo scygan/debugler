@@ -113,7 +113,7 @@ namespace {
 
     namespace utils {
         template<typename T>
-        T* receiveMessage(dglnet::Transport* transport, LiveTest::MessageHandler& handler) {
+        T* receiveMessage(dglnet::ITransport* transport, LiveTest::MessageHandler& handler) {
             dglnet::Message* msg = NULL; 
             do {
                 transport->run_one();
@@ -126,7 +126,7 @@ namespace {
         }
 
         template<typename T>
-        T* receiveUntilMessage(dglnet::Transport* transport, LiveTest::MessageHandler& handler) {
+        T* receiveUntilMessage(dglnet::ITransport* transport, LiveTest::MessageHandler& handler) {
             dglnet::Message* msg = NULL; 
             do {
                 transport->run_one();

@@ -42,5 +42,9 @@
 
 #define ALIGNED(X, A) ((X + A - 1) & (-A))
 
+#ifdef _WIN32
+#define strncpy(dest, source, count) strncpy_s(dest, count, source, _TRUNCATE)
+#endif
+
 #endif
 
