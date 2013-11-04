@@ -40,6 +40,7 @@
 
 #include"api-loader.h"
 #include"gl-wrappers.h"
+#include"tls.h"
 
 #ifndef __ANDROID__
 
@@ -169,7 +170,7 @@ void *DLIntercept::dlsym (void * handle, const char *name) {
 
     Entrypoint entryp = GetEntryPointEnum(name);
 
-    if (i != mSupportedLibraries.end() && i->second && entryp != NO_ENTRYPOINT) {
+    if (!DGLThreadState::get()->inActionProcessing() && i != mSupportedLibraries.end() && i->second && entryp != NO_ENTRYPOINT) {
         g_ApiLoader.setPointer(entryp, reinterpret_cast<FUNC_PTR>((ptrdiff_t)ptr));
         return reinterpret_cast<void*>((ptrdiff_t)getWrapperPointer(entryp));
     } else {
@@ -187,7 +188,7 @@ void *DLIntercept::dlvsym (void * handle, const char *name, const char *version)
 
     Entrypoint entryp = GetEntryPointEnum(name);
 
-    if (i != mSupportedLibraries.end() && i->second && entryp != NO_ENTRYPOINT) {
+    if (!DGLThreadState::get()->inActionProcessing() && i != mSupportedLibraries.end() && i->second && entryp != NO_ENTRYPOINT) {
         g_ApiLoader.setPointer(entryp, reinterpret_cast<FUNC_PTR>((ptrdiff_t)ptr));
         return reinterpret_cast<void*>((ptrdiff_t)getWrapperPointer(entryp));
     } else {
