@@ -45,7 +45,7 @@ DGLIPC* getIPC() {
 
 DGLConfiguration g_Config;
 
-BreakState::BreakState():m_break(true),m_StepModeEnabled(false), m_StepMode(dglnet::message::ContinueBreak::StepMode::CALL) {}
+BreakState::BreakState(bool breaked):m_break(breaked),m_StepModeEnabled(false), m_StepMode(dglnet::message::ContinueBreak::StepMode::CALL) {}
 
 bool BreakState::mayBreakAt(const Entrypoint& e) {
     if (m_StepModeEnabled) {
@@ -146,13 +146,21 @@ void CallHistory::setDebugOutput(const std::string& message) {
     m_cb.back().setDebugOutput(message);
 }
 
-DGLDebugController::DGLDebugController():m_Disconnected(false) {}
+DGLDebugController::DGLDebugController():m_BreakState(getIPC()->getWaitForConnection()),m_Disconnected(false) {}
 
 DGLDebugController::~DGLDebugController() {
     if (m_Server) {
         m_Server->abort();
         m_Server.reset();
     }
+}
+
+void DGLDebugController::doHandleConnect() {
+    dglnet::message::Hello hello(Os::getProcessName());
+
+    m_Server->sendMessage(&hello);
+
+    m_presenter->setStatus(Os::getProcessName() + ": debugger connected.");
 }
 
 void DGLDebugController::doHandleDisconnect(const std::string&) {
@@ -184,13 +192,7 @@ dglnet::Server& DGLDebugController::getServer() {
             m_presenter->setStatus(msg.str());
         }
                         
-        m_Server->accept();
-        
-        dglnet::message::Hello hello(Os::getProcessName());
-
-        m_Server->sendMessage(&hello);
-
-        m_presenter->setStatus(Os::getProcessName() + ": debugger connected.");
+        m_Server->accept(getIPC()->getWaitForConnection());
 
     }
     return *m_Server;

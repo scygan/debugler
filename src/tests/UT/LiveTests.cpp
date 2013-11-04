@@ -65,6 +65,7 @@ namespace {
             MAKE_HANDLER(Request);
             MAKE_HANDLER(RequestReply);
             MAKE_HANDLER(SetBreakPoints);
+            void doHandleConnect() {}
             void doHandleDisconnect(const std::string &msg) { mDisconnected = true; mDisconnectedReason = msg; }
 
         public:

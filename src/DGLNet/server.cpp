@@ -34,18 +34,38 @@ namespace dglnet {
         m_detail->m_acceptor.bind(m_detail->m_endpoint);
         m_detail->m_acceptor.listen();
     }
-    void Server::accept() {
-        boost::system::error_code ec;
-        ec = m_detail->m_acceptor.accept(Transport::m_detail->m_socket, ec);
-        if (ec) {
+    void Server::accept(bool wait) {
+        if (wait) {
+            boost::system::error_code ec;
+            ec = m_detail->m_acceptor.accept(Transport::m_detail->m_socket, ec);
+            if (!ec) {
+                notifyConnect();
+                m_detail->m_acceptor.close();
+                read();
+            } else {
+                notifyDisconnect(ec);
+            }
+        } else {
+            m_detail->m_acceptor.async_accept(Transport::m_detail->m_socket, std::bind(&Server::onAccept, shared_from_this(), std::placeholders::_1));
+        }
+    }
+
+    void Server::onAccept(const boost::system::error_code &ec) {
+        if (!ec) {
+            notifyConnect();
+            m_detail->m_acceptor.close();
+            read();
+        } else {
             notifyDisconnect(ec);
         }
-        m_detail->m_acceptor.close();
-        read();
     }
 
     std::mutex& Server::getMtx() {
         return m_mutex;
+    }
+
+    std::shared_ptr<Server> Server::shared_from_this() {
+        return std::static_pointer_cast<Server>(get_shared_from_base());
     }
 }
 

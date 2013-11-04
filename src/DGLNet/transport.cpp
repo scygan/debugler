@@ -182,6 +182,10 @@ namespace dglnet {
         msg.handle(m_messageHandler);
     }
 
+    void Transport::notifyConnect() {
+        m_messageHandler->doHandleConnect();
+    }
+
     void Transport::notifyDisconnect(const boost::system::error_code &ec) {
         if (m_Abort) return;
         m_messageHandler->doHandleDisconnect(ec.message());

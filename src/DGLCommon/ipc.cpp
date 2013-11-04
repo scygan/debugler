@@ -78,6 +78,14 @@ public:
         m_region->m_remoteThreadSemaphore.post();
     }
 
+    virtual void setWaitForConnection(bool wait) {
+        m_region->m_WaitForConnection = wait;
+    }
+
+    virtual bool getWaitForConnection() {
+        return m_region->m_WaitForConnection;
+    }
+
     virtual void setDebuggerMode(DebuggerMode mode) override {
         m_region->m_debuggerMode = mode;
     }
@@ -97,9 +105,10 @@ public:
 private:
 
     struct MemoryRegion {
-        MemoryRegion():m_debuggerPort(5555), m_debuggerMode(DebuggerMode::DEFAULT), m_remoteThreadSemaphore(0) {}
+        MemoryRegion():m_debuggerPort(5555), m_debuggerMode(DebuggerMode::DEFAULT), m_remoteThreadSemaphore(0), m_WaitForConnection(true) {}
         unsigned short m_debuggerPort;
         DebuggerMode m_debuggerMode;
+        bool m_WaitForConnection;
         boost::interprocess::interprocess_semaphore m_remoteThreadSemaphore;
     };
 

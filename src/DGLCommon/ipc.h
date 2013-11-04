@@ -32,6 +32,9 @@ public:
         EGL
     };
 
+    virtual void setWaitForConnection(bool) = 0;
+    virtual bool getWaitForConnection() = 0;
+
     virtual void setDebuggerMode(DebuggerMode) = 0;
     virtual DebuggerMode getDebuggerMode() = 0;
 

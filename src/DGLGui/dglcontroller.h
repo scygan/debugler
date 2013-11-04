@@ -239,6 +239,11 @@ public:
     virtual void doHandleRequestReply(const dglnet::message::RequestReply&) override;
 
     /** 
+     * Method called by DGLclient, upon successful connection established
+     */
+    virtual void doHandleConnect();
+
+    /** 
      * Method called by DGLclient, when disconnection condition is detected
      */
     virtual void doHandleDisconnect(const std::string&) override;

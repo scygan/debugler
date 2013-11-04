@@ -28,9 +28,14 @@ class Server: public Transport {
 public: 
     Server(unsigned short port, MessageHandler*);
     std::mutex& getMtx();
-    void accept();
+    void accept(bool wait);
 
 private:
+
+    void onAccept(const boost::system::error_code &ec);
+
+    std::shared_ptr<Server> Server::shared_from_this();
+
     std::shared_ptr<ServerDetail> m_detail;
     std::mutex m_mutex;
 };

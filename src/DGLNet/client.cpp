@@ -62,6 +62,7 @@ namespace dglnet {
         virtual void onConnect(const boost::system::error_code &ec) {
             if (!ec) {
                 m_controller->onSetStatus("Connected.");
+                notifyConnect();
                 read();
             } else {
                 notifyDisconnect(ec);

@@ -56,6 +56,7 @@ public:
     virtual void doHandleRequestReply  (const message::RequestReply&);
     virtual void doHandleSetBreakPoints(const message::SetBreakPoints&);
 
+    virtual void doHandleConnect() = 0;
     virtual void doHandleDisconnect(const std::string& why) = 0;
     virtual ~MessageHandler() {}
 private:

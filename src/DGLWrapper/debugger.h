@@ -36,7 +36,7 @@ public:
     /**
      * Ctor
      */
-    BreakState();
+    BreakState(bool breaked);
 
     /**
      * Method deciding if application should be breaked at given entrypoint
@@ -186,6 +186,14 @@ public:
      * Dtor
      */
     ~DGLDebugController();
+
+
+    /** 
+     * Handler of connection event. 
+     *
+     * Sends Hello packet
+     */
+    virtual void doHandleConnect();
 
     /** 
      * Handler of disconnection

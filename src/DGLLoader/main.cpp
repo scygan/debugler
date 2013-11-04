@@ -133,7 +133,8 @@ int main(int argc, char** argv) {
         po::options_description desc("Allowed options");
         desc.add_options()
             ("help,h", "produce help message")
-            ("egl", "use egl mode");
+            ("egl", "use egl mode")
+            ("nowait", "do not wait for debugger to connect");
 
         desc.add_options()
             ("port", po::value< vector<string> >(), "Debugger TCP port number.");
@@ -180,6 +181,10 @@ int main(int argc, char** argv) {
 
         if (vm.count("egl")) {
             dglIPC->setDebuggerMode(DGLIPC::DebuggerMode::EGL);
+        }
+
+        if (vm.count("nowait")) {
+            dglIPC->setWaitForConnection(false);
         }
 
         if (vm.count("port")) {

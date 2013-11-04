@@ -291,6 +291,11 @@ void DglController::doHandleRequestReply(const dglnet::message::RequestReply& ms
     getRequestManager()->handle(msg);
 }
 
+void DglController::doHandleConnect() {
+    //nothing here. Do not advertise connection to GUI, until HelloMessage packet arrives. 
+    //See DglController::doHandleHello.
+}
+
 void DglController::doHandleDisconnect(const std::string& msg) {
     m_DglClientDeadInfo = msg;
     m_Disconnected = true; 
