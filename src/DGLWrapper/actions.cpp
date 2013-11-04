@@ -371,7 +371,7 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
                 if (DGLThreadState::get()->getEGLApi() == EGL_OPENGL_ES_API) {
 
-                    ApiLibrary lib = LIBRARY_ES2;
+                    ApiLibrary lib = LIBRARY_ES1;
 
                     for (size_t i = 0; i <  attributes.size(); i += 2) {
                         if (attributes[i] == EGL_CONTEXT_CLIENT_VERSION || attributes[i] == EGL_CONTEXT_MAJOR_VERSION_KHR) {
