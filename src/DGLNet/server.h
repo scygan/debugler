@@ -34,7 +34,7 @@ private:
 
     void onAccept(const boost::system::error_code &ec);
 
-    std::shared_ptr<Server> Server::shared_from_this();
+    std::shared_ptr<Server> shared_from_this();
 
     std::shared_ptr<ServerDetail> m_detail;
     std::mutex m_mutex;
