@@ -81,6 +81,11 @@ private:
 };
 
 
+int Os::getProcessPid() {
+    return (int)GetProcessId(GetCurrentProcess());
+}
+
+
 std::string Os::getProcessName() {
     std::string ret = "<unknown>";
 
@@ -216,6 +221,10 @@ std::string Os::getEnv(const char* variable) {
         return ret;
     }
     return "";
+}
+
+int Os::getProcessPid() {
+    return getpid();
 }
 
 std::string Os::getProcessName() {

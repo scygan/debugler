@@ -25,7 +25,6 @@
 #include <boost/make_shared.hpp>
 #include <boost/interprocess/sync/named_semaphore.hpp>
 
-
 std::shared_ptr<DGLDebugController> _g_Controller;
 
 DGLDebugController* getController() {
@@ -148,61 +147,46 @@ void CallHistory::setDebugOutput(const std::string& message) {
     m_cb.back().setDebugOutput(message);
 }
 
-DGLDebugController::DGLDebugController():m_BreakState(getIPC()->getWaitForConnection()),m_Disconnected(false) {}
 
-DGLDebugController::~DGLDebugController() {
-    if (m_Server) {
-        m_Server->abort();
-        m_Server.reset();
-    }
-}
+DGLDebugServer::DGLDebugServer(DGLDebugController* parrent):m_parrent(parrent) {}
 
-void DGLDebugController::doHandleConnect() {
-    dglnet::message::Hello hello(Os::getProcessName());
 
-    m_Server->sendMessage(&hello);
-
-    m_presenter->setStatus(Os::getProcessName() + ": debugger connected.");
-}
-
-void DGLDebugController::doHandleDisconnect(const std::string&) {
-    //we have got disconnected from the client. Mark this in controller state and return, so io_service can be freed later
-    m_Disconnected = true;
-}
-
-dglnet::ITransport& DGLDebugController::getServer() {
-    if (!m_Server) {
-        std::string  port;
-        DGLIPC::DebuggerPortType portType = getIPC()->getDebuggerPort(port);
-        switch (portType) {
-            case DGLIPC::DebuggerPortType::TCP:
-                getServerImpl<dglnet::ServerTcp>(port);
-                break;
-
-            case DGLIPC::DebuggerPortType::UNIX:
-#ifndef _WIN32
-                getServerImpl<dglnet::ServerUnixDomain>(port);
-#else
-                throw std::runtime_error("Unix sockets are not supported on Windows.");
-#endif
-                break;
-            default: 
-                assert(0);
-        }
-    }
-    return *m_Server;
-}
-
-std::mutex& DGLDebugController::getServerMtx() {
+std::mutex& DGLDebugServer::getMutex() {
     return m_ServerMutex;
 }
 
+
+std::shared_ptr<dglnet::ITransport> DGLDebugServer::getTransport() {
+    return m_Transport;
+}
+
+
 template<class server_type>
-void DGLDebugController::getServerImpl(const std::string& port) {
+void DGLDebugServer::listen(const std::string& port, bool wait) {
+    std::shared_ptr<server_type> server = std::make_shared<server_type>(port, m_parrent);
+    m_Transport = std::static_pointer_cast<dglnet::ITransport>(server);
 
-    std::shared_ptr<server_type> server = std::make_shared<server_type>(port, this);
-    m_Server = std::static_pointer_cast<dglnet::ITransport>(server);
+    m_parrent->doHandleListen(port);
+    
+    server->accept(wait);
+}
 
+
+void DGLDebugServer::abort() {
+    if (m_Transport) {
+        m_Transport->abort();
+        m_Transport.reset();
+    }
+}
+
+
+DGLDebugController::DGLDebugController():m_BreakState(getIPC()->getWaitForConnection()),m_Disconnected(false), m_Server(this) {}
+
+DGLDebugController::~DGLDebugController() {
+    m_Server.abort();
+}
+
+void DGLDebugController::doHandleListen(const std::string& port) {
     std::string semaphore = Os::getEnv("dgl_semaphore");
 
     if (semaphore.length()) {
@@ -218,19 +202,74 @@ void DGLDebugController::getServerImpl(const std::string& port) {
         msg << Os::getProcessName() << ": wating for debugger on port " << port << ".";
         m_presenter->setStatus(msg.str());
     }
-    server->accept(getIPC()->getWaitForConnection());
 }
 
+void DGLDebugController::doHandleConnect() {
+    dglnet::message::Hello hello(Os::getProcessName());
+
+    getServer().getTransport()->sendMessage(&hello);
+
+    m_presenter->setStatus(Os::getProcessName() + ": debugger connected.");
+}
+
+void DGLDebugController::doHandleDisconnect(const std::string&) {
+    //we have got disconnected from the client. Mark this in controller state and return, so io_service can be freed later
+    m_Disconnected = true;
+}
+
+DGLDebugServer& DGLDebugController::getServer() {
+    if (!m_Server.getTransport()) {
+        std::string  port;
+        DGLIPC::DebuggerPortType portType = getIPC()->getDebuggerPort(port);
+
+        {
+            size_t pos = 0;
+            while ((pos = port.find("%n")) != std::string::npos) {
+                port.replace(pos, 2, Os::getProcessName());
+            }
+        }
+        {
+            size_t pos = 0;
+            while ((pos = port.find("%p"))!= std::string::npos) {
+                std::ostringstream pid;
+                pid << Os::getProcessPid();
+                port.replace(pos, 2, pid.str());
+            }
+        }
+
+        Os::info("port = %s", port.c_str());
+
+        bool wait = getIPC()->getWaitForConnection();
+
+        switch (portType) {
+            case DGLIPC::DebuggerPortType::TCP:
+                m_Server.listen<dglnet::ServerTcp>(port, wait);
+                break;
+
+            case DGLIPC::DebuggerPortType::UNIX:
+
+#ifndef _WIN32
+                m_Server.listen<dglnet::ServerUnixDomain>(port, wait);
+#else
+                throw std::runtime_error("Unix sockets are not supported on Windows.");
+#endif
+                break;
+            default: 
+                assert(0);
+        }
+    }
+    return m_Server;
+}
 
 void DGLDebugController::run_one() {
-    getServer().run_one();
+    getServer().getTransport()->run_one();
     if (m_Disconnected) {
         tearDown();
     }
 }
 
 void DGLDebugController::poll() {
-    getServer().poll();
+    getServer().getTransport()->poll();
     if (m_Disconnected) {
         tearDown();
     }
@@ -262,7 +301,7 @@ void DGLDebugController::doHandleContinueBreak(const dglnet::message::ContinueBr
 void DGLDebugController::doHandleQueryCallTrace(const dglnet::message::QueryCallTrace& msg) {
     dglnet::message::CallTrace reply;
     m_CallHistory.query(msg, reply);
-    m_Server->sendMessage(&reply);
+    getServer().getTransport()->sendMessage(&reply);
 }
 
 void DGLDebugController::doHandleSetBreakPoints(const dglnet::message::SetBreakPoints& msg) {
@@ -288,7 +327,7 @@ void DGLDebugController::doHandleRequest(const dglnet::message::Request& msg) {
     }
 
     reply.m_RequestId = msg.getId();
-    m_Server->sendMessage(&reply);
+    getServer().getTransport()->sendMessage(&reply);
 }
 
 boost::shared_ptr<dglnet::DGLResource> DGLDebugController::doHandleRequest(const dglnet::request::QueryResource& request) {

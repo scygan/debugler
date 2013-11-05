@@ -55,7 +55,7 @@ void ActionBase::PrevPost(const CalledEntryPoint& call, const RetValue& ret) {
 RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
     RetValue ret = PrevPre(call);
 
-    std::lock_guard<std::mutex> server_lock(getController()->getServerMtx());
+    std::lock_guard<std::mutex> server_lock(getController()->getServer().getMutex());
 
     //do a fast non-blocking poll to get "interrupt" message, etc.."
     getController()->poll();
@@ -65,7 +65,7 @@ RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
         //we just hit a break;
         dglState::GLContext* ctx = gc;
         dglnet::message::BreakedCall callStateMessage(call, (value_t)getController()->getCallHistory().size(), ctx?ctx->getId():0, DGLDisplayState::describeAll());
-        getController()->getServer().sendMessage(&callStateMessage);
+        getController()->getServer().getTransport()->sendMessage(&callStateMessage);
     }
     
     while (getController()->getBreakState().isBreaked()) {
@@ -83,7 +83,7 @@ RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
 
 void DefaultAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
-    std::lock_guard<std::mutex> server_lock(getController()->getServerMtx());
+    std::lock_guard<std::mutex> server_lock(getController()->getServer().getMutex());
 
     CallHistory& history = getController()->getCallHistory();
 

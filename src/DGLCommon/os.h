@@ -34,6 +34,8 @@ public:
 
 class Os {
 public:
+    static int getProcessPid(); 
+    
     static std::string getProcessName(); 
 
     static std::string getEnv(const char* variable);

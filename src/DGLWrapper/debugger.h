@@ -171,6 +171,59 @@ private:
 };
 
 
+class DGLDebugController;
+
+/** 
+ *  Server conenction holder
+ *
+ */
+class DGLDebugServer {
+public: 
+
+    /**
+     * Ctor
+     */
+    DGLDebugServer(DGLDebugController*);
+
+    /** 
+     * Getter for mutex guarding server
+     */
+    std::mutex& getMutex();
+
+
+    std::shared_ptr<dglnet::ITransport> getTransport();
+
+    /** 
+     *  Constructs and sets server of given type
+     */ 
+    template<class server_type>
+    void listen(const std::string& port, bool wait);
+
+    /** 
+     * Disconnect listening server
+     */
+    void abort();
+
+private:
+
+    /**
+     * Server object
+     */
+    std::shared_ptr<dglnet::ITransport> m_Transport;
+
+    /**
+     * Mutex locking server object
+     */
+    std::mutex m_ServerMutex;
+
+
+    /** 
+     * Parrent object
+     */
+    DGLDebugController* m_parrent;
+};
+
+
 /**
  * Master, wrapper-side debug controller
  *
@@ -189,6 +242,13 @@ public:
      */
     ~DGLDebugController();
 
+
+    /** 
+     * Handler of begin of listening event. 
+     *
+     * Sets status presenter
+     */
+    virtual void doHandleListen(const std::string& port);
 
     /** 
      * Handler of connection event. 
@@ -213,12 +273,7 @@ public:
     /** 
      * Getter for connected server object
      */
-    dglnet::ITransport& getServer();
-
-    /** 
-     * Getter for mutex guarding server
-     */
-    std::mutex& getServerMtx();
+    DGLDebugServer& getServer();
 
     /** 
      * Run one event on associated server;
@@ -287,19 +342,7 @@ public:
      *  thrown by poll() and run_one
      */
     class TeardownException {};
-
 private:
-
-    /**
-     * Server object
-     */
-    std::shared_ptr<dglnet::ITransport> m_Server;
-
-    /**
-     * Mutex locking server object
-     */
-    std::mutex m_ServerMutex;
-
 
     /** 
      * Call history object
@@ -322,11 +365,10 @@ private:
     void tearDown();
 
 
-    /** 
-     *  Constructs and sets server of given type
-     */ 
-    template<class server_type>
-    void getServerImpl(const std::string& port);
+    /**
+     * Server connection
+     */
+    DGLDebugServer m_Server;
 
 };
 
