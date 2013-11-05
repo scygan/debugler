@@ -51,6 +51,7 @@
 #include <DGLCommon/ipc.h>
 
 #ifdef __ANDROID__
+#include <libgen.h>
 #include <dlfcn.h>
 #endif
 
@@ -190,7 +191,14 @@ int main(int argc, char** argv) {
         if (vm.count("port")) {
             std::string portStr = vm["port"].as< vector<string> >()[0];
             if (portStr.find("unix:") == 0) {
-                dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::UNIX, portStr.substr(strlen("unix:") + 1));
+                std::string portPath = portStr.substr(strlen("unix:") + 1);
+#ifdef __ANDROID__
+                //On Android we do a small WA here: we expect app may not have enough permissions to 
+                //write it's socket, so we do a magic chmod here (as we have probably more access right than app)
+
+                chmod(dirname(portPath.c_str()), 0777);
+#endif
+                dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::UNIX, portPath);
             } else if (portStr.find("tcp:") == 0) {
                 dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::TCP, portStr.substr(strlen("tcp:") + 1));
             } else {

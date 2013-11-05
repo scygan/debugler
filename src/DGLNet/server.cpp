@@ -58,7 +58,9 @@ namespace dglnet {
 
 #ifdef BOOST_ASIO_HAS_LOCAL_SOCKETS
     template<>
-    ServerDetail<boost::asio::local::stream_protocol>::ServerDetail(const std::string& port, boost::asio::io_service& io_service):m_endpoint(port), m_acceptor(io_service, m_endpoint) {}
+    ServerDetail<boost::asio::local::stream_protocol>::ServerDetail(const std::string& port, boost::asio::io_service& io_service):m_endpoint(port), m_acceptor(io_service, m_endpoint) {
+        chmod(port.c_str(), 0777);
+    }
 #endif
 
     template<class proto>
