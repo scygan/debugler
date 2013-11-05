@@ -190,9 +190,9 @@ int main(int argc, char** argv) {
         if (vm.count("port")) {
             std::string portStr = vm["port"].as< vector<string> >()[0];
             if (portStr.find("unix:") == 0) {
-                dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::UNIX, portStr.substr(strlen("unix:")));
+                dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::UNIX, portStr.substr(strlen("unix:") + 1));
             } else if (portStr.find("tcp:") == 0) {
-                dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::TCP, portStr.substr(strlen("tcp:")));
+                dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::TCP, portStr.substr(strlen("tcp:") + 1));
             } else {
                 dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::TCP, portStr);
             }
