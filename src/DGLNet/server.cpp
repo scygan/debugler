@@ -53,17 +53,16 @@ namespace dglnet {
         m_acceptor.open(m_endpoint.protocol());
         m_acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
         m_acceptor.bind(m_endpoint);
+        m_acceptor.listen();
     }
 
 #ifdef BOOST_ASIO_HAS_LOCAL_SOCKETS
     template<>
-    ServerDetail<boost::asio::local::stream_protocol>::ServerDetail(const std::string& port, boost::asio::io_service& io_service):m_endpoint(port), m_acceptor(io_service) {}
+    ServerDetail<boost::asio::local::stream_protocol>::ServerDetail(const std::string& port, boost::asio::io_service& io_service):m_endpoint(port), m_acceptor(io_service, m_endpoint) {}
 #endif
 
     template<class proto>
-    Server<proto>::Server(const std::string& port, MessageHandler* handler):Transport<proto>(handler),m_detail(std::make_shared<ServerDetail<proto> >(port, Transport<proto>::m_detail->m_io_service)) {
-        m_detail->m_acceptor.listen();
-    }
+    Server<proto>::Server(const std::string& port, MessageHandler* handler):Transport<proto>(handler),m_detail(std::make_shared<ServerDetail<proto> >(port, Transport<proto>::m_detail->m_io_service)) {}
 
     template<class proto>
     void Server<proto>::accept(bool wait) {
