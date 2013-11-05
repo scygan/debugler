@@ -142,7 +142,7 @@ void DGLDebugeeQTProcess::run(std::string cmd, std::string path, std::vector<std
             arguments.push_back("--egl");
         }
         arguments.push_back("--port");
-        arguments.push_back(m_PortStr);
+        arguments.push_back("tcp:" + m_PortStr);
 
         arguments.push_back(cmd);
 
