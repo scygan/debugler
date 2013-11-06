@@ -45,6 +45,9 @@ public:
 
     virtual void setDebuggerPort(DebuggerPortType, const std::string&) = 0;
     virtual DebuggerPortType getDebuggerPort(std::string&) = 0;
+
+    virtual void getDLInternceptPointers(int& dlOpenAddr, int& dlSymAddr) = 0;
+    virtual void setDLInternceptPointers(int dlOpenAddr, int dlSymAddr) = 0;
     
     static std::shared_ptr<DGLIPC> Create();
     static std::shared_ptr<DGLIPC> CreateFromUUID(std::string uuid);

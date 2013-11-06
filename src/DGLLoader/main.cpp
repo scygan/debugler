@@ -178,6 +178,14 @@ int main(int argc, char** argv) {
         Os::info("Executable: %s\nWrapper: %s\n\n\n", executable.c_str(), wrapperPath.c_str());
 
         std::shared_ptr<DGLIPC> dglIPC = DGLIPC::Create();
+
+#ifdef __ANDROID__
+        //If we are running in processtree spawned by another  dglloader instance
+        //this variable will be non-zero length.
+        //On Android we have to catch that, to setup proper dl-interception
+        std::string oldUUID = Os::getEnv("dgl_uuid");
+#endif
+
         Os::setEnv("dgl_uuid", dglIPC->getUUID().c_str());
 
         if (vm.count("egl")) {
@@ -195,8 +203,11 @@ int main(int argc, char** argv) {
 #ifdef __ANDROID__
                 //On Android we do a small WA here: we expect app may not have enough permissions to 
                 //write it's socket, so we do a magic chmod here (as we have probably more access right than app)
+                std::string portPathCopy = portPath; //dirname may modify the passed string
+                if (chmod(dirname(portPathCopy.c_str()), 0777) != 0) {
+                    throw std::runtime_error(std::string("Cannot change permission to unix socket directory: ") + Os::translateOsError(Os::getLastosError()));
+                }
 
-                chmod(dirname(portPath.c_str()), 0777);
 #endif
                 dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::UNIX, portPath);
             } else if (portStr.find("tcp:") == 0) {
@@ -217,19 +228,20 @@ int main(int argc, char** argv) {
 
 #ifdef __ANDROID__
             {
-                const char* baseAddr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlclose));
-                if (!Os::getEnv("dlopen_addr").length()) {
+                //On Android this is the last change to get pointers required for dl-interception.
+                //Either copy them form existing dglloader ipc (if in processtree spawned by dglloader), 
+                //or get new values.
 
-                    int addr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlopen)) - baseAddr;
-                    std::ostringstream str; str << addr;
-                    Os::setEnv("dlopen_addr", str.str().c_str());
-
+                int dlOpenAddr, dlSymAddr;
+                if (oldUUID.length()) {
+                    std::shared_ptr<DGLIPC> oldDGLIPC = DGLIPC::CreateFromUUID(oldUUID);
+                    oldDGLIPC->getDLInternceptPointers(dlOpenAddr, dlSymAddr);
+                } else {
+                    const char* baseAddr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlclose));
+                    dlOpenAddr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlopen)) - baseAddr;
+                    dlSymAddr  = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlsym)) - baseAddr;
                 }
-                 if (!Os::getEnv("dlsym_addr").length()) {
-                     int addr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlsym)) - baseAddr;
-                     std::ostringstream str; str << addr;
-                     Os::setEnv("dlsym_addr", str.str().c_str());
-                 }
+                dglIPC->setDLInternceptPointers(dlOpenAddr, dlSymAddr);
             }
 #endif
             process.do_execvp();

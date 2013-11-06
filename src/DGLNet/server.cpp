@@ -17,8 +17,10 @@
 #include "server.h"
 
 #include "transport_detail.h"
-#include <boost/bind.hpp>
 
+#include <DGLCommon/os.h>
+
+#include <boost/bind.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/local/stream_protocol.hpp>
 
@@ -59,7 +61,9 @@ namespace dglnet {
 #ifdef BOOST_ASIO_HAS_LOCAL_SOCKETS
     template<>
     ServerDetail<boost::asio::local::stream_protocol>::ServerDetail(const std::string& port, boost::asio::io_service& io_service):m_endpoint(port), m_acceptor(io_service, m_endpoint) {
-        chmod(port.c_str(), 0777);
+        if (chmod(port.c_str(), 0777) != 0) {
+            throw std::runtime_error(std::string("Cannot change permission to unix socket: ") + Os::translateOsError(Os::getLastosError()));
+        }
     }
 #endif
 

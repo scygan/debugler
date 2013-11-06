@@ -80,11 +80,11 @@ public:
         m_region->m_remoteThreadSemaphore.post();
     }
 
-    virtual void setWaitForConnection(bool wait) {
+    virtual void setWaitForConnection(bool wait) override {
         m_region->m_WaitForConnection = wait;
     }
 
-    virtual bool getWaitForConnection() {
+    virtual bool getWaitForConnection() override {
         return m_region->m_WaitForConnection;
     }
 
@@ -96,16 +96,26 @@ public:
         return m_region->m_debuggerMode;
     }
 
-    virtual void setDebuggerPort(DebuggerPortType type, const std::string& port) {
+    virtual void setDebuggerPort(DebuggerPortType type, const std::string& port) override {
         m_region->m_debuggerPortType = type;
         strncpy(m_region->m_debuggerPortName, port.c_str(), c_debuggerPortNameLen);
         m_region->m_debuggerPortName[c_debuggerPortNameLen - 1] = '\0';
     }
 
-    virtual DebuggerPortType getDebuggerPort(std::string& port) {
+    virtual DebuggerPortType getDebuggerPort(std::string& port) override {
         m_region->m_debuggerPortName[c_debuggerPortNameLen - 1] = '\0';
         port = m_region->m_debuggerPortName;
         return m_region->m_debuggerPortType;
+    }
+
+    void getDLInternceptPointers(int& dlOpenAddr, int& dlSymAddr) override {
+        dlOpenAddr = m_region->m_DLInterceptDlOpenAddr;
+        dlSymAddr = m_region->m_DLInterceptDlSymAddr;
+    }
+
+    void setDLInternceptPointers(int dlOpenAddr, int dlSymAddr) override {
+        m_region->m_DLInterceptDlOpenAddr = dlOpenAddr;
+        m_region->m_DLInterceptDlSymAddr = dlSymAddr;
     }
 
 private:
@@ -113,7 +123,8 @@ private:
     static const int c_debuggerPortNameLen = 1000;
 
     struct MemoryRegion {
-        MemoryRegion():m_debuggerPortType(DebuggerPortType::TCP),m_debuggerMode(DebuggerMode::DEFAULT), m_remoteThreadSemaphore(0), m_WaitForConnection(true) {
+        MemoryRegion():m_debuggerPortType(DebuggerPortType::TCP),m_debuggerMode(DebuggerMode::DEFAULT),
+            m_remoteThreadSemaphore(0), m_WaitForConnection(true), m_DLInterceptDlOpenAddr(0), m_DLInterceptDlSymAddr(0) {
             strncpy(m_debuggerPortName, "5555", c_debuggerPortNameLen);
         }
         char m_debuggerPortName[c_debuggerPortNameLen];
@@ -121,6 +132,8 @@ private:
         DebuggerMode m_debuggerMode;
         boost::interprocess::interprocess_semaphore m_remoteThreadSemaphore;
         bool m_WaitForConnection;
+        int m_DLInterceptDlOpenAddr;
+        int m_DLInterceptDlSymAddr;
     };
 
     std::string m_uuid;

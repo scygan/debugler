@@ -29,6 +29,8 @@
 #ifndef __ANDROID__
 #include<libelf.h>
 #include<gelf.h>
+#else
+#include "ipc.h"
 #endif
 
 #include<DGLCommon/os.h>
@@ -234,11 +236,14 @@ void DLIntercept::initialize() {
 
     char* baseAddr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlclose));
 
+    int dlOpenAddr, dlSymAddr;
+    getIPC()->getDLInternceptPointers(dlOpenAddr, dlSymAddr);
+
     m_real_dlopen = reinterpret_cast<void* (*)(const char *filename, int flag)> (
-        reinterpret_cast<intptr_t>(baseAddr + atoi(Os::getEnv("dlopen_addr").c_str())));
+        reinterpret_cast<intptr_t>(baseAddr + dlOpenAddr));
 
     m_real_dlsym = reinterpret_cast<void* (*)(void*, const char*)> (
-        reinterpret_cast<intptr_t>(baseAddr + atoi(Os::getEnv("dlsym_addr").c_str())));
+        reinterpret_cast<intptr_t>(baseAddr + dlSymAddr));
 
     m_real_dlvsym = NULL;
 

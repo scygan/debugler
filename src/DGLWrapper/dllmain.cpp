@@ -19,6 +19,7 @@
 #include "api-loader.h"
 #include "debugger.h"
 #include "actions.h"
+#include "ipc.h"
 #include "DGLWrapper.h"
 #include <boost/make_shared.hpp>
 #include <boost/interprocess/sync/named_semaphore.hpp>
@@ -31,7 +32,18 @@
 #include <atomic>
 #include <thread>
 #include <condition_variable>
-    
+   
+DGLIPC* getIPC() {
+    static std::shared_ptr<DGLIPC> s_IPC;
+
+    if (!s_IPC.get()) {
+        s_IPC = DGLIPC::CreateFromUUID(Os::getEnv("dgl_uuid"));
+    }
+
+    return s_IPC.get();
+}
+
+
 /**
  * DGLwrapper routine called on library load
  */

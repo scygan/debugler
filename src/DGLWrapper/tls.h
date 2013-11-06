@@ -104,7 +104,7 @@ public:
         /*
          * Current action recursion guard
          */
-        int m_ActionProcessing;
+        bool m_ActionProcessing;
     } privDebugger;
 
 

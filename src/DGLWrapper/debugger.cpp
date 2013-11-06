@@ -18,6 +18,7 @@
 
 #include "native-surface.h"
 #include "tls.h"
+#include "ipc.h"
 
 #include <DGLNet/server.h>
 
@@ -32,16 +33,6 @@ DGLDebugController* getController() {
         _g_Controller = std::make_shared<DGLDebugController>();
     }
     return _g_Controller.get();
-}
-
-DGLIPC* getIPC() {
-    static std::shared_ptr<DGLIPC> s_IPC;
-
-    if (!s_IPC.get()) {
-        s_IPC = DGLIPC::CreateFromUUID(Os::getEnv("dgl_uuid"));
-    }
-
-    return s_IPC.get();
 }
 
 DGLConfiguration g_Config;

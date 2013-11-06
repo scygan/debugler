@@ -176,6 +176,7 @@ std::string Os::translateOsError(int error) {
 #include <cstdlib>
 #include <stdexcept> //remove me
 #include <unistd.h>
+#include <libgen.h>
 
 #ifdef __ANDROID__
     #include <android/log.h>
@@ -234,7 +235,7 @@ std::string Os::getProcessName() {
     const char* file =  "/proc/self/exe";
     linknamelen = readlink(file, cmdline, sizeof(cmdline) / sizeof(*cmdline) - 1);
     cmdline[linknamelen + 1] = 0;
-    return cmdline;
+    return basename(cmdline);
 }
 
 void Os::terminate() {
