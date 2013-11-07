@@ -623,7 +623,7 @@ void DGLMainWindow::disconnect() {
 }
  
 void DGLMainWindow::connectionLost(const QString& title, const QString& msg) {
-    if (m_process) {
+    if (m_process && m_controller.isConnected()) {
         //we still have a process, that should terminate now
 
         //m_process has still handler slots connected here, so user 
