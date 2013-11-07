@@ -98,18 +98,70 @@ void DGLDebugeeQTProcess::run(std::string cmd, std::string path, std::vector<std
 
     try {
 #ifdef _WIN32
-        DWORD binaryType;
-        if (!GetBinaryTypeA(cmd.c_str(), &binaryType)) {
-            throw std::runtime_error("Getting binary file type failed");
+
+        HANDLE file = CreateFile(cmd.c_str(),  GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+        if (!file) {
+            throw std::runtime_error("Open executable file failed");
         }
 
+        HANDLE hMap = CreateFileMapping(file, nullptr, PAGE_READONLY, 0, 0, nullptr);      
+        if (!hMap) {
+            CloseHandle(file);
+            throw std::runtime_error("Create file mapping failed");
+        }
+
+        char* header = MapViewOfFileEx(hMap, FILE_MAP_READ, 0, 0, 0, nullptr);  
+        if (!header) {
+            CloseHandle(hMap);
+            CloseHandle(file);
+            throw std::runtime_error("Create file mapping failed");
+        }
+
+#include <pshpack1.h>
+        const struct IMAGE_HEADER {
+            DWORD signature;
+            IMAGE_FILE_HEADER fileHeader;
+        };
+#include <poppack.h>
+
+        char* currentHeader = header;
+        unsigned int fileSize = GetFileSize(file, nullptr);
+
+        bool correct = (fileSize > (currentHeader - header) + sizeof(IMAGE_DOS_HEADER));
+
+        if (correct) {
+            IMAGE_DOS_HEADER* dosHeader = (IMAGE_DOS_HEADER)currentHeader;
+            correct &= dosHeader->e_magic = IMAGE_DOS_SIGNATURE;
+            currentHeader += dosHeader->e_lfanew;
+            bool correct = (fileSize > (currentHeader - header) + sizeof(IMAGE_HEADER));
+        }
+
+        IMAGE_HEADER* iHeader;
+
+        if (correct) {
+            iHeader = (IMAGE_HEADER)currentHeader;
+            correct &= (iHeader->signature = IMAGE_NT_SIGNATURE);
+        }
+
+        if (!correct) {
+            throw std::runtime_error("Executable is not a NT PE file.");
+        }       
+
+        WORD machine = iHeader->fileHeader.Machine;
+        
+        CloseHandle(hMap);
+        CloseHandle(file);
+
         std::string loaderPath;
-        switch (binaryType) {
-        case SCS_32BIT_BINARY:
+        switch (machine) {
+        case IMAGE_FILE_MACHINE_I386:
             loaderPath = "DGLLoader.exe";
             break;
-        case SCS_64BIT_BINARY:
+        case IMAGE_FILE_MACHINE_AMD64:
             loaderPath = "DGLLoader64.exe";
+            break;
+        case IMAGE_FILE_MACHINE_IA64: 
+            throw std::runtime_error("Unsupported PE binary format (IA64)");
             break;
         default:
             throw std::runtime_error("Unsupported PE binary format");
