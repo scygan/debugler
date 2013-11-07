@@ -190,7 +190,7 @@ void DGLDebugController::doHandleListen(const std::string& port) {
     m_presenter = std::shared_ptr<OsStatusPresenter>(Os::createStatusPresenter());
     {
         std::ostringstream msg;
-        msg << Os::getProcessName() << ": wating for debugger on port " << port << ".";
+        msg << Os::getProcessName() << ": waiting for debugger on port " << port << ".";
         m_presenter->setStatus(msg.str());
     }
 }
