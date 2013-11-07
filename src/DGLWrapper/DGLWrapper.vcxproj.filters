@@ -71,6 +71,9 @@
     <ClInclude Include="gl-statesetters.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ipc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

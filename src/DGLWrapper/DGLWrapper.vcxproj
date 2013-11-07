@@ -80,6 +80,7 @@
     <ClInclude Include="gl-statesetters.h" />
     <ClInclude Include="gl-utils.h" />
     <ClInclude Include="gl-wrappers.h" />
+    <ClInclude Include="ipc.h" />
     <ClInclude Include="native-surface.h" />
     <ClInclude Include="pointers.h" />
     <ClInclude Include="resource.h" />
