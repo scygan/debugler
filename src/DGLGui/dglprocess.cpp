@@ -110,7 +110,7 @@ void DGLDebugeeQTProcess::run(std::string cmd, std::string path, std::vector<std
             throw std::runtime_error("Create file mapping failed");
         }
 
-        char* header = MapViewOfFileEx(hMap, FILE_MAP_READ, 0, 0, 0, nullptr);  
+        char* header = static_cast<char*>(MapViewOfFileEx(hMap, FILE_MAP_READ, 0, 0, 0, nullptr));  
         if (!header) {
             CloseHandle(hMap);
             CloseHandle(file);
@@ -130,17 +130,17 @@ void DGLDebugeeQTProcess::run(std::string cmd, std::string path, std::vector<std
         bool correct = (fileSize > (currentHeader - header) + sizeof(IMAGE_DOS_HEADER));
 
         if (correct) {
-            IMAGE_DOS_HEADER* dosHeader = (IMAGE_DOS_HEADER)currentHeader;
-            correct &= dosHeader->e_magic = IMAGE_DOS_SIGNATURE;
+            IMAGE_DOS_HEADER* dosHeader = reinterpret_cast<IMAGE_DOS_HEADER*>(currentHeader);
+            correct &= (dosHeader->e_magic == IMAGE_DOS_SIGNATURE);
             currentHeader += dosHeader->e_lfanew;
-            bool correct = (fileSize > (currentHeader - header) + sizeof(IMAGE_HEADER));
+            correct = (fileSize > (currentHeader - header) + sizeof(IMAGE_HEADER));
         }
 
-        IMAGE_HEADER* iHeader;
+        IMAGE_HEADER* iHeader = nullptr;
 
         if (correct) {
-            iHeader = (IMAGE_HEADER)currentHeader;
-            correct &= (iHeader->signature = IMAGE_NT_SIGNATURE);
+            iHeader = reinterpret_cast<IMAGE_HEADER*>(currentHeader);
+            correct &= (iHeader->signature == IMAGE_NT_SIGNATURE);
         }
 
         if (!correct) {
