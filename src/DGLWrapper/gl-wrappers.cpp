@@ -22,6 +22,10 @@
 #include "tls.h"
 #include "debugger.h"
 
+#ifdef WA_ANDROID_SO_CONSTRUCTORS
+#include "wa-soctors.h"
+#endif
+
 
 class DGLWrapperCookie {
 public:
@@ -334,6 +338,9 @@ private:
             Os::fatal(e.what());
         }
     }
+#ifdef WA_ANDROID_SO_CONSTRUCTORS
+    DGLWASoCtors m_SoCtorsWa;
+#endif
 
     CalledEntryPoint m_Call;
    

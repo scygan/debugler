@@ -8,11 +8,16 @@ set(dglwrapper_SOURCES
 #dllmain.cpp should be at the end, until all static ctors are fixed:
     dllmain.cpp
     )
+	
+if (ANDROID)
+	set(wa-soctors_SOURCES wa-soctors.cpp)
+endif()
 
 add_definitions(-include ${CMAKE_CURRENT_SOURCE_DIR}/DGLWrapper.h)
 
 add_library(dglwrapper SHARED
     ${dglwrapper_SOURCES}
+	${wa-soctors_SOURCES}
 )
 
 if (ANDROID)

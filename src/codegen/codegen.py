@@ -211,8 +211,6 @@ for name, entrypoint in sorted(entrypoints.items()):
 
     print >> wrappersFile, entrypoint.getLibraryIfdef()
     print >> wrappersFile, "extern \"C\" " + entrypoint.retType + " APIENTRY " + name + "_Wrapper(" + listToString(entrypoint.paramDeclList) + ") {"
-    print >> wrappersFile, "    assert(POINTER(" + name + "));"
-    
     
     #WA for <internalFormat> in glTexImage, glTextureImage
     # - treats internalFormat as GLenum instead of GLint, so it can be nicely displayed.
@@ -249,6 +247,7 @@ for name, entrypoint in sorted(entrypoints.items()):
         print >> wrappersFile, cookie + " );"
     
         print >> wrappersFile, "    if (!cookie.retVal.isSet()) {"
+        print >> wrappersFile, "    	assert(POINTER(" + name + "));"
         if entrypoint.retType.lower() != "void":
             print >> wrappersFile, "        cookie.retVal = DIRECT_CALL(" + name + ")(" + listToString(entrypoint.paramList) + ");"
         else:

@@ -43,4 +43,12 @@
 #define WA_ES_QUERY_STATE
 
 
+//On Android < 4.2-r1 global intializers & constructors of LD_PRELOAD-ed libraries are not called
+//It is now fixed:  https://github.com/android/platform_bionic/commit/326e85eca6916eb904649f7bff65244a40088ba7
+//.. but we have a WA for older versions (manually call DT_INIT and DT_INIT_ARRAY).
+#ifdef __ANDROID__
+#define WA_ANDROID_SO_CONSTRUCTORS
+#endif
+
+
 #endif //WA_H
