@@ -32,7 +32,7 @@
      <item row="2" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Process name:</string>
+        <string>Process:</string>
        </property>
       </widget>
      </item>
@@ -197,9 +197,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>comboBox</sender>
+   <signal>currentIndexChanged(QString)</signal>
+   <receiver>DGLConnectAndroidDialogClass</receiver>
+   <slot>selectDevice(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>138</x>
+     <y>29</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>8</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>adbKillServer()</slot>
   <slot>adbConnect()</slot>
+  <slot>selectDevice(QString)</slot>
  </slots>
 </ui>

@@ -22,6 +22,7 @@
 #include "ui_dglconnectandroid.h"
 
 #include "ui_dglconnectandroidadb.h"
+#include "dgladbinterface.h"
 
 
 class DGLConnectAndroidAdbDialog : public QDialog
@@ -49,9 +50,12 @@ public:
 public slots:
     void adbKillServer();
     void adbConnect();
+    void selectDevice(const QString& serial);
 
+    void deviceFailed(DGLADBDevice* device, std::string reason);
     void adbFailed(std::string reason);
     void gotDevices(std::vector<std::string> devices);
+    void gotProcesses(std::vector<DGLAdbProcess> devices);
 
 private slots:
 
@@ -65,6 +69,8 @@ private:
     QTimer m_ReloadTimer;
 
     DGLConnectAndroidAdbDialog m_ConnectDialog;
+
+    std::shared_ptr<DGLADBDevice> m_CurrentDevice;
 
     Ui::DGLConnectAndroidDialogClass m_ui;
 };

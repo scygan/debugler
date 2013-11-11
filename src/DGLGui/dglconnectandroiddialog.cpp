@@ -53,6 +53,22 @@ void DGLConnectAndroidDialog::adbConnect() {
     }
 }
 
+void DGLConnectAndroidDialog::selectDevice(const QString& serial) {
+    if (m_CurrentDevice.get() && m_CurrentDevice->getSerial() != serial.toStdString()) {
+        m_CurrentDevice->disconnect();
+        m_CurrentDevice.reset();
+    }
+    if (serial.size()) {
+        m_CurrentDevice = std::make_shared<DGLADBDevice>(serial.toStdString());
+        CONNASSERT(m_CurrentDevice.get(), SIGNAL(gotProcesses(std::vector<DGLAdbProcess>)), 
+            this, SLOT(gotProcesses(std::vector<DGLAdbProcess>)));
+        CONNASSERT(m_CurrentDevice.get(), SIGNAL(failed(DGLADBDevice*, std::string)),
+            this, SLOT(deviceFailed(DGLADBDevice*, std::string)));
+    }
+    m_ui.comboBox_2->clear();
+  
+}
+
 void DGLConnectAndroidDialog::reloadDevices() {
      
      m_ReloadTimer.start();
@@ -77,11 +93,38 @@ void DGLConnectAndroidDialog::gotDevices(std::vector<std::string> devices) {
         }
         j++;
     }
+    while (m_ui.comboBox->count() > j) {
+        m_ui.comboBox->removeItem(j);
+    }
+    if (m_CurrentDevice.get()) {
+        m_CurrentDevice->reloadProcesses();
+    }
+}
+
+void DGLConnectAndroidDialog::gotProcesses(std::vector<DGLAdbProcess> processes) {
+     std::sort(processes.begin(), processes.end());
+     int j = 0;
+     for (size_t i = 0; i < processes.size(); i++) {
+         while (j < m_ui.comboBox_2->count() && processes[i].getPid() < m_ui.comboBox_2->itemText(j).toStdString()) {
+             m_ui.comboBox_2->removeItem(j);
+         }
+         if (m_ui.comboBox_2->itemText(j).toStdString() != processes[i].getPid()) {
+             m_ui.comboBox_2->insertItem(j, QIcon(), QString::fromStdString(processes[i].getPid()));
+         }
+         j++;
+     }
+     while (m_ui.comboBox_2->count() > j) {
+         m_ui.comboBox_2->removeItem(j);
+     }
 }
 
 void DGLConnectAndroidDialog::showEvent(QShowEvent * event) {
     reloadDevices();
     QDialog::showEvent(event);
+}
+
+void DGLConnectAndroidDialog::deviceFailed(DGLADBDevice* device, std::string reason) {
+    QMessageBox::critical(this, tr("Device Error"), QString::fromStdString(device->getSerial()) + ": " + QString::fromStdString(reason));
 }
 
 void DGLConnectAndroidDialog::adbFailed(std::string reason) {

@@ -53,6 +53,7 @@
 #ifdef __ANDROID__
 #include <libgen.h>
 #include <dlfcn.h>
+#define DEBUGLER_SOCKET_PROP "debug.debugler.socket"
 #endif
 
 #pragma warning(disable:4503)
@@ -206,6 +207,15 @@ int main(int argc, char** argv) {
                 std::string portPathCopy = portPath; //dirname may modify the passed string
                 if (chmod(dirname(portPathCopy.c_str()), 0777) != 0) {
                     throw std::runtime_error(std::string("Cannot change permission to unix socket directory: ") + Os::translateOsError(Os::getLastosError()));
+                }
+
+                //On Android we want to leave a trace of unix socket path, so GUI knows where to look for sockets.
+                int ret = 0;
+                void* libCUtils = dlopen("libcutils.so", RTLD_NOW);
+                int (*property_set)(const char *key, const char *value) = 
+                    reinterpret_cast<int (*)(const char*, const char*)>((ptrdiff_t)dlsym(libCUtils, "property_set"));
+                if (!property_set || (ret = property_set(DEBUGLER_SOCKET_PROP, portPath.c_str())) < 0) {
+                    Os::info("Cannot set %s system property: %d.", DEBUGLER_SOCKET_PROP, ret);
                 }
 
 #endif

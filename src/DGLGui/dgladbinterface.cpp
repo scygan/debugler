@@ -18,7 +18,6 @@
 #include <QMessageBox>
 #include <stdexcept>
 
-
 class DGLAdbOutputFilter {
 public:
     virtual bool filter(const std::vector<std::string>& input, std::vector<std::string>& output) = 0;
@@ -50,6 +49,36 @@ class DGLEmptyOutputFilter: public DGLAdbOutputFilter {
     }
 };
 
+class DGLGetPropOutputFilter: public DGLAdbOutputFilter {
+    virtual bool filter(const std::vector<std::string>& input, std::vector<std::string>& output) override {
+        if (input.size() > 2 || input.size() < 1 || input[0].find("not found") != std::string::npos) {
+            return false;
+        }
+        output.push_back(input[0]);
+        return true;
+    }
+};
+
+class DGLUnixSocketsFilter: public DGLAdbOutputFilter {
+    virtual bool filter(const std::vector<std::string>& input, std::vector<std::string>& output) override {
+        if (!input.size())
+            return false;
+        size_t pathOffset = input[0].find("Path");
+        
+        if (pathOffset == std::string::npos) {
+            return false;
+        }
+
+        for (size_t i = 1; i < input.size(); i++) {
+            if (input[i].size() > pathOffset) {
+                output.push_back(input[i].substr(pathOffset));
+            }
+        }
+        output.push_back(input[0]);
+        return true;
+    }
+};
+
 class DGLDeviceOutputFilter: public DGLAdbOutputFilter {
     virtual bool filter(const std::vector<std::string>& input, std::vector<std::string>& output) override {
         if (!input.size() || input[0] != "List of devices attached ") {
@@ -72,7 +101,7 @@ class DGLDeviceOutputFilter: public DGLAdbOutputFilter {
 };
 
 
-DGLAdbCookie::DGLAdbCookie(const std::string& adbPath, const std::vector<std::string> params, 
+DGLAdbCookie::DGLAdbCookie(const std::string& adbPath, const std::vector<std::string>& params, 
                            std::shared_ptr<DGLAdbOutputFilter> filter):m_adbPath(adbPath), m_params(params), m_OutputFilter(filter) {
     CONNASSERT(&m_process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(handleProcessFinished(int, QProcess::ExitStatus)));
     CONNASSERT(&m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(handleProcessError(QProcess::ProcessError)));
@@ -131,6 +160,116 @@ void DGLAdbCookie::handleProcessFinished(int code, QProcess::ExitStatus status) 
     }
 }
 
+DGLAdbProcess::DGLAdbProcess(const std::string& pid, const std::string& name, const std::string& portName):m_Pid(pid), m_Name(name), m_PortName(portName) {}
+
+bool DGLAdbProcess::operator<(const DGLAdbProcess& other) {
+    if (m_Name < other.getName()) {
+        return true;
+    } else if (m_Name == other.getName()) {
+        return m_Pid < other.getPid();
+    }
+    return false;
+}
+
+const std::string& DGLAdbProcess::getPid() const {
+    return m_Pid;
+}
+
+const std::string& DGLAdbProcess::getName() const {
+    return m_Name;
+}
+
+const std::string& DGLAdbProcess::getPortName() const {
+    return m_PortName;
+}
+
+DGLADBDevice::DGLADBDevice(const std::string& serial):m_Serial(serial) {}
+
+void DGLADBDevice::reloadProcesses() {
+    std::vector<std::string> params;
+    params.push_back("shell");
+    params.push_back("getprop");
+    params.push_back("debug.debugler.socket");
+    DGLAdbCookie* cookie = DGLAdbInterface::get()->invokeOnDevice(m_Serial, params, std::make_shared<DGLGetPropOutputFilter>());
+    CONNASSERT(cookie, SIGNAL(failed(std::string)), this, SLOT(adbFailed(std::string)));
+    CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this, SLOT(reloadProcessesGotPortString(std::vector<std::string>)));
+    cookie->process();
+}
+
+const std::string& DGLADBDevice::getSerial() const {
+    return m_Serial;
+}
+
+void DGLADBDevice::reloadProcessesGotPortString(const std::vector<std::string>& prop) {
+    QString pathRegexStr = "^";
+    size_t lastOffset = 0;
+    int currentRegexGroup = 0;
+
+    m_PidInSocketRegex = -1;
+    m_PNameInSocketRegex = -1;
+
+    for (size_t i = 0; i < prop[0].length(); i++) {
+        if (prop[0][i] == '%' &&  i < (prop[0].length() + 1)) {
+            std::string current = prop[0].substr(lastOffset, i);
+            pathRegexStr += QRegExp::escape(QString::fromStdString(current));
+
+            switch (prop[0][i + 1]) {
+            case 'p':
+                m_PidInSocketRegex = currentRegexGroup;
+                break;
+            case 'n':
+                m_PNameInSocketRegex = currentRegexGroup;
+                break;
+            default:
+                assert(0);
+            }
+
+            i+=2;
+            pathRegexStr += "(.*)";
+
+            currentRegexGroup++;
+            lastOffset = i;
+        }
+    }
+
+    if (lastOffset < prop[0].length()) {
+        std::string last = prop[0].substr(lastOffset);
+        pathRegexStr += QRegExp::escape(QString::fromStdString(last));
+    }
+
+    m_SocketPathRegex = QRegExp(pathRegexStr + "$");
+
+
+    std::vector<std::string> params;
+    params.push_back("shell");
+    params.push_back("cat");
+    params.push_back("/proc/net/unix");
+    DGLAdbCookie* cookie = DGLAdbInterface::get()->invokeOnDevice(m_Serial, params, std::make_shared<DGLUnixSocketsFilter>());
+    CONNASSERT(cookie, SIGNAL(failed(std::string)), this, SLOT(adbFailed(std::string)));
+    CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this, SLOT(reloadProcessesGotUnixSockets(std::vector<std::string>)));
+    cookie->process();
+}
+
+void DGLADBDevice::reloadProcessesGotUnixSockets(const std::vector<std::string>& sockets) {
+    std::vector<DGLAdbProcess> processes; 
+
+    for (size_t i = 0; i < sockets.size(); i++) {
+        if (m_SocketPathRegex.indexIn(QString::fromStdString(sockets[i])) != -1) {
+            std::string pid = m_SocketPathRegex.cap(m_PidInSocketRegex + 1).toStdString();
+            std::string processName;
+            if (m_PNameInSocketRegex >= 0) {
+                processName = m_SocketPathRegex.cap(m_PNameInSocketRegex + 1).toStdString();
+            }
+            processes.push_back(DGLAdbProcess(pid, processName, sockets[i]));
+        }
+    }
+    emit gotProcesses(processes);
+}
+
+void DGLADBDevice::adbFailed(std::string reason) {
+    emit failed(this, reason);
+}
+
 DGLAdbInterface* DGLAdbInterface::get() {
     if (!s_self) {
         s_self = std::make_shared<DGLAdbInterface>();
@@ -138,11 +277,11 @@ DGLAdbInterface* DGLAdbInterface::get() {
     return s_self.get();
 }
 
-void DGLAdbInterface::setAdbPath(std::string path) {
+void DGLAdbInterface::setAdbPath(const std::string& path) {
     m_adbPath = path;
 }
 
-std::string DGLAdbInterface::getAdbPath() {
+const std::string& DGLAdbInterface::getAdbPath() const {
     return m_adbPath;
 }
 
@@ -152,7 +291,7 @@ DGLAdbCookie* DGLAdbInterface::killServer() {
     return invokeAdb(params, std::make_shared<DGLEmptyOutputFilter>());
 }
 
-DGLAdbCookie* DGLAdbInterface::connect(std::string address) {
+DGLAdbCookie* DGLAdbInterface::connect(const std::string& address) {
     std::vector<std::string> params;
     params.push_back("connect");
     params.push_back(address);
@@ -164,7 +303,18 @@ DGLAdbCookie* DGLAdbInterface::getDevices() {
     return invokeAdb(params, std::make_shared<DGLDeviceOutputFilter>());
 }
 
-DGLAdbCookie* DGLAdbInterface::invokeAdb(std::vector<std::string> params, std::shared_ptr<DGLAdbOutputFilter> filter) {
+DGLAdbCookie* DGLAdbInterface::invokeOnDevice(const std::string& serial, const std::vector<std::string>& params, std::shared_ptr<DGLAdbOutputFilter> filter) {
+    std::vector<std::string> deviceParams(2 + params.size());
+    deviceParams[0] = "-s";
+    deviceParams[1] = serial;
+    std::copy(params.begin(), params.end(), deviceParams.begin() + 2);
+
+    DGLAdbCookie* ret = new DGLAdbCookie(m_adbPath, deviceParams, filter);;
+    return ret;
+}
+
+
+DGLAdbCookie* DGLAdbInterface::invokeAdb(const std::vector<std::string>& params, std::shared_ptr<DGLAdbOutputFilter> filter) {
     DGLAdbCookie* ret = new DGLAdbCookie(m_adbPath, params, filter);;
     return ret;
 }
