@@ -37,7 +37,7 @@ DGLBreakPointDialog::DGLBreakPointDialog(DglController* controller)
     }
 
     std::set<Entrypoint> currentBreakPoints =
-        m_Controller->getBreakPoints()->getCurrent();
+            m_Controller->getBreakPoints()->getCurrent();
     for (std::set<Entrypoint>::iterator i = currentBreakPoints.begin();
          i != currentBreakPoints.end(); i++) {
         new DGLBreakPointDialogItem(*i, m_Ui.rightListWidget);
@@ -50,8 +50,8 @@ std::set<Entrypoint> DGLBreakPointDialog::getBreakPoints() {
     std::set<Entrypoint> ret;
     for (int i = 0; i < m_Ui.rightListWidget->count(); i++) {
         DGLBreakPointDialogItem* widget =
-            dynamic_cast<DGLBreakPointDialogItem*>(
-                m_Ui.rightListWidget->item(i));
+                dynamic_cast<DGLBreakPointDialogItem*>(
+                        m_Ui.rightListWidget->item(i));
         assert(widget);
         ret.insert(widget->get());
     }
@@ -63,13 +63,13 @@ void DGLBreakPointDialog::addBreakPoint() {
 
     for (int i = 0; i < list.count(); i++) {
         DGLBreakPointDialogItem* widget1 =
-            dynamic_cast<DGLBreakPointDialogItem*>(list.at(i));
+                dynamic_cast<DGLBreakPointDialogItem*>(list.at(i));
         assert(widget1);
         bool found = false;
         for (int j = 0; j < m_Ui.rightListWidget->count(); j++) {
             DGLBreakPointDialogItem* widget2 =
-                dynamic_cast<DGLBreakPointDialogItem*>(
-                    m_Ui.rightListWidget->item(j));
+                    dynamic_cast<DGLBreakPointDialogItem*>(
+                            m_Ui.rightListWidget->item(j));
             assert(widget2);
             if (widget1->get() == widget2->get()) {
                 found = true;
@@ -104,12 +104,12 @@ void DGLBreakPointDialog::searchBreakPoint(const QString& prefix) {
                 if (first) {
                     first = false;
                     m_Ui.leftListWidget->scrollToItem(
-                        item, QAbstractItemView::PositionAtTop);
+                            item, QAbstractItemView::PositionAtTop);
                 }
             }
         }
         m_Ui.leftListWidget->selectionModel()->select(
-            selection, QItemSelectionModel::ClearAndSelect);
+                selection, QItemSelectionModel::ClearAndSelect);
     } else {
         m_Ui.leftListWidget->selectionModel()->clearSelection();
     }

@@ -19,7 +19,7 @@
 
 std::map<std::string, std::shared_ptr<Sample>>* Sample::getRegistry() {
     static std::map<std::string, std::shared_ptr<Sample>>* s_Registry =
-        new std::map<std::string, std::shared_ptr<Sample>>();
+            new std::map<std::string, std::shared_ptr<Sample>>();
     return s_Registry;
 }
 

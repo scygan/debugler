@@ -52,9 +52,9 @@ void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId,
     if (currentCtx && currentCtx->getId() == ctxId) {
         newCtx = currentCtx;
     } else if (ctxId) {
-        newCtx =
-            &(*(dpy->getContext(dglState::GLContextVersion::Type::UNSUPPORTED,
-                                ctxId)->second));
+        newCtx = &(*(dpy->getContext(
+                                  dglState::GLContextVersion::Type::UNSUPPORTED,
+                                  ctxId)->second));
     }
 
     if (currentCtx != newCtx) {

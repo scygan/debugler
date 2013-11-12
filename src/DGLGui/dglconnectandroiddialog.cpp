@@ -45,7 +45,7 @@ void DGLConnectAndroidDialog::adbConnect() {
 
     if (m_ConnectDialog.exec() == QDialog::Accepted) {
         DGLAdbCookie* cookie =
-            DGLAdbInterface::get()->connect(m_ConnectDialog.getAddress());
+                DGLAdbInterface::get()->connect(m_ConnectDialog.getAddress());
         CONNASSERT(cookie, SIGNAL(failed(std::string)), this,
                    SLOT(adbFailed(std::string)));
         CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this,
@@ -71,7 +71,8 @@ void DGLConnectAndroidDialog::selectDevice(const QString& serial) {
                    SIGNAL(failed(DGLADBDevice*, std::string)), this,
                    SLOT(deviceFailed(DGLADBDevice*, std::string)));
 
-        m_ui.label_deviceStatus->setText("not prepared. Go to Tools-> Prepare Android device.");
+        m_ui.label_deviceStatus->setText(
+                "not prepared. Go to Tools-> Prepare Android device.");
     }
     m_ui.comboBox_2->clear();
 }
@@ -84,7 +85,7 @@ void DGLConnectAndroidDialog::reloadDevices() {
     CONNASSERT(cookie, SIGNAL(failed(std::string)), this,
                SLOT(adbFailed(std::string)));
     CONNASSERT(cookie, SIGNAL(failed(std::string)), &m_ReloadTimer,
-        SLOT(stop()));
+               SLOT(stop()));
     CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this,
                SLOT(gotDevices(std::vector<std::string>)));
     cookie->process();
@@ -115,8 +116,7 @@ void DGLConnectAndroidDialog::gotDevices(std::vector<std::string> devices) {
 }
 
 void DGLConnectAndroidDialog::gotProcesses(
-    std::vector<DGLAdbProcess> processes) {
-
+        std::vector<DGLAdbProcess> processes) {
 
     m_ui.label_deviceStatus->setText("ok.");
 
@@ -125,13 +125,13 @@ void DGLConnectAndroidDialog::gotProcesses(
     for (size_t i = 0; i < processes.size(); i++) {
         while (j < m_ui.comboBox_2->count() &&
                processes[i].getPid() <
-                   m_ui.comboBox_2->itemText(j).toStdString()) {
+                       m_ui.comboBox_2->itemText(j).toStdString()) {
             m_ui.comboBox_2->removeItem(j);
         }
         if (m_ui.comboBox_2->itemText(j).toStdString() !=
             processes[i].getPid()) {
             m_ui.comboBox_2->insertItem(
-                j, QIcon(), QString::fromStdString(processes[i].getPid()));
+                    j, QIcon(), QString::fromStdString(processes[i].getPid()));
         }
         j++;
     }
@@ -151,7 +151,7 @@ void DGLConnectAndroidDialog::deviceFailed(DGLADBDevice* device,
 
     QMessageBox::critical(this, tr("Device Error"),
                           QString::fromStdString(device->getSerial()) + ": " +
-                              QString::fromStdString(reason));
+                                  QString::fromStdString(reason));
 }
 
 void DGLConnectAndroidDialog::adbFailed(std::string reason) {

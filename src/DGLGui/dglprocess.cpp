@@ -44,7 +44,7 @@ void DGLBaseQTProcess::run(std::string exec, std::string path,
         if (!realpath(path.c_str(), absolutePath)) {
 #endif
             throw std::runtime_error(
-                Os::translateOsError(Os::getLastosError()));
+                    Os::translateOsError(Os::getLastosError()));
         }
         m_process.setWorkingDirectory(absolutePath);
     }
@@ -106,21 +106,21 @@ void DGLDebugeeQTProcess::run(std::string cmd, std::string path,
 #ifdef _WIN32
 
         HANDLE file =
-            CreateFile(cmd.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr,
-                       OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+                CreateFile(cmd.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr,
+                           OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
         if (!file) {
             throw std::runtime_error("Open executable file failed");
         }
 
         HANDLE hMap =
-            CreateFileMapping(file, nullptr, PAGE_READONLY, 0, 0, nullptr);
+                CreateFileMapping(file, nullptr, PAGE_READONLY, 0, 0, nullptr);
         if (!hMap) {
             CloseHandle(file);
             throw std::runtime_error("Create file mapping failed");
         }
 
         char* header = static_cast<char*>(
-            MapViewOfFileEx(hMap, FILE_MAP_READ, 0, 0, 0, nullptr));
+                MapViewOfFileEx(hMap, FILE_MAP_READ, 0, 0, 0, nullptr));
         if (!header) {
             CloseHandle(hMap);
             CloseHandle(file);
@@ -137,16 +137,16 @@ void DGLDebugeeQTProcess::run(std::string cmd, std::string path,
         char* currentHeader = header;
         unsigned int fileSize = GetFileSize(file, nullptr);
 
-        bool correct =
-            (fileSize > (currentHeader - header) + sizeof(IMAGE_DOS_HEADER));
+        bool correct = (fileSize >
+                        (currentHeader - header) + sizeof(IMAGE_DOS_HEADER));
 
         if (correct) {
             IMAGE_DOS_HEADER* dosHeader =
-                reinterpret_cast<IMAGE_DOS_HEADER*>(currentHeader);
+                    reinterpret_cast<IMAGE_DOS_HEADER*>(currentHeader);
             correct &= (dosHeader->e_magic == IMAGE_DOS_SIGNATURE);
             currentHeader += dosHeader->e_lfanew;
-            correct =
-                (fileSize > (currentHeader - header) + sizeof(IMAGE_HEADER));
+            correct = (fileSize >
+                       (currentHeader - header) + sizeof(IMAGE_HEADER));
         }
 
         IMAGE_HEADER* iHeader = nullptr;
@@ -196,11 +196,11 @@ void DGLDebugeeQTProcess::run(std::string cmd, std::string path,
         std::string shmemName = "shmem_" + m_PortStr;
         Os::setEnv("dgl_loader_shmem", shmemName.c_str());
         m_ShObj = boost::interprocess::shared_memory_object(
-            boost::interprocess::open_or_create, shmemName.c_str(),
-            boost::interprocess::read_write);
+                boost::interprocess::open_or_create, shmemName.c_str(),
+                boost::interprocess::read_write);
         m_ShObj.truncate(sizeof(IPCMessage));
         m_MappedRegion = boost::interprocess::mapped_region(
-            m_ShObj, boost::interprocess::read_write);
+                m_ShObj, boost::interprocess::read_write);
 
         // run loader process
 

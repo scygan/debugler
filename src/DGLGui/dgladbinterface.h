@@ -102,12 +102,12 @@ class DGLAdbInterface {
     DGLAdbCookie* invokeOnDevice(const std::string& serial,
                                  const std::vector<std::string>& params,
                                  std::shared_ptr<DGLAdbOutputFilter> filter =
-                                     std::shared_ptr<DGLAdbOutputFilter>());
+                                         std::shared_ptr<DGLAdbOutputFilter>());
 
    private:
     DGLAdbCookie* invokeAdb(const std::vector<std::string>& params,
                             std::shared_ptr<DGLAdbOutputFilter> filter =
-                                std::shared_ptr<DGLAdbOutputFilter>());
+                                    std::shared_ptr<DGLAdbOutputFilter>());
 
     std::string m_adbPath;
 

@@ -40,8 +40,8 @@ DefaultPBO::~DefaultPBO() {
 CurrentFramebuffer::CurrentFramebuffer(GLContext* ctx, GLuint name)
         : m_Ctx(ctx) {
     if (m_Ctx->hasCapability(GLContext::ContextCap::FramebufferObjects)) {
-        if (m_Ctx->hasCapability(
-                GLContext::ContextCap::SeparateReadDrawFramebufferObjects)) {
+        if (m_Ctx->hasCapability(GLContext::ContextCap::
+                                         SeparateReadDrawFramebufferObjects)) {
             // full FBO support
             DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_FRAMEBUFFER_BINDING,
                                            &m_ReadFBO);
@@ -57,8 +57,8 @@ CurrentFramebuffer::CurrentFramebuffer(GLContext* ctx, GLuint name)
 }
 CurrentFramebuffer::~CurrentFramebuffer() {
     if (m_Ctx->hasCapability(GLContext::ContextCap::FramebufferObjects)) {
-        if (m_Ctx->hasCapability(
-                GLContext::ContextCap::SeparateReadDrawFramebufferObjects)) {
+        if (m_Ctx->hasCapability(GLContext::ContextCap::
+                                         SeparateReadDrawFramebufferObjects)) {
             // full FBO support
             DIRECT_CALL_CHK(glBindFramebuffer)(GL_READ_FRAMEBUFFER, m_ReadFBO);
             DIRECT_CALL_CHK(glBindFramebuffer)(GL_DRAW_FRAMEBUFFER, m_DrawFBO);
@@ -94,8 +94,8 @@ DrawBuffers::DrawBuffers(GLContext* ctx) : m_Ctx(ctx) {
 DrawBuffers::~DrawBuffers() {
     if (m_Ctx->hasCapability(GLContext::ContextCap::DrawBuffersMRT)) {
         DIRECT_CALL_CHK(glDrawBuffers)(
-            static_cast<GLsizei>(m_DrawBuffers.size()),
-            reinterpret_cast<GLenum*>(&m_DrawBuffers[0]));
+                static_cast<GLsizei>(m_DrawBuffers.size()),
+                reinterpret_cast<GLenum*>(&m_DrawBuffers[0]));
     }
 }
 
@@ -136,13 +136,13 @@ int PixelStoreAlignment::getAligned(int x) {
 }
 
 PixelStoreAlignment::StateEntry PixelStoreAlignment::s_StateTable[STATE_SIZE] =
-    {{GL_PACK_SWAP_BYTES, GL_FALSE, false, 0},
-     {GL_PACK_LSB_FIRST, GL_FALSE, false, 0},
-     {GL_PACK_ROW_LENGTH, 0, true, 0},
-     {GL_PACK_IMAGE_HEIGHT, 0, false, 0},
-     {GL_PACK_SKIP_ROWS, 0, true, 0},
-     {GL_PACK_SKIP_PIXELS, 0, true, 0},
-     {GL_PACK_SKIP_IMAGES, 0, false, 0},
-     {GL_PACK_ALIGNMENT, 4, true, 0}, };
+        {{GL_PACK_SWAP_BYTES, GL_FALSE, false, 0},
+         {GL_PACK_LSB_FIRST, GL_FALSE, false, 0},
+         {GL_PACK_ROW_LENGTH, 0, true, 0},
+         {GL_PACK_IMAGE_HEIGHT, 0, false, 0},
+         {GL_PACK_SKIP_ROWS, 0, true, 0},
+         {GL_PACK_SKIP_PIXELS, 0, true, 0},
+         {GL_PACK_SKIP_IMAGES, 0, false, 0},
+         {GL_PACK_ALIGNMENT, 4, true, 0}, };
 }
 }

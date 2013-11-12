@@ -28,7 +28,7 @@ namespace lists {
     FUNC_LIST_ELEM_SUPPORTED(name, type, library)
 const char* g_EntrypointNames[] = {
 #include "codegen/functionList.inl"
-    "<unknown>"};
+        "<unknown>"};
 #undef FUNC_LIST_ELEM_SUPPORTED
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED
 
@@ -40,7 +40,7 @@ struct GLEnum {
     gl_t value;
 } g_GLEnums[] = {
 #include "codegen/enum.inl"
-      {NULL, 0}};
+          {NULL, 0}};
 #undef ENUM_LIST_ELEMENT
 
 struct MapCache {
@@ -84,7 +84,7 @@ const char* GetEntryPointName(Entrypoint entryp) {
 
 Entrypoint GetEntryPointEnum(const char* name) {
     std::map<std::string, Entrypoint>::iterator ret =
-        lists::MapCache::get()->entryPointNameToEnum.find(name);
+            lists::MapCache::get()->entryPointNameToEnum.find(name);
     if (ret == lists::MapCache::get()->entryPointNameToEnum.end())
         return NO_ENTRYPOINT;
     return ret->second;
@@ -92,7 +92,7 @@ Entrypoint GetEntryPointEnum(const char* name) {
 
 std::string GetGLEnumName(gl_t glEnum) {
     std::map<gl_t, std::string>::iterator ret =
-        lists::MapCache::get()->EnumGLToName.find(glEnum);
+            lists::MapCache::get()->EnumGLToName.find(glEnum);
     if (ret == lists::MapCache::get()->EnumGLToName.end()) {
         std::ostringstream tmp;
         tmp << "0x" << std::hex << glEnum;
@@ -151,8 +151,9 @@ std::string GetTextureTargetName(gl_t glEnum) {
 
 namespace call_sets {
 Entrypoint frameDelims[] = {
-    wglSwapBuffers_Call, wglSwapLayerBuffers_Call, wglSwapMultipleBuffers_Call,
-    eglSwapBuffers_Call, glXSwapBuffers_Call};
+        wglSwapBuffers_Call,         wglSwapLayerBuffers_Call,
+        wglSwapMultipleBuffers_Call, eglSwapBuffers_Call,
+        glXSwapBuffers_Call};
 Entrypoint drawCalls[] = {glDrawElements_Call,
                           glDrawElementsBaseVertex_Call,
                           glDrawElementsIndirect_Call,
@@ -199,10 +200,10 @@ Entrypoint drawCalls[] = {glDrawElements_Call,
                           glEnd_Call, };
 
 std::set<Entrypoint> drawCallSet(
-    &drawCalls[0], &drawCalls[sizeof(drawCalls) / sizeof(drawCalls[0])]);
+        &drawCalls[0], &drawCalls[sizeof(drawCalls) / sizeof(drawCalls[0])]);
 std::set<Entrypoint> frameDelimsSet(
-    &frameDelims[0],
-    &frameDelims[sizeof(frameDelims) / sizeof(frameDelims[0])]);
+        &frameDelims[0],
+        &frameDelims[sizeof(frameDelims) / sizeof(frameDelims[0])]);
 }
 
 bool IsDrawCall(Entrypoint entryp) {

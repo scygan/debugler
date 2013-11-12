@@ -109,13 +109,13 @@ void CallHistory::query(const dglnet::message::QueryCallTrace& traceQuery,
 
     // trim query to sane range:
     size_t endOffset =
-        std::min(static_cast<size_t>(traceQuery.m_EndOffset), m_cb.size());
+            std::min(static_cast<size_t>(traceQuery.m_EndOffset), m_cb.size());
 
     boost::circular_buffer<CalledEntryPoint>::iterator begin, end;
     end = m_cb.end() - startOffset;
     begin = m_cb.end() - endOffset;
     std::back_insert_iterator<std::vector<CalledEntryPoint> > replyHistory(
-        reply.m_Trace);
+            reply.m_Trace);
     std::copy(begin, end, replyHistory);
 }
 
@@ -148,7 +148,7 @@ std::shared_ptr<dglnet::ITransport> DGLDebugServer::getTransport() {
 template <class server_type>
 void DGLDebugServer::listen(const std::string& port, bool wait) {
     std::shared_ptr<server_type> server =
-        std::make_shared<server_type>(port, m_parrent);
+            std::make_shared<server_type>(port, m_parrent);
     m_Transport = std::static_pointer_cast<dglnet::ITransport>(server);
 
     m_parrent->doHandleListen(port);
@@ -182,7 +182,7 @@ void DGLDebugController::doHandleListen(const std::string& port) {
         sem.post();
     }
     m_presenter =
-        std::shared_ptr<OsStatusPresenter>(Os::createStatusPresenter());
+            std::shared_ptr<OsStatusPresenter>(Os::createStatusPresenter());
     {
         std::ostringstream msg;
         msg << Os::getProcessName() << ": waiting for debugger on port " << port
@@ -240,7 +240,7 @@ DGLDebugServer& DGLDebugController::getServer() {
                 m_Server.listen<dglnet::ServerUnixDomain>(port, wait);
 #else
                 throw std::runtime_error(
-                    "Unix sockets are not supported on Windows.");
+                        "Unix sockets are not supported on Windows.");
 #endif
                 break;
             default:
@@ -277,23 +277,23 @@ BreakState& DGLDebugController::getBreakState() { return m_BreakState; }
 CallHistory& DGLDebugController::getCallHistory() { return m_CallHistory; }
 
 void DGLDebugController::doHandleConfiguration(
-    const dglnet::message::Configuration& msg) {
+        const dglnet::message::Configuration& msg) {
     g_Config = msg.m_config;
 }
 void DGLDebugController::doHandleContinueBreak(
-    const dglnet::message::ContinueBreak& msg) {
+        const dglnet::message::ContinueBreak& msg) {
     m_BreakState.handle(msg);
 }
 
 void DGLDebugController::doHandleQueryCallTrace(
-    const dglnet::message::QueryCallTrace& msg) {
+        const dglnet::message::QueryCallTrace& msg) {
     dglnet::message::CallTrace reply;
     m_CallHistory.query(msg, reply);
     getServer().getTransport()->sendMessage(&reply);
 }
 
 void DGLDebugController::doHandleSetBreakPoints(
-    const dglnet::message::SetBreakPoints& msg) {
+        const dglnet::message::SetBreakPoints& msg) {
     getBreakState().handle(msg);
 }
 
@@ -303,20 +303,20 @@ void DGLDebugController::doHandleRequest(const dglnet::message::Request& msg) {
     try {
         // only one request type for now
         if (dynamic_cast<const dglnet::request::QueryResource*>(
-                msg.m_Request.get())) {
+                    msg.m_Request.get())) {
             reply.m_Reply = doHandleRequest(
-                *dynamic_cast<const dglnet::request::QueryResource*>(
-                     msg.m_Request.get()));
+                    *dynamic_cast<const dglnet::request::QueryResource*>(
+                             msg.m_Request.get()));
         } else if (dynamic_cast<const dglnet::request::EditShaderSource*>(
-                       msg.m_Request.get())) {
+                           msg.m_Request.get())) {
             doHandleRequest(
-                *dynamic_cast<const dglnet::request::EditShaderSource*>(
-                     msg.m_Request.get()));
+                    *dynamic_cast<const dglnet::request::EditShaderSource*>(
+                             msg.m_Request.get()));
         } else if (dynamic_cast<const dglnet::request::ForceLinkProgram*>(
-                       msg.m_Request.get())) {
+                           msg.m_Request.get())) {
             doHandleRequest(
-                *dynamic_cast<const dglnet::request::ForceLinkProgram*>(
-                     msg.m_Request.get()));
+                    *dynamic_cast<const dglnet::request::ForceLinkProgram*>(
+                             msg.m_Request.get()));
         } else {
             reply.error("Cannot handle: unsupported request");
         }
@@ -330,7 +330,7 @@ void DGLDebugController::doHandleRequest(const dglnet::message::Request& msg) {
 }
 
 boost::shared_ptr<dglnet::DGLResource> DGLDebugController::doHandleRequest(
-    const dglnet::request::QueryResource& request) {
+        const dglnet::request::QueryResource& request) {
 
     boost::shared_ptr<dglnet::DGLResource> resource;
 
@@ -338,12 +338,13 @@ boost::shared_ptr<dglnet::DGLResource> DGLDebugController::doHandleRequest(
 
     if (!ctx) {
         throw std::runtime_error(
-            "No OpenGL Context present, cannot issue query");
+                "No OpenGL Context present, cannot issue query");
     }
     if (request.m_ObjectName.m_Context &&
         ctx->getId() != request.m_ObjectName.m_Context) {
         throw std::runtime_error(
-            "Object's parent context is not current now, cannot issue query");
+                "Object's parent context is not current now, cannot issue "
+                "query");
     }
     ctx->startQuery();
     switch (request.m_Type) {
@@ -384,20 +385,21 @@ boost::shared_ptr<dglnet::DGLResource> DGLDebugController::doHandleRequest(
 }
 
 void DGLDebugController::doHandleRequest(
-    const dglnet::request::EditShaderSource& request) {
+        const dglnet::request::EditShaderSource& request) {
     dglState::GLContext* ctx = gc;
     if (!ctx) {
         throw std::runtime_error(
-            "No OpenGL Context present, cannot issue request");
+                "No OpenGL Context present, cannot issue request");
     }
     if (ctx->getId() != request.m_Context) {
         throw std::runtime_error(
-            "Object's parent context is not current now, cannot issue  query");
+                "Object's parent context is not current now, cannot issue  "
+                "query");
     }
     ctx->startQuery();
 
     dglState::GLShaderObj* obj =
-        ctx->findShader(static_cast<GLuint>(request.m_ShaderId));
+            ctx->findShader(static_cast<GLuint>(request.m_ShaderId));
     if (!obj) {
         throw std::runtime_error("Shader does not exist");
     }
@@ -414,20 +416,21 @@ void DGLDebugController::doHandleRequest(
 }
 
 void DGLDebugController::doHandleRequest(
-    const dglnet::request::ForceLinkProgram& request) {
+        const dglnet::request::ForceLinkProgram& request) {
     dglState::GLContext* ctx = gc;
     if (!ctx) {
         throw std::runtime_error(
-            "No OpenGL Context present, cannot issue request");
+                "No OpenGL Context present, cannot issue request");
     }
     if (ctx->getId() != request.m_Context) {
         throw std::runtime_error(
-            "Object's parent context is not current now, cannot issue  query");
+                "Object's parent context is not current now, cannot issue  "
+                "query");
     }
     ctx->startQuery();
 
     dglState::GLProgramObj* obj =
-        ctx->findProgram(static_cast<GLuint>(request.m_ProgramId));
+            ctx->findProgram(static_cast<GLuint>(request.m_ProgramId));
     if (!obj) {
         throw std::runtime_error("Program does not exist");
     }

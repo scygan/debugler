@@ -22,8 +22,8 @@
 // Some internal types used for message fields, gl-state tracing etc.. (not used
 // for gl call params store!).
 typedef uint64_t opaque_id_t;    // void*, contexts, configs..
-typedef uint64_t gl_t;    // gl enums (including 64bit)
-typedef int32_t value_t;    // any gl values (GLints)
+typedef uint64_t gl_t;           // gl enums (including 64bit)
+typedef int32_t value_t;         // any gl values (GLints)
 
 typedef int (*FUNC_PTR)();
 

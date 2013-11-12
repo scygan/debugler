@@ -81,7 +81,7 @@ void DGLGLSLEditor::resizeEvent(QResizeEvent *e) {
 
     QRect cr = contentsRect();
     lineNumberArea->setGeometry(
-        QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+            QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
 
 void DGLGLSLEditor::updateLineNumberAreaWidth(int /* newBlockCount */) {
@@ -112,7 +112,7 @@ void DGLGLSLEditor::lineNumberAreaPaintEvent(QPaintEvent *_event) {
     QTextBlock block = firstVisibleBlock();
     int blockNumber = block.blockNumber();
     int top =
-        (int)blockBoundingGeometry(block).translated(contentOffset()).top();
+            (int)blockBoundingGeometry(block).translated(contentOffset()).top();
     int bottom = top + (int)blockBoundingRect(block).height();
     while (block.isValid() && top <= _event->rect().bottom()) {
         if (block.isVisible() && bottom >= _event->rect().top()) {

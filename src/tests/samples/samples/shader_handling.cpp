@@ -21,12 +21,12 @@ class SampleShaderHandling : public Sample {
 
     virtual void startup() override {
         const GLchar* source =
-            "//version 120\n"
-            "attribute vec4 position;\n"
-            "\n"
-            "void main() {\n"
-            "    gl_Position = position;\n"
-            "}\n";
+                "//version 120\n"
+                "attribute vec4 position;\n"
+                "\n"
+                "void main() {\n"
+                "    gl_Position = position;\n"
+                "}\n";
 
         // simple case: create-delete
         GLuint shader = glCreateShader(GL_VERTEX_SHADER);

@@ -17,8 +17,9 @@
 #include "platform.h"
 
 #pragma warning(push)
-#pragma warning(disable                                                      \
-                : 4512)    //'boost::program_options::options_description' : \
+#pragma warning( \
+        disable  \
+        : 4512)    //'boost::program_options::options_description' : \
                            //assignment operator could not be generated
 #include <boost/program_options/options_description.hpp>
 #pragma warning(pop)
@@ -36,8 +37,8 @@ int main(int argc, char** argv) {
 
         po::options_description mandatory("Mandatory options");
         mandatory.add_options()(
-            "sample", po::value<std::vector<std::string> >()->composing(),
-            "Sample to execute (default is \"simple\").");
+                "sample", po::value<std::vector<std::string> >()->composing(),
+                "Sample to execute (default is \"simple\").");
 
         po::positional_options_description p;
         p.add("sample", -1);
@@ -47,9 +48,9 @@ int main(int argc, char** argv) {
 
         po::variables_map vm;
         po::store(po::command_line_parser(argc, argv)
-                      .options(all)
-                      .positional(p)
-                      .run(),
+                          .options(all)
+                          .positional(p)
+                          .run(),
                   vm);
         po::notify(vm);
 

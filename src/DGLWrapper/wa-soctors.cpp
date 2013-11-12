@@ -59,12 +59,13 @@ DGLWASoCtors::DGLWASoCtors() {
         return;
     }
     Os::info(
-        "Failed shared library constructor test. This is typical on Android < "
-        "4.2-r1");
+            "Failed shared library constructor test. This is typical on "
+            "Android < "
+            "4.2-r1");
     Os::info("Will try to run constructors manually now.");
 
     soinfo *info =
-        reinterpret_cast<soinfo *>(dlopen("libdglwrapper.so", RTLD_NOW));
+            reinterpret_cast<soinfo *>(dlopen("libdglwrapper.so", RTLD_NOW));
 
     if (!info) {
         Os::fatal("Cannot dlopen libdglwrapper.so library");
@@ -76,8 +77,9 @@ DGLWASoCtors::DGLWASoCtors() {
     int phnum = info->phnum;
 
     Os::info(
-        "Trying to get .dynamic of libdglwrapper.so: base = 0x%x, phnum = %d",
-        info->base, info->phnum);
+            "Trying to get .dynamic of libdglwrapper.so: base = 0x%x, phnum = "
+            "%d",
+            info->base, info->phnum);
 
     for (; phnum > 0; --phnum, ++phdr) {
         if (phdr->p_type == PT_DYNAMIC) {
@@ -131,8 +133,9 @@ DGLWASoCtors::DGLWASoCtors() {
 
     if (!g_Test.passed()) {
         Os::fatal(
-            "Tried to call constructors, but shared library constructor test, "
-            "still fails.");
+                "Tried to call constructors, but shared library constructor "
+                "test, "
+                "still fails.");
     }
 }
 #endif

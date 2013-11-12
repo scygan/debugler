@@ -36,7 +36,7 @@ DGLStateView::DGLStateView(QWidget* parrent, DglController* controller)
 
 void DGLStateView::update(const dglnet::DGLResource& res) {
     const dglnet::resource::DGLResourceState* resource =
-        dynamic_cast<const dglnet::resource::DGLResourceState*>(&res);
+            dynamic_cast<const dglnet::resource::DGLResourceState*>(&res);
 
     bool initializeRows = !(m_Ui->tableWidget->rowCount());
 
@@ -45,7 +45,7 @@ void DGLStateView::update(const dglnet::DGLResource& res) {
 
         for (size_t i = 0; i < resource->m_Items.size(); i++) {
             QTableWidgetItem* item =
-                new QTableWidgetItem(resource->m_Items[i].m_Name.c_str());
+                    new QTableWidgetItem(resource->m_Items[i].m_Name.c_str());
             item->setFlags(Qt::ItemIsEnabled);
             m_Ui->tableWidget->setItem(i, 0, item);
         }
@@ -84,19 +84,19 @@ void DGLStateView::setConnected(bool connected) {
         m_Ui->tableWidget->setRowCount(1);
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
         m_Ui->tableWidget->horizontalHeader()->setResizeMode(
-            QHeaderView::Stretch);
+                QHeaderView::Stretch);
 #else
         m_Ui->tableWidget->horizontalHeader()->setSectionResizeMode(
-            QHeaderView::Stretch);
+                QHeaderView::Stretch);
 #endif
         m_Ui->tableWidget->setHorizontalHeaderItem(
-            0, new QTableWidgetItem("Parameter"));
+                0, new QTableWidgetItem("Parameter"));
         m_Ui->tableWidget->setHorizontalHeaderItem(
-            1, new QTableWidgetItem("Value"));
+                1, new QTableWidgetItem("Value"));
 
         m_Listener = m_Controller->getResourceManager()->createListener(
-            dglnet::ContextObjectName(),
-            dglnet::DGLResource::ObjectType::State);
+                dglnet::ContextObjectName(),
+                dglnet::DGLResource::ObjectType::State);
         m_Listener->setParent(m_Ui->frame);
 
         CONNASSERT(m_Listener, SIGNAL(update(const dglnet::DGLResource&)), this,

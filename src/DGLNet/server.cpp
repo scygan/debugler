@@ -60,7 +60,7 @@ class ServerDetail {
 
 template <>
 ServerDetail<boost::asio::ip::tcp>::ServerDetail(
-    const std::string& port, boost::asio::io_service& io_service)
+        const std::string& port, boost::asio::io_service& io_service)
         : m_endpoint(boost::asio::ip::tcp::v4(), portFromStr(port)),
           m_acceptor(io_service) {
     m_acceptor.open(m_endpoint.protocol());
@@ -72,12 +72,12 @@ ServerDetail<boost::asio::ip::tcp>::ServerDetail(
 #ifdef BOOST_ASIO_HAS_LOCAL_SOCKETS
 template <>
 ServerDetail<boost::asio::local::stream_protocol>::ServerDetail(
-    const std::string& port, boost::asio::io_service& io_service)
+        const std::string& port, boost::asio::io_service& io_service)
         : m_endpoint(port), m_acceptor(io_service, m_endpoint) {
     if (chmod(port.c_str(), 0777) != 0) {
         throw std::runtime_error(
-            std::string("Cannot change permission to unix socket: ") +
-            Os::translateOsError(Os::getLastosError()));
+                std::string("Cannot change permission to unix socket: ") +
+                Os::translateOsError(Os::getLastosError()));
     }
 }
 #endif
@@ -86,7 +86,7 @@ template <class proto>
 Server<proto>::Server(const std::string& port, MessageHandler* handler)
         : Transport<proto>(handler),
           m_detail(std::make_shared<ServerDetail<proto> >(
-              port, Transport<proto>::m_detail->m_io_service)) {}
+                  port, Transport<proto>::m_detail->m_io_service)) {}
 
 template <class proto>
 void Server<proto>::accept(bool wait) {
@@ -103,9 +103,9 @@ void Server<proto>::accept(bool wait) {
         }
     } else {
         m_detail->m_acceptor.async_accept(
-            Transport<proto>::m_detail->m_socket,
-            std::bind(&Server::onAccept, shared_from_this(),
-                      std::placeholders::_1));
+                Transport<proto>::m_detail->m_socket,
+                std::bind(&Server::onAccept, shared_from_this(),
+                          std::placeholders::_1));
     }
 }
 
@@ -123,7 +123,7 @@ void Server<proto>::onAccept(const boost::system::error_code& ec) {
 template <class proto>
 std::shared_ptr<Server<proto> > Server<proto>::shared_from_this() {
     return std::static_pointer_cast<Server<proto> >(
-        Transport<proto>::get_shared_from_base());
+            Transport<proto>::get_shared_from_base());
 }
 
 template class Server<boost::asio::ip::tcp>;

@@ -24,8 +24,8 @@ DGLFBOViewItem::DGLFBOViewItem(dglnet::ContextObjectName name,
     m_PixelRectangleScene = new DGLPixelRectangleScene();
     m_Ui.m_pixelRectangleView->setScene(m_PixelRectangleScene);
 
-    m_Listener =
-        resManager->createListener(name, dglnet::DGLResource::ObjectType::FBO);
+    m_Listener = resManager->createListener(
+            name, dglnet::DGLResource::ObjectType::FBO);
     m_Listener->setParent(this);
 
     CONNASSERT(m_Listener, SIGNAL(update(const dglnet::DGLResource&)), this,
@@ -44,14 +44,14 @@ void DGLFBOViewItem::error(const std::string& message) {
 void DGLFBOViewItem::update(const dglnet::DGLResource& res) {
 
     const dglnet::resource::DGLResourceFBO* resource =
-        dynamic_cast<const dglnet::resource::DGLResourceFBO*>(&res);
+            dynamic_cast<const dglnet::resource::DGLResourceFBO*>(&res);
 
     m_Ui.m_AttListWidget->clear();
     m_Error = false;
     m_Attachments = resource->m_Attachments;
     for (size_t i = 0; i < resource->m_Attachments.size(); i++) {
         m_Ui.m_AttListWidget->addItem(QString::fromStdString(
-            GetGLEnumName(resource->m_Attachments[i].m_Id)));
+                GetGLEnumName(resource->m_Attachments[i].m_Id)));
     }
     showAttachment(0);
 }
@@ -66,9 +66,9 @@ void DGLFBOViewItem::showAttachment(int id) {
         m_PixelRectangleScene->setText(errorMsg);
     } else {
         m_PixelRectangleScene->setPixelRectangle(
-            *m_Attachments[id].m_PixelRectangle.get());
+                *m_Attachments[id].m_PixelRectangle.get());
         m_Ui.m_pixelRectangleView->updateFormatSizeInfo(
-            (m_Attachments[id].m_PixelRectangle.get()));
+                (m_Attachments[id].m_PixelRectangle.get()));
     }
 }
 

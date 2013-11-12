@@ -44,8 +44,8 @@ slots:
     void setConnected(bool);
     void debugeeInfo(const std::string&);
     void breakedWithStateReports(
-        opaque_id_t currentContextId,
-        const std::vector<dglnet::message::BreakedCall::ContextReport>&);
+            opaque_id_t currentContextId,
+            const std::vector<dglnet::message::BreakedCall::ContextReport>&);
 
     void onDoubleClicked(QTreeWidgetItem*, int);
 

@@ -300,13 +300,13 @@ class DGLDebugController : public dglnet::MessageHandler {
      * Message handler - pass history query message to call history object
      */
     void doHandleQueryCallTrace(const dglnet::message::QueryCallTrace&)
-        override;
+            override;
 
     /**
      * Message handler - pass new breakpoint list message to breakstate object
      */
     void doHandleSetBreakPoints(const dglnet::message::SetBreakPoints&)
-        override;
+            override;
 
     /**
      * Message handler - handle general request message
@@ -317,7 +317,7 @@ class DGLDebugController : public dglnet::MessageHandler {
      * Request handler - query resource request
      */
     boost::shared_ptr<dglnet::DGLResource> doHandleRequest(
-        const dglnet::request::QueryResource&);
+            const dglnet::request::QueryResource&);
 
     /**
      * Request handler - edit shader request

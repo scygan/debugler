@@ -39,7 +39,7 @@ void DGLBlitterBase::blit(unsigned int width, unsigned int height,
 
     if (!m_DataFormat || !m_DataType) {
         throw std::runtime_error(
-            "Got image of unknown type and format. It may be debugger bug");
+                "Got image of unknown type and format. It may be debugger bug");
     }
 
     m_SrcData = data;
@@ -58,10 +58,10 @@ void DGLBlitterBase::doBlit() {
 
     OutputFormat outputFormat = _GL_RGBX32;
     std::pair<float, float> channelSBs[4] = {
-        std::pair<float, float>(1.0f, 0.0f),
-        std::pair<float, float>(1.0f, 0.0f),
-        std::pair<float, float>(1.0f, 0.0f),
-        std::pair<float, float>(1.0f, 0.0f)};
+            std::pair<float, float>(1.0f, 0.0f),
+            std::pair<float, float>(1.0f, 0.0f),
+            std::pair<float, float>(1.0f, 0.0f),
+            std::pair<float, float>(1.0f, 0.0f)};
 
     switch (m_DataFormat->format) {
         case GL_RED:
@@ -149,8 +149,9 @@ std::vector<AnyValue> DGLBlitterBase::describePixel(unsigned int x,
         srcPixelSize = m_DataFormat->components * m_DataType->byteSize;
     }
 
-    const void* pixPtr = &reinterpret_cast<const unsigned char*>(
-                              m_SrcData)[y * m_SrcStride + x * srcPixelSize];
+    const void* pixPtr =
+            &reinterpret_cast<const unsigned char*>(
+                     m_SrcData)[y * m_SrcStride + x * srcPixelSize];
 
     return m_DataType->extractor(pixPtr, m_DataFormat->components);
 }

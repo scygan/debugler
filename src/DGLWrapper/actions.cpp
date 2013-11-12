@@ -50,7 +50,7 @@ RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
     RetValue ret = PrevPre(call);
 
     std::lock_guard<std::mutex> server_lock(
-        getController()->getServer().getMutex());
+            getController()->getServer().getMutex());
 
     // do a fast non-blocking poll to get "interrupt" message, etc.."
     getController()->poll();
@@ -60,10 +60,10 @@ RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
         // we just hit a break;
         dglState::GLContext* ctx = gc;
         dglnet::message::BreakedCall callStateMessage(
-            call, (value_t)getController()->getCallHistory().size(),
-            ctx ? ctx->getId() : 0, DGLDisplayState::describeAll());
+                call, (value_t)getController()->getCallHistory().size(),
+                ctx ? ctx->getId() : 0, DGLDisplayState::describeAll());
         getController()->getServer().getTransport()->sendMessage(
-            &callStateMessage);
+                &callStateMessage);
     }
 
     while (getController()->getBreakState().isBreaked()) {
@@ -82,7 +82,7 @@ RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
 void DefaultAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
     std::lock_guard<std::mutex> server_lock(
-        getController()->getServer().getMutex());
+            getController()->getServer().getMutex());
 
     CallHistory& history = getController()->getCallHistory();
 
@@ -167,9 +167,9 @@ void SurfaceAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
         DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy),
                              DGLDisplayState::Type::EGL)
-            ->addSurface<dglState::NativeSurfaceEGL>(
-                  reinterpret_cast<opaque_id_t>(surface),
-                  reinterpret_cast<opaque_id_t>(config));
+                ->addSurface<dglState::NativeSurfaceEGL>(
+                          reinterpret_cast<opaque_id_t>(surface),
+                          reinterpret_cast<opaque_id_t>(config));
     }
 }
 #endif
@@ -199,12 +199,13 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 HDC device;
                 call.getArgs()[0].get(device);
                 DGLDisplayState::defDpy(DGLDisplayState::Type::WGL)
-                    ->createContext(
-                          dglState::GLContextVersion::Type::DT,
-                          dglState::GLContextCreationData(
-                              entryp, (opaque_id_t)GetPixelFormat(device),
-                              std::vector<gl_t>()),
-                          reinterpret_cast<opaque_id_t>(ctx));
+                        ->createContext(
+                                  dglState::GLContextVersion::Type::DT,
+                                  dglState::GLContextCreationData(
+                                          entryp,
+                                          (opaque_id_t)GetPixelFormat(device),
+                                          std::vector<gl_t>()),
+                                  reinterpret_cast<opaque_id_t>(ctx));
             }
             break;
         case wglCreateContextAttribsARB_Call:
@@ -225,12 +226,13 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 }
 
                 DGLDisplayState::defDpy(DGLDisplayState::Type::WGL)
-                    ->createContext(
-                          dglState::GLContextVersion::Type::DT,
-                          dglState::GLContextCreationData(
-                              entryp, (opaque_id_t)GetPixelFormat(device),
-                              attributes),
-                          reinterpret_cast<opaque_id_t>(ctx));
+                        ->createContext(
+                                  dglState::GLContextVersion::Type::DT,
+                                  dglState::GLContextCreationData(
+                                          entryp,
+                                          (opaque_id_t)GetPixelFormat(device),
+                                          attributes),
+                                  reinterpret_cast<opaque_id_t>(ctx));
             }
             break;
         case wglMakeCurrent_Call:
@@ -243,15 +245,15 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 dglState::NativeSurfaceBase* surface = NULL;
                 if (device) {
                     surface =
-                        DGLDisplayState::defDpy(DGLDisplayState::Type::WGL)
-                            ->ensureSurface<dglState::NativeSurfaceWGL>(
-                                  (opaque_id_t)device)
-                            ->second.get();
+                            DGLDisplayState::defDpy(DGLDisplayState::Type::WGL)
+                                    ->ensureSurface<dglState::NativeSurfaceWGL>(
+                                              (opaque_id_t)device)
+                                    ->second.get();
                 }
 
                 DGLThreadState::get()->bindContext(
-                    DGLDisplayState::defDpy(DGLDisplayState::Type::WGL),
-                    reinterpret_cast<opaque_id_t>(ctx), surface, surface);
+                        DGLDisplayState::defDpy(DGLDisplayState::Type::WGL),
+                        reinterpret_cast<opaque_id_t>(ctx), surface, surface);
             }
             break;
         case wglDeleteContext_Call:
@@ -259,7 +261,7 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             if (retBool) {
                 call.getArgs()[0].get(ctx);
                 DGLDisplayState::defDpy(DGLDisplayState::Type::WGL)
-                    ->deleteContext(reinterpret_cast<opaque_id_t>(ctx));
+                        ->deleteContext(reinterpret_cast<opaque_id_t>(ctx));
             }
             break;
 #endif
@@ -284,11 +286,11 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
                 DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy),
                                      DGLDisplayState::Type::GLX)
-                    ->createContext(
-                          dglState::GLContextVersion::Type::DT,
-                          dglState::GLContextCreationData(
-                              entryp, (opaque_id_t)config, attributes),
-                          reinterpret_cast<opaque_id_t>(ctx));
+                        ->createContext(dglState::GLContextVersion::Type::DT,
+                                        dglState::GLContextCreationData(
+                                                entryp, (opaque_id_t)config,
+                                                attributes),
+                                        reinterpret_cast<opaque_id_t>(ctx));
             }
             break;
         case glXCreateContext_Call:
@@ -300,15 +302,18 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 call.getArgs()[1].get(vis);
                 DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy),
                                      DGLDisplayState::Type::GLX)
-                    ->createContext(dglState::GLContextVersion::Type::DT,
-                                    dglState::GLContextCreationData(
-                                        entryp, (opaque_id_t) *
-                                                    dglState::NativeSurfaceGLX::
-                                                        getFbConfigForVisual(
-                                                            dpy, vis->visualid,
-                                                            &memToFree),
-                                        std::vector<gl_t>()),
-                                    reinterpret_cast<opaque_id_t>(ctx));
+                        ->createContext(
+                                  dglState::GLContextVersion::Type::DT,
+                                  dglState::GLContextCreationData(
+                                          entryp,
+                                          (opaque_id_t) *
+                                                  dglState::NativeSurfaceGLX::
+                                                          getFbConfigForVisual(
+                                                                  dpy,
+                                                                  vis->visualid,
+                                                                  &memToFree),
+                                          std::vector<gl_t>()),
+                                  reinterpret_cast<opaque_id_t>(ctx));
                 if (memToFree) {
                     XFree(memToFree);
                 }
@@ -323,11 +328,11 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 call.getArgs()[1].get(config);
                 DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy),
                                      DGLDisplayState::Type::GLX)
-                    ->createContext(
-                          dglState::GLContextVersion::Type::DT,
-                          dglState::GLContextCreationData(
-                              entryp, (opaque_id_t)config, std::vector<gl_t>()),
-                          reinterpret_cast<opaque_id_t>(ctx));
+                        ->createContext(dglState::GLContextVersion::Type::DT,
+                                        dglState::GLContextCreationData(
+                                                entryp, (opaque_id_t)config,
+                                                std::vector<gl_t>()),
+                                        reinterpret_cast<opaque_id_t>(ctx));
             }
             break;
         case glXMakeCurrent_Call:
@@ -352,26 +357,28 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 dglState::NativeSurfaceBase* readSurface = NULL;
                 if (readDrawable) {
                     readSurface =
-                        DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy),
-                                             DGLDisplayState::Type::GLX)
-                            ->ensureSurface<dglState::NativeSurfaceGLX>(
-                                  (opaque_id_t)readDrawable)
-                            ->second.get();
+                            DGLDisplayState::get(
+                                    reinterpret_cast<opaque_id_t>(dpy),
+                                    DGLDisplayState::Type::GLX)
+                                    ->ensureSurface<dglState::NativeSurfaceGLX>(
+                                              (opaque_id_t)readDrawable)
+                                    ->second.get();
                 }
                 dglState::NativeSurfaceBase* drawSurface = NULL;
                 if (drawDrawable) {
                     drawSurface =
-                        DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy),
-                                             DGLDisplayState::Type::GLX)
-                            ->ensureSurface<dglState::NativeSurfaceGLX>(
-                                  (opaque_id_t)drawDrawable)
-                            ->second.get();
+                            DGLDisplayState::get(
+                                    reinterpret_cast<opaque_id_t>(dpy),
+                                    DGLDisplayState::Type::GLX)
+                                    ->ensureSurface<dglState::NativeSurfaceGLX>(
+                                              (opaque_id_t)drawDrawable)
+                                    ->second.get();
                 }
                 DGLThreadState::get()->bindContext(
-                    DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy),
-                                         DGLDisplayState::Type::GLX),
-                    reinterpret_cast<opaque_id_t>(ctx), drawSurface,
-                    readSurface);
+                        DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy),
+                                             DGLDisplayState::Type::GLX),
+                        reinterpret_cast<opaque_id_t>(ctx), drawSurface,
+                        readSurface);
             }
             break;
         case glXDestroyContext_Call:
@@ -379,7 +386,7 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[0].get(ctx);
             DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy),
                                  DGLDisplayState::Type::GLX)
-                ->lazyDeleteContext(reinterpret_cast<opaque_id_t>(ctx));
+                    ->lazyDeleteContext(reinterpret_cast<opaque_id_t>(ctx));
             break;
 #endif
         case eglBindAPI_Call:
@@ -436,11 +443,12 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
                     DGLDisplayState::get((opaque_id_t)eglDpy,
                                          DGLDisplayState::Type::EGL)
-                        ->createContext(
-                              dglState::GLContextVersion::Type::ES,
-                              dglState::GLContextCreationData(
-                                  entryp, (opaque_id_t)eglConfig, attributes),
-                              reinterpret_cast<opaque_id_t>(eglCtx));
+                            ->createContext(
+                                      dglState::GLContextVersion::Type::ES,
+                                      dglState::GLContextCreationData(
+                                              entryp, (opaque_id_t)eglConfig,
+                                              attributes),
+                                      reinterpret_cast<opaque_id_t>(eglCtx));
 
                 } else if (DGLThreadState::get()->getEGLApi() ==
                            EGL_OPENGL_API) {
@@ -448,11 +456,12 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
                     DGLDisplayState::get((opaque_id_t)eglDpy,
                                          DGLDisplayState::Type::EGL)
-                        ->createContext(
-                              dglState::GLContextVersion::Type::DT,
-                              dglState::GLContextCreationData(
-                                  entryp, (opaque_id_t)eglConfig, attributes),
-                              reinterpret_cast<opaque_id_t>(eglCtx));
+                            ->createContext(
+                                      dglState::GLContextVersion::Type::DT,
+                                      dglState::GLContextCreationData(
+                                              entryp, (opaque_id_t)eglConfig,
+                                              attributes),
+                                      reinterpret_cast<opaque_id_t>(eglCtx));
                 }
             }
             break;
@@ -470,39 +479,41 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 dglState::NativeSurfaceBase* readSurface = NULL;
                 if (eglReadSurface) {
 #ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
-                    readSurface = DGLDisplayState::get(
-                        (opaque_id_t)eglDpy, DGLDisplayState::Type::EGL)
-                                      ->getSurface((opaque_id_t)eglReadSurface)
-                                      ->second.get();
+                    readSurface =
+                            DGLDisplayState::get((opaque_id_t)eglDpy,
+                                                 DGLDisplayState::Type::EGL)
+                                    ->getSurface((opaque_id_t)eglReadSurface)
+                                    ->second.get();
 #else
                     readSurface =
-                        DGLDisplayState::get((opaque_id_t)eglDpy,
-                                             DGLDisplayState::Type::EGL)
-                            ->ensureSurface((opaque_id_t)eglReadSurface)
-                            ->second.get();
+                            DGLDisplayState::get((opaque_id_t)eglDpy,
+                                                 DGLDisplayState::Type::EGL)
+                                    ->ensureSurface((opaque_id_t)eglReadSurface)
+                                    ->second.get();
 #endif
                 }
                 dglState::NativeSurfaceBase* drawSurface = NULL;
                 if (eglDrawSurface) {
 #ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
-                    drawSurface = DGLDisplayState::get(
-                        (opaque_id_t)eglDpy, DGLDisplayState::Type::EGL)
-                                      ->getSurface((opaque_id_t)eglDrawSurface)
-                                      ->second.get();
+                    drawSurface =
+                            DGLDisplayState::get((opaque_id_t)eglDpy,
+                                                 DGLDisplayState::Type::EGL)
+                                    ->getSurface((opaque_id_t)eglDrawSurface)
+                                    ->second.get();
 #else
                     drawSurface =
-                        DGLDisplayState::get((opaque_id_t)eglDpy,
-                                             DGLDisplayState::Type::EGL)
-                            ->ensureSurface((opaque_id_t)eglDrawSurface)
-                            ->second.get();
+                            DGLDisplayState::get((opaque_id_t)eglDpy,
+                                                 DGLDisplayState::Type::EGL)
+                                    ->ensureSurface((opaque_id_t)eglDrawSurface)
+                                    ->second.get();
 #endif
                 }
 
                 DGLThreadState::get()->bindContext(
-                    DGLDisplayState::get((opaque_id_t)eglDpy,
-                                         DGLDisplayState::Type::EGL),
-                    reinterpret_cast<opaque_id_t>(eglCtx), drawSurface,
-                    readSurface);
+                        DGLDisplayState::get((opaque_id_t)eglDpy,
+                                             DGLDisplayState::Type::EGL),
+                        reinterpret_cast<opaque_id_t>(eglCtx), drawSurface,
+                        readSurface);
             }
             break;
         case eglDestroyContext_Call:
@@ -513,7 +524,8 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 call.getArgs()[1].get(eglCtx);
                 DGLDisplayState::get((opaque_id_t)eglDpy,
                                      DGLDisplayState::Type::EGL)
-                    ->lazyDeleteContext(reinterpret_cast<opaque_id_t>(eglCtx));
+                        ->lazyDeleteContext(
+                                  reinterpret_cast<opaque_id_t>(eglCtx));
             }
             break;
         case eglReleaseThread_Call:
@@ -622,7 +634,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
             call.getArgs()[2].get(sharedContext);
             call.getArgs()[3].get(direct);
             config = *dglState::NativeSurfaceGLX::getFbConfigForVisual(
-                          dpy, vis->visualid, &memToFree);
+                              dpy, vis->visualid, &memToFree);
             assert(config);
             break;
         case glXCreateNewContext_Call:
@@ -672,7 +684,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
     if (POINTER(glXCreateContextAttribsARB) ||
         g_ApiLoader.loadExtPointer(glXCreateContextAttribsARB_Call)) {
         ret = DIRECT_CALL_CHK(glXCreateContextAttribsARB)(
-            dpy, config, sharedContext, direct, &newAttribList[0]);
+                dpy, config, sharedContext, direct, &newAttribList[0]);
     }
 
     if (memToFree) {
@@ -776,7 +788,7 @@ void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[0].get(name);
 
             dglState::GLProgramObj* program =
-                gc->ensureProgram(name, entrp == glDeleteObjectARB_Call);
+                    gc->ensureProgram(name, entrp == glDeleteObjectARB_Call);
             program->markDeleted();
             if (program->mayDelete()) {
                 gc->deleteProgram(name);
@@ -798,8 +810,9 @@ void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
                 // we may delete last program, if marked for deletion
 
-                dglState::GLProgramObj* currentProgram = gc->ensureProgram(
-                    currentProgramName, entrp == glUseProgramObjectARB_Call);
+                dglState::GLProgramObj* currentProgram =
+                        gc->ensureProgram(currentProgramName,
+                                          entrp == glUseProgramObjectARB_Call);
 
                 currentProgram->use(false);
                 if (currentProgram->mayDelete()) {
@@ -809,7 +822,7 @@ void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
             if (name != 0) {
                 gc->ensureProgram(name, entrp == glUseProgramObjectARB_Call)
-                    ->use(true);
+                        ->use(true);
             }
         } else if (entrp == glLinkProgram_Call) {
 
@@ -827,7 +840,7 @@ void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
             GLint linkStatus;
             DIRECT_CALL_CHK(glGetObjectParameterivARB)(
-                name, GL_OBJECT_LINK_STATUS_ARB, &linkStatus);
+                    name, GL_OBJECT_LINK_STATUS_ARB, &linkStatus);
 
             if (linkStatus != GL_TRUE) {
                 getController()->getBreakState().setBreakAtCompilerError();
@@ -853,7 +866,7 @@ void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[0].get(target);
 
             gc->ensureShader(name, entrp == glCreateShaderObjectARB_Call)
-                ->createCalled(target);
+                    ->createCalled(target);
 
         } else if (entrp == glDeleteShader_Call ||
                    entrp == glDeleteObjectARB_Call) {
@@ -861,7 +874,7 @@ void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[0].get(name);
 
             dglState::GLShaderObj* shader =
-                gc->ensureShader(name, entrp == glDeleteObjectARB_Call);
+                    gc->ensureShader(name, entrp == glDeleteObjectARB_Call);
 
             shader->deleteCalled();
 
@@ -871,7 +884,7 @@ void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[0].get(name);
 
             dglState::GLShaderObj* shader =
-                gc->ensureShader(name, entrp == glCompileShaderARB_Call);
+                    gc->ensureShader(name, entrp == glCompileShaderARB_Call);
             GLint compileStatus = shader->queryCompilationStatus();
 
             if (compileStatus != GL_TRUE) {
@@ -885,8 +898,8 @@ void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[0].get(prog);
             call.getArgs()[1].get(shad);
             gc->ensureProgram(prog, entrp == glAttachObjectARB_Call)
-                ->attachShader(
-                      gc->ensureShader(shad, entrp == glAttachObjectARB_Call));
+                    ->attachShader(gc->ensureShader(
+                              shad, entrp == glAttachObjectARB_Call));
 
         } else if (entrp == glDetachShader_Call ||
                    entrp == glDetachObjectARB_Call) {
@@ -895,8 +908,8 @@ void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[0].get(prog);
             call.getArgs()[1].get(shad);
             gc->ensureProgram(prog, entrp == glDetachObjectARB_Call)
-                ->detachShader(
-                      gc->ensureShader(shad, entrp == glAttachObjectARB_Call));
+                    ->detachShader(gc->ensureShader(
+                              shad, entrp == glAttachObjectARB_Call));
 
         } else if (entrp == glShaderSourceARB_Call ||
                    entrp == glShaderSource_Call) {
@@ -904,7 +917,7 @@ void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             GLuint shad;
             call.getArgs()[0].get(shad);
             gc->ensureShader(shad, entrp == glShaderSourceARB_Call)
-                ->shaderSourceCalled();
+                    ->shaderSourceCalled();
         }
     }
     PrevPost(call, ret);
@@ -982,10 +995,10 @@ RetValue DebugOutputCallback::Pre(const CalledEntryPoint& call) {
         // call debug message callback now, to prevent override
         if (entrp == glDebugMessageCallback_Call) {
             DIRECT_CALL_CHK(glDebugMessageCallback)(
-                dglState::GLContext::debugOutputCallback, userParam);
+                    dglState::GLContext::debugOutputCallback, userParam);
         } else if (entrp == glDebugMessageCallbackARB_Call) {
             DIRECT_CALL_CHK(glDebugMessageCallbackARB)(
-                dglState::GLContext::debugOutputCallback, userParam);
+                    dglState::GLContext::debugOutputCallback, userParam);
         } else {
             assert(0);
         }

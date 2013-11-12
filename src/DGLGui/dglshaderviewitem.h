@@ -48,15 +48,15 @@ slots:
         S_PAUSE,    // editing pause (no shader to edit arised while editing.
                     // may resume edits later)
         S_NOT_EDITING,    // can enter edit
-        S_EDITING    // editing now
+        S_EDITING         // editing now
     };
 
     enum class EditAction {
         A_NOTIFY_NOERROR,    // notify: has shader to edit
-        A_NOTIFY_ERROR,    // notify: error or no shader to edit
+        A_NOTIFY_ERROR,      // notify: error or no shader to edit
         A_DISABLE,    // disable shader editing (and reset to default source)
-        A_ENABLE,    // enter shader editing
-        A_EDIT,    // edit shader
+        A_ENABLE,     // enter shader editing
+        A_EDIT,       // edit shader
     };
 
     void editAction(EditAction);
@@ -69,7 +69,7 @@ slots:
 
        private:
         virtual void onRequestFinished(
-            const dglnet::message::RequestReply* reply) override;
+                const dglnet::message::RequestReply* reply) override;
         DGLShaderViewItem* m_Parrent;
     } m_EditRequestHandler;
 
@@ -79,7 +79,7 @@ slots:
 
        private:
         virtual void onRequestFinished(
-            const dglnet::message::RequestReply* reply) override;
+                const dglnet::message::RequestReply* reply) override;
         DGLShaderViewItem* m_Parrent;
     } m_ResetRequestHandler;
 

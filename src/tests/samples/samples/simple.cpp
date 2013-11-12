@@ -34,24 +34,24 @@ class SampleSimple : public Sample {
 
         const char* vshSrc =
 #ifndef OPENGL_ES2
-            "#version 120\n"
+                "#version 120\n"
 #endif
-            "attribute vec4 position;\n"
-            "\n"
-            "void main() {\n"
-            "    gl_Position = position;\n"
-            "}\n";
+                "attribute vec4 position;\n"
+                "\n"
+                "void main() {\n"
+                "    gl_Position = position;\n"
+                "}\n";
 
         const char* fshSrc =
 #ifdef OPENGL_ES2
-            "precision mediump float;\n"
+                "precision mediump float;\n"
 #else
-            "#version 120\n"
+                "#version 120\n"
 #endif
-            "void main()\n"
-            "{\n"
-            "    gl_FragColor = vec4(0.4, 0.5, 0.8, 1.0);\n"
-            "}\n";
+                "void main()\n"
+                "{\n"
+                "    gl_FragColor = vec4(0.4, 0.5, 0.8, 1.0);\n"
+                "}\n";
 
         m_program = gl::CreateProgram(vshSrc, fshSrc);
         glUseProgram(m_program->Name());

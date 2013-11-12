@@ -36,15 +36,16 @@ DGLTreeView::DGLTreeView(QWidget* parrent, DglController* controller)
                SLOT(debugeeInfo(const std::string&)));
     CONNASSERT(controller, SIGNAL(setBreaked(bool)), &m_TreeWidget,
                SLOT(setEnabled(bool)));
-    CONNASSERT(
-        controller,
-        SIGNAL(breakedWithStateReports(
-            opaque_id_t,
-            const std::vector<dglnet::message::BreakedCall::ContextReport>&)),
-        this,
-        SLOT(breakedWithStateReports(
-            opaque_id_t,
-            const std::vector<dglnet::message::BreakedCall::ContextReport>&)));
+    CONNASSERT(controller,
+               SIGNAL(breakedWithStateReports(
+                       opaque_id_t,
+                       const std::vector<
+                               dglnet::message::BreakedCall::ContextReport>&)),
+               this,
+               SLOT(breakedWithStateReports(
+                       opaque_id_t,
+                       const std::vector<
+                               dglnet::message::BreakedCall::ContextReport>&)));
 
     // internal
     CONNASSERT(&m_TreeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
@@ -72,14 +73,15 @@ class DGLTextureWidget : public QClickableTreeWidgetItem {
     DGLTextureWidget(dglnet::ContextObjectName name, QString iconPath)
             : m_name(name) {
         setText(0, QString("Texture ") + QString::number(name.m_Name) +
-                       QString::fromStdString(
-                           " (" + GetTextureTargetName(name.m_Target) + ")"));
+                           QString::fromStdString(
+                                   " (" + GetTextureTargetName(name.m_Target) +
+                                   ")"));
         setIcon(0, QIcon(iconPath));
     }
 
     virtual void handleDoubleClick(DglController* controller) {
         controller->getViewRouter()->show(
-            m_name, dglnet::DGLResource::ObjectType::Texture);
+                m_name, dglnet::DGLResource::ObjectType::Texture);
     }
 
    private:
@@ -96,7 +98,7 @@ class DGLBufferWidget : public QClickableTreeWidgetItem {
     }
     void handleDoubleClick(DglController* controller) {
         controller->getViewRouter()->show(
-            m_name, dglnet::DGLResource::ObjectType::Buffer);
+                m_name, dglnet::DGLResource::ObjectType::Buffer);
     }
 
    private:
@@ -126,13 +128,14 @@ class DGLShaderWidget : public QClickableTreeWidgetItem {
     DGLShaderWidget(dglnet::ContextObjectName name, QString iconPath)
             : m_name(name) {
         setText(0, QString("Shader ") + QString::number(name.m_Name) +
-                       QString::fromStdString(
-                           " (" + GetShaderStageName(name.m_Target) + ")"));
+                           QString::fromStdString(
+                                   " (" + GetShaderStageName(name.m_Target) +
+                                   ")"));
         setIcon(0, QIcon(iconPath));
     }
     void handleDoubleClick(DglController* controller) {
         controller->getViewRouter()->show(
-            m_name, dglnet::DGLResource::ObjectType::Shader);
+                m_name, dglnet::DGLResource::ObjectType::Shader);
     }
 
    private:
@@ -149,7 +152,7 @@ class DGLProgramWidget : public QClickableTreeWidgetItem {
     }
     void handleDoubleClick(DglController* controller) {
         controller->getViewRouter()->show(
-            m_name, dglnet::DGLResource::ObjectType::Program);
+                m_name, dglnet::DGLResource::ObjectType::Program);
     }
 
    private:
@@ -181,7 +184,7 @@ class DGLFramebufferWidget : public QClickableTreeWidgetItem {
     }
     void handleDoubleClick(DglController* controller) {
         controller->getViewRouter()->show(
-            m_type, dglnet::DGLResource::ObjectType::Framebuffer);
+                m_type, dglnet::DGLResource::ObjectType::Framebuffer);
     }
     dglnet::ContextObjectName m_type;
 };
@@ -251,7 +254,7 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
         setFont(0, fnt);
         assert(m_Id == report.m_Id);
         setText(0, QString("Context 0x") + QString::number(report.m_Id, 16) +
-                       (current ? QString(" (current)") : QString("")));
+                           (current ? QString(" (current)") : QString("")));
         m_TextureNode.update(report.m_TextureSpace);
         m_BufferNode.update(report.m_BufferSpace);
         m_FBONode.update(report.m_FBOSpace);
@@ -272,13 +275,14 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
 };
 
 void DGLTreeView::breakedWithStateReports(
-    opaque_id_t currentContextId,
-    const std::vector<dglnet::message::BreakedCall::ContextReport>& report) {
+        opaque_id_t currentContextId,
+        const std::vector<dglnet::message::BreakedCall::ContextReport>&
+                report) {
     for (size_t i = 0; i < report.size(); i++) {
         DGLCtxTreeWidget* treeWidget = 0;
         for (int j = 0; j < m_TreeWidget.topLevelItemCount(); j++) {
-            DGLCtxTreeWidget* thisWidget =
-                dynamic_cast<DGLCtxTreeWidget*>(m_TreeWidget.topLevelItem(j));
+            DGLCtxTreeWidget* thisWidget = dynamic_cast<DGLCtxTreeWidget*>(
+                    m_TreeWidget.topLevelItem(j));
             if (thisWidget && thisWidget->getId() == report[i].m_Id) {
                 treeWidget = thisWidget;
                 break;
@@ -293,7 +297,7 @@ void DGLTreeView::breakedWithStateReports(
 
     for (int j = 0; j < m_TreeWidget.topLevelItemCount(); j++) {
         DGLCtxTreeWidget* thisWidget =
-            dynamic_cast<DGLCtxTreeWidget*>(m_TreeWidget.topLevelItem(j));
+                dynamic_cast<DGLCtxTreeWidget*>(m_TreeWidget.topLevelItem(j));
         bool found = false;
         for (size_t i = 0; i < report.size(); i++) {
             if (thisWidget && thisWidget->getId() == report[i].m_Id) {
@@ -309,7 +313,7 @@ void DGLTreeView::breakedWithStateReports(
 
 void DGLTreeView::onDoubleClicked(QTreeWidgetItem* item, int) {
     QClickableTreeWidgetItem* clickableItem =
-        dynamic_cast<QClickableTreeWidgetItem*>(item);
+            dynamic_cast<QClickableTreeWidgetItem*>(item);
     if (clickableItem) {
         clickableItem->handleDoubleClick(m_controller);
     }

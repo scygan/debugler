@@ -35,20 +35,20 @@ DGLProgramViewItem::DGLProgramViewItem(dglnet::ContextObjectName name,
     m_Ui.tableWidgetUniforms->setRowCount(1);
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     m_Ui.tableWidgetUniforms->horizontalHeader()->setResizeMode(
-        QHeaderView::ResizeToContents);
+            QHeaderView::ResizeToContents);
 #else
     m_Ui.tableWidgetUniforms->horizontalHeader()->setSectionResizeMode(
-        QHeaderView::ResizeToContents);
+            QHeaderView::ResizeToContents);
 #endif
     m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(
-        0, new QTableWidgetItem("name"));
+            0, new QTableWidgetItem("name"));
     m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(
-        1, new QTableWidgetItem("type"));
+            1, new QTableWidgetItem("type"));
     m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(
-        2, new QTableWidgetItem("value"));
+            2, new QTableWidgetItem("value"));
 
     m_Listener = resManager->createListener(
-        name, dglnet::DGLResource::ObjectType::Program);
+            name, dglnet::DGLResource::ObjectType::Program);
     m_Listener->setParent(this);
 
     CONNASSERT(m_Listener, SIGNAL(update(const dglnet::DGLResource&)), this,
@@ -72,34 +72,36 @@ void DGLProgramViewItem::update(const dglnet::DGLResource& res) {
     m_Label->hide();
 
     const dglnet::resource::DGLResourceProgram* resource =
-        dynamic_cast<const dglnet::resource::DGLResourceProgram*>(&res);
+            dynamic_cast<const dglnet::resource::DGLResourceProgram*>(&res);
     std::string errorMsg;
 
     m_Ui.textEditLinker->setText(
-        QString::fromStdString(resource->mLinkStatus.first));
+            QString::fromStdString(resource->mLinkStatus.first));
 
     for (size_t i = 0; i < resource->m_AttachedShaders.size(); i++) {
         bool found = false;
         for (int j = 0; j < m_Ui.tabWidget->count(); j++) {
             DGLShaderViewItem* widget =
-                dynamic_cast<DGLShaderViewItem*>(m_Ui.tabWidget->widget(j));
+                    dynamic_cast<DGLShaderViewItem*>(m_Ui.tabWidget->widget(j));
             if (widget && widget->getObjName().m_Name ==
-                              resource->m_AttachedShaders[i].first) {
+                                  resource->m_AttachedShaders[i].first) {
                 found = true;
                 break;
             }
         }
         if (!found) {
             DGLShaderViewItem* newTab = new DGLShaderViewItem(
-                dglnet::ContextObjectName(getObjName().m_Context,
-                                          resource->m_AttachedShaders[i].first),
-                m_ResourceManager, this);
+                    dglnet::ContextObjectName(
+                            getObjName().m_Context,
+                            resource->m_AttachedShaders[i].first),
+                    m_ResourceManager, this);
             m_Ui.tabWidget->addTab(
-                newTab,
-                QString::fromStdString(
-                    GetShaderStageName(resource->m_AttachedShaders[i].second)) +
-                    QString(" Shader ") +
-                    QString::number(resource->m_AttachedShaders[i].first));
+                    newTab,
+                    QString::fromStdString(GetShaderStageName(
+                            resource->m_AttachedShaders[i].second)) +
+                            QString(" Shader ") +
+                            QString::number(
+                                    resource->m_AttachedShaders[i].first));
         }
     }
 
@@ -112,12 +114,12 @@ void DGLProgramViewItem::update(const dglnet::DGLResource& res) {
     m_Ui.tableWidgetUniforms->setRowCount(resource->m_Uniforms.size());
     for (size_t i = 0; i < resource->m_Uniforms.size(); i++) {
         QTableWidgetItem* item =
-            new QTableWidgetItem(resource->m_Uniforms[i].m_name.c_str());
+                new QTableWidgetItem(resource->m_Uniforms[i].m_name.c_str());
         item->setFlags(Qt::ItemIsEnabled);
         m_Ui.tableWidgetUniforms->setItem(i, 0, item);
 
         item = new QTableWidgetItem(
-            GetGLEnumName(resource->m_Uniforms[i].m_type).c_str());
+                GetGLEnumName(resource->m_Uniforms[i].m_type).c_str());
         item->setFlags(Qt::ItemIsEnabled);
         m_Ui.tableWidgetUniforms->setItem(i, 1, item);
 
@@ -143,7 +145,7 @@ void DGLProgramViewItem::update(const dglnet::DGLResource& res) {
 }
 
 void DGLProgramViewItem::onRequestFinished(
-    const dglnet::message::RequestReply* reply) {
+        const dglnet::message::RequestReply* reply) {
     std::string replyStr;
     if (!reply->isOk(replyStr)) {
         QMessageBox::critical(this, "Cannot link program",
@@ -153,9 +155,9 @@ void DGLProgramViewItem::onRequestFinished(
 }
 
 void DGLProgramViewItem::forceLink() {
-    m_RequestManager->request(
-        new dglnet::request::ForceLinkProgram(m_Name.m_Context, m_Name.m_Name),
-        this);
+    m_RequestManager->request(new dglnet::request::ForceLinkProgram(
+                                      m_Name.m_Context, m_Name.m_Name),
+                              this);
 }
 
 DGLProgramView::DGLProgramView(QWidget* parrent, DglController* controller)
@@ -173,7 +175,7 @@ void DGLProgramView::showProgram(opaque_id_t ctx, gl_t name) {
 }
 
 DGLTabbedViewItem* DGLProgramView::createTab(
-    const dglnet::ContextObjectName& id) {
+        const dglnet::ContextObjectName& id) {
     return new DGLProgramViewItem(id, m_Controller->getResourceManager(), this);
 }
 

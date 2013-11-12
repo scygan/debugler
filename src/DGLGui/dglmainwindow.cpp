@@ -63,8 +63,8 @@ struct DGLColorScheme {
     const char *name; /**< Display name */
     const char *file; /**< Resource file name wyth styleshet */
 } dglColorSchemes[DGLNUM_COLOR_SCHEMES] = {
-      {"Default", ":/res/default.stylesheet"},
-      {"Dark Orange", ":/res/darkorange.stylesheet"}, };
+          {"Default", ":/res/default.stylesheet"},
+          {"Dark Orange", ":/res/darkorange.stylesheet"}, };
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #define HICON_TO_QPIXMAP(hicon) QPixmap::fromHICON(hicon)
@@ -116,9 +116,9 @@ void DGLMainWindow::closeEvent(QCloseEvent *_event) {
 
     if (m_controller.isConnected() &&
         QMessageBox::question(
-            this, "Confirm close",
-            "Debugging session is in progress. Close application?",
-            QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
+                this, "Confirm close",
+                "Debugging session is in progress. Close application?",
+                QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
         _event->ignore();
 
     } else {
@@ -130,9 +130,10 @@ void DGLMainWindow::closeEvent(QCloseEvent *_event) {
         settings.setValue(DGL_GEOMETRY_SETTINGS, saveGeometry());
         settings.setValue(DGL_WINDOW_STATE_SETTINGS, saveState());
         settings.setValue(DGL_ColorScheme_SETTINGS, m_ColorScheme);
-        settings.setValue(DGL_ADB_PATH_SETTINGS,
-                          QString::fromStdString(
-                              DGLAdbInterface::get()->getAdbPath()).toUtf8());
+        settings.setValue(
+                DGL_ADB_PATH_SETTINGS,
+                QString::fromStdString(DGLAdbInterface::get()->getAdbPath())
+                        .toUtf8());
 
         // Send even to parrent class
 
@@ -335,7 +336,7 @@ void DGLMainWindow::createActions() {
 
     debugInterruptAct = new QAction(tr("&Interrupt (on GL)"), this);
     debugInterruptAct->setStatusTip(
-        tr("Interrupt program execution on GL call"));
+            tr("Interrupt program execution on GL call"));
     CONNASSERT(debugInterruptAct, SIGNAL(triggered()), &m_controller,
                SLOT(debugInterrupt()));
     CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), debugInterruptAct,
@@ -386,7 +387,7 @@ void DGLMainWindow::createActions() {
 
     setBreakOnGLErrorAct = new QAction(tr("Break on GL error"), this);
     setBreakOnGLErrorAct->setStatusTip(
-        tr("Break execution on GL error (glGetError() != GL_NO_ERROR)"));
+            tr("Break execution on GL error (glGetError() != GL_NO_ERROR)"));
 
     // this action has a state - it is checbox-like checkable
 
@@ -397,26 +398,26 @@ void DGLMainWindow::createActions() {
 
     setBreakOnDebugOutputAct = new QAction(tr("Break on debug output"), this);
     setBreakOnDebugOutputAct->setStatusTip(
-        tr("Break execution on debug output message"));
+            tr("Break execution on debug output message"));
 
     // this action has a state - it is checbox-like checkable
 
     setBreakOnDebugOutputAct->setCheckable(true);
     setBreakOnDebugOutputAct->setChecked(
-        m_controller.getConfig().m_BreakOnGLError);
+            m_controller.getConfig().m_BreakOnGLError);
     CONNASSERT(setBreakOnDebugOutputAct, SIGNAL(toggled(bool)), this,
                SLOT(setBreakOnWhatever(bool)));
 
     setBreakOnCompilerErrAct =
-        new QAction(tr("Break on compiler/linker error"), this);
+            new QAction(tr("Break on compiler/linker error"), this);
     setBreakOnCompilerErrAct->setStatusTip(
-        tr("Break execution on debug GLSL compiler or linker error"));
+            tr("Break execution on debug GLSL compiler or linker error"));
 
     // this action has a state - it is checbox-like checkable
 
     setBreakOnCompilerErrAct->setCheckable(true);
     setBreakOnCompilerErrAct->setChecked(
-        m_controller.getConfig().m_BreakOnCompilerError);
+            m_controller.getConfig().m_BreakOnCompilerError);
     CONNASSERT(setBreakOnCompilerErrAct, SIGNAL(toggled(bool)), this,
                SLOT(setBreakOnWhatever(bool)));
 
@@ -481,7 +482,7 @@ void DGLMainWindow::readSettings() {
     restoreState(settings.value(DGL_WINDOW_STATE_SETTINGS).toByteArray());
 
     DGLAdbInterface::get()->setAdbPath(
-        settings.value(DGL_ADB_PATH_SETTINGS).toString().toStdString());
+            settings.value(DGL_ADB_PATH_SETTINGS).toString().toStdString());
 
     // decode and set actual color scheme from settings
 
@@ -542,11 +543,11 @@ void DGLMainWindow::debugeeInfo(const std::string &processName) {
 
 void DGLMainWindow::about() {
     QMessageBox::about(
-        this, tr("About Debuggler"),
-        tr("<b>Debugler " DGL_VERSION
-           "</b>, The OpenGL debugger<br/><br/>"
-           "Copyright (C) 2013 Slawomir Cygan.<br/><br/> "
-           "<a href=\"https://github.com/debugler/debugler\"/>"));
+            this, tr("About Debuggler"),
+            tr("<b>Debugler " DGL_VERSION
+               "</b>, The OpenGL debugger<br/><br/>"
+               "Copyright (C) 2013 Slawomir Cygan.<br/><br/> "
+               "<a href=\"https://github.com/debugler/debugler\"/>"));
 }
 
 void DGLMainWindow::attach() {
@@ -582,9 +583,10 @@ void DGLMainWindow::runDialog() {
         try {
 
             m_BusyDialog = std::make_shared<QProgressDialog>(
-                "Starting debugging session (waiting for application to try "
-                "use OpenGL)...",
-                "Cancel", 0, 1, this);
+                    "Starting debugging session (waiting for application to "
+                    "try "
+                    "use OpenGL)...",
+                    "Cancel", 0, 1, this);
 
             m_BusyDialog->setWindowModality(Qt::WindowModal);
             m_BusyDialog->setValue(0);
@@ -641,8 +643,8 @@ void DGLMainWindow::processErrorHandler(std::string err) {
 void DGLMainWindow::processExitHandler(int code) {
     disconnect();
     QMessageBox::information(
-        NULL, tr("Process Exited"),
-        tr("Process has exited with code ") + QString::number(code) + ".");
+            NULL, tr("Process Exited"),
+            tr("Process has exited with code ") + QString::number(code) + ".");
 }
 
 void DGLMainWindow::processReadyHandler() {
@@ -685,11 +687,11 @@ void DGLMainWindow::setBreakOnWhatever(bool) {
     // tell DGLController to configure it's debugee
 
     m_controller.getConfig().m_BreakOnGLError =
-        setBreakOnGLErrorAct->isChecked();
+            setBreakOnGLErrorAct->isChecked();
     m_controller.getConfig().m_BreakOnDebugOutput =
-        setBreakOnDebugOutputAct->isChecked();
+            setBreakOnDebugOutputAct->isChecked();
     m_controller.getConfig().m_BreakOnCompilerError =
-        setBreakOnCompilerErrAct->isChecked();
+            setBreakOnCompilerErrAct->isChecked();
     m_controller.sendConfig();
     showConfig();
 }
@@ -710,7 +712,7 @@ void DGLMainWindow::connectionLost(const QString &title, const QString &msg) {
 void DGLMainWindow::showConfig() {
     setBreakOnGLErrorAct->setChecked(m_controller.getConfig().m_BreakOnGLError);
     setBreakOnDebugOutputAct->setChecked(
-        m_controller.getConfig().m_BreakOnDebugOutput);
+            m_controller.getConfig().m_BreakOnDebugOutput);
     setBreakOnCompilerErrAct->setChecked(
-        m_controller.getConfig().m_BreakOnCompilerError);
+            m_controller.getConfig().m_BreakOnCompilerError);
 }

@@ -34,7 +34,7 @@ DGLGPUView::DGLGPUView(QWidget* parrent, DglController* controller)
 
 void DGLGPUView::update(const dglnet::DGLResource& res) {
     const dglnet::resource::DGLResourceGPU* resource =
-        dynamic_cast<const dglnet::resource::DGLResourceGPU*>(&res);
+            dynamic_cast<const dglnet::resource::DGLResourceGPU*>(&res);
     m_Ui->label_Renderer->setText(QString::fromStdString(resource->m_Renderer));
     m_Ui->label_Vendor->setText(QString::fromStdString(resource->m_Vendor));
     m_Ui->label_Version->setText(QString::fromStdString(resource->m_Version));
@@ -45,18 +45,19 @@ void DGLGPUView::update(const dglnet::DGLResource& res) {
     } else {
         m_Ui->groupBox_NVMem->show();
         m_Ui->label_Dedicated->setText(
-            QString::number(resource->m_nvidiaMemory.memInfoTotalAvailMem /
-                            1000) +
-            QString(" MB"));
+                QString::number(resource->m_nvidiaMemory.memInfoTotalAvailMem /
+                                1000) +
+                QString(" MB"));
         m_Ui->label_Eviction->setText(
-            QString::number(resource->m_nvidiaMemory.memInfoEvictedMem / 1000) +
-            QString(" MB,  (") +
-            QString::number(resource->m_nvidiaMemory.memInfoEvictionCount) +
-            QString(" evictions)"));
+                QString::number(resource->m_nvidiaMemory.memInfoEvictedMem /
+                                1000) +
+                QString(" MB,  (") +
+                QString::number(resource->m_nvidiaMemory.memInfoEvictionCount) +
+                QString(" evictions)"));
         m_Ui->progressBar_VidMem->setMaximum(
-            resource->m_nvidiaMemory.memInfoDedidactedVidMem / 1000);
+                resource->m_nvidiaMemory.memInfoDedidactedVidMem / 1000);
         m_Ui->progressBar_VidMem->setValue(
-            resource->m_nvidiaMemory.memInfoCurrentAvailVidMem / 1000);
+                resource->m_nvidiaMemory.memInfoCurrentAvailVidMem / 1000);
     }
 }
 
@@ -83,7 +84,8 @@ void DGLGPUView::setConnected(bool connected) {
         setLayout(m_Ui->verticalLayout);
 
         m_Listener = m_Controller->getResourceManager()->createListener(
-            dglnet::ContextObjectName(), dglnet::DGLResource::ObjectType::GPU);
+                dglnet::ContextObjectName(),
+                dglnet::DGLResource::ObjectType::GPU);
         m_Listener->setParent(m_Ui->groupBox);
 
         CONNASSERT(m_Listener, SIGNAL(update(const dglnet::DGLResource&)), this,

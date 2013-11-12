@@ -29,7 +29,7 @@ DGLTextureViewItem::DGLTextureViewItem(dglnet::ContextObjectName name,
     m_Ui.m_PixelRectangleView->setScene(m_PixelRectangleScene);
 
     m_Listener = resManager->createListener(
-        name, dglnet::DGLResource::ObjectType::Texture);
+            name, dglnet::DGLResource::ObjectType::Texture);
     m_Listener->setParent(this);
 
     m_Ui.horizontalSlider_LOD->setDisabled(true);
@@ -56,7 +56,7 @@ void DGLTextureViewItem::error(const std::string& message) {
 
 void DGLTextureViewItem::update(const dglnet::DGLResource& res) {
     const dglnet::resource::DGLResourceTexture* resource =
-        dynamic_cast<const dglnet::resource::DGLResourceTexture*>(&res);
+            dynamic_cast<const dglnet::resource::DGLResourceTexture*>(&res);
 
     m_FacesLevels = resource->m_FacesLevels;
 
@@ -68,7 +68,7 @@ void DGLTextureViewItem::update(const dglnet::DGLResource& res) {
             m_Ui.comboBoxCM->show();
 
             m_CurrentFace = std::min(
-                m_CurrentFace, static_cast<uint>(m_FacesLevels.size() - 1));
+                    m_CurrentFace, static_cast<uint>(m_FacesLevels.size() - 1));
 
         } else {
             m_Ui.labelCM->hide();
@@ -78,7 +78,7 @@ void DGLTextureViewItem::update(const dglnet::DGLResource& res) {
 
         m_Ui.comboBoxCM->setCurrentIndex(m_CurrentFace);
         m_Ui.horizontalSlider_LOD->setRange(
-            0, m_FacesLevels[m_CurrentFace].size() - 1);
+                0, m_FacesLevels[m_CurrentFace].size() - 1);
         m_Ui.horizontalSlider_LOD->setEnabled(true);
 
         internalUpdate();
@@ -116,14 +116,14 @@ void DGLTextureViewItem::internalUpdate() {
     // validate m_CurrentLevel
     if (m_CurrentLevel >= m_FacesLevels[m_CurrentFace].size()) {
         m_PixelRectangleScene->setText(
-            "Selected texture level does not exists");
+                "Selected texture level does not exists");
         return;
     }
 
     m_PixelRectangleScene->setPixelRectangle(
-        *m_FacesLevels[m_CurrentFace][m_CurrentLevel].get());
+            *m_FacesLevels[m_CurrentFace][m_CurrentLevel].get());
     m_Ui.m_PixelRectangleView->updateFormatSizeInfo(
-        m_FacesLevels[m_CurrentFace][m_CurrentLevel].get());
+            m_FacesLevels[m_CurrentFace][m_CurrentLevel].get());
 }
 
 DGLTextureView::DGLTextureView(QWidget* parrent, DglController* controller)
@@ -141,7 +141,7 @@ void DGLTextureView::showTexture(opaque_id_t ctx, gl_t name) {
 }
 
 DGLTabbedViewItem* DGLTextureView::createTab(
-    const dglnet::ContextObjectName& id) {
+        const dglnet::ContextObjectName& id) {
     return new DGLTextureViewItem(id, m_Controller->getResourceManager(), this);
 }
 

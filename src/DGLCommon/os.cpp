@@ -142,7 +142,7 @@ int Os::getLastosError() { return (int)GetLastError(); }
 std::string Os::translateOsError(int error) {
     char* errorText;
     FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                       FORMAT_MESSAGE_IGNORE_INSERTS,
+                           FORMAT_MESSAGE_IGNORE_INSERTS,
                    NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                    (LPSTR) & errorText, 0, NULL);
     std::string ret(errorText);
@@ -210,7 +210,7 @@ std::string Os::getProcessName() {
     char cmdline[256] = {0};
     const char* file = "/proc/self/exe";
     linknamelen =
-        readlink(file, cmdline, sizeof(cmdline) / sizeof(*cmdline) - 1);
+            readlink(file, cmdline, sizeof(cmdline) / sizeof(*cmdline) - 1);
     cmdline[linknamelen + 1] = 0;
     return basename(cmdline);
 }

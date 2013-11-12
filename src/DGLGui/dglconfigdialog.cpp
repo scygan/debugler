@@ -23,12 +23,12 @@ DGLConfigDialog::DGLConfigDialog(const DGLConfiguration& configuration,
     m_Ui.setupUi(this);
 
     m_Configuration.m_ForceDebugContextES =
-        (m_Configuration.m_ForceDebugContextES &&
-         m_Configuration.m_ForceDebugContext);
+            (m_Configuration.m_ForceDebugContextES &&
+             m_Configuration.m_ForceDebugContext);
 
     m_Ui.checkBoxDebugContext->setChecked(m_Configuration.m_ForceDebugContext);
     m_Ui.checkBoxDebugContextES->setChecked(
-        m_Configuration.m_ForceDebugContextES);
+            m_Configuration.m_ForceDebugContextES);
 
     m_Ui.lineEdit_Adb->setText(QString::fromStdString(adbPath));
 }
@@ -37,9 +37,9 @@ DGLConfigDialog::~DGLConfigDialog() {}
 
 const DGLConfiguration* DGLConfigDialog::getConfig() {
     m_Configuration.m_ForceDebugContext =
-        m_Ui.checkBoxDebugContext->isChecked();
+            m_Ui.checkBoxDebugContext->isChecked();
     m_Configuration.m_ForceDebugContextES =
-        m_Ui.checkBoxDebugContextES->isChecked();
+            m_Ui.checkBoxDebugContextES->isChecked();
     return &m_Configuration;
 }
 
@@ -53,8 +53,8 @@ void DGLConfigDialog::toggleDebugFlagRenderingContext(bool enabled) {
 void DGLConfigDialog::adbBrowseDialog() {
     QFileInfo info(m_Ui.lineEdit_Adb->text());
     QString res = QFileDialog::getOpenFileName(
-        this, tr("Choose adb executable"), info.absoluteFilePath(),
-        tr("Executables (*.exe)"));
+            this, tr("Choose adb executable"), info.absoluteFilePath(),
+            tr("Executables (*.exe)"));
     if (!res.isNull()) {
         m_Ui.lineEdit_Adb->setText(QDir::toNativeSeparators(res));
     }

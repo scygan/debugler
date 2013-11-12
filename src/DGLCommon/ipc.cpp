@@ -43,17 +43,17 @@ class DGLIPCImpl : public DGLIPC {
         m_uuid = uuidStream.str();
 #ifdef _WIN32
         m_shmem =
-            boost::make_shared<boost::interprocess::windows_shared_memory>(
-                boost::interprocess::create_only, m_uuid.c_str(),
-                boost::interprocess::read_write, sizeof(MemoryRegion));
+                boost::make_shared<boost::interprocess::windows_shared_memory>(
+                        boost::interprocess::create_only, m_uuid.c_str(),
+                        boost::interprocess::read_write, sizeof(MemoryRegion));
 #else
         m_shmem = boost::make_shared<boost::interprocess::shared_memory_object>(
-            boost::interprocess::create_only, m_uuid.c_str(),
-            boost::interprocess::read_write);
+                boost::interprocess::create_only, m_uuid.c_str(),
+                boost::interprocess::read_write);
         m_shmem->truncate(sizeof(MemoryRegion));
 #endif
         m_shmemregion = boost::make_shared<boost::interprocess::mapped_region>(
-            *m_shmem, boost::interprocess::read_write);
+                *m_shmem, boost::interprocess::read_write);
 
         // inplace
         m_region = new (m_shmemregion->get_address()) MemoryRegion;
@@ -63,18 +63,18 @@ class DGLIPCImpl : public DGLIPC {
             : m_uuid(uuid), m_region(NULL), m_regionowner(false) {
 #ifdef _WIN32
         m_shmem =
-            boost::make_shared<boost::interprocess::windows_shared_memory>(
-                boost::interprocess::open_only, m_uuid.c_str(),
-                boost::interprocess::read_write);
+                boost::make_shared<boost::interprocess::windows_shared_memory>(
+                        boost::interprocess::open_only, m_uuid.c_str(),
+                        boost::interprocess::read_write);
 #else
         m_shmem = boost::make_shared<boost::interprocess::shared_memory_object>(
-            boost::interprocess::open_only, m_uuid.c_str(),
-            boost::interprocess::read_write);
+                boost::interprocess::open_only, m_uuid.c_str(),
+                boost::interprocess::read_write);
 #endif
         m_shmemregion = boost::make_shared<boost::interprocess::mapped_region>(
-            *m_shmem, boost::interprocess::read_write);
+                *m_shmem, boost::interprocess::read_write);
         m_region =
-            reinterpret_cast<MemoryRegion*>(m_shmemregion->get_address());
+                reinterpret_cast<MemoryRegion*>(m_shmemregion->get_address());
     }
 
     ~DGLIPCImpl() {

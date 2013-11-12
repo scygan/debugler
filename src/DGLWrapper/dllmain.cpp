@@ -175,7 +175,7 @@ class ThreadWatcher {
         m_NativeSemaphore = CreateSemaphore(NULL, 0, 0xffff, NULL);
         if (!m_NativeSemaphore) {
             Os::fatal(
-                "Cannot create loader semaphore (CreateSemaphore failed)");
+                    "Cannot create loader semaphore (CreateSemaphore failed)");
         }
     }
 
@@ -202,7 +202,7 @@ class ThreadWatcher {
     void lockLoaderThread() {
         if (WaitForSingleObject(m_NativeSemaphore, INFINITE) != WAIT_OBJECT_0) {
             Os::fatal(
-                "Cannot loack loader thread (WaitForSingleObject failed)");
+                    "Cannot loack loader thread (WaitForSingleObject failed)");
         }
     }
 

@@ -34,7 +34,7 @@ GLAuxContextSurface::GLAuxContextSurface(const DGLDisplayState* display,
         : m_DisplayId(display->getId()), m_Id(0) {
     EGLint attributes[] = {EGL_HEIGHT, 1, EGL_WIDTH, 1, EGL_NONE};
     m_Id = (opaque_id_t)DIRECT_CALL_CHK(eglCreatePbufferSurface)(
-        (EGLDisplay)m_DisplayId, (EGLConfig)pixfmt, attributes);
+            (EGLDisplay)m_DisplayId, (EGLConfig)pixfmt, attributes);
     if (!m_Id) {
         throw std::runtime_error("Cannot allocate axualiary pbuffer surface");
     }
@@ -61,25 +61,25 @@ GLAuxContext::GLAuxContext(const GLContext* origCtx)
     }
 
     std::vector<EGLint> eglAttributes(
-        m_Parrent->getContextCreationData().getAttribs().size());
+            m_Parrent->getContextCreationData().getAttribs().size());
 
     for (size_t i = 0;
          i < m_Parrent->getContextCreationData().getAttribs().size(); i++) {
         eglAttributes[i] =
-            (EGLint)m_Parrent->getContextCreationData().getAttribs()[i];
+                (EGLint)m_Parrent->getContextCreationData().getAttribs()[i];
     }
     eglAttributes.push_back(EGL_NONE);
 
-    m_PixelFormat =
-        choosePixelFormat(m_Parrent->getContextCreationData().getPixelFormat(),
-                          m_Parrent->getDisplay()->getId());
+    m_PixelFormat = choosePixelFormat(
+            m_Parrent->getContextCreationData().getPixelFormat(),
+            m_Parrent->getDisplay()->getId());
 
     switch (origCtx->getContextCreationData().getEntryPoint()) {
         case eglCreateContext_Call:
             m_Id = (opaque_id_t)DIRECT_CALL_CHK(eglCreateContext)(
-                (EGLDisplay)m_Parrent->getDisplay()->getId(),
-                (EGLConfig)m_PixelFormat, (EGLContext)m_Parrent->getId(),
-                &eglAttributes[0]);
+                    (EGLDisplay)m_Parrent->getDisplay()->getId(),
+                    (EGLConfig)m_PixelFormat, (EGLContext)m_Parrent->getId(),
+                    &eglAttributes[0]);
             break;
     }
 
@@ -96,7 +96,7 @@ GLAuxContext::~GLAuxContext() {
 
     if (m_Id) {
         DIRECT_CALL_CHK(eglDestroyContext)(
-            (EGLDisplay)m_Parrent->getDisplay()->getId(), (EGLContext)m_Id);
+                (EGLDisplay)m_Parrent->getDisplay()->getId(), (EGLContext)m_Id);
     }
 }
 
@@ -109,12 +109,12 @@ void GLAuxContext::doRefCurrent() {
     if (!m_MakeCurrentRef) {
         if (!m_AuxSurface) {
             m_AuxSurface = std::make_shared<GLAuxContextSurface>(
-                m_Parrent->getDisplay(), m_PixelFormat);
+                    m_Parrent->getDisplay(), m_PixelFormat);
         }
         EGLBoolean status = DIRECT_CALL_CHK(eglMakeCurrent)(
-            (EGLDisplay)m_Parrent->getDisplay()->getId(),
-            (EGLSurface)m_AuxSurface->getId(),
-            (EGLSurface)m_AuxSurface->getId(), (EGLContext)m_Id);
+                (EGLDisplay)m_Parrent->getDisplay()->getId(),
+                (EGLSurface)m_AuxSurface->getId(),
+                (EGLSurface)m_AuxSurface->getId(), (EGLContext)m_Id);
 
         if (!status) {
             throw std::runtime_error("Cannot switch to auxaliary context.");
@@ -132,13 +132,13 @@ void GLAuxContext::doUnrefCurrent() {
     }
     if (!m_MakeCurrentRef) {
         EGLBoolean status = DIRECT_CALL_CHK(eglMakeCurrent)(
-            (EGLDisplay)m_Parrent->getDisplay()->getId(),
-            (EGLSurface)m_Parrent->getNativeDrawSurface()->getId(),
-            (EGLSurface)m_Parrent->getNativeReadSurface()->getId(),
-            (EGLContext)m_Parrent->getId());
+                (EGLDisplay)m_Parrent->getDisplay()->getId(),
+                (EGLSurface)m_Parrent->getNativeDrawSurface()->getId(),
+                (EGLSurface)m_Parrent->getNativeReadSurface()->getId(),
+                (EGLContext)m_Parrent->getId());
         if (!status) {
             throw std::runtime_error(
-                "Cannot switch back from auxaliary context.");
+                    "Cannot switch back from auxaliary context.");
         }
     }
 }
@@ -151,7 +151,7 @@ opaque_id_t GLAuxContext::choosePixelFormat(opaque_id_t preferred,
 
     EGLBoolean status = EGL_TRUE;
     status &= DIRECT_CALL_CHK(eglGetConfigAttrib)(
-        eglDpy, preferredConfig, EGL_SURFACE_TYPE, &supportedSurfType);
+            eglDpy, preferredConfig, EGL_SURFACE_TYPE, &supportedSurfType);
 
     if (!status) {
         throw std::runtime_error("Cannot query EGLConfig associated with ctx");
@@ -186,7 +186,8 @@ opaque_id_t GLAuxContext::choosePixelFormat(opaque_id_t preferred,
                                                    &numConfigs);
         if ((status != EGL_TRUE) || numConfigs < 1) {
             throw std::runtime_error(
-                "Cannot choose EGLConfig capable of driving auxaliary context");
+                    "Cannot choose EGLConfig capable of driving auxaliary "
+                    "context");
         }
     }
     return (opaque_id_t)ret;
@@ -203,7 +204,7 @@ void GLAuxContext::GLQueries::setupInitialState() {
     DIRECT_CALL_CHK(glGenRenderbuffers)(1, &rbo);
     DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, rbo);
     DIRECT_CALL_CHK(glFramebufferRenderbuffer)(
-        GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rbo);
+            GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rbo);
 
     if (m_AuxCtx->m_Parrent->getVersion().check(GLContextVersion::Type::ES,
                                                 3) ||
@@ -225,12 +226,12 @@ void GLAuxContext::GLQueries::setupInitialState() {
 
     vshobj = DIRECT_CALL_CHK(glCreateShader)(GL_VERTEX_SHADER);
     const char* vsh =
-        "attribute vec4 inPos;\n"
-        "varying vec2 texPos;\n"
-        "void main() {\n"
-        "   gl_Position = inPos;\n"
-        "   texPos = inPos.xy * 0.5 + 0.5;\n"
-        "}\n";
+            "attribute vec4 inPos;\n"
+            "varying vec2 texPos;\n"
+            "void main() {\n"
+            "   gl_Position = inPos;\n"
+            "   texPos = inPos.xy * 0.5 + 0.5;\n"
+            "}\n";
 
     DIRECT_CALL_CHK(glShaderSource)(vshobj, 1, &vsh, NULL);
     DIRECT_CALL_CHK(glCompileShader)(vshobj);
@@ -258,13 +259,14 @@ void GLAuxContext::GLQueries::auxGetTexImage(GLuint name, GLenum target,
     if (!m_AuxCtx->m_Parrent->getVersion().check(GLContextVersion::Type::ES,
                                                  2)) {
         throw std::runtime_error(
-            "GLAuxContext::GLQueries::auxGetTexImage not implemented for this "
-            "context version");
+                "GLAuxContext::GLQueries::auxGetTexImage not implemented for "
+                "this "
+                "context version");
     }
 
     if (!DIRECT_CALL_CHK(glIsTexture)(name)) {
         throw std::runtime_error(
-            "Texture object not found in auxaliary context");
+                "Texture object not found in auxaliary context");
     }
 
     GLenum bindableTarget = target;
@@ -281,8 +283,8 @@ void GLAuxContext::GLQueries::auxGetTexImage(GLuint name, GLenum target,
     GLuint program = getTextureShaderProgram(target, format);
     DIRECT_CALL_CHK(glUseProgram)(program);
     DIRECT_CALL_CHK(glUniform1f)(
-        DIRECT_CALL_CHK(glGetUniformLocation)(program, "level"),
-        static_cast<GLfloat>(level));
+            DIRECT_CALL_CHK(glGetUniformLocation)(program, "level"),
+            static_cast<GLfloat>(level));
 
     DIRECT_CALL_CHK(glDrawArrays)(GL_TRIANGLE_STRIP, 0, 4);
     DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, format, type, pixels);
@@ -299,8 +301,8 @@ GLuint GLAuxContext::GLQueries::getTextureShaderProgram(GLenum target,
 
     if (format != GL_RGBA) {
         throw std::runtime_error(
-            "GLAuxContext::GLQueries::getTextureShaderProgram: format "
-            "unsupported");
+                "GLAuxContext::GLQueries::getTextureShaderProgram: format "
+                "unsupported");
     }
 
     switch (target) {
@@ -326,11 +328,11 @@ GLuint GLAuxContext::GLQueries::getTextureShaderProgram(GLenum target,
         //  break;
         default:
             throw std::runtime_error(
-                "cannot generate program for this texture target");
+                    "cannot generate program for this texture target");
     }
 
-    bool glsl300 =
-        m_AuxCtx->m_Parrent->getVersion().check(GLContextVersion::Type::ES, 3);
+    bool glsl300 = m_AuxCtx->m_Parrent->getVersion().check(
+            GLContextVersion::Type::ES, 3);
 
     std::ostringstream fsh;
 
@@ -386,7 +388,7 @@ GLuint GLAuxContext::GLQueries::getTextureShaderProgram(GLenum target,
             char log[1000];
             DIRECT_CALL_CHK(glGetShaderInfoLog)(fShader, 1000, NULL, log);
             throw std::runtime_error(
-                std::string("Cannot compile fragment shader:") + log);
+                    std::string("Cannot compile fragment shader:") + log);
         }
 
         DIRECT_CALL_CHK(glLinkProgram)(program);

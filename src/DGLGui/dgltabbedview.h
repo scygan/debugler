@@ -58,7 +58,7 @@ slots:
 
    private:
     virtual DGLTabbedViewItem* createTab(
-        const dglnet::ContextObjectName& id) = 0;
+            const dglnet::ContextObjectName& id) = 0;
     virtual QString getTabName(gl_t id, gl_t target) = 0;
     QTabWidget m_TabWidget;
 };

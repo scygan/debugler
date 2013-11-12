@@ -36,8 +36,8 @@ class DGLTraceViewDelegate : public QStyledItemDelegate {
         QString error;
         if (glErrorI != -1) {
             error = (glError == GL_NO_ERROR)
-                        ? "GL_NO_ERROR"
-                        : QString::fromStdString(GetGLEnumName(glError));
+                            ? "GL_NO_ERROR"
+                            : QString::fromStdString(GetGLEnumName(glError));
         }
 
         QPen backup = painter->pen();
@@ -118,9 +118,9 @@ DGLTraceView::DGLTraceView(QWidget* parrent, DglController* controller)
     CONNASSERT(controller, SIGNAL(breaked(CalledEntryPoint, uint)), this,
                SLOT(breaked(CalledEntryPoint, uint)));
     CONNASSERT(controller, SIGNAL(gotCallTraceChunkChunk(
-                               uint, const std::vector<CalledEntryPoint>&)),
+                                   uint, const std::vector<CalledEntryPoint>&)),
                this, SLOT(gotCallTraceChunkChunk(
-                         uint, const std::vector<CalledEntryPoint>&)));
+                             uint, const std::vector<CalledEntryPoint>&)));
     // outbound
     CONNASSERT(this, SIGNAL(queryCallTrace(uint, uint)), controller,
                SLOT(queryCallTrace(uint, uint)));
@@ -146,7 +146,7 @@ void DGLTraceView::mayNeedNewElements() {
             // we are starving of entrypoints to display, try to query new
             // entrypoints up to this bound
             int nextUpperBound =
-                m_QueryUpperBound + 2 * m_traceList.getVisibleRowCount();
+                    m_QueryUpperBound + 2 * m_traceList.getVisibleRowCount();
             queryCallTrace(m_QueryUpperBound, nextUpperBound);
             m_QueryUpperBound = nextUpperBound;
         }
@@ -162,8 +162,9 @@ void DGLTraceView::breaked(CalledEntryPoint entryp, uint traceSize) {
         m_traceList.addItem(item);
     }
     QListWidgetItem* item = new QListWidgetItem();
-    item->setData(Qt::UserRole, QString("BREAKED :  ") +
-                                    QString::fromStdString(entryp.toString()));
+    item->setData(
+            Qt::UserRole,
+            QString("BREAKED :  ") + QString::fromStdString(entryp.toString()));
     item->setData(Qt::UserRole + 1, -1);    // do not display GL error
     m_traceList.addItem(item);
     m_traceList.setCurrentRow(m_traceList.count() - 1);
@@ -173,7 +174,7 @@ void DGLTraceView::breaked(CalledEntryPoint entryp, uint traceSize) {
 }
 
 void DGLTraceView::gotCallTraceChunkChunk(
-    uint offset, const std::vector<CalledEntryPoint>& trace) {
+        uint offset, const std::vector<CalledEntryPoint>& trace) {
     for (uint i = offset; i < offset + trace.size(); i++) {
         int row = m_traceList.count() - i - 2;
         delete m_traceList.takeItem(row);
@@ -187,7 +188,7 @@ void DGLTraceView::gotCallTraceChunkChunk(
         std::string func = trace[trace.size() - 1 - i + offset].toString();
         gl_t error = trace[trace.size() - 1 - i + offset].getError();
         std::string debugOutput =
-            trace[trace.size() - 1 - i + offset].getDebugOutput();
+                trace[trace.size() - 1 - i + offset].getDebugOutput();
 
         QListWidgetItem* item = new QListWidgetItem();
         item->setData(Qt::UserRole, func.c_str());

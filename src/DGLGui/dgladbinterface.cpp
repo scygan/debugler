@@ -117,9 +117,9 @@ DGLAdbCookie::DGLAdbCookie(const std::string& adbPath,
 
 void DGLAdbCookie::process() {
     if (!m_adbPath.size()) {
-        emit failed(
-            tr("ADB path is not set, go to Tools->Configuration->Android to "
-               "set it.").toStdString());
+        emit failed(tr(
+                "ADB path is not set, go to Tools->Configuration->Android to "
+                "set it.").toStdString());
     } else {
         run(m_adbPath, "", m_params, m_OutputFilter.get() != nullptr);
     }
@@ -147,7 +147,7 @@ void DGLAdbCookie::handleProcessFinished(int code,
             foreach(QByteArray qLine, qLines) {
                 if (qLine[0] != '*')
                     lines.push_back(QString(qLine.replace("\r", QByteArray()))
-                                        .toStdString());
+                                            .toStdString());
             }
             if (m_OutputFilter.get()) {
                 std::vector<std::string> filteredLines;
@@ -199,7 +199,7 @@ void DGLADBDevice::reloadProcesses() {
     params.push_back("getprop");
     params.push_back("debug.debugler.socket");
     DGLAdbCookie* cookie = DGLAdbInterface::get()->invokeOnDevice(
-        m_Serial, params, std::make_shared<DGLGetPropOutputFilter>());
+            m_Serial, params, std::make_shared<DGLGetPropOutputFilter>());
     CONNASSERT(cookie, SIGNAL(failed(std::string)), this,
                SLOT(adbFailed(std::string)));
     CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this,
@@ -210,14 +210,13 @@ void DGLADBDevice::reloadProcesses() {
 const std::string& DGLADBDevice::getSerial() const { return m_Serial; }
 
 void DGLADBDevice::reloadProcessesGotPortString(
-    const std::vector<std::string>& prop) {
+        const std::vector<std::string>& prop) {
 
     const std::string& portString = prop[0];
 
     if (!portString.size()) {
         return;
     }
-
 
     QString pathRegexStr = "^";
     size_t lastOffset = 0;
@@ -262,7 +261,7 @@ void DGLADBDevice::reloadProcessesGotPortString(
     params.push_back("cat");
     params.push_back("/proc/net/unix");
     DGLAdbCookie* cookie = DGLAdbInterface::get()->invokeOnDevice(
-        m_Serial, params, std::make_shared<DGLUnixSocketsFilter>());
+            m_Serial, params, std::make_shared<DGLUnixSocketsFilter>());
     CONNASSERT(cookie, SIGNAL(failed(std::string)), this,
                SLOT(adbFailed(std::string)));
     CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this,
@@ -271,18 +270,18 @@ void DGLADBDevice::reloadProcessesGotPortString(
 }
 
 void DGLADBDevice::reloadProcessesGotUnixSockets(
-    const std::vector<std::string>& sockets) {
+        const std::vector<std::string>& sockets) {
     std::vector<DGLAdbProcess> processes;
 
     for (size_t i = 0; i < sockets.size(); i++) {
         if (m_SocketPathRegex.indexIn(QString::fromStdString(sockets[i])) !=
             -1) {
             std::string pid =
-                m_SocketPathRegex.cap(m_PidInSocketRegex + 1).toStdString();
+                    m_SocketPathRegex.cap(m_PidInSocketRegex + 1).toStdString();
             std::string processName;
             if (m_PNameInSocketRegex >= 0) {
                 processName = m_SocketPathRegex.cap(m_PNameInSocketRegex + 1)
-                                  .toStdString();
+                                      .toStdString();
             }
             processes.push_back(DGLAdbProcess(pid, processName, sockets[i]));
         }
@@ -322,8 +321,8 @@ DGLAdbCookie* DGLAdbInterface::getDevices() {
 }
 
 DGLAdbCookie* DGLAdbInterface::invokeOnDevice(
-    const std::string& serial, const std::vector<std::string>& params,
-    std::shared_ptr<DGLAdbOutputFilter> filter) {
+        const std::string& serial, const std::vector<std::string>& params,
+        std::shared_ptr<DGLAdbOutputFilter> filter) {
     std::vector<std::string> deviceParams(2 + params.size());
     deviceParams[0] = "-s";
     deviceParams[1] = serial;
@@ -335,8 +334,8 @@ DGLAdbCookie* DGLAdbInterface::invokeOnDevice(
 }
 
 DGLAdbCookie* DGLAdbInterface::invokeAdb(
-    const std::vector<std::string>& params,
-    std::shared_ptr<DGLAdbOutputFilter> filter) {
+        const std::vector<std::string>& params,
+        std::shared_ptr<DGLAdbOutputFilter> filter) {
     DGLAdbCookie* ret = new DGLAdbCookie(m_adbPath, params, filter);
     ;
     return ret;

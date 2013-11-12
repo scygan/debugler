@@ -226,22 +226,22 @@ class GLContext {
      * texture level query (dispatches to proper query)
      */
     boost::shared_ptr<dglnet::resource::DGLPixelRectangle> queryTextureLevel(
-        gl_t _name, GLenum target, int level,
-        state_setters::PixelStoreAlignment&);
+            gl_t _name, GLenum target, int level,
+            state_setters::PixelStoreAlignment&);
 
     /**
      * texture level query (OpenGL, using getters)
      */
     boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
-        queryTextureLevelGetters(
-            GLenum target, int level,
-            state_setters::PixelStoreAlignment& defAlignment);
+            queryTextureLevelGetters(
+                    GLenum target, int level,
+                    state_setters::PixelStoreAlignment& defAlignment);
 
     /**
      * texture level query (OpenGL ES, using auxiliary ctx)
      */
     boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
-        queryTextureLevelAuxCtx(gl_t _name, GLenum target, int level);
+            queryTextureLevelAuxCtx(gl_t _name, GLenum target, int level);
 
     bool textureProbeSizeES(GLenum target, int level, const int sizes[3]);
     int textureBisectSizeES(GLenum target, int level, int coord, int maxSize);
@@ -255,9 +255,9 @@ class GLContext {
      * Debugger's specific debug message callback
      */
     static void APIENTRY
-        debugOutputCallback(GLenum source, GLenum type, GLuint id,
-                            GLenum severity, GLsizei length,
-                            const GLchar* message, GLvoid* userParam);
+            debugOutputCallback(GLenum source, GLenum type, GLuint id,
+                                GLenum severity, GLsizei length,
+                                const GLchar* message, GLvoid* userParam);
 
     /**
      * non-static function called from debug message callback
@@ -410,37 +410,37 @@ class GLContext {
      * Get state element (using glGetIntegerv)
      */
     dglnet::resource::DGLResourceState::StateItem getStateIntegerv(
-        const char* name, GLenum value, size_t length);
+            const char* name, GLenum value, size_t length);
 
     /**
     * Get state element (using glGetInteger64v)
     */
     dglnet::resource::DGLResourceState::StateItem getStateInteger64v(
-        const char* name, GLenum value, size_t length);
+            const char* name, GLenum value, size_t length);
 
     /**
      * Get state element (using glGetFloatv)
      */
     dglnet::resource::DGLResourceState::StateItem getStateFloatv(
-        const char* name, GLenum value, size_t length);
+            const char* name, GLenum value, size_t length);
 
     /**
      * Get state element (using glGetDoublev)
      */
     dglnet::resource::DGLResourceState::StateItem getStateDoublev(
-        const char* name, GLenum value, size_t length);
+            const char* name, GLenum value, size_t length);
 
     /**
      * Get state element (using glGetBooleanv)
      */
     dglnet::resource::DGLResourceState::StateItem getStateBooleanv(
-        const char* name, GLenum value, size_t length);
+            const char* name, GLenum value, size_t length);
 
     /**
      * Get state element (using glIsEnabled)
      */
     dglnet::resource::DGLResourceState::StateItem getStateIsEnabled(
-        const char* name, GLenum value);
+            const char* name, GLenum value);
 
     /**
      * True if ctx was ever bound, false otherwise

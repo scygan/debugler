@@ -25,7 +25,8 @@
 
 #include <portable_archive/portable_oarchive.hpp>
 #pragma warning(push)
-#pragma warning(disable : 4244)    //'argument' : conversion from             \
+#pragma warning(disable \
+                : 4244)    //'argument' : conversion from             \
                                    //'std::streamsize' to 'size_t', possible  \
                                    //loss of data basic_binary_iprimitive.hpp \
                                    //181
@@ -33,8 +34,9 @@
 #pragma warning(pop)
 #include <boost/serialization/set.hpp>
 #pragma warning(push)
-#pragma warning(                                                               \
-    disable : 4512)    //'boost::serialization::variant_save_visitor<Archive>' \
+#pragma warning( \
+        disable  \
+        : 4512)    //'boost::serialization::variant_save_visitor<Archive>' \
                        //: assignment operator could not be generated
 
 #include <boost/serialization/variant.hpp>
@@ -88,7 +90,7 @@ void Transport<proto>::abort() {
     m_Abort = true;
     try {
         m_detail->m_socket.shutdown(
-            boost::asio::ip::tcp::socket::shutdown_both);
+                boost::asio::ip::tcp::socket::shutdown_both);
         m_detail->m_socket.close();
         while (m_detail->m_io_service.run_one()) {
         }
@@ -112,10 +114,10 @@ template <class proto>
 void Transport<proto>::read() {
     TransportHeader* header = new TransportHeader();
     boost::asio::async_read(
-        m_detail->m_socket,
-        boost::asio::buffer(header, sizeof(TransportHeader)),
-        std::bind(&Transport<proto>::onReadHeader, shared_from_this(), header,
-                  std::placeholders::_1));
+            m_detail->m_socket,
+            boost::asio::buffer(header, sizeof(TransportHeader)),
+            std::bind(&Transport<proto>::onReadHeader, shared_from_this(),
+                      header, std::placeholders::_1));
 }
 
 template <class proto>
@@ -127,10 +129,10 @@ void Transport<proto>::onReadHeader(TransportHeader* header,
         boost::asio::streambuf* stream = new boost::asio::streambuf;
         stream->prepare(header->getSize());
         boost::asio::async_read(
-            m_detail->m_socket, *stream,
-            boost::asio::transfer_exactly(header->getSize()),
-            std::bind(&Transport<proto>::onReadArchive, shared_from_this(),
-                      stream, std::placeholders::_1));
+                m_detail->m_socket, *stream,
+                boost::asio::transfer_exactly(header->getSize()),
+                std::bind(&Transport<proto>::onReadArchive, shared_from_this(),
+                          stream, std::placeholders::_1));
     }
     delete header;
 }
@@ -170,10 +172,10 @@ void Transport<proto>::sendMessage(const Message* msg) {
     }
 
     TransportHeader* header =
-        new TransportHeader(static_cast<value_t>(stream->size()));
+            new TransportHeader(static_cast<value_t>(stream->size()));
 
-    m_WriteQueue.push_back(
-        std::pair<TransportHeader*, boost::asio::streambuf*>(header, stream));
+    m_WriteQueue.push_back(std::pair<TransportHeader*, boost::asio::streambuf*>(
+            header, stream));
 
     if (m_WriteReady) {
         notifyStartSend();
@@ -197,15 +199,15 @@ void Transport<proto>::writeQueue() {
     std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> > sentData;
     std::swap(m_WriteQueue, sentData);
     boost::asio::async_write(
-        m_detail->m_socket, buffers,
-        std::bind(&Transport<proto>::onWrite, shared_from_this(), sentData,
-                  std::placeholders::_1));
+            m_detail->m_socket, buffers,
+            std::bind(&Transport<proto>::onWrite, shared_from_this(), sentData,
+                      std::placeholders::_1));
 }
 
 template <class proto>
 void Transport<proto>::onWrite(
-    std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> > sentData,
-    const boost::system::error_code& ec) {
+        std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> >
+                sentData, const boost::system::error_code& ec) {
     for (size_t i = 0; i < sentData.size(); i++) {
         delete sentData[i].first;
         delete sentData[i].second;

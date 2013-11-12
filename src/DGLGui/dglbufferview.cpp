@@ -26,7 +26,7 @@ DGLBufferViewItem::DGLBufferViewItem(dglnet::ContextObjectName name,
     m_VerticalLayout->addWidget(m_Label);
 
     m_Listener = resManager->createListener(
-        name, dglnet::DGLResource::ObjectType::Buffer);
+            name, dglnet::DGLResource::ObjectType::Buffer);
     m_Listener->setParent(this);
 
     CONNASSERT(m_Listener, SIGNAL(update(const dglnet::DGLResource&)), this,
@@ -45,7 +45,7 @@ void DGLBufferViewItem::update(const dglnet::DGLResource& res) {
     m_Editor->show();
     m_Label->hide();
     const dglnet::resource::DGLResourceBuffer* resource =
-        dynamic_cast<const dglnet::resource::DGLResourceBuffer*>(&res);
+            dynamic_cast<const dglnet::resource::DGLResourceBuffer*>(&res);
     QByteArray array(&resource->m_Data[0], resource->m_Data.size());
     m_Editor->setData(array);
 }
@@ -65,7 +65,7 @@ void DGLBufferView::showBuffer(opaque_id_t ctx, gl_t name) {
 }
 
 DGLTabbedViewItem* DGLBufferView::createTab(
-    const dglnet::ContextObjectName& id) {
+        const dglnet::ContextObjectName& id) {
     return new DGLBufferViewItem(id, m_Controller->getResourceManager(), this);
 }
 

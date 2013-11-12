@@ -107,8 +107,8 @@ struct ExpFormat {
 };
 
 std::vector<std::vector<ExpFormat> > getExpectedHL(
-    const std::vector<std::vector<S> >& shaderStrings,
-    std::ostringstream& shaderStream) {
+        const std::vector<std::vector<S> >& shaderStrings,
+        std::ostringstream& shaderStream) {
     std::vector<std::vector<ExpFormat> > expected;
     for (size_t i = 0; i < shaderStrings.size(); i++) {
         std::vector<ExpFormat> e;
@@ -140,10 +140,10 @@ void validateHL(QPlainTextEdit* editor,
         int format = 0;
 
         QList<QTextLayout::FormatRange> formatRangeList =
-            layout->additionalFormats();
+                layout->additionalFormats();
 
         for (QList<QTextLayout::FormatRange>::iterator i =
-                 formatRangeList.begin();
+                     formatRangeList.begin();
              i != formatRangeList.end(); ++i) {
             // cout << "{ " << i->start << ", " << i->length << " }, ";
 
@@ -210,19 +210,19 @@ TEST_F(DGLGui, syntax_highlighter_parse) {
     DGLSyntaxHighlighterGLSL highlighter(false, editor.document());
 
     std::vector<std::vector<S> > strings =
-        (list_of(list_of((S)(N) "#version 330")), list_of((S)(U) ""),
-         list_of((S)(B) "uniform")((U) " ")((K) "sampler2D")(
-             (U) " samplerImg;"),
-         list_of((S)(B) "in")((U) " ")((K) "vec2")((U) " texcoord;"),
-         list_of((S)(K) "void")((U) " main() {"),
-         list_of((S)(U) "    ")((K) "vec4")((U) " texcolor = ")(
-             (B) "texture2D")((U) "(samplerImg,texcoord);"),
-         list_of((S)(U) "    ")((B) "gl_FragColor")((U) " = texcolor;"),
-         list_of((S)(U) "}"));
+            (list_of(list_of((S)(N) "#version 330")), list_of((S)(U) ""),
+             list_of((S)(B) "uniform")((U) " ")((K) "sampler2D")(
+                     (U) " samplerImg;"),
+             list_of((S)(B) "in")((U) " ")((K) "vec2")((U) " texcoord;"),
+             list_of((S)(K) "void")((U) " main() {"),
+             list_of((S)(U) "    ")((K) "vec4")((U) " texcolor = ")(
+                     (B) "texture2D")((U) "(samplerImg,texcoord);"),
+             list_of((S)(U) "    ")((B) "gl_FragColor")((U) " = texcolor;"),
+             list_of((S)(U) "}"));
 
     std::ostringstream shader;
     std::vector<std::vector<ExpFormat> > expected =
-        getExpectedHL(strings, shader);
+            getExpectedHL(strings, shader);
 
     editor.appendPlainText(shader.str().c_str());
 
@@ -248,15 +248,16 @@ TEST_F(DGLGui, syntax_highlighter_parse_esslflag) {
 
         DGLSyntaxHighlighterGLSL highlighter(essl[i], editor.document());
         std::vector<std::vector<S> > strings =
-            (list_of(list_of((S)(B) "in")((U) " ")((K) "vec4")((U) " color;")),
-             list_of((S)(K) "void")((U) " main() {"),
-             (list_of((S)(U) "    ")((I) "gl_FragColor")((U) " = ") +
-              dFdx)((U) "(color);"),
-             list_of((S)(U) "}"));
+                (list_of(list_of((S)(B) "in")((U) " ")((K) "vec4")(
+                         (U) " color;")),
+                 list_of((S)(K) "void")((U) " main() {"),
+                 (list_of((S)(U) "    ")((I) "gl_FragColor")((U) " = ") +
+                  dFdx)((U) "(color);"),
+                 list_of((S)(U) "}"));
 
         std::ostringstream shader;
         std::vector<std::vector<ExpFormat> > expected =
-            getExpectedHL(strings, shader);
+                getExpectedHL(strings, shader);
 
         editor.appendPlainText(shader.str().c_str());
 

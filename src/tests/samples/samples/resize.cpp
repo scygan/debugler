@@ -36,19 +36,19 @@ class SampleResize : public Sample {
         glClearDepth(1.0);
 
         const char* vshSrc =
-            "#version 120\n"
-            "attribute vec4 position;\n"
-            "\n"
-            "void main() {\n"
-            "    gl_Position = position;\n"
-            "}\n";
+                "#version 120\n"
+                "attribute vec4 position;\n"
+                "\n"
+                "void main() {\n"
+                "    gl_Position = position;\n"
+                "}\n";
 
         const char* fshSrc =
-            "#version 120\n"
-            "void main()\n"
-            "{\n"
-            "    gl_FragColor = vec4(0.4, 0.5, 0.8, 1.0);\n"
-            "}\n";
+                "#version 120\n"
+                "void main()\n"
+                "{\n"
+                "    gl_FragColor = vec4(0.4, 0.5, 0.8, 1.0);\n"
+                "}\n";
 
         m_program = gl::CreateProgram(vshSrc, fshSrc);
         glUseProgram(m_program->Name());

@@ -56,7 +56,7 @@ void MessageHandler::doHandleSetBreakPoints(const message::SetBreakPoints&) {
 
 void MessageHandler::unsupported() {
     throw std::runtime_error(
-        "Message cannot be handled by current message handler object.");
+            "Message cannot be handled by current message handler object.");
 }
 
 namespace message {

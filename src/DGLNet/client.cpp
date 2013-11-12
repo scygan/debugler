@@ -35,8 +35,8 @@ class ClientImpl : public Client {
     virtual void connectServer(std::string host, std::string port) {
         boost::asio::ip::tcp::resolver::query query(host, port);
         m_Resolver.async_resolve(
-            query, std::bind(&ClientImpl::onResolve, shared_from_this(),
-                             std::placeholders::_1, std::placeholders::_2));
+                query, std::bind(&ClientImpl::onResolve, shared_from_this(),
+                                 std::placeholders::_1, std::placeholders::_2));
         m_controller->onSetStatus("Looking up server...");
     }
 
@@ -46,13 +46,13 @@ class ClientImpl : public Client {
 
    private:
     virtual void onResolve(
-        const boost::system::error_code& ec,
-        boost::asio::ip::tcp::resolver::iterator endpoint_iterator) {
+            const boost::system::error_code& ec,
+            boost::asio::ip::tcp::resolver::iterator endpoint_iterator) {
         if (!ec) {
             Transport::m_detail->m_socket.async_connect(
-                *endpoint_iterator,
-                std::bind(&ClientImpl::onConnect, shared_from_this(),
-                          std::placeholders::_1));
+                    *endpoint_iterator,
+                    std::bind(&ClientImpl::onConnect, shared_from_this(),
+                              std::placeholders::_1));
             m_controller->onSetStatus("Connecting...");
             m_controller->onSocket();
         } else {

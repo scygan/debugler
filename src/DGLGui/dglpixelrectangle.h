@@ -47,7 +47,7 @@ class DGLPixelRectangleView : public QWidget {
     DGLPixelRectangleView(QWidget* parent);
     void setScene(DGLPixelRectangleScene* scene);
     void updateFormatSizeInfo(
-        const dglnet::resource::DGLPixelRectangle* pixelRectangle);
+            const dglnet::resource::DGLPixelRectangle* pixelRectangle);
    private
 slots:
     void onMouseOver(const QPoint& pos);
@@ -74,7 +74,7 @@ class DGLPixelRectangleScene : public QObject {
 
     void setText(const std::string& message);
     void setPixelRectangle(
-        const dglnet::resource::DGLPixelRectangle& pixelRectangle);
+            const dglnet::resource::DGLPixelRectangle& pixelRectangle);
 
     QPoint translate(const QPoint&);
     bool inside(const QPoint&);

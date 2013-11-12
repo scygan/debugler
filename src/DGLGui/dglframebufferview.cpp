@@ -24,7 +24,7 @@ DGLFramebufferViewItem::DGLFramebufferViewItem(dglnet::ContextObjectName name,
     m_Ui.m_PixelRectangleView->setScene(m_PixelRectangleScene);
 
     m_Listener = resManager->createListener(
-        name, dglnet::DGLResource::ObjectType::Framebuffer);
+            name, dglnet::DGLResource::ObjectType::Framebuffer);
     m_Listener->setParent(this);
 
     CONNASSERT(m_Listener, SIGNAL(update(const dglnet::DGLResource&)), this,
@@ -40,7 +40,7 @@ void DGLFramebufferViewItem::error(const std::string& message) {
 
 void DGLFramebufferViewItem::update(const dglnet::DGLResource& res) {
     const dglnet::resource::DGLResourceFramebuffer* resource =
-        dynamic_cast<const dglnet::resource::DGLResourceFramebuffer*>(&res);
+            dynamic_cast<const dglnet::resource::DGLResourceFramebuffer*>(&res);
     m_PixelRectangle = resource->m_PixelRectangle;
     m_PixelRectangleScene->setPixelRectangle(*m_PixelRectangle);
     m_Ui.m_PixelRectangleView->updateFormatSizeInfo(m_PixelRectangle.get());
@@ -62,7 +62,7 @@ void DGLFramebufferView::showFramebuffer(opaque_id_t ctx, gl_t bufferEnum) {
 }
 
 DGLTabbedViewItem* DGLFramebufferView::createTab(
-    const dglnet::ContextObjectName& id) {
+        const dglnet::ContextObjectName& id) {
     return new DGLFramebufferViewItem(id, m_Controller->getResourceManager(),
                                       this);
 }

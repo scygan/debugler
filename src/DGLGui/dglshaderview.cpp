@@ -62,7 +62,7 @@ DGLShaderViewItem::DGLShaderViewItem(dglnet::ContextObjectName name,
     m_Ui.verticalLayout->setStretch(2, 1);
 
     m_Listener = resManager->createListener(
-        name, dglnet::DGLResource::ObjectType::Shader);
+            name, dglnet::DGLResource::ObjectType::Shader);
     m_Listener->setParent(this);
 
     // cannot edit shader now: no shader to edit
@@ -118,10 +118,10 @@ void DGLShaderViewItem::editAction(EditAction action) {
     } else if (m_EditState == EditState::S_EDITING &&
                action == EditAction::A_EDIT) {
         m_RequestManager->request(
-            new dglnet::request::EditShaderSource(
-                m_Name.m_Context, m_Name.m_Name, false,
-                m_GLSLEditor->toPlainText().toStdString()),
-            &m_EditRequestHandler);
+                new dglnet::request::EditShaderSource(
+                        m_Name.m_Context, m_Name.m_Name, false,
+                        m_GLSLEditor->toPlainText().toStdString()),
+                &m_EditRequestHandler);
     }
 }
 
@@ -168,7 +168,7 @@ void DGLShaderViewItem::error(const std::string& message) {
 
 void DGLShaderViewItem::saveShader() {
     QString fileName = QFileDialog::getSaveFileName(
-        this, tr("Save shader as..."), QString(), tr("Text files (*.txt)"));
+            this, tr("Save shader as..."), QString(), tr("Text files (*.txt)"));
     QFile f(fileName);
     if (!f.open(QIODevice::WriteOnly)) {
         QMessageBox::critical(this, tr("Write error"),
@@ -184,7 +184,7 @@ void DGLShaderViewItem::editStart() { editAction(EditAction::A_ENABLE); }
 void DGLShaderViewItem::editReset() {
 
     m_RequestManager->request(new dglnet::request::EditShaderSource(
-                                  m_Name.m_Context, m_Name.m_Name, true),
+                                      m_Name.m_Context, m_Name.m_Name, true),
                               &m_ResetRequestHandler);
 }
 
@@ -196,17 +196,17 @@ void DGLShaderViewItem::update(const dglnet::DGLResource& res) {
     m_Ui.groupBox1->show();
     m_Label->hide();
     const dglnet::resource::DGLResourceShader* resource =
-        dynamic_cast<const dglnet::resource::DGLResourceShader*>(&res);
+            dynamic_cast<const dglnet::resource::DGLResourceShader*>(&res);
 
     if (!m_Highlighter) {
         m_Highlighter = boost::make_shared<DGLSyntaxHighlighterGLSL>(
-            resource->m_IsESSLDefault, m_Ui.checkBox_Highlight->isChecked()
-                                           ? m_GLSLEditor->document()
-                                           : NULL);
+                resource->m_IsESSLDefault, m_Ui.checkBox_Highlight->isChecked()
+                                                   ? m_GLSLEditor->document()
+                                                   : NULL);
     }
 
     m_Ui.textEditLinker->setText(
-        QString::fromStdString(resource->m_CompileStatus.first));
+            QString::fromStdString(resource->m_CompileStatus.first));
 
     QString newSource = QString::fromStdString(resource->m_Source);
     if (newSource != m_GLSLEditor->toPlainText()) {
@@ -222,7 +222,7 @@ void DGLShaderViewItem::update(const dglnet::DGLResource& res) {
 
     if (resource->m_ShaderObjDeleted) {
         m_Ui.shaderStatus->setText(
-            tr("Shader object already deleted. Shown cached source."));
+                tr("Shader object already deleted. Shown cached source."));
         // no shader to edit:
         editAction(EditAction::A_NOTIFY_ERROR);
     } else {
@@ -241,11 +241,11 @@ void DGLShaderViewItem::toggleHighlight(bool enabled) {
 }
 
 DGLShaderViewItem::EditRequestHandler::EditRequestHandler(
-    DGLShaderViewItem* parrent, DGLRequestManager* manager)
+        DGLShaderViewItem* parrent, DGLRequestManager* manager)
         : DGLRequestHandler(manager), m_Parrent(parrent) {}
 
 void DGLShaderViewItem::EditRequestHandler::onRequestFinished(
-    const dglnet::message::RequestReply* reply) {
+        const dglnet::message::RequestReply* reply) {
     std::string replyStr;
     if (!reply->isOk(replyStr)) {
         QMessageBox::critical(m_Parrent, "Cannot edit shader",
@@ -256,11 +256,11 @@ void DGLShaderViewItem::EditRequestHandler::onRequestFinished(
 }
 
 DGLShaderViewItem::ResetRequestHandler::ResetRequestHandler(
-    DGLShaderViewItem* parrent, DGLRequestManager* manager)
+        DGLShaderViewItem* parrent, DGLRequestManager* manager)
         : DGLRequestHandler(manager), m_Parrent(parrent) {}
 
 void DGLShaderViewItem::ResetRequestHandler::onRequestFinished(
-    const dglnet::message::RequestReply* reply) {
+        const dglnet::message::RequestReply* reply) {
     std::string replyStr;
     if (!reply->isOk(replyStr)) {
         QMessageBox::critical(m_Parrent, "Cannot reset shader edits",
@@ -286,7 +286,7 @@ void DGLShaderView::showShader(opaque_id_t ctx, gl_t name, gl_t target) {
 }
 
 DGLTabbedViewItem* DGLShaderView::createTab(
-    const dglnet::ContextObjectName& id) {
+        const dglnet::ContextObjectName& id) {
     return new DGLShaderViewItem(id, m_Controller->getResourceManager(), this);
 }
 

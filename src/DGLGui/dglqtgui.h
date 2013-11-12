@@ -21,9 +21,11 @@
 #pragma warning(push)
 #pragma warning(disable : 4512)    // assignment operator could not be \
                                    // generated
-#pragma warning(disable : 4800)    // 'uint' : forcing value to bool 'true' or \
+#pragma warning(disable \
+                : 4800)    // 'uint' : forcing value to bool 'true' or \
                                    // 'false' (performance warning)
-#pragma warning(disable : 4251)    // 'QStyleOption::state' : class          \
+#pragma warning(disable \
+                : 4251)    // 'QStyleOption::state' : class          \
                                    // 'QFlags<Enum>' needs to have           \
                                    // dll-interface to be used by clients of \
                                    // class 'QStyleOption'

@@ -40,7 +40,7 @@ class DGLRequestHandler {
    public:
     DGLRequestHandler(DGLRequestManager*);
     virtual void onRequestFinished(
-        const dglnet::message::RequestReply* reply) = 0;
+            const dglnet::message::RequestReply* reply) = 0;
     virtual ~DGLRequestHandler();
 
    private:
@@ -241,10 +241,10 @@ class DglController : public QObject,
     // IMessageHandler methods:
     virtual void doHandleHello(const dglnet::message::Hello&) override;
     virtual void doHandleBreakedCall(const dglnet::message::BreakedCall&)
-        override;
+            override;
     virtual void doHandleCallTrace(const dglnet::message::CallTrace&) override;
     virtual void doHandleRequestReply(const dglnet::message::RequestReply&)
-        override;
+            override;
 
     /**
      * Method called by DGLclient, upon successful connection established
@@ -313,8 +313,8 @@ signals:
 
     void breaked(CalledEntryPoint, uint);
     void breakedWithStateReports(
-        opaque_id_t,
-        const std::vector<dglnet::message::BreakedCall::ContextReport>&);
+            opaque_id_t,
+            const std::vector<dglnet::message::BreakedCall::ContextReport>&);
 
     void gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&);
 

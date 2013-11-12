@@ -31,7 +31,7 @@ class DGLResource : public message::RequestReply::ReplyBase {
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         ar& boost::serialization::base_object<message::RequestReply::ReplyBase>(
-            *this);
+                *this);
     }
 
    public:
@@ -102,7 +102,7 @@ class DGLResourceTexture : public DGLResource {
 
    public:
     std::vector<std::vector< ::boost::shared_ptr<
-        dglnet::resource::DGLPixelRectangle> > > m_FacesLevels;
+            dglnet::resource::DGLPixelRectangle> > > m_FacesLevels;
 };
 
 class DGLResourceBuffer : public DGLResource {
@@ -160,7 +160,7 @@ class DGLResourceFBO : public DGLResource {
         bool isOk(std::string& error) const;
 
         ::boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
-            m_PixelRectangle;
+                m_PixelRectangle;
         gl_t m_Id;
 
        private:
@@ -322,7 +322,7 @@ inline void load_construct_data(Archive& ar,
     ar >> samples;
     // invoke inplace constructor
     ::new (t) dglnet::resource::DGLPixelRectangle(
-        width, height, rowBytes, glFormat, glType, iformat, samples);
+            width, height, rowBytes, glFormat, glType, iformat, samples);
 }
 }
 }

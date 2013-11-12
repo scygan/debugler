@@ -49,7 +49,7 @@ class DGLBlitterBase {
     enum OutputFormat {
         _GL_BGRA32,    // alpha, DX-order format
         _GL_RGBX32,    // non-alpha, RGBX format
-        _GL_MONO8,    // monochromatic, 8 bit format
+        _GL_MONO8,     // monochromatic, 8 bit format
         _LAST
     };
 

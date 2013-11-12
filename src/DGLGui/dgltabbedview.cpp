@@ -58,7 +58,7 @@ void DGLTabbedView::ensureTabDisplayed(opaque_id_t ctxId, gl_t objName,
     bool found = false;
     for (int i = 0; i < m_TabWidget.count(); i++) {
         DGLTabbedViewItem* itemWidget =
-            dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));
+                dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));
         if (itemWidget && itemWidget->getObjName().m_Context == ctxId &&
             itemWidget->getObjName().m_Name == objName &&
             itemWidget->getObjName().m_Target == target) {
@@ -68,8 +68,8 @@ void DGLTabbedView::ensureTabDisplayed(opaque_id_t ctxId, gl_t objName,
     }
     if (!found) {
         m_TabWidget.addTab(
-            createTab(dglnet::ContextObjectName(ctxId, objName, target)),
-            getTabName(objName, target));
+                createTab(dglnet::ContextObjectName(ctxId, objName, target)),
+                getTabName(objName, target));
         m_TabWidget.setCurrentIndex(m_TabWidget.count() - 1);
     }
     raise();
@@ -78,7 +78,7 @@ void DGLTabbedView::ensureTabDisplayed(opaque_id_t ctxId, gl_t objName,
 DGLTabbedViewItem* DGLTabbedView::getTab(const dglnet::ContextObjectName& id) {
     for (int i = 0; i < m_TabWidget.count(); i++) {
         DGLTabbedViewItem* itemWidget =
-            dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));
+                dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));
         if (itemWidget && itemWidget->getObjName() == id) {
             return itemWidget;
         }

@@ -33,8 +33,9 @@
 #include <stdint.h>
 
 #pragma warning(push)
-#pragma warning(disable                                                      \
-                : 4512)    //'boost::program_options::options_description' : \
+#pragma warning( \
+        disable  \
+        : 4512)    //'boost::program_options::options_description' : \
                            //assignment operator could not be generated
 #include <boost/program_options/options_description.hpp>
 #pragma warning(pop)
@@ -63,8 +64,8 @@ bool isProcess64Bit(HANDLE hProcess) {
     // get IsWow64Process function
     typedef BOOL(WINAPI * LPFN_ISWOW64PROCESS)(HANDLE, PBOOL);
     LPFN_ISWOW64PROCESS fnIsWow64Process = fnIsWow64Process =
-        (LPFN_ISWOW64PROCESS)GetProcAddress(GetModuleHandle(TEXT("kernel32")),
-                                            "IsWow64Process");
+            (LPFN_ISWOW64PROCESS)GetProcAddress(
+                    GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
     BOOL isWow;
 
     // check if windows is 64-bit
@@ -137,16 +138,16 @@ int main(int argc, char** argv) {
 
         po::options_description desc("Allowed options");
         desc.add_options()("help,h", "produce help message")(
-            "egl", "use egl mode")("nowait",
-                                   "do not wait for debugger to connect");
+                "egl", "use egl mode")("nowait",
+                                       "do not wait for debugger to connect");
 
         desc.add_options()("port", po::value<vector<string> >(),
                            "Debugger TCP port number.");
 
         po::options_description mandatory("Mandatory options");
         mandatory.add_options()(
-            "execute", po::value<vector<string> >()->composing(),
-            "command to execute. Use -- top supply additional args.");
+                "execute", po::value<vector<string> >()->composing(),
+                "command to execute. Use -- top supply additional args.");
 
         po::positional_options_description p;
         p.add("execute", -1);
@@ -156,9 +157,9 @@ int main(int argc, char** argv) {
 
         po::variables_map vm;
         po::store(po::command_line_parser(argc, argv)
-                      .options(all)
-                      .positional(p)
-                      .run(),
+                          .options(all)
+                          .positional(p)
+                          .run(),
                   vm);
         po::notify(vm);
 
@@ -216,13 +217,13 @@ int main(int argc, char** argv) {
                 // write it's socket, so we do a magic chmod here (as we have
                 // probably more access right than app)
                 std::string portPathCopy =
-                    portPath;    // dirname may modify the passed string
+                        portPath;    // dirname may modify the passed string
                 if (chmod(dirname(portPathCopy.c_str()), 0777) != 0) {
                     throw std::runtime_error(
-                        std::string(
-                            "Cannot change permission to unix socket "
-                            "directory: ") +
-                        Os::translateOsError(Os::getLastosError()));
+                            std::string(
+                                    "Cannot change permission to unix socket "
+                                    "directory: ") +
+                            Os::translateOsError(Os::getLastosError()));
                 }
 
                 // On Android we want to leave a trace of unix socket path, so
@@ -230,8 +231,8 @@ int main(int argc, char** argv) {
                 int ret = 0;
                 void* libCUtils = dlopen("libcutils.so", RTLD_NOW);
                 int (*property_set)(const char * key, const char* value) =
-                    reinterpret_cast<int (*)(const char*, const char*)>(
-                        (ptrdiff_t)dlsym(libCUtils, "property_set"));
+                        reinterpret_cast<int (*)(const char*, const char*)>(
+                                (ptrdiff_t)dlsym(libCUtils, "property_set"));
                 if (!property_set ||
                     (ret = property_set(DEBUGLER_SOCKET_PROP,
                                         portPath.c_str())) < 0) {
@@ -270,16 +271,16 @@ int main(int argc, char** argv) {
                 int dlOpenAddr, dlSymAddr;
                 if (oldUUID.length()) {
                     std::shared_ptr<DGLIPC> oldDGLIPC =
-                        DGLIPC::CreateFromUUID(oldUUID);
+                            DGLIPC::CreateFromUUID(oldUUID);
                     oldDGLIPC->getDLInternceptPointers(dlOpenAddr, dlSymAddr);
                 } else {
                     const char* baseAddr = reinterpret_cast<char*>(
-                        reinterpret_cast<intptr_t>(&dlclose));
+                            reinterpret_cast<intptr_t>(&dlclose));
                     dlOpenAddr = reinterpret_cast<char*>(
-                                     reinterpret_cast<intptr_t>(&dlopen)) -
+                                         reinterpret_cast<intptr_t>(&dlopen)) -
                                  baseAddr;
                     dlSymAddr = reinterpret_cast<char*>(
-                                    reinterpret_cast<intptr_t>(&dlsym)) -
+                                        reinterpret_cast<intptr_t>(&dlsym)) -
                                 baseAddr;
                 }
                 dglIPC->setDLInternceptPointers(dlOpenAddr, dlSymAddr);
@@ -296,14 +297,16 @@ int main(int argc, char** argv) {
 #ifdef _WIN64
         if (!isProcess64Bit(process.getHandle())) {
             throw std::runtime_error(
-                "Incompatible loader version: used 64bit, but process is not "
-                "64bit");
+                    "Incompatible loader version: used 64bit, but process is "
+                    "not "
+                    "64bit");
         }
 #else
         if (isProcess64Bit(process.getHandle())) {
             throw std::runtime_error(
-                "Incompatible loader version: used 32bit, but process is not "
-                "32bit");
+                    "Incompatible loader version: used 32bit, but process is "
+                    "not "
+                    "32bit");
         }
 #endif
 
@@ -317,8 +320,8 @@ int main(int argc, char** argv) {
         Inject(process.getHandle(), wrapperPath.c_str(), "LoaderThread");
         dglIPC->waitForRemoteThreadSemaphore();
 #else
-        HANDLE thread =
-            Inject(process.getHandle(), wrapperPath.c_str(), "LoaderThread");
+        HANDLE thread = Inject(process.getHandle(), wrapperPath.c_str(),
+                               "LoaderThread");
         // wait for loader thread to finish dll inject
         WaitForSingleObject(thread, INFINITE);
 #endif
@@ -362,10 +365,10 @@ int main(int argc, char** argv) {
     std::string shmemName = Os::getEnv("dgl_loader_shmem");
     if (shmemName.length()) {
         boost::interprocess::shared_memory_object shobj(
-            boost::interprocess::open_only, shmemName.c_str(),
-            boost::interprocess::read_write);
+                boost::interprocess::open_only, shmemName.c_str(),
+                boost::interprocess::read_write);
         boost::interprocess::mapped_region region(
-            shobj, boost::interprocess::read_write);
+                shobj, boost::interprocess::read_write);
         std::memset(region.get_address(), 0, region.get_size());
         memcpy(region.get_address(), ipcMessage, sizeof(IPCMessage));
     }

@@ -64,8 +64,8 @@ std::vector<std::string> DGLRunDialog::getCommandLineArgs() {
     int numArgs;
     if (!m_ui.lineEdit_CommandLineArgs->text().isEmpty()) {
         LPWSTR* strings = CommandLineToArgvW(
-            m_ui.lineEdit_CommandLineArgs->text().toStdWString().c_str(),
-            &numArgs);
+                m_ui.lineEdit_CommandLineArgs->text().toStdWString().c_str(),
+                &numArgs);
         if (!strings) {
             if (int osError = Os::getLastosError()) {
                 throw std::runtime_error("Program arguments: " +
@@ -86,22 +86,23 @@ std::vector<std::string> DGLRunDialog::getCommandLineArgs() {
 #else
     wordexp_t wordExp;
 
-    int status =
-        wordexp(m_ui.lineEdit_CommandLineArgs->text().toUtf8(), &wordExp, 0);
+    int status = wordexp(m_ui.lineEdit_CommandLineArgs->text().toUtf8(),
+                         &wordExp, 0);
     switch (status) {
         case WRDE_BADCHAR:
             throw std::runtime_error(
-                "Program arguments: Illegal occurrence of newline or one of |, "
-                "&, ;, <, >, (, ), {, }.");
+                    "Program arguments: Illegal occurrence of newline or one "
+                    "of |, "
+                    "&, ;, <, >, (, ), {, }.");
         case WRDE_BADVAL:
             assert(!"no  WRDE_UNDEF was set, but got WRDE_BADVAL");
             throw std::runtime_error(
-                "Program arguments: An undefined shell variable was "
-                "referenced");
+                    "Program arguments: An undefined shell variable was "
+                    "referenced");
         case WRDE_CMDSUB:
             assert(!" WRDE_NOCMD flag not set, but got WRDE_CMDSUB");
             throw std::runtime_error(
-                "Program arguments: Command substitution occurred");
+                    "Program arguments: Command substitution occurred");
         case WRDE_NOSPACE:
             wordfree(&wordExp);
             throw std::runtime_error("Program arguments: Out of memory.");
@@ -137,7 +138,7 @@ void DGLRunDialog::updatePath() {
     try {
         QFileInfo info(m_ui.lineEdit_Executable->text());
         m_ui.lineEdit_Path->setText(
-            QDir::toNativeSeparators(info.dir().path()));
+                QDir::toNativeSeparators(info.dir().path()));
         ;
     }
     catch (...) {
@@ -147,8 +148,8 @@ void DGLRunDialog::updatePath() {
 void DGLRunDialog::browseExecutable() {
     QFileInfo info(m_ui.lineEdit_Executable->text());
     QString res = QFileDialog::getOpenFileName(
-        this, tr("Choose a executable to run"), info.absoluteFilePath(),
-        tr("Executables (*.exe)"));
+            this, tr("Choose a executable to run"), info.absoluteFilePath(),
+            tr("Executables (*.exe)"));
     if (!res.isNull()) {
         m_ui.lineEdit_Executable->setText(QDir::toNativeSeparators(res));
     }

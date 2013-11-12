@@ -174,7 +174,7 @@ void *DLIntercept::dlsym(void *handle, const char *name) {
     boost::recursive_mutex::scoped_lock lock(mutex);
 
     std::map<uint64_t, bool>::iterator i =
-        mSupportedLibraries.find(reinterpret_cast<uint64_t>(handle));
+            mSupportedLibraries.find(reinterpret_cast<uint64_t>(handle));
 
     Entrypoint entryp = GetEntryPointEnum(name);
 
@@ -196,7 +196,7 @@ void *DLIntercept::dlvsym(void *handle, const char *name, const char *version) {
     boost::recursive_mutex::scoped_lock lock(mutex);
 
     std::map<uint64_t, bool>::iterator i =
-        mSupportedLibraries.find(reinterpret_cast<uint64_t>(handle));
+            mSupportedLibraries.find(reinterpret_cast<uint64_t>(handle));
 
     Entrypoint entryp = GetEntryPointEnum(name);
 
@@ -228,18 +228,18 @@ void DLIntercept::initialize() {
 #ifndef __ANDROID__
     ELFAnalyzer an("libdl");
 
-    char *baseAddr =
-        reinterpret_cast<char *>((intptr_t) & dlclose) - an.symValue("dlclose");
+    char *baseAddr = reinterpret_cast<char *>((intptr_t) & dlclose) -
+                     an.symValue("dlclose");
 
     m_real_dlopen =
-        reinterpret_cast<void *(*)(const char * filename, int flag)>(
-            (intptr_t)(baseAddr + an.symValue("dlopen")));
+            reinterpret_cast<void *(*)(const char * filename, int flag)>(
+                    (intptr_t)(baseAddr + an.symValue("dlopen")));
     m_real_dlsym = reinterpret_cast<void *(*)(void *, const char *)>(
-        (intptr_t)(baseAddr + an.symValue("dlsym")));
+            (intptr_t)(baseAddr + an.symValue("dlsym")));
     try {
         m_real_dlvsym =
-            reinterpret_cast<void *(*)(void *, const char *, const char *)>(
-                (intptr_t)(baseAddr + an.symValue("dlvsym")));
+                reinterpret_cast<void *(*)(void *, const char *, const char *)>(
+                        (intptr_t)(baseAddr + an.symValue("dlvsym")));
     }
     catch (const std::runtime_error &err) {
         Os::nonFatal("dlvsym is not available in dynamic linker.\n");
@@ -254,17 +254,17 @@ void DLIntercept::initialize() {
     // We strongly rely on DGLLoader to get those symbols..
 
     char *baseAddr =
-        reinterpret_cast<char *>(reinterpret_cast<intptr_t>(&dlclose));
+            reinterpret_cast<char *>(reinterpret_cast<intptr_t>(&dlclose));
 
     int dlOpenAddr, dlSymAddr;
     getIPC()->getDLInternceptPointers(dlOpenAddr, dlSymAddr);
 
     m_real_dlopen =
-        reinterpret_cast<void *(*)(const char * filename, int flag)>(
-            reinterpret_cast<intptr_t>(baseAddr + dlOpenAddr));
+            reinterpret_cast<void *(*)(const char * filename, int flag)>(
+                    reinterpret_cast<intptr_t>(baseAddr + dlOpenAddr));
 
     m_real_dlsym = reinterpret_cast<void *(*)(void *, const char *)>(
-        reinterpret_cast<intptr_t>(baseAddr + dlSymAddr));
+            reinterpret_cast<intptr_t>(baseAddr + dlSymAddr));
 
     m_real_dlvsym = NULL;
 

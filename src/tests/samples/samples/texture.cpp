@@ -34,28 +34,28 @@ class SampleTexture : public Sample {
 
         const char* vshSrc =
 #ifndef OPENGL_ES2
-            "#version 120\n"
+                "#version 120\n"
 #endif
-            "attribute vec4 position;\n"
-            "varying vec2 texPos;\n"
-            "\n"
-            "void main() {\n"
-            "    gl_Position = position;\n"
-            "    texPos = position.xy * 0.5 + 0.5;\n"
-            "}\n";
+                "attribute vec4 position;\n"
+                "varying vec2 texPos;\n"
+                "\n"
+                "void main() {\n"
+                "    gl_Position = position;\n"
+                "    texPos = position.xy * 0.5 + 0.5;\n"
+                "}\n";
 
         const char* fshSrc =
 #ifdef OPENGL_ES2
-            "precision mediump float;\n"
+                "precision mediump float;\n"
 #else
-            "#version 120\n"
+                "#version 120\n"
 #endif
-            "uniform sampler2D sampler0;\n"
-            "varying vec2 texPos;\n"
-            "void main()\n"
-            "{\n"
-            "    gl_FragColor = texture2D(sampler0, texPos);\n"
-            "}\n";
+                "uniform sampler2D sampler0;\n"
+                "varying vec2 texPos;\n"
+                "void main()\n"
+                "{\n"
+                "    gl_FragColor = texture2D(sampler0, texPos);\n"
+                "}\n";
 
         m_program = gl::CreateProgram(vshSrc, fshSrc);
         glUseProgram(m_program->Name());

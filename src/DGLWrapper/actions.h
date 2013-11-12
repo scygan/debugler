@@ -43,7 +43,7 @@ class ActionBase {
     static void SetNext(Entrypoint entryp) {
         std::shared_ptr<ActionBase> prev = g_Actions[entryp];
         g_Actions[entryp] =
-            std::shared_ptr<ActionBase>(new SpecificActionType());
+                std::shared_ptr<ActionBase>(new SpecificActionType());
         g_Actions[entryp]->SetPrev(prev);
     }
 

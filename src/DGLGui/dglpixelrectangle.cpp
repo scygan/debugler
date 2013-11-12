@@ -20,9 +20,8 @@
 #include <QGraphicsView>
 
 #pragma warning(push)
-#pragma warning( \
-    disable      \
-    : 4251)    // needs to have dll-interface to be used by clients of class
+#pragma warning(disable : 4251)    // needs to have dll-interface to be used \
+                                   // by clients of class
 #include <QGraphicsPixmapItem>
 #pragma warning(pop)
 
@@ -99,7 +98,7 @@ DGLPixelRectangleView::DGLPixelRectangleView(QWidget* _parent)
     m_Ui->setupUi(this);
     m_Ui->verticalLayout->insertWidget(0, &m_GraphicsView);
     m_Ui->widgetColor->setStyleSheet(
-        "QWidget{background-color: palette(background);}");
+            "QWidget{background-color: palette(background);}");
 
     QPalette pal;
     pal.setColor(m_Ui->widgetColor->backgroundRole(), QColor(0, 0, 0, 0));
@@ -129,7 +128,7 @@ void DGLPixelRectangleView::onMouseOver(const QPoint& barePos) {
     if (m_Scene->inside(currentPos)) {
 
         std::pair<QColor, std::vector<AnyValue> > currColor =
-            m_Scene->getColor(currentPos);
+                m_Scene->getColor(currentPos);
 
         std::ostringstream tmp;
         tmp << "(" << currentPos.x() << ", " << currentPos.y() << ") = [";
@@ -172,8 +171,9 @@ void DGLPixelRectangleView::showChannelB(bool _show) {
                                            _show ? 1.0f : 0.0f, 0.0f);
 }
 void DGLPixelRectangleView::showChannelA(bool _show) {
-    m_Scene->getBlitter()->setChannelScale(
-        DGLBlitterBase::CHANNEL_A, _show ? 1.0f : 0.0f, _show ? 0.0f : 1.0f);
+    m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_A,
+                                           _show ? 1.0f : 0.0f,
+                                           _show ? 0.0f : 1.0f);
 }
 void DGLPixelRectangleView::showChannelD(bool _show) {
     m_Scene->getBlitter()->setChannelScale(DGLBlitterBase::CHANNEL_D,
@@ -185,7 +185,7 @@ void DGLPixelRectangleView::showChannelS(bool _show) {
 }
 
 void DGLPixelRectangleView::updateFormatSizeInfo(
-    const dglnet::resource::DGLPixelRectangle* pixelRectangle) {
+        const dglnet::resource::DGLPixelRectangle* pixelRectangle) {
     if (pixelRectangle) {
         std::ostringstream formatSize;
         if (pixelRectangle->m_InternalFormat)
@@ -197,7 +197,7 @@ void DGLPixelRectangleView::updateFormatSizeInfo(
             formatSize << "MSAA: " << pixelRectangle->m_Samples;
         }
         m_Ui->labelFormatSize->setText(
-            QString::fromStdString(formatSize.str()));
+                QString::fromStdString(formatSize.str()));
     } else {
         m_Ui->labelFormatSize->clear();
     }
@@ -214,7 +214,7 @@ void DGLPixelRectangleScene::setText(const std::string& message) {
 }
 
 void DGLPixelRectangleScene::setPixelRectangle(
-    const dglnet::resource::DGLPixelRectangle& pixelRectangle) {
+        const dglnet::resource::DGLPixelRectangle& pixelRectangle) {
 
     m_Item = NULL;
 
@@ -234,7 +234,7 @@ QPoint DGLPixelRectangleScene::translate(const QPoint& pos) {
 }
 
 std::pair<QColor, std::vector<AnyValue> > DGLPixelRectangleScene::getColor(
-    const QPoint& pos) {
+        const QPoint& pos) {
     std::pair<QColor, std::vector<AnyValue> > ret;
     ret.first = m_Image.pixel(pos.x(), pos.y());
     ret.second = m_Blitter->describePixel(pos.x(), pos.y());
@@ -267,9 +267,9 @@ bool DGLPixelRectangleScene::inside(const QPoint& pos) {
 void DGLPixelRectangleScene::doRecalcSizes() {
     if (!m_Item) return;
 
-    m_Scale =
-        (float)std::min(m_Scene.sceneRect().width() / m_Image.size().width(),
-                        m_Scene.sceneRect().height() / m_Image.size().height());
+    m_Scale = (float)std::min(
+            m_Scene.sceneRect().width() / m_Image.size().width(),
+            m_Scene.sceneRect().height() / m_Image.size().height());
 
     // rescale
     m_Item->setScale(m_Scale);
@@ -277,8 +277,9 @@ void DGLPixelRectangleScene::doRecalcSizes() {
     // move
     QRectF r = m_Item->sceneBoundingRect();
     m_Pos = QPoint(
-        static_cast<int>((m_Scene.sceneRect().width() - r.width()) / 2.0 + 0.5),
-        static_cast<int>((m_Scene.sceneRect().height() - r.height()) / 2.0 +
-                         0.5));
+            static_cast<int>((m_Scene.sceneRect().width() - r.width()) / 2.0 +
+                             0.5),
+            static_cast<int>((m_Scene.sceneRect().height() - r.height()) / 2.0 +
+                             0.5));
     m_Item->setPos(m_Pos);
 }

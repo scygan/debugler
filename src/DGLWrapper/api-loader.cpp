@@ -81,11 +81,11 @@ APILoader::APILoader()
 FUNC_PTR APILoader::loadGLPointer(LoadedLib library, Entrypoint entryp) {
 #ifdef _WIN32
     return reinterpret_cast<FUNC_PTR>(
-        GetProcAddress((HINSTANCE)library, GetEntryPointName(entryp)));
+            GetProcAddress((HINSTANCE)library, GetEntryPointName(entryp)));
 #else
     //(int) -> see http://www.trilithium.com/johan/2004/12/problem-with-dlsym/
     return reinterpret_cast<FUNC_PTR>(
-        (ptrdiff_t)dlsym(library, GetEntryPointName(entryp)));
+            (ptrdiff_t)dlsym(library, GetEntryPointName(entryp)));
 #endif
 }
 
@@ -94,7 +94,8 @@ bool APILoader::loadExtPointer(Entrypoint entryp) {
 
         if (!m_GlueLibrary) {
             throw std::runtime_error(
-                "Trying to call *GetProcAdress, but no glue library loaded");
+                    "Trying to call *GetProcAdress, but no glue library "
+                    "loaded");
         }
 
         FUNC_PTR ptr = NULL;
@@ -102,20 +103,20 @@ bool APILoader::loadExtPointer(Entrypoint entryp) {
         switch (m_GlueLibrary) {
 #ifdef HAVE_LIBRARY_WGL
             case LIBRARY_WGL:
-                ptr = reinterpret_cast<FUNC_PTR>(
-                    DIRECT_CALL(wglGetProcAddress)(GetEntryPointName(entryp)));
+                ptr = reinterpret_cast<FUNC_PTR>(DIRECT_CALL(wglGetProcAddress)(
+                        GetEntryPointName(entryp)));
                 break;
 #endif
 #ifdef HAVE_LIBRARY_GLX
             case LIBRARY_GLX:
                 ptr = reinterpret_cast<FUNC_PTR>(DIRECT_CALL(glXGetProcAddress)(
-                    reinterpret_cast<const GLubyte*>(
-                        GetEntryPointName(entryp))));
+                        reinterpret_cast<const GLubyte*>(
+                                GetEntryPointName(entryp))));
                 break;
 #endif
             case LIBRARY_EGL:
-                ptr = reinterpret_cast<FUNC_PTR>(
-                    DIRECT_CALL(eglGetProcAddress)(GetEntryPointName(entryp)));
+                ptr = reinterpret_cast<FUNC_PTR>(DIRECT_CALL(eglGetProcAddress)(
+                        GetEntryPointName(entryp)));
                 break;
             default:
                 assert(!"unknown glue library");
@@ -147,10 +148,10 @@ std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
 bool APILoader::isLibGL(const char* name) {
     std::string nameStr(name);
     bool ret =
-        nameStr.find(STRIP_VERSION(LIBGL_NAME)) != std::string::npos ||
-        nameStr.find(STRIP_VERSION(LIBGLES1_NAME)) != std::string::npos ||
-        nameStr.find(STRIP_VERSION(LIBGLES2_NAME)) != std::string::npos ||
-        nameStr.find(STRIP_VERSION(LIBEGL_NAME)) != std::string::npos;
+            nameStr.find(STRIP_VERSION(LIBGL_NAME)) != std::string::npos ||
+            nameStr.find(STRIP_VERSION(LIBGLES1_NAME)) != std::string::npos ||
+            nameStr.find(STRIP_VERSION(LIBGLES2_NAME)) != std::string::npos ||
+            nameStr.find(STRIP_VERSION(LIBEGL_NAME)) != std::string::npos;
 
     return ret;
 }
@@ -197,16 +198,16 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary) {
              i++) {
 #ifdef _WIN32
             openGLLibraryHandle = (LoadedLib)LoadLibrary(
-                (libSearchPath[i] + libraryName).c_str());
+                    (libSearchPath[i] + libraryName).c_str());
 #else
             openGLLibraryHandle =
-                dlopen((libSearchPath[i] + libraryName).c_str(), RTLD_NOW);
+                    dlopen((libSearchPath[i] + libraryName).c_str(), RTLD_NOW);
 #endif
         }
 
         if (!openGLLibraryHandle) {
-            std::string msg =
-                std::string("Cannot load ") + libraryName + "  system library";
+            std::string msg = std::string("Cannot load ") + libraryName +
+                              "  system library";
             Os::fatal(msg.c_str());
         } else {
             m_LoadedLibraries[libraryName] = openGLLibraryHandle;
@@ -271,8 +272,9 @@ FUNC_PTR APILoader::ensurePointer(Entrypoint entryp) {
         std::string error = "Operation aborted, because the ";
         error += GetEntryPointName(entryp);
         error +=
-            " function is not available on current context. Try updating GPU "
-            "drivers.";
+                " function is not available on current context. Try updating "
+                "GPU "
+                "drivers.";
         throw std::runtime_error(error);
     }
 }

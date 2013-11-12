@@ -79,8 +79,8 @@ class Transport : public ITransport {
     void onReadArchive(boost::asio::streambuf* stream,
                        const boost::system::error_code& ec);
     void onWrite(
-        std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> >,
-        const boost::system::error_code& ec);
+            std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> >,
+            const boost::system::error_code& ec);
 
     void onMessage(const Message& msg);
 
@@ -89,7 +89,7 @@ class Transport : public ITransport {
     MessageHandler* m_messageHandler;
 
     std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> >
-        m_WriteQueue;
+            m_WriteQueue;
     bool m_WriteReady;
     bool m_Abort;
 };

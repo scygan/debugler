@@ -40,7 +40,7 @@ NativeSurfaceWGL::NativeSurfaceWGL(const DGLDisplayState*, opaque_id_t id)
     int i = DIRECT_CALL_CHK(wglGetPixelFormat)(hdc);
     PIXELFORMATDESCRIPTOR pfd;
     DIRECT_CALL_CHK(wglDescribePixelFormat)(
-        hdc, i, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
+            hdc, i, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
     m_DoubleBuffered = (pfd.dwFlags & PFD_DOUBLEBUFFER) != 0;
     m_Stereo = (pfd.dwFlags & PFD_STEREO) != 0;
     m_RGBASizes[0] = pfd.cRedBits;
@@ -97,8 +97,8 @@ NativeSurfaceEGL::NativeSurfaceEGL(const DGLDisplayState* dpy,
                                                &m_StencilSize);
     if (!ret) {
         throw std::runtime_error(
-            "eglGetConfigAttrib failed during native surface pixelformat "
-            "discovery");
+                "eglGetConfigAttrib failed during native surface pixelformat "
+                "discovery");
     }
 }
 
@@ -122,8 +122,8 @@ int NativeSurfaceEGL::getWidth() {
     ret = DIRECT_CALL_CHK(eglQuerySurface)(dpy, surface, EGL_WIDTH, &width);
     if (!ret) {
         throw std::runtime_error(
-            "eglQuerySurface failed during native surface pixelformat "
-            "discovery");
+                "eglQuerySurface failed during native surface pixelformat "
+                "discovery");
     }
     return width;
 }
@@ -138,8 +138,8 @@ int NativeSurfaceEGL::getHeight() {
     ret = DIRECT_CALL_CHK(eglQuerySurface)(dpy, surface, EGL_HEIGHT, &height);
     if (!ret) {
         throw std::runtime_error(
-            "eglQuerySurface failed during native surface pixelformat "
-            "discovery");
+                "eglQuerySurface failed during native surface pixelformat "
+                "discovery");
     }
     return height;
 }
@@ -266,14 +266,14 @@ NativeSurfaceGLX::NativeSurfaceGLX(const DGLDisplayState* _dpy, opaque_id_t id)
                                                  &val);
     m_DoubleBuffered = val;
 
-    ret |=
-        DIRECT_CALL_CHK(glXGetFBConfigAttrib)(dpy, *config, GLX_STEREO, &val);
+    ret |= DIRECT_CALL_CHK(glXGetFBConfigAttrib)(dpy, *config, GLX_STEREO,
+                                                 &val);
     m_Stereo = val;
 
     if (ret != Success) {
         throw std::runtime_error(
-            "eglGetConfigAttrib failed during native surface pixelformat "
-            "discovery");
+                "eglGetConfigAttrib failed during native surface pixelformat "
+                "discovery");
     }
 
     XFree(memToFree);
@@ -284,8 +284,8 @@ GLXFBConfig* NativeSurfaceGLX::getFbConfigForVisual(Display* dpy,
                                                     GLXFBConfig** memToFree) {
     GLXFBConfig* ret = NULL;
     int nElements;
-    GLXFBConfig* configs =
-        DIRECT_CALL_CHK(glXGetFBConfigs)(dpy, DefaultScreen(dpy), &nElements);
+    GLXFBConfig* configs = DIRECT_CALL_CHK(glXGetFBConfigs)(
+            dpy, DefaultScreen(dpy), &nElements);
 
     if (nElements) {
         (*memToFree) = configs;
@@ -294,7 +294,7 @@ GLXFBConfig* NativeSurfaceGLX::getFbConfigForVisual(Display* dpy,
     for (int i = 0; i < nElements; i++) {
         int id;
         if (DIRECT_CALL_CHK(glXGetFBConfigAttrib)(
-                dpy, configs[i], GLX_VISUAL_ID, &id) == Success) {
+                    dpy, configs[i], GLX_VISUAL_ID, &id) == Success) {
             if (id == (int)visualID) {
                 ret = &configs[i];
                 break;
