@@ -296,14 +296,14 @@
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dgladbinterface.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="dglprovisionandroidwizard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglprovisionandroidwizard.cpp">
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglprepareandroidwizard.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglprovisionandroidwizard.cpp">
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglprepareandroidwizard.cpp">
       <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="dglprepareandroidwizard.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -526,7 +526,7 @@
     <CustomBuild Include="dgladbinterface.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="dglprovisionandroidwizard.h">
+    <CustomBuild Include="dglprepareandroidwizard.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>

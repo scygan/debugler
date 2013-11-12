@@ -127,6 +127,11 @@ slots:
     void configure();
 
     /**
+     * Slot for running Android prepareAndroid wizard
+     */
+    void androidPrepare();
+
+    /**
      * Called by dgl controller to give debugee process info. Used to populate
      * window caption
      */
@@ -202,6 +207,7 @@ slots:
     QAction *setBreakOnCompilerErrAct;
     QAction *setColorSchemeActs[DGLNUM_COLOR_SCHEMES];
     QAction *configurationAct;
+    QAction *prepareAndroidAct;
     /**
      * Action group for all actions from setColorSchemeActs[]
      */

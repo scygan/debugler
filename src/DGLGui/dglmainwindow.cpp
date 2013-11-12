@@ -35,6 +35,7 @@
 #include "dglgpuview.h"
 #include "dglstateview.h"
 #include "dgladbinterface.h"
+#include "dglprepareandroidwizard.h"
 
 #include <DGLCommon/os.h>
 
@@ -251,7 +252,7 @@ void DGLMainWindow::createMenus() {
     toolsMenu->addAction(configurationAct);
 
     menuBar()->addSeparator();
-
+    toolsMenu->addAction(prepareAndroidAct);
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(aboutAct);
 }
@@ -279,7 +280,8 @@ void DGLMainWindow::createStatusBar() {
 
 void DGLMainWindow::createActions() {
 
-    // create "QActions" - bindings between mainwindow clickable widgets, and
+    // create "QActions" - bindings between mainwindow clickable widgets,
+    // and
     // local slots
 
     quitAct = new QAction(tr("&Quit"), this);
@@ -418,7 +420,8 @@ void DGLMainWindow::createActions() {
     CONNASSERT(setBreakOnCompilerErrAct, SIGNAL(toggled(bool)), this,
                SLOT(setBreakOnWhatever(bool)));
 
-    // Only one color scheme can be choosed - put all related actions to action
+    // Only one color scheme can be choosed - put all related actions to
+    // action
     // group
 
     setColorSchemeActGroup = new QActionGroup(this);
@@ -431,7 +434,8 @@ void DGLMainWindow::createActions() {
         setColorSchemeActs[i]->setActionGroup(setColorSchemeActGroup);
         setColorSchemeActs[i]->setStatusTip(tr("Set this color scheme"));
 
-        // connect all color scheme actions to one mapper, so we can connect it
+        // connect all color scheme actions to one mapper, so we can connect
+        // it
         // later to only one signal
 
         m_SetColorSchemeSignalMapper.setMapping(setColorSchemeActs[i], i);
@@ -448,6 +452,11 @@ void DGLMainWindow::createActions() {
     configurationAct = new QAction(tr("Configuration..."), this);
     configurationAct->setStatusTip(tr("Configuration options"));
     CONNASSERT(configurationAct, SIGNAL(triggered()), this, SLOT(configure()));
+
+    prepareAndroidAct = new QAction(tr("Prepare Android device..."), this);
+    prepareAndroidAct->setStatusTip(tr("Installs debugler on Android device"));
+    CONNASSERT(prepareAndroidAct, SIGNAL(triggered()), this,
+               SLOT(androidPrepare()));
 }
 
 void DGLMainWindow::createInteractions() {
@@ -516,6 +525,11 @@ void DGLMainWindow::configure() {
         m_controller.sendConfig(dialog.getConfig());
         DGLAdbInterface::get()->setAdbPath(dialog.getAdbPath().toStdString());
     }
+}
+
+void DGLMainWindow::androidPrepare() {
+    dglPrepareAndroidWizard::Wizard wizard;
+    wizard.exec();
 }
 
 void DGLMainWindow::debugeeInfo(const std::string &processName) {

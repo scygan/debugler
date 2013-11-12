@@ -21,52 +21,52 @@
 #include <QLabel>
 #include <QCheckBox>
 
-namespace dglAndroidWizard {
+namespace dglPrepareAndroidWizard {
 
-class DGLProvisionAndroidWizard : public QWizard {
+class Wizard : public QWizard {
     Q_OBJECT
    public:
-    DGLProvisionAndroidWizard(QWidget *parent = 0);
+    Wizard(QWidget *parent = 0);
     void accept();
-};
 
-class StateMachine {
-   public:
-    StateMachine();
-    enum class State {
-        BEGIN,
-        ROOT,
-        STOPPED,
-        COPIED,
-        APP_PROCESS_BACKUP,
-        APP_PRORCESS_SCRIPT,
-        STARTED,
-        COMPLETE,
-        ERRORED
+    enum {
+        Page_Intro,
+        Page_DeviceChoice,
+        Page_Run,
+        Page_Conclusion
     };
-
-   private:
-    State m_State;
 };
 
 namespace pages {
-class IntroPage : public QWizardPage {
+class Intro : public QWizardPage {
     Q_OBJECT
    public:
-    IntroPage(QWidget *parent = 0);
+    Intro(QWidget *parent = 0);
 
    private:
+    int nextId() const;
+
     QLabel *label;
+    QCheckBox *fakeAcceptBox;
     QCheckBox *acceptBox;
 };
 
-class ProvisionPage : public QWizardPage {
+class DeviceChoice : public QWizardPage {
     Q_OBJECT
    public:
-    ProvisionPage(QWidget *parent = 0);
+    DeviceChoice(QWidget *parent = 0);
+};
 
-   private:
-    StateMachine m_StateMachine;
+class Run : public QWizardPage {
+    Q_OBJECT
+   public:
+    Run(QWidget *parent = 0);
+};
+
+class Conclusion : public QWizardPage {
+    Q_OBJECT
+   public:
+    Conclusion(QWidget *parent = 0);
 };
 }
 }
