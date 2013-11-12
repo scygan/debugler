@@ -56,7 +56,7 @@ int Intro::nextId(void) const {
     if (!acceptBox->isChecked()) {
         return Wizard::Page_Intro;
     }
-    return Wizard::Page_Run;
+    return Wizard::Page_DeviceChoice;
 }
 
 DeviceChoice::DeviceChoice(QWidget *parent) : QWizardPage(parent) {
