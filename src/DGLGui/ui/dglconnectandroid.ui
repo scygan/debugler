@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>359</width>
-    <height>167</height>
+    <height>173</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,32 +18,42 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
+    <widget class="DGLAndroidSelectDevWidget" name="selectDevWidget" native="true"/>
+   </item>
+   <item>
     <layout class="QFormLayout" name="formLayout">
      <property name="fieldGrowthPolicy">
       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
      </property>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Device:</string>
+        <string>Device status:</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
+     <item row="2" column="1">
+      <widget class="QLabel" name="label_deviceStatus">
+       <property name="text">
+        <string>unknown.</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
         <string>Process:</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="comboBox">
+     <item row="3" column="1">
+      <widget class="QComboBox" name="comboBox_2">
        <property name="editable">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
+     <item row="4" column="0">
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -56,7 +66,7 @@
        </property>
       </spacer>
      </item>
-     <item row="6" column="1">
+     <item row="5" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QPushButton" name="pushButton_2">
@@ -73,27 +83,6 @@
         </widget>
        </item>
       </layout>
-     </item>
-     <item row="4" column="1">
-      <widget class="QComboBox" name="comboBox_2">
-       <property name="editable">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QLabel" name="label_deviceStatus">
-       <property name="text">
-        <string>unknown.</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Device status:</string>
-       </property>
-      </widget>
      </item>
     </layout>
    </item>
@@ -145,6 +134,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DGLAndroidSelectDevWidget</class>
+   <extends>QWidget</extends>
+   <header>dglandroidselectdev.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -159,7 +156,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>96</x>
-     <y>254</y>
+     <y>172</y>
     </hint>
    </hints>
   </connection>
@@ -175,7 +172,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>179</x>
-     <y>282</y>
+     <y>172</y>
     </hint>
    </hints>
   </connection>
@@ -208,22 +205,6 @@
     <hint type="destinationlabel">
      <x>254</x>
      <y>80</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBox</sender>
-   <signal>currentIndexChanged(QString)</signal>
-   <receiver>DGLConnectAndroidDialogClass</receiver>
-   <slot>selectDevice(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>138</x>
-     <y>29</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>224</x>
-     <y>8</y>
     </hint>
    </hints>
   </connection>

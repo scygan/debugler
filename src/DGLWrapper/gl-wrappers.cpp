@@ -418,7 +418,7 @@ extern "C" {
 #define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library) NULL,
 FUNC_PTR wrapperPtrs[] = {
 #include "codegen/functionList.inl"
-    NULL};
+        NULL};
 #undef FUNC_LIST_ELEM_SUPPORTED
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED
 

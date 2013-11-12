@@ -104,7 +104,7 @@ class DGLHLTextCharFormat {
     std::string m_Name;
 };
 std::map<std::string, DGLHLTextCharFormat>
-    DGLHLTextCharFormat::s_defaultFormats;
+        DGLHLTextCharFormat::s_defaultFormats;
 bool DGLHLTextCharFormat::s_defaultFormatsInitialized = false;
 
 class DGLHLActionBase {
@@ -326,10 +326,11 @@ class DGLHLRuleFloat : public DGLHLRuleBase {
                             QString(__FUNCTION__)
 #endif
                             ),
-              m_regex(
-                  "\\b[+-]?((((0|[1-9][0-9]*)\\.[0-9]*)|(\\.[0-9]+))([Ee][+-]?["
-                  "0-9]+)?)|((((0|[1-9][0-9]*)\\.?[0-9]*)|(\\.[0-9]+))([Ee][+-]"
-                  "?[0-9]+))(f|LF)?") {
+              m_regex("\\b[+-]?((((0|[1-9][0-9]*)\\.[0-9]*)|(\\.[0-9]+))([Ee][+"
+                      "-]?["
+                      "0-9]+)?)|((((0|[1-9][0-9]*)\\.?[0-9]*)|(\\.[0-9]+))([Ee]"
+                      "[+-]"
+                      "?[0-9]+))(f|LF)?") {
     }
 
    private:
@@ -497,7 +498,7 @@ void DGLHLActionPop::doAction(DGLSyntaxHighlighterGLSL::HLState& state) const {
 }
 
 void DGLHLActionSetContext::doAction(DGLSyntaxHighlighterGLSL::HLState& state)
-    const {
+        const {
     state.push(m_context);
 #ifdef HL_DEBUG
     HL_DEBUG(qDebug() << "Action: set, current context: "
@@ -528,13 +529,13 @@ class DGLHLData {
         QDomElement docElem = doc.documentElement();
 
         QDomElement hightLightingElement =
-            docElem.firstChildElement("highlighting");
+                docElem.firstChildElement("highlighting");
         if (hightLightingElement.isNull()) {
             FATAL;
         }
 
         for (QDomElement element =
-                 hightLightingElement.firstChildElement("list");
+                     hightLightingElement.firstChildElement("list");
              !element.isNull(); element = element.nextSiblingElement("list")) {
             DGLHLRuleKeyword::keywordList_t list;
             for (QDomNode listItemNode = element.firstChild();
@@ -549,7 +550,7 @@ class DGLHLData {
         }
 
         for (QDomElement element =
-                 hightLightingElement.firstChildElement("itemDatas");
+                     hightLightingElement.firstChildElement("itemDatas");
              !element.isNull();
              element = element.nextSiblingElement("itemDatas")) {
             for (QDomNode itemDataNode = element.firstChild();
@@ -563,12 +564,12 @@ class DGLHLData {
                     FATAL;
                 }
                 m_formats[itemDataItem.attribute("name", "").toStdString()] =
-                    DGLHLTextCharFormat(itemDataItem);
+                        DGLHLTextCharFormat(itemDataItem);
             }
         }
 
         for (QDomElement element =
-                 hightLightingElement.firstChildElement("contexts");
+                     hightLightingElement.firstChildElement("contexts");
              !element.isNull();
              element = element.nextSiblingElement("contexts")) {
             for (QDomNode contextNode = element.firstChild();
@@ -584,7 +585,7 @@ class DGLHLData {
                 }
 
                 m_contexts[contextItem.attribute("name", "").toStdString()] =
-                    std::make_shared<DGLHLContext>(contextItem, this);
+                        std::make_shared<DGLHLContext>(contextItem, this);
 
                 if (m_contexts.size() == 1) {
                     m_defContextGLSL = (*m_contexts.begin()).second.get();
@@ -602,10 +603,10 @@ class DGLHLData {
         QDomElement generalElement = docElem.firstChildElement("general");
         if (!generalElement.isNull()) {
             QDomElement keywordsElement =
-                generalElement.firstChildElement("keywords");
+                    generalElement.firstChildElement("keywords");
             if (!keywordsElement.isNull()) {
                 m_case_sensitive =
-                    (generalElement.attribute("casesensitive", "1") == "1");
+                        (generalElement.attribute("casesensitive", "1") == "1");
                 assert(m_case_sensitive);    // only case sensitive currently
                                              // implemented
             }
@@ -640,7 +641,7 @@ class DGLHLData {
     }
 
     const DGLHLRuleKeyword::keywordList_t* getKeywordList(std::string name)
-        const {
+            const {
         auto ret = m_lists.find(name);
         if (ret == m_lists.end()) {
             FATAL;
@@ -666,14 +667,14 @@ DGLHLRuleKeyword::DGLHLRuleKeyword(const DGLHLData* data, std::string _string,
 #ifdef HL_DEBUG
                         ,
                         QString(__FUNCTION__) + ":" +
-                            QString::fromStdString(_string)
+                                QString::fromStdString(_string)
 #endif
                         ) {
     const keywordList_t* list = data->getKeywordList(_string);
     QString regexStr;
     for (size_t i = 0; i < list->size(); i++) {
-        regexStr +=
-            QString(i ? "|" : "") + "\\b" + QRegExp::escape((*list)[i]) + "\\b";
+        regexStr += QString(i ? "|" : "") + "\\b" +
+                    QRegExp::escape((*list)[i]) + "\\b";
     }
     m_regex = QRegExp(regexStr);
 }
@@ -706,7 +707,7 @@ DGLHLRuleBase::DGLHLRuleBase(const DGLHLData* data, QString formatName,
 #endif
                              ) {
     m_action = std::shared_ptr<DGLHLActionBase>(
-        DGLHLActionBase::Create(data, actionName));
+            DGLHLActionBase::Create(data, actionName));
     m_format = data->getFormat(formatName.toStdString());
 #ifdef HL_DEBUG
     m_debugRuleName = formatName + ":" + debugRuleName;
@@ -733,7 +734,7 @@ DGLHLContext::DGLHLContext(const QDomElement& xml, const DGLHLData* data)
             m_DefaultFormat = data->getFormat(val.toStdString());
         } else if (name == "lineEndContext") {
             m_LineEndAction = std::shared_ptr<DGLHLActionBase>(
-                DGLHLActionBase::Create(data, val));
+                    DGLHLActionBase::Create(data, val));
         } else {
             FATAL;
         }
@@ -748,7 +749,7 @@ void DGLHLContext::link(const DGLHLData* data) {
             continue;
         }
         m_rules.push_back(std::shared_ptr<DGLHLRuleBase>(
-            DGLHLRuleBase::Create(data, element)));
+                DGLHLRuleBase::Create(data, element)));
     }
 }
 
@@ -772,13 +773,13 @@ void DGLSyntaxHighlighterGLSL::highlightBlock(const QString& text) {
     int pos = 0;
     while (pos < text.length()) {
         DGLHLContext::HLResult res =
-            currentState.getContext()->doHighlight(text.mid(pos));
+                currentState.getContext()->doHighlight(text.mid(pos));
 
         if (res.pos) {
             // format all unmatched text with default format of current context
             setFormat(
-                pos, res.pos,
-                currentState.getContext()->getDefaultFormat()->getFormat());
+                    pos, res.pos,
+                    currentState.getContext()->getDefaultFormat()->getFormat());
         }
 
         if (res.size) {
@@ -802,7 +803,7 @@ void DGLSyntaxHighlighterGLSL::highlightBlock(const QString& text) {
     }
 
     std::pair<std::map<HLState, int>::iterator, bool> i = m_hlStateMap.insert(
-        std::pair<HLState, int>(currentState, m_hlStateByIdx.size()));
+            std::pair<HLState, int>(currentState, m_hlStateByIdx.size()));
 
     if (i.second) {
         // inserted new state, so keep track of its idx
@@ -826,7 +827,7 @@ const DGLHLContext* DGLSyntaxHighlighterGLSL::HLState::getContext() {
 }
 
 const DGLHLContext* DGLSyntaxHighlighterGLSL::HLState::operator[](size_t i)
-    const {
+        const {
     return c[i];
 }
 

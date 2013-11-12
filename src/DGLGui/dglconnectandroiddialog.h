@@ -20,53 +20,25 @@
 
 #include "ui_dglconnectandroid.h"
 
-#include "ui_dglconnectandroidadb.h"
 #include "dgladbinterface.h"
 
-class DGLConnectAndroidAdbDialog : public QDialog {
-    Q_OBJECT
-
-   public:
-    DGLConnectAndroidAdbDialog();
-    ~DGLConnectAndroidAdbDialog();
-    std::string getAddress();
-
-   private:
-    Ui::DGLConnectAndroidAdbDialogClass m_ui;
-};
+#include "dglandroidselectdev.h"
 
 class DGLConnectAndroidDialog : public QDialog {
     Q_OBJECT
 
    public:
     DGLConnectAndroidDialog();
-    ~DGLConnectAndroidDialog();
-
    public
 slots:
-    void adbKillServer();
-    void adbConnect();
-    void selectDevice(const QString& serial);
-
-    void deviceFailed(DGLADBDevice* device, std::string reason);
+    void selectDevice(DGLADBDevice*);
+    void update();
     void adbFailed(std::string reason);
-    void gotDevices(std::vector<std::string> devices);
+    void deviceFailed(DGLADBDevice* device, std::string reason);
+
     void gotProcesses(std::vector<DGLAdbProcess> devices);
 
-   private
-slots:
-
-    void reloadDevices();
-
    private:
-    virtual void showEvent(QShowEvent* event) override;
-
-    QTimer m_ReloadTimer;
-
-    DGLConnectAndroidAdbDialog m_ConnectDialog;
-
-    std::shared_ptr<DGLADBDevice> m_CurrentDevice;
-
     Ui::DGLConnectAndroidDialogClass m_ui;
 };
 

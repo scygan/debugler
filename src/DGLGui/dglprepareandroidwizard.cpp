@@ -15,7 +15,9 @@
 
 #include "dglprepareandroidwizard.h"
 
-//#include "dgladbinterface.h"
+#include <QMessageBox>
+
+#include "dglandroidselectdev.h"
 
 namespace dglPrepareAndroidWizard {
 
@@ -40,8 +42,8 @@ Intro::Intro(QWidget *parent) : QWizardPage(parent) {
             "<p>You have been warned!</p><br>"));
     label->setWordWrap(true);
 
-    fakeAcceptBox = new QCheckBox("I have read above.");
-    acceptBox = new QCheckBox("I have read and understood above.");
+    fakeAcceptBox = new QCheckBox("I agree.");
+    acceptBox = new QCheckBox("I have understood and I agree to above.");
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(label);
@@ -50,12 +52,37 @@ Intro::Intro(QWidget *parent) : QWizardPage(parent) {
     setLayout(layout);
 }
 
-int Intro::nextId(void) const { return Wizard::Page_Run; }
+int Intro::nextId(void) const {
+    if (!acceptBox->isChecked()) {
+        return Wizard::Page_Intro;
+    }
+    return Wizard::Page_Run;
+}
 
 DeviceChoice::DeviceChoice(QWidget *parent) : QWizardPage(parent) {
     QVBoxLayout *layout = new QVBoxLayout;
-    // layout->addWidget();
+
+    m_SelectWidget = new DGLAndroidSelectDevWidget(this);
+
+    //CONNASSERT(selectWidget, SIGNAL(selectDevice(DGLADBDevice*)), this,
+    //    SLOT(selectDevice(DGLADBDevice*)));
+    CONNASSERT(m_SelectWidget, SIGNAL(adbFailed(std::string)), this,
+        SLOT(adbFailed(std::string)));
+
+    layout->addWidget(m_SelectWidget);
     setLayout(layout);
+}
+
+void DeviceChoice::adbFailed(std::string reason) {
+    QMessageBox::critical(this, tr("ADB Error"),
+        QString::fromStdString(reason));
+}
+
+int DeviceChoice::nextId() const {
+    if (m_SelectWidget->getCurrentDevice()) {
+        return Wizard::Page_Run;
+    }
+    return Wizard::Page_DeviceChoice;
 }
 
 Run::Run(QWidget *parent) : QWizardPage(parent) {

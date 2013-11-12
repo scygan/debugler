@@ -21,6 +21,8 @@
 #include <QLabel>
 #include <QCheckBox>
 
+class DGLAndroidSelectDevWidget;
+
 namespace dglPrepareAndroidWizard {
 
 class Wizard : public QWizard {
@@ -55,6 +57,14 @@ class DeviceChoice : public QWizardPage {
     Q_OBJECT
    public:
     DeviceChoice(QWidget *parent = 0);
+   public
+slots:
+    void adbFailed(std::string reason);
+
+   private:
+    int nextId() const;
+
+    DGLAndroidSelectDevWidget * m_SelectWidget;
 };
 
 class Run : public QWizardPage {
