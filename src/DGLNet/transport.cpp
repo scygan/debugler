@@ -25,19 +25,16 @@
 
 #include <portable_archive/portable_oarchive.hpp>
 #pragma warning(push)
-#pragma warning(disable \
-                : 4244)    //'argument' : conversion from             \
-                                   //'std::streamsize' to 'size_t', possible  \
-                                   //loss of data basic_binary_iprimitive.hpp \
-                                   //181
+// argument' : conversion from 'std::streamsize' to 'size_t', possible loss of
+// data basic_binary_iprimitive.hpp
+#pragma warning(disable : 4244)
 #include <portable_archive/portable_iarchive.hpp>
 #pragma warning(pop)
 #include <boost/serialization/set.hpp>
 #pragma warning(push)
-#pragma warning( \
-        disable  \
-        : 4512)    //'boost::serialization::variant_save_visitor<Archive>' \
-                       //: assignment operator could not be generated
+//'boost::serialization::variant_save_visitor<Archive>': assignment operator
+//could not be generated
+#pragma warning(disable : 4512)
 
 #include <boost/serialization/variant.hpp>
 #pragma warning(pop)
