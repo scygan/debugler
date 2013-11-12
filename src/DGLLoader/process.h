@@ -13,10 +13,8 @@
 * limitations under the License.
 */
 
-
 #ifndef PROCESS_H
 #define PROCESS_H
-
 
 #ifdef _WIN32
 #include <windows.h>
@@ -26,17 +24,16 @@
 #include <string>
 
 class DGLProcess {
-public:
-    DGLProcess(std::string executable, std::vector<std::string> args, bool forceFork = false);
-    
+   public:
+    DGLProcess(std::string executable, std::vector<std::string> args,
+               bool forceFork = false);
 
 #ifdef _WIN32
-    typedef HANDLE native_process_handle_t ;
+    typedef HANDLE native_process_handle_t;
 #else
-    typedef pid_t native_process_handle_t ;
+    typedef pid_t native_process_handle_t;
 #endif
     native_process_handle_t getHandle();
-
 
 #ifndef _WIN32
     void do_execvp();
@@ -46,9 +43,7 @@ public:
     native_process_handle_t getMainThread();
 #endif
 
-
-
-private:
+   private:
 #ifdef _WIN32
     PROCESS_INFORMATION m_processInfo;
 #else
@@ -56,11 +51,6 @@ private:
 #endif
     std::string m_executable;
     std::vector<std::string> m_args;
-
-
-
 };
 
-
 #endif
-

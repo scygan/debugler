@@ -17,28 +17,29 @@
 
 namespace dglnet {
 
-ContextObjectName::ContextObjectName():m_Name(0), m_Context(0), m_Target(0) {}
-ContextObjectName::ContextObjectName(opaque_id_t context, gl_t name, gl_t target):m_Name(name),m_Context(context),m_Target(target) {}
+ContextObjectName::ContextObjectName() : m_Name(0), m_Context(0), m_Target(0) {}
+ContextObjectName::ContextObjectName(opaque_id_t context, gl_t name,
+                                     gl_t target)
+        : m_Name(name), m_Context(context), m_Target(target) {}
 ContextObjectName::~ContextObjectName() {}
 
-bool ContextObjectName::operator==(const ContextObjectName&rhs) const {
+bool ContextObjectName::operator==(const ContextObjectName& rhs) const {
 
-    //it is crucial that m_Target is not get into account here (ID + ctxID is enough to indentify an object and m_Target is optional)
+    // it is crucial that m_Target is not get into account here (ID + ctxID is
+    // enough to indentify an object and m_Target is optional)
 
     return m_Context == rhs.m_Context && m_Name == rhs.m_Name;
 }
 
-bool ContextObjectName::operator<(const ContextObjectName&rhs) const {
+bool ContextObjectName::operator<(const ContextObjectName& rhs) const {
 
-    //it is crucial that m_Target is not get into account here (ID + ctxID is enough to indentify an object and m_Target is optional)
+    // it is crucial that m_Target is not get into account here (ID + ctxID is
+    // enough to indentify an object and m_Target is optional)
 
-    if (m_Context < rhs.m_Context)
-        return true;
-    if (m_Context > rhs.m_Context)
-        return false;
-    if (m_Name < rhs.m_Name)
-        return true;
+    if (m_Context < rhs.m_Context) return true;
+    if (m_Context > rhs.m_Context) return false;
+    if (m_Name < rhs.m_Name) return true;
     return false;
 }
 
-} //namespace dglnet
+}    // namespace dglnet

@@ -13,137 +13,142 @@
 * limitations under the License.
 */
 
-#include<sys/types.h>
-#include<sys/stat.h>
-#include<fcntl.h>
-#include<unistd.h>
-#include<sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
 
-#include<cerrno>
-#include<cstring>
+#include <cerrno>
+#include <cstring>
 
-#include<string>
-#include<stdexcept>
-#include<fstream>
+#include <string>
+#include <stdexcept>
+#include <fstream>
 
 #ifndef __ANDROID__
-#include<libelf.h>
-#include<gelf.h>
+#include <libelf.h>
+#include <gelf.h>
 #else
 #include "ipc.h"
 #endif
 
-#include<DGLCommon/os.h>
+#include <DGLCommon/os.h>
 
 #define NO_DL_REDEFINES
-#include"dl-intercept.h"
+#include "dl-intercept.h"
 
 #define E std::string("ELFAnalyzer Error: ")
 
-#include"api-loader.h"
-#include"gl-wrappers.h"
-#include"tls.h"
+#include "api-loader.h"
+#include "gl-wrappers.h"
+#include "tls.h"
 
 #ifndef __ANDROID__
 
 class ELFAnalyzer {
-    public:
-        ELFAnalyzer(const char* name):m_fd(-1) {
-            std::string path;
-            {
-                std::ifstream maps("/proc/self/maps");
-                std::string line;
-                while (!maps.eof()) {
-                    getline(maps, line);
-                    std::string lineStr(line);
-                    if (lineStr.find(name) != std::string::npos) {
-                        path = lineStr.substr(lineStr.find_last_of( ' ' ) + 1, std::string::npos);
-                        break;
-                    }
-                }
-
-                if (!path.length()) {
-                    throw std::runtime_error(E + "Cannot get " + name + "path when looking at /proc/self/map");
-                }
-            }
-
-            if(elf_version(EV_CURRENT) == EV_NONE) {
-                throw std::runtime_error(E + "libelf is outdated");
-            }
-
-
-            if ((m_fd = open(path.c_str(), O_RDONLY)) == -1) {
-                throw std::runtime_error(E + "Cannot open: " + path + ": " + strerror(errno));
-            }
-            struct stat st;
-            if (fstat(m_fd, &st)) {
-                throw std::runtime_error(E + "Cannot stat file: " + strerror(errno));
-            }
-
-            Elf* elf = elf_begin(m_fd, ELF_C_READ, NULL);
-            Elf_Scn *scn = NULL;
-
-            GElf_Shdr shdr;
-
-            while((scn = elf_nextscn(elf, scn)) != NULL) {
-                gelf_getshdr(scn, &shdr);
-                if (shdr.sh_type == SHT_DYNSYM) {
+   public:
+    ELFAnalyzer(const char *name) : m_fd(-1) {
+        std::string path;
+        {
+            std::ifstream maps("/proc/self/maps");
+            std::string line;
+            while (!maps.eof()) {
+                getline(maps, line);
+                std::string lineStr(line);
+                if (lineStr.find(name) != std::string::npos) {
+                    path = lineStr.substr(lineStr.find_last_of(' ') + 1,
+                                          std::string::npos);
                     break;
                 }
             }
 
-            if (!scn) {
-                throw std::runtime_error(E + "Cannot find DYNSYM section");
-            }
-
-            Elf_Data* edata = elf_getdata(scn, NULL);
-            for(size_t i = 0; i < shdr.sh_size / shdr.sh_entsize; i++) {
-                GElf_Sym sym;
-                if (!gelf_getsym(edata, i, &sym)) {
-                    throw std::runtime_error(E + "gelf_getsym failed: " + elf_errmsg(elf_errno()));
-                }
-                if (ELF32_ST_TYPE(sym.st_info) != STT_FUNC) {
-                    continue;
-                }
-                char* symName;
-                if ((symName = elf_strptr(elf, shdr.sh_link, sym.st_name)) != NULL) {
-                    m_SymbolValues[symName] = sym.st_value;
-                }
-            }
-
-        }
-        ~ELFAnalyzer() {
-            if (m_fd > 0) {
-                close(m_fd);
+            if (!path.length()) {
+                throw std::runtime_error(E + "Cannot get " + name +
+                                         "path when looking at /proc/self/map");
             }
         }
 
-        int64_t symValue(const char* name) {
-            std::map<std::string, int64_t>::iterator i = m_SymbolValues.find(name);
-            if (i == m_SymbolValues.end()) {
-                throw std::runtime_error(E + "Cannot find symbol " + name);
-            }
-            return i->second;
+        if (elf_version(EV_CURRENT) == EV_NONE) {
+            throw std::runtime_error(E + "libelf is outdated");
         }
 
-    private:
-        int m_fd;
-        std::map<std::string, int64_t> m_SymbolValues;
+        if ((m_fd = open(path.c_str(), O_RDONLY)) == -1) {
+            throw std::runtime_error(E + "Cannot open: " + path + ": " +
+                                     strerror(errno));
+        }
+        struct stat st;
+        if (fstat(m_fd, &st)) {
+            throw std::runtime_error(E + "Cannot stat file: " +
+                                     strerror(errno));
+        }
+
+        Elf *elf = elf_begin(m_fd, ELF_C_READ, NULL);
+        Elf_Scn *scn = NULL;
+
+        GElf_Shdr shdr;
+
+        while ((scn = elf_nextscn(elf, scn)) != NULL) {
+            gelf_getshdr(scn, &shdr);
+            if (shdr.sh_type == SHT_DYNSYM) {
+                break;
+            }
+        }
+
+        if (!scn) {
+            throw std::runtime_error(E + "Cannot find DYNSYM section");
+        }
+
+        Elf_Data *edata = elf_getdata(scn, NULL);
+        for (size_t i = 0; i < shdr.sh_size / shdr.sh_entsize; i++) {
+            GElf_Sym sym;
+            if (!gelf_getsym(edata, i, &sym)) {
+                throw std::runtime_error(E + "gelf_getsym failed: " +
+                                         elf_errmsg(elf_errno()));
+            }
+            if (ELF32_ST_TYPE(sym.st_info) != STT_FUNC) {
+                continue;
+            }
+            char *symName;
+            if ((symName = elf_strptr(elf, shdr.sh_link, sym.st_name)) !=
+                NULL) {
+                m_SymbolValues[symName] = sym.st_value;
+            }
+        }
+    }
+    ~ELFAnalyzer() {
+        if (m_fd > 0) {
+            close(m_fd);
+        }
+    }
+
+    int64_t symValue(const char *name) {
+        std::map<std::string, int64_t>::iterator i = m_SymbolValues.find(name);
+        if (i == m_SymbolValues.end()) {
+            throw std::runtime_error(E + "Cannot find symbol " + name);
+        }
+        return i->second;
+    }
+
+   private:
+    int m_fd;
+    std::map<std::string, int64_t> m_SymbolValues;
 };
 #endif
 
 DLIntercept g_DLIntercept;
 
-DLIntercept::DLIntercept():m_initialized(false) {}
+DLIntercept::DLIntercept() : m_initialized(false) {}
 
-void *DLIntercept::real_dlsym (void * handle, const char * name) {
+void *DLIntercept::real_dlsym(void *handle, const char *name) {
     if (!m_initialized) {
         initialize();
     }
     return m_real_dlsym(handle, name);
 }
 
-void *DLIntercept::real_dlvsym (void * handle, const char *name, const char *version) {
+void *DLIntercept::real_dlvsym(void *handle, const char *name,
+                               const char *version) {
     if (!m_initialized) {
         initialize();
     }
@@ -154,7 +159,7 @@ void *DLIntercept::real_dlvsym (void * handle, const char *name, const char *ver
     }
 }
 
-void *DLIntercept::real_dlopen (const char *filename, int flag) {
+void *DLIntercept::real_dlopen(const char *filename, int flag) {
     if (!m_initialized) {
         initialize();
     }
@@ -162,147 +167,163 @@ void *DLIntercept::real_dlopen (const char *filename, int flag) {
     return m_real_dlopen(filename, flag);
 }
 
-void *DLIntercept::dlsym (void * handle, const char *name) {
+void *DLIntercept::dlsym(void *handle, const char *name) {
 
-    void * ptr = real_dlsym(handle, name);
+    void *ptr = real_dlsym(handle, name);
 
     boost::recursive_mutex::scoped_lock lock(mutex);
 
-    std::map<uint64_t, bool>::iterator i = mSupportedLibraries.find(reinterpret_cast<uint64_t>(handle));
+    std::map<uint64_t, bool>::iterator i =
+        mSupportedLibraries.find(reinterpret_cast<uint64_t>(handle));
 
     Entrypoint entryp = GetEntryPointEnum(name);
 
-    if (!DGLThreadState::get()->inActionProcessing() && i != mSupportedLibraries.end() && i->second && entryp != NO_ENTRYPOINT) {
-        g_ApiLoader.setPointer(entryp, reinterpret_cast<FUNC_PTR>((ptrdiff_t)ptr));
-        return reinterpret_cast<void*>((ptrdiff_t)getWrapperPointer(entryp));
+    if (!DGLThreadState::get()->inActionProcessing() &&
+        i != mSupportedLibraries.end() && i->second &&
+        entryp != NO_ENTRYPOINT) {
+        g_ApiLoader.setPointer(entryp,
+                               reinterpret_cast<FUNC_PTR>((ptrdiff_t)ptr));
+        return reinterpret_cast<void *>((ptrdiff_t)getWrapperPointer(entryp));
     } else {
         return ptr;
     }
 }
 
-void *DLIntercept::dlvsym (void * handle, const char *name, const char *version) {
+void *DLIntercept::dlvsym(void *handle, const char *name, const char *version) {
 
-    void * ptr = real_dlvsym(handle, name, version);
+    void *ptr = real_dlvsym(handle, name, version);
 
     boost::recursive_mutex::scoped_lock lock(mutex);
 
-    std::map<uint64_t, bool>::iterator i = mSupportedLibraries.find(reinterpret_cast<uint64_t>(handle));
+    std::map<uint64_t, bool>::iterator i =
+        mSupportedLibraries.find(reinterpret_cast<uint64_t>(handle));
 
     Entrypoint entryp = GetEntryPointEnum(name);
 
-    if (!DGLThreadState::get()->inActionProcessing() && i != mSupportedLibraries.end() && i->second && entryp != NO_ENTRYPOINT) {
-        g_ApiLoader.setPointer(entryp, reinterpret_cast<FUNC_PTR>((ptrdiff_t)ptr));
-        return reinterpret_cast<void*>((ptrdiff_t)getWrapperPointer(entryp));
+    if (!DGLThreadState::get()->inActionProcessing() &&
+        i != mSupportedLibraries.end() && i->second &&
+        entryp != NO_ENTRYPOINT) {
+        g_ApiLoader.setPointer(entryp,
+                               reinterpret_cast<FUNC_PTR>((ptrdiff_t)ptr));
+        return reinterpret_cast<void *>((ptrdiff_t)getWrapperPointer(entryp));
     } else {
         return ptr;
     }
 }
 
-void *DLIntercept::dlopen (const char *filename, int flag) {
+void *DLIntercept::dlopen(const char *filename, int flag) {
     boost::recursive_mutex::scoped_lock lock(mutex);
 
-    void* ret = real_dlopen(filename, flag);
+    void *ret = real_dlopen(filename, flag);
 
-    if (ret && filename && g_ApiLoader.isLibGL(filename)) {    
+    if (ret && filename && g_ApiLoader.isLibGL(filename)) {
         mSupportedLibraries[reinterpret_cast<uint64_t>(ret)] = true;
     }
 
     return ret;
 }
 
-
 void DLIntercept::initialize() {
     m_initialized = true;
 #ifndef __ANDROID__
     ELFAnalyzer an("libdl");
 
-    char* baseAddr = reinterpret_cast<char*>((intptr_t)&dlclose) - an.symValue("dlclose");
+    char *baseAddr =
+        reinterpret_cast<char *>((intptr_t) & dlclose) - an.symValue("dlclose");
 
-    m_real_dlopen = reinterpret_cast<void* (*)(const char *filename, int flag)> (
+    m_real_dlopen =
+        reinterpret_cast<void *(*)(const char * filename, int flag)>(
             (intptr_t)(baseAddr + an.symValue("dlopen")));
-    m_real_dlsym = reinterpret_cast<void* (*)(void*, const char*)> (
-            (intptr_t)(baseAddr + an.symValue("dlsym")));
+    m_real_dlsym = reinterpret_cast<void *(*)(void *, const char *)>(
+        (intptr_t)(baseAddr + an.symValue("dlsym")));
     try {
-        m_real_dlvsym = reinterpret_cast<void* (*)(void*, const char*, const char*)>(
-            (intptr_t)(baseAddr + an.symValue("dlvsym")));
-    } catch (const std::runtime_error& err) {        Os::nonFatal("dlvsym is not available in dynamic linker.\n");
+        m_real_dlvsym =
+            reinterpret_cast<void *(*)(void *, const char *, const char *)>(
+                (intptr_t)(baseAddr + an.symValue("dlvsym")));
+    }
+    catch (const std::runtime_error &err) {
+        Os::nonFatal("dlvsym is not available in dynamic linker.\n");
         m_real_dlvsym = NULL;
     }
 #else
-    //dlopen/dlsym is injected in /system/bin/linker on Android from local functions (and libdl.so is only a stub).
-    //There is no way to get addresses of real dlopen/dlsym via elf parsing, as linker has -fvisibility=hidden.
+    // dlopen/dlsym is injected in /system/bin/linker on Android from local
+    // functions (and libdl.so is only a stub).
+    // There is no way to get addresses of real dlopen/dlsym via elf parsing, as
+    // linker has -fvisibility=hidden.
 
-    //We strongly rely on DGLLoader to get those symbols..
+    // We strongly rely on DGLLoader to get those symbols..
 
-    char* baseAddr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlclose));
+    char *baseAddr =
+        reinterpret_cast<char *>(reinterpret_cast<intptr_t>(&dlclose));
 
     int dlOpenAddr, dlSymAddr;
     getIPC()->getDLInternceptPointers(dlOpenAddr, dlSymAddr);
 
-    m_real_dlopen = reinterpret_cast<void* (*)(const char *filename, int flag)> (
-        reinterpret_cast<intptr_t>(baseAddr + dlOpenAddr));
+    m_real_dlopen =
+        reinterpret_cast<void *(*)(const char * filename, int flag)>(
+            reinterpret_cast<intptr_t>(baseAddr + dlOpenAddr));
 
-    m_real_dlsym = reinterpret_cast<void* (*)(void*, const char*)> (
+    m_real_dlsym = reinterpret_cast<void *(*)(void *, const char *)>(
         reinterpret_cast<intptr_t>(baseAddr + dlSymAddr));
 
     m_real_dlvsym = NULL;
 
 #endif
-
 }
 
 extern "C" {
 
 #ifndef __ANDROID__
-    #define NO_THROW throw()
+#define NO_THROW throw()
 #else
-    //Android does not have throw() directive in dlfnc declarations
-    #define NO_THROW
+// Android does not have throw() directive in dlfnc declarations
+#define NO_THROW
 #endif
 
+// these are preloaded entrypoints called by implementation
 
-    //these are preloaded entrypoints called by implementation
-
-
-    /** 
-     * dlopen() preloaded override.
-     *
-     * Called directly by debugee
-     */
-    void *dlopen(const char *filename, int flag) NO_THROW {
-        try {
-            return g_DLIntercept.dlopen(filename, flag);
-        } catch (const std::exception& e) {
-            Os::fatal(e.what());
-            return NULL;
-        }
+/**
+ * dlopen() preloaded override.
+ *
+ * Called directly by debugee
+ */
+void *dlopen(const char *filename, int flag) NO_THROW {
+    try {
+        return g_DLIntercept.dlopen(filename, flag);
     }
-
-    /** 
-     * dlsym() preloaded override.
-     *
-     * Called directly by debugee
-     */
-    void *dlsym (void * handle, const char *name) NO_THROW {
-        try {
-            return g_DLIntercept.dlsym(handle, name);
-        } catch (const std::exception& e) {
-            Os::fatal(e.what());
-            return NULL;
-        }
+    catch (const std::exception &e) {
+        Os::fatal(e.what());
+        return NULL;
     }
+}
 
-    /** 
-     * dlvsym() preloaded override.
-     *
-     * Called directly by debugee
-     */
-    void *dlvsym (void * handle, const char *name, const char *version) NO_THROW {
-        try {
-            return g_DLIntercept.dlvsym(handle, name, version);
-        } catch (const std::exception& e) {
-            Os::fatal(e.what());
-            return NULL;
-        }
+/**
+ * dlsym() preloaded override.
+ *
+ * Called directly by debugee
+ */
+void *dlsym(void *handle, const char *name) NO_THROW {
+    try {
+        return g_DLIntercept.dlsym(handle, name);
     }
+    catch (const std::exception &e) {
+        Os::fatal(e.what());
+        return NULL;
+    }
+}
+
+/**
+ * dlvsym() preloaded override.
+ *
+ * Called directly by debugee
+ */
+void *dlvsym(void *handle, const char *name, const char *version) NO_THROW {
+    try {
+        return g_DLIntercept.dlvsym(handle, name, version);
+    }
+    catch (const std::exception &e) {
+        Os::fatal(e.what());
+        return NULL;
+    }
+}
 }

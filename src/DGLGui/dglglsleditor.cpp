@@ -18,32 +18,36 @@
 #include <QPainter>
 #include <QTextBlock>
 
-//line numbering taken from  http://doc.qt.digia.com/4.6/widgets-codeeditor.html
+// line numbering taken from
+// http://doc.qt.digia.com/4.6/widgets-codeeditor.html
 
 class DGLLineNumberArea : public QWidget {
-public:
-    DGLLineNumberArea(DGLGLSLEditor *editor) : QWidget(editor),m_CodeEditor(editor) { }
+   public:
+    DGLLineNumberArea(DGLGLSLEditor *editor)
+            : QWidget(editor), m_CodeEditor(editor) {}
 
     QSize sizeHint() const {
         return QSize(m_CodeEditor->lineNumberAreaWidth(), 0);
     }
 
-protected:
+   protected:
     void paintEvent(QPaintEvent *_event) {
         m_CodeEditor->lineNumberAreaPaintEvent(_event);
     }
 
-private:
+   private:
     DGLGLSLEditor *m_CodeEditor;
 };
-
 
 DGLGLSLEditor::DGLGLSLEditor(QWidget *_parent) : QPlainTextEdit(_parent) {
     lineNumberArea = new DGLLineNumberArea(this);
 
-    CONNASSERT(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
-    CONNASSERT(this, SIGNAL(updateRequest(QRect,int)), this, SLOT(updateLineNumberArea(QRect,int)));
-    CONNASSERT(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
+    CONNASSERT(this, SIGNAL(blockCountChanged(int)), this,
+               SLOT(updateLineNumberAreaWidth(int)));
+    CONNASSERT(this, SIGNAL(updateRequest(QRect, int)), this,
+               SLOT(updateLineNumberArea(QRect, int)));
+    CONNASSERT(this, SIGNAL(cursorPositionChanged()), this,
+               SLOT(highlightCurrentLine()));
 
     updateLineNumberAreaWidth(0);
     highlightCurrentLine();
@@ -66,17 +70,18 @@ void DGLGLSLEditor::updateLineNumberArea(const QRect &_rect, int dy) {
     if (dy)
         lineNumberArea->scroll(0, dy);
     else
-        lineNumberArea->update(0, _rect.y(), lineNumberArea->width(), _rect.height());
+        lineNumberArea->update(0, _rect.y(), lineNumberArea->width(),
+                               _rect.height());
 
-    if (_rect.contains(viewport()->rect()))
-        updateLineNumberAreaWidth(0);
+    if (_rect.contains(viewport()->rect())) updateLineNumberAreaWidth(0);
 }
 
 void DGLGLSLEditor::resizeEvent(QResizeEvent *e) {
     QPlainTextEdit::resizeEvent(e);
 
     QRect cr = contentsRect();
-    lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+    lineNumberArea->setGeometry(
+        QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
 
 void DGLGLSLEditor::updateLineNumberAreaWidth(int /* newBlockCount */) {
@@ -106,19 +111,20 @@ void DGLGLSLEditor::lineNumberAreaPaintEvent(QPaintEvent *_event) {
     painter.fillRect(_event->rect(), Qt::lightGray);
     QTextBlock block = firstVisibleBlock();
     int blockNumber = block.blockNumber();
-    int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
-    int bottom = top + (int) blockBoundingRect(block).height();
+    int top =
+        (int)blockBoundingGeometry(block).translated(contentOffset()).top();
+    int bottom = top + (int)blockBoundingRect(block).height();
     while (block.isValid() && top <= _event->rect().bottom()) {
         if (block.isVisible() && bottom >= _event->rect().top()) {
             QString number = QString::number(blockNumber + 1);
             painter.setPen(Qt::black);
-            painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(),
-                Qt::AlignRight, number);
+            painter.drawText(0, top, lineNumberArea->width(),
+                             fontMetrics().height(), Qt::AlignRight, number);
         }
 
         block = block.next();
         top = bottom;
-        bottom = top + (int) blockBoundingRect(block).height();
+        bottom = top + (int)blockBoundingRect(block).height();
         ++blockNumber;
     }
 }

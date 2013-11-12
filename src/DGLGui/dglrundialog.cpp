@@ -37,10 +37,13 @@ DGLRunDialog::DGLRunDialog() {
 #ifndef _WIN32
     m_ui.radioButton_ModeWGLGLX->setText("GLX");
 #endif
-    
-    CONNASSERT(m_ui.lineEdit_Executable, SIGNAL(editingFinished()),this,SLOT(updatePath()));
-    CONNASSERT(m_ui.toolButton_Exec, SIGNAL(clicked()),this,SLOT(browseExecutable()));
-    CONNASSERT(m_ui.toolButton_Dir, SIGNAL(clicked()),this,SLOT(browseDirectory()));
+
+    CONNASSERT(m_ui.lineEdit_Executable, SIGNAL(editingFinished()), this,
+               SLOT(updatePath()));
+    CONNASSERT(m_ui.toolButton_Exec, SIGNAL(clicked()), this,
+               SLOT(browseExecutable()));
+    CONNASSERT(m_ui.toolButton_Dir, SIGNAL(clicked()), this,
+               SLOT(browseDirectory()));
     m_ui.lineEdit_Executable->setFocus();
 }
 
@@ -51,18 +54,22 @@ std::string DGLRunDialog::getExecutable() {
 }
 
 std::vector<std::string> DGLRunDialog::getCommandLineArgs() {
-    
+
     std::vector<std::string> ret;
 
-    //some magic here. We have arguments from user, but we must pre-parse them and split into and array.
-    // due to laziness some weird system-specific functions are used here.
+// some magic here. We have arguments from user, but we must pre-parse them and
+// split into and array.
+// due to laziness some weird system-specific functions are used here.
 #ifdef _WIN32
     int numArgs;
     if (!m_ui.lineEdit_CommandLineArgs->text().isEmpty()) {
-        LPWSTR* strings = CommandLineToArgvW(m_ui.lineEdit_CommandLineArgs->text().toStdWString().c_str(), &numArgs);
+        LPWSTR* strings = CommandLineToArgvW(
+            m_ui.lineEdit_CommandLineArgs->text().toStdWString().c_str(),
+            &numArgs);
         if (!strings) {
             if (int osError = Os::getLastosError()) {
-                throw std::runtime_error("Program arguments: " + Os::translateOsError(osError));
+                throw std::runtime_error("Program arguments: " +
+                                         Os::translateOsError(osError));
             } else {
                 throw std::runtime_error("Program arguments: unknown error");
             }
@@ -78,17 +85,23 @@ std::vector<std::string> DGLRunDialog::getCommandLineArgs() {
     }
 #else
     wordexp_t wordExp;
-  
-    int status = wordexp(m_ui.lineEdit_CommandLineArgs->text().toUtf8(), &wordExp, 0);
+
+    int status =
+        wordexp(m_ui.lineEdit_CommandLineArgs->text().toUtf8(), &wordExp, 0);
     switch (status) {
         case WRDE_BADCHAR:
-            throw std::runtime_error("Program arguments: Illegal occurrence of newline or one of |, &, ;, <, >, (, ), {, }.");
+            throw std::runtime_error(
+                "Program arguments: Illegal occurrence of newline or one of |, "
+                "&, ;, <, >, (, ), {, }.");
         case WRDE_BADVAL:
             assert(!"no  WRDE_UNDEF was set, but got WRDE_BADVAL");
-            throw std::runtime_error("Program arguments: An undefined shell variable was referenced");
+            throw std::runtime_error(
+                "Program arguments: An undefined shell variable was "
+                "referenced");
         case WRDE_CMDSUB:
             assert(!" WRDE_NOCMD flag not set, but got WRDE_CMDSUB");
-            throw std::runtime_error("Program arguments: Command substitution occurred");
+            throw std::runtime_error(
+                "Program arguments: Command substitution occurred");
         case WRDE_NOSPACE:
             wordfree(&wordExp);
             throw std::runtime_error("Program arguments: Out of memory.");
@@ -109,7 +122,6 @@ std::vector<std::string> DGLRunDialog::getCommandLineArgs() {
 
 #endif
     return ret;
-  
 }
 
 std::string DGLRunDialog::getPath() {
@@ -117,19 +129,26 @@ std::string DGLRunDialog::getPath() {
 }
 
 bool DGLRunDialog::getModeEGL() {
-    return m_ui.radioButton_ModeEGL->isChecked() && !m_ui.radioButton_ModeWGLGLX->isChecked();
+    return m_ui.radioButton_ModeEGL->isChecked() &&
+           !m_ui.radioButton_ModeWGLGLX->isChecked();
 }
 
 void DGLRunDialog::updatePath() {
     try {
         QFileInfo info(m_ui.lineEdit_Executable->text());
-        m_ui.lineEdit_Path->setText(QDir::toNativeSeparators(info.dir().path()));;
-    } catch (...) {}
+        m_ui.lineEdit_Path->setText(
+            QDir::toNativeSeparators(info.dir().path()));
+        ;
+    }
+    catch (...) {
+    }
 }
 
 void DGLRunDialog::browseExecutable() {
     QFileInfo info(m_ui.lineEdit_Executable->text());
-    QString res = QFileDialog::getOpenFileName( this, tr( "Choose a executable to run" ), info.absoluteFilePath(), tr( "Executables (*.exe)" ) );
+    QString res = QFileDialog::getOpenFileName(
+        this, tr("Choose a executable to run"), info.absoluteFilePath(),
+        tr("Executables (*.exe)"));
     if (!res.isNull()) {
         m_ui.lineEdit_Executable->setText(QDir::toNativeSeparators(res));
     }
@@ -137,7 +156,8 @@ void DGLRunDialog::browseExecutable() {
 }
 
 void DGLRunDialog::browseDirectory() {
-    QString res = QFileDialog::getExistingDirectory( this, "Choose directory", m_ui.lineEdit_Path->text());
+    QString res = QFileDialog::getExistingDirectory(this, "Choose directory",
+                                                    m_ui.lineEdit_Path->text());
     if (!res.isNull()) {
         m_ui.lineEdit_Path->setText(res);
     }

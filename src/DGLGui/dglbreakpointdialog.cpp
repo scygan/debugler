@@ -13,19 +13,21 @@
 * limitations under the License.
 */
 
-
-
 #include "dglbreakpointdialog.h"
 
-class DGLBreakPointDialogItem: public QListWidgetItem {
-public:
-    DGLBreakPointDialogItem(Entrypoint e, QListWidget* parrent):QListWidgetItem(QString(GetEntryPointName(e)), parrent),m_Entrypoint(e) {}
+class DGLBreakPointDialogItem : public QListWidgetItem {
+   public:
+    DGLBreakPointDialogItem(Entrypoint e, QListWidget* parrent)
+            : QListWidgetItem(QString(GetEntryPointName(e)), parrent),
+              m_Entrypoint(e) {}
     Entrypoint get() { return m_Entrypoint; }
-private:
+
+   private:
     Entrypoint m_Entrypoint;
 };
 
-DGLBreakPointDialog::DGLBreakPointDialog(DglController * controller):m_Controller(controller) {
+DGLBreakPointDialog::DGLBreakPointDialog(DglController* controller)
+        : m_Controller(controller) {
     m_Ui.setupUi(this);
     m_Ui.leftListWidget->setSelectionMode(QAbstractItemView::MultiSelection);
     m_Ui.rightListWidget->setSelectionMode(QAbstractItemView::MultiSelection);
@@ -34,8 +36,10 @@ DGLBreakPointDialog::DGLBreakPointDialog(DglController * controller):m_Controlle
         new DGLBreakPointDialogItem(i, m_Ui.leftListWidget);
     }
 
-    std::set<Entrypoint> currentBreakPoints = m_Controller->getBreakPoints()->getCurrent();
-    for (std::set<Entrypoint>::iterator i = currentBreakPoints.begin(); i != currentBreakPoints.end(); i++) {
+    std::set<Entrypoint> currentBreakPoints =
+        m_Controller->getBreakPoints()->getCurrent();
+    for (std::set<Entrypoint>::iterator i = currentBreakPoints.begin();
+         i != currentBreakPoints.end(); i++) {
         new DGLBreakPointDialogItem(*i, m_Ui.rightListWidget);
     }
 }
@@ -45,7 +49,9 @@ DGLBreakPointDialog::~DGLBreakPointDialog() {}
 std::set<Entrypoint> DGLBreakPointDialog::getBreakPoints() {
     std::set<Entrypoint> ret;
     for (int i = 0; i < m_Ui.rightListWidget->count(); i++) {
-        DGLBreakPointDialogItem* widget = dynamic_cast<DGLBreakPointDialogItem*>( m_Ui.rightListWidget->item(i));
+        DGLBreakPointDialogItem* widget =
+            dynamic_cast<DGLBreakPointDialogItem*>(
+                m_Ui.rightListWidget->item(i));
         assert(widget);
         ret.insert(widget->get());
     }
@@ -56,11 +62,14 @@ void DGLBreakPointDialog::addBreakPoint() {
     QList<QListWidgetItem*> list = m_Ui.leftListWidget->selectedItems();
 
     for (int i = 0; i < list.count(); i++) {
-        DGLBreakPointDialogItem* widget1 = dynamic_cast<DGLBreakPointDialogItem*>(list.at(i));
+        DGLBreakPointDialogItem* widget1 =
+            dynamic_cast<DGLBreakPointDialogItem*>(list.at(i));
         assert(widget1);
         bool found = false;
         for (int j = 0; j < m_Ui.rightListWidget->count(); j++) {
-            DGLBreakPointDialogItem* widget2 = dynamic_cast<DGLBreakPointDialogItem*>( m_Ui.rightListWidget->item(j));
+            DGLBreakPointDialogItem* widget2 =
+                dynamic_cast<DGLBreakPointDialogItem*>(
+                    m_Ui.rightListWidget->item(j));
             assert(widget2);
             if (widget1->get() == widget2->get()) {
                 found = true;
@@ -93,12 +102,14 @@ void DGLBreakPointDialog::searchBreakPoint(const QString& prefix) {
                 selection.select(idx, idx);
 
                 if (first) {
-                    first = false; 
-                    m_Ui.leftListWidget->scrollToItem(item, QAbstractItemView::PositionAtTop);
+                    first = false;
+                    m_Ui.leftListWidget->scrollToItem(
+                        item, QAbstractItemView::PositionAtTop);
                 }
             }
         }
-        m_Ui.leftListWidget->selectionModel()->select(selection, QItemSelectionModel::ClearAndSelect);
+        m_Ui.leftListWidget->selectionModel()->select(
+            selection, QItemSelectionModel::ClearAndSelect);
     } else {
         m_Ui.leftListWidget->selectionModel()->clearSelection();
     }

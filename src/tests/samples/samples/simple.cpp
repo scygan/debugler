@@ -16,49 +16,45 @@
 #include "sample.h"
 #include "glutil.h"
 
-class SampleSimple: public Sample {
-    
+class SampleSimple : public Sample {
+
     virtual void startup() override {
-            glGenBuffers(1, &m_vbo);
-            glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glGenBuffers(1, &m_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
-            GLfloat vertexPositions[] = {
-                 0.5,  0.5,  0.0,  1.0,
-                 0.5, -0.5,  0.0,  1.0,
-                -0.5, 0.5,  0.0,  1.0,
-                -0.5, -0.5,  0.0,  1.0
-            };
-            glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STATIC_DRAW);
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
+        GLfloat vertexPositions[] = {0.5,  0.5, 0.0, 1.0, 0.5,  -0.5, 0.0, 1.0,
+                                     -0.5, 0.5, 0.0, 1.0, -0.5, -0.5, 0.0, 1.0};
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions,
+                     GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
 
-            glClearColor(0.0, 0.0, 0.0, 0.0);
-            glClearDepthf(1.0);
+        glClearColor(0.0, 0.0, 0.0, 0.0);
+        glClearDepthf(1.0);
 
-
-            const char* vshSrc = 
+        const char* vshSrc =
 #ifndef OPENGL_ES2
-                "#version 120\n"
+            "#version 120\n"
 #endif
-                "attribute vec4 position;\n"
-                "\n"
-                "void main() {\n"
-                "    gl_Position = position;\n"
-                "}\n";
+            "attribute vec4 position;\n"
+            "\n"
+            "void main() {\n"
+            "    gl_Position = position;\n"
+            "}\n";
 
-            const char* fshSrc = 
+        const char* fshSrc =
 #ifdef OPENGL_ES2
-                "precision mediump float;\n"
+            "precision mediump float;\n"
 #else
-                "#version 120\n"
+            "#version 120\n"
 #endif
-                "void main()\n"
-                "{\n"
-                "    gl_FragColor = vec4(0.4, 0.5, 0.8, 1.0);\n"
-                "}\n";
+            "void main()\n"
+            "{\n"
+            "    gl_FragColor = vec4(0.4, 0.5, 0.8, 1.0);\n"
+            "}\n";
 
-            m_program = gl::CreateProgram(vshSrc, fshSrc);
-            glUseProgram(m_program->Name());
+        m_program = gl::CreateProgram(vshSrc, fshSrc);
+        glUseProgram(m_program->Name());
     }
 
     virtual void render() override {
@@ -67,11 +63,9 @@ class SampleSimple: public Sample {
         glGetError();
     }
 
-    virtual void shutdown() override {
-        glDeleteBuffers(1, &m_vbo);
-    }
+    virtual void shutdown() override { glDeleteBuffers(1, &m_vbo); }
 
-private:
+   private:
     GLuint m_vbo;
     gl::ProgramPtr m_program;
 };

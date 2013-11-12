@@ -24,35 +24,35 @@
 
 namespace gl {
 
-    class NamedObject {
-    public: 
-        NamedObject();
-        GLuint Name();
-    protected:
-        GLuint m_name;
-    };
+class NamedObject {
+   public:
+    NamedObject();
+    GLuint Name();
 
+   protected:
+    GLuint m_name;
+};
 
-    class Shader: public NamedObject {
-    public:
-        Shader(GLenum, std::string);
-        void Compile();
-        ~Shader();
-    };
-   
-    typedef std::shared_ptr<Shader> ShaderPtr;
-    ShaderPtr CreateShader(GLenum stage, const std::string source, bool compile = true);
+class Shader : public NamedObject {
+   public:
+    Shader(GLenum, std::string);
+    void Compile();
+    ~Shader();
+};
 
-    class Program: public NamedObject {
-    public:
-        Program();
-        ~Program();
-        
-        void Attach(ShaderPtr shader);
-        void Link();
-   };
-   typedef std::shared_ptr<Program> ProgramPtr;
-   ProgramPtr CreateProgram(const std::string vsh, const std::string fsh, bool link = true);
+typedef std::shared_ptr<Shader> ShaderPtr;
+ShaderPtr CreateShader(GLenum stage, const std::string source,
+                       bool compile = true);
+
+class Program : public NamedObject {
+   public:
+    Program();
+    ~Program();
+
+    void Attach(ShaderPtr shader);
+    void Link();
+};
+typedef std::shared_ptr<Program> ProgramPtr;
+ProgramPtr CreateProgram(const std::string vsh, const std::string fsh,
+                         bool link = true);
 }
-
-

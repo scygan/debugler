@@ -17,73 +17,74 @@
 
 #include <sstream>
 
-class SampleShaderHandling: public Sample {
-    
+class SampleShaderHandling : public Sample {
+
     virtual void startup() override {
-        const GLchar* source = 
+        const GLchar* source =
             "//version 120\n"
             "attribute vec4 position;\n"
             "\n"
             "void main() {\n"
             "    gl_Position = position;\n"
             "}\n";
-             
-        //simple case: create-delete
+
+        // simple case: create-delete
         GLuint shader = glCreateShader(GL_VERTEX_SHADER);
         ////test point: we have one shader
         glDeleteShader(shader);
-        //test point: shader deleted
-        glFlush(); //flush is only to mark case end
-        
-        //source cache test
+        // test point: shader deleted
+        glFlush();    // flush is only to mark case end
+
+        // source cache test
         shader = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(shader, 1, &source, NULL);
         glDeleteShader(shader);
-        //test point: shader deleted, has cached source
-        glFlush(); //flush is only to mark case end
-            
-        //lazy deletion test, create-attach-delete-detach
+        // test point: shader deleted, has cached source
+        glFlush();    // flush is only to mark case end
+
+        // lazy deletion test, create-attach-delete-detach
         shader = glCreateShader(GL_VERTEX_SHADER);
         GLuint program = glCreateProgram();
         glAttachShader(program, shader);
-        //test point: program has shader
+        // test point: program has shader
         glDeleteShader(shader);
-        //test point: shader not deleted
+        // test point: shader not deleted
         glDetachShader(program, shader);
-        //test point: shader deleted, program has no shader
+        // test point: shader deleted, program has no shader
         glDeleteProgram(program);
-        glFlush(); //flush is only to mark case end
-            
-        //lazy deletion test2: create-attach-delete-deleteprogram
+        glFlush();    // flush is only to mark case end
+
+        // lazy deletion test2: create-attach-delete-deleteprogram
         shader = glCreateShader(GL_VERTEX_SHADER);
         program = glCreateProgram();
         glAttachShader(program, shader);
         glDeleteShader(shader);
-        //test point: shader not deleted, program has shader
+        // test point: shader not deleted, program has shader
         glDeleteProgram(program);
-        //test point: shader deleted
-        glFlush(); //flush is only to mark case end
-            
-        //caching in lazy deletion test (source after delete by detach) 
+        // test point: shader deleted
+        glFlush();    // flush is only to mark case end
+
+        // caching in lazy deletion test (source after delete by detach)
         shader = glCreateShader(GL_VERTEX_SHADER);
         program = glCreateProgram();
         glAttachShader(program, shader);
         glDeleteShader(shader);
         glShaderSource(shader, 1, &source, NULL);
         glDetachShader(program, shader);
-        //test point: cached source
+        // test point: cached source
         glDeleteProgram(program);
-        glFlush(); //flush is only to mark case end
-        
-        //caching in lazy deletion test 2 (source after delete by deleteprogram) 
+        glFlush();    // flush is only to mark case end
+
+        // caching in lazy deletion test 2 (source after delete by
+        // deleteprogram)
         shader = glCreateShader(GL_VERTEX_SHADER);
         program = glCreateProgram();
         glAttachShader(program, shader);
         glDeleteShader(shader);
         glShaderSource(shader, 1, &source, NULL);
         glDeleteProgram(program);
-        //test point: cached source
-        glFlush(); //flush is only to mark case end
+        // test point: cached source
+        glFlush();    // flush is only to mark case end
     }
 
     virtual void render() override {}

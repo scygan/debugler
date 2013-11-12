@@ -17,7 +17,7 @@
 #define DISPLAY_H
 
 #include <mutex>
-#include<map>
+#include <map>
 
 #include <DGLCommon/gl-types.h>
 #include "gl-state.h"
@@ -30,14 +30,18 @@ class DGLDisplayState {
     /**
      * Iterator for container of all GL context state objects
      */
-    typedef std::map<opaque_id_t, boost::shared_ptr<dglState::GLContext> >::iterator ContextListIter;
+    typedef std::map<opaque_id_t,
+                     boost::shared_ptr<dglState::GLContext> >::iterator
+        ContextListIter;
 
     /**
      * Iterator for container of all native surfaces
      */
-    typedef std::map<opaque_id_t, boost::shared_ptr<dglState::NativeSurfaceBase> >::iterator SurfaceListIter;
-public:
+    typedef std::map<opaque_id_t,
+                     boost::shared_ptr<dglState::NativeSurfaceBase> >::iterator
+        SurfaceListIter;
 
+   public:
     enum class Type {
         GLX,
         EGL,
@@ -60,24 +64,29 @@ public:
     static DGLDisplayState* defDpy(DGLDisplayState::Type type);
 
     /**
-     * Getter for specific display on display-able configurations (like EGL, GLX).
+     * Getter for specific display on display-able configurations (like EGL,
+     * GLX).
      */
     static DGLDisplayState* get(opaque_id_t dpy, DGLDisplayState::Type type);
 
     /**
      * Creates new context
      */
-    void createContext(dglState::GLContextVersion version, dglState::GLContextCreationData creationData, opaque_id_t id);
+    void createContext(dglState::GLContextVersion version,
+                       dglState::GLContextCreationData creationData,
+                       opaque_id_t id);
 
     /**
      * Getter for ctx object by given id
      */
-    ContextListIter getContext(dglState::GLContextVersion version, opaque_id_t id);
+    ContextListIter getContext(dglState::GLContextVersion version,
+                               opaque_id_t id);
 
     /**
-     * Getter for native surface object by given id (created if not exist). Not usable for EGL
+     * Getter for native surface object by given id (created if not exist). Not
+     * usable for EGL
      */
-    template<typename NativeSurfaceType>
+    template <typename NativeSurfaceType>
     SurfaceListIter ensureSurface(opaque_id_t id, bool lock = true);
 
     /**
@@ -88,16 +97,18 @@ public:
     /**
      * Add surface by given id and pixelformat. Not usable on WGL
      */
-    template<typename NativeSurfaceType>
+    template <typename NativeSurfaceType>
     void addSurface(opaque_id_t id, opaque_id_t pixfmt);
 
     /**
-     * Method deleting ctx object by given id (should be called when deleted by application)
+     * Method deleting ctx object by given id (should be called when deleted by
+     * application)
      */
     void deleteContext(opaque_id_t id);
 
     /**
-     * Method deleting ctx object by given id (should be called when deleted by application). Does not immediately delete when bound
+     * Method deleting ctx object by given id (should be called when deleted by
+     * application). Does not immediately delete when bound
      */
     void lazyDeleteContext(opaque_id_t id);
 
@@ -109,24 +120,26 @@ public:
     /**
      * Getter for short context state report from all Displays
      */
-    static std::vector<dglnet::message::BreakedCall::ContextReport> describeAll();
+    static std::vector<dglnet::message::BreakedCall::ContextReport>
+        describeAll();
 
     /**
      * Getter for display type
      */
     Type getType() const;
 
-private:
-
+   private:
     /**
      * Container of all GL context state objects
      */
-    std::map<opaque_id_t, boost::shared_ptr<dglState::GLContext> > m_ContextList;
+    std::map<opaque_id_t, boost::shared_ptr<dglState::GLContext> >
+        m_ContextList;
 
     /**
      * Container of  all native surfaces
      */
-    std::map<opaque_id_t, boost::shared_ptr<dglState::NativeSurfaceBase> > m_SurfaceList;
+    std::map<opaque_id_t, boost::shared_ptr<dglState::NativeSurfaceBase> >
+        m_SurfaceList;
 
     /**
      * Mutex for context container operations
@@ -141,11 +154,12 @@ private:
     /**
      *  Collection of all displays
      */
-    static std::map<opaque_id_t, boost::shared_ptr<DGLDisplayState> > s_Displays;
+    static std::map<opaque_id_t, boost::shared_ptr<DGLDisplayState> >
+        s_Displays;
 
     /**
      *  Mutex guarding s_Displays
-     */ 
+     */
     static std::mutex s_DisplaysMutex;
 
     /**
@@ -159,5 +173,4 @@ private:
     Type m_type;
 };
 
-
-#endif //DISPLAY_H
+#endif    // DISPLAY_H

@@ -17,26 +17,33 @@
 
 #include <sstream>
 
-class SampleFboMSAA: public Sample {
-    
+class SampleFboMSAA : public Sample {
+
     virtual void startup() override {
         glGenRenderbuffers(1, &m_rbo);
         glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
-        glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_RGBA8, 256, 256);
-        
+        glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_RGBA8, 256,
+                                         256);
+
         glGenTextures(2, m_textures);
         glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_textures[0]);
-        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA8, 256, 256, 0);
-        
+        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA8, 256,
+                                256, 0);
+
         glBindTexture(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, m_textures[1]);
-        glTexImage3DMultisample(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, 4, GL_DEPTH24_STENCIL8, 256, 256, 256, 0);
-        
+        glTexImage3DMultisample(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, 4,
+                                GL_DEPTH24_STENCIL8, 256, 256, 256, 0);
+
         glGenFramebuffers(1, &m_fbo);
         glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-        
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_rbo);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D_MULTISAMPLE, m_textures[0], 0);
-        glFramebufferTexture3D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE_ARRAY, m_textures[1], 0, 0);
+
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                  GL_RENDERBUFFER, m_rbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1,
+                               GL_TEXTURE_2D_MULTISAMPLE, m_textures[0], 0);
+        glFramebufferTexture3D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                               GL_TEXTURE_2D_MULTISAMPLE_ARRAY, m_textures[1],
+                               0, 0);
     }
 
     virtual void render() override {}
@@ -47,7 +54,7 @@ class SampleFboMSAA: public Sample {
         glDeleteFramebuffers(1, &m_fbo);
     }
 
-private:
+   private:
     GLuint m_rbo, m_textures[2], m_fbo;
 };
 

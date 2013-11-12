@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef GL_UTILS_H
 #define GL_UTILS_H
 
@@ -28,14 +27,15 @@ class GLContext;
 namespace glutils {
 
 class MSAADownSampler {
-public:
-MSAADownSampler(dglState::GLContext* context, GLenum attTarget, GLenum att, GLuint fboName, GLenum attInternalFormat, DGLPixelTransfer* transfer, int width, int height);
-~MSAADownSampler();
+   public:
+    MSAADownSampler(dglState::GLContext* context, GLenum attTarget, GLenum att,
+                    GLuint fboName, GLenum attInternalFormat,
+                    DGLPixelTransfer* transfer, int width, int height);
+    ~MSAADownSampler();
 
-GLuint getDownsampledFBO();
+    GLuint getDownsampledFBO();
 
-
-private:
+   private:
     dglState::GLContext* m_Context;
     GLuint m_DownSampledFBO;
     GLuint m_DownsampledResourceTarget;
@@ -44,7 +44,6 @@ private:
     GLuint m_FBO;
 };
 
-
 GLenum textTargetToBindableTarget(GLenum);
 
 /**
@@ -52,5 +51,5 @@ GLenum textTargetToBindableTarget(GLenum);
  */
 GLuint getBoundTexture(GLenum target);
 
-} //namespace glutils
+}    // namespace glutils
 #endif

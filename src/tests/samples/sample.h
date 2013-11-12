@@ -26,17 +26,14 @@
 #include "platform.h"
 
 class Sample {
-public:
-
+   public:
     virtual void startup() = 0;
     virtual void render() = 0;
     virtual void shutdown() = 0;
 
     ~Sample() {}
 
-
     static std::shared_ptr<Sample> getSample(const std::string& sample);
-
 
     static bool registerSample(Sample* sample, const std::string& name);
 
@@ -44,14 +41,11 @@ public:
 
     PlatWindowCtx* getWindow();
 
-private:
+   private:
+    static std::map<std::string, std::shared_ptr<Sample>>* getRegistry();
 
-    static std::map<std::string, std::shared_ptr<Sample>> * getRegistry();
-    
     PlatWindowCtx* m_window;
 };
 
-
 #define REGISTER_SAMPLE(CLASS, NAME) \
-    bool CLASS##registeredInfo =  CLASS::registerSample(new CLASS(), NAME)
-    
+    bool CLASS##registeredInfo = CLASS::registerSample(new CLASS(), NAME)

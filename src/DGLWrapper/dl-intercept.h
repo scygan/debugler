@@ -15,28 +15,29 @@
 * limitations under the License.
 */
 
-#include<boost/thread/recursive_mutex.hpp>
-#include<map>
+#include <boost/thread/recursive_mutex.hpp>
+#include <map>
 
-#include<dlfcn.h>
+#include <dlfcn.h>
 
 class DLIntercept {
-public:
+   public:
     DLIntercept();
 
-    void* dlsym(void * handle, const char * name);
-    void* dlvsym(void * handle, const char *name, const char *version);
-    void* dlopen(const char *filename, int flag);
+    void* dlsym(void* handle, const char* name);
+    void* dlvsym(void* handle, const char* name, const char* version);
+    void* dlopen(const char* filename, int flag);
 
-    void* real_dlsym(void * handle, const char * name);
-    void* real_dlvsym(void * handle, const char *name, const char *version);
-    void* real_dlopen(const char *filename, int flag);
-private:
+    void* real_dlsym(void* handle, const char* name);
+    void* real_dlvsym(void* handle, const char* name, const char* version);
+    void* real_dlopen(const char* filename, int flag);
+
+   private:
     void initialize();
 
-    void* (*m_real_dlsym) (void * handle, const char * name);
-    void* (*m_real_dlvsym) (void * handle, const char *name, const char *version);
-    void* (*m_real_dlopen) (const char *filename, int flag);
+    void* (*m_real_dlsym)(void* handle, const char* name);
+    void* (*m_real_dlvsym)(void* handle, const char* name, const char* version);
+    void* (*m_real_dlopen)(const char* filename, int flag);
 
     std::map<uint64_t, bool> mSupportedLibraries;
 
@@ -48,7 +49,7 @@ extern DLIntercept g_DLIntercept;
 
 #ifndef NO_DL_REDEFINES
 #define dlopen g_DLIntercept.real_dlopen
-#define dlsym  g_DLIntercept.real_dlsym
+#define dlsym g_DLIntercept.real_dlsym
 #define dlvsym g_DLIntercept.real_dlvsym
 #endif
 

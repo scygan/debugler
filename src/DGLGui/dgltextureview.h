@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLTEXTUREVIEW_H
 #define DGLTEXTUREVIEW_H
 
@@ -24,39 +23,43 @@
 class DGLTextureView : public DGLTabbedView {
     Q_OBJECT
 
-public:
+   public:
     DGLTextureView(QWidget* parrent, DglController* controller);
 
-public slots:
+   public
+slots:
     void showTexture(opaque_id_t ctx, gl_t name);
 
-private:
+   private:
     virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
     virtual QString getTabName(gl_t id, gl_t target) override;
 };
 
-class DGLTextureViewItem: public DGLTabbedViewItem {
+class DGLTextureViewItem : public DGLTabbedViewItem {
     Q_OBJECT
-public:
-    DGLTextureViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
+   public:
+    DGLTextureViewItem(dglnet::ContextObjectName name,
+                       DGLResourceManager* resManager, QWidget* parrent);
 
-private slots:
+   private
+slots:
     void error(const std::string& message);
     void update(const dglnet::DGLResource& res);
     void levelSliderMoved(int value);
     void faceComboChanged(int value);
 
-private: 
-
+   private:
     void internalUpdate();
 
     Ui::DGLTextureViewItem m_Ui;
     DGLPixelRectangleScene* m_PixelRectangleScene;
-    std::vector<std::vector<boost::shared_ptr<dglnet::resource::DGLPixelRectangle> > > m_FacesLevels;
+    std::vector<
+        std::vector<boost::shared_ptr<dglnet::resource::DGLPixelRectangle> > >
+        m_FacesLevels;
 
     DGLResourceListener* m_Listener;
 
     uint m_CurrentLevel, m_CurrentFace;
 };
 
-#endif // DGLTEXTUREVIEW_H
+#endif    // DGLTEXTUREVIEW_H

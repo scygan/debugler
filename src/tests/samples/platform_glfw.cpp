@@ -21,9 +21,9 @@
 
 #include <stdexcept>
 
-class GLWFPlatWindowCtx: public PlatWindowCtx {
-public:
-    GLWFPlatWindowCtx():m_window(NULL) {
+class GLWFPlatWindowCtx : public PlatWindowCtx {
+   public:
+    GLWFPlatWindowCtx() : m_window(NULL) {
 #ifdef OPENGL_ES2
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
@@ -32,7 +32,6 @@ public:
         if (!m_window) {
             throw std::runtime_error("Cannot create glwf window");
         }
- 
     }
 
     virtual void makeCurrent() override {
@@ -48,9 +47,7 @@ public:
 #endif
     }
 
-    virtual void swapBuffers() override {
-        glfwSwapBuffers(m_window);
-    }
+    virtual void swapBuffers() override { glfwSwapBuffers(m_window); }
 
     virtual bool pendingClose() override {
         return glfwWindowShouldClose(m_window) != 0;
@@ -60,25 +57,20 @@ public:
         glfwSetWindowSize(m_window, newWidth, newHeight);
     }
 
-private:
-     GLFWwindow* m_window;
-     static bool glewInitDone;
+   private:
+    GLFWwindow* m_window;
+    static bool glewInitDone;
 };
 
 bool GLWFPlatWindowCtx::glewInitDone = false;
 
 Platform::Platform() {
-    if (!glfwInit())
-        throw std::runtime_error("Cannot init glfw.");
+    if (!glfwInit()) throw std::runtime_error("Cannot init glfw.");
 }
 
-Platform::~Platform() {
-    glfwTerminate();
-}
+Platform::~Platform() { glfwTerminate(); }
 
-void Platform::pollEvents() {
-    glfwPollEvents();
-}
+void Platform::pollEvents() { glfwPollEvents(); }
 
 std::shared_ptr<PlatWindowCtx> Platform::createWindow() {
     return std::make_shared<GLWFPlatWindowCtx>();

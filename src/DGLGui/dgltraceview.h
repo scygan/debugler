@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLTRACEVIEW_H
 #define DGLTRACEVIEW_H
 
@@ -24,42 +23,41 @@
 
 #include "dglcontroller.h"
 
-class DGLTraceViewList: public QListWidget {
+class DGLTraceViewList : public QListWidget {
     Q_OBJECT
-public:
+   public:
     DGLTraceViewList(QWidget*);
-    uint getVisibleRowCount(); 
-    int getFirstVisibleElementIdx(); 
+    uint getVisibleRowCount();
+    int getFirstVisibleElementIdx();
 
-private:
-    virtual void resizeEvent (QResizeEvent* e);
+   private:
+    virtual void resizeEvent(QResizeEvent* e);
 signals:
     void resized();
 };
 
-
 class DGLTraceView : public QDockWidget {
     Q_OBJECT
 
-public:
+   public:
     DGLTraceView(QWidget* parrent, DglController* controller);
 
-signals: 
+signals:
     void queryCallTrace(uint startOffset, uint endOffset);
 
-public slots:
+   public
+slots:
     void setEnabled(bool);
     void setRunning(bool);
     void breaked(CalledEntryPoint, uint);
     void gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&);
 
-
     void mayNeedNewElements();
 
-private: 
+   private:
     DGLTraceViewList m_traceList;
     bool m_Enabled;
     int m_QueryUpperBound;
 };
 
-#endif // DGLTRACEVIEW_H
+#endif    // DGLTRACEVIEW_H

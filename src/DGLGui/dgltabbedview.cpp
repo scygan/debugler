@@ -13,28 +13,34 @@
 * limitations under the License.
 */
 
-
 #include "dgltabbedview.h"
 
-DGLTabbedViewItem::DGLTabbedViewItem(dglnet::ContextObjectName objName, QWidget* parrent):QWidget(parrent),m_ObjectName(objName) {}
+DGLTabbedViewItem::DGLTabbedViewItem(dglnet::ContextObjectName objName,
+                                     QWidget* parrent)
+        : QWidget(parrent), m_ObjectName(objName) {}
 
-const dglnet::ContextObjectName& DGLTabbedViewItem::getObjName() {return m_ObjectName; }
+const dglnet::ContextObjectName& DGLTabbedViewItem::getObjName() {
+    return m_ObjectName;
+}
 
-DGLTabbedView::DGLTabbedView(QWidget* parrent, DglController* controller):QDockWidget(parrent),m_Controller(controller),m_TabWidget(this) {
+DGLTabbedView::DGLTabbedView(QWidget* parrent, DglController* controller)
+        : QDockWidget(parrent), m_Controller(controller), m_TabWidget(this) {
 
     m_TabWidget.setTabsClosable(true);
     setWidget(&m_TabWidget);
 
     m_TabWidget.setEnabled(true);
 
-    //inbound
-    CONNASSERT(controller, SIGNAL(setConnected(bool)), this, SLOT(setConnected(bool)));
-    CONNASSERT(controller, SIGNAL(setBreaked(bool)), &m_TabWidget, SLOT(setEnabled(bool)));
+    // inbound
+    CONNASSERT(controller, SIGNAL(setConnected(bool)), this,
+               SLOT(setConnected(bool)));
+    CONNASSERT(controller, SIGNAL(setBreaked(bool)), &m_TabWidget,
+               SLOT(setEnabled(bool)));
 
-    //internal
-    CONNASSERT(&m_TabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(closeTab(int)));
+    // internal
+    CONNASSERT(&m_TabWidget, SIGNAL(tabCloseRequested(int)), this,
+               SLOT(closeTab(int)));
 }
-
 
 void DGLTabbedView::setConnected(bool connected) {
     if (!connected) {
@@ -45,15 +51,14 @@ void DGLTabbedView::setConnected(bool connected) {
     }
 }
 
-void DGLTabbedView::closeTab(int idx) {
-    delete m_TabWidget.widget(idx);
-}
+void DGLTabbedView::closeTab(int idx) { delete m_TabWidget.widget(idx); }
 
-
-void DGLTabbedView::ensureTabDisplayed(opaque_id_t ctxId, gl_t objName, gl_t target) {
-    bool found = false; 
+void DGLTabbedView::ensureTabDisplayed(opaque_id_t ctxId, gl_t objName,
+                                       gl_t target) {
+    bool found = false;
     for (int i = 0; i < m_TabWidget.count(); i++) {
-        DGLTabbedViewItem* itemWidget = dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));
+        DGLTabbedViewItem* itemWidget =
+            dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));
         if (itemWidget && itemWidget->getObjName().m_Context == ctxId &&
             itemWidget->getObjName().m_Name == objName &&
             itemWidget->getObjName().m_Target == target) {
@@ -62,7 +67,9 @@ void DGLTabbedView::ensureTabDisplayed(opaque_id_t ctxId, gl_t objName, gl_t tar
         }
     }
     if (!found) {
-        m_TabWidget.addTab(createTab(dglnet::ContextObjectName(ctxId, objName, target)), getTabName(objName, target));
+        m_TabWidget.addTab(
+            createTab(dglnet::ContextObjectName(ctxId, objName, target)),
+            getTabName(objName, target));
         m_TabWidget.setCurrentIndex(m_TabWidget.count() - 1);
     }
     raise();
@@ -70,7 +77,8 @@ void DGLTabbedView::ensureTabDisplayed(opaque_id_t ctxId, gl_t objName, gl_t tar
 
 DGLTabbedViewItem* DGLTabbedView::getTab(const dglnet::ContextObjectName& id) {
     for (int i = 0; i < m_TabWidget.count(); i++) {
-        DGLTabbedViewItem* itemWidget = dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));
+        DGLTabbedViewItem* itemWidget =
+            dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));
         if (itemWidget && itemWidget->getObjName() == id) {
             return itemWidget;
         }

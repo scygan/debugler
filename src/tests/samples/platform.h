@@ -18,7 +18,7 @@
 #include <memory>
 
 class PlatWindowCtx {
-public:
+   public:
     virtual void makeCurrent() = 0;
     virtual void swapBuffers() = 0;
     virtual bool pendingClose() = 0;
@@ -26,7 +26,7 @@ public:
 };
 
 class Platform {
-public:
+   public:
     Platform();
     ~Platform();
 

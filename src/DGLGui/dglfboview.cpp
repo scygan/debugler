@@ -13,23 +13,25 @@
 * limitations under the License.
 */
 
-
 #include "dglfboview.h"
 
 #include "ui_dglfboviewitem.h"
 
-
-DGLFBOViewItem::DGLFBOViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent),m_Error(false) {
+DGLFBOViewItem::DGLFBOViewItem(dglnet::ContextObjectName name,
+                               DGLResourceManager* resManager, QWidget* parrent)
+        : DGLTabbedViewItem(name, parrent), m_Error(false) {
     m_Ui.setupUi(this);
     m_PixelRectangleScene = new DGLPixelRectangleScene();
     m_Ui.m_pixelRectangleView->setScene(m_PixelRectangleScene);
 
-    m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectType::FBO);
+    m_Listener =
+        resManager->createListener(name, dglnet::DGLResource::ObjectType::FBO);
     m_Listener->setParent(this);
 
-    CONNASSERT(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&)));
-    CONNASSERT(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&)));
-
+    CONNASSERT(m_Listener, SIGNAL(update(const dglnet::DGLResource&)), this,
+               SLOT(update(const dglnet::DGLResource&)));
+    CONNASSERT(m_Listener, SIGNAL(error(const std::string&)), this,
+               SLOT(error(const std::string&)));
 }
 
 void DGLFBOViewItem::error(const std::string& message) {
@@ -41,36 +43,42 @@ void DGLFBOViewItem::error(const std::string& message) {
 
 void DGLFBOViewItem::update(const dglnet::DGLResource& res) {
 
-    const dglnet::resource::DGLResourceFBO* resource = dynamic_cast<const dglnet::resource::DGLResourceFBO*>(&res);
-    
+    const dglnet::resource::DGLResourceFBO* resource =
+        dynamic_cast<const dglnet::resource::DGLResourceFBO*>(&res);
+
     m_Ui.m_AttListWidget->clear();
     m_Error = false;
     m_Attachments = resource->m_Attachments;
     for (size_t i = 0; i < resource->m_Attachments.size(); i++) {
-        m_Ui.m_AttListWidget->addItem(QString::fromStdString(GetGLEnumName(resource->m_Attachments[i].m_Id)));
+        m_Ui.m_AttListWidget->addItem(QString::fromStdString(
+            GetGLEnumName(resource->m_Attachments[i].m_Id)));
     }
     showAttachment(0);
 }
 
 void DGLFBOViewItem::showAttachment(int id) {
-    if (m_Error || static_cast<size_t>(id) >= m_Attachments.size() || id < 0) return;
+    if (m_Error || static_cast<size_t>(id) >= m_Attachments.size() || id < 0)
+        return;
 
     std::string errorMsg;
 
     if (!m_Attachments[id].isOk(errorMsg)) {
         m_PixelRectangleScene->setText(errorMsg);
     } else {
-        m_PixelRectangleScene->setPixelRectangle(*m_Attachments[id].m_PixelRectangle.get());
-        m_Ui.m_pixelRectangleView->updateFormatSizeInfo((m_Attachments[id].m_PixelRectangle.get()));
+        m_PixelRectangleScene->setPixelRectangle(
+            *m_Attachments[id].m_PixelRectangle.get());
+        m_Ui.m_pixelRectangleView->updateFormatSizeInfo(
+            (m_Attachments[id].m_PixelRectangle.get()));
     }
 }
 
-
-DGLFBOView::DGLFBOView(QWidget* parrent, DglController* controller):DGLTabbedView(parrent, controller) {
+DGLFBOView::DGLFBOView(QWidget* parrent, DglController* controller)
+        : DGLTabbedView(parrent, controller) {
     setupNames("Framebuffer Objects", "DGLFBOView");
 
-    //inbound
-    CONNASSERT(controller->getViewRouter(), SIGNAL(showFBO(opaque_id_t, gl_t)), this, SLOT(showFBO(opaque_id_t, gl_t)));
+    // inbound
+    CONNASSERT(controller->getViewRouter(), SIGNAL(showFBO(opaque_id_t, gl_t)),
+               this, SLOT(showFBO(opaque_id_t, gl_t)));
 }
 
 void DGLFBOView::showFBO(opaque_id_t ctx, gl_t bufferEnum) {

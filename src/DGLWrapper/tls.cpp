@@ -19,12 +19,10 @@
 
 void DGLThreadState::resetAPI() {
     privAPI.m_Current = NULL;
-    privAPI.m_EGLApi  = EGL_OPENGL_ES_API;
+    privAPI.m_EGLApi = EGL_OPENGL_ES_API;
 }
 
-void DGLThreadState::releaseAPI() {
-    get()->resetAPI();
-}
+void DGLThreadState::releaseAPI() { get()->resetAPI(); }
 
 DGLThreadState* DGLThreadState::get() {
 
@@ -40,13 +38,13 @@ DGLThreadState* DGLThreadState::get() {
     return &ret;
 }
 
-
-
 dglState::GLContext* DGLThreadState::getCurrentCtx() {
     return privAPI.m_Current;
 }
 
-void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId, dglState::NativeSurfaceBase* drawSurface, dglState::NativeSurfaceBase* readSurface) {
+void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId,
+                                 dglState::NativeSurfaceBase* drawSurface,
+                                 dglState::NativeSurfaceBase* readSurface) {
 
     dglState::GLContext* currentCtx = gc;
     dglState::GLContext* newCtx = NULL;
@@ -54,7 +52,9 @@ void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId, dglSta
     if (currentCtx && currentCtx->getId() == ctxId) {
         newCtx = currentCtx;
     } else if (ctxId) {
-        newCtx = &(*(dpy->getContext(dglState::GLContextVersion::Type::UNSUPPORTED, ctxId)->second));
+        newCtx =
+            &(*(dpy->getContext(dglState::GLContextVersion::Type::UNSUPPORTED,
+                                ctxId)->second));
     }
 
     if (currentCtx != newCtx) {
@@ -74,16 +74,12 @@ void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId, dglSta
 
     if (gc) {
         gc->setNativeSurfaces(readSurface, drawSurface);
-    }    
+    }
 }
 
-void DGLThreadState::bindEGLApi(EGLenum api) {
-    privAPI.m_EGLApi = api;
-}
+void DGLThreadState::bindEGLApi(EGLenum api) { privAPI.m_EGLApi = api; }
 
-EGLenum DGLThreadState::getEGLApi() {
-    return privAPI.m_EGLApi;
-}
+EGLenum DGLThreadState::getEGLApi() { return privAPI.m_EGLApi; }
 
 bool DGLThreadState::enterActionProcessing() {
     if (privDebugger.m_ActionProcessing) {
@@ -99,5 +95,5 @@ bool DGLThreadState::inActionProcessing() {
 }
 
 void DGLThreadState::leaveActionProcessing() {
-   privDebugger.m_ActionProcessing = false;
+    privDebugger.m_ActionProcessing = false;
 }

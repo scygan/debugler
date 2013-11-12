@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLBUFFERVIEW_H
 #define DGLBUFFERVIEW_H
 
@@ -25,31 +24,34 @@
 class DGLBufferView : public DGLTabbedView {
     Q_OBJECT
 
-public:
+   public:
     DGLBufferView(QWidget* parrent, DglController* controller);
 
-    public slots:
-        void showBuffer(opaque_id_t ctx, gl_t name);
+   public
+slots:
+    void showBuffer(opaque_id_t ctx, gl_t name);
 
-private:
-        virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
-        virtual QString getTabName(gl_t id, gl_t target) override;
+   private:
+    virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
+    virtual QString getTabName(gl_t id, gl_t target) override;
 };
 
-class DGLBufferViewItem: public DGLTabbedViewItem {
+class DGLBufferViewItem : public DGLTabbedViewItem {
     Q_OBJECT
-public:
-    DGLBufferViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
+   public:
+    DGLBufferViewItem(dglnet::ContextObjectName name,
+                      DGLResourceManager* resManager, QWidget* parrent);
 
-private slots:
+   private
+slots:
     void error(const std::string& message);
     void update(const dglnet::DGLResource& res);
 
-private: 
+   private:
     QHexEdit* m_Editor;
     QLabel* m_Label;
     QVBoxLayout* m_VerticalLayout;
     DGLResourceListener* m_Listener;
 };
 
-#endif //DGLBUFFERVIEW_H
+#endif    // DGLBUFFERVIEW_H

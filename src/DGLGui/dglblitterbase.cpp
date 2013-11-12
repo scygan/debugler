@@ -20,12 +20,16 @@
 #include <DGLNet/protocol/pixeltransfer.h>
 
 DGLBlitterBase::DGLBlitterBase() {
-    for (size_t i = 0; i < sizeof(m_ChannelScaleBiases)/sizeof(m_ChannelScaleBiases[0]); i++) {
+    for (size_t i = 0;
+         i < sizeof(m_ChannelScaleBiases) / sizeof(m_ChannelScaleBiases[0]);
+         i++) {
         m_ChannelScaleBiases[i] = std::pair<float, float>(1.0f, 0.0f);
     }
 }
 
-void DGLBlitterBase::blit(unsigned int width, unsigned int height, unsigned int rowBytes, gl_t format, gl_t type, const void* data) {
+void DGLBlitterBase::blit(unsigned int width, unsigned int height,
+                          unsigned int rowBytes, gl_t format, gl_t type,
+                          const void* data) {
 
     m_SrcStride = rowBytes;
     m_Width = width;
@@ -34,7 +38,8 @@ void DGLBlitterBase::blit(unsigned int width, unsigned int height, unsigned int 
     m_DataType = GLFormats::getDataType(type);
 
     if (!m_DataFormat || !m_DataType) {
-        throw std::runtime_error("Got image of unknown type and format. It may be debugger bug");
+        throw std::runtime_error(
+            "Got image of unknown type and format. It may be debugger bug");
     }
 
     m_SrcData = data;
@@ -42,7 +47,7 @@ void DGLBlitterBase::blit(unsigned int width, unsigned int height, unsigned int 
     doBlit();
 }
 
-void  DGLBlitterBase::setChannelScale(Channel channel, float scale, float bias) {
+void DGLBlitterBase::setChannelScale(Channel channel, float scale, float bias) {
     m_ChannelScaleBiases[channel] = std::pair<float, float>(scale, bias);
     if (m_DataFormat && m_DataType) {
         doBlit();
@@ -50,18 +55,17 @@ void  DGLBlitterBase::setChannelScale(Channel channel, float scale, float bias) 
 }
 
 void DGLBlitterBase::doBlit() {
-    
+
     OutputFormat outputFormat = _GL_RGBX32;
     std::pair<float, float> channelSBs[4] = {
         std::pair<float, float>(1.0f, 0.0f),
         std::pair<float, float>(1.0f, 0.0f),
         std::pair<float, float>(1.0f, 0.0f),
-        std::pair<float, float>(1.0f, 0.0f)
-    };
+        std::pair<float, float>(1.0f, 0.0f)};
 
     switch (m_DataFormat->format) {
         case GL_RED:
-        case GL_RG:       
+        case GL_RG:
         case GL_RGB:
         case GL_RED_INTEGER:
         case GL_RG_INTEGER:
@@ -92,43 +96,49 @@ void DGLBlitterBase::doBlit() {
             outputFormat = _GL_MONO8;
             break;
         case GL_LUMINANCE:
-            outputFormat = _GL_MONO8; break;
+            outputFormat = _GL_MONO8;
+            break;
         case GL_DEPTH_STENCIL:
             outputFormat = _GL_RGBX32;
             channelSBs[0] = m_ChannelScaleBiases[CHANNEL_D];
             channelSBs[1] = m_ChannelScaleBiases[CHANNEL_S];
             break;
         case GL_LUMINANCE_ALPHA:
-            outputFormat = _GL_RGBX32; break;
+            outputFormat = _GL_RGBX32;
+            break;
         default:
-        assert(0);
+            assert(0);
     }
-    
+
     int srcPixelSize = 0;
     if (m_DataType->packed) {
         srcPixelSize = m_DataType->byteSize;
     } else {
-        srcPixelSize =  m_DataFormat->components * m_DataType->byteSize;
-    }  
+        srcPixelSize = m_DataFormat->components * m_DataType->byteSize;
+    }
 
     int dstPixelSize = 0;
     for (int i = 0; i < 4; i++) {
-        if (outputOffsets[outputFormat][i] >= 0)
-            dstPixelSize ++;
+        if (outputOffsets[outputFormat][i] >= 0) dstPixelSize++;
     }
 
     int targetRowBytes = (m_Width * dstPixelSize + 4 - 1) & (-4);
     if (outputData.size() < size_t(targetRowBytes * m_Height))
         outputData = std::vector<char>(targetRowBytes * m_Height);
 
-    m_DataType->blitFunc(outputOffsets[outputFormat], m_Width, m_Height, m_SrcData, &outputData[0], m_SrcStride, targetRowBytes, srcPixelSize, dstPixelSize, m_DataFormat->components, channelSBs);
+    m_DataType->blitFunc(outputOffsets[outputFormat], m_Width, m_Height,
+                         m_SrcData, &outputData[0], m_SrcStride, targetRowBytes,
+                         srcPixelSize, dstPixelSize, m_DataFormat->components,
+                         channelSBs);
 
     sink(m_Width, m_Height, outputFormat, &outputData[0]);
 }
 
-std::vector<AnyValue> DGLBlitterBase::describePixel(unsigned int x, unsigned int y) {
+std::vector<AnyValue> DGLBlitterBase::describePixel(unsigned int x,
+                                                    unsigned int y) {
 
-    if (!m_SrcStride || !m_DataType || !m_DataFormat || x > m_Width || y > m_Height) {
+    if (!m_SrcStride || !m_DataType || !m_DataFormat || x > m_Width ||
+        y > m_Height) {
         return std::vector<AnyValue>();
     }
 
@@ -136,16 +146,14 @@ std::vector<AnyValue> DGLBlitterBase::describePixel(unsigned int x, unsigned int
     if (m_DataType->packed) {
         srcPixelSize = m_DataType->byteSize;
     } else {
-        srcPixelSize =  m_DataFormat->components * m_DataType->byteSize;
-    }  
+        srcPixelSize = m_DataFormat->components * m_DataType->byteSize;
+    }
 
-    const void* pixPtr = &reinterpret_cast<const unsigned char*>(m_SrcData)[y * m_SrcStride + x * srcPixelSize];
+    const void* pixPtr = &reinterpret_cast<const unsigned char*>(
+                              m_SrcData)[y * m_SrcStride + x * srcPixelSize];
 
     return m_DataType->extractor(pixPtr, m_DataFormat->components);
 }
 
-const int DGLBlitterBase::outputOffsets[3][4] = {
-    {2, 1, 0, 3},
-    {0, 1, 2, -1},
-    {0, -1, -1, -1}
-};
+const int DGLBlitterBase::outputOffsets[3][4] = {{2, 1, 0, 3}, {0, 1, 2, -1},
+                                                 {0, -1, -1, -1}};

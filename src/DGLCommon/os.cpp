@@ -13,15 +13,14 @@
 * limitations under the License.
 */
 
-
 #include "os.h"
 #include <vector>
 #include <cstdarg>
 #include <cerrno>
 #ifdef _WIN32
-    #define va_copy(dest, src) (dest = src)
+#define va_copy(dest, src) (dest = src)
 #else
-    #include <cstring>
+#include <cstring>
 #endif
 
 #ifdef _WIN32
@@ -31,65 +30,59 @@
 
 #include "resource.h"
 
-class OsIconImpl: public OsIcon {
-public:
+class OsIconImpl : public OsIcon {
+   public:
     OsIconImpl(void* moduleHandle) {
-        m_Icon = (HICON)LoadImage((HMODULE)moduleHandle, MAKEINTRESOURCE( IDI_ICON1 ), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_LOADTRANSPARENT );
+        m_Icon = (HICON)LoadImage((HMODULE)moduleHandle,
+                                  MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON, 0, 0,
+                                  LR_DEFAULTSIZE | LR_LOADTRANSPARENT);
     }
 
-    virtual ~OsIconImpl() {
-        DestroyIcon(m_Icon);
-    }
+    virtual ~OsIconImpl() { DestroyIcon(m_Icon); }
 
-    virtual void * get()  {
-        return m_Icon;
-    }
+    virtual void* get() { return m_Icon; }
     static void* m_Handle;
-private:
+
+   private:
     HICON m_Icon;
 };
 
-class OsStatusPresenterImpl: public OsStatusPresenter {
-public:
-    OsStatusPresenterImpl(void* moduleHandle):m_Icon(moduleHandle) {
+class OsStatusPresenterImpl : public OsStatusPresenter {
+   public:
+    OsStatusPresenterImpl(void* moduleHandle) : m_Icon(moduleHandle) {
         memset(&m_niData, 0, sizeof(m_niData));
         m_niData.cbSize = sizeof(m_niData);
         m_niData.hWnd = GetDesktopWindow();
         m_niData.uID = 0xdeb091e4;
-        m_niData.uTimeout = 5000; //deprecated on Vista
+        m_niData.uTimeout = 5000;    // deprecated on Vista
         m_niData.hIcon = (HICON)m_Icon.get();
         m_niData.uFlags = NIF_ICON;
 
         std::string process = Os::getProcessName();
-        memcpy(m_niData.szInfoTitle,  process.c_str(), process.length() + 1);
+        memcpy(m_niData.szInfoTitle, process.c_str(), process.length() + 1);
 
         Shell_NotifyIcon(NIM_ADD, &m_niData);
-
-
     }
     virtual void setStatus(const std::string message) {
-        memcpy(m_niData.szInfo,  message.c_str(), message.length() + 1);
+        memcpy(m_niData.szInfo, message.c_str(), message.length() + 1);
         m_niData.uFlags |= NIF_INFO;
         Shell_NotifyIcon(NIM_MODIFY, &m_niData);
     }
     virtual ~OsStatusPresenterImpl() {
         Shell_NotifyIcon(NIM_DELETE, &m_niData);
     }
-private: 
+
+   private:
     NOTIFYICONDATA m_niData;
     OsIconImpl m_Icon;
 };
 
-
-int Os::getProcessPid() {
-    return (int)GetProcessId(GetCurrentProcess());
-}
-
+int Os::getProcessPid() { return (int)GetProcessId(GetCurrentProcess()); }
 
 std::string Os::getProcessName() {
     std::string ret = "<unknown>";
 
-    HANDLE currentProcess =  GetCurrentProcess();
+    HANDLE currentProcess = GetCurrentProcess();
     if (currentProcess) {
         std::vector<char> buff(200);
         buff[GetModuleBaseName(currentProcess, NULL, &buff[0], 200)] = 0;
@@ -124,9 +117,7 @@ void Os::fatal(const char* fmt, ...) {
     exit(EXIT_FAILURE);
 }
 
-void Os::terminate() {
-    TerminateProcess(GetCurrentProcess(), 0);
-}
+void Os::terminate() { TerminateProcess(GetCurrentProcess(), 0); }
 
 OsStatusPresenter* Os::createStatusPresenter() {
     if (!m_CurrentHandle) {
@@ -135,37 +126,26 @@ OsStatusPresenter* Os::createStatusPresenter() {
     return new OsStatusPresenterImpl(m_CurrentHandle);
 }
 
-OsIcon*  Os::createIcon() {
+OsIcon* Os::createIcon() {
     if (!m_CurrentHandle) {
         m_CurrentHandle = GetModuleHandle(NULL);
     }
-    return new OsIconImpl(m_CurrentHandle);    
+    return new OsIconImpl(m_CurrentHandle);
 }
 
-void Os::setCurrentModuleHandle(void * handle) {
-    m_CurrentHandle = handle;
-}
+void Os::setCurrentModuleHandle(void* handle) { m_CurrentHandle = handle; }
 
 void* Os::m_CurrentHandle = NULL;
 
-
-int Os::getLastosError() {
-    return (int)GetLastError();
-}
+int Os::getLastosError() { return (int)GetLastError(); }
 
 std::string Os::translateOsError(int error) {
     char* errorText;
-    FormatMessageA(
-        FORMAT_MESSAGE_FROM_SYSTEM
-        |FORMAT_MESSAGE_ALLOCATE_BUFFER
-        |FORMAT_MESSAGE_IGNORE_INSERTS,  
-        NULL,
-        error,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPSTR)&errorText,
-        0,
-        NULL);
-    std::string  ret(errorText);
+    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                       FORMAT_MESSAGE_IGNORE_INSERTS,
+                   NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                   (LPSTR) & errorText, 0, NULL);
+    std::string ret(errorText);
     LocalFree(errorText);
     return ret;
 }
@@ -174,29 +154,27 @@ std::string Os::translateOsError(int error) {
 
 #include <cstdio>
 #include <cstdlib>
-#include <stdexcept> //remove me
+#include <stdexcept>    //remove me
 #include <unistd.h>
 #include <libgen.h>
 
 #ifdef __ANDROID__
-    #include <android/log.h>
-    #define LOG_TAG "Debugler"
+#include <android/log.h>
+#define LOG_TAG "Debugler"
 #endif
 
-class OsIconImpl: public OsIcon {
-public:
+class OsIconImpl : public OsIcon {
+   public:
     OsIconImpl() {}
     virtual ~OsIconImpl() {}
 
-    virtual void * get()  {
-        //need to actually implement window icon here
+    virtual void* get() {
+        // need to actually implement window icon here
         throw std::runtime_error("Not implemented");
     }
 };
 
-OsIcon*  Os::createIcon() {
-    return new OsIconImpl();
-}
+OsIcon* Os::createIcon() { return new OsIconImpl(); }
 
 void Os::fatal(const char* fmt, ...) {
 
@@ -217,55 +195,45 @@ void Os::setEnv(const char* variable, const char* value) {
 }
 
 std::string Os::getEnv(const char* variable) {
-    char*  ret = getenv(variable);
+    char* ret = getenv(variable);
     if (ret) {
         return ret;
     }
     return "";
 }
 
-int Os::getProcessPid() {
-    return getpid();
-}
+int Os::getProcessPid() { return getpid(); }
 
 std::string Os::getProcessName() {
     std::string ret = "<unknown>";
     size_t linknamelen;
     char cmdline[256] = {0};
-    const char* file =  "/proc/self/exe";
-    linknamelen = readlink(file, cmdline, sizeof(cmdline) / sizeof(*cmdline) - 1);
+    const char* file = "/proc/self/exe";
+    linknamelen =
+        readlink(file, cmdline, sizeof(cmdline) / sizeof(*cmdline) - 1);
     cmdline[linknamelen + 1] = 0;
     return basename(cmdline);
 }
 
-void Os::terminate() {
-    _exit(0);
-}
+void Os::terminate() { _exit(0); }
 
-class OsStatusPresenterImpl: public OsStatusPresenter {
-public:
+class OsStatusPresenterImpl : public OsStatusPresenter {
+   public:
     virtual void setStatus(const std::string message) {
         printf("DGLWrapper: %s\n", message.c_str());
     }
     virtual ~OsStatusPresenterImpl() {}
-private:
+
+   private:
 };
-
-
 
 OsStatusPresenter* Os::createStatusPresenter() {
     return new OsStatusPresenterImpl();
 }
 
+int Os::getLastosError() { return errno; }
 
-int Os::getLastosError() {
-    return errno;
-}
-
-std::string Os::translateOsError(int error) {
-    return strerror(error);
-}
-
+std::string Os::translateOsError(int error) { return strerror(error); }
 
 #endif
 
@@ -289,7 +257,6 @@ void Os::info(const char* fmt, ...) {
     std::string message = vargsToString(fmt, args);
     va_end(args);
 
-
 #ifdef __ANDROID__
     __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "%s", message.c_str());
 #endif
@@ -307,7 +274,7 @@ std::string Os::vargsToString(const char* fmt, va_list args) {
 #endif
     va_end(argsCopy);
 
-    std::vector<char>buff(length + 1);
+    std::vector<char> buff(length + 1);
 
 #ifdef _WIN32
     vsnprintf_s(&buff[0], buff.size(), _TRUNCATE, fmt, args);
@@ -316,5 +283,3 @@ std::string Os::vargsToString(const char* fmt, va_list args) {
 #endif
     return std::string(&buff[0]);
 }
-
-

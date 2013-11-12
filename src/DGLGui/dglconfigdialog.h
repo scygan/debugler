@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLCONFIGDIALOG_H
 #define DGLCONFIGDIALOG_H
 
@@ -24,20 +23,21 @@
 class DGLConfigDialog : public QDialog {
     Q_OBJECT
 
-public:
+   public:
     DGLConfigDialog(const DGLConfiguration& configuration, std::string adbPath);
     ~DGLConfigDialog();
 
     const DGLConfiguration* getConfig();
     QString getAdbPath();
 
-public slots: 
+   public
+slots:
     void toggleDebugFlagRenderingContext(bool);
     void adbBrowseDialog();
 
-private:
+   private:
     Ui_ConfigDialog m_Ui;
     DGLConfiguration m_Configuration;
 };
 
-#endif // DGLCONNECTDIALOG_H
+#endif    // DGLCONNECTDIALOG_H

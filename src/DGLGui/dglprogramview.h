@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLPROGRAMVIEW_H
 #define DGLPROGRAMVIEW_H
 
@@ -24,30 +23,31 @@
 class DGLProgramView : public DGLTabbedView {
     Q_OBJECT
 
-public:
+   public:
     DGLProgramView(QWidget* parrent, DglController* controller);
 
-    public slots:
-        void showProgram(opaque_id_t ctx, gl_t name);
+   public
+slots:
+    void showProgram(opaque_id_t ctx, gl_t name);
 
-private:
-        virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
-        virtual QString getTabName(gl_t id, gl_t target) override;
-
+   private:
+    virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
+    virtual QString getTabName(gl_t id, gl_t target) override;
 };
 
-class DGLProgramViewItem: public DGLTabbedViewItem, public DGLRequestHandler {
+class DGLProgramViewItem : public DGLTabbedViewItem, public DGLRequestHandler {
     Q_OBJECT
-public:
-    DGLProgramViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
+   public:
+    DGLProgramViewItem(dglnet::ContextObjectName name,
+                       DGLResourceManager* resManager, QWidget* parrent);
 
-private slots:
+   private
+slots:
     void error(const std::string& message);
     void update(const dglnet::DGLResource& res);
     void forceLink();
 
-private:
-
+   private:
     virtual void onRequestFinished(const dglnet::message::RequestReply* reply);
 
     Ui::DGLProgramViewItem m_Ui;
@@ -58,4 +58,4 @@ private:
     dglnet::ContextObjectName m_Name;
 };
 
-#endif //DGLPROGRAMVIEW_H
+#endif    // DGLPROGRAMVIEW_H

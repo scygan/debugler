@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLRUNDIALOG_H
 #define DGLRUNDIALOG_H
 
@@ -24,7 +23,7 @@
 class DGLRunDialog : public QDialog {
     Q_OBJECT
 
-public:
+   public:
     DGLRunDialog();
     ~DGLRunDialog();
     std::string getExecutable();
@@ -32,14 +31,15 @@ public:
     std::string getPath();
     bool getModeEGL();
 
-private slots:
+   private
+slots:
     void updatePath();
     void browseExecutable();
     void browseDirectory();
 
-private:
+   private:
     QIntValidator m_portValidator;
     Ui::DGLRunDialogClass m_ui;
 };
 
-#endif // DGLRUNDIALOG_H
+#endif    // DGLRUNDIALOG_H

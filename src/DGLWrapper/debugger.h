@@ -32,8 +32,7 @@
  * handles breakpoints and breaking on them (and other events)
  */
 class BreakState {
-public:
-
+   public:
     /**
      * Ctor
      */
@@ -71,8 +70,6 @@ public:
      */
     bool isBreaked();
 
-
-    
     /**
      * Handler for configuration message remote command
      */
@@ -87,8 +84,8 @@ public:
      * Handler for set breakpoints command
      */
     void handle(const dglnet::message::SetBreakPoints&);
-private:
 
+   private:
     /**
      * application break state (true if breaked, false otherwise)
      */
@@ -100,15 +97,15 @@ private:
      */
     bool m_StepModeEnabled;
 
-    /** 
+    /**
      * Actual step mode (call, draw call, frame) if in step mode
      * irrelevant, if m_StepModeEnabled == false
      */
     dglnet::message::ContinueBreak::StepMode m_StepMode;
 
-     /** 
-      * List of actually set breakpoints
-      */
+    /**
+     * List of actually set breakpoints
+     */
     std::set<Entrypoint> m_BreakPoints;
 };
 
@@ -121,7 +118,7 @@ private:
  * round buffer with call history
  */
 class CallHistory {
-public:
+   public:
     /**
      * Ctor
      */
@@ -134,77 +131,74 @@ public:
 
     /**
      * Handle and respond to history query message
-     */  
-    void query(const dglnet::message::QueryCallTrace& query, dglnet::message::CallTrace& reply);
+     */
+    void query(const dglnet::message::QueryCallTrace& query,
+               dglnet::message::CallTrace& reply);
 
-
-    /** 
+    /**
      * Getter for call history size
      */
     size_t size();
 
-    /** 
+    /**
      * Set return value of last GL call
      */
     void setRetVal(const RetValue& ret);
 
-    /** 
+    /**
      * set GL error on last called entrypoint
      */
     void setError(GLenum error);
 
-    /** 
+    /**
      * set debug output on last call entrypoint
      */
     void setDebugOutput(const std::string& message);
-private:
-    /** 
+
+   private:
+    /**
      * Actual round buffer with called entrypoints
      */
     boost::circular_buffer<CalledEntryPoint> m_cb;
 
-    /** 
+    /**
      * Mutex used to access this class
      */
     std::mutex m_mutex;
 };
 
-
 class DGLDebugController;
 
-/** 
+/**
  *  Server conenction holder
  *
  */
 class DGLDebugServer {
-public: 
-
+   public:
     /**
      * Ctor
      */
     DGLDebugServer(DGLDebugController*);
 
-    /** 
+    /**
      * Getter for mutex guarding server
      */
     std::mutex& getMutex();
 
-
     std::shared_ptr<dglnet::ITransport> getTransport();
 
-    /** 
+    /**
      *  Constructs and sets server of given type
-     */ 
-    template<class server_type>
+     */
+    template <class server_type>
     void listen(const std::string& port, bool wait);
 
-    /** 
+    /**
      * Disconnect listening server
      */
     void abort();
 
-private:
-
+   private:
     /**
      * Server object
      */
@@ -215,22 +209,19 @@ private:
      */
     std::mutex m_ServerMutex;
 
-
-    /** 
+    /**
      * Parrent object
      */
     DGLDebugController* m_parrent;
 };
-
 
 /**
  * Master, wrapper-side debug controller
  *
  * This is the class that talks tu gui and does all of the debugging
  */
-class DGLDebugController: public dglnet::MessageHandler {
-public:
-
+class DGLDebugController : public dglnet::MessageHandler {
+   public:
     /**
      * Ctor
      */
@@ -241,96 +232,99 @@ public:
      */
     ~DGLDebugController();
 
-
-    /** 
-     * Handler of begin of listening event. 
+    /**
+     * Handler of begin of listening event.
      *
      * Sets status presenter
      */
     virtual void doHandleListen(const std::string& port);
 
-    /** 
-     * Handler of connection event. 
+    /**
+     * Handler of connection event.
      *
      * Sends Hello packet
      */
     virtual void doHandleConnect();
 
-    /** 
+    /**
      * Handler of disconnection
-     * 
-     * disconnection is always fatal - we should not continue apllication without gui. 
+     *
+     * disconnection is always fatal - we should not continue apllication
+     *without gui.
      * this function does not return.
      */
     virtual void doHandleDisconnect(const std::string&);
 
-    /** 
+    /**
      * Object handling breaks and entrypoints
      */
     BreakState m_BreakState;
 
-    /** 
+    /**
      * Getter for connected server object
      */
     DGLDebugServer& getServer();
 
-    /** 
+    /**
      * Run one event on associated server;
      */
     void run_one();
-    
-    /** 
+
+    /**
      * Poll events on associated server;
      */
     void poll();
 
-
-    /** 
+    /**
      * Getter for break state object
      */
     BreakState& getBreakState();
 
-    /** 
+    /**
      * Getter for break call history object
      */
     CallHistory& getCallHistory();
 
-    /** 
-     * Message handler - pass configuration message to global configuration object
+    /**
+     * Message handler - pass configuration message to global configuration
+     * object
      */
     void doHandleConfiguration(const dglnet::message::Configuration&) override;
 
-    /** 
+    /**
      * Message handler - pass continue & break message to breakstate object
      */
     void doHandleContinueBreak(const dglnet::message::ContinueBreak&) override;
 
-    /** 
+    /**
      * Message handler - pass history query message to call history object
      */
-    void doHandleQueryCallTrace(const dglnet::message::QueryCallTrace&) override;
+    void doHandleQueryCallTrace(const dglnet::message::QueryCallTrace&)
+        override;
 
-    /** 
+    /**
      * Message handler - pass new breakpoint list message to breakstate object
      */
-    void doHandleSetBreakPoints(const dglnet::message::SetBreakPoints&) override;
+    void doHandleSetBreakPoints(const dglnet::message::SetBreakPoints&)
+        override;
 
-    /** 
+    /**
      * Message handler - handle general request message
      */
     void doHandleRequest(const dglnet::message::Request&) override;
 
-    /** 
+    /**
      * Request handler - query resource request
      */
-    boost::shared_ptr<dglnet::DGLResource> doHandleRequest(const dglnet::request::QueryResource&);
+    boost::shared_ptr<dglnet::DGLResource> doHandleRequest(
+        const dglnet::request::QueryResource&);
 
-    /** 
+    /**
      * Request handler - edit shader request
      */
     void doHandleRequest(const dglnet::request::EditShaderSource&);
 
-    /** 
+    /**
      * Request handler - link program request
      */
     void doHandleRequest(const dglnet::request::ForceLinkProgram&);
@@ -341,9 +335,9 @@ public:
      *  thrown by poll() and run_one
      */
     class TeardownException {};
-private:
 
-    /** 
+   private:
+    /**
      * Call history object
      */
     CallHistory m_CallHistory;
@@ -363,27 +357,25 @@ private:
      */
     void tearDown();
 
-
     /**
      * Server connection
      */
     DGLDebugServer m_Server;
-
 };
 
-/** 
+/**
  *  Global controller object instance
  */
 extern std::shared_ptr<DGLDebugController> _g_Controller;
 
-/** 
+/**
  *  Global controller object instance getter
  */
 DGLDebugController* getController();
 
-/** 
+/**
  *  Global config object instance
  */
 extern DGLConfiguration g_Config;
 
-#endif //DEBUGGER_H
+#endif    // DEBUGGER_H

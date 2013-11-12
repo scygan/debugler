@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 // dllmain.cpp : Defines the entry point for the DLL application.
 
 #include "api-loader.h"
@@ -32,7 +31,7 @@
 #include <atomic>
 #include <thread>
 #include <condition_variable>
-   
+
 DGLIPC* getIPC() {
     static std::shared_ptr<DGLIPC> s_IPC;
 
@@ -43,17 +42,17 @@ DGLIPC* getIPC() {
     return s_IPC.get();
 }
 
-
 /**
  * DGLwrapper routine called on library load
  */
- void Initialize(void) {
-    
-    //load system GL libraries (& initialize entrypoint tables)
+void Initialize(void) {
 
-    if (getIPC()->getDebuggerMode() == DGLIPC::DebuggerMode::EGL ) {
-		g_ApiLoader.loadLibrary(LIBRARY_EGL);
-		//GL library loading is deferred - we don't know which library to load now.
+    // load system GL libraries (& initialize entrypoint tables)
+
+    if (getIPC()->getDebuggerMode() == DGLIPC::DebuggerMode::EGL) {
+        g_ApiLoader.loadLibrary(LIBRARY_EGL);
+        // GL library loading is deferred - we don't know which library to load
+        // now.
     } else {
 #ifdef _WIN32
         g_ApiLoader.loadLibrary(LIBRARY_WGL);
@@ -63,11 +62,11 @@ DGLIPC* getIPC() {
         g_ApiLoader.loadLibrary(LIBRARY_GL);
     }
 
-    //set default action for all entrypoints (std debugging routines)
+    // set default action for all entrypoints (std debugging routines)
     SetAllActions<DefaultAction>();
 
-    //setup additional, special actions for some choosed entrypoints 
-    //for more specific routines 
+    // setup additional, special actions for some choosed entrypoints
+    // for more specific routines
 
     ActionBase::SetNext<GLGetErrorAction>(glGetError_Call);
     ActionBase::SetNext<GetProcAddressAction>(wglGetProcAddress_Call);
@@ -75,12 +74,11 @@ DGLIPC* getIPC() {
     ActionBase::SetNext<GetProcAddressAction>(glXGetProcAddressARB_Call);
     ActionBase::SetNext<GetProcAddressAction>(eglGetProcAddress_Call);
 
-
 #ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
-	ActionBase::SetNext<SurfaceAction>(eglCreateWindowSurface_Call);
-	ActionBase::SetNext<SurfaceAction>(eglCreatePixmapSurface_Call);
-	ActionBase::SetNext<SurfaceAction>(eglCreatePbufferSurface_Call);
-#endif    
+    ActionBase::SetNext<SurfaceAction>(eglCreateWindowSurface_Call);
+    ActionBase::SetNext<SurfaceAction>(eglCreatePixmapSurface_Call);
+    ActionBase::SetNext<SurfaceAction>(eglCreatePbufferSurface_Call);
+#endif
 
     ActionBase::SetNext<ContextAction>(wglCreateContext_Call);
     ActionBase::SetNext<ContextAction>(wglCreateContextAttribsARB_Call);
@@ -155,37 +153,29 @@ DGLIPC* getIPC() {
 
     ActionBase::SetNext<DebugOutputCallback>(glDebugMessageCallback_Call);
     ActionBase::SetNext<DebugOutputCallback>(glDebugMessageCallbackARB_Call);
-
 }
 
 /**
  * DGLwrapper routine called on library unload
  */
-void TearDown() {
-    _g_Controller.reset();
-}
-
+void TearDown() { _g_Controller.reset(); }
 
 #ifndef _WIN32
-void __attribute__ ((constructor)) DGLWrapperLoad(void) {
-    Initialize();
-}
+void __attribute__((constructor)) DGLWrapperLoad(void) { Initialize(); }
 
-void __attribute__ ((destructor)) DGLWrapperUnload(void) {
-    TearDown();
-}
+void __attribute__((destructor)) DGLWrapperUnload(void) { TearDown(); }
 #else
-
 
 #ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
 class ThreadWatcher {
-public:
-    ThreadWatcher():m_ThreadCount() {
+   public:
+    ThreadWatcher() : m_ThreadCount() {
         m_ThreadCount = 0;
 
         m_NativeSemaphore = CreateSemaphore(NULL, 0, 0xffff, NULL);
         if (!m_NativeSemaphore) {
-            Os::fatal("Cannot create loader semaphore (CreateSemaphore failed)");
+            Os::fatal(
+                "Cannot create loader semaphore (CreateSemaphore failed)");
         }
     }
 
@@ -195,9 +185,7 @@ public:
         }
     }
 
-    void onAttachThread() {
-        m_ThreadCount++;
-    }
+    void onAttachThread() { m_ThreadCount++; }
 
     void onDettachThread() {
         if (std::atomic_fetch_sub(&m_ThreadCount, 1) <= 1) {
@@ -213,11 +201,12 @@ public:
 
     void lockLoaderThread() {
         if (WaitForSingleObject(m_NativeSemaphore, INFINITE) != WAIT_OBJECT_0) {
-            Os::fatal("Cannot loack loader thread (WaitForSingleObject failed)");
+            Os::fatal(
+                "Cannot loack loader thread (WaitForSingleObject failed)");
         }
     }
 
-private: 
+   private:
     HANDLE m_NativeSemaphore;
     std::atomic_int m_ThreadCount;
 } g_ThreadWatcher;
@@ -227,35 +216,37 @@ private:
  * DGLwrapper routine called just after DLLinjection
  */
 extern "C" DGLWRAPPER_API void LoaderThread() {
-    
+
     Initialize();
 
 #ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
-    //this is called from remotely created thread started right after dll injection
+    // this is called from remotely created thread started right after dll
+    // injection
 
-    //Workaround for ARM Mali OpenGL ES wrapper on Windows: 
-    //do not exit remote loader thread before app tear down
+    // Workaround for ARM Mali OpenGL ES wrapper on Windows:
+    // do not exit remote loader thread before app tear down
     //  Normally we would just return from this (empty) function causing loader
-    //  thread to exit (leaving app in suspended state - no user threads). 
-    //  This would also cause DLL_THREAD_DETACH on all recently loaded DLLs. Unfortunately
-    //  this causes CreateWindowEx() to fail later in eglInitialize(), propably because
+    //  thread to exit (leaving app in suspended state - no user threads).
+    //  This would also cause DLL_THREAD_DETACH on all recently loaded DLLs.
+    // Unfortunately
+    //  this causes CreateWindowEx() to fail later in eglInitialize(), propably
+    // because
     //  RegisterClass was called in this thread (sic!) from DLLMain.
-    //Fix: lock this thread until application finishes
+    // Fix: lock this thread until application finishes
 
-    //tell the loader we are done, so it can resume application
+    // tell the loader we are done, so it can resume application
     getIPC()->postRemoteThreadSemaphore();
-        
-    //wait for application exit (all threads but this exit);
+
+    // wait for application exit (all threads but this exit);
     g_ThreadWatcher.lockLoaderThread();
 #endif
 }
 /**
  * Main entrypoint of DGLwrapper library
  */
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID /*lpReserved*/
-                     ) {
+BOOL APIENTRY
+DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID /*lpReserved*/
+        ) {
     switch (ul_reason_for_call) {
         case DLL_PROCESS_ATTACH:
 #ifdef USE_DETOURS
@@ -268,7 +259,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
         case DLL_THREAD_ATTACH:
 #ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
             g_ThreadWatcher.onAttachThread();
-#endif            
+#endif
             break;
         case DLL_THREAD_DETACH:
 #ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP

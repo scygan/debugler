@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLGLSLEDITOR_H
 #define DGLGLSLEDITOR_H
 
@@ -23,23 +22,24 @@
 class DGLGLSLEditor : public QPlainTextEdit {
     Q_OBJECT
 
-public:
+   public:
     DGLGLSLEditor(QWidget *parent = 0);
     virtual ~DGLGLSLEditor() {}
 
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
 
-protected:
+   protected:
     void resizeEvent(QResizeEvent *event);
 
-    private slots:
-        void updateLineNumberAreaWidth(int newBlockCount);
-        void highlightCurrentLine();
-        void updateLineNumberArea(const QRect &, int);
+   private
+slots:
+    void updateLineNumberAreaWidth(int newBlockCount);
+    void highlightCurrentLine();
+    void updateLineNumberArea(const QRect &, int);
 
-private:
+   private:
     QWidget *lineNumberArea;
 };
 
-#endif //DGLGLSLEDITOR_H
+#endif    // DGLGLSLEDITOR_H

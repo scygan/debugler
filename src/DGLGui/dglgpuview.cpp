@@ -13,23 +13,28 @@
 * limitations under the License.
 */
 
-
 #include "dglgpuview.h"
 
 #include <set>
 #include <climits>
 
-DGLGPUView::DGLGPUView(QWidget* parrent, DglController* controller):QDockWidget(tr("OpenGL and GPU"), parrent), m_Listener(NULL), m_Controller(controller), m_Ui(NULL) {
+DGLGPUView::DGLGPUView(QWidget* parrent, DglController* controller)
+        : QDockWidget(tr("OpenGL and GPU"), parrent),
+          m_Listener(NULL),
+          m_Controller(controller),
+          m_Ui(NULL) {
     setObjectName("DGLGPUView");
 
     setConnected(false);
-   
-    //inbound
-    CONNASSERT(controller, SIGNAL(setConnected(bool)), this, SLOT(setConnected(bool)));
+
+    // inbound
+    CONNASSERT(controller, SIGNAL(setConnected(bool)), this,
+               SLOT(setConnected(bool)));
 }
 
 void DGLGPUView::update(const dglnet::DGLResource& res) {
-    const dglnet::resource::DGLResourceGPU* resource = dynamic_cast<const dglnet::resource::DGLResourceGPU*>(&res);
+    const dglnet::resource::DGLResourceGPU* resource =
+        dynamic_cast<const dglnet::resource::DGLResourceGPU*>(&res);
     m_Ui->label_Renderer->setText(QString::fromStdString(resource->m_Renderer));
     m_Ui->label_Vendor->setText(QString::fromStdString(resource->m_Vendor));
     m_Ui->label_Version->setText(QString::fromStdString(resource->m_Version));
@@ -39,11 +44,19 @@ void DGLGPUView::update(const dglnet::DGLResource& res) {
         m_Ui->groupBox_NVMem->hide();
     } else {
         m_Ui->groupBox_NVMem->show();
-        m_Ui->label_Dedicated->setText(QString::number(resource->m_nvidiaMemory.memInfoTotalAvailMem / 1000) + QString(" MB"));
-        m_Ui->label_Eviction->setText(QString::number(resource->m_nvidiaMemory.memInfoEvictedMem / 1000) + QString(" MB,  (") + 
-            QString::number(resource->m_nvidiaMemory.memInfoEvictionCount) + QString(" evictions)"));
-        m_Ui->progressBar_VidMem->setMaximum(resource->m_nvidiaMemory.memInfoDedidactedVidMem / 1000);
-        m_Ui->progressBar_VidMem->setValue(resource->m_nvidiaMemory.memInfoCurrentAvailVidMem / 1000);
+        m_Ui->label_Dedicated->setText(
+            QString::number(resource->m_nvidiaMemory.memInfoTotalAvailMem /
+                            1000) +
+            QString(" MB"));
+        m_Ui->label_Eviction->setText(
+            QString::number(resource->m_nvidiaMemory.memInfoEvictedMem / 1000) +
+            QString(" MB,  (") +
+            QString::number(resource->m_nvidiaMemory.memInfoEvictionCount) +
+            QString(" evictions)"));
+        m_Ui->progressBar_VidMem->setMaximum(
+            resource->m_nvidiaMemory.memInfoDedidactedVidMem / 1000);
+        m_Ui->progressBar_VidMem->setValue(
+            resource->m_nvidiaMemory.memInfoCurrentAvailVidMem / 1000);
     }
 }
 
@@ -68,12 +81,14 @@ void DGLGPUView::setConnected(bool connected) {
         m_Ui->groupBox_NVMem->hide();
         setWidget(m_Ui->frame);
         setLayout(m_Ui->verticalLayout);
-        
-        m_Listener = m_Controller->getResourceManager()->createListener(dglnet::ContextObjectName(), dglnet::DGLResource::ObjectType::GPU);
+
+        m_Listener = m_Controller->getResourceManager()->createListener(
+            dglnet::ContextObjectName(), dglnet::DGLResource::ObjectType::GPU);
         m_Listener->setParent(m_Ui->groupBox);
 
-        CONNASSERT(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&)));
-        CONNASSERT(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&)));
+        CONNASSERT(m_Listener, SIGNAL(update(const dglnet::DGLResource&)), this,
+                   SLOT(update(const dglnet::DGLResource&)));
+        CONNASSERT(m_Listener, SIGNAL(error(const std::string&)), this,
+                   SLOT(error(const std::string&)));
     }
 }
-

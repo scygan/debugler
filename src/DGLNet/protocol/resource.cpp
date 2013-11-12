@@ -13,16 +13,16 @@
 * limitations under the License.
 */
 
-#include<cstring>
+#include <cstring>
 
 #include "resource.h"
 #include <DGLCommon/gl-types.h>
-#include <boost/serialization/export.hpp> 
+#include <boost/serialization/export.hpp>
 
 namespace dglnet {
 namespace resource {
 
-DGLResourceFBO::FBOAttachment::FBOAttachment(gl_t id):m_Id(id), m_Ok(true) {}
+DGLResourceFBO::FBOAttachment::FBOAttachment(gl_t id) : m_Id(id), m_Ok(true) {}
 
 void DGLResourceFBO::FBOAttachment::error(std::string msg) {
     m_Ok = false;
@@ -34,22 +34,37 @@ bool DGLResourceFBO::FBOAttachment::isOk(std::string& msg) const {
     return m_Ok;
 }
 
-DGLPixelRectangle::DGLPixelRectangle(value_t width, value_t height, value_t rowBytes, gl_t glFormat, gl_t glType, gl_t iFormat, value_t samples):m_Width(width),
-    m_Height(height), m_RowBytes(rowBytes), m_Samples(samples), m_GLFormat(glFormat), m_GLType(glType), m_InternalFormat(iFormat), m_Storage(NULL) {
+DGLPixelRectangle::DGLPixelRectangle(value_t width, value_t height,
+                                     value_t rowBytes, gl_t glFormat,
+                                     gl_t glType, gl_t iFormat, value_t samples)
+        : m_Width(width),
+          m_Height(height),
+          m_RowBytes(rowBytes),
+          m_Samples(samples),
+          m_GLFormat(glFormat),
+          m_GLType(glType),
+          m_InternalFormat(iFormat),
+          m_Storage(NULL) {
 
-        if (m_Height * m_RowBytes) {
-            m_Storage = malloc(m_Height * m_RowBytes);
-        }
+    if (m_Height * m_RowBytes) {
+        m_Storage = malloc(m_Height * m_RowBytes);
+    }
 }
 
-DGLPixelRectangle::DGLPixelRectangle(const DGLPixelRectangle& rhs):m_Width(rhs.m_Width), m_Height(rhs.m_Height),
-    m_RowBytes(rhs.m_RowBytes), m_Samples(rhs.m_Samples), m_GLFormat(rhs.m_GLFormat), m_GLType(rhs.m_GLType), m_InternalFormat(rhs.m_InternalFormat) {
-        if (rhs.getPtr()) {
-            m_Storage = malloc(m_Height * m_RowBytes);
-            memcpy(m_Storage, rhs.getPtr(), m_Height * m_RowBytes);
-        } else {
-            m_Storage = NULL;
-        }
+DGLPixelRectangle::DGLPixelRectangle(const DGLPixelRectangle& rhs)
+        : m_Width(rhs.m_Width),
+          m_Height(rhs.m_Height),
+          m_RowBytes(rhs.m_RowBytes),
+          m_Samples(rhs.m_Samples),
+          m_GLFormat(rhs.m_GLFormat),
+          m_GLType(rhs.m_GLType),
+          m_InternalFormat(rhs.m_InternalFormat) {
+    if (rhs.getPtr()) {
+        m_Storage = malloc(m_Height * m_RowBytes);
+        memcpy(m_Storage, rhs.getPtr(), m_Height * m_RowBytes);
+    } else {
+        m_Storage = NULL;
+    }
 }
 
 DGLPixelRectangle::~DGLPixelRectangle() {
@@ -59,13 +74,9 @@ DGLPixelRectangle::~DGLPixelRectangle() {
     }
 }
 
-void* DGLPixelRectangle::getPtr() const {
-    return m_Storage;
-}
+void* DGLPixelRectangle::getPtr() const { return m_Storage; }
 
-size_t DGLPixelRectangle::getSize() const {
-    return m_Height * m_RowBytes;
-}
+size_t DGLPixelRectangle::getSize() const { return m_Height * m_RowBytes; }
 
-} //namespace resource
-} //namespace dglnet
+}    // namespace resource
+}    // namespace dglnet

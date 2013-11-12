@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef NATIVE_SURFACE_H
 #define NATIVE_SURFACE_H
 
@@ -23,9 +22,9 @@ class DGLDisplayState;
 
 namespace dglState {
 
-//Native platform interface surface.
+// Native platform interface surface.
 class NativeSurfaceBase {
-public:
+   public:
     NativeSurfaceBase(opaque_id_t);
     opaque_id_t getId();
     virtual bool isDoubleBuffered() = 0;
@@ -38,12 +37,13 @@ public:
     virtual int getWidth() = 0;
     virtual int getHeight() = 0;
     virtual ~NativeSurfaceBase() {}
-protected:
+
+   protected:
     opaque_id_t m_Id;
 };
 
-class NativeSurfaceWGL: public NativeSurfaceBase {
-public:
+class NativeSurfaceWGL : public NativeSurfaceBase {
+   public:
     NativeSurfaceWGL(const DGLDisplayState* dpy, opaque_id_t id);
     virtual bool isDoubleBuffered();
     virtual bool isStereo();
@@ -52,16 +52,17 @@ public:
     virtual int getStencilSize();
     virtual int getDepthSize();
 
-    virtual int getWidth(); 
-    virtual int getHeight(); 
-private:
+    virtual int getWidth();
+    virtual int getHeight();
+
+   private:
     bool m_Stereo, m_DoubleBuffered;
     int m_RGBASizes[4];
     int m_DepthSize, m_StencilSize;
 };
 
-class NativeSurfaceGLX: public NativeSurfaceBase {
-public:
+class NativeSurfaceGLX : public NativeSurfaceBase {
+   public:
     /**
      * Ctor
      */
@@ -74,14 +75,15 @@ public:
     virtual int getStencilSize();
     virtual int getDepthSize();
 
-    virtual int getWidth(); 
+    virtual int getWidth();
     virtual int getHeight();
 
 #ifdef HAVE_LIBRARY_GLX
-    static GLXFBConfig* getFbConfigForVisual(Display *dpy, VisualID visualID, GLXFBConfig** memToFree);
+    static GLXFBConfig* getFbConfigForVisual(Display* dpy, VisualID visualID,
+                                             GLXFBConfig** memToFree);
 #endif
 
-private:
+   private:
     int m_RGBASizes[4];
     int m_DepthSize, m_StencilSize;
     const DGLDisplayState* m_Dpy;
@@ -90,12 +92,13 @@ private:
     bool m_GLXDrawableGettersFailing;
 };
 
-class NativeSurfaceEGL: public NativeSurfaceBase {
-public:
+class NativeSurfaceEGL : public NativeSurfaceBase {
+   public:
     /**
      * Ctor
      */
-    NativeSurfaceEGL(const DGLDisplayState* dpy, opaque_id_t pixfmt, opaque_id_t id);
+    NativeSurfaceEGL(const DGLDisplayState* dpy, opaque_id_t pixfmt,
+                     opaque_id_t id);
 
     virtual bool isDoubleBuffered();
     virtual bool isStereo();
@@ -104,13 +107,14 @@ public:
     virtual int getStencilSize();
     virtual int getDepthSize();
 
-    virtual int getWidth(); 
+    virtual int getWidth();
     virtual int getHeight();
-private:
+
+   private:
     int m_RGBASizes[4];
     int m_DepthSize, m_StencilSize;
     const DGLDisplayState* m_Dpy;
 };
 
-} //namespace
+}    // namespace
 #endif

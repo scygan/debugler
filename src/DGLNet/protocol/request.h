@@ -23,48 +23,51 @@
 namespace dglnet {
 
 class DGLRequest {
-public:
-    template<class Archive>
+   public:
+    template <class Archive>
     void serialize(Archive& /*ar*/, const unsigned int) {}
     virtual ~DGLRequest() {}
 };
 
 namespace request {
 
-class QueryResource: public DGLRequest {
+class QueryResource : public DGLRequest {
 
     friend class boost::serialization::access;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int) {
-        ar & boost::serialization::base_object<DGLRequest>(*this);
-        ar & m_Type;
-        ar & m_ObjectName;
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& boost::serialization::base_object<DGLRequest>(*this);
+        ar& m_Type;
+        ar& m_ObjectName;
     }
-public:
-    QueryResource():m_Type(DGLResource::ObjectType::Invalid) {}
-    QueryResource(DGLResource::ObjectType type, ContextObjectName name):m_Type(type), m_ObjectName(name) {}
+
+   public:
+    QueryResource() : m_Type(DGLResource::ObjectType::Invalid) {}
+    QueryResource(DGLResource::ObjectType type, ContextObjectName name)
+            : m_Type(type), m_ObjectName(name) {}
     DGLResource::ObjectType m_Type;
     ContextObjectName m_ObjectName;
 };
 
-class EditShaderSource: public DGLRequest {
+class EditShaderSource : public DGLRequest {
     friend class boost::serialization::access;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int) {
-        ar & boost::serialization::base_object<DGLRequest>(*this);
-        ar & m_Context;
-        ar & m_ShaderId;
-        ar & m_Reset;
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& boost::serialization::base_object<DGLRequest>(*this);
+        ar& m_Context;
+        ar& m_ShaderId;
+        ar& m_Reset;
         if (!m_Reset) {
-            ar & m_Source;
+            ar& m_Source;
         }
     }
 
-public:
+   public:
     EditShaderSource() {}
-    EditShaderSource(opaque_id_t context, gl_t shaderId, bool reset, std::string source = "");
+    EditShaderSource(opaque_id_t context, gl_t shaderId, bool reset,
+                     std::string source = "");
 
     opaque_id_t m_Context;
     gl_t m_ShaderId;
@@ -72,17 +75,17 @@ public:
     std::string m_Source;
 };
 
-class ForceLinkProgram: public DGLRequest {
+class ForceLinkProgram : public DGLRequest {
     friend class boost::serialization::access;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int) {
-        ar & boost::serialization::base_object<DGLRequest>(*this);
-        ar & m_Context;
-        ar & m_ProgramId;
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& boost::serialization::base_object<DGLRequest>(*this);
+        ar& m_Context;
+        ar& m_ProgramId;
     }
 
-public:
+   public:
     ForceLinkProgram() {}
     ForceLinkProgram(opaque_id_t context, gl_t programId);
 
@@ -90,8 +93,8 @@ public:
     gl_t m_ProgramId;
 };
 
-} //namespace request
-} //namespace dglnet
+}    // namespace request
+}    // namespace dglnet
 
 #ifdef REGISTER_CLASS
 REGISTER_CLASS(dglnet::request::QueryResource)
@@ -99,4 +102,4 @@ REGISTER_CLASS(dglnet::request::EditShaderSource)
 REGISTER_CLASS(dglnet::request::ForceLinkProgram)
 #endif
 
-#endif //REQUEST_H
+#endif    // REQUEST_H

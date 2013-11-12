@@ -26,64 +26,89 @@
 
 namespace glutils {
 
-MSAADownSampler::MSAADownSampler(dglState::GLContext* context, GLenum attTarget, GLenum att, GLuint fboName, GLenum attInternalFormat, DGLPixelTransfer* transfer, int width, int height):m_Context(context), m_DownSampledFBO(0), m_DownsampledResourceTarget(attTarget), m_DownsampledResource(0), m_FBO(fboName) {
-    //this is a multisample render target. We must downsample it before reading
+MSAADownSampler::MSAADownSampler(dglState::GLContext* context, GLenum attTarget,
+                                 GLenum att, GLuint fboName,
+                                 GLenum attInternalFormat,
+                                 DGLPixelTransfer* transfer, int width,
+                                 int height)
+        : m_Context(context),
+          m_DownSampledFBO(0),
+          m_DownsampledResourceTarget(attTarget),
+          m_DownsampledResource(0),
+          m_FBO(fboName) {
+    // this is a multisample render target. We must downsample it before reading
 
     if (m_DownsampledResourceTarget == GL_RENDERBUFFER) {
 
-        //create renderbuffer for downsampling
+        // create renderbuffer for downsampling
         DIRECT_CALL_CHK(glGenRenderbuffers)(1, &m_DownsampledResource);
 
-        DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, m_DownsampledResource);
-        DIRECT_CALL_CHK(glRenderbufferStorage)(GL_RENDERBUFFER, attInternalFormat, width, height);
+        DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER,
+                                            m_DownsampledResource);
+        DIRECT_CALL_CHK(glRenderbufferStorage)(
+            GL_RENDERBUFFER, attInternalFormat, width, height);
         DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, 0);
 
     } else if (m_DownsampledResourceTarget == GL_TEXTURE_2D_MULTISAMPLE) {
-        
+
         DIRECT_CALL_CHK(glGenTextures)(1, &m_DownsampledResource);
-        
+
         GLint lastTexture = getBoundTexture(GL_TEXTURE_2D);
-        
+
         DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D, m_DownsampledResource);
-        DIRECT_CALL_CHK(glTexImage2D)(GL_TEXTURE_2D, 0, attInternalFormat, width, height, 0, (GLenum)transfer->getFormat(), (GLenum)transfer->getType(), NULL);
+        DIRECT_CALL_CHK(glTexImage2D)(
+            GL_TEXTURE_2D, 0, attInternalFormat, width, height, 0,
+            (GLenum)transfer->getFormat(), (GLenum)transfer->getType(), NULL);
 
         DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D, lastTexture);
 
     } else if (m_DownsampledResourceTarget == GL_TEXTURE_2D_MULTISAMPLE_ARRAY) {
-        
+
         DIRECT_CALL_CHK(glGenTextures)(1, &m_DownsampledResource);
 
         GLint lastTexture = getBoundTexture(GL_TEXTURE_2D_ARRAY);
 
-        DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D_ARRAY, m_DownsampledResource);
-        //depth is 1 here. we need only one slice of array to downsample to
-        DIRECT_CALL_CHK(glTexImage3D)(GL_TEXTURE_2D_ARRAY, 0, attInternalFormat, width, height, 1, 0, (GLenum)transfer->getFormat(), (GLenum)transfer->getType(), NULL);
+        DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D_ARRAY,
+                                       m_DownsampledResource);
+        // depth is 1 here. we need only one slice of array to downsample to
+        DIRECT_CALL_CHK(glTexImage3D)(
+            GL_TEXTURE_2D_ARRAY, 0, attInternalFormat, width, height, 1, 0,
+            (GLenum)transfer->getFormat(), (GLenum)transfer->getType(), NULL);
 
         DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D_ARRAY, lastTexture);
     } else {
-        throw std::runtime_error("Unsupported multisample texture target: " + GetGLEnumName(attTarget));
+        throw std::runtime_error("Unsupported multisample texture target: " +
+                                 GetGLEnumName(attTarget));
     }
-    
-    //create framebuffer used for downsampling, set it as draw
+
+    // create framebuffer used for downsampling, set it as draw
     DIRECT_CALL_CHK(glGenFramebuffers)(1, &m_DownSampledFBO);
     DIRECT_CALL_CHK(glBindFramebuffer)(GL_DRAW_FRAMEBUFFER, m_DownSampledFBO);
 
     if (m_DownsampledResourceTarget == GL_RENDERBUFFER) {
-        DIRECT_CALL_CHK(glFramebufferRenderbuffer)(GL_DRAW_FRAMEBUFFER, att, GL_RENDERBUFFER, m_DownsampledResource);
+        DIRECT_CALL_CHK(glFramebufferRenderbuffer)(
+            GL_DRAW_FRAMEBUFFER, att, GL_RENDERBUFFER, m_DownsampledResource);
     } else if (m_DownsampledResourceTarget == GL_TEXTURE_2D_MULTISAMPLE) {
-        DIRECT_CALL_CHK(glFramebufferTexture2D)(GL_DRAW_FRAMEBUFFER, att, GL_TEXTURE_2D, m_DownsampledResource, 0);
+        DIRECT_CALL_CHK(glFramebufferTexture2D)(
+            GL_DRAW_FRAMEBUFFER, att, GL_TEXTURE_2D, m_DownsampledResource, 0);
     } else if (m_DownsampledResourceTarget == GL_TEXTURE_2D_MULTISAMPLE_ARRAY) {
-        DIRECT_CALL_CHK(glFramebufferTextureLayer)(GL_DRAW_FRAMEBUFFER, att, m_DownsampledResource, 0, 0);
-    } else { assert(0); }
+        DIRECT_CALL_CHK(glFramebufferTextureLayer)(GL_DRAW_FRAMEBUFFER, att,
+                                                   m_DownsampledResource, 0, 0);
+    } else {
+        assert(0);
+    }
 
     GLint blitMask = 0;
 
-    if (att != GL_DEPTH_ATTACHMENT && att != GL_STENCIL_ATTACHMENT && att != GL_DEPTH_STENCIL_ATTACHMENT) {
-        //select buffers for downsampling
-        if (m_Context->hasCapability(dglState::GLContext::ContextCap::ReadBufferSelector))
-            DIRECT_CALL_CHK(glReadBuffer)(att); 
-        if (m_Context->hasCapability(dglState::GLContext::ContextCap::DrawBuffersMRT))
-            DIRECT_CALL_CHK(glDrawBuffer)(att); 
+    if (att != GL_DEPTH_ATTACHMENT && att != GL_STENCIL_ATTACHMENT &&
+        att != GL_DEPTH_STENCIL_ATTACHMENT) {
+        // select buffers for downsampling
+        if (m_Context->hasCapability(
+                dglState::GLContext::ContextCap::ReadBufferSelector))
+            DIRECT_CALL_CHK(glReadBuffer)(att);
+        if (m_Context->hasCapability(
+                dglState::GLContext::ContextCap::DrawBuffersMRT))
+            DIRECT_CALL_CHK(glDrawBuffer)(att);
 
         blitMask |= GL_COLOR_BUFFER_BIT;
     } else {
@@ -100,8 +125,9 @@ MSAADownSampler::MSAADownSampler(dglState::GLContext* context, GLenum attTarget,
         }
     }
 
-    //downsample
-    DIRECT_CALL_CHK(glBlitFramebuffer)(0, 0, width, height, 0, 0, width, height, blitMask, GL_NEAREST);
+    // downsample
+    DIRECT_CALL_CHK(glBlitFramebuffer)(0, 0, width, height, 0, 0, width, height,
+                                       blitMask, GL_NEAREST);
 }
 
 MSAADownSampler::~MSAADownSampler() {
@@ -114,14 +140,11 @@ MSAADownSampler::~MSAADownSampler() {
             DIRECT_CALL_CHK(glDeleteRenderbuffers)(1, &m_DownsampledResource);
         } else {
             DIRECT_CALL_CHK(glDeleteTextures)(1, &m_DownsampledResource);
-        }        
+        }
     }
 }
 
-GLuint MSAADownSampler::getDownsampledFBO() {
-    return m_DownSampledFBO;
-}
-
+GLuint MSAADownSampler::getDownsampledFBO() { return m_DownSampledFBO; }
 
 GLenum textTargetToBindableTarget(GLenum target) {
     switch (target) {
@@ -135,12 +158,12 @@ GLenum textTargetToBindableTarget(GLenum target) {
         default:
             return target;
     }
-
 }
 
 GLuint getBoundTexture(GLenum target) {
 #ifdef WA_ARM_MALI_EMU_GETTERS_OVERFLOW
-    //WA for buggy ARM Mali OpenGL ES 3.0 emulator, where to really much data is returned from glGetIntegerv
+    // WA for buggy ARM Mali OpenGL ES 3.0 emulator, where to really much data
+    // is returned from glGetIntegerv
     // It was measured that bug is causing to overwrite 192*4 bytes of memory.
     GLint lastTexture[192];
 #else
@@ -148,46 +171,49 @@ GLuint getBoundTexture(GLenum target) {
 #endif
 
     switch (target) {
-    case GL_TEXTURE_1D:
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_1D, lastTexture);
-        break;
-    case GL_TEXTURE_2D:
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D, lastTexture);
-        break;
-    case GL_TEXTURE_2D_MULTISAMPLE:
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D_MULTISAMPLE, lastTexture);
-        break;
-    case GL_TEXTURE_RECTANGLE:
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_RECTANGLE, lastTexture);
-        break;
-    case GL_TEXTURE_1D_ARRAY:
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_1D_ARRAY, lastTexture);
-        break;
-    case GL_TEXTURE_CUBE_MAP:
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_CUBE_MAP, lastTexture);
-        break;
-    case GL_TEXTURE_3D:
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_3D, lastTexture);
-        break;
-    case GL_TEXTURE_2D_ARRAY:
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D_ARRAY, lastTexture);
-        break;
-    case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D_MULTISAMPLE_ARRAY, lastTexture);
-        break;
-    case GL_TEXTURE_CUBE_MAP_ARRAY:
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_CUBE_MAP_ARRAY, lastTexture);
-        break;
+        case GL_TEXTURE_1D:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_1D, lastTexture);
+            break;
+        case GL_TEXTURE_2D:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D, lastTexture);
+            break;
+        case GL_TEXTURE_2D_MULTISAMPLE:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D_MULTISAMPLE,
+                                           lastTexture);
+            break;
+        case GL_TEXTURE_RECTANGLE:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_RECTANGLE,
+                                           lastTexture);
+            break;
+        case GL_TEXTURE_1D_ARRAY:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_1D_ARRAY,
+                                           lastTexture);
+            break;
+        case GL_TEXTURE_CUBE_MAP:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_CUBE_MAP,
+                                           lastTexture);
+            break;
+        case GL_TEXTURE_3D:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_3D, lastTexture);
+            break;
+        case GL_TEXTURE_2D_ARRAY:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_2D_ARRAY,
+                                           lastTexture);
+            break;
+        case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
+            DIRECT_CALL_CHK(glGetIntegerv)(
+                GL_TEXTURE_BINDING_2D_MULTISAMPLE_ARRAY, lastTexture);
+            break;
+        case GL_TEXTURE_CUBE_MAP_ARRAY:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_CUBE_MAP_ARRAY,
+                                           lastTexture);
+            break;
 
-
-
-
-    default:
-        assert(0);
+        default:
+            assert(0);
     }
 
     return lastTexture[0];
 }
 
-
-} //namespace glutils
+}    // namespace glutils

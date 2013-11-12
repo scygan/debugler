@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef CTXOBJNAME_H
 #define CTXOBJNAME_H
 
@@ -22,26 +21,26 @@
 namespace dglnet {
 
 class ContextObjectName {
-public:
+   public:
     ContextObjectName();
     ContextObjectName(opaque_id_t context, gl_t name, gl_t target = 0);
     virtual ~ContextObjectName();
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int) {
-        ar & m_Name;
-        ar & m_Context;
-        ar & m_Target;
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& m_Name;
+        ar& m_Context;
+        ar& m_Target;
     }
 
-    virtual bool operator==(const ContextObjectName&rhs) const;
+    virtual bool operator==(const ContextObjectName& rhs) const;
 
-    virtual bool operator<(const ContextObjectName&rhs) const;
+    virtual bool operator<(const ContextObjectName& rhs) const;
 
     gl_t m_Name;
     opaque_id_t m_Context;
     gl_t m_Target;
 };
 
-} //namespace dglnet
+}    // namespace dglnet
 
-#endif //REQUEST_H
+#endif    // REQUEST_H

@@ -18,19 +18,21 @@
 
 #include <QEventLoop>
 
-
-class LiveProcessWrapper: public QObject{
+class LiveProcessWrapper : public QObject {
     Q_OBJECT
-public:
-    LiveProcessWrapper(std::string sampleName):m_Done(false) {
+   public:
+    LiveProcessWrapper(std::string sampleName) : m_Done(false) {
 
         m_process = new DGLDebugeeQTProcess(8888, false);
 
         m_process->setParent(this);
 
-        CONNASSERT(m_process, SIGNAL(processReady()), this, SLOT(processReadyHandler()));
-        CONNASSERT(m_process, SIGNAL(processError(std::string)), this, SLOT(processErrorHandler(std::string)));
-        CONNASSERT(m_process, SIGNAL(processCrashed()), this, SLOT(processCrashHandler()));
+        CONNASSERT(m_process, SIGNAL(processReady()), this,
+                   SLOT(processReadyHandler()));
+        CONNASSERT(m_process, SIGNAL(processError(std::string)), this,
+                   SLOT(processErrorHandler(std::string)));
+        CONNASSERT(m_process, SIGNAL(processCrashed()), this,
+                   SLOT(processCrashHandler()));
 
         std::vector<std::string> args;
 #ifdef _WIN32
@@ -44,14 +46,12 @@ public:
         CONNASSERT(this, SIGNAL(done()), &loop, SLOT(quit()));
 
         m_process->run(exec, "", args);
-        
-        if (!m_Done)
-            loop.exec();
-        
+
+        if (!m_Done) loop.exec();
+
         if (m_errorInfo.size()) {
             throw std::runtime_error(m_errorInfo);
         }
-
     }
 
     ~LiveProcessWrapper() {
@@ -63,7 +63,8 @@ public:
 signals:
     void done();
 
-private slots:
+   private
+slots:
     void processErrorHandler(std::string errorMsg) {
         m_errorInfo = errorMsg;
         emit done();
@@ -80,10 +81,8 @@ private slots:
         m_Done = true;
     }
 
-
-private:
+   private:
     DGLDebugeeQTProcess* m_process;
     std::string m_errorInfo;
     bool m_Done;
-
 };

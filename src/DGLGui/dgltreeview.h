@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLTREEVIEW_H
 #define DGLTREEVIEW_H
 
@@ -24,34 +23,36 @@
 
 #include "dglcontroller.h"
 
-class DGLTreeView; 
+class DGLTreeView;
 
-class QClickableTreeWidgetItem: public QTreeWidgetItem {
-public: 
+class QClickableTreeWidgetItem : public QTreeWidgetItem {
+   public:
     virtual void handleDoubleClick(DglController*);
 };
-
 
 class DGLTreeView : public QDockWidget {
     Q_OBJECT
 
-public:
+   public:
     DGLTreeView(QWidget* parrent, DglController* controller);
     ~DGLTreeView();
 
     void regiSterItem(QTreeWidgetItem item);
 
-public slots:
+   public
+slots:
     void setConnected(bool);
     void debugeeInfo(const std::string&);
-    void breakedWithStateReports(opaque_id_t currentContextId, const std::vector<dglnet::message::BreakedCall::ContextReport>&);
+    void breakedWithStateReports(
+        opaque_id_t currentContextId,
+        const std::vector<dglnet::message::BreakedCall::ContextReport>&);
 
     void onDoubleClicked(QTreeWidgetItem*, int);
 
-private: 
+   private:
     QTreeWidget m_TreeWidget;
-    bool m_Connected;   
+    bool m_Connected;
     DglController* m_controller;
 };
 
-#endif // DGLTREEVIEW_H
+#endif    // DGLTREEVIEW_H

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #include "dglstateview.h"
 
 #include <set>
@@ -21,44 +20,49 @@
 #include <iomanip>
 #include <sstream>
 
-DGLStateView::DGLStateView(QWidget* parrent, DglController* controller):QDockWidget(tr("OpenGL State"), parrent), m_Listener(NULL), m_Controller(controller), m_Ui(NULL) {
+DGLStateView::DGLStateView(QWidget* parrent, DglController* controller)
+        : QDockWidget(tr("OpenGL State"), parrent),
+          m_Listener(NULL),
+          m_Controller(controller),
+          m_Ui(NULL) {
     setObjectName("DGLStateView");
-    
+
     setConnected(false);
-   
-    //inbound
-    CONNASSERT(controller, SIGNAL(setConnected(bool)), this, SLOT(setConnected(bool)));
+
+    // inbound
+    CONNASSERT(controller, SIGNAL(setConnected(bool)), this,
+               SLOT(setConnected(bool)));
 }
 
 void DGLStateView::update(const dglnet::DGLResource& res) {
-    const dglnet::resource::DGLResourceState* resource = dynamic_cast<const dglnet::resource::DGLResourceState*>(&res);
+    const dglnet::resource::DGLResourceState* resource =
+        dynamic_cast<const dglnet::resource::DGLResourceState*>(&res);
 
     bool initializeRows = !(m_Ui->tableWidget->rowCount());
-    
+
     if (initializeRows) {
         m_Ui->tableWidget->setRowCount(resource->m_Items.size());
 
-        for (size_t i = 0; i < resource->m_Items.size(); i++) { 
-            QTableWidgetItem * item = new QTableWidgetItem(resource->m_Items[i].m_Name.c_str());
+        for (size_t i = 0; i < resource->m_Items.size(); i++) {
+            QTableWidgetItem* item =
+                new QTableWidgetItem(resource->m_Items[i].m_Name.c_str());
             item->setFlags(Qt::ItemIsEnabled);
             m_Ui->tableWidget->setItem(i, 0, item);
         }
-    }    
+    }
 
     for (size_t i = 0; i < resource->m_Items.size(); i++) {
         std::ostringstream valStream;
         valStream << std::showpoint;
         for (size_t j = 0; j < resource->m_Items[i].m_Values.size(); j++) {
-            if (j)
-                valStream << ", ";
+            if (j) valStream << ", ";
             resource->m_Items[i].m_Values[j].writeToSS(valStream);
             valStream << " ";
         }
-        QTableWidgetItem * item = new QTableWidgetItem(valStream.str().c_str());
+        QTableWidgetItem* item = new QTableWidgetItem(valStream.str().c_str());
         item->setFlags(Qt::ItemIsEnabled);
         m_Ui->tableWidget->setItem(i, 1, item);
     }
-
 }
 
 void DGLStateView::error(const std::string& /*message*/) {
@@ -79,18 +83,25 @@ void DGLStateView::setConnected(bool connected) {
         setLayout(m_Ui->verticalLayout);
         m_Ui->tableWidget->setRowCount(1);
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-        m_Ui->tableWidget->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+        m_Ui->tableWidget->horizontalHeader()->setResizeMode(
+            QHeaderView::Stretch);
 #else
-        m_Ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-#endif       
-        m_Ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem("Parameter"));
-        m_Ui->tableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem("Value"));
-        
-        m_Listener = m_Controller->getResourceManager()->createListener(dglnet::ContextObjectName(), dglnet::DGLResource::ObjectType::State);
+        m_Ui->tableWidget->horizontalHeader()->setSectionResizeMode(
+            QHeaderView::Stretch);
+#endif
+        m_Ui->tableWidget->setHorizontalHeaderItem(
+            0, new QTableWidgetItem("Parameter"));
+        m_Ui->tableWidget->setHorizontalHeaderItem(
+            1, new QTableWidgetItem("Value"));
+
+        m_Listener = m_Controller->getResourceManager()->createListener(
+            dglnet::ContextObjectName(),
+            dglnet::DGLResource::ObjectType::State);
         m_Listener->setParent(m_Ui->frame);
 
-        CONNASSERT(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&)));
-        CONNASSERT(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&)));
+        CONNASSERT(m_Listener, SIGNAL(update(const dglnet::DGLResource&)), this,
+                   SLOT(update(const dglnet::DGLResource&)));
+        CONNASSERT(m_Listener, SIGNAL(error(const std::string&)), this,
+                   SLOT(error(const std::string&)));
     }
 }
-

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLMAINWINDOW_H
 #define DGLMAINWINDOW_H
 
@@ -35,67 +34,67 @@
 /**
  * Number of avaliable color schemes
  */
-#define DGLNUM_COLOR_SCHEMES 2  //TODO: move this, or make more flexible
+#define DGLNUM_COLOR_SCHEMES 2    // TODO: move this, or make more flexible
 
-/** 
+/**
  * Main window class
  */
 class DGLMainWindow : public QMainWindow {
     Q_OBJECT
 
-public:
-    /** 
+   public:
+    /**
      * Ctor, called from bootstrap in main()
      */
     DGLMainWindow(QWidget *parent = 0, Qt::WindowFlags flags = 0);
     virtual ~DGLMainWindow();
 
-
-private slots:
-    /** 
+   private
+slots:
+    /**
      * Slot displaying about window
      */
     void about();
 
-    /** 
+    /**
      * Slot for dglcontroller connection lost
      * @param Error title
      * @param Error message
      */
-    void connectionLost(const QString&, const QString&);
+    void connectionLost(const QString &, const QString &);
 
     /**
-     * Slot for displaing "Attach to process window..." 
+     * Slot for displaing "Attach to process window..."
      */
     void attach();
 
     /**
-     * Slot for displaing "Attach to Android App window..." 
+     * Slot for displaing "Attach to Android App window..."
      */
     void attachAndroidApp();
 
     /**
-     * Slot for displaing "Run application window..." 
+     * Slot for displaing "Run application window..."
      */
     void runDialog();
 
     /**
-     * Debugee process crash handler 
+     * Debugee process crash handler
      */
     void processCrashHandler();
 
     /**
-     * Debugee process exit handler 
+     * Debugee process exit handler
      */
     void processExitHandler(int);
 
     /**
-     * Debugee process starup error event handler 
+     * Debugee process starup error event handler
      */
     void processErrorHandler(std::string);
 
     /**
-     * Debugee process ready event handler 
+     * Debugee process ready event handler
      */
     void processReadyHandler();
 
@@ -104,13 +103,14 @@ private slots:
      */
     void disconnect();
 
-    /** 
+    /**
      * Slot for displaying bkpoints window
      */
     void addDeleteBreakPoints();
 
-    /** 
-     * Slot for manipulating "Break on GL error" and "Break on debug output" setting
+    /**
+     * Slot for manipulating "Break on GL error" and "Break on debug output"
+     * setting
      */
     void setBreakOnWhatever(bool);
 
@@ -121,18 +121,18 @@ private slots:
      */
     void setColorScheme(int ColorScheme);
 
-    /** 
+    /**
      * Slot for displaying configuration window
      */
     void configure();
 
     /**
-     * Called by dgl controller to give debugee process info. Used to populate window caption
+     * Called by dgl controller to give debugee process info. Used to populate
+     * window caption
      */
-    void debugeeInfo(const std::string&);
+    void debugeeInfo(const std::string &);
 
-private:
-
+   private:
     /**
      * Private funcion for creation & initialization of all QActons
      */
@@ -152,13 +152,13 @@ private:
     void createDockWindows();
     void createInteractions();
 
-    /** 
-      * Method called to read all QSettings and fed them 
+    /**
+      * Method called to read all QSettings and fed them
       * to proper objects
       */
     void readSettings();
 
-    /** 
+    /**
      * Synchronize widgets with current debugee configuration in controller
      */
     void showConfig();
@@ -167,7 +167,6 @@ private:
       * Method intercepring main window close event
       */
     virtual void closeEvent(QCloseEvent *event);
-
 
     // menus
 
@@ -178,11 +177,11 @@ private:
     QMenu *ColorSchemeMenu;
     QMenu *helpMenu;
 
-    //toolbars
+    // toolbars
 
-    QToolBar* debugToolBar;
+    QToolBar *debugToolBar;
 
-    //actions
+    // actions
 
     QAction *aboutAct;
     QAction *aboutQtAct;
@@ -200,13 +199,13 @@ private:
     QAction *addDeleteBreakPointsAct;
     QAction *setBreakOnGLErrorAct;
     QAction *setBreakOnDebugOutputAct;
-	QAction *setBreakOnCompilerErrAct;
+    QAction *setBreakOnCompilerErrAct;
     QAction *setColorSchemeActs[DGLNUM_COLOR_SCHEMES];
     QAction *configurationAct;
     /**
      * Action group for all actions from setColorSchemeActs[]
      */
-    QActionGroup * setColorSchemeActGroup;
+    QActionGroup *setColorSchemeActGroup;
 
     /**
      * Signal mapper integrating all signals from setColorSchemeActs[]
@@ -231,11 +230,11 @@ private:
     DGLRunDialog m_RunDialog;
     DGLConnectDialog m_ConnectDialog;
     DGLConnectAndroidDialog m_ConnectAndroidDialog;
-    
-    /** 
+
+    /**
      * Current debugee process
      */
-    DGLDebugeeQTProcess* m_process;
+    DGLDebugeeQTProcess *m_process;
 
     /**
      * Process starting busy progress dialog
@@ -243,4 +242,4 @@ private:
     std::shared_ptr<QProgressDialog> m_BusyDialog;
 };
 
-#endif // DGLMAINWINDOW_H
+#endif    // DGLMAINWINDOW_H

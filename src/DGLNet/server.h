@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef _SERVER_H
 #define _SERVER_H
 
@@ -22,28 +21,26 @@
 
 namespace dglnet {
 
-template<class proto>
+template <class proto>
 class ServerDetail;
 
-template<class proto>
-class Server: public Transport<proto> {
-public: 
+template <class proto>
+class Server : public Transport<proto> {
+   public:
     Server(const std::string& port, MessageHandler*);
-    
+
     virtual void accept(bool wait);
 
-private:
-
-    virtual void onAccept(const boost::system::error_code &ec);
+   private:
+    virtual void onAccept(const boost::system::error_code& ec);
 
     std::shared_ptr<Server<proto> > shared_from_this();
 
     std::shared_ptr<ServerDetail<proto> > m_detail;
 };
 
-typedef  Server<boost::asio::ip::tcp> ServerTcp;
-typedef  Server<boost::asio::local::stream_protocol> ServerUnixDomain;
-
+typedef Server<boost::asio::ip::tcp> ServerTcp;
+typedef Server<boost::asio::local::stream_protocol> ServerUnixDomain;
 }
 
 #endif

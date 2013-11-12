@@ -13,15 +13,14 @@
 * limitations under the License.
 */
 
-
 #ifndef IPC_H
 #define IPC_H
 
-#include<string>
-#include<memory>
+#include <string>
+#include <memory>
 
 class DGLIPC {
-public:
+   public:
     virtual ~DGLIPC() {}
     virtual const std::string& getUUID() = 0;
     virtual void waitForRemoteThreadSemaphore() = 0;
@@ -33,7 +32,7 @@ public:
     };
 
     enum class DebuggerPortType {
-        TCP, 
+        TCP,
         UNIX
     };
 
@@ -48,13 +47,12 @@ public:
 
     virtual void getDLInternceptPointers(int& dlOpenAddr, int& dlSymAddr) = 0;
     virtual void setDLInternceptPointers(int dlOpenAddr, int dlSymAddr) = 0;
-    
+
     static std::shared_ptr<DGLIPC> Create();
     static std::shared_ptr<DGLIPC> CreateFromUUID(std::string uuid);
 
-protected:
+   protected:
     DGLIPC() {}
 };
 
 #endif
-

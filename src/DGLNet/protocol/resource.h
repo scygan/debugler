@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
@@ -26,15 +25,16 @@
 
 namespace dglnet {
 
-class DGLResource: public message::RequestReply::ReplyBase {
+class DGLResource : public message::RequestReply::ReplyBase {
     friend class ::boost::serialization::access;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int) {
-        ar & boost::serialization::base_object<message::RequestReply::ReplyBase>(*this);
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& boost::serialization::base_object<message::RequestReply::ReplyBase>(
+            *this);
     }
 
-public:
+   public:
     virtual ~DGLResource() {}
 
     enum class ObjectType {
@@ -51,17 +51,20 @@ public:
 };
 
 namespace resource {
-    
+
 class DGLPixelRectangle {
     friend class ::boost::serialization::access;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int) {
-        //m_StorageSize is size of underlying object now (on both load() and save())
-        boost::serialization::binary_object bo(m_Storage, m_Height * m_RowBytes);
-        ar & bo;
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        // m_StorageSize is size of underlying object now (on both load() and
+        // save())
+        boost::serialization::binary_object bo(m_Storage,
+                                               m_Height * m_RowBytes);
+        ar& bo;
     }
-public:
+
+   public:
     /**
      * Ctor
      *
@@ -72,90 +75,95 @@ public:
      * @param glType GL data type of sent data
      * @param iFormat storage internal format (for informational purposes only)
      */
-    DGLPixelRectangle(value_t width, value_t height, value_t rowBytes, gl_t glFormat, gl_t glType, gl_t iFormat, value_t samples);
+    DGLPixelRectangle(value_t width, value_t height, value_t rowBytes,
+                      gl_t glFormat, gl_t glType, gl_t iFormat,
+                      value_t samples);
     DGLPixelRectangle(const DGLPixelRectangle& rhs);
     ~DGLPixelRectangle();
 
     value_t m_Width, m_Height, m_RowBytes, m_Samples;
-    gl_t  m_GLFormat, m_GLType, m_InternalFormat;
+    gl_t m_GLFormat, m_GLType, m_InternalFormat;
 
     void* getPtr() const;
     size_t getSize() const;
 
-private:
+   private:
     void* m_Storage;
 };
 
-class DGLResourceTexture: public DGLResource {
+class DGLResourceTexture : public DGLResource {
     friend class ::boost::serialization::access;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int) {
-        ar & ::boost::serialization::base_object<DGLResource>(*this);
-        ar & m_FacesLevels;
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& ::boost::serialization::base_object<DGLResource>(*this);
+        ar& m_FacesLevels;
     }
 
-public:
-    std::vector<std::vector< ::boost::shared_ptr<dglnet::resource::DGLPixelRectangle> > > m_FacesLevels;
+   public:
+    std::vector<std::vector< ::boost::shared_ptr<
+        dglnet::resource::DGLPixelRectangle> > > m_FacesLevels;
 };
 
-class DGLResourceBuffer: public DGLResource {
+class DGLResourceBuffer : public DGLResource {
     friend class ::boost::serialization::access;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int) {
-        ar & ::boost::serialization::base_object<DGLResource>(*this);
-        ar & m_Data;
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& ::boost::serialization::base_object<DGLResource>(*this);
+        ar& m_Data;
     }
 
-public:
+   public:
     std::vector<char> m_Data;
 };
 
-class DGLResourceFramebuffer: public DGLResource {
+class DGLResourceFramebuffer : public DGLResource {
     friend class ::boost::serialization::access;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int) {
-        ar & ::boost::serialization::base_object<DGLResource>(*this);
-        ar & m_PixelRectangle;
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& ::boost::serialization::base_object<DGLResource>(*this);
+        ar& m_PixelRectangle;
     }
 
-public:
-
+   public:
     ::boost::shared_ptr<dglnet::resource::DGLPixelRectangle> m_PixelRectangle;
 };
 
-class DGLResourceFBO: public DGLResource {
+class DGLResourceFBO : public DGLResource {
     friend class ::boost::serialization::access;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int) {
-        ar & ::boost::serialization::base_object<DGLResource>(*this);
-        ar & m_Attachments;
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& ::boost::serialization::base_object<DGLResource>(*this);
+        ar& m_Attachments;
     }
 
-public:
+   public:
     class FBOAttachment {
         friend class ::boost::serialization::access;
 
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int) {
-            ar & m_Ok;
-            ar & m_ErrorMsg;
-            ar & m_PixelRectangle;
-            ar & m_Id;
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int) {
+            ar& m_Ok;
+            ar& m_ErrorMsg;
+            ar& m_PixelRectangle;
+            ar& m_Id;
         }
-    public:
+
+       public:
         FBOAttachment() {}
         FBOAttachment(gl_t id);
 
         void error(std::string msg);
         bool isOk(std::string& error) const;
 
-        ::boost::shared_ptr<dglnet::resource::DGLPixelRectangle> m_PixelRectangle;
+        ::boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
+            m_PixelRectangle;
         gl_t m_Id;
-    private:
+
+       private:
         bool m_Ok;
         std::string m_ErrorMsg;
     };
@@ -163,37 +171,36 @@ public:
     std::vector<FBOAttachment> m_Attachments;
 };
 
-class DGLResourceShader: public DGLResource {
+class DGLResourceShader : public DGLResource {
     friend class ::boost::serialization::access;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int) {
-        ar & ::boost::serialization::base_object<DGLResource>(*this);
-        ar & m_Source;
-        ar & m_ShaderObjDeleted;
-        ar & m_IsESSLDefault;
-        ar & m_CompileStatus;
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& ::boost::serialization::base_object<DGLResource>(*this);
+        ar& m_Source;
+        ar& m_ShaderObjDeleted;
+        ar& m_IsESSLDefault;
+        ar& m_CompileStatus;
     }
 
-public:
+   public:
     std::string m_Source;
     bool m_ShaderObjDeleted, m_IsESSLDefault;
     std::pair<std::string, gl_t> m_CompileStatus;
 };
 
-class DGLResourceProgram: public DGLResource {
+class DGLResourceProgram : public DGLResource {
     friend class ::boost::serialization::access;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int) {
-        ar & ::boost::serialization::base_object<DGLResource>(*this);
-        ar & mLinkStatus;
-        ar & m_AttachedShaders;
-        ar & m_Uniforms;
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& ::boost::serialization::base_object<DGLResource>(*this);
+        ar& mLinkStatus;
+        ar& m_AttachedShaders;
+        ar& m_Uniforms;
     }
 
-public:
-
+   public:
     struct Uniform {
         gl_t m_type;
         value_t m_rowSize, m_location;
@@ -201,14 +208,14 @@ public:
         std::vector<AnyValue> m_value;
         bool m_supportedType;
 
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int) {
-            ar & m_type;
-            ar & m_location;
-            ar & m_name;
-            ar & m_value;
-            ar & m_supportedType;
-            ar & m_rowSize;
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int) {
+            ar& m_type;
+            ar& m_location;
+            ar& m_name;
+            ar& m_value;
+            ar& m_supportedType;
+            ar& m_rowSize;
         }
     };
 
@@ -217,29 +224,29 @@ public:
     std::vector<Uniform> m_Uniforms;
 };
 
-class DGLResourceGPU: public DGLResource {
+class DGLResourceGPU : public DGLResource {
     friend class ::boost::serialization::access;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int) {
-        ar & ::boost::serialization::base_object<DGLResource>(*this);
-        ar & m_Renderer;
-        ar & m_Version;
-        ar & m_GLSL;
-        ar & m_Vendor;
-        ar & m_hasNVXGPUMemoryInfo;
-        ar & m_nvidiaMemory;
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& ::boost::serialization::base_object<DGLResource>(*this);
+        ar& m_Renderer;
+        ar& m_Version;
+        ar& m_GLSL;
+        ar& m_Vendor;
+        ar& m_hasNVXGPUMemoryInfo;
+        ar& m_nvidiaMemory;
     }
 
     struct NVXGPUMemoryInfo {
 
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int) {
-            ar & memInfoDedidactedVidMem;
-            ar & memInfoTotalAvailMem;
-            ar & memInfoCurrentAvailVidMem;
-            ar & memInfoEvictionCount;
-            ar & memInfoEvictedMem;
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int) {
+            ar& memInfoDedidactedVidMem;
+            ar& memInfoTotalAvailMem;
+            ar& memInfoCurrentAvailVidMem;
+            ar& memInfoEvictionCount;
+            ar& memInfoEvictedMem;
         }
 
         value_t memInfoDedidactedVidMem;
@@ -249,75 +256,76 @@ class DGLResourceGPU: public DGLResource {
         value_t memInfoEvictedMem;
     };
 
-
-public:
+   public:
     std::string m_Renderer, m_Version, m_Vendor, m_GLSL;
     bool m_hasNVXGPUMemoryInfo;
     NVXGPUMemoryInfo m_nvidiaMemory;
 };
 
-
-class DGLResourceState: public DGLResource {
+class DGLResourceState : public DGLResource {
     friend class ::boost::serialization::access;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int) {
-        ar & ::boost::serialization::base_object<DGLResource>(*this);
-        ar & m_Items;
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& ::boost::serialization::base_object<DGLResource>(*this);
+        ar& m_Items;
     }
 
-public:
+   public:
     struct StateItem {
 
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int) {
-            ar & m_Name;
-            ar & m_Values;
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int) {
+            ar& m_Name;
+            ar& m_Values;
         }
         std::string m_Name;
         std::vector<AnyValue> m_Values;
     };
 
-
-public:
+   public:
     std::vector<StateItem> m_Items;
 };
 
-} //namespace resource
-} //namespace dglnet
+}    // namespace resource
+}    // namespace dglnet
 
+namespace boost {
+namespace serialization {
+template <class Archive>
+inline void save_construct_data(Archive& ar,
+                                const dglnet::resource::DGLPixelRectangle* t,
+                                const unsigned int /*version*/) {
+    // save data required to construct instance
+    ar << t->m_Width;
+    ar << t->m_Height;
+    ar << t->m_RowBytes;
+    ar << t->m_GLFormat;
+    ar << t->m_GLType;
+    ar << t->m_InternalFormat;
+    ar << t->m_Samples;
+}
 
-namespace boost { namespace serialization {
-    template<class Archive>
-    inline void save_construct_data(
-        Archive & ar, const dglnet::resource::DGLPixelRectangle * t, const unsigned int /*version*/) {
-            // save data required to construct instance
-            ar << t->m_Width;
-            ar << t->m_Height;
-            ar << t->m_RowBytes;
-            ar << t->m_GLFormat;
-            ar << t->m_GLType;
-            ar << t->m_InternalFormat;
-            ar << t->m_Samples;
-    }
-
-    template<class Archive>
-    inline void load_construct_data(
-        Archive & ar, dglnet::resource::DGLPixelRectangle * t, const unsigned int /*version*/) {
-            // retrieve data from archive required to construct new instance
-            value_t width, height, rowBytes, glFormat, glType, samples;
-            gl_t iformat;
-            ar >> width;
-            ar >> height;
-            ar >> rowBytes;
-            ar >> glFormat;
-            ar >> glType;
-            ar >> iformat;
-            ar >> samples;
-            // invoke inplace constructor
-            ::new(t)dglnet::resource::DGLPixelRectangle(width, height, rowBytes, glFormat, glType, iformat, samples);
-    }
-}}
+template <class Archive>
+inline void load_construct_data(Archive& ar,
+                                dglnet::resource::DGLPixelRectangle* t,
+                                const unsigned int /*version*/) {
+    // retrieve data from archive required to construct new instance
+    value_t width, height, rowBytes, glFormat, glType, samples;
+    gl_t iformat;
+    ar >> width;
+    ar >> height;
+    ar >> rowBytes;
+    ar >> glFormat;
+    ar >> glType;
+    ar >> iformat;
+    ar >> samples;
+    // invoke inplace constructor
+    ::new (t) dglnet::resource::DGLPixelRectangle(
+        width, height, rowBytes, glFormat, glType, iformat, samples);
+}
+}
+}
 
 #ifdef REGISTER_CLASS
 REGISTER_CLASS(dglnet::DGLResource)
@@ -331,5 +339,4 @@ REGISTER_CLASS(dglnet::resource::DGLResourceGPU)
 REGISTER_CLASS(dglnet::resource::DGLResourceState)
 #endif
 
-
-#endif //RESOURCE_H
+#endif    // RESOURCE_H

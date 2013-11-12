@@ -16,68 +16,63 @@
 #include "sample.h"
 #include "glutil.h"
 
+class SampleTexture : public Sample {
 
-class SampleTexture: public Sample {
-    
     virtual void startup() override {
-            glGenBuffers(1, &m_vbo);
-            glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glGenBuffers(1, &m_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
-            GLfloat vertexPositions[] = {
-                 0.5,  0.5,  0.0,  1.0,
-                 0.5, -0.5,  0.0,  1.0,
-                -0.5, 0.5,  0.0,  1.0,
-                -0.5, -0.5,  0.0,  1.0
-            };
-            glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STATIC_DRAW);
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
+        GLfloat vertexPositions[] = {0.5,  0.5, 0.0, 1.0, 0.5,  -0.5, 0.0, 1.0,
+                                     -0.5, 0.5, 0.0, 1.0, -0.5, -0.5, 0.0, 1.0};
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions,
+                     GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
 
-            glClearColor(0.0, 0.0, 0.0, 0.0);
-            glClearDepthf(1.0);
+        glClearColor(0.0, 0.0, 0.0, 0.0);
+        glClearDepthf(1.0);
 
-
-            const char* vshSrc = 
+        const char* vshSrc =
 #ifndef OPENGL_ES2
-                "#version 120\n"
+            "#version 120\n"
 #endif
-                "attribute vec4 position;\n"
-                "varying vec2 texPos;\n"
-                "\n"
-                "void main() {\n"
-                "    gl_Position = position;\n"
-                "    texPos = position.xy * 0.5 + 0.5;\n"
-                "}\n";
+            "attribute vec4 position;\n"
+            "varying vec2 texPos;\n"
+            "\n"
+            "void main() {\n"
+            "    gl_Position = position;\n"
+            "    texPos = position.xy * 0.5 + 0.5;\n"
+            "}\n";
 
-            const char* fshSrc = 
+        const char* fshSrc =
 #ifdef OPENGL_ES2
-                "precision mediump float;\n"
+            "precision mediump float;\n"
 #else
-                "#version 120\n"
+            "#version 120\n"
 #endif
-                "uniform sampler2D sampler0;\n"
-                "varying vec2 texPos;\n"
-                "void main()\n"
-                "{\n"
-                "    gl_FragColor = texture2D(sampler0, texPos);\n"
-                "}\n";
+            "uniform sampler2D sampler0;\n"
+            "varying vec2 texPos;\n"
+            "void main()\n"
+            "{\n"
+            "    gl_FragColor = texture2D(sampler0, texPos);\n"
+            "}\n";
 
-            m_program = gl::CreateProgram(vshSrc, fshSrc);
-            glUseProgram(m_program->Name());
+        m_program = gl::CreateProgram(vshSrc, fshSrc);
+        glUseProgram(m_program->Name());
 
+        glGenTextures(1, &m_tex);
+        glBindTexture(GL_TEXTURE_2D, m_tex);
 
-            glGenTextures(1, &m_tex);
-            glBindTexture(GL_TEXTURE_2D, m_tex);
-
-
-            GLubyte color[] = { 102, 127, 204, 255 };
+        GLubyte color[] = {102, 127, 204, 255};
 #ifdef OPENGL_ES2
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, color);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA,
+                     GL_UNSIGNED_BYTE, color);
 #else
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, color);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA,
+                     GL_UNSIGNED_BYTE, color);
 #endif
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
 
     virtual void render() override {
@@ -91,11 +86,10 @@ class SampleTexture: public Sample {
         glDeleteTextures(1, &m_tex);
     }
 
-private:
+   private:
     GLuint m_vbo;
     GLuint m_tex;
     gl::ProgramPtr m_program;
 };
-
 
 REGISTER_SAMPLE(SampleTexture, "texture");

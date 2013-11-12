@@ -13,16 +13,20 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLQTGUI_H
 #define DGLQTGUI_H
 
-//include QTGui.h with some warnings disabled
+// include QTGui.h with some warnings disabled
 
 #pragma warning(push)
-#pragma warning(disable:4512) // assignment operator could not be generated
-#pragma warning(disable:4800) // 'uint' : forcing value to bool 'true' or 'false' (performance warning)
-#pragma warning(disable:4251) // 'QStyleOption::state' : class 'QFlags<Enum>' needs to have dll-interface to be used by clients of class 'QStyleOption'
+#pragma warning(disable : 4512)    // assignment operator could not be \
+                                   // generated
+#pragma warning(disable : 4800)    // 'uint' : forcing value to bool 'true' or \
+                                   // 'false' (performance warning)
+#pragma warning(disable : 4251)    // 'QStyleOption::state' : class          \
+                                   // 'QFlags<Enum>' needs to have           \
+                                   // dll-interface to be used by clients of \
+                                   // class 'QStyleOption'
 
 #include <QtGui>
 #include <QLayoutItem>

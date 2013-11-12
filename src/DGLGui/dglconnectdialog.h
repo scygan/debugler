@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLCONNECTDIALOG_H
 #define DGLCONNECTDIALOG_H
 
@@ -21,19 +20,18 @@
 #include <QIntValidator>
 #include "ui_dglconnectdialog.h"
 
-class DGLConnectDialog : public QDialog
-{
+class DGLConnectDialog : public QDialog {
     Q_OBJECT
 
-public:
+   public:
     DGLConnectDialog();
     ~DGLConnectDialog();
     std::string getAddress();
     std::string getPort();
 
-private:
+   private:
     QIntValidator m_portValidator;
     Ui::DGLConnectDialogClass m_ui;
 };
 
-#endif // DGLCONNECTDIALOG_H
+#endif    // DGLCONNECTDIALOG_H

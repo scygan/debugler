@@ -13,35 +13,31 @@
 * limitations under the License.
 */
 
-
-
 #include "gtest/gtest.h"
 
 #include <DGLNet/protocol/pixeltransfer.h>
 
-
 namespace {
 
-    // The fixture for testing class Foo.
-    class DGLNetUT : public ::testing::Test {};
+// The fixture for testing class Foo.
+class DGLNetUT : public ::testing::Test {};
 
-    TEST_F(DGLNetUT, formats_iformat) {
-       DGLPixelTransfer rgba8(std::vector<GLint>(), std::vector<GLint>(), GL_RGBA8);
-       EXPECT_EQ(rgba8.getFormat(), GL_RGBA);
-       EXPECT_EQ(rgba8.getType(), GL_UNSIGNED_BYTE);
+TEST_F(DGLNetUT, formats_iformat) {
+    DGLPixelTransfer rgba8(std::vector<GLint>(), std::vector<GLint>(),
+                           GL_RGBA8);
+    EXPECT_EQ(rgba8.getFormat(), GL_RGBA);
+    EXPECT_EQ(rgba8.getType(), GL_UNSIGNED_BYTE);
+}
 
-    }
+TEST_F(DGLNetUT, formats_noiformat) {
 
-    TEST_F(DGLNetUT, formats_noiformat) {
+    std::vector<GLint> rgbaSizes(4, 0);
+    rgbaSizes[0] = rgbaSizes[1] = rgbaSizes[2] = 8;
+    std::vector<GLint> dsSizes(2, 0);
 
-        std::vector<GLint>rgbaSizes(4, 0);
-        rgbaSizes[0] = rgbaSizes[1] = rgbaSizes[2] = 8;
-        std::vector<GLint>dsSizes(2, 0);
+    DGLPixelTransfer rgba8(rgbaSizes, dsSizes, 0);
+    EXPECT_EQ(rgba8.getFormat(), GL_RGB);
+    EXPECT_EQ(rgba8.getType(), GL_UNSIGNED_BYTE);
+}
 
-        DGLPixelTransfer rgba8(rgbaSizes, dsSizes, 0);
-        EXPECT_EQ(rgba8.getFormat(), GL_RGB);
-        EXPECT_EQ(rgba8.getType(), GL_UNSIGNED_BYTE);
-    }
-
-}  // namespace
-
+}    // namespace

@@ -18,7 +18,7 @@
 #ifdef WA_ANDROID_SO_CONSTRUCTORS
 
 class DGLWASoCtors {
-public:
+   public:
     DGLWASoCtors();
 };
 

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLTABBEDVIEW_H
 #define DGLTABBEDVIEW_H
 
@@ -25,39 +24,43 @@
 
 #include "dglcontroller.h"
 
-class DGLTabbedViewItem: public QWidget {
-public:
+class DGLTabbedViewItem : public QWidget {
+   public:
     DGLTabbedViewItem(dglnet::ContextObjectName, QWidget* parrent);
 
     const dglnet::ContextObjectName& getObjName();
 
-private: 
+   private:
     dglnet::ContextObjectName m_ObjectName;
 };
 
 class DGLTabbedView : public QDockWidget {
     Q_OBJECT
 
-public:
+   public:
     DGLTabbedView(QWidget* parrent, DglController* controller);
     virtual ~DGLTabbedView() {}
 
-    public slots:
-        void setConnected(bool);
-      
-    private slots:
-        void closeTab(int);
+   public
+slots:
+    void setConnected(bool);
 
-protected:
+   private
+slots:
+    void closeTab(int);
+
+   protected:
     void ensureTabDisplayed(opaque_id_t ctxid, gl_t id, gl_t target = 0);
     DGLTabbedViewItem* getTab(const dglnet::ContextObjectName& id);
     void setupNames(const char* title, const char* objName);
 
     DglController* m_Controller;
-private: 
-    virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id) = 0;
+
+   private:
+    virtual DGLTabbedViewItem* createTab(
+        const dglnet::ContextObjectName& id) = 0;
     virtual QString getTabName(gl_t id, gl_t target) = 0;
-    QTabWidget m_TabWidget;    
+    QTabWidget m_TabWidget;
 };
 
-#endif // DGLTABBEDVIEW_H
+#endif    // DGLTABBEDVIEW_H

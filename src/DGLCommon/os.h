@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef OS_H
 #define OS_H
 
@@ -21,22 +20,22 @@
 #include <DGLCommon/def.h>
 
 class OsIcon {
-public:
-    virtual void * get() = 0;
+   public:
+    virtual void* get() = 0;
     virtual ~OsIcon() {}
 };
 
 class OsStatusPresenter {
-public:
+   public:
     virtual void setStatus(const std::string message) = 0;
     virtual ~OsStatusPresenter() {}
 };
 
 class Os {
-public:
-    static int getProcessPid(); 
-    
-    static std::string getProcessName(); 
+   public:
+    static int getProcessPid();
+
+    static std::string getProcessName();
 
     static std::string getEnv(const char* variable);
 
@@ -53,19 +52,16 @@ public:
 
     static OsIcon* createIcon();
 
-    static void setCurrentModuleHandle(void * handle);
+    static void setCurrentModuleHandle(void* handle);
 
     static int getLastosError();
 
     static std::string translateOsError(int error);
 
-private:
+   private:
     static void* m_CurrentHandle;
 
     static std::string vargsToString(const char* fmt, va_list arg);
 };
 
-
-
 #endif
-

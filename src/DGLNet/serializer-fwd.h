@@ -13,9 +13,8 @@
 * limitations under the License.
 */
 
-
 namespace boost {
-    namespace serialization {
-        class access;
-    }
+namespace serialization {
+class access;
+}
 }

@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-
-
 #include "dglconnectdialog.h"
 
 DGLConnectDialog::DGLConnectDialog() {
@@ -26,10 +24,8 @@ DGLConnectDialog::~DGLConnectDialog() {}
 
 std::string DGLConnectDialog::getAddress() {
     return m_ui.lineEdit_IpAddress->text().toStdString();
-
 }
 
-std::string DGLConnectDialog::getPort()
-{
+std::string DGLConnectDialog::getPort() {
     return m_ui.lineEdit_TcpPort->text().toStdString();
 }

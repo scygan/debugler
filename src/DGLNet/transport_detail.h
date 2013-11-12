@@ -20,11 +20,11 @@
 
 namespace dglnet {
 
-    template<class proto>
-    class TransportDetail {
-    public:
-        TransportDetail();
-        boost::asio::io_service m_io_service;
-        boost::asio::basic_stream_socket<proto> m_socket;
-    };
+template <class proto>
+class TransportDetail {
+   public:
+    TransportDetail();
+    boost::asio::io_service m_io_service;
+    boost::asio::basic_stream_socket<proto> m_socket;
+};
 }

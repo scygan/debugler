@@ -14,18 +14,18 @@
 */
 
 #pragma warning(push)
-#pragma warning(disable:4996) 
-#include "ipc.h" //intentionally inside warning disable, as next header instances some warning-full lcode here.
+#pragma warning(disable : 4996)
+#include "ipc.h"    //intentionally inside warning disable, as next header instances some warning-full lcode here.
 #include <boost/uuid/uuid.hpp>
 #pragma warning(pop)
 
 #include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp> 
+#include <boost/uuid/uuid_io.hpp>
 #include <boost/interprocess/sync/interprocess_semaphore.hpp>
 #ifdef _WIN32
-    #include <boost/interprocess/windows_shared_memory.hpp>
+#include <boost/interprocess/windows_shared_memory.hpp>
 #else
-     #include <boost/interprocess/shared_memory_object.hpp>
+#include <boost/interprocess/shared_memory_object.hpp>
 #endif
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/make_shared.hpp>
@@ -33,35 +33,48 @@
 
 #include <DGLCommon/def.h>
 
-#pragma warning(disable:4503)
+#pragma warning(disable : 4503)
 
-class DGLIPCImpl: public DGLIPC {
-public:
-
-    DGLIPCImpl():m_region(NULL), m_regionowner(true) {
+class DGLIPCImpl : public DGLIPC {
+   public:
+    DGLIPCImpl() : m_region(NULL), m_regionowner(true) {
         std::ostringstream uuidStream;
         uuidStream << boost::uuids::random_generator()();
         m_uuid = uuidStream.str();
 #ifdef _WIN32
-        m_shmem = boost::make_shared<boost::interprocess::windows_shared_memory>(boost::interprocess::create_only, m_uuid.c_str(), boost::interprocess::read_write, sizeof(MemoryRegion));
+        m_shmem =
+            boost::make_shared<boost::interprocess::windows_shared_memory>(
+                boost::interprocess::create_only, m_uuid.c_str(),
+                boost::interprocess::read_write, sizeof(MemoryRegion));
 #else
-        m_shmem = boost::make_shared<boost::interprocess::shared_memory_object>(boost::interprocess::create_only, m_uuid.c_str(), boost::interprocess::read_write);
+        m_shmem = boost::make_shared<boost::interprocess::shared_memory_object>(
+            boost::interprocess::create_only, m_uuid.c_str(),
+            boost::interprocess::read_write);
         m_shmem->truncate(sizeof(MemoryRegion));
 #endif
-        m_shmemregion = boost::make_shared<boost::interprocess::mapped_region>(*m_shmem, boost::interprocess::read_write);
+        m_shmemregion = boost::make_shared<boost::interprocess::mapped_region>(
+            *m_shmem, boost::interprocess::read_write);
 
-        //inplace
-        m_region = new(m_shmemregion->get_address()) MemoryRegion;
+        // inplace
+        m_region = new (m_shmemregion->get_address()) MemoryRegion;
     }
 
-    DGLIPCImpl(std::string uuid):m_uuid(uuid),m_region(NULL), m_regionowner(false) {
+    DGLIPCImpl(std::string uuid)
+            : m_uuid(uuid), m_region(NULL), m_regionowner(false) {
 #ifdef _WIN32
-        m_shmem = boost::make_shared<boost::interprocess::windows_shared_memory>(boost::interprocess::open_only, m_uuid.c_str(), boost::interprocess::read_write);
+        m_shmem =
+            boost::make_shared<boost::interprocess::windows_shared_memory>(
+                boost::interprocess::open_only, m_uuid.c_str(),
+                boost::interprocess::read_write);
 #else
-        m_shmem = boost::make_shared<boost::interprocess::shared_memory_object>(boost::interprocess::open_only, m_uuid.c_str(), boost::interprocess::read_write);
+        m_shmem = boost::make_shared<boost::interprocess::shared_memory_object>(
+            boost::interprocess::open_only, m_uuid.c_str(),
+            boost::interprocess::read_write);
 #endif
-        m_shmemregion = boost::make_shared<boost::interprocess::mapped_region>(*m_shmem, boost::interprocess::read_write);
-        m_region = reinterpret_cast<MemoryRegion*>(m_shmemregion->get_address());
+        m_shmemregion = boost::make_shared<boost::interprocess::mapped_region>(
+            *m_shmem, boost::interprocess::read_write);
+        m_region =
+            reinterpret_cast<MemoryRegion*>(m_shmemregion->get_address());
     }
 
     ~DGLIPCImpl() {
@@ -70,9 +83,7 @@ public:
         }
     }
 
-    virtual const std::string& getUUID() override {
-        return m_uuid;
-    }
+    virtual const std::string& getUUID() override { return m_uuid; }
     virtual void waitForRemoteThreadSemaphore() override {
         m_region->m_remoteThreadSemaphore.wait();
     }
@@ -96,9 +107,11 @@ public:
         return m_region->m_debuggerMode;
     }
 
-    virtual void setDebuggerPort(DebuggerPortType type, const std::string& port) override {
+    virtual void setDebuggerPort(DebuggerPortType type,
+                                 const std::string& port) override {
         m_region->m_debuggerPortType = type;
-        strncpy(m_region->m_debuggerPortName, port.c_str(), c_debuggerPortNameLen);
+        strncpy(m_region->m_debuggerPortName, port.c_str(),
+                c_debuggerPortNameLen);
         m_region->m_debuggerPortName[c_debuggerPortNameLen - 1] = '\0';
     }
 
@@ -118,13 +131,17 @@ public:
         m_region->m_DLInterceptDlSymAddr = dlSymAddr;
     }
 
-private:
-
+   private:
     static const int c_debuggerPortNameLen = 1000;
 
     struct MemoryRegion {
-        MemoryRegion():m_debuggerPortType(DebuggerPortType::TCP),m_debuggerMode(DebuggerMode::DEFAULT),
-            m_remoteThreadSemaphore(0), m_WaitForConnection(true), m_DLInterceptDlOpenAddr(0), m_DLInterceptDlSymAddr(0) {
+        MemoryRegion()
+                : m_debuggerPortType(DebuggerPortType::TCP),
+                  m_debuggerMode(DebuggerMode::DEFAULT),
+                  m_remoteThreadSemaphore(0),
+                  m_WaitForConnection(true),
+                  m_DLInterceptDlOpenAddr(0),
+                  m_DLInterceptDlSymAddr(0) {
             strncpy(m_debuggerPortName, "5555", c_debuggerPortNameLen);
         }
         char m_debuggerPortName[c_debuggerPortNameLen];
@@ -149,9 +166,6 @@ private:
     bool m_regionowner;
 };
 
-
-
-
 std::shared_ptr<DGLIPC> DGLIPC::Create() {
     return std::shared_ptr<DGLIPC>(new DGLIPCImpl());
 }
@@ -159,11 +173,3 @@ std::shared_ptr<DGLIPC> DGLIPC::Create() {
 std::shared_ptr<DGLIPC> DGLIPC::CreateFromUUID(std::string uuid) {
     return std::shared_ptr<DGLIPC>(new DGLIPCImpl(uuid));
 }
-
-
-
-
-
-
-
-

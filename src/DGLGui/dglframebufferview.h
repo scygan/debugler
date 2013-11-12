@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLFRAMEBUFFERVIEW_H
 #define DGLFRAMEBUFFERVIEW_H
 
@@ -24,31 +23,34 @@
 class DGLFramebufferView : public DGLTabbedView {
     Q_OBJECT
 
-public:
+   public:
     DGLFramebufferView(QWidget* parrent, DglController* controller);
 
-    public slots:
-        void showFramebuffer(opaque_id_t ctx, gl_t bufferEnum);
+   public
+slots:
+    void showFramebuffer(opaque_id_t ctx, gl_t bufferEnum);
 
-private:
-        virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
-        virtual QString getTabName(gl_t id, gl_t target) override;
+   private:
+    virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
+    virtual QString getTabName(gl_t id, gl_t target) override;
 };
 
-class DGLFramebufferViewItem: public DGLTabbedViewItem {
+class DGLFramebufferViewItem : public DGLTabbedViewItem {
     Q_OBJECT
-public:
-    DGLFramebufferViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
+   public:
+    DGLFramebufferViewItem(dglnet::ContextObjectName name,
+                           DGLResourceManager* resManager, QWidget* parrent);
 
-private slots:
+   private
+slots:
     void error(const std::string& message);
     void update(const dglnet::DGLResource& res);
 
-private: 
+   private:
     Ui::DGLFramebufferViewItem m_Ui;
     DGLPixelRectangleScene* m_PixelRectangleScene;
     DGLResourceListener* m_Listener;
     boost::shared_ptr<dglnet::resource::DGLPixelRectangle> m_PixelRectangle;
 };
 
-#endif //DGLFRAMEBUFFERVIEW_H
+#endif    // DGLFRAMEBUFFERVIEW_H

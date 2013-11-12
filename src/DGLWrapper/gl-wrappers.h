@@ -14,7 +14,8 @@
 */
 
 #ifdef DGL_WRAPPERS_INSIDE
-//this one slightly changes gl-types semantics. Needed if _we_ are implementing (wrapping) GL API.
+// this one slightly changes gl-types semantics. Needed if _we_ are implementing
+// (wrapping) GL API.
 #include "gl-headers-inside.h"
 #endif
 

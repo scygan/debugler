@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLCONNECTANDROIDDIALOG_H
 #define DGLCONNECTANDROIDDIALOG_H
 
@@ -24,30 +23,27 @@
 #include "ui_dglconnectandroidadb.h"
 #include "dgladbinterface.h"
 
-
-class DGLConnectAndroidAdbDialog : public QDialog
-{
+class DGLConnectAndroidAdbDialog : public QDialog {
     Q_OBJECT
 
-public:
+   public:
     DGLConnectAndroidAdbDialog();
     ~DGLConnectAndroidAdbDialog();
     std::string getAddress();
 
-private:
-
+   private:
     Ui::DGLConnectAndroidAdbDialogClass m_ui;
 };
 
-class DGLConnectAndroidDialog : public QDialog
-{
+class DGLConnectAndroidDialog : public QDialog {
     Q_OBJECT
 
-public:
+   public:
     DGLConnectAndroidDialog();
     ~DGLConnectAndroidDialog();
 
-public slots:
+   public
+slots:
     void adbKillServer();
     void adbConnect();
     void selectDevice(const QString& serial);
@@ -57,14 +53,13 @@ public slots:
     void gotDevices(std::vector<std::string> devices);
     void gotProcesses(std::vector<DGLAdbProcess> devices);
 
-private slots:
+   private
+slots:
 
     void reloadDevices();
-    
-private:
 
-    virtual void showEvent(QShowEvent * event) override;
- 
+   private:
+    virtual void showEvent(QShowEvent* event) override;
 
     QTimer m_ReloadTimer;
 
@@ -75,7 +70,4 @@ private:
     Ui::DGLConnectAndroidDialogClass m_ui;
 };
 
-
-
-
-#endif // DGLCONNECTDIALOG_H
+#endif    // DGLCONNECTDIALOG_H

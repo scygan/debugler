@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLPROVISIONANDROIDDIALOG_H
 #define DGLPROVISIONANDROIDDIALOG_H
 
@@ -23,52 +22,52 @@
 #include <QCheckBox>
 
 namespace dglAndroidWizard {
-    
-    class DGLProvisionAndroidWizard: public QWizard {
-        Q_OBJECT
-    public:
-        DGLProvisionAndroidWizard(QWidget *parent = 0);
-        void accept();
+
+class DGLProvisionAndroidWizard : public QWizard {
+    Q_OBJECT
+   public:
+    DGLProvisionAndroidWizard(QWidget *parent = 0);
+    void accept();
+};
+
+class StateMachine {
+   public:
+    StateMachine();
+    enum class State {
+        BEGIN,
+        ROOT,
+        STOPPED,
+        COPIED,
+        APP_PROCESS_BACKUP,
+        APP_PRORCESS_SCRIPT,
+        STARTED,
+        COMPLETE,
+        ERRORED
     };
 
-    class StateMachine {
-    public:
-        StateMachine();
-        enum class State {
-            BEGIN,
-            ROOT,
-            STOPPED,
-            COPIED,
-            APP_PROCESS_BACKUP,
-            APP_PRORCESS_SCRIPT,
-            STARTED,
-            COMPLETE,
-            ERRORED
-        };
-    private:
-        State m_State;
-    };
+   private:
+    State m_State;
+};
 
-    namespace pages {
-        class IntroPage : public QWizardPage {
-            Q_OBJECT
-        public:
-            IntroPage(QWidget *parent = 0);
-        private:
-            QLabel* label;
-            QCheckBox* acceptBox;
-        };
+namespace pages {
+class IntroPage : public QWizardPage {
+    Q_OBJECT
+   public:
+    IntroPage(QWidget *parent = 0);
 
-        class ProvisionPage : public QWizardPage {
-            Q_OBJECT
-        public:
-            ProvisionPage(QWidget *parent = 0);
+   private:
+    QLabel *label;
+    QCheckBox *acceptBox;
+};
 
-        private:
-            StateMachine m_StateMachine;
-        };
-    }
+class ProvisionPage : public QWizardPage {
+    Q_OBJECT
+   public:
+    ProvisionPage(QWidget *parent = 0);
 
-    
+   private:
+    StateMachine m_StateMachine;
+};
 }
-#endif // DGLPROVISIONANDROIDDIALOG_H
+}
+#endif    // DGLPROVISIONANDROIDDIALOG_H

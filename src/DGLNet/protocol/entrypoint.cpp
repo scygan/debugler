@@ -13,39 +13,34 @@
 * limitations under the License.
 */
 
-
 #include "entrypoint.h"
 
 #include <sstream>
 #include <iomanip>
 #include <cstring>
 
-CalledEntryPoint::CalledEntryPoint(Entrypoint entryp, int numArgs):m_entryp(entryp), m_glError(GL_NO_ERROR), m_SavedArgsCount(0) {
+CalledEntryPoint::CalledEntryPoint(Entrypoint entryp, int numArgs)
+        : m_entryp(entryp), m_glError(GL_NO_ERROR), m_SavedArgsCount(0) {
     m_args.resize(numArgs);
 }
 
 Entrypoint CalledEntryPoint::getEntrypoint() const { return m_entryp; }
 
-void CalledEntryPoint::setRetVal(const RetValue& ret) {
-    m_retVal = ret;
-}
+void CalledEntryPoint::setRetVal(const RetValue& ret) { m_retVal = ret; }
 
-void CalledEntryPoint::setError(gl_t error) {
-    m_glError = error;
-}
+void CalledEntryPoint::setError(gl_t error) { m_glError = error; }
 
 void CalledEntryPoint::setDebugOutput(const std::string& message) {
     m_DebugOutput = message;
 }
 
-const std::vector<AnyValue>& CalledEntryPoint::getArgs() const{
+const std::vector<AnyValue>& CalledEntryPoint::getArgs() const {
     return m_args;
 }
 
-
-class AnyValueWriter: public boost::static_visitor<void> {
-public:
-    AnyValueWriter(std::ostringstream& stream):m_Stream(&stream) {}
+class AnyValueWriter : public boost::static_visitor<void> {
+   public:
+    AnyValueWriter(std::ostringstream& stream) : m_Stream(&stream) {}
 
     void operator()(signed long long i) const { (*m_Stream) << i; }
     void operator()(unsigned long long i) const { (*m_Stream) << i; }
@@ -56,7 +51,7 @@ public:
     void operator()(unsigned short i) const { (*m_Stream) << i; }
     void operator()(signed short i) const { (*m_Stream) << i; }
     void operator()(unsigned char i) const { (*m_Stream) << (unsigned int)i; }
-    void operator()(signed char i) const { (*m_Stream) << (int) i; }
+    void operator()(signed char i) const { (*m_Stream) << (int)i; }
     void operator()(float f) const { (*m_Stream) << f; }
     void operator()(double d) const { (*m_Stream) << d; }
     void operator()(PtrWrap<void*> i) const {
@@ -69,7 +64,7 @@ public:
         (*m_Stream) << GetGLEnumName(i.get());
     }
 
-    std::ostringstream * m_Stream;
+    std::ostringstream* m_Stream;
 };
 
 void AnyValue::writeToSS(std::ostringstream& out) const {
@@ -94,16 +89,13 @@ std::string CalledEntryPoint::toString() const {
         m_retVal.writeToSS(ret);
     }
 
-    return ret.str();;
+    return ret.str();
+    ;
 }
 
-const RetValue& CalledEntryPoint::getRetVal() const {
-    return m_retVal;
-}
+const RetValue& CalledEntryPoint::getRetVal() const { return m_retVal; }
 
-gl_t CalledEntryPoint::getError() const {
-    return m_glError;
-}
+gl_t CalledEntryPoint::getError() const { return m_glError; }
 
 const std::string& CalledEntryPoint::getDebugOutput() const {
     return m_DebugOutput;

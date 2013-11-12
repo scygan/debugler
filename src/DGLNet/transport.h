@@ -21,29 +21,29 @@
 #include <boost/system/error_code.hpp>
 
 namespace boost {
-    namespace asio {
-        typedef basic_streambuf<> streambuf;
-        namespace local {
-            class stream_protocol;
-        }
-        namespace ip {
-            class tcp;
-        }
-    }
+namespace asio {
+typedef basic_streambuf<> streambuf;
+namespace local {
+class stream_protocol;
+}
+namespace ip {
+class tcp;
+}
+}
 }
 
 namespace dglnet {
 
-class  TransportHeader;
+class TransportHeader;
 
-template<class proto>
+template <class proto>
 class TransportDetail;
 
-class ITransport: public std::enable_shared_from_this<ITransport> {
-public:
+class ITransport : public std::enable_shared_from_this<ITransport> {
+   public:
     virtual ~ITransport() {}
     virtual void sendMessage(const Message* msg) = 0;
-    virtual void poll() = 0; 
+    virtual void poll() = 0;
     virtual void run_one() = 0;
     virtual void abort() = 0;
 
@@ -52,46 +52,47 @@ public:
     }
 };
 
-template<class proto>
-class Transport: public ITransport {
-public: 
+template <class proto>
+class Transport : public ITransport {
+   public:
     Transport(MessageHandler* messageHandler);
     virtual ~Transport();
     virtual void sendMessage(const Message* msg) override;
     virtual void poll() override;
     virtual void run_one() override;
     virtual void abort() override;
-protected:
+
+   protected:
     void read();
     void notifyConnect();
-    void notifyDisconnect(const boost::system::error_code &ec);
+    void notifyDisconnect(const boost::system::error_code& ec);
     virtual void notifyStartSend();
     virtual void notifyEndSend();
 
     std::shared_ptr<TransportDetail<proto> > m_detail;
 
-private:
+   private:
     void writeQueue();
 
-    void onReadHeader(TransportHeader* header, const boost::system::error_code &ec);
-    void onReadArchive(boost::asio::streambuf* stream, const boost::system::error_code &ec);
-    void onWrite(std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> >, const boost::system::error_code &ec);
-    
-    
-    void onMessage(const Message& msg);   
+    void onReadHeader(TransportHeader* header,
+                      const boost::system::error_code& ec);
+    void onReadArchive(boost::asio::streambuf* stream,
+                       const boost::system::error_code& ec);
+    void onWrite(
+        std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> >,
+        const boost::system::error_code& ec);
+
+    void onMessage(const Message& msg);
 
     std::shared_ptr<Transport<proto> > shared_from_this();
 
     MessageHandler* m_messageHandler;
 
-    std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> > m_WriteQueue;
+    std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> >
+        m_WriteQueue;
     bool m_WriteReady;
     bool m_Abort;
-
 };
-
 }
 
 #endif
-
-

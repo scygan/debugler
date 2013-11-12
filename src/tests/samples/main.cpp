@@ -16,9 +16,10 @@
 #include "sample.h"
 #include "platform.h"
 
-
 #pragma warning(push)
-#pragma warning(disable:4512)//'boost::program_options::options_description' : assignment operator could not be generated
+#pragma warning(disable                                                      \
+                : 4512)    //'boost::program_options::options_description' : \
+                           //assignment operator could not be generated
 #include <boost/program_options/options_description.hpp>
 #pragma warning(pop)
 #include <boost/program_options/positional_options.hpp>
@@ -31,23 +32,25 @@ int main(int argc, char** argv) {
 
     try {
         po::options_description desc("Allowed options");
-        desc.add_options()
-            ("help,h", "produce help message");
-
+        desc.add_options()("help,h", "produce help message");
 
         po::options_description mandatory("Mandatory options");
-        mandatory.add_options()
-            ("sample", po::value< std::vector<std::string> >()->composing(), "Sample to execute (default is \"simple\").");        
+        mandatory.add_options()(
+            "sample", po::value<std::vector<std::string> >()->composing(),
+            "Sample to execute (default is \"simple\").");
 
         po::positional_options_description p;
         p.add("sample", -1);
 
-        po::options_description all; 
+        po::options_description all;
         all.add(desc).add(mandatory);
 
         po::variables_map vm;
-        po::store(po::command_line_parser(argc, argv).
-            options(all).positional(p).run(), vm);
+        po::store(po::command_line_parser(argc, argv)
+                      .options(all)
+                      .positional(p)
+                      .run(),
+                  vm);
         po::notify(vm);
 
         if (vm.count("help")) {
@@ -56,14 +59,12 @@ int main(int argc, char** argv) {
             throw std::runtime_error(out.str());
         }
 
-
         std::string sampleName = "simple";
 
         if (vm.count("sample")) {
-            sampleName = vm["sample"].as< std::vector<std::string> >()[0];
+            sampleName = vm["sample"].as<std::vector<std::string> >()[0];
             std::ostringstream out;
         }
-
 
         Platform platform;
 
@@ -78,16 +79,15 @@ int main(int argc, char** argv) {
         sample->startup();
         window->swapBuffers();
 
-        while(!window->pendingClose()) {
+        while (!window->pendingClose()) {
             sample->render();
             window->swapBuffers();
             platform.pollEvents();
         }
 
         sample->shutdown();
-
-        
-    } catch (const std::runtime_error& error) {
+    }
+    catch (const std::runtime_error& error) {
 
         fprintf(stderr, "Error: %s\n", error.what());
 

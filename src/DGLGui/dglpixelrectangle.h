@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLPIXELRECTANGLE_H
 #define DGLPIXELRECTANGLE_H
 
@@ -25,31 +24,32 @@
 
 #include <DGLNet/protocol/resource.h>
 
-class DGLPixRectQGraphicsView: public QGraphicsView {
+class DGLPixRectQGraphicsView : public QGraphicsView {
     Q_OBJECT
-public:
+   public:
     DGLPixRectQGraphicsView(QWidget* parent);
 signals:
     void resized(const QSize&);
     void onMouseOver(const QPoint&);
     void onMouseLeft();
 
-private:
-    void resizeEvent (QResizeEvent * event);
-    void mouseMoveEvent ( QMouseEvent * event );
-    void leaveEvent ( QEvent * event );
+   private:
+    void resizeEvent(QResizeEvent* event);
+    void mouseMoveEvent(QMouseEvent* event);
+    void leaveEvent(QEvent* event);
 };
-
 
 class DGLPixelRectangleScene;
 
-class DGLPixelRectangleView: public QWidget {
+class DGLPixelRectangleView : public QWidget {
     Q_OBJECT
-public:
+   public:
     DGLPixelRectangleView(QWidget* parent);
     void setScene(DGLPixelRectangleScene* scene);
-    void updateFormatSizeInfo(const dglnet::resource::DGLPixelRectangle* pixelRectangle);
-private slots:
+    void updateFormatSizeInfo(
+        const dglnet::resource::DGLPixelRectangle* pixelRectangle);
+   private
+slots:
     void onMouseOver(const QPoint& pos);
     void onMouseLeft();
     void showChannelR(bool);
@@ -58,7 +58,8 @@ private slots:
     void showChannelA(bool);
     void showChannelD(bool);
     void showChannelS(bool);
-private:
+
+   private:
     Ui::DGLPixelRectangleView* m_Ui;
     DGLPixRectQGraphicsView m_GraphicsView;
     DGLPixelRectangleScene* m_Scene;
@@ -66,13 +67,14 @@ private:
 
 class DGLPixelRectangleBlitter;
 
-class DGLPixelRectangleScene: public QObject {
+class DGLPixelRectangleScene : public QObject {
     Q_OBJECT
-public:
+   public:
     DGLPixelRectangleScene();
 
     void setText(const std::string& message);
-    void setPixelRectangle(const dglnet::resource::DGLPixelRectangle& pixelRectangle);
+    void setPixelRectangle(
+        const dglnet::resource::DGLPixelRectangle& pixelRectangle);
 
     QPoint translate(const QPoint&);
     bool inside(const QPoint&);
@@ -82,13 +84,14 @@ public:
 
     DGLPixelRectangleBlitter* getBlitter();
 
-public slots:
+   public
+slots:
     void resize(const QSize&);
 
-private:
+   private:
     void doRecalcSizes();
     QGraphicsScene m_Scene;
-    QGraphicsPixmapItem * m_Item;
+    QGraphicsPixmapItem* m_Item;
     QImage m_Image;
     float m_Scale;
     QPoint m_Pos;
@@ -99,6 +102,5 @@ private:
 
     friend class DGLPixelRectangleBlitter;
 };
-
 
 #endif

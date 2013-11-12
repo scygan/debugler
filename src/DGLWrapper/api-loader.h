@@ -16,7 +16,6 @@
 #ifndef API_LOADER_H
 #define API_LOADER_H
 
-
 #include <DGLCommon/gl-types.h>
 
 #include <map>
@@ -24,28 +23,25 @@
 enum ApiLibrary {
     LIBRARY_WGL = 1,
     LIBRARY_EGL = 2,
-    LIBRARY_GL  = 4,
-
+    LIBRARY_GL = 4,
     LIBRARY_ES1 = 8,
     LIBRARY_ES1_EXT = 16,
     LIBRARY_ES2 = 32,
     LIBRARY_ES2_EXT = 64,
     LIBRARY_ES3 = 128,
-
     LIBRARY_GL_EXT = 256,
     LIBRARY_EGL_EXT = 512,
     LIBRARY_WGL_EXT = 1024,
-
     LIBRARY_GLX = 2048,
     LIBRARY_GLX_EXT = 4096,
     LIBRARY_NONE = 0
 };
 
-/** 
+/**
  * Class utilising various APIs to load all OpenGL entrypoints
  */
 class APILoader {
-public:
+   public:
     APILoader();
 
     /**
@@ -63,7 +59,8 @@ public:
      * proper extension pointer is loaded. Should not be used for
      * non-ext APIs
      *
-     * @ret: true on success load, false if implementation does not support this entrypoint
+     * @ret: true on success load, false if implementation does not support this
+     *entrypoint
      */
     bool loadExtPointer(Entrypoint entryp);
 
@@ -72,16 +69,15 @@ public:
     /**
      * Ensure pointer is loaded
      *
-     * This function is used mainly for debugger calls. It just checks 
-     * the pointer and loads it if not loaded earlier. 
+     * This function is used mainly for debugger calls. It just checks
+     * the pointer and loads it if not loaded earlier.
      *
      * Throws in pointer is not supported by implementation.
      *
-     * Usable with all entrypoints, but all non-EXT entrypoints 
+     * Usable with all entrypoints, but all non-EXT entrypoints
      * should be loaded earlier with loadLibrary()
      */
     FUNC_PTR ensurePointer(Entrypoint entryp);
-
 
     /**
      * Small util deciding if given library name is interesting to debugger
@@ -101,7 +97,7 @@ public:
      */
     void setPointer(Entrypoint entryp, FUNC_PTR impl);
 
-private:
+   private:
     std::string getLibraryName(ApiLibrary apiLibrary);
     FUNC_PTR loadGLPointer(LoadedLib library, Entrypoint entryp);
 
@@ -113,7 +109,4 @@ private:
 
 extern APILoader g_ApiLoader;
 
-#endif //API_LOADER_H 
-
-
-
+#endif    // API_LOADER_H

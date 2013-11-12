@@ -13,16 +13,20 @@
 * limitations under the License.
 */
 
-
 #include "request.h"
 
 namespace dglnet {
 namespace request {
 
-    EditShaderSource::EditShaderSource(opaque_id_t context, gl_t shaderId, bool reset, std::string source):m_Context(context),
-        m_ShaderId(shaderId), m_Reset(reset), m_Source(source) {}
+EditShaderSource::EditShaderSource(opaque_id_t context, gl_t shaderId,
+                                   bool reset, std::string source)
+        : m_Context(context),
+          m_ShaderId(shaderId),
+          m_Reset(reset),
+          m_Source(source) {}
 
-    ForceLinkProgram::ForceLinkProgram(opaque_id_t context, gl_t programId):m_Context(context),m_ProgramId(programId) {}
+ForceLinkProgram::ForceLinkProgram(opaque_id_t context, gl_t programId)
+        : m_Context(context), m_ProgramId(programId) {}
 
-} //namespace resource
-} //namespace dglnet
+}    // namespace resource
+}    // namespace dglnet

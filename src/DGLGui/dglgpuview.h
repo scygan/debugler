@@ -13,32 +13,30 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLGPUVIEW_H
 #define DGLGPUVIEW_H
-
 
 #include "dglqtgui.h"
 #include <QDockWidget>
 #include "dglcontroller.h"
 #include "ui_dglgpuview.h"
 
-
 class DGLGPUView : public QDockWidget {
     Q_OBJECT
 
-public:
+   public:
     DGLGPUView(QWidget* parrent, DglController* controller);
 
-public slots:
+   public
+slots:
     void setConnected(bool);
     void update(const dglnet::DGLResource&);
     void error(const std::string&);
 
-private: 
-    DGLResourceListener * m_Listener;
+   private:
+    DGLResourceListener* m_Listener;
     DglController* m_Controller;
     Ui::DGLGPUView* m_Ui;
 };
 
-#endif // DGLTREEVIEW_H
+#endif    // DGLTREEVIEW_H

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 //#include <DGLNet/gl-serialized.h>
 #include <utility>
 
@@ -26,100 +25,101 @@ class ActionBase;
 extern std::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];
 
 class ActionBase {
-public:
+   public:
     virtual ~ActionBase() {}
-    
-    /** 
+
+    /**
      * Default, empty Pre() action. Subclasses may want to reimplement this
      */
     virtual RetValue Pre(const CalledEntryPoint&);
 
-    /** 
+    /**
      * Default, empty Post() action. Subclasses may want to reimplement this
      */
-    virtual void Post(const CalledEntryPoint&, const RetValue& ret = RetValue());
+    virtual void Post(const CalledEntryPoint&,
+                      const RetValue& ret = RetValue());
 
-    template<typename SpecificActionType> 
+    template <typename SpecificActionType>
     static void SetNext(Entrypoint entryp) {
         std::shared_ptr<ActionBase> prev = g_Actions[entryp];
-        g_Actions[entryp] = std::shared_ptr<ActionBase>(new SpecificActionType());
+        g_Actions[entryp] =
+            std::shared_ptr<ActionBase>(new SpecificActionType());
         g_Actions[entryp]->SetPrev(prev);
     }
-protected:
-    /** 
+
+   protected:
+    /**
      * Call previous action in Chain of Dependency
      */
     RetValue PrevPre(const CalledEntryPoint&);
 
-    /** 
+    /**
      * Call previous action in Chain of Dependency
      */
     void PrevPost(const CalledEntryPoint&, const RetValue& ret);
 
-private:
-
+   private:
     void SetPrev(const std::shared_ptr<ActionBase>& prev);
     std::shared_ptr<ActionBase> m_PrevAction;
 };
 
-class DefaultAction: public ActionBase {
-    virtual RetValue Pre(const CalledEntryPoint&); 
+class DefaultAction : public ActionBase {
+    virtual RetValue Pre(const CalledEntryPoint&);
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
-class GLGetErrorAction: public ActionBase {
-    virtual RetValue Pre(const CalledEntryPoint&); 
+class GLGetErrorAction : public ActionBase {
+    virtual RetValue Pre(const CalledEntryPoint&);
 };
 
-class GetProcAddressAction: public ActionBase {
-    virtual RetValue Pre(const CalledEntryPoint&); 
+class GetProcAddressAction : public ActionBase {
+    virtual RetValue Pre(const CalledEntryPoint&);
 };
 
 #ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
-class SurfaceAction: public ActionBase {
+class SurfaceAction : public ActionBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 #endif
 
-class ContextAction: public ActionBase {
+class ContextAction : public ActionBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
-class DebugContextAction: public ActionBase {
-    virtual RetValue Pre(const CalledEntryPoint&); 
+class DebugContextAction : public ActionBase {
+    virtual RetValue Pre(const CalledEntryPoint&);
     static bool anyContextPresent;
 };
 
-class TextureAction: public ActionBase {
+class TextureAction : public ActionBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
-class BufferAction: public ActionBase {
+class BufferAction : public ActionBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
-class ProgramAction: public ActionBase {
+class ProgramAction : public ActionBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
-class ShaderAction: public ActionBase {
+class ShaderAction : public ActionBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
-class ImmediateModeAction: public ActionBase {
+class ImmediateModeAction : public ActionBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
-
-class FBOAction: public ActionBase {
+class FBOAction : public ActionBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
-class DebugOutputCallback: public ActionBase {
+class DebugOutputCallback : public ActionBase {
     virtual RetValue Pre(const CalledEntryPoint&);
 };
 
-template<typename Action>
+template <typename Action>
 void SetAllActions() {
     for (int i = 0; i < NUM_ENTRYPOINTS; i++) {
         g_Actions[i] = std::shared_ptr<ActionBase>(new Action());

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLSHADERVIEW_H
 #define DGLSHADERVIEW_H
 
@@ -22,15 +21,16 @@
 class DGLShaderView : public DGLTabbedView {
     Q_OBJECT
 
-public:
+   public:
     DGLShaderView(QWidget* parrent, DglController* controller);
 
-    public slots:
-        void showShader(opaque_id_t, gl_t, gl_t);
+   public
+slots:
+    void showShader(opaque_id_t, gl_t, gl_t);
 
-private:
-        virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
-        virtual QString getTabName(gl_t id, gl_t target) override;
+   private:
+    virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
+    virtual QString getTabName(gl_t id, gl_t target) override;
 };
 
-#endif //DGLSHADERVIEW_H
+#endif    // DGLSHADERVIEW_H

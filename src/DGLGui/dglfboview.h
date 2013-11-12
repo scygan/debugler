@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLFBOVIEW_H
 #define DGLFBOVIEW_H
 
@@ -21,38 +20,39 @@
 #include "dglpixelrectangle.h"
 #include "ui_dglfboviewitem.h"
 
-class DGLFBOViewItem: public DGLTabbedViewItem {
+class DGLFBOViewItem : public DGLTabbedViewItem {
     Q_OBJECT
-public:
-    DGLFBOViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent);
+   public:
+    DGLFBOViewItem(dglnet::ContextObjectName name,
+                   DGLResourceManager* resManager, QWidget* parrent);
 
-private slots:
+   private
+slots:
     void error(const std::string& message);
     void update(const dglnet::DGLResource&);
     void showAttachment(int id);
 
-private: 
+   private:
     Ui_DGLFBOViewItem m_Ui;
     DGLPixelRectangleScene* m_PixelRectangleScene;
     std::vector<dglnet::resource::DGLResourceFBO::FBOAttachment> m_Attachments;
-    bool m_Error; 
+    bool m_Error;
     DGLResourceListener* m_Listener;
 };
-
-
 
 class DGLFBOView : public DGLTabbedView {
     Q_OBJECT
 
-public:
+   public:
     DGLFBOView(QWidget* parrent, DglController* controller);
 
-    public slots:
-        void showFBO(opaque_id_t ctx, gl_t name);
+   public
+slots:
+    void showFBO(opaque_id_t ctx, gl_t name);
 
-private:
-        virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
-        virtual QString getTabName(gl_t id, gl_t target) override;
+   private:
+    virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
+    virtual QString getTabName(gl_t id, gl_t target) override;
 };
 
-#endif //DGLFRAMEBUFFERVIEW_H
+#endif    // DGLFRAMEBUFFERVIEW_H

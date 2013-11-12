@@ -13,21 +13,26 @@
 * limitations under the License.
 */
 
-
 #include "dglbufferview.h"
 
-DGLBufferViewItem::DGLBufferViewItem(dglnet::ContextObjectName name, DGLResourceManager* resManager, QWidget* parrent):DGLTabbedViewItem(name, parrent) {
+DGLBufferViewItem::DGLBufferViewItem(dglnet::ContextObjectName name,
+                                     DGLResourceManager* resManager,
+                                     QWidget* parrent)
+        : DGLTabbedViewItem(name, parrent) {
     m_Editor = new QHexEdit(this);
     m_Label = new QLabel(this);
     m_VerticalLayout = new QVBoxLayout(this);
     m_VerticalLayout->addWidget(m_Editor);
     m_VerticalLayout->addWidget(m_Label);
 
-    m_Listener = resManager->createListener(name, dglnet::DGLResource::ObjectType::Buffer);
+    m_Listener = resManager->createListener(
+        name, dglnet::DGLResource::ObjectType::Buffer);
     m_Listener->setParent(this);
 
-    CONNASSERT(m_Listener,SIGNAL(update(const dglnet::DGLResource&)),this,SLOT(update(const dglnet::DGLResource&)));
-    CONNASSERT(m_Listener,SIGNAL(error(const std::string&)),this,SLOT(error(const std::string&)));
+    CONNASSERT(m_Listener, SIGNAL(update(const dglnet::DGLResource&)), this,
+               SLOT(update(const dglnet::DGLResource&)));
+    CONNASSERT(m_Listener, SIGNAL(error(const std::string&)), this,
+               SLOT(error(const std::string&)));
 }
 
 void DGLBufferViewItem::error(const std::string& message) {
@@ -39,23 +44,28 @@ void DGLBufferViewItem::error(const std::string& message) {
 void DGLBufferViewItem::update(const dglnet::DGLResource& res) {
     m_Editor->show();
     m_Label->hide();
-    const dglnet::resource::DGLResourceBuffer* resource = dynamic_cast<const dglnet::resource::DGLResourceBuffer*>(&res);
+    const dglnet::resource::DGLResourceBuffer* resource =
+        dynamic_cast<const dglnet::resource::DGLResourceBuffer*>(&res);
     QByteArray array(&resource->m_Data[0], resource->m_Data.size());
     m_Editor->setData(array);
 }
 
-DGLBufferView::DGLBufferView(QWidget* parrent, DglController* controller):DGLTabbedView(parrent, controller) {
+DGLBufferView::DGLBufferView(QWidget* parrent, DglController* controller)
+        : DGLTabbedView(parrent, controller) {
     setupNames("Vertex Buffers", "DGLBufferView");
 
-    //inbound
-    CONNASSERT(controller->getViewRouter(), SIGNAL(showBuffer(opaque_id_t, gl_t)), this, SLOT(showBuffer(opaque_id_t, gl_t)));
+    // inbound
+    CONNASSERT(controller->getViewRouter(),
+               SIGNAL(showBuffer(opaque_id_t, gl_t)), this,
+               SLOT(showBuffer(opaque_id_t, gl_t)));
 }
 
 void DGLBufferView::showBuffer(opaque_id_t ctx, gl_t name) {
     ensureTabDisplayed(ctx, name);
 }
 
-DGLTabbedViewItem* DGLBufferView::createTab(const dglnet::ContextObjectName& id) {
+DGLTabbedViewItem* DGLBufferView::createTab(
+    const dglnet::ContextObjectName& id) {
     return new DGLBufferViewItem(id, m_Controller->getResourceManager(), this);
 }
 

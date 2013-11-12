@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef ENTRYPOINT_H
 #define ENTRYPOINT_H
 
@@ -26,20 +25,23 @@
 /**
  *  Class holding return value for entrypoint
  */
-class RetValue: public AnyValue {
-public: 
-    RetValue():m_isSet(false) {}
+class RetValue : public AnyValue {
+   public:
+    RetValue() : m_isSet(false) {}
 
-    RetValue(const RetValue& v):AnyValue(*static_cast<const AnyValue*>(&v)),m_isSet(v.isSet()) {}
+    RetValue(const RetValue& v)
+            : AnyValue(*static_cast<const AnyValue*>(&v)), m_isSet(v.isSet()) {}
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int) {
-        ar & boost::serialization::base_object<AnyValue>(*this);;
-        ar & m_isSet;
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& boost::serialization::base_object<AnyValue>(*this);
+        ;
+        ar& m_isSet;
     }
 
-    template<typename T>
-    RetValue(T v):AnyValue(v),m_isSet(true) {}
+    template <typename T>
+    RetValue(T v)
+            : AnyValue(v), m_isSet(true) {}
 
     static RetValue getVoidAlreadySet() {
         RetValue ret;
@@ -47,9 +49,9 @@ public:
         return ret;
     }
 
-
     bool isSet() const { return m_isSet; }
-private: 
+
+   private:
     bool m_isSet;
 };
 
@@ -59,16 +61,16 @@ private:
 class CalledEntryPoint {
     friend class boost::serialization::access;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int) {
-        ar & m_args;
-        ar & m_retVal;
-        ar & m_entryp;
-        ar & m_glError;
-        ar & m_DebugOutput;
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& m_args;
+        ar& m_retVal;
+        ar& m_entryp;
+        ar& m_glError;
+        ar& m_DebugOutput;
     }
 
-public:
+   public:
     CalledEntryPoint() {}
     CalledEntryPoint(Entrypoint, int numArgs);
     Entrypoint getEntrypoint() const;
@@ -77,8 +79,8 @@ public:
     void setDebugOutput(const std::string& message);
 
     const std::vector<AnyValue>& getArgs() const;
-    template<typename T>
-    void operator << (const T& arg) {
+    template <typename T>
+    void operator<<(const T& arg) {
         m_args[m_SavedArgsCount] = arg;
         m_SavedArgsCount++;
     }
@@ -86,7 +88,8 @@ public:
     const RetValue& getRetVal() const;
     gl_t getError() const;
     const std::string& getDebugOutput() const;
-private: 
+
+   private:
     std::vector<AnyValue> m_args;
     RetValue m_retVal;
     Entrypoint m_entryp;
@@ -95,4 +98,4 @@ private:
     int m_SavedArgsCount;
 };
 
-#endif //ENTRYPOINT_H
+#endif    // ENTRYPOINT_H

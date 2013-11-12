@@ -17,9 +17,9 @@
 
 #include <stdexcept>
 
-
-std::map<std::string, std::shared_ptr<Sample>> * Sample::getRegistry() {
-    static std::map<std::string, std::shared_ptr<Sample>> * s_Registry = new std::map<std::string, std::shared_ptr<Sample>>();
+std::map<std::string, std::shared_ptr<Sample>>* Sample::getRegistry() {
+    static std::map<std::string, std::shared_ptr<Sample>>* s_Registry =
+        new std::map<std::string, std::shared_ptr<Sample>>();
     return s_Registry;
 }
 
@@ -36,10 +36,6 @@ std::shared_ptr<Sample> Sample::getSample(const std::string& sample) {
     return res->second;
 }
 
-void  Sample::setWindow(PlatWindowCtx* window) {
-    m_window = window;
-}
+void Sample::setWindow(PlatWindowCtx* window) { m_window = window; }
 
-PlatWindowCtx*  Sample::getWindow() {
-    return m_window;
-}
+PlatWindowCtx* Sample::getWindow() { return m_window; }

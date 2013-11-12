@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLSYNTAXHIGHLIGHT_H
 #define DGLSYNTAXHIGHLIGHT_H
 
@@ -30,22 +29,24 @@ class DGLHLContext;
 class DGLSyntaxHighlighterGLSL : public QSyntaxHighlighter {
     Q_OBJECT
 
-public:
-    DGLSyntaxHighlighterGLSL(bool essl, QTextDocument *parent);
+   public:
+    DGLSyntaxHighlighterGLSL(bool essl, QTextDocument* parent);
 
-    class HLState: public std::stack<const DGLHLContext*, std::vector<const DGLHLContext*>> {
-    public:
-        bool operator<(const HLState& other ) const;
-        HLState(const DGLHLData* data, bool essl); 
+    class HLState : public std::stack<const DGLHLContext*,
+                                      std::vector<const DGLHLContext*>> {
+       public:
+        bool operator<(const HLState& other) const;
+        HLState(const DGLHLData* data, bool essl);
         const DGLHLContext* getContext();
-    private:
+
+       private:
         const DGLHLContext* operator[](size_t i) const;
     };
 
-protected:
-    void highlightBlock(const QString &text);
+   protected:
+    void highlightBlock(const QString& text);
 
-private:
+   private:
     static std::shared_ptr<DGLHLData> s_data;
 
     std::vector<const HLState*> m_hlStateByIdx;
@@ -53,4 +54,4 @@ private:
     bool m_essl;
 };
 
-#endif //DGLSYNTAXHIGHLIGHT_H
+#endif    // DGLSYNTAXHIGHLIGHT_H

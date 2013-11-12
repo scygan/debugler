@@ -21,66 +21,67 @@
 #include <dlfcn.h>
 
 class StaticInitializerTest {
-public:
+   public:
     StaticInitializerTest() {
-        //something not so trivial for the compiler:
+        // something not so trivial for the compiler:
         m_TestVector.resize(3);
     }
 
-    bool passed() {
-        return m_TestVector.size() == 3;
-    }
-private:
-    std::vector<int> m_TestVector;    
+    bool passed() { return m_TestVector.size() == 3; }
+
+   private:
+    std::vector<int> m_TestVector;
 
 } g_Test;
 
-
-//this is from /bionic/linker/linker.h
+// this is from /bionic/linker/linker.h
 #define SOINFO_NAME_LEN 128
 struct soinfo {
-  const char name[SOINFO_NAME_LEN];
-  Elf32_Phdr *phdr;
-  int phnum;
-  unsigned entry;
-  unsigned base;
-  //some more interesting stuff is here, but
-  //we want to compute these manually, as soinfo layout may change in future.
+    const char name[SOINFO_NAME_LEN];
+    Elf32_Phdr *phdr;
+    int phnum;
+    unsigned entry;
+    unsigned base;
+    // some more interesting stuff is here, but
+    // we want to compute these manually, as soinfo layout may change in future.
 };
 
-
 #ifndef DT_INIT_ARRAY
-#define DT_INIT_ARRAY      25
+#define DT_INIT_ARRAY 25
 #endif
 
 #ifndef DT_INIT_ARRAYSZ
-#define DT_INIT_ARRAYSZ    27
+#define DT_INIT_ARRAYSZ 27
 #endif
-
 
 DGLWASoCtors::DGLWASoCtors() {
     if (g_Test.passed()) {
         return;
     }
-    Os::info("Failed shared library constructor test. This is typical on Android < 4.2-r1");
+    Os::info(
+        "Failed shared library constructor test. This is typical on Android < "
+        "4.2-r1");
     Os::info("Will try to run constructors manually now.");
 
-    soinfo * info = reinterpret_cast<soinfo*>(dlopen("libdglwrapper.so", RTLD_NOW));
+    soinfo *info =
+        reinterpret_cast<soinfo *>(dlopen("libdglwrapper.so", RTLD_NOW));
 
     if (!info) {
         Os::fatal("Cannot dlopen libdglwrapper.so library");
     }
 
-    unsigned* dynamic = nullptr; 
+    unsigned *dynamic = nullptr;
 
     Elf32_Phdr *phdr = info->phdr;
     int phnum = info->phnum;
 
-    Os::info("Trying to get .dynamic of libdglwrapper.so: base = 0x%x, phnum = %d", info->base, info->phnum);
+    Os::info(
+        "Trying to get .dynamic of libdglwrapper.so: base = 0x%x, phnum = %d",
+        info->base, info->phnum);
 
-    for(; phnum > 0; --phnum, ++phdr) {
+    for (; phnum > 0; --phnum, ++phdr) {
         if (phdr->p_type == PT_DYNAMIC) {
-            dynamic = (unsigned *) (info->base + phdr->p_vaddr);
+            dynamic = (unsigned *)(info->base + phdr->p_vaddr);
         }
     }
 
@@ -93,9 +94,9 @@ DGLWASoCtors::DGLWASoCtors() {
     void (*init_func)(void) = nullptr;
     unsigned *init_array = nullptr;
     unsigned init_array_count = 0;
-    
-    for(unsigned* d = dynamic; *d; d++) {
-        switch(*d++) {
+
+    for (unsigned *d = dynamic; *d; d++) {
+        switch (*d++) {
             case DT_INIT:
                 init_func = (void (*)(void))(info->base + *d);
                 break;
@@ -109,14 +110,15 @@ DGLWASoCtors::DGLWASoCtors() {
     }
 
     if (init_func) {
-        Os::info("Found DT_INIT pointing at address 0x%x, Calling it", init_func);
+        Os::info("Found DT_INIT pointing at address 0x%x, Calling it",
+                 init_func);
         init_func();
     }
     if (init_array_count && init_array) {
         Os::info("Found DT_INIT_ARRAY of size %d", init_array_count);
         for (unsigned i = 0; i < init_array_count; i++) {
             if (init_array[i] && init_array[i] != (unsigned)-1) {
-                void (*func)() = (void (*)()) init_array[i];
+                void (*func)() = (void (*)())init_array[i];
                 func();
             } else {
                 Os::info("DT_INIT_ARRAY[%d] is empty", i);
@@ -127,10 +129,10 @@ DGLWASoCtors::DGLWASoCtors() {
         Os::info("DT_INIT_ARRAY not found. (trouble ahead)");
     }
 
-
     if (!g_Test.passed()) {
-        Os::fatal("Tried to call constructors, but shared library constructor test, still fails.");
+        Os::fatal(
+            "Tried to call constructors, but shared library constructor test, "
+            "still fails.");
     }
-
 }
 #endif

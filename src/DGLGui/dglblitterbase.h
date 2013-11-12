@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLBLITTERBASE_H
 #define DGLBLITTERBASE_H
 
@@ -27,10 +26,11 @@ struct GLDataType;
 
 class DGLBlitterBase {
 
-public:
+   public:
     DGLBlitterBase();
 
-    void blit(unsigned int width, unsigned int height, unsigned int rowBytes, gl_t format, gl_t type, const void* data);
+    void blit(unsigned int width, unsigned int height, unsigned int rowBytes,
+              gl_t format, gl_t type, const void* data);
 
     enum Channel {
         CHANNEL_R,
@@ -47,19 +47,21 @@ public:
     std::vector<AnyValue> describePixel(unsigned int x, unsigned int y);
 
     enum OutputFormat {
-        _GL_BGRA32, //alpha, DX-order format
-        _GL_RGBX32, //non-alpha, RGBX format
-        _GL_MONO8,  //monochromatic, 8 bit format
+        _GL_BGRA32,    // alpha, DX-order format
+        _GL_RGBX32,    // non-alpha, RGBX format
+        _GL_MONO8,    // monochromatic, 8 bit format
         _LAST
     };
 
     static const int outputOffsets[3][4];
-protected: 
-    virtual void sink(int width, int height, OutputFormat format, void* data) = 0;
+
+   protected:
+    virtual void sink(int width, int height, OutputFormat format,
+                      void* data) = 0;
 
     void doBlit();
 
-private:
+   private:
     const void* m_SrcData;
 
     unsigned int m_SrcStride;
@@ -72,4 +74,4 @@ private:
     std::pair<float, float> m_ChannelScaleBiases[_LAST_CHANNEL];
 };
 
-#endif //DGLBlitterBase
+#endif    // DGLBlitterBase

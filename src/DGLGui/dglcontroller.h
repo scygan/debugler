@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLCONTROLLER_H
 #define DGLCONTROLLER_H
 
@@ -34,14 +33,17 @@ class DGLRequestManager;
 /**
  * Class implementing handler for response for single-time request
  *
- * Requests are all messages send to debugee, that can emit errors upon receive (so reply is needed).
+ * Requests are all messages send to debugee, that can emit errors upon receive
+ *(so reply is needed).
  */
 class DGLRequestHandler {
-public:
+   public:
     DGLRequestHandler(DGLRequestManager*);
-    virtual void onRequestFinished(const dglnet::message::RequestReply* reply) = 0;
+    virtual void onRequestFinished(
+        const dglnet::message::RequestReply* reply) = 0;
     virtual ~DGLRequestHandler();
-private:
+
+   private:
     DGLRequestManager* m_Manager;
 };
 
@@ -51,50 +53,52 @@ class DglController;
  * Class managing and handling all issued and not replied requests
  */
 class DGLRequestManager {
-public:
+   public:
     DGLRequestManager(DglController*);
-    
+
     void request(dglnet::DGLRequest* request, DGLRequestHandler*);
 
     void handle(const dglnet::message::RequestReply& msg);
 
     void unregisterHandler(DGLRequestHandler*);
 
-private:
+   private:
     DglController* m_Controller;
 
     std::map<int, DGLRequestHandler*> m_CurrentHandlers;
-
 };
 
-
-
 class DGLResourceManager;
-
 
 /**
  * Class implementint a resource listener
  *
  * Each listener is associated with one resource to be queried multiple times
- * Queries are issues automatically by DGLResourceManager on DGLController command.
+ * Queries are issues automatically by DGLResourceManager on DGLController
+ *command.
  */
-class DGLResourceListener: public QObject, public DGLRequestHandler {
+class DGLResourceListener : public QObject, public DGLRequestHandler {
     friend class DGLResourceManager;
-public:
+
+   public:
     Q_OBJECT
 
-    DGLResourceListener(dglnet::ContextObjectName objectName, dglnet::DGLResource::ObjectType type, DGLResourceManager* manager);
+    DGLResourceListener(dglnet::ContextObjectName objectName,
+                        dglnet::DGLResource::ObjectType type,
+                        DGLResourceManager* manager);
 
     ~DGLResourceListener();
 
     virtual void onRequestFinished(const dglnet::message::RequestReply* msg);
-public:
+
+   public:
     void fire();
 
 signals:
     void update(const dglnet::DGLResource&);
     void error(const std::string&);
-private:
+
+   private:
     dglnet::DGLResource::ObjectType m_ObjectType;
     dglnet::ContextObjectName m_ObjectName;
     DGLResourceManager* m_Manager;
@@ -103,20 +107,23 @@ private:
 /**
  * Class managing and handling all listeners
  *
- * It's main aim is to emit apropriate queries and return queried data to listeners
+ * It's main aim is to emit apropriate queries and return queried data to
+ *listeners
  */
 class DGLResourceManager {
     friend class DGLResourceListener;
-public:
+
+   public:
     DGLResourceManager(DGLRequestManager*);
 
     void emitQueries();
 
-    DGLResourceListener* createListener(dglnet::ContextObjectName name, dglnet::DGLResource::ObjectType type);
+    DGLResourceListener* createListener(dglnet::ContextObjectName name,
+                                        dglnet::DGLResource::ObjectType type);
 
     DGLRequestManager* getRequestManager();
 
-private:
+   private:
     void unregisterListener(DGLResourceListener* listener);
 
     std::list<DGLResourceListener*> m_Listeners;
@@ -128,8 +135,7 @@ private:
  * Class aggregating currently set bkpoints
  */
 class DGLBreakPointController {
-public:
-
+   public:
     /**
      * CTor
      * @param DGLController object, for communation with debugee
@@ -150,8 +156,8 @@ public:
      * Send breakpoints to debugee
      */
     void sendCurrent();
-private:
 
+   private:
     /**
      * List of currently set breakpoints
      */
@@ -163,11 +169,11 @@ private:
     DglController* m_Controller;
 };
 
-
-class DGLViewRouter:public QObject {
+class DGLViewRouter : public QObject {
     Q_OBJECT
-public:
-    void show(const dglnet::ContextObjectName& name, dglnet::DGLResource::ObjectType type);
+   public:
+    void show(const dglnet::ContextObjectName& name,
+              dglnet::DGLResource::ObjectType type);
 signals:
     void showTexture(opaque_id_t ctx, gl_t name);
     void showBuffer(opaque_id_t ctx, gl_t name);
@@ -177,15 +183,17 @@ signals:
     void showProgram(opaque_id_t ctx, gl_t name);
 };
 
-/** 
+/**
  * DGLController class - the interface between UI and debugee
  */
-class DglController: public QObject, public dglnet::IController, public dglnet::MessageHandler {
+class DglController : public QObject,
+                      public dglnet::IController,
+                      public dglnet::MessageHandler {
     Q_OBJECT
 
-friend class DGLBreakPointController;
+    friend class DGLBreakPointController;
 
-public:
+   public:
     DglController();
 
     /**
@@ -194,19 +202,18 @@ public:
      */
     void connectServer(const std::string& host, const std::string& port);
 
-    /** 
+    /**
      * Terminate ongoing connection to debugee
      * The debugee should terminate as a side effect of disconnection
      */
     void disconnectServer();
 
-    /** 
+    /**
      * Getter for checking if we are connected to debugee
      */
     bool isConnected();
-    
 
-    //IController methods:
+    // IController methods:
     /**
      * Method called by DGLClient on connection state change
      */
@@ -231,19 +238,20 @@ public:
      */
     virtual void onSocketStopSend();
 
-
-    //IMessageHandler methods:
+    // IMessageHandler methods:
     virtual void doHandleHello(const dglnet::message::Hello&) override;
-    virtual void doHandleBreakedCall(const dglnet::message::BreakedCall&) override;
+    virtual void doHandleBreakedCall(const dglnet::message::BreakedCall&)
+        override;
     virtual void doHandleCallTrace(const dglnet::message::CallTrace&) override;
-    virtual void doHandleRequestReply(const dglnet::message::RequestReply&) override;
+    virtual void doHandleRequestReply(const dglnet::message::RequestReply&)
+        override;
 
-    /** 
+    /**
      * Method called by DGLclient, upon successful connection established
      */
     virtual void doHandleConnect();
 
-    /** 
+    /**
      * Method called by DGLclient, when disconnection condition is detected
      */
     virtual void doHandleDisconnect(const std::string&) override;
@@ -263,76 +271,80 @@ public:
      */
     DGLResourceManager* getResourceManager();
 
-     /**
-     * Getter for view router controller object
-     */
+    /**
+    * Getter for view router controller object
+    */
     DGLViewRouter* getViewRouter();
 
-    /** 
+    /**
      * Send new configuration to debugee
      */
     void sendConfig(const DGLConfiguration* config = NULL);
 
-
     DGLConfiguration& getConfig();
 
-    /** 
-     * Send message to debugee. Base method for all lover-level communication with debugee
+    /**
+     * Send message to debugee. Base method for all lover-level communication
+     * with debugee
      */
     void sendMessage(dglnet::Message*);
 
 signals:
 
-    /** 
+    /**
     * Signal for setting GUI state
     */
     void debugeeInfo(const std::string&);
 
-    /** 
+    /**
     * Signal for setting GUI state
     */
     void setConnected(bool);
 
-    /** 
+    /**
      * Signal for setting GUI state
      */
     void setBreaked(bool);
 
-    /** 
+    /**
      * Signal for setting GUI state
      */
     void setRunning(bool);
 
     void breaked(CalledEntryPoint, uint);
-    void breakedWithStateReports(opaque_id_t, const std::vector<dglnet::message::BreakedCall::ContextReport>&);
+    void breakedWithStateReports(
+        opaque_id_t,
+        const std::vector<dglnet::message::BreakedCall::ContextReport>&);
 
     void gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&);
 
     void newStatus(const QString&);
     void connectionLost(const QString&, const QString&);
-  
-public slots:
+
+   public
+slots:
     void poll();
-    void debugContinue();   
-    void debugInterrupt();   
+    void debugContinue();
+    void debugInterrupt();
     void debugStep();
     void debugStepDrawCall();
     void debugStepFrame();
     void queryCallTrace(uint, uint);
 
-private:
-
+   private:
     std::shared_ptr<dglnet::Client> m_DglClient;
     std::shared_ptr<QSocketNotifier> m_NotifierRead, m_NotifierWrite;
     QTimer m_Timer;
 
     /**
-     * Set to true, if client is no longer connected (setting to true from asio handler will cause disconnection)
+     * Set to true, if client is no longer connected (setting to true from asio
+     * handler will cause disconnection)
      */
     bool m_Disconnected;
 
     /**
-     * Set to true, if client is ready for receiving messages. Does not always equal !m_Disconnected
+     * Set to true, if client is ready for receiving messages. Does not always
+     * equal !m_Disconnected
      */
     bool m_Connected;
 

@@ -25,10 +25,13 @@ struct GLDataType {
     gl_t type;
     unsigned int byteSize;
     bool packed;
-    void (*blitFunc) (const int* outputOffsets, int width, int height, const void * src, void* dst, int srcStride, int dstStride, int srcPixelSize, int dstPixelSize, int srcComponents, std::pair<float, float>* scale);
-    std::vector<AnyValue> (*extractor)(const void*, int);
+    void (*blitFunc)(const int* outputOffsets, int width, int height,
+                     const void* src, void* dst, int srcStride, int dstStride,
+                     int srcPixelSize, int dstPixelSize, int srcComponents,
+                     std::pair<float, float>* scale);
+    std::vector<AnyValue>(*extractor)(const void*, int);
     unsigned int components;
-}; 
+};
 
 struct GLDataFormat {
     gl_t format;
@@ -42,22 +45,24 @@ struct GLInternalFormat {
 };
 
 class GLFormats {
-public:
+   public:
     static GLInternalFormat* getInternalFormat(gl_t internalFormat);
     static GLDataFormat* getDataFormat(gl_t dataFormat);
-    static GLDataType* getDataType(gl_t dataType);  
+    static GLDataType* getDataType(gl_t dataType);
 };
 
 class DGLPixelTransfer {
-public: 
-    DGLPixelTransfer(std::vector<GLint> _rgbaSizes, std::vector<GLint> _depthStencilSizes, GLenum internalFormat);
+   public:
+    DGLPixelTransfer(std::vector<GLint> _rgbaSizes,
+                     std::vector<GLint> _depthStencilSizes,
+                     GLenum internalFormat);
 
     bool isValid();
     gl_t getFormat();
     gl_t getType();
     unsigned int getPixelSize();
 
-private:
+   private:
     GLDataFormat* m_DataFormat;
     GLDataType* m_DataType;
 };

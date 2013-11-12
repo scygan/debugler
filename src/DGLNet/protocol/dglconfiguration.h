@@ -13,13 +13,17 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLCONFIGURATION_H
 #define DGLCONFIGURATION_H
 
 class DGLConfiguration {
-public:
-    DGLConfiguration():m_BreakOnGLError(true), m_BreakOnDebugOutput(true), m_BreakOnCompilerError(true), m_ForceDebugContext(true), m_ForceDebugContextES(false) {}
+   public:
+    DGLConfiguration()
+            : m_BreakOnGLError(true),
+              m_BreakOnDebugOutput(true),
+              m_BreakOnCompilerError(true),
+              m_ForceDebugContext(true),
+              m_ForceDebugContextES(false) {}
     bool m_BreakOnGLError;
     bool m_BreakOnDebugOutput;
     bool m_BreakOnCompilerError;

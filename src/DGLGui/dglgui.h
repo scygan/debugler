@@ -13,12 +13,11 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLGUI_H
 #define DGLGUI_H
 
 #ifdef DGLGUI_PCH
-//Precompiled headers:
+// Precompiled headers:
 #include "dglqtgui.h"
 #include "dglcontroller.h"
 #include "dglpixelrectangle.h"
@@ -26,12 +25,13 @@
 #include "dgltabbedview.h"
 #endif
 
-#include<cassert>
+#include <cassert>
 
 #ifdef NDEBUG
 #define CONNASSERT(obj1, slot, obj2, signal) connect(obj1, slot, obj2, signal)
 #else
-#define CONNASSERT(obj1, slot, obj2, signal) assert(connect(obj1, slot, obj2, signal))
+#define CONNASSERT(obj1, slot, obj2, signal) \
+    assert(connect(obj1, slot, obj2, signal))
 
 #ifdef HAVE_VLD
 #include <vld.h>

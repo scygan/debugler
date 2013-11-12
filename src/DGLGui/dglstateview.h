@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLSTATEVIEW_H
 #define DGLSTATEVIEW_H
 
@@ -22,22 +21,22 @@
 
 #include <QDockWidget>
 
-
 class DGLStateView : public QDockWidget {
     Q_OBJECT
 
-public:
+   public:
     DGLStateView(QWidget* parrent, DglController* controller);
 
-public slots:
+   public
+slots:
     void setConnected(bool);
     void update(const dglnet::DGLResource&);
     void error(const std::string&);
 
-private: 
-    DGLResourceListener * m_Listener;
+   private:
+    DGLResourceListener* m_Listener;
     DglController* m_Controller;
     Ui::DGLStateView* m_Ui;
 };
 
-#endif // DGLTREEVIEW_H
+#endif    // DGLTREEVIEW_H

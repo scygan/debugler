@@ -19,8 +19,8 @@
 #include <DGLCommon/ipc.h>
 
 /**
- * Get IPC handle to loader 
+ * Get IPC handle to loader
  */
 DGLIPC* getIPC();
 
-#endif //DEBUGGER_H
+#endif    // DEBUGGER_H

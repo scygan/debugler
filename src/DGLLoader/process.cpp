@@ -18,14 +18,15 @@
 #include <stdexcept>
 
 #ifndef _WIN32
-    #include <sys/types.h>
-    #include <unistd.h>
+#include <sys/types.h>
+#include <unistd.h>
 #endif
 
-
-DGLProcess::DGLProcess(std::string executable, std::vector<std::string> args, bool forceFork):m_executable(executable), m_args(args) {
+DGLProcess::DGLProcess(std::string executable, std::vector<std::string> args,
+                       bool forceFork)
+        : m_executable(executable), m_args(args) {
 #ifdef _WIN32
-    //prepare some structures for CreateProcess output
+    // prepare some structures for CreateProcess output
     STARTUPINFOA startupInfo;
     memset(&startupInfo, 0, sizeof(startupInfo));
     startupInfo.cb = sizeof(startupInfo);
@@ -34,7 +35,7 @@ DGLProcess::DGLProcess(std::string executable, std::vector<std::string> args, bo
 
     std::string argumentString;
     for (size_t i = 0; i < m_args.size(); i++) {
-        argumentString += (i > 0?" ":"") + m_args[i];
+        argumentString += (i > 0 ? " " : "") + m_args[i];
     }
 
     char path[MAX_PATH];
@@ -42,39 +43,31 @@ DGLProcess::DGLProcess(std::string executable, std::vector<std::string> args, bo
         throw std::runtime_error("GetCurrentDirectory failed");
     }
 
-    //try run process (suspended - will not run user thread)
-    if (CreateProcessA(
-        executable.c_str(),
-        (LPSTR)argumentString.c_str(),
-        NULL, 
-        NULL,
-        FALSE, 
-        CREATE_SUSPENDED,
-        NULL,
-        path,
-        &startupInfo, 
-        &m_processInfo) == 0 ) {
+    // try run process (suspended - will not run user thread)
+    if (CreateProcessA(executable.c_str(), (LPSTR)argumentString.c_str(), NULL,
+                       NULL, FALSE, CREATE_SUSPENDED, NULL, path, &startupInfo,
+                       &m_processInfo) == 0) {
 
-            throw std::runtime_error("Cannot create process");
+        throw std::runtime_error("Cannot create process");
     }
 
 #else
-    
+
     m_pid = 0;
 
 #ifdef __ANDROID__
     if (forceFork) {
-        //on Android fork only, if force fork is set.
-        //app_process does not like to be forked.
+// on Android fork only, if force fork is set.
+// app_process does not like to be forked.
 #else
     if (true) {
-        //on other systems always forks.
+// on other systems always forks.
 #endif
         m_pid = fork();
         if (m_pid == -1) {
             throw std::runtime_error("Cannot fork process");
         }
-    }   
+    }
 #endif
 }
 
@@ -95,15 +88,15 @@ DGLProcess::native_process_handle_t DGLProcess::getMainThread() {
 #ifndef _WIN32
 void DGLProcess::do_execvp() {
 
-    std::vector<std::vector<char> > argvs(m_args.size()); 
+    std::vector<std::vector<char> > argvs(m_args.size());
     std::vector<char*> argVector(m_args.size());
     for (size_t i = 0; i < m_args.size(); i++) {
-        std::copy(m_args[i].begin(), m_args[i].end(), std::back_inserter<std::vector<char> >(argvs[i]));
+        std::copy(m_args[i].begin(), m_args[i].end(),
+                  std::back_inserter<std::vector<char> >(argvs[i]));
         argvs[i].push_back('\0');
         argVector[i] = &argvs[i][0];
     }
     argVector.push_back(NULL);
-
 
     execvp(m_executable.c_str(), &argVector[0]);
 

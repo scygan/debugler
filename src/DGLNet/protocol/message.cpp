@@ -13,106 +13,92 @@
 * limitations under the License.
 */
 
-
 #include "message.h"
 
 #include <stdexcept>
-#include <boost/serialization/export.hpp> 
+#include <boost/serialization/export.hpp>
 
 #include "request.h"
 
 namespace dglnet {
 
-    void MessageHandler::doHandleHello(const message::Hello&) {
-        unsupported();
+void MessageHandler::doHandleHello(const message::Hello&) { unsupported(); }
+
+void MessageHandler::doHandleConfiguration(const message::Configuration&) {
+    unsupported();
+}
+
+void MessageHandler::doHandleBreakedCall(const message::BreakedCall&) {
+    unsupported();
+}
+
+void MessageHandler::doHandleContinueBreak(const message::ContinueBreak&) {
+    unsupported();
+}
+
+void MessageHandler::doHandleQueryCallTrace(const message::QueryCallTrace&) {
+    unsupported();
+}
+
+void MessageHandler::doHandleCallTrace(const message::CallTrace&) {
+    unsupported();
+}
+
+void MessageHandler::doHandleRequest(const message::Request&) { unsupported(); }
+
+void MessageHandler::doHandleRequestReply(const message::RequestReply&) {
+    unsupported();
+}
+
+void MessageHandler::doHandleSetBreakPoints(const message::SetBreakPoints&) {
+    unsupported();
+}
+
+void MessageHandler::unsupported() {
+    throw std::runtime_error(
+        "Message cannot be handled by current message handler object.");
+}
+
+namespace message {
+bool ContinueBreak::isBreaked() const { return m_Breaked; }
+
+std::pair<bool, ContinueBreak::StepMode> ContinueBreak::getStep() const {
+    return std::pair<bool, StepMode>(m_InStepMode, m_StepMode);
+}
+
+Request::Request() {
+    s_RequestId++;
+    m_RequestId = s_RequestId;
+}
+
+Request::Request(DGLRequest* request) : m_Request(request) {
+    s_RequestId++;
+    m_RequestId = s_RequestId;
+}
+
+int Request::s_RequestId = 0;
+
+int Request::getId() const { return m_RequestId; }
+
+RequestReply::RequestReply() : m_Ok(true) {}
+
+void RequestReply::error(std::string msg) {
+    m_ErrorMsg = msg;
+    m_Ok = false;
+}
+
+bool RequestReply::isOk(std::string& _error) const {
+    if (!m_Ok) {
+        _error = m_ErrorMsg;
     }
+    return m_Ok;
+}
 
-    void MessageHandler::doHandleConfiguration(const message::Configuration&) {
-        unsupported();
-    }
+int RequestReply::getId() const { return m_RequestId; }
 
-    void MessageHandler::doHandleBreakedCall(const message::BreakedCall&) {
-        unsupported();
-    }
+SetBreakPoints::SetBreakPoints(const std::set<Entrypoint>& breakpoints)
+        : m_BreakPoints(breakpoints) {}
 
-    void MessageHandler::doHandleContinueBreak(const message::ContinueBreak&) {
-        unsupported();
-    }
-
-    void MessageHandler::doHandleQueryCallTrace(const message::QueryCallTrace&) {
-        unsupported();
-    }
-
-    void MessageHandler::doHandleCallTrace(const message::CallTrace&) {
-        unsupported();
-    }
-
-    void MessageHandler::doHandleRequest(const message::Request&) {
-        unsupported();
-    }
-
-    void MessageHandler::doHandleRequestReply(const message::RequestReply&) {
-        unsupported();
-    }
-
-    void MessageHandler::doHandleSetBreakPoints(const message::SetBreakPoints&) {
-        unsupported();
-    }
-
-    void MessageHandler::unsupported() {
-        throw std::runtime_error("Message cannot be handled by current message handler object.");
-    }
-
-    namespace message {
-        bool ContinueBreak::isBreaked() const  {
-            return m_Breaked;
-        }
-
-        std::pair<bool, ContinueBreak::StepMode> ContinueBreak::getStep() const  {
-            return std::pair<bool, StepMode>(m_InStepMode, m_StepMode);
-        }
-
-        Request::Request() {
-            s_RequestId++;
-            m_RequestId = s_RequestId;
-        }
-
-        Request::Request(DGLRequest* request):m_Request(request) {
-            s_RequestId++;
-            m_RequestId = s_RequestId;
-        }
-
-        int Request::s_RequestId = 0;
-
-        int Request::getId() const {
-            return m_RequestId;
-        }
-
-
-        RequestReply::RequestReply():m_Ok(true) {}
-
-        void RequestReply::error(std::string msg) {
-            m_ErrorMsg = msg;
-            m_Ok = false;
-        }
-
-        bool RequestReply::isOk(std::string& _error) const {
-            if (!m_Ok) {
-                _error = m_ErrorMsg;
-            }
-            return m_Ok;
-        }
-
-        int RequestReply::getId() const {
-            return m_RequestId;
-        }
-
-
-        SetBreakPoints::SetBreakPoints(const std::set<Entrypoint>& breakpoints):m_BreakPoints(breakpoints) {}
-
-        std::set<Entrypoint> SetBreakPoints::get() const {
-            return m_BreakPoints;
-        }
-    }
-
+std::set<Entrypoint> SetBreakPoints::get() const { return m_BreakPoints; }
+}
 }

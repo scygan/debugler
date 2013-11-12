@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef DGLBREAKPOINTDIALOG_H
 #define DGLBREAKPOINTDIALOG_H
 
@@ -25,20 +24,21 @@
 class DGLBreakPointDialog : public QDialog {
     Q_OBJECT
 
-public:
-    DGLBreakPointDialog(DglController * controller);
+   public:
+    DGLBreakPointDialog(DglController* controller);
     ~DGLBreakPointDialog();
 
     std::set<Entrypoint> getBreakPoints();
 
-public slots:
+   public
+slots:
     void addBreakPoint();
     void deleteBreakPoint();
     void searchBreakPoint(const QString&);
 
-private:
+   private:
     Ui_BreakPointDialog m_Ui;
     DglController* m_Controller;
 };
 
-#endif // DGLCONNECTDIALOG_H
+#endif    // DGLCONNECTDIALOG_H

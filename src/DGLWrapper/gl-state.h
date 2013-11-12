@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef GL_STATE_H
 #define GL_STATE_H
 
@@ -31,21 +30,22 @@ class DGLDisplayState;
 namespace dglState {
 
 class GLObj {
-public:
+   public:
     GLObj();
     GLObj(GLuint name);
     GLuint getName() const;
-private:
+
+   private:
     GLuint m_Name;
 };
 
-class GLTextureObj: public GLObj {
-public:
+class GLTextureObj : public GLObj {
+   public:
     /**
      * Ctor
      */
     GLTextureObj(GLuint name);
-    
+
     GLTextureObj() {}
 
     /**
@@ -57,31 +57,32 @@ public:
      * Get texture target
      */
     GLenum getTarget();
-    
+
     /**
      * Get texture level target from texture target and face
      */
     GLenum getTextureLevelTarget(int face);
-private:
 
+   private:
     /**
      * Texture target. Must be cached here - not retrievable by GL API
      */
     GLenum m_Target;
 };
 
-class GLBufferObj: public GLObj {
-public:
+class GLBufferObj : public GLObj {
+   public:
     GLBufferObj(GLuint name);
     void setTarget(GLenum);
     GLenum getTarget();
     GLBufferObj() {}
-private:
+
+   private:
     GLenum m_Target;
 };
 
-class GLShaderObj: public GLObj {
-public:
+class GLShaderObj : public GLObj {
+   public:
     GLShaderObj(GLuint name, bool arbApi);
     GLShaderObj() {}
     void deleteCalled();
@@ -91,7 +92,7 @@ public:
 
     void createCalled(GLenum target);
     GLenum getTarget() const;
-    
+
     GLint queryCompilationStatus() const;
     std::string queryCompilationInfoLog() const;
 
@@ -103,9 +104,7 @@ public:
     void editSource(const std::string& source);
     void resetSourceToOrig();
 
-
-private:
-
+   private:
     void mayDelete();
 
     bool m_Deleted;
@@ -116,13 +115,13 @@ private:
     int m_RefCount;
 };
 
-class GLProgramObj: public GLObj {
-public:
+class GLProgramObj : public GLObj {
+   public:
     GLProgramObj(GLuint name, bool arbApi);
     GLProgramObj() {}
     ~GLProgramObj();
-    void use(bool inUse); 
-    bool mayDelete(); 
+    void use(bool inUse);
+    bool mayDelete();
     void markDeleted();
     void attachShader(GLShaderObj*);
     void detachShader(GLShaderObj*);
@@ -130,27 +129,28 @@ public:
 
     void forceLink();
 
-private:
+   private:
     int m_InUse;
     bool m_Deleted;
     bool m_arbApi;
     std::set<GLShaderObj*> m_AttachedShaders;
 };
 
-class GLFBObj: public GLObj {
-public:
+class GLFBObj : public GLObj {
+   public:
     GLFBObj(GLuint name);
     GLFBObj() {}
     void setTarget(GLenum);
     GLenum getTarget();
-private:
+
+   private:
     GLenum m_Target;
 };
 
 class GLContextVersion {
-public:
+   public:
     enum class Type {
-        DT, 
+        DT,
         ES,
         UNSUPPORTED,
     };
@@ -158,8 +158,8 @@ public:
 
     bool check(Type type, int majorVersion = 0, int minorVersion = 0) const;
     void initialize(const char* cVersion);
-private:
-    
+
+   private:
     bool m_Initialized;
     int m_MajorVersion;
     int m_MinorVersion;
@@ -168,16 +168,16 @@ private:
 
 class NativeSurfaceBase;
 
-
-
 class GLContextCreationData {
-public:
+   public:
     GLContextCreationData();
-    GLContextCreationData(Entrypoint entryp, opaque_id_t pixelFormat, const std::vector<gl_t>& attribs);
+    GLContextCreationData(Entrypoint entryp, opaque_id_t pixelFormat,
+                          const std::vector<gl_t>& attribs);
     Entrypoint getEntryPoint() const;
     opaque_id_t getPixelFormat() const;
     const std::vector<gl_t>& getAttribs() const;
-private:
+
+   private:
     Entrypoint m_Entrypoint;
     opaque_id_t m_pixelFormat;
     std::vector<gl_t> m_attribs;
@@ -186,8 +186,9 @@ private:
 class GLAuxContext;
 
 class GLContext {
-public:
-    GLContext(const DGLDisplayState* dpy, GLContextVersion version, opaque_id_t id, const GLContextCreationData& creationData);
+   public:
+    GLContext(const DGLDisplayState* dpy, GLContextVersion version,
+              opaque_id_t id, const GLContextCreationData& creationData);
     std::map<GLuint, GLTextureObj> m_Textures;
     std::map<GLuint, GLBufferObj> m_Buffers;
     std::map<GLuint, GLProgramObj> m_Programs;
@@ -224,18 +225,23 @@ public:
     /**
      * texture level query (dispatches to proper query)
      */
-    boost::shared_ptr<dglnet::resource::DGLPixelRectangle> queryTextureLevel(gl_t _name, GLenum target, int level, state_setters::PixelStoreAlignment&);
-
+    boost::shared_ptr<dglnet::resource::DGLPixelRectangle> queryTextureLevel(
+        gl_t _name, GLenum target, int level,
+        state_setters::PixelStoreAlignment&);
 
     /**
      * texture level query (OpenGL, using getters)
      */
-    boost::shared_ptr<dglnet::resource::DGLPixelRectangle> queryTextureLevelGetters(GLenum target, int level, state_setters::PixelStoreAlignment& defAlignment);
+    boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
+        queryTextureLevelGetters(
+            GLenum target, int level,
+            state_setters::PixelStoreAlignment& defAlignment);
 
     /**
      * texture level query (OpenGL ES, using auxiliary ctx)
      */
-    boost::shared_ptr<dglnet::resource::DGLPixelRectangle> queryTextureLevelAuxCtx(gl_t _name, GLenum target, int level);
+    boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
+        queryTextureLevelAuxCtx(gl_t _name, GLenum target, int level);
 
     bool textureProbeSizeES(GLenum target, int level, const int sizes[3]);
     int textureBisectSizeES(GLenum target, int level, int coord, int maxSize);
@@ -246,16 +252,21 @@ public:
     GLenum peekError();
 
     /**
-     * Debugger's specific debug message callback 
+     * Debugger's specific debug message callback
      */
-    static void APIENTRY debugOutputCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam);
+    static void APIENTRY
+        debugOutputCallback(GLenum source, GLenum type, GLuint id,
+                            GLenum severity, GLsizei length,
+                            const GLchar* message, GLvoid* userParam);
 
     /**
      * non-static function called from debug message callback
      */
-    void setDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam);
+    void setDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity,
+                        GLsizei length, const GLchar* message,
+                        GLvoid* userParam);
 
-    /** 
+    /**
      * Returns true, if got debug message output
      */
     bool hasDebugOutput();
@@ -266,7 +277,8 @@ public:
     const std::string& popDebugOutput();
 
     /**
-     * Setter for custom debug message callback, that can be registered by application
+     * Setter for custom debug message callback, that can be registered by
+     * application
      */
     void setCustomDebugOutputCallback(GLDEBUGPROC callback);
 
@@ -274,7 +286,8 @@ public:
     bool endQuery(std::string& message);
 
     /**
-     * Imemdiate mode setter - must be set, when betweek glBegin()/glEnd(), otherwise spurious GL errors will happen
+     * Imemdiate mode setter - must be set, when betweek glBegin()/glEnd(),
+     * otherwise spurious GL errors will happen
      * No query will be emitted when in immediate mode
      */
     void setImmediateMode(bool);
@@ -301,7 +314,6 @@ public:
      */
     const GLContextVersion& getVersion() const;
 
-    
     enum class ContextCap {
         PixelBufferObjects,
         FramebufferObjects,
@@ -317,7 +329,7 @@ public:
         HasGetStringI,
         TextureGetters
     };
-    
+
     /**
      * Context capability check
      */
@@ -333,15 +345,13 @@ public:
      */
     GLAuxContext* getAuxContext();
 
-
     /**
      *  Getter for parent display
      */
     const DGLDisplayState* getDisplay() const;
 
-private:
+   private:
     void queryCheckError();
-    
 
     void firstUse();
 
@@ -366,10 +376,10 @@ private:
     NativeSurfaceBase* m_NativeDrawSurface;
 
     /**
-     * Queue for errors poked from glGetError(), not yet delivered to application
+     * Queue for errors poked from glGetError(), not yet delivered to
+     * application
      */
     std::queue<GLenum> m_PokedErrorQueue;
-
 
     /**
      * Set if NVX_gpu_memory_info is present
@@ -392,51 +402,57 @@ private:
     GLDEBUGPROC m_DebugOutputCallback;
 
     /**
-     * Set to true if betweek glBegin() and glEnd() 
+     * Set to true if betweek glBegin() and glEnd()
      */
     bool m_InImmediateMode;
 
     /**
      * Get state element (using glGetIntegerv)
      */
-    dglnet::resource::DGLResourceState::StateItem getStateIntegerv(const char* name, GLenum value, size_t length);
+    dglnet::resource::DGLResourceState::StateItem getStateIntegerv(
+        const char* name, GLenum value, size_t length);
 
     /**
     * Get state element (using glGetInteger64v)
     */
-    dglnet::resource::DGLResourceState::StateItem getStateInteger64v(const char* name, GLenum value, size_t length);
+    dglnet::resource::DGLResourceState::StateItem getStateInteger64v(
+        const char* name, GLenum value, size_t length);
 
     /**
      * Get state element (using glGetFloatv)
      */
-    dglnet::resource::DGLResourceState::StateItem getStateFloatv(const char* name, GLenum value, size_t length);
+    dglnet::resource::DGLResourceState::StateItem getStateFloatv(
+        const char* name, GLenum value, size_t length);
 
     /**
      * Get state element (using glGetDoublev)
      */
-    dglnet::resource::DGLResourceState::StateItem getStateDoublev(const char* name, GLenum value, size_t length);
+    dglnet::resource::DGLResourceState::StateItem getStateDoublev(
+        const char* name, GLenum value, size_t length);
 
     /**
      * Get state element (using glGetBooleanv)
      */
-    dglnet::resource::DGLResourceState::StateItem getStateBooleanv(const char* name, GLenum value, size_t length);
+    dglnet::resource::DGLResourceState::StateItem getStateBooleanv(
+        const char* name, GLenum value, size_t length);
 
     /**
      * Get state element (using glIsEnabled)
      */
-    dglnet::resource::DGLResourceState::StateItem getStateIsEnabled(const char* name, GLenum value);
+    dglnet::resource::DGLResourceState::StateItem getStateIsEnabled(
+        const char* name, GLenum value);
 
     /**
      * True if ctx was ever bound, false otherwise
      */
     bool m_EverBound;
 
-    /** 
+    /**
      * Number of threads this context is bound to
      */
     int m_RefCount;
 
-    /** 
+    /**
      * True if deletion is pending
      */
     bool m_ToBeDeleted;
@@ -446,24 +462,22 @@ private:
      */
     bool m_InQuery;
 
-    
     /**
      * Context creation data - context attributes used on creation of this ctx.
      */
     GLContextCreationData m_CreationData;
 
     /**
-     * Auxiliary context (used on demand, when query cannot be performed on this ctx).
+     * Auxiliary context (used on demand, when query cannot be performed on this
+     * ctx).
      */
     std::shared_ptr<GLAuxContext> m_AuxContext;
-
 
     /**
      * Parent display
      */
     const DGLDisplayState* m_Display;
-
 };
 
-} //namespace
+}    // namespace
 #endif

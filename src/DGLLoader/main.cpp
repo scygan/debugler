@@ -13,17 +13,15 @@
 * limitations under the License.
 */
 
-
-
-#pragma warning(disable : 4996) 
+#pragma warning(disable : 4996)
 
 #ifdef _WIN32
-    #include <windows.h>
-    #include "CompleteInject/CompleteInject.h"
-    #define snprintf _snprintf
+#include <windows.h>
+#include "CompleteInject/CompleteInject.h"
+#define snprintf _snprintf
 #else
-    #include <sys/types.h>
-    #include <sys/wait.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #endif
 
 #include "process.h"
@@ -35,7 +33,9 @@
 #include <stdint.h>
 
 #pragma warning(push)
-#pragma warning(disable:4512)//'boost::program_options::options_description' : assignment operator could not be generated
+#pragma warning(disable                                                      \
+                : 4512)    //'boost::program_options::options_description' : \
+                           //assignment operator could not be generated
 #include <boost/program_options/options_description.hpp>
 #pragma warning(pop)
 #include <boost/program_options/positional_options.hpp>
@@ -56,47 +56,50 @@
 #define DEBUGLER_SOCKET_PROP "debug.debugler.socket"
 #endif
 
-#pragma warning(disable:4503)
+#pragma warning(disable : 4503)
 
 #ifdef _WIN32
 bool isProcess64Bit(HANDLE hProcess) {
-    //get IsWow64Process function
-    typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
-    LPFN_ISWOW64PROCESS fnIsWow64Process = 
-        fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress(
-        GetModuleHandle(TEXT("kernel32")),"IsWow64Process");
+    // get IsWow64Process function
+    typedef BOOL(WINAPI * LPFN_ISWOW64PROCESS)(HANDLE, PBOOL);
+    LPFN_ISWOW64PROCESS fnIsWow64Process = fnIsWow64Process =
+        (LPFN_ISWOW64PROCESS)GetProcAddress(GetModuleHandle(TEXT("kernel32")),
+                                            "IsWow64Process");
     BOOL isWow;
 
-    //check if windows is 64-bit 
+    // check if windows is 64-bit
     bool isWindows64bit = false;
 
 #ifdef _WIN64
-    //if we are a 64 bit app, windows is definitely 64 bit
+    // if we are a 64 bit app, windows is definitely 64 bit
     isWindows64bit = true;
 #else
-    //we are 32-bit application. Check if we are in Wow64 mode
-    if (fnIsWow64Process && fnIsWow64Process(GetCurrentProcess(),&isWow) && isWow) {
-        //if we are in Wow64 mode, windows is 64 bit
+    // we are 32-bit application. Check if we are in Wow64 mode
+    if (fnIsWow64Process && fnIsWow64Process(GetCurrentProcess(), &isWow) &&
+        isWow) {
+        // if we are in Wow64 mode, windows is 64 bit
         isWindows64bit = true;
     }
 #endif
 
-    //check if process is 64 bit
-    if (isWindows64bit && fnIsWow64Process && fnIsWow64Process(hProcess, &isWow) && !isWow) {
-        //windows is 64 bit, process is not in Wow64 mode, so process is 64 bit. This implies usage of 64 bit wrapper
+    // check if process is 64 bit
+    if (isWindows64bit && fnIsWow64Process &&
+        fnIsWow64Process(hProcess, &isWow) && !isWow) {
+        // windows is 64 bit, process is not in Wow64 mode, so process is 64
+        // bit. This implies usage of 64 bit wrapper
         return true;
     }
     return false;
 }
 #endif
 
-
 struct IPCMessage {
-    IPCMessage():m_ok(true) { m_message[0] = 0; };
+    IPCMessage() : m_ok(true) {
+        m_message[0] = 0;
+    };
     int8_t m_message[1000];
     int8_t m_ok;
 };
-
 
 std::string getWrapperPath() {
 #ifdef _WIN32
@@ -105,13 +108,13 @@ std::string getWrapperPath() {
 #else
     std::string ret = "DGLWrapper\\DGLWrapper.dll";
 #endif
-        
+
     char fileName[MAX_PATH];
     if (!GetModuleFileName(NULL, fileName, MAX_PATH)) {
         return ret;
     }
     std::string tmp = fileName;
-    size_t splitPoint=tmp.find_last_of("/\\");
+    size_t splitPoint = tmp.find_last_of("/\\");
     return tmp.substr(0, splitPoint) + "\\" + ret;
 #elif defined(__ANDROID__)
     return "/data/local/tmp/libdglwrapper.so";
@@ -126,34 +129,37 @@ using namespace std;
 int main(int argc, char** argv) {
 
     IPCMessage message;
-    IPCMessage* ipcMessage = &message; 
+    IPCMessage* ipcMessage = &message;
 
     DGLProcess::native_process_handle_t childHandle = 0;
 
     try {
 
         po::options_description desc("Allowed options");
-        desc.add_options()
-            ("help,h", "produce help message")
-            ("egl", "use egl mode")
-            ("nowait", "do not wait for debugger to connect");
+        desc.add_options()("help,h", "produce help message")(
+            "egl", "use egl mode")("nowait",
+                                   "do not wait for debugger to connect");
 
-        desc.add_options()
-            ("port", po::value< vector<string> >(), "Debugger TCP port number.");
+        desc.add_options()("port", po::value<vector<string> >(),
+                           "Debugger TCP port number.");
 
         po::options_description mandatory("Mandatory options");
-        mandatory.add_options()
-            ("execute", po::value< vector<string> >()->composing(), "command to execute. Use -- top supply additional args.");        
+        mandatory.add_options()(
+            "execute", po::value<vector<string> >()->composing(),
+            "command to execute. Use -- top supply additional args.");
 
         po::positional_options_description p;
         p.add("execute", -1);
 
-        po::options_description all; 
+        po::options_description all;
         all.add(desc).add(mandatory);
 
         po::variables_map vm;
-        po::store(po::command_line_parser(argc, argv).
-            options(all).positional(p).run(), vm);
+        po::store(po::command_line_parser(argc, argv)
+                      .options(all)
+                      .positional(p)
+                      .run(),
+                  vm);
         po::notify(vm);
 
         if (vm.count("help")) {
@@ -168,22 +174,25 @@ int main(int argc, char** argv) {
             throw std::runtime_error(out.str());
         }
 
-        std::string executable = vm["execute"].as< vector<string> >()[0];
+        std::string executable = vm["execute"].as<vector<string> >()[0];
         std::vector<std::string> arguments;
 
-        for (size_t i = 0; i < vm["execute"].as< vector<string> >().size(); i++) {
-            arguments.push_back(vm["execute"].as< vector<string> >()[i]);
+        for (size_t i = 0; i < vm["execute"].as<vector<string> >().size();
+             i++) {
+            arguments.push_back(vm["execute"].as<vector<string> >()[i]);
         }
 
         std::string wrapperPath = getWrapperPath();
-        Os::info("Executable: %s\nWrapper: %s\n\n\n", executable.c_str(), wrapperPath.c_str());
+        Os::info("Executable: %s\nWrapper: %s\n\n\n", executable.c_str(),
+                 wrapperPath.c_str());
 
         std::shared_ptr<DGLIPC> dglIPC = DGLIPC::Create();
 
 #ifdef __ANDROID__
-        //If we are running in processtree spawned by another  dglloader instance
-        //this variable will be non-zero length.
-        //On Android we have to catch that, to setup proper dl-interception
+        // If we are running in processtree spawned by another  dglloader
+        // instance
+        // this variable will be non-zero length.
+        // On Android we have to catch that, to setup proper dl-interception
         std::string oldUUID = Os::getEnv("dgl_uuid");
 #endif
 
@@ -198,30 +207,44 @@ int main(int argc, char** argv) {
         }
 
         if (vm.count("port")) {
-            std::string portStr = vm["port"].as< vector<string> >()[0];
+            std::string portStr = vm["port"].as<vector<string> >()[0];
             if (portStr.find("unix:") == 0) {
                 std::string portPath = portStr.substr(strlen("unix:"));
 #ifdef __ANDROID__
-                //On Android we do a small WA here: we expect app may not have enough permissions to 
-                //write it's socket, so we do a magic chmod here (as we have probably more access right than app)
-                std::string portPathCopy = portPath; //dirname may modify the passed string
+                // On Android we do a small WA here: we expect app may not have
+                // enough permissions to
+                // write it's socket, so we do a magic chmod here (as we have
+                // probably more access right than app)
+                std::string portPathCopy =
+                    portPath;    // dirname may modify the passed string
                 if (chmod(dirname(portPathCopy.c_str()), 0777) != 0) {
-                    throw std::runtime_error(std::string("Cannot change permission to unix socket directory: ") + Os::translateOsError(Os::getLastosError()));
+                    throw std::runtime_error(
+                        std::string(
+                            "Cannot change permission to unix socket "
+                            "directory: ") +
+                        Os::translateOsError(Os::getLastosError()));
                 }
 
-                //On Android we want to leave a trace of unix socket path, so GUI knows where to look for sockets.
+                // On Android we want to leave a trace of unix socket path, so
+                // GUI knows where to look for sockets.
                 int ret = 0;
                 void* libCUtils = dlopen("libcutils.so", RTLD_NOW);
-                int (*property_set)(const char *key, const char *value) = 
-                    reinterpret_cast<int (*)(const char*, const char*)>((ptrdiff_t)dlsym(libCUtils, "property_set"));
-                if (!property_set || (ret = property_set(DEBUGLER_SOCKET_PROP, portPath.c_str())) < 0) {
-                    Os::info("Cannot set %s system property: %d.", DEBUGLER_SOCKET_PROP, ret);
+                int (*property_set)(const char * key, const char* value) =
+                    reinterpret_cast<int (*)(const char*, const char*)>(
+                        (ptrdiff_t)dlsym(libCUtils, "property_set"));
+                if (!property_set ||
+                    (ret = property_set(DEBUGLER_SOCKET_PROP,
+                                        portPath.c_str())) < 0) {
+                    Os::info("Cannot set %s system property: %d.",
+                             DEBUGLER_SOCKET_PROP, ret);
                 }
 
 #endif
-                dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::UNIX, portPath);
+                dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::UNIX,
+                                        portPath);
             } else if (portStr.find("tcp:") == 0) {
-                dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::TCP, portStr.substr(strlen("tcp:")));
+                dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::TCP,
+                                        portStr.substr(strlen("tcp:")));
             } else {
                 dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::TCP, portStr);
             }
@@ -230,7 +253,7 @@ int main(int argc, char** argv) {
         DGLProcess process(executable, arguments);
 
         if (process.getHandle() == 0) {
-            //we are in forked out process
+// we are in forked out process
 #ifdef _WIN32
             assert(!"forked out on windows");
 #else
@@ -238,18 +261,26 @@ int main(int argc, char** argv) {
 
 #ifdef __ANDROID__
             {
-                //On Android this is the last change to get pointers required for dl-interception.
-                //Either copy them form existing dglloader ipc (if in processtree spawned by dglloader), 
-                //or get new values.
+                // On Android this is the last change to get pointers required
+                // for dl-interception.
+                // Either copy them form existing dglloader ipc (if in
+                // processtree spawned by dglloader),
+                // or get new values.
 
                 int dlOpenAddr, dlSymAddr;
                 if (oldUUID.length()) {
-                    std::shared_ptr<DGLIPC> oldDGLIPC = DGLIPC::CreateFromUUID(oldUUID);
+                    std::shared_ptr<DGLIPC> oldDGLIPC =
+                        DGLIPC::CreateFromUUID(oldUUID);
                     oldDGLIPC->getDLInternceptPointers(dlOpenAddr, dlSymAddr);
                 } else {
-                    const char* baseAddr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlclose));
-                    dlOpenAddr = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlopen)) - baseAddr;
-                    dlSymAddr  = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(&dlsym)) - baseAddr;
+                    const char* baseAddr = reinterpret_cast<char*>(
+                        reinterpret_cast<intptr_t>(&dlclose));
+                    dlOpenAddr = reinterpret_cast<char*>(
+                                     reinterpret_cast<intptr_t>(&dlopen)) -
+                                 baseAddr;
+                    dlSymAddr = reinterpret_cast<char*>(
+                                    reinterpret_cast<intptr_t>(&dlsym)) -
+                                baseAddr;
                 }
                 dglIPC->setDLInternceptPointers(dlOpenAddr, dlSymAddr);
             }
@@ -261,52 +292,60 @@ int main(int argc, char** argv) {
             childHandle = process.getHandle();
         }
 
-
-#ifdef _WIN32        
+#ifdef _WIN32
 #ifdef _WIN64
         if (!isProcess64Bit(process.getHandle())) {
-            throw std::runtime_error("Incompatible loader version: used 64bit, but process is not 64bit");
+            throw std::runtime_error(
+                "Incompatible loader version: used 64bit, but process is not "
+                "64bit");
         }
 #else
         if (isProcess64Bit(process.getHandle())) {
-            throw std::runtime_error("Incompatible loader version: used 32bit, but process is not 32bit");
+            throw std::runtime_error(
+                "Incompatible loader version: used 32bit, but process is not "
+                "32bit");
         }
 #endif
 
-        //process is running, but is suspended (user thread not started, some DLLMain-s may be run by now)
+// process is running, but is suspended (user thread not started, some DLLMain-s
+// may be run by now)
 
-        //inject thread with wrapper library loading code, run through DLLMain and InitializeThread() function
+// inject thread with wrapper library loading code, run through DLLMain and
+// InitializeThread() function
 
 #ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
         Inject(process.getHandle(), wrapperPath.c_str(), "LoaderThread");
         dglIPC->waitForRemoteThreadSemaphore();
 #else
-        HANDLE thread = Inject(process.getHandle(), wrapperPath.c_str(), "LoaderThread");
-        //wait for loader thread to finish dll inject
+        HANDLE thread =
+            Inject(process.getHandle(), wrapperPath.c_str(), "LoaderThread");
+        // wait for loader thread to finish dll inject
         WaitForSingleObject(thread, INFINITE);
 #endif
 
-        //resume process - now user thread is running
-        //whole OpenGL should be wrapped by now
+        // resume process - now user thread is running
+        // whole OpenGL should be wrapped by now
 
         if (ResumeThread(process.getMainThread()) == -1) {
             throw std::runtime_error("Cannot resume process");
         }
 #endif
+    }
+    catch (const std::exception& e) {
 
-    } catch (const std::exception& e) {
-
-        static_assert(sizeof(char) == sizeof(ipcMessage->m_message[0]), "Wrong IPC message element size");
+        static_assert(sizeof(char) == sizeof(ipcMessage->m_message[0]),
+                      "Wrong IPC message element size");
 
         if (int osError = Os::getLastosError()) {
-            snprintf((char*)ipcMessage->m_message, 1000, "%s: %s\n", e.what(), Os::translateOsError(osError).c_str());
+            snprintf((char*)ipcMessage->m_message, 1000, "%s: %s\n", e.what(),
+                     Os::translateOsError(osError).c_str());
         } else {
             snprintf((char*)ipcMessage->m_message, 1000, "%s\n", e.what());
         }
 
         if (childHandle) {
-            //We were able to start child process, but furhter setup failed.
-            //Kill the child ASAP.
+// We were able to start child process, but furhter setup failed.
+// Kill the child ASAP.
 #ifdef _WIN32
             TerminateProcess(childHandle, EXIT_FAILURE);
 #else
@@ -322,32 +361,37 @@ int main(int argc, char** argv) {
 
     std::string shmemName = Os::getEnv("dgl_loader_shmem");
     if (shmemName.length()) {
-        boost::interprocess::shared_memory_object shobj(boost::interprocess::open_only, shmemName.c_str(), boost::interprocess::read_write);
-        boost::interprocess::mapped_region region(shobj, boost::interprocess::read_write);
+        boost::interprocess::shared_memory_object shobj(
+            boost::interprocess::open_only, shmemName.c_str(),
+            boost::interprocess::read_write);
+        boost::interprocess::mapped_region region(
+            shobj, boost::interprocess::read_write);
         std::memset(region.get_address(), 0, region.get_size());
         memcpy(region.get_address(), ipcMessage, sizeof(IPCMessage));
     }
 
     std::string semaphore = Os::getEnv("dgl_loader_semaphore");
     if (semaphore.length()) {
-        boost::interprocess::named_semaphore sem(boost::interprocess::open_only, semaphore.c_str());
+        boost::interprocess::named_semaphore sem(boost::interprocess::open_only,
+                                                 semaphore.c_str());
         sem.post();
     }
 
     if (!ipcMessage->m_ok) {
         assert(!childHandle);
 
-        //failure - we were not able to setup properly exit code. 
-        //The failure reason is passed via IPC. Parrent process should check IPC data to distinguish
-        //loader failure vs. non-zero exit code from loader's child.
+        // failure - we were not able to setup properly exit code.
+        // The failure reason is passed via IPC. Parrent process should check
+        // IPC data to distinguish
+        // loader failure vs. non-zero exit code from loader's child.
         return EXIT_FAILURE;
     } else {
-    
-        //Wait for child process to exit. Return child process exit code.
+
+// Wait for child process to exit. Return child process exit code.
 #ifdef _WIN32
         DWORD exitCode;
-        WaitForSingleObject( childHandle, INFINITE );
-        GetExitCodeProcess( childHandle, &exitCode);
+        WaitForSingleObject(childHandle, INFINITE);
+        GetExitCodeProcess(childHandle, &exitCode);
         return exitCode;
 #else
         int exitCode;

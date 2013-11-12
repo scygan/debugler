@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 #ifndef GL_AUX_CONTEXT_H
 #define GL_AUX_CONTEXT_H
 
@@ -25,72 +24,73 @@ class DGLDisplayState;
 
 namespace dglState {
 
-    class GLContext; 
+class GLContext;
 
-    class GLAuxContext;
+class GLAuxContext;
 
-    class GLAuxContextSession {
-    public:
-        ~GLAuxContextSession();
-        GLAuxContextSession(GLAuxContext*);
-    private:
-        GLAuxContext* m_ctx;
-    };
+class GLAuxContextSession {
+   public:
+    ~GLAuxContextSession();
+    GLAuxContextSession(GLAuxContext*);
 
-    
-    class GLAuxContextSurface {
-    public:
-        GLAuxContextSurface(const DGLDisplayState* display, opaque_id_t pixfmt);
-        ~GLAuxContextSurface();
-        opaque_id_t getId() const;
-    private:
-        opaque_id_t m_DisplayId;
-        opaque_id_t m_Id;
-    };
+   private:
+    GLAuxContext* m_ctx;
+};
 
+class GLAuxContextSurface {
+   public:
+    GLAuxContextSurface(const DGLDisplayState* display, opaque_id_t pixfmt);
+    ~GLAuxContextSurface();
+    opaque_id_t getId() const;
 
-    class GLAuxContext {
-    public:
-        GLAuxContext(const GLContext*);
-        ~GLAuxContext();
+   private:
+    opaque_id_t m_DisplayId;
+    opaque_id_t m_Id;
+};
 
-        GLAuxContextSession makeCurrent();
+class GLAuxContext {
+   public:
+    GLAuxContext(const GLContext*);
+    ~GLAuxContext();
 
-        class GLQueries {
-        public:
-            GLQueries(GLAuxContext*);
+    GLAuxContextSession makeCurrent();
 
-            void setupInitialState();
+    class GLQueries {
+       public:
+        GLQueries(GLAuxContext*);
 
-            void auxGetTexImage(GLuint name, GLenum target, GLint level, GLenum format, GLenum type,  int width, int height, GLvoid* pixels);
+        void setupInitialState();
 
-        private:
-            GLuint getTextureShaderProgram(GLenum target, GLenum format);
+        void auxGetTexImage(GLuint name, GLenum target, GLint level,
+                            GLenum format, GLenum type, int width, int height,
+                            GLvoid* pixels);
 
-            GLuint fbo, vao, vbo, rbo, vshobj;
-            std::map<std::string, GLuint> programs;
+       private:
+        GLuint getTextureShaderProgram(GLenum target, GLenum format);
 
-            bool m_InitialState;
+        GLuint fbo, vao, vbo, rbo, vshobj;
+        std::map<std::string, GLuint> programs;
 
-            GLAuxContext* m_AuxCtx;
+        bool m_InitialState;
 
-        } queries;
+        GLAuxContext* m_AuxCtx;
 
-    private:
+    } queries;
 
-        opaque_id_t choosePixelFormat(opaque_id_t preferred, opaque_id_t displayId);
+   private:
+    opaque_id_t choosePixelFormat(opaque_id_t preferred, opaque_id_t displayId);
 
-        void doRefCurrent();
-        void doUnrefCurrent();
-        
-        opaque_id_t m_Id, m_PixelFormat;
-        const GLContext* m_Parrent;
-        int m_MakeCurrentRef;
+    void doRefCurrent();
+    void doUnrefCurrent();
 
-        std::shared_ptr<GLAuxContextSurface> m_AuxSurface;
+    opaque_id_t m_Id, m_PixelFormat;
+    const GLContext* m_Parrent;
+    int m_MakeCurrentRef;
 
-        friend class GLAuxContextSession;
-    };
+    std::shared_ptr<GLAuxContextSurface> m_AuxSurface;
 
-} //namespace
+    friend class GLAuxContextSession;
+};
+
+}    // namespace
 #endif

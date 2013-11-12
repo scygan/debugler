@@ -21,29 +21,31 @@
 
 class DGLDisplayState;
 namespace dglState {
-    class NativeSurfaceBase;
-    class GLContext;
+class NativeSurfaceBase;
+class GLContext;
 }
-
 
 /**
 * Class aggregating all thread-specific state
 */
 class DGLThreadState {
-public:
-
+   public:
     /**
      * Resets APIs to default state
      */
     void resetAPI();
 
     /**
-     * Setter for current context (should be called just after *MakeCurrent-like calls).
+     * Setter for current context (should be called just after *MakeCurrent-like
+     * calls).
      */
-    void bindContext(DGLDisplayState* dpy, opaque_id_t id, dglState::NativeSurfaceBase* drawSurface, dglState::NativeSurfaceBase* readSurface);
+    void bindContext(DGLDisplayState* dpy, opaque_id_t id,
+                     dglState::NativeSurfaceBase* drawSurface,
+                     dglState::NativeSurfaceBase* readSurface);
 
     /**
-     * Getter for current context (should be called just after *MakeCurrent-like calls).
+     * Getter for current context (should be called just after *MakeCurrent-like
+     * calls).
      */
     dglState::GLContext* getCurrentCtx();
 
@@ -52,9 +54,9 @@ public:
      */
     static void releaseAPI();
 
-     /**
-     *  Get current TSS
-     */
+    /**
+    *  Get current TSS
+    */
     static DGLThreadState* get();
 
     /**
@@ -67,14 +69,14 @@ public:
      */
     EGLenum getEGLApi();
 
-    /** 
+    /**
      *  Try enter actions processing
      *  bumps recursion guard
      *  returns true if actions should be processed
      */
     bool enterActionProcessing();
 
-    /** 
+    /**
      *  True if currently in action processing
      */
     bool inActionProcessing();
@@ -85,8 +87,7 @@ public:
      */
     void leaveActionProcessing();
 
-
-    struct  PrivAPI {
+    struct PrivAPI {
         /**
          * Thread-space pointer to current context object
          */
@@ -99,17 +100,14 @@ public:
 
     } privAPI;
 
-
-    struct  PrivDebuggerState {
+    struct PrivDebuggerState {
         /*
          * Current action recursion guard
          */
         bool m_ActionProcessing;
     } privDebugger;
-
-
 };
 
 #define gc DGLThreadState::get()->getCurrentCtx()
 
-#endif //TLS_H
+#endif    // TLS_H
