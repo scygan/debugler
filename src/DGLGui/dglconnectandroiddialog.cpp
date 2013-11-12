@@ -57,6 +57,8 @@ void DGLConnectAndroidDialog::adbConnect() {
 void DGLConnectAndroidDialog::selectDevice(const QString& serial) {
     if (m_CurrentDevice.get() &&
         m_CurrentDevice->getSerial() != serial.toStdString()) {
+
+        m_ui.label_deviceStatus->setText("unknown.");
         m_CurrentDevice->disconnect();
         m_CurrentDevice.reset();
     }
@@ -68,6 +70,8 @@ void DGLConnectAndroidDialog::selectDevice(const QString& serial) {
         CONNASSERT(m_CurrentDevice.get(),
                    SIGNAL(failed(DGLADBDevice*, std::string)), this,
                    SLOT(deviceFailed(DGLADBDevice*, std::string)));
+
+        m_ui.label_deviceStatus->setText("not prepared. Go to Tools-> Prepare Android device.");
     }
     m_ui.comboBox_2->clear();
 }
@@ -79,6 +83,8 @@ void DGLConnectAndroidDialog::reloadDevices() {
     DGLAdbCookie* cookie = DGLAdbInterface::get()->getDevices();
     CONNASSERT(cookie, SIGNAL(failed(std::string)), this,
                SLOT(adbFailed(std::string)));
+    CONNASSERT(cookie, SIGNAL(failed(std::string)), &m_ReloadTimer,
+        SLOT(stop()));
     CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this,
                SLOT(gotDevices(std::vector<std::string>)));
     cookie->process();
@@ -110,6 +116,10 @@ void DGLConnectAndroidDialog::gotDevices(std::vector<std::string> devices) {
 
 void DGLConnectAndroidDialog::gotProcesses(
     std::vector<DGLAdbProcess> processes) {
+
+
+    m_ui.label_deviceStatus->setText("ok.");
+
     std::sort(processes.begin(), processes.end());
     int j = 0;
     for (size_t i = 0; i < processes.size(); i++) {
@@ -137,13 +147,14 @@ void DGLConnectAndroidDialog::showEvent(QShowEvent* event) {
 
 void DGLConnectAndroidDialog::deviceFailed(DGLADBDevice* device,
                                            std::string reason) {
+    selectDevice("");
+
     QMessageBox::critical(this, tr("Device Error"),
                           QString::fromStdString(device->getSerial()) + ": " +
                               QString::fromStdString(reason));
 }
 
 void DGLConnectAndroidDialog::adbFailed(std::string reason) {
-    m_ReloadTimer.stop();
     QMessageBox::critical(this, tr("ADB Error"),
                           QString::fromStdString(reason));
 }

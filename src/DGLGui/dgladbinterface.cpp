@@ -211,6 +211,14 @@ const std::string& DGLADBDevice::getSerial() const { return m_Serial; }
 
 void DGLADBDevice::reloadProcessesGotPortString(
     const std::vector<std::string>& prop) {
+
+    const std::string& portString = prop[0];
+
+    if (!portString.size()) {
+        return;
+    }
+
+
     QString pathRegexStr = "^";
     size_t lastOffset = 0;
     int currentRegexGroup = 0;
@@ -218,12 +226,12 @@ void DGLADBDevice::reloadProcessesGotPortString(
     m_PidInSocketRegex = -1;
     m_PNameInSocketRegex = -1;
 
-    for (size_t i = 0; i < prop[0].length(); i++) {
-        if (prop[0][i] == '%' && i < (prop[0].length() + 1)) {
-            std::string current = prop[0].substr(lastOffset, i);
+    for (size_t i = 0; i < portString.length(); i++) {
+        if (portString[i] == '%' && i < (portString.length() + 1)) {
+            std::string current = portString.substr(lastOffset, i);
             pathRegexStr += QRegExp::escape(QString::fromStdString(current));
 
-            switch (prop[0][i + 1]) {
+            switch (portString[i + 1]) {
                 case 'p':
                     m_PidInSocketRegex = currentRegexGroup;
                     break;
@@ -242,8 +250,8 @@ void DGLADBDevice::reloadProcessesGotPortString(
         }
     }
 
-    if (lastOffset < prop[0].length()) {
-        std::string last = prop[0].substr(lastOffset);
+    if (lastOffset < portString.length()) {
+        std::string last = portString.substr(lastOffset);
         pathRegexStr += QRegExp::escape(QString::fromStdString(last));
     }
 
