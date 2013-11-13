@@ -119,7 +119,7 @@ void DGLDebugeeQTProcess::run(std::string cmd, std::string path,
             throw std::runtime_error("Create file mapping failed");
         }
 
-        char* header = static_cast<char*>(
+        const char* header = static_cast<char*>(
                 MapViewOfFileEx(hMap, FILE_MAP_READ, 0, 0, 0, nullptr));
         if (!header) {
             CloseHandle(hMap);
@@ -167,7 +167,9 @@ void DGLDebugeeQTProcess::run(std::string cmd, std::string path,
 
         WORD machine = iHeader->fileHeader.Machine;
 
+
         UnmapViewOfFile(header);
+
         CloseHandle(hMap);
         CloseHandle(file);
 
