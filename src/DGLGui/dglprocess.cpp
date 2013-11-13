@@ -162,6 +162,7 @@ void DGLDebugeeQTProcess::run(std::string cmd, std::string path,
 
         WORD machine = iHeader->fileHeader.Machine;
 
+        UnmapViewOfFile(header);
         CloseHandle(hMap);
         CloseHandle(file);
 
