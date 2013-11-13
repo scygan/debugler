@@ -134,25 +134,25 @@ void DGLDebugeeQTProcess::run(std::string cmd, std::string path,
         };
 #include <poppack.h>
 
-        char* currentHeader = header;
+        const char* currentHeader = header;
         unsigned int fileSize = GetFileSize(file, nullptr);
 
         bool correct = (fileSize >
                         (currentHeader - header) + sizeof(IMAGE_DOS_HEADER));
 
         if (correct) {
-            IMAGE_DOS_HEADER* dosHeader =
-                    reinterpret_cast<IMAGE_DOS_HEADER*>(currentHeader);
+            const IMAGE_DOS_HEADER* dosHeader =
+                    reinterpret_cast<const IMAGE_DOS_HEADER*>(currentHeader);
             correct &= (dosHeader->e_magic == IMAGE_DOS_SIGNATURE);
             currentHeader += dosHeader->e_lfanew;
             correct = (fileSize >
                        (currentHeader - header) + sizeof(IMAGE_HEADER));
         }
 
-        IMAGE_HEADER* iHeader = nullptr;
+        const IMAGE_HEADER* iHeader = nullptr;
 
         if (correct) {
-            iHeader = reinterpret_cast<IMAGE_HEADER*>(currentHeader);
+            iHeader = reinterpret_cast<const IMAGE_HEADER*>(currentHeader);
             correct &= (iHeader->signature == IMAGE_NT_SIGNATURE);
         }
 
