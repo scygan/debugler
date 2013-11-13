@@ -135,9 +135,14 @@ void DGLDebugeeQTProcess::run(std::string cmd, std::string path,
 #include <poppack.h>
 
         const char* currentHeader = header;
-        unsigned int fileSize = GetFileSize(file, nullptr);
+        DWORD fileSizeHigh;
+        DWORD fileSizeLow = GetFileSize(file, &fileSizeHigh);
 
-        bool correct = (fileSize >
+        bool correct = (fileSizeLow != INVALID_FILE_SIZE);
+
+        unsigned int fileSize = fileSizeHigh > 0 ? UINT_MAX : fileSizeLow;
+        
+        correct &= (fileSize >
                         (currentHeader - header) + sizeof(IMAGE_DOS_HEADER));
 
         if (correct) {
