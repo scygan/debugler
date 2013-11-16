@@ -11,7 +11,7 @@ set(dglgui_SOURCES
     dgltraceview.cpp dgltreeview.cpp dglprocess.cpp
     dglsyntaxhighlight.cpp dglblitterbase.cpp
     dglglsleditor.cpp dglconfigdialog.cpp dgladbinterface.cpp
-	dglconnectandroiddialog.cpp dglprovisionandroidwizard.cpp
+	dglconnectandroiddialog.cpp dglprepareandroidwizard.cpp
     )
 
 set(dglgui_HEADERS
