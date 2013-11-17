@@ -42,6 +42,7 @@ set(dglgui_FORMS
     ui/dglconfigdialog.ui
 	ui/dglconnectandroid.ui
 	ui/dglconnectandroidadb.ui
+	ui/dglandroidselectdev.ui
     )
 
 SET(dglgui_RESOURCES dglmainwindow.qrc)
