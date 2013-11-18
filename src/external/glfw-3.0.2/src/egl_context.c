@@ -115,7 +115,8 @@ static GLboolean chooseFBConfigs(const _GLFWwndconfig* wndconfig,
     EGLConfig* nativeConfigs;
     _GLFWfbconfig* usableConfigs;
     const _GLFWfbconfig* closest;
-    int i, nativeCount, usableCount;
+    int i, nativeCount;
+    size_t usableCount;
 
     eglGetConfigs(_glfw.egl.display, NULL, 0, &nativeCount);
     if (!nativeCount)

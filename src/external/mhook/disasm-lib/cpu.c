@@ -37,7 +37,6 @@ BYTE *GetAbsoluteAddressFromSelector(WORD Selector, DWORD Offset)
 	GATE_ENTRY *Gate;
 	ULONG_PTR Base;
 	
-	assert(Selector < 0x10000);
 	if (!GetThreadSelectorEntry(GetCurrentThread(), Selector, (LDT_ENTRY *)&Entry)) return NULL;
 	if (!Entry.Present) return NULL;
 	if (Entry.System)

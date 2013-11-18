@@ -76,7 +76,7 @@ std::vector<std::string> DGLRunDialog::getCommandLineArgs() {
         }
 
         if (numArgs > 0) {
-            ret.resize(numArgs);
+            ret.resize(static_cast<size_t>(numArgs));
             for (size_t i = 0; i < ret.size(); i++) {
                 ret[i] = QString::fromWCharArray(strings[i]).toStdString();
             }
@@ -135,14 +135,10 @@ bool DGLRunDialog::getModeEGL() {
 }
 
 void DGLRunDialog::updatePath() {
-    try {
-        QFileInfo info(m_ui.lineEdit_Executable->text());
-        m_ui.lineEdit_Path->setText(
-                QDir::toNativeSeparators(info.dir().path()));
-        ;
-    }
-    catch (...) {
-    }
+    QFileInfo info(m_ui.lineEdit_Executable->text());
+    m_ui.lineEdit_Path->setText(
+            QDir::toNativeSeparators(info.dir().path()));
+    ;
 }
 
 void DGLRunDialog::browseExecutable() {

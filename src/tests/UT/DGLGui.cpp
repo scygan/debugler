@@ -101,9 +101,9 @@ struct S {
 
 struct ExpFormat {
     int start;
-    int length;
+    size_t length;
     Format format;
-    ExpFormat(int s, int l, Format f) : start(s), length(l), format(f) {}
+    ExpFormat(int s, size_t l, Format f) : start(s), length(l), format(f) {}
 };
 
 std::vector<std::vector<ExpFormat> > getExpectedHL(

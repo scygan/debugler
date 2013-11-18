@@ -41,13 +41,13 @@ void DGLStateView::update(const dglnet::DGLResource& res) {
     bool initializeRows = !(m_Ui->tableWidget->rowCount());
 
     if (initializeRows) {
-        m_Ui->tableWidget->setRowCount(resource->m_Items.size());
+        m_Ui->tableWidget->setRowCount(static_cast<int>(resource->m_Items.size()));
 
         for (size_t i = 0; i < resource->m_Items.size(); i++) {
             QTableWidgetItem* item =
                     new QTableWidgetItem(resource->m_Items[i].m_Name.c_str());
             item->setFlags(Qt::ItemIsEnabled);
-            m_Ui->tableWidget->setItem(i, 0, item);
+            m_Ui->tableWidget->setItem(static_cast<int>(i), 0, item);
         }
     }
 
@@ -61,7 +61,7 @@ void DGLStateView::update(const dglnet::DGLResource& res) {
         }
         QTableWidgetItem* item = new QTableWidgetItem(valStream.str().c_str());
         item->setFlags(Qt::ItemIsEnabled);
-        m_Ui->tableWidget->setItem(i, 1, item);
+        m_Ui->tableWidget->setItem(static_cast<int>(i), 1, item);
     }
 }
 

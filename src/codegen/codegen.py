@@ -142,7 +142,8 @@ def parse(path, library, genNonExtTypedefs = False, skipTrace = False):
                     paramDeclList.append(paramDecl)
                 
             if entryPointName in entrypoints:
-                entrypoints[entryPointName].addLibrary(library)
+                if not (library in entrypoints[entryPointName].libraries):
+                    entrypoints[entryPointName].addLibrary(library)
                 continue #no further processing of entrypoint
             else:
                 entrypoints[entryPointName] = Entrypoint(library, genNonExtTypedefs, skipTrace, retType, paramNames, paramDeclList)

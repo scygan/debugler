@@ -73,7 +73,6 @@ void DGLProgramViewItem::update(const dglnet::DGLResource& res) {
 
     const dglnet::resource::DGLResourceProgram* resource =
             dynamic_cast<const dglnet::resource::DGLResourceProgram*>(&res);
-    std::string errorMsg;
 
     m_Ui.textEditLinker->setText(
             QString::fromStdString(resource->mLinkStatus.first));
@@ -111,17 +110,17 @@ void DGLProgramViewItem::update(const dglnet::DGLResource& res) {
         m_Ui.labelLinkStatus->setText(tr("Link status: success"));
     }
 
-    m_Ui.tableWidgetUniforms->setRowCount(resource->m_Uniforms.size());
+    m_Ui.tableWidgetUniforms->setRowCount(static_cast<int>(resource->m_Uniforms.size()));
     for (size_t i = 0; i < resource->m_Uniforms.size(); i++) {
         QTableWidgetItem* item =
                 new QTableWidgetItem(resource->m_Uniforms[i].m_name.c_str());
         item->setFlags(Qt::ItemIsEnabled);
-        m_Ui.tableWidgetUniforms->setItem(i, 0, item);
+        m_Ui.tableWidgetUniforms->setItem(static_cast<int>(i), 0, item);
 
         item = new QTableWidgetItem(
                 GetGLEnumName(resource->m_Uniforms[i].m_type).c_str());
         item->setFlags(Qt::ItemIsEnabled);
-        m_Ui.tableWidgetUniforms->setItem(i, 1, item);
+        m_Ui.tableWidgetUniforms->setItem(static_cast<int>(i), 1, item);
 
         if (resource->m_Uniforms[i].m_supportedType) {
             std::ostringstream valStream;
@@ -139,7 +138,7 @@ void DGLProgramViewItem::update(const dglnet::DGLResource& res) {
             item = new QTableWidgetItem(tr("Not supported by debugger"));
         }
         item->setFlags(Qt::ItemIsEnabled);
-        m_Ui.tableWidgetUniforms->setItem(i, 2, item);
+        m_Ui.tableWidgetUniforms->setItem(static_cast<int>(i), 2, item);
     }
     m_Ui.tableWidgetUniforms->resizeRowsToContents();
 }

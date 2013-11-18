@@ -117,12 +117,12 @@ void DGLBlitterBase::doBlit() {
         srcPixelSize = m_DataFormat->components * m_DataType->byteSize;
     }
 
-    int dstPixelSize = 0;
+    size_t dstPixelSize = 0;
     for (int i = 0; i < 4; i++) {
         if (outputOffsets[outputFormat][i] >= 0) dstPixelSize++;
     }
 
-    int targetRowBytes = (m_Width * dstPixelSize + 4 - 1) & (-4);
+    size_t targetRowBytes = (m_Width * dstPixelSize + 4 - 1) & (-4);
     if (outputData.size() < size_t(targetRowBytes * m_Height))
         outputData = std::vector<char>(targetRowBytes * m_Height);
 

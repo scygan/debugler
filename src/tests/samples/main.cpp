@@ -64,7 +64,6 @@ int main(int argc, char** argv) {
 
         if (vm.count("sample")) {
             sampleName = vm["sample"].as<std::vector<std::string> >()[0];
-            std::ostringstream out;
         }
 
         Platform platform;

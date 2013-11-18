@@ -116,7 +116,7 @@ std::string GetShaderStageName(gl_t glEnum) {
         case GL_COMPUTE_SHADER:
             return "Compute";
         default:
-            return GetGLEnumName(glEnum).c_str();
+            return GetGLEnumName(glEnum);
     }
 }
 
@@ -145,7 +145,7 @@ std::string GetTextureTargetName(gl_t glEnum) {
         case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
             return "2D MS Array";
         default:
-            return GetGLEnumName(glEnum).c_str();
+            return GetGLEnumName(glEnum);
     }
 }
 

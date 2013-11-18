@@ -59,9 +59,12 @@ void DGLTabbedView::ensureTabDisplayed(opaque_id_t ctxId, gl_t objName,
     for (int i = 0; i < m_TabWidget.count(); i++) {
         DGLTabbedViewItem* itemWidget =
                 dynamic_cast<DGLTabbedViewItem*>(m_TabWidget.widget(i));
-        if (itemWidget && itemWidget->getObjName().m_Context == ctxId &&
-            itemWidget->getObjName().m_Name == objName &&
-            itemWidget->getObjName().m_Target == target) {
+
+        const dglnet::ContextObjectName& ctxObjName = itemWidget->getObjName();
+
+        if (itemWidget && ctxObjName.m_Context == ctxId &&
+            ctxObjName.m_Name == objName &&
+            ctxObjName.m_Target == target) {
             found = true;
             m_TabWidget.setCurrentIndex(m_TabWidget.indexOf(itemWidget));
         }

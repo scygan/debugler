@@ -67,7 +67,7 @@ class DGLBlitterBase {
     unsigned int m_SrcStride;
     GLDataFormat* m_DataFormat;
     GLDataType* m_DataType;
-    unsigned int m_Width, m_Height;
+    size_t m_Width, m_Height;
 
     std::vector<char> outputData;
 

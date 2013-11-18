@@ -9,6 +9,7 @@ extern "C" {
 #include <stdio.h>
 #include <stdarg.h>
 #include <assert.h>
+#include <basetsd.h>
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -26,10 +27,8 @@ extern "C" {
 
 #if defined(_WIN64)
 	#define VALID_ADDRESS_MAX 0x7FFEFFFFFFFFFFFF // Win64 specific
-	typedef unsigned __int64 ULONG_PTR, *PULONG_PTR;
 #else
 	#define VALID_ADDRESS_MAX 0x7FFEFFFF // Win32 specific
-	typedef unsigned long ULONG_PTR, *PULONG_PTR;
 #endif
 
 #ifndef DECLSPEC_ALIGN

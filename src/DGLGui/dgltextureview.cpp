@@ -78,7 +78,7 @@ void DGLTextureViewItem::update(const dglnet::DGLResource& res) {
 
         m_Ui.comboBoxCM->setCurrentIndex(m_CurrentFace);
         m_Ui.horizontalSlider_LOD->setRange(
-                0, m_FacesLevels[m_CurrentFace].size() - 1);
+                0, static_cast<int>(m_FacesLevels[m_CurrentFace].size() - 1));
         m_Ui.horizontalSlider_LOD->setEnabled(true);
 
         internalUpdate();
@@ -90,7 +90,7 @@ void DGLTextureViewItem::update(const dglnet::DGLResource& res) {
 
 void DGLTextureViewItem::faceComboChanged(int value) {
     uint uvalue = value;
-    if (uvalue != m_CurrentFace && uvalue < m_FacesLevels.size()) {
+    if (uvalue != m_CurrentFace && uvalue < static_cast<uint>(m_FacesLevels.size())) {
         m_CurrentFace = uvalue;
         internalUpdate();
     }
@@ -99,7 +99,7 @@ void DGLTextureViewItem::faceComboChanged(int value) {
 void DGLTextureViewItem::levelSliderMoved(int value) {
     uint uvalue = value;
     if (uvalue != m_CurrentLevel &&
-        uvalue < m_FacesLevels[m_CurrentFace].size()) {
+        uvalue < static_cast<uint>(m_FacesLevels[m_CurrentFace].size())) {
         m_CurrentLevel = uvalue;
         internalUpdate();
     }
@@ -108,13 +108,13 @@ void DGLTextureViewItem::levelSliderMoved(int value) {
 void DGLTextureViewItem::internalUpdate() {
 
     // validate m_CurrentFace
-    if (m_CurrentFace >= m_FacesLevels.size()) {
+    if (m_CurrentFace >= static_cast<uint>(m_FacesLevels.size())) {
         m_PixelRectangleScene->setText("Selected texture face does not exists");
         return;
     }
 
     // validate m_CurrentLevel
-    if (m_CurrentLevel >= m_FacesLevels[m_CurrentFace].size()) {
+    if (m_CurrentLevel >= static_cast<uint>(m_FacesLevels[m_CurrentFace].size())) {
         m_PixelRectangleScene->setText(
                 "Selected texture level does not exists");
         return;

@@ -80,7 +80,7 @@ void Program::Link() {
         GLsizei infoLogLength;
         glGetProgramiv(m_name, GL_INFO_LOG_LENGTH, &infoLogLength);
         std::vector<char> infoLog(infoLogLength + 1);
-        glGetProgramInfoLog(m_name, infoLog.size(), &infoLogLength,
+        glGetProgramInfoLog(m_name, static_cast<GLsizei>(infoLog.size()), &infoLogLength,
                             &infoLog[0]);
         infoLog[infoLog.size() - 1] = '\0';
         error << &infoLog[0];

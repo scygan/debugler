@@ -56,9 +56,11 @@ class DGLHLTextCharFormat {
         bool bold = false, strikeout = false;
         std::string defFormat;
 
-        for (int i = 0; i < xml.attributes().count(); i++) {
-            QString name = xml.attributes().item(i).toAttr().nodeName();
-            QString val = xml.attributes().item(i).toAttr().nodeValue();
+        QDomNamedNodeMap attributes = xml.attributes();
+
+        for (int i = 0; i < attributes.count(); i++) {
+            QString name = attributes.item(i).toAttr().nodeName();
+            QString val = attributes.item(i).toAttr().nodeValue();
             if (name == "name") {
                 continue;
             } else if (name == "bold") {
@@ -422,7 +424,9 @@ class DGLHLContext {
 
     HLResult doHighlight(const QString& str) const {
         HLResult ret;
-        int best = -1, bestMatchSize = 0;
+        int bestMatchSize = 0;
+        size_t best = 0;
+        bool haveBest = false;
         uint bestPos = static_cast<uint>(str.size());
         for (size_t i = 0; i < m_rules.size(); i++) {
             uint pos;
@@ -433,9 +437,10 @@ class DGLHLContext {
                 bestPos = pos;
                 bestMatchSize = matchSize;
                 best = i;
+                haveBest = true;
             }
         }
-        if (best >= 0) {
+        if (haveBest) {
             ret.size = bestMatchSize;
             ret.pos = bestPos;
             ret.format = m_rules[best]->getFormat();
@@ -507,7 +512,7 @@ void DGLHLActionSetContext::doAction(DGLSyntaxHighlighterGLSL::HLState& state)
 }
 
 class DGLHLData {
-   public:
+
     DGLHLData() : m_case_sensitive(true) {
         const QString paths[] = {"glsl.xml", ":/res/glsl.xml"};
         std::shared_ptr<QFile> file;
@@ -722,9 +727,11 @@ DGLHLContext::DGLHLContext(const QDomElement& xml, const DGLHLData* data)
 
     m_LineEndAction = std::make_shared<DGLHLActionStay>();
 
-    for (int i = 0; i < xml.attributes().count(); i++) {
-        QString name = xml.attributes().item(i).toAttr().nodeName();
-        QString val = xml.attributes().item(i).toAttr().nodeValue();
+    QDomNamedNodeMap attribues = xml.attributes();
+
+    for (int i = 0; i < attribues.count(); i++) {
+        QString name = attribues.item(i).toAttr().nodeName();
+        QString val = attribues.item(i).toAttr().nodeValue();
         if (name == "name") {
 #ifdef HL_DEBUG
             m_debugName = val;

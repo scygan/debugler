@@ -140,7 +140,7 @@ void DGLDebugeeQTProcess::run(std::string cmd, std::string path,
 
         bool correct = (fileSizeLow != INVALID_FILE_SIZE);
 
-        unsigned int fileSize = fileSizeHigh > 0 ? UINT_MAX : fileSizeLow;
+        size_t fileSize = fileSizeHigh > 0 ? SIZE_MAX : fileSizeLow;
         
         correct &= (fileSize >
                         (currentHeader - header) + sizeof(IMAGE_DOS_HEADER));
@@ -149,8 +149,8 @@ void DGLDebugeeQTProcess::run(std::string cmd, std::string path,
             const IMAGE_DOS_HEADER* dosHeader =
                     reinterpret_cast<const IMAGE_DOS_HEADER*>(currentHeader);
             correct &= (dosHeader->e_magic == IMAGE_DOS_SIGNATURE);
-            currentHeader += dosHeader->e_lfanew;
-            correct = (fileSize >
+            currentHeader += static_cast<size_t>(dosHeader->e_lfanew);
+            correct &= (fileSize >
                        (currentHeader - header) + sizeof(IMAGE_HEADER));
         }
 

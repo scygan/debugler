@@ -357,7 +357,7 @@ int main(int argc, char** argv) {
             childHandle = 0;
         }
 
-        ipcMessage->m_ok = false;
+        ipcMessage->m_ok = int8_t(false);
     }
 
     Os::info("%s", ipcMessage->m_message);

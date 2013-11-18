@@ -209,7 +209,7 @@ const _GLFWfbconfig* _glfwChooseFBConfig(const _GLFWfbconfig* desired,
                                          const _GLFWfbconfig* alternatives,
                                          unsigned int count)
 {
-    unsigned int i;
+    size_t i;
     unsigned int missing, leastMissing = UINT_MAX;
     unsigned int colorDiff, leastColorDiff = UINT_MAX;
     unsigned int extraDiff, leastExtraDiff = UINT_MAX;
@@ -489,6 +489,7 @@ int _glfwStringInExtensionString(const char* string, const GLubyte* extensions)
     const GLubyte* start;
     GLubyte* where;
     GLubyte* terminator;
+    size_t string_length = strlen(string);
 
     // It takes a bit of care to be fool-proof about parsing the
     // OpenGL extensions string. Don't be fooled by sub-strings,
@@ -500,7 +501,7 @@ int _glfwStringInExtensionString(const char* string, const GLubyte* extensions)
         if (!where)
             return GL_FALSE;
 
-        terminator = where + strlen(string);
+        terminator = where + string_length;
         if (where == start || *(where - 1) == ' ')
         {
             if (*terminator == ' ' || *terminator == '\0')

@@ -130,7 +130,7 @@ class GLProgramObj : public GLObj {
     void forceLink();
 
    private:
-    int m_InUse;
+    bool m_InUse;
     bool m_Deleted;
     bool m_arbApi;
     std::set<GLShaderObj*> m_AttachedShaders;

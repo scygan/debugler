@@ -391,8 +391,10 @@ void DGLMainWindow::createActions() {
 
     // this action has a state - it is checbox-like checkable
 
+    DGLConfiguration& currentConfig = m_controller.getConfig();
+
     setBreakOnGLErrorAct->setCheckable(true);
-    setBreakOnGLErrorAct->setChecked(m_controller.getConfig().m_BreakOnGLError);
+    setBreakOnGLErrorAct->setChecked(currentConfig.m_BreakOnGLError);
     CONNASSERT(setBreakOnGLErrorAct, SIGNAL(toggled(bool)), this,
                SLOT(setBreakOnWhatever(bool)));
 
@@ -404,7 +406,7 @@ void DGLMainWindow::createActions() {
 
     setBreakOnDebugOutputAct->setCheckable(true);
     setBreakOnDebugOutputAct->setChecked(
-            m_controller.getConfig().m_BreakOnGLError);
+            currentConfig.m_BreakOnGLError);
     CONNASSERT(setBreakOnDebugOutputAct, SIGNAL(toggled(bool)), this,
                SLOT(setBreakOnWhatever(bool)));
 
@@ -417,7 +419,7 @@ void DGLMainWindow::createActions() {
 
     setBreakOnCompilerErrAct->setCheckable(true);
     setBreakOnCompilerErrAct->setChecked(
-            m_controller.getConfig().m_BreakOnCompilerError);
+            currentConfig.m_BreakOnCompilerError);
     CONNASSERT(setBreakOnCompilerErrAct, SIGNAL(toggled(bool)), this,
                SLOT(setBreakOnWhatever(bool)));
 
@@ -686,11 +688,13 @@ void DGLMainWindow::setBreakOnWhatever(bool) {
     // output
     // tell DGLController to configure it's debugee
 
-    m_controller.getConfig().m_BreakOnGLError =
+    DGLConfiguration& currentConfig = m_controller.getConfig();
+
+    currentConfig.m_BreakOnGLError =
             setBreakOnGLErrorAct->isChecked();
-    m_controller.getConfig().m_BreakOnDebugOutput =
+    currentConfig.m_BreakOnDebugOutput =
             setBreakOnDebugOutputAct->isChecked();
-    m_controller.getConfig().m_BreakOnCompilerError =
+    currentConfig.m_BreakOnCompilerError =
             setBreakOnCompilerErrAct->isChecked();
     m_controller.sendConfig();
     showConfig();
@@ -710,9 +714,12 @@ void DGLMainWindow::connectionLost(const QString &title, const QString &msg) {
 }
 
 void DGLMainWindow::showConfig() {
-    setBreakOnGLErrorAct->setChecked(m_controller.getConfig().m_BreakOnGLError);
+    
+    DGLConfiguration& currentConfig = m_controller.getConfig();
+
+    setBreakOnGLErrorAct->setChecked(currentConfig.m_BreakOnGLError);
     setBreakOnDebugOutputAct->setChecked(
-            m_controller.getConfig().m_BreakOnDebugOutput);
+            currentConfig.m_BreakOnDebugOutput);
     setBreakOnCompilerErrAct->setChecked(
-            m_controller.getConfig().m_BreakOnCompilerError);
+            currentConfig.m_BreakOnCompilerError);
 }
