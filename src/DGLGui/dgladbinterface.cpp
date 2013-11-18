@@ -209,6 +209,27 @@ void DGLADBDevice::reloadProcesses() {
 
 const std::string& DGLADBDevice::getSerial() const { return m_Serial; }
 
+void DGLADBDevice::portForward(std::string from, unsigned short to) {
+
+
+    std::vector<std::string> params;
+    params.push_back("forward");
+    {
+        std::ostringstream str;
+        str << "tcp:" << to;
+        params.push_back(str.str());
+    }
+    params.push_back("localfilesystem:" + from);
+
+    DGLAdbCookie* cookie = DGLAdbInterface::get()->invokeOnDevice(
+        m_Serial, params, std::make_shared<DGLEmptyOutputFilter>());
+    CONNASSERT(cookie, SIGNAL(failed(std::string)), this,
+        SLOT(adbFailed(std::string)));
+    CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this,
+        SIGNAL(portForwardSuccess()));
+    cookie->process();
+}
+
 void DGLADBDevice::reloadProcessesGotPortString(
         const std::vector<std::string>& prop) {
 

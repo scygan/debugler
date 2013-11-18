@@ -570,7 +570,8 @@ void DGLMainWindow::attachAndroidApp() {
     // execute connection dialog to obtain connection parameters
 
     if (m_ConnectAndroidDialog.exec() == QDialog::Accepted) {
-        throw std::runtime_error("unimplemented");
+        m_controller.connectServer("127.0.0.1",
+            m_ConnectAndroidDialog.getPort());
     }
 }
 

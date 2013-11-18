@@ -29,6 +29,9 @@ class DGLConnectAndroidDialog : public QDialog {
 
    public:
     DGLConnectAndroidDialog();
+
+    std::string getPort();
+
    public
 slots:
     void selectDevice(DGLADBDevice*);
@@ -38,7 +41,18 @@ slots:
 
     void gotProcesses(std::vector<DGLAdbProcess> devices);
 
+    void tryAccept();
+
+    void portForwardSuccess();
+
    private:
+
+    void updateProcesses();
+
+    unsigned short m_Port;
+
+    std::vector<DGLAdbProcess>  m_CurrentProcesses;
+
     Ui::DGLConnectAndroidDialogClass m_ui;
 };
 

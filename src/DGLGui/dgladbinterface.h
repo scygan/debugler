@@ -71,6 +71,9 @@ class DGLADBDevice : public QObject {
     DGLADBDevice(const std::string& serial);
     void reloadProcesses();
     const std::string& getSerial() const;
+
+    void portForward(std::string from, unsigned short to);
+
    public
 slots:
     void reloadProcessesGotPortString(const std::vector<std::string>& prop);
@@ -79,6 +82,9 @@ slots:
 signals:
     void gotProcesses(const std::vector<DGLAdbProcess>& data);
     void failed(DGLADBDevice*, const std::string&);
+    
+    void portForwardSuccess();
+
 
    private:
     std::string m_Serial;

@@ -21,7 +21,7 @@
 #include <stdexcept>
 #include <DGLCommon/def.h>
 
-DGLConnectAndroidDialog::DGLConnectAndroidDialog() {
+DGLConnectAndroidDialog::DGLConnectAndroidDialog():m_Port(0) {
     m_ui.setupUi(this);
 
     CONNASSERT(m_ui.selectDevWidget, SIGNAL(selectDevice(DGLADBDevice*)), this,
@@ -31,9 +31,16 @@ DGLConnectAndroidDialog::DGLConnectAndroidDialog() {
                SLOT(adbFailed(std::string)));
 }
 
+std::string DGLConnectAndroidDialog::getPort() {
+    std::stringstream portStr;
+    portStr << m_Port;
+    return portStr.str();
+}
+
 void DGLConnectAndroidDialog::selectDevice(DGLADBDevice* device) {
 
-    m_ui.comboBox_2->clear();
+    m_CurrentProcesses.clear();
+    updateProcesses();
 
     if (!device) {
         m_ui.label_deviceStatus->setText("No device selected.");
@@ -46,6 +53,8 @@ void DGLConnectAndroidDialog::selectDevice(DGLADBDevice* device) {
                    this, SLOT(gotProcesses(std::vector<DGLAdbProcess>)));
         CONNASSERT(device, SIGNAL(failed(DGLADBDevice*, std::string)), this,
                    SLOT(deviceFailed(DGLADBDevice*, std::string)));
+        CONNASSERT(device, SIGNAL(portForwardSuccess()), this,
+            SLOT(portForwardSuccess()));
     }
 }
 
@@ -57,27 +66,61 @@ void DGLConnectAndroidDialog::update() {
 
 void DGLConnectAndroidDialog::gotProcesses(
         std::vector<DGLAdbProcess> processes) {
+    
+    m_CurrentProcesses = processes;
+
+    updateProcesses();
+}
+
+void DGLConnectAndroidDialog::updateProcesses() {
 
     m_ui.label_deviceStatus->setText("ok.");
 
-    std::sort(processes.begin(), processes.end());
+    std::sort(m_CurrentProcesses.begin(), m_CurrentProcesses.end());
     int j = 0;
-    for (size_t i = 0; i < processes.size(); i++) {
-        while (j < m_ui.comboBox_2->count() &&
-               processes[i].getPid() <
-                       m_ui.comboBox_2->itemText(j).toStdString()) {
-            m_ui.comboBox_2->removeItem(j);
+    for (size_t i = 0; i < m_CurrentProcesses.size(); i++) {
+        while (j < m_ui.comboBoxProcess->count() &&
+               m_CurrentProcesses[i].getPid() <
+                       m_ui.comboBoxProcess->itemText(j).toStdString()) {
+            m_ui.comboBoxProcess->removeItem(j);
         }
-        if (m_ui.comboBox_2->itemText(j).toStdString() !=
-            processes[i].getPid()) {
-            m_ui.comboBox_2->insertItem(
-                    j, QIcon(), QString::fromStdString(processes[i].getPid()));
+        if (m_ui.comboBoxProcess->itemText(j).toStdString() !=
+            m_CurrentProcesses[i].getPid()) {
+            m_ui.comboBoxProcess->insertItem(
+                    j, QIcon(), QString::fromStdString(m_CurrentProcesses[i].getPid()));
         }
         j++;
     }
-    while (m_ui.comboBox_2->count() > j) {
-        m_ui.comboBox_2->removeItem(j);
+    while (m_ui.comboBoxProcess->count() > j) {
+        m_ui.comboBoxProcess->removeItem(j);
     }
+}
+
+void DGLConnectAndroidDialog::tryAccept() {
+
+    DGLADBDevice* device;
+
+    if ((device = m_ui.selectDevWidget->getCurrentDevice()) == NULL) {
+        QMessageBox::critical(this, tr("No device"),
+            tr("No device selected. Please select appropriate device and process."));
+        return;
+    }
+
+    int idx;
+
+    if (m_CurrentProcesses.size() == 0 || (idx = m_ui.comboBoxProcess->currentIndex()) < 0) {
+        QMessageBox::critical(this, tr("No process"),
+            tr("No process selected. Please select appropriate process running on device."));
+        return;
+    }
+
+    m_Port = rand() % (0xffff - 1024) + 1024;
+
+    device->portForward(m_CurrentProcesses[idx].getPortName(), m_Port);
+}
+
+void DGLConnectAndroidDialog::portForwardSuccess() {
+    accept();
 }
 
 void DGLConnectAndroidDialog::deviceFailed(DGLADBDevice* device,

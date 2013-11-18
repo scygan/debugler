@@ -47,7 +47,7 @@
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="QComboBox" name="comboBox_2">
+      <widget class="QComboBox" name="comboBoxProcess">
        <property name="editable">
         <bool>true</bool>
        </property>
@@ -148,7 +148,7 @@
    <sender>okButton</sender>
    <signal>clicked()</signal>
    <receiver>DGLConnectAndroidDialogClass</receiver>
-   <slot>accept()</slot>
+   <slot>tryAccept()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>267</x>
@@ -213,5 +213,6 @@
   <slot>adbKillServer()</slot>
   <slot>adbConnect()</slot>
   <slot>selectDevice(QString)</slot>
+  <slot>tryAccept()</slot>
  </slots>
 </ui>
