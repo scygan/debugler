@@ -512,7 +512,7 @@ void DGLHLActionSetContext::doAction(DGLSyntaxHighlighterGLSL::HLState& state)
 }
 
 class DGLHLData {
-
+   public:
     DGLHLData() : m_case_sensitive(true) {
         const QString paths[] = {"glsl.xml", ":/res/glsl.xml"};
         std::shared_ptr<QFile> file;
