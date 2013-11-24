@@ -24,6 +24,7 @@
 
 #ifdef _WIN32
 #undef min
+#undef max
 #endif
 
 // C++11 N2659 "Thread-Local Storage" walkarounds

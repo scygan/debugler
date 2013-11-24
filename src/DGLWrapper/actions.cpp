@@ -22,6 +22,7 @@
 #include "tls.h"
 #include "display.h"
 #include "native-surface.h"
+#include "gl-utils.h"
 
 #include <DGLCommon/gl-types.h>
 
@@ -730,6 +731,104 @@ void TextureAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     }
     PrevPost(call, ret);
 }
+
+void TextureFormatAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
+    Entrypoint entrp = call.getEntrypoint();
+    if (gc) {
+        GLenumWrap iFormat = 0; //codegen should convert all TexImage iFormats as GLenum.
+        GLenumWrap format = 0, type = 0;
+        GLint level = 0;
+        GLsizei width = 1, height = 1, depth = 1;
+        GLenumWrap target;
+        
+        bool immutable = false;
+
+        call.getArgs()[0].get(target); 
+        switch (entrp) {
+            case glTexImage1D_Call:
+                call.getArgs()[1].get(level);
+                call.getArgs()[2].get(iFormat); 
+                call.getArgs()[3].get(width);
+                call.getArgs()[call.getArgs().size() - 3].get(format);
+                call.getArgs()[call.getArgs().size() - 2].get(type);
+                break;
+            case glTexImage2D_Call:
+                call.getArgs()[1].get(level);
+                call.getArgs()[2].get(iFormat); 
+                call.getArgs()[3].get(width);
+                call.getArgs()[4].get(height);
+                call.getArgs()[call.getArgs().size() - 3].get(format);
+                call.getArgs()[call.getArgs().size() - 2].get(type);
+                break;
+            case glTexImage2DMultisample_Call:
+                call.getArgs()[2].get(iFormat); 
+                call.getArgs()[3].get(width);
+                call.getArgs()[4].get(height);
+                break;
+            case glTexImage3D_Call:
+            case glTexImage3DEXT_Call:
+            case glTexImage3DOES_Call:
+                call.getArgs()[1].get(level);
+                call.getArgs()[2].get(iFormat); 
+                call.getArgs()[3].get(width);
+                call.getArgs()[4].get(height);
+                call.getArgs()[5].get(depth);
+                call.getArgs()[call.getArgs().size() - 3].get(format);
+                call.getArgs()[call.getArgs().size() - 2].get(type);
+            break;
+            case glTexImage3DMultisample_Call:
+                call.getArgs()[2].get(iFormat); 
+                call.getArgs()[3].get(width);
+                call.getArgs()[4].get(height);
+                call.getArgs()[5].get(depth);
+                break;
+
+            case glTexStorage3DEXT_Call:
+            case glTexStorage3D_Call:
+                call.getArgs()[5].get(depth);
+                //fall through
+            case glTexStorage2DEXT_Call:
+            case glTexStorage2D_Call:
+                call.getArgs()[4].get(height);
+                //fall through
+            case glTexStorage1DEXT_Call:
+            case glTexStorage1D_Call:
+                call.getArgs()[1].get(level);
+                call.getArgs()[2].get(iFormat); 
+                call.getArgs()[3].get(width);
+                immutable = true;
+                break;
+
+            case glTexStorage3DMultisample_Call:
+                call.getArgs()[5].get(depth);
+                //fall through
+            case glTexStorage2DMultisample_Call:
+                call.getArgs()[4].get(height);
+                call.getArgs()[2].get(iFormat); 
+                call.getArgs()[3].get(width);
+                immutable = true;
+            break;
+        }
+
+        GLuint textureName;
+        if (glutils::getBoundTexture(target, textureName)) {
+
+            dglState::GLTextureObj* tex = gc->ensureTexture(textureName);
+
+            tex->setTarget(target);
+
+            if (immutable) {
+                tex->setTexStorage(level, width, height, depth, iFormat, format, type);
+            } else {
+                tex->setTexImage(level, width, height, depth, iFormat, format, type);
+            }
+
+        }
+        
+    }       
+    PrevPost(call, ret);
+}
+
 
 void BufferAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();

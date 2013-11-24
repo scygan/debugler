@@ -95,6 +95,10 @@ class TextureAction : public ActionBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
+class TextureFormatAction : public ActionBase {
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+};
+
 class BufferAction : public ActionBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };

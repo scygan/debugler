@@ -23,10 +23,9 @@ namespace {
 class DGLNetUT : public ::testing::Test {};
 
 TEST_F(DGLNetUT, formats_iformat) {
-    DGLPixelTransfer rgba8(std::vector<GLint>(), std::vector<GLint>(),
-                           GL_RGBA8);
-    EXPECT_EQ(rgba8.getFormat(), GL_RGBA);
-    EXPECT_EQ(rgba8.getType(), GL_UNSIGNED_BYTE);
+    DGLPixelTransfer xfer; xfer.initializeOGL(GL_RGBA8, std::vector<GLint>(), std::vector<GLint>());
+    EXPECT_EQ(xfer.getFormat(), GL_RGBA);
+    EXPECT_EQ(xfer.getType(), GL_UNSIGNED_BYTE);
 }
 
 TEST_F(DGLNetUT, formats_noiformat) {
@@ -35,9 +34,25 @@ TEST_F(DGLNetUT, formats_noiformat) {
     rgbaSizes[0] = rgbaSizes[1] = rgbaSizes[2] = 8;
     std::vector<GLint> dsSizes(2, 0);
 
-    DGLPixelTransfer rgba8(rgbaSizes, dsSizes, 0);
-    EXPECT_EQ(rgba8.getFormat(), GL_RGB);
-    EXPECT_EQ(rgba8.getType(), GL_UNSIGNED_BYTE);
+    DGLPixelTransfer xfer; xfer.initializeOGL(0, rgbaSizes, dsSizes);
+    EXPECT_EQ(xfer.getFormat(), GL_RGB);
+    EXPECT_EQ(xfer.getType(), GL_UNSIGNED_BYTE);
+}
+
+TEST_F(DGLNetUT, formats_esformat) {
+    {
+        DGLPixelTransfer xfer; xfer.initializeOGLES(GL_RGB10_A2, GL_RGBA, GL_UNSIGNED_BYTE);
+        EXPECT_EQ(xfer.getFormat(), GL_RGBA);
+        EXPECT_EQ(xfer.getType(), GL_UNSIGNED_INT_2_10_10_10_REV);
+    } {
+        DGLPixelTransfer xfer; xfer.initializeOGLES(GL_RGB4, GL_RGBA, GL_UNSIGNED_SHORT);
+        EXPECT_EQ(xfer.getFormat(), GL_RGBA);
+        EXPECT_EQ(xfer.getType(), GL_UNSIGNED_SHORT);
+    } {
+        DGLPixelTransfer xfer; xfer.initializeOGLES(GL_RGB4, 0, 0);
+        EXPECT_EQ(xfer.getFormat(), GL_RGBA);
+        EXPECT_EQ(xfer.getType(), GL_UNSIGNED_BYTE);
+    }
 }
 
 }    // namespace

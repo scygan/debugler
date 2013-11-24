@@ -112,6 +112,22 @@ void Initialize(void) {
     ActionBase::SetNext<TextureAction>(glBindTexture_Call);
     ActionBase::SetNext<TextureAction>(glBindTextureEXT_Call);
 
+    ActionBase::SetNext<TextureFormatAction>(glTexImage1D_Call);
+    ActionBase::SetNext<TextureFormatAction>(glTexImage2D_Call);
+    ActionBase::SetNext<TextureFormatAction>(glTexImage2DMultisample_Call);
+    ActionBase::SetNext<TextureFormatAction>(glTexImage3D_Call);
+    ActionBase::SetNext<TextureFormatAction>(glTexImage3DEXT_Call);
+    ActionBase::SetNext<TextureFormatAction>(glTexImage3DOES_Call);
+    ActionBase::SetNext<TextureFormatAction>(glTexImage3DMultisample_Call);
+    ActionBase::SetNext<TextureFormatAction>(glTexStorage1D_Call);
+    ActionBase::SetNext<TextureFormatAction>(glTexStorage2D_Call);
+    ActionBase::SetNext<TextureFormatAction>(glTexStorage2DMultisample_Call);
+    ActionBase::SetNext<TextureFormatAction>(glTexStorage3D_Call);
+    ActionBase::SetNext<TextureFormatAction>(glTexStorage3DMultisample_Call);
+    ActionBase::SetNext<TextureFormatAction>(glTexStorage1DEXT_Call);
+    ActionBase::SetNext<TextureFormatAction>(glTexStorage2DEXT_Call);
+    ActionBase::SetNext<TextureFormatAction>(glTexStorage3DEXT_Call);
+
     ActionBase::SetNext<BufferAction>(glGenBuffers_Call);
     ActionBase::SetNext<BufferAction>(glGenBuffersARB_Call);
     ActionBase::SetNext<BufferAction>(glDeleteBuffers_Call);

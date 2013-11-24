@@ -53,7 +53,11 @@ MSAADownSampler::MSAADownSampler(dglState::GLContext* context, GLenum attTarget,
 
         DIRECT_CALL_CHK(glGenTextures)(1, &m_DownsampledResource);
 
-        GLint lastTexture = getBoundTexture(GL_TEXTURE_2D);
+        GLuint lastTexture;
+        if (!getBoundTexture(GL_TEXTURE_2D, lastTexture)) {
+            //should not happen for 2D textures
+            assert(0);
+        }
 
         DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D, m_DownsampledResource);
         DIRECT_CALL_CHK(glTexImage2D)(GL_TEXTURE_2D, 0, attInternalFormat,
@@ -67,7 +71,11 @@ MSAADownSampler::MSAADownSampler(dglState::GLContext* context, GLenum attTarget,
 
         DIRECT_CALL_CHK(glGenTextures)(1, &m_DownsampledResource);
 
-        GLint lastTexture = getBoundTexture(GL_TEXTURE_2D_ARRAY);
+        GLuint lastTexture;
+        if (!getBoundTexture(GL_TEXTURE_2D_ARRAY, lastTexture)) {
+            //should not happen for 2D_ARRAY texture
+            assert(0);
+        }
 
         DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D_ARRAY,
                                        m_DownsampledResource);
@@ -164,7 +172,7 @@ GLenum textTargetToBindableTarget(GLenum target) {
     }
 }
 
-GLuint getBoundTexture(GLenum target) {
+bool getBoundTexture(GLenum target, GLuint& name) {
 #ifdef WA_ARM_MALI_EMU_GETTERS_OVERFLOW
     // WA for buggy ARM Mali OpenGL ES 3.0 emulator, where to really much data
     // is returned from glGetIntegerv
@@ -212,12 +220,16 @@ GLuint getBoundTexture(GLenum target) {
             DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_CUBE_MAP_ARRAY,
                                            lastTexture);
             break;
-
+        case GL_TEXTURE_EXTERNAL_OES:
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_EXTERNAL_OES,
+                                           lastTexture);
         default:
             assert(0);
+            return false;
     }
 
-    return lastTexture[0];
+    name =  lastTexture[0];
+    return true;
 }
 
 }    // namespace glutils

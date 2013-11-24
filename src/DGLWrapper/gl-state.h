@@ -49,25 +49,60 @@ class GLTextureObj : public GLObj {
     GLTextureObj() {}
 
     /**
-     * Get texture target (it is detected usually on glBindTexture())
+     * Set texture target (it is detected usually on glBindTexture())
      */
     void setTarget(GLenum);
+
+    /** 
+     * Set texture level image params (called on glTexImage)
+     */
+    void setTexImage(GLuint level, GLsizei width, GLsizei height, GLsizei depth, GLenum internalFormat, GLenum format, GLenum type);
+
+    /** 
+     * Set texture params (called on glTexStorage)
+     */
+    void setTexStorage(GLuint levels, GLsizei width, GLsizei height, GLsizei depth, GLenum internalFormat, GLenum format, GLenum type);
 
     /**
      * Get texture target
      */
-    GLenum getTarget();
+    GLenum getTarget() const;
 
     /**
-     * Get texture level target from texture target and face
+     * Get  target of texture level. 
+     *
+     * Face is required argument for cubemaps.
      */
-    GLenum getTextureLevelTarget(int face);
+    GLenum getTextureLevelTarget(int face) const;
 
+    /**
+     * Class describing level parameters 
+     */
+    class GLTextureLevel {
+    public:
+        GLTextureLevel();
+        GLTextureLevel(GLenum requestedInternalFormat, GLenum requestedDataType, GLsizei width, GLsizei height, GLsizei depth);
+
+        GLenum m_RequestedInternalFormat;
+        GLenum m_RequestedDataType;
+        GLsizei m_Width, m_Height, m_Depth;
+    };
+
+    /**
+     * Getter for requested texture level parameters
+     */
+    const GLTextureLevel* getRequestedLevel(GLint level) const;
+   
    private:
     /**
      * Texture target. Must be cached here - not retrievable by GL API
      */
     GLenum m_Target;
+
+    /** 
+     * Level parameters
+     */
+    std::vector<GLTextureLevel> m_Levels;
 };
 
 class GLBufferObj : public GLObj {
@@ -226,7 +261,7 @@ class GLContext {
      * texture level query (dispatches to proper query)
      */
     boost::shared_ptr<dglnet::resource::DGLPixelRectangle> queryTextureLevel(
-            gl_t _name, GLenum target, int level,
+            const GLTextureObj* tex, int level, int face,
             state_setters::PixelStoreAlignment&);
 
     /**
@@ -234,17 +269,24 @@ class GLContext {
      */
     boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
             queryTextureLevelGetters(
-                    GLenum target, int level,
+                    const GLTextureObj* tex, int level, int face,
                     state_setters::PixelStoreAlignment& defAlignment);
 
     /**
      * texture level query (OpenGL ES, using auxiliary ctx)
      */
     boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
-            queryTextureLevelAuxCtx(gl_t _name, GLenum target, int level);
+            queryTextureLevelAuxCtx(const GLTextureObj* tex, int level, int face);
 
-    bool textureProbeSizeES(GLenum target, int level, const int sizes[3]);
-    int textureBisectSizeES(GLenum target, int level, int coord, int maxSize);
+
+    /**
+     * texture level size query (using getters, or bisection)
+     */
+    void queryTextureLevelSize(const GLTextureObj* tex, GLuint level,
+                               GLint* width, GLint* height, GLint* depth);
+
+    bool textureProbeSizeES(GLenum levelTarget, int level, const int sizes[3]);
+    int textureBisectSizeES(GLenum levelTarget, int level, int coord, int maxSize);
 
     opaque_id_t getId() const;
 

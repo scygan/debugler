@@ -47,15 +47,27 @@ struct GLInternalFormat {
 class GLFormats {
    public:
     static GLInternalFormat* getInternalFormat(gl_t internalFormat);
+
     static GLDataFormat* getDataFormat(gl_t dataFormat);
     static GLDataType* getDataType(gl_t dataType);
+
+    static GLenum getBestRenderableFormat(GLenum internalFormat, GLenum type);
 };
+
 
 class DGLPixelTransfer {
    public:
-    DGLPixelTransfer(std::vector<GLint> _rgbaSizes,
-                     std::vector<GLint> _depthStencilSizes,
-                     GLenum internalFormat);
+       
+       DGLPixelTransfer();
+
+       //OpenGL preferred initializer
+       bool initializeOGL(GLenum internalFormat,
+           std::vector<GLint> _rgbaSizes = std::vector<GLint>(4, 0),
+           std::vector<GLint> _depthStencilSizes =
+           std::vector<GLint>(2, 0));
+       
+       //OpenGL ES preferred initializer
+       bool initializeOGLES(GLenum internalFormat, GLenum implReadFormat, GLenum implReadType);
 
     bool isValid();
     gl_t getFormat();

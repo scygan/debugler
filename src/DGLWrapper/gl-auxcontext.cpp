@@ -251,10 +251,11 @@ void GLAuxContext::GLQueries::setupInitialState() {
     m_InitialState = true;
 }
 
-void GLAuxContext::GLQueries::auxGetTexImage(GLuint name, GLenum target,
-                                             GLint level, GLenum format,
-                                             GLenum type, int width, int height,
-                                             GLvoid* pixels) {
+void GLAuxContext::GLQueries::auxDrawTexture(GLuint name, GLenum target,
+                                             GLint level,
+                                             GLenum textureBaseFormat,
+                                             GLenum renderableFormat, int width,
+                                             int height) {
 
     if (!m_AuxCtx->m_Parrent->getVersion().check(GLContextVersion::Type::ES,
                                                  2)) {
@@ -269,37 +270,27 @@ void GLAuxContext::GLQueries::auxGetTexImage(GLuint name, GLenum target,
                 "Texture object not found in auxaliary context");
     }
 
-    GLenum bindableTarget = target;
-    if (target >= GL_TEXTURE_CUBE_MAP_POSITIVE_X &&
-        target <= GL_TEXTURE_CUBE_MAP_NEGATIVE_Z) {
-        target = GL_TEXTURE_CUBE_MAP;
-    }
+    DIRECT_CALL_CHK(glBindTexture)(target, name);
 
-    DIRECT_CALL_CHK(glBindTexture)(bindableTarget, name);
-
-    DIRECT_CALL_CHK(glRenderbufferStorage)(GL_RENDERBUFFER, GL_RGBA4, width,
+    DIRECT_CALL_CHK(glRenderbufferStorage)(GL_RENDERBUFFER, renderableFormat, width,
                                            height);
 
-    GLuint program = getTextureShaderProgram(target, format);
+    GLuint program = getTextureShaderProgram(target, textureBaseFormat);
     DIRECT_CALL_CHK(glUseProgram)(program);
     DIRECT_CALL_CHK(glUniform1f)(
             DIRECT_CALL_CHK(glGetUniformLocation)(program, "level"),
             static_cast<GLfloat>(level));
 
     DIRECT_CALL_CHK(glDrawArrays)(GL_TRIANGLE_STRIP, 0, 4);
-    DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, format, type, pixels);
-
-    if (DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR) {
-        throw std::runtime_error("Got GL error on auxiliary context");
-    }
 }
 
-GLuint GLAuxContext::GLQueries::getTextureShaderProgram(GLenum target,
-                                                        GLenum format) {
+GLuint GLAuxContext::GLQueries::getTextureShaderProgram(
+        GLenum target, GLenum textureBaseFormat) {
 
     std::string suffix, pos;
 
-    if (format != GL_RGBA) {
+    if (textureBaseFormat != GL_RGBA && textureBaseFormat != GL_RGB &&
+        textureBaseFormat != GL_RG && textureBaseFormat != GL_RED) {
         throw std::runtime_error(
                 "GLAuxContext::GLQueries::getTextureShaderProgram: format "
                 "unsupported");

@@ -61,12 +61,11 @@ class GLAuxContext {
 
         void setupInitialState();
 
-        void auxGetTexImage(GLuint name, GLenum target, GLint level,
-                            GLenum format, GLenum type, int width, int height,
-                            GLvoid* pixels);
+        void auxDrawTexture(GLuint name, GLenum target, GLint level,
+                            GLenum textureBaseFormat, GLenum renderableFormat, int width, int height);
 
        private:
-        GLuint getTextureShaderProgram(GLenum target, GLenum format);
+        GLuint getTextureShaderProgram(GLenum target, GLenum textureBaseFormat);
 
         GLuint fbo, vao, vbo, rbo, vshobj;
         std::map<std::string, GLuint> programs;

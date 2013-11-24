@@ -49,7 +49,7 @@ GLenum textTargetToBindableTarget(GLenum);
 /**
  * Get texture currently bound to given target
  */
-GLuint getBoundTexture(GLenum target);
+bool getBoundTexture(GLenum target, GLuint& name);
 
 }    // namespace glutils
 #endif
