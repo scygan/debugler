@@ -811,8 +811,8 @@ if( ARMEABI OR ARMEABI_V7A )
   # O3 instead of O2/Os in release mode - like cmake sets for desktop gcc
   set( _CMAKE_CXX_FLAGS_RELEASE "-mthumb -O3" )
   set( _CMAKE_C_FLAGS_RELEASE   "-mthumb -O3" )
-  set( _CMAKE_CXX_FLAGS_DEBUG "-marm -Os -finline-limit=64" )
-  set( _CMAKE_C_FLAGS_DEBUG   "-marm -Os -finline-limit=64" )
+  set( _CMAKE_CXX_FLAGS_DEBUG "-mthumb -O0 -finline-limit=64" )
+  set( _CMAKE_C_FLAGS_DEBUG   "-mthumb -O0 -finline-limit=64" )
  else()
   # always compile ARMEABI_V6 in arm mode; otherwise there is no difference from ARMEABI
   # O3 instead of O2/Os in release mode - like cmake sets for desktop gcc
