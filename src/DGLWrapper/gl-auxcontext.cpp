@@ -25,6 +25,7 @@ namespace dglState {
 
 GLAuxContextSession::GLAuxContextSession(GLAuxContext* ctx) : m_ctx(ctx) {
     m_ctx->doRefCurrent();
+    m_ctx->queries.setupInitialState();
 }
 
 GLAuxContextSession::~GLAuxContextSession() { m_ctx->doUnrefCurrent(); }
@@ -119,8 +120,6 @@ void GLAuxContext::doRefCurrent() {
         if (!status) {
             throw std::runtime_error("Cannot switch to auxaliary context.");
         }
-
-        queries.setupInitialState();
     }
 
     m_MakeCurrentRef++;
@@ -198,7 +197,8 @@ GLAuxContext::GLQueries::GLQueries(GLAuxContext* ctx)
 
 void GLAuxContext::GLQueries::setupInitialState() {
 
-    if (m_InitialState) return DIRECT_CALL_CHK(glGenFramebuffers)(1, &fbo);
+    if (m_InitialState) return;
+    DIRECT_CALL_CHK(glGenFramebuffers)(1, &fbo);
     DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, fbo);
 
     DIRECT_CALL_CHK(glGenRenderbuffers)(1, &rbo);
