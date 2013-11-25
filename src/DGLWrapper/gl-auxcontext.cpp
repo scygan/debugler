@@ -281,6 +281,11 @@ void GLAuxContext::GLQueries::auxDrawTexture(GLuint name, GLenum target,
             DIRECT_CALL_CHK(glGetUniformLocation)(program, "level"),
             static_cast<GLfloat>(level));
 
+
+    DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, fbo);
+    DIRECT_CALL_CHK(glClear)(GL_COLOR_BUFFER_BIT);
+    DIRECT_CALL_CHK(glViewport)(0, 0, width, height);
+
     DIRECT_CALL_CHK(glDrawArrays)(GL_TRIANGLE_STRIP, 0, 4);
 }
 
