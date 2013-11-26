@@ -176,7 +176,7 @@ DGLAdbProcess::DGLAdbProcess(const std::string& pid, const std::string& name,
                              const std::string& portName)
         : m_Pid(pid), m_Name(name), m_PortName(portName) {}
 
-bool DGLAdbProcess::operator<(const DGLAdbProcess& other) {
+bool DGLAdbProcess::operator<(const DGLAdbProcess& other) const {
     if (m_Name < other.getName()) {
         return true;
     } else if (m_Name == other.getName()) {

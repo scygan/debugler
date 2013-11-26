@@ -54,7 +54,7 @@ class DGLAdbProcess {
    public:
     DGLAdbProcess(const std::string& pid, const std::string& name,
                   const std::string& portName);
-    bool operator<(const DGLAdbProcess& other);
+    bool operator<(const DGLAdbProcess& other) const;
     const std::string& getPid() const;
     const std::string& getName() const;
     const std::string& getPortName() const;

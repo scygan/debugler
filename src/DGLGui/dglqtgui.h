@@ -19,16 +19,16 @@
 // include QTGui.h with some warnings disabled
 
 #pragma warning(push)
-#pragma warning(disable : 4512)    // assignment operator could not be \
-                                   // generated
-#pragma warning(disable \
-                : 4800)    // 'uint' : forcing value to bool 'true' or \
-                                   // 'false' (performance warning)
-#pragma warning(disable \
-                : 4251)    // 'QStyleOption::state' : class          \
-                                   // 'QFlags<Enum>' needs to have           \
-                                   // dll-interface to be used by clients of \
-                                   // class 'QStyleOption'
+
+// assignment operator could not be generated
+#pragma warning(disable: 4512)
+
+// 'uint' : forcing value to bool 'true' or 'false' (performance warning)
+#pragma warning(disable: 4800)
+
+// 'QStyleOption::state' : class 'QFlags<Enum>' needs to have
+// dll-interface to be used by clients of class 'QStyleOption'
+#pragma warning(disable: 4251)
 
 #include <QtGui>
 #include <QLayoutItem>

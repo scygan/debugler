@@ -11,7 +11,8 @@ set(dglgui_SOURCES
     dgltraceview.cpp dgltreeview.cpp dglprocess.cpp
     dglsyntaxhighlight.cpp dglblitterbase.cpp
     dglglsleditor.cpp dglconfigdialog.cpp dgladbinterface.cpp
-	dglconnectandroiddialog.cpp dglprepareandroidwizard.cpp
+    dglconnectandroiddialog.cpp dglprepareandroidwizard.cpp
+    dglandroidselectdev.cpp
     )
 
 set(dglgui_HEADERS
@@ -23,7 +24,10 @@ set(dglgui_HEADERS
     dgltabbedview.h dgltextureview.h dgltraceview.h
     dgltreeview.h dglsyntaxhighlight.h
     dglconfigdialog.h dglglsleditor.h dglconnectandroiddialog.h
-    dglprocess.h dgladbinterface.h #dglblitterbase.h <- no need for Qt moc here.
+    dglprocess.h dgladbinterface.h
+    dglconnectandroiddialog.h dglprepareandroidwizard.h
+    dglandroidselectdev.h
+    #dglblitterbase.h <- no need for Qt moc here.
     )
 
 set(dglgui_FORMS
@@ -40,9 +44,9 @@ set(dglgui_FORMS
     ui/dglstateview.ui
     ui/dgltextureviewitem.ui
     ui/dglconfigdialog.ui
-	ui/dglconnectandroid.ui
-	ui/dglconnectandroidadb.ui
-	ui/dglandroidselectdev.ui
+    ui/dglconnectandroid.ui
+    ui/dglconnectandroidadb.ui
+    ui/dglandroidselectdev.ui
     )
 
 SET(dglgui_RESOURCES dglmainwindow.qrc)

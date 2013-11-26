@@ -17,10 +17,11 @@
 #include "platform.h"
 
 #pragma warning(push)
-#pragma warning( \
-        disable  \
-        : 4512)    //'boost::program_options::options_description' : \
-                           //assignment operator could not be generated
+
+//'boost::program_options::options_description' : 
+//  assignment operator could not be generated
+#pragma warning(disable: 4512)
+
 #include <boost/program_options/options_description.hpp>
 #pragma warning(pop)
 #include <boost/program_options/positional_options.hpp>

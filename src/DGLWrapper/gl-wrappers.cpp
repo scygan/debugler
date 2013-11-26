@@ -369,6 +369,41 @@ class DGLWrapperCookie {
         }
     }
 
+
+    template <typename T1, typename T2, typename T3, typename T4, typename T5,
+              typename T6, typename T7, typename T8, typename T9, typename T10,
+              typename T11, typename T12, typename T13, typename T14,
+              typename T15, typename T16, typename T17, typename T18>
+    DGLWrapperCookie(Entrypoint entrypoint, T1 arg1, T2 arg2, T3 arg3, T4 arg4,
+                     T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10,
+                     T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15,
+                     T16 arg16, T17 arg17, T18 arg18)
+            : m_Call(entrypoint, 17), m_ThreadState(DGLThreadState::get()) {
+        m_ProcessActions = m_ThreadState->enterActionProcessing();
+        if (m_ProcessActions) {
+            m_Call << arg1;
+            m_Call << arg2;
+            m_Call << arg3;
+            m_Call << arg4;
+            m_Call << arg5;
+            m_Call << arg6;
+            m_Call << arg7;
+            m_Call << arg8;
+            m_Call << arg9;
+            m_Call << arg10;
+            m_Call << arg11;
+            m_Call << arg12;
+            m_Call << arg13;
+            m_Call << arg14;
+            m_Call << arg15;
+            m_Call << arg16;
+            m_Call << arg17;
+            m_Call << arg18;
+            tracePre();
+        }
+    }
+
+
     ~DGLWrapperCookie() {
         if (m_ProcessActions) {
             try {
