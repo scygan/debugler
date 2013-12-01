@@ -24,7 +24,6 @@
 struct GLDataType {
     gl_t type;
     unsigned int byteSize;
-    unsigned int precision;
     bool packed;
     void (*blitFunc)(const int* outputOffsets, size_t width, size_t height,
                      const void* src, void* dst, size_t srcStride, size_t dstStride,
