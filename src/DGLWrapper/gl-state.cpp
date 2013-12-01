@@ -34,6 +34,7 @@
 #include "gl-auxcontext.h"
 
 #include <DGLCommon/def.h>
+#include <DGLCommon/os.h>
 #include <DGLNet/protocol/pixeltransfer.h>
 
 namespace dglState {
@@ -50,29 +51,33 @@ void GLTextureObj::setTarget(GLenum target) {
     if (!m_Target) m_Target = target;
 }
 
-
-void GLTextureObj::setTexImage(GLuint level, GLsizei width, GLsizei height, GLsizei depth, GLenum internalFormat, GLenum, GLenum type) {
+void GLTextureObj::setTexImage(GLuint level, GLsizei width, GLsizei height,
+                               GLsizei depth, GLenum internalFormat, GLenum,
+                               GLenum type) {
     if (m_Levels.size() < static_cast<size_t>((level + 1))) {
         m_Levels.resize(level + 1);
     }
-   
-    m_Levels[level] = GLTextureLevel(internalFormat, type, width, height, depth);
+
+    m_Levels[level] =
+            GLTextureLevel(internalFormat, type, width, height, depth);
 }
 
-void GLTextureObj::setTexStorage(GLuint levels, GLsizei width, GLsizei height, GLsizei depth, GLenum internalFormat, GLenum format, GLenum type) {
-    int levelWidth = width; 
-    int levelHeight = height; 
-    int levelDepth = depth; 
+void GLTextureObj::setTexStorage(GLuint levels, GLsizei width, GLsizei height,
+                                 GLsizei depth, GLenum internalFormat,
+                                 GLenum format, GLenum type) {
+    int levelWidth = width;
+    int levelHeight = height;
+    int levelDepth = depth;
 
     m_Levels.resize(levels);
 
     for (GLuint i = 0; i < levels; i++) {
-        setTexImage(i, levelWidth, levelHeight, levelDepth, internalFormat, format, type);
-        levelWidth  = std::max(1, (levelWidth  / 2));
+        setTexImage(i, levelWidth, levelHeight, levelDepth, internalFormat,
+                    format, type);
+        levelWidth = std::max(1, (levelWidth / 2));
         levelHeight = std::max(1, (levelHeight / 2));
-        levelDepth  = std::max(1, (levelDepth  / 2));
+        levelDepth = std::max(1, (levelDepth / 2));
     }
-
 }
 
 GLenum GLTextureObj::getTarget() const { return m_Target; }
@@ -100,7 +105,11 @@ GLenum GLTextureObj::getTextureLevelTarget(int face) const {
 }
 
 GLTextureObj::GLTextureLevel::GLTextureLevel()
-        : m_RequestedInternalFormat(0), m_RequestedDataType(0), m_Width(0), m_Height(0), m_Depth(0) {}
+        : m_RequestedInternalFormat(0),
+          m_RequestedDataType(0),
+          m_Width(0),
+          m_Height(0),
+          m_Depth(0) {}
 
 GLTextureObj::GLTextureLevel::GLTextureLevel(GLenum requestedInternalFormat,
                                              GLenum requestedDataType,
@@ -389,6 +398,8 @@ void GLContextVersion::initialize(const char* cVersion) {
 
     m_Initialized = true;
 }
+
+int GLContextVersion::getMajor() const { return m_MajorVersion; }
 
 GLContextCreationData::GLContextCreationData()
         : m_Entrypoint(NO_ENTRYPOINT), m_pixelFormat(0) {}
@@ -728,43 +739,41 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
     return ret;
 }
 
-bool isTexture1Dim(GLenum target) {
-    return target == GL_TEXTURE_1D;
-}
+bool isTexture1Dim(GLenum target) { return target == GL_TEXTURE_1D; }
 
 bool isTexture2Dim(GLenum target) {
-    return  (target == GL_TEXTURE_1D_ARRAY ||
-        target == GL_TEXTURE_2D ||
-        target == GL_TEXTURE_2D_MULTISAMPLE ||
-        target == GL_TEXTURE_RECTANGLE ||
-        target == GL_TEXTURE_CUBE_MAP ||
-        target == GL_TEXTURE_CUBE_MAP_POSITIVE_X ||
-        target == GL_TEXTURE_CUBE_MAP_NEGATIVE_X ||
-        target == GL_TEXTURE_CUBE_MAP_POSITIVE_Y ||
-        target == GL_TEXTURE_CUBE_MAP_NEGATIVE_Y ||
-        target == GL_TEXTURE_CUBE_MAP_POSITIVE_Z ||
-        target == GL_TEXTURE_CUBE_MAP_NEGATIVE_Z ||
-        target == GL_TEXTURE_EXTERNAL_OES);
+    return (target == GL_TEXTURE_1D_ARRAY || target == GL_TEXTURE_2D ||
+            target == GL_TEXTURE_2D_MULTISAMPLE ||
+            target == GL_TEXTURE_RECTANGLE || target == GL_TEXTURE_CUBE_MAP ||
+            target == GL_TEXTURE_CUBE_MAP_POSITIVE_X ||
+            target == GL_TEXTURE_CUBE_MAP_NEGATIVE_X ||
+            target == GL_TEXTURE_CUBE_MAP_POSITIVE_Y ||
+            target == GL_TEXTURE_CUBE_MAP_NEGATIVE_Y ||
+            target == GL_TEXTURE_CUBE_MAP_POSITIVE_Z ||
+            target == GL_TEXTURE_CUBE_MAP_NEGATIVE_Z ||
+            target == GL_TEXTURE_EXTERNAL_OES);
 }
 
-void GLContext::queryTextureLevelSize(const GLTextureObj* tex, GLuint level,GLint* width, GLint* height, GLint* depth) {
+void GLContext::queryTextureLevelSize(const GLTextureObj* tex, GLuint level,
+                                      GLint* width, GLint* height,
+                                      GLint* depth) {
 
-    //face does not matter here. all cube map faces have same size.
+    // face does not matter here. all cube map faces have same size.
     GLenum levelTarget = tex->getTextureLevelTarget(0);
 
     if (hasCapability(ContextCap::TextureGetters)) {
 
         if (width) {
-            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level, GL_TEXTURE_WIDTH,
-                width);
+            DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level,
+                                                      GL_TEXTURE_WIDTH, width);
         }
 
         if (height) {
             if (isTexture1Dim(levelTarget)) {
                 *height = 1;
             } else {
-                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level,
-                    GL_TEXTURE_HEIGHT, height);
+                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(
+                        levelTarget, level, GL_TEXTURE_HEIGHT, height);
             }
         }
 
@@ -772,40 +781,68 @@ void GLContext::queryTextureLevelSize(const GLTextureObj* tex, GLuint level,GLin
             if (isTexture2Dim(levelTarget)) {
                 *depth = 1;
             } else {
-                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level,
-                    GL_TEXTURE_DEPTH, depth);
+                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(
+                        levelTarget, level, GL_TEXTURE_DEPTH, depth);
             }
         }
     } else {
 
-        //We cannot easily get texture size without level getters.
-        //At first try to bisect the texture size using TexSubImage. If it fails (bisection fails,
-        //when TexImage does not set proper errors, so maxSize is returned), go
-        //with requested texture sizes.
+        // We cannot easily get texture size without level getters.
+        // At first try to bisect the texture size using TexSubImage. If it
+        // fails (bisection fails,
+        // when TexImage does not set proper errors, so maxSize is returned), go
+        // with requested texture sizes.
 
         GLint maxSize = 16384;
         DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_TEXTURE_SIZE, &maxSize);
 
-        const GLTextureObj::GLTextureLevel* requestedLevel = tex->getRequestedLevel(level);
+        const GLTextureObj::GLTextureLevel* requestedLevel =
+                tex->getRequestedLevel(level);
 
         if (width) {
             *width = textureBisectSizeES(levelTarget, level, 0, maxSize);
+            if (*width == maxSize || *width == 0) {
+                OS_DEBUG("Texture width bisection failed: got width %d\n.",
+                          *width);
+                if (requestedLevel) {
+                    OS_DEBUG("Will use width requested by TexImage.");
+                    *width = requestedLevel->m_Width;
+                } else {
+                    OS_DEBUG(
+                            "Cannot use width requested by TexImage: level was "
+                            "not requested?.");
+                }
+            }
         }
-        if (*width == maxSize && requestedLevel) {
-            *width = requestedLevel->m_Width;
-        }
-
         if (height) {
             *height = textureBisectSizeES(levelTarget, level, 1, maxSize);
-            if (*height == maxSize && requestedLevel) {
-                *height = requestedLevel->m_Height;
+            if (*height == maxSize || *height == 0) {
+                OS_DEBUG("Texture height bisection failed: got height %d\n.",
+                          *height);
+                if (requestedLevel) {
+                    OS_DEBUG("Will use height requested by TexImage.");
+                    *height = requestedLevel->m_Height;
+                } else {
+                    OS_DEBUG(
+                            "Cannot use height requested by TexImage: level "
+                            "was not requested?.");
+                }
             }
         }
 
         if (depth) {
             *depth = textureBisectSizeES(levelTarget, level, 2, maxSize);
-            if (*depth == maxSize && requestedLevel) {
-                *depth = requestedLevel->m_Depth;
+            if (*depth == maxSize || *depth == 0) {
+                OS_DEBUG("Texture depth bisection failed: got depth %d\n.",
+                          *depth);
+                if (requestedLevel) {
+                    OS_DEBUG("Will use depth requested by TexImage.");
+                    *depth = requestedLevel->m_Depth;
+                } else {
+                    OS_DEBUG(
+                            "Cannot use depth requested by TexImage: level was "
+                            "not requested?.");
+                }
             }
         }
     }
@@ -829,21 +866,19 @@ bool GLContext::textureProbeSizeES(GLenum levelTarget, int level,
     if (isTexture1Dim(levelTarget)) {
 
         DIRECT_CALL_CHK(glTexSubImage1D)(levelTarget, level, sizes[0], 0,
-            GL_RGBA, GL_UNSIGNED_BYTE,
-            &nothing);
+                                         GL_RGBA, GL_UNSIGNED_BYTE, &nothing);
 
     } else if (isTexture2Dim(levelTarget)) {
 
         DIRECT_CALL_CHK(glTexSubImage2D)(levelTarget, level, sizes[0], sizes[1],
-            0, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-            &nothing);
+                                         0, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                                         &nothing);
 
     } else {
 
-        DIRECT_CALL_CHK(glTexSubImage3D)(levelTarget, level, sizes[0], sizes[1], sizes[2],
-            0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-            &nothing);
-
+        DIRECT_CALL_CHK(glTexSubImage3D)(levelTarget, level, sizes[0], sizes[1],
+                                         sizes[2], 0, 0, 0, GL_RGBA,
+                                         GL_UNSIGNED_BYTE, &nothing);
     }
 
     GLenum error = DIRECT_CALL_CHK(glGetError)();
@@ -877,7 +912,8 @@ int GLContext::textureBisectSizeES(GLenum levelTarget, int level, int coord,
 }
 
 boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
-GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level, int face) {
+GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
+                                   int face) {
 
     boost::shared_ptr<dglnet::resource::DGLPixelRectangle> ret;
 
@@ -893,7 +929,7 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level, int face)
     }
 
     GLint width, height;
-    queryTextureLevelSize(tex, level, &width, &height, NULL);    
+    queryTextureLevelSize(tex, level, &width, &height, NULL);
 
     try {
         GLAuxContext* auxCtx = getAuxContext();
@@ -903,34 +939,58 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level, int face)
             GLenum renderableFormat = GL_RGBA4;
             GLenum textureBaseFormat = GL_RGBA;
 
-            const GLTextureObj::GLTextureLevel* levelDesc = tex->getRequestedLevel(level);
+            const GLTextureObj::GLTextureLevel* levelDesc =
+                    tex->getRequestedLevel(level);
 
             if (levelDesc) {
-                renderableFormat = GLFormats::getBestRenderableFormat(levelDesc->m_RequestedInternalFormat, levelDesc->m_RequestedDataType);
-                GLInternalFormat* internalFormatDesc = GLFormats::getInternalFormat(levelDesc->m_RequestedInternalFormat);
+                renderableFormat = static_cast<GLenum>(
+                        GLFormats::getBestRenderableFormatES(
+                                levelDesc->m_RequestedInternalFormat,
+                                levelDesc->m_RequestedDataType,
+                                getVersion().getMajor()));
+                const GLInternalFormat* internalFormatDesc =
+                        GLFormats::getInternalFormat(
+                                levelDesc->m_RequestedInternalFormat);
                 if (internalFormatDesc) {
-                    textureBaseFormat = static_cast<GLenum>(internalFormatDesc->dataFormat);
+                    textureBaseFormat =
+                            static_cast<GLenum>(internalFormatDesc->dataFormat);
+                } else {
+                    OS_DEBUG(
+                            "Cannot recognize texture internalFormat: %d. "
+                            "Assuming texture base format is GL_RGBA.",
+                            levelDesc->m_RequestedInternalFormat);
                 }
+            } else {
+                OS_DEBUG(
+                        "Cannot get requested texture level parameters: level "
+                        "was not requested via TexImage? Assuming texture is "
+                        "RGBA, will render it to RGBA4 attachment.");
             }
-            
+
             auxCtx->queries.auxDrawTexture(
-                    (GLuint)tex->getName(), tex->getTarget(), level, textureBaseFormat, renderableFormat, width, height);
-            
+                    (GLuint)tex->getName(), tex->getTarget(), level,
+                    textureBaseFormat, renderableFormat, width, height);
+
             DGLPixelTransfer transfer;
             if (getVersion().check(GLContextVersion::Type::ES)) {
                 GLint implReadFormat, implTypeType;
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &implReadFormat);
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_TYPE, &implTypeType);
-                transfer.initializeOGLES(renderableFormat, implReadFormat, implTypeType);
+                DIRECT_CALL_CHK(glGetIntegerv)(
+                        GL_IMPLEMENTATION_COLOR_READ_FORMAT, &implReadFormat);
+                DIRECT_CALL_CHK(glGetIntegerv)(
+                        GL_IMPLEMENTATION_COLOR_READ_TYPE, &implTypeType);
+                transfer.initializeOGLES(renderableFormat, implReadFormat,
+                                         implTypeType);
             } else {
                 transfer.initializeOGL(renderableFormat);
             }
-            
-            ret = boost::make_shared<dglnet::resource::DGLPixelRectangle>(
-                width, height, ALIGNED(width * transfer.getPixelSize(), 4),
-                transfer.getFormat(), transfer.getType(), 0, 0);
 
-            DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height, (GLenum)transfer.getFormat(), (GLenum)transfer.getType(), ret->getPtr());
+            ret = boost::make_shared<dglnet::resource::DGLPixelRectangle>(
+                    width, height, ALIGNED(width * transfer.getPixelSize(), 4),
+                    transfer.getFormat(), transfer.getType(), 0, 0);
+
+            DIRECT_CALL_CHK(glReadPixels)(
+                    0, 0, width, height, (GLenum)transfer.getFormat(),
+                    (GLenum)transfer.getType(), ret->getPtr());
 
             if (DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR) {
                 throw std::runtime_error("Got GL error on auxiliary context");
@@ -962,7 +1022,6 @@ GLContext::queryTextureLevelGetters(
     DIRECT_CALL_CHK(glGetTexLevelParameteriv)(
             levelTarget, level, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
 
-
     queryTextureLevelSize(tex, level, &width, &height, NULL);
 
     if (!width || !height || DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
@@ -988,8 +1047,9 @@ GLContext::queryTextureLevelGetters(
             levelTarget, level, GL_TEXTURE_DEPTH_SIZE, &deptStencilSizes[0]);
 
     if (hasCapability(ContextCap::TextureQueryStencilBits)) {
-        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(
-                levelTarget, level, GL_TEXTURE_STENCIL_SIZE, &deptStencilSizes[1]);
+        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level,
+                                                  GL_TEXTURE_STENCIL_SIZE,
+                                                  &deptStencilSizes[1]);
     }
 
     queryCheckError();
@@ -997,13 +1057,14 @@ GLContext::queryTextureLevelGetters(
     DGLPixelTransfer transfer;
     if (getVersion().check(GLContextVersion::Type::ES)) {
         GLint implReadFormat, implTypeType;
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &implReadFormat);
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_TYPE, &implTypeType);
+        DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_FORMAT,
+                                       &implReadFormat);
+        DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_TYPE,
+                                       &implTypeType);
         transfer.initializeOGLES(internalFormat, implReadFormat, implTypeType);
     } else {
         transfer.initializeOGL(internalFormat, rgbaSizes, deptStencilSizes);
     }
-
 
     ret = boost::make_shared<dglnet::resource::DGLPixelRectangle>(
             width, height,
@@ -1162,8 +1223,10 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(
     DGLPixelTransfer transfer;
     if (getVersion().check(GLContextVersion::Type::ES)) {
         GLint implReadFormat, implTypeType;
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &implReadFormat);
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_TYPE, &implTypeType);
+        DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_FORMAT,
+                                       &implReadFormat);
+        DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_TYPE,
+                                       &implTypeType);
         transfer.initializeOGLES(0, implReadFormat, implTypeType);
     } else {
         transfer.initializeOGL(0, rgbaSizes, deptStencilSizes);
@@ -1294,7 +1357,8 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
 
             GLuint lastTexture;
             if (!glutils::getBoundTexture(attTarget, lastTexture)) {
-                throw std::runtime_error("Cannot get actually bound texture name");
+                throw std::runtime_error(
+                        "Cannot get actually bound texture name");
             }
             DIRECT_CALL_CHK(glBindTexture)(bindableTarget, tex->getName());
 
@@ -1302,12 +1366,14 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
 
             if (hasCapability(ContextCap::TextureGetters)) {
                 DIRECT_CALL_CHK(glGetTexLevelParameteriv)(
-                    attTarget, level, GL_TEXTURE_INTERNAL_FORMAT,
-                    &internalFormat);
+                        attTarget, level, GL_TEXTURE_INTERNAL_FORMAT,
+                        &internalFormat);
             } else {
-                const GLTextureObj::GLTextureLevel* requestedLevel = tex->getRequestedLevel(level);
+                const GLTextureObj::GLTextureLevel* requestedLevel =
+                        tex->getRequestedLevel(level);
                 if (requestedLevel) {
-                    internalFormat = tex->getRequestedLevel(level)->m_RequestedInternalFormat;
+                    internalFormat = tex->getRequestedLevel(level)
+                                             ->m_RequestedInternalFormat;
                 }    // if requestedLevel was not traced this query would
                      // probably fail (no way to discover format, or bit sizes).
             }
@@ -1455,13 +1521,16 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
             DGLPixelTransfer downsamplerTransfer;
             if (getVersion().check(GLContextVersion::Type::ES)) {
                 GLint implReadFormat, implTypeType;
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &implReadFormat);
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_TYPE, &implTypeType);
-                downsamplerTransfer.initializeOGLES(internalFormat, implReadFormat, implTypeType);
+                DIRECT_CALL_CHK(glGetIntegerv)(
+                        GL_IMPLEMENTATION_COLOR_READ_FORMAT, &implReadFormat);
+                DIRECT_CALL_CHK(glGetIntegerv)(
+                        GL_IMPLEMENTATION_COLOR_READ_TYPE, &implTypeType);
+                downsamplerTransfer.initializeOGLES(
+                        internalFormat, implReadFormat, implTypeType);
             } else {
-                downsamplerTransfer.initializeOGL(internalFormat, rgbaSizes, deptStencilSizes);
+                downsamplerTransfer.initializeOGL(internalFormat, rgbaSizes,
+                                                  deptStencilSizes);
             }
-
 
             downSampler = boost::make_shared<glutils::MSAADownSampler>(
                     this, attTarget, attachments[i], name, internalFormat,
@@ -1482,19 +1551,22 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
         DGLPixelTransfer transfer;
         if (getVersion().check(GLContextVersion::Type::ES)) {
             GLint implReadFormat, implTypeType;
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &implReadFormat);
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_TYPE, &implTypeType);
-            transfer.initializeOGLES(internalFormat, implReadFormat, implTypeType);
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_FORMAT,
+                                           &implReadFormat);
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_TYPE,
+                                           &implTypeType);
+            transfer.initializeOGLES(internalFormat, implReadFormat,
+                                     implTypeType);
         } else {
             transfer.initializeOGL(internalFormat, rgbaSizes, deptStencilSizes);
         }
 
         resource->m_Attachments.back().m_PixelRectangle =
-            boost::make_shared<dglnet::resource::DGLPixelRectangle>(
-            width, height, defAlignment.getAligned(
-            width * transfer.getPixelSize()),
-            transfer.getFormat(), transfer.getType(),
-            internalFormat, samples);
+                boost::make_shared<dglnet::resource::DGLPixelRectangle>(
+                        width, height, defAlignment.getAligned(
+                                               width * transfer.getPixelSize()),
+                        transfer.getFormat(), transfer.getType(),
+                        internalFormat, samples);
 
         GLvoid* ptr = resource->m_Attachments.back().m_PixelRectangle->getPtr();
         if (ptr) {

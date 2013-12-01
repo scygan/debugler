@@ -24,10 +24,11 @@
 struct GLDataType {
     gl_t type;
     unsigned int byteSize;
+    unsigned int precision;
     bool packed;
-    void (*blitFunc)(const int* outputOffsets, int width, int height,
-                     const void* src, void* dst, int srcStride, int dstStride,
-                     int srcPixelSize, int dstPixelSize, int srcComponents,
+    void (*blitFunc)(const int* outputOffsets, size_t width, size_t height,
+                     const void* src, void* dst, size_t srcStride, size_t dstStride,
+                     size_t srcPixelSize, size_t dstPixelSize, int srcComponents,
                      std::pair<float, float>* scale);
     std::vector<AnyValue>(*extractor)(const void*, int);
     unsigned int components;
@@ -38,36 +39,42 @@ struct GLDataFormat {
     unsigned int components;
 };
 
+#define RENDERABLE_ES2 (1 << 0)
+#define RENDERABLE_ES3 (1 << 1)
+
 struct GLInternalFormat {
     gl_t internalFormat;
     gl_t dataFormat;
     gl_t dataType;
+    unsigned int colorRenderable;
 };
 
 class GLFormats {
    public:
-    static GLInternalFormat* getInternalFormat(gl_t internalFormat);
+    static const GLInternalFormat* getInternalFormat(gl_t internalFormat);
 
-    static GLDataFormat* getDataFormat(gl_t dataFormat);
-    static GLDataType* getDataType(gl_t dataType);
+    static const GLDataFormat* getDataFormat(gl_t dataFormat);
+    static const GLDataType* getDataType(gl_t dataType);
 
-    static GLenum getBestRenderableFormat(GLenum internalFormat, GLenum type);
+    static gl_t getBestRenderableFormatES(gl_t internalFormat, gl_t type,
+                                          int ctxMajor);
+    static const GLInternalFormat* adjustInternalFormatFromTypeES(
+            gl_t internalFormat, gl_t type);
 };
-
 
 class DGLPixelTransfer {
    public:
-       
-       DGLPixelTransfer();
+    DGLPixelTransfer();
 
-       //OpenGL preferred initializer
-       bool initializeOGL(GLenum internalFormat,
-           std::vector<GLint> _rgbaSizes = std::vector<GLint>(4, 0),
-           std::vector<GLint> _depthStencilSizes =
-           std::vector<GLint>(2, 0));
-       
-       //OpenGL ES preferred initializer
-       bool initializeOGLES(GLenum internalFormat, GLenum implReadFormat, GLenum implReadType);
+    // OpenGL preferred initializer
+    bool initializeOGL(GLenum internalFormat,
+                       std::vector<GLint> _rgbaSizes = std::vector<GLint>(4, 0),
+                       std::vector<GLint> _depthStencilSizes =
+                               std::vector<GLint>(2, 0));
+
+    // OpenGL ES preferred initializer
+    bool initializeOGLES(GLenum internalFormat, GLenum implReadFormat,
+                         GLenum implReadType);
 
     bool isValid();
     gl_t getFormat();
@@ -75,8 +82,8 @@ class DGLPixelTransfer {
     unsigned int getPixelSize();
 
    private:
-    GLDataFormat* m_DataFormat;
-    GLDataType* m_DataType;
+    const GLDataFormat* m_DataFormat;
+    const GLDataType* m_DataType;
 };
 
 #endif

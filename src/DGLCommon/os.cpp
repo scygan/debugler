@@ -263,6 +263,21 @@ void Os::info(const char* fmt, ...) {
     fprintf(stdout, "%s\n", message.c_str());
 }
 
+#ifndef NDEBUG
+void Os::debug(const char* fmt, ...) {
+
+    va_list args;
+    va_start(args, fmt);
+    std::string message = vargsToString(fmt, args);
+    va_end(args);
+
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "Debug %s", message.c_str());
+#endif
+    fprintf(stdout, "Debug: %s\n", message.c_str());
+}
+#endif
+
 std::string Os::vargsToString(const char* fmt, va_list args) {
 
     va_list argsCopy;

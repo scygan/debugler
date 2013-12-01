@@ -46,6 +46,10 @@ class Os {
     static void nonFatal(const char* fmt, ...);
     static void info(const char* fmt, ...);
 
+#ifndef NDEBUG
+    static void debug(const char* fmt, ...);
+#endif
+
     NO_RETURN static void terminate();
 
     static OsStatusPresenter* createStatusPresenter();
@@ -63,5 +67,11 @@ class Os {
 
     static std::string vargsToString(const char* fmt, va_list arg);
 };
+
+#ifdef NDEBUG
+#define OS_DEBUG(...)
+#else
+#define OS_DEBUG(...) Os::debug(__VA_ARGS__)
+#endif
 
 #endif

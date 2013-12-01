@@ -194,6 +194,8 @@ class GLContextVersion {
     bool check(Type type, int majorVersion = 0, int minorVersion = 0) const;
     void initialize(const char* cVersion);
 
+    int getMajor() const;
+
    private:
     bool m_Initialized;
     int m_MajorVersion;
