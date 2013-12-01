@@ -763,11 +763,14 @@ bool DGLPixelTransfer::initializeOGLES(GLenum internalFormat,
     const GLDataFormat* implReadFormatDesc = GLFormats::getDataFormat(implReadFormat);
     const GLDataType* implReadTypeDesc = GLFormats::getDataType(implReadType);
 
+    const GLInternalFormat* targetInternalFormatDesc = GLFormats::getInternalFormat(internalFormat);
+
     if (implReadFormatDesc && implReadTypeDesc) {
-        if (!m_DataFormat || !m_DataType) {
+        if (!m_DataFormat || !m_DataType || !targetInternalFormatDesc) {
             implReadFormatTypeIsOK = true;
         } else {
-            if (implReadFormatDesc->components >= m_DataFormat->components) {
+            if (implReadFormatDesc->components >=
+                GLFormats::getDataFormat(targetInternalFormatDesc->dataFormat)->components) {
                     implReadFormatTypeIsOK = true;
             }
         }
