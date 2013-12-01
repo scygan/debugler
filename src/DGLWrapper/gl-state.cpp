@@ -1356,7 +1356,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
                     GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, &level);
 
             GLuint lastTexture;
-            if (!glutils::getBoundTexture(attTarget, lastTexture)) {
+            if (!glutils::getBoundTexture(bindableTarget, lastTexture)) {
                 throw std::runtime_error(
                         "Cannot get actually bound texture name");
             }

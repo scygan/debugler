@@ -811,7 +811,7 @@ void TextureFormatAction::Post(const CalledEntryPoint& call, const RetValue& ret
         }
 
         GLuint textureName;
-        if (glutils::getBoundTexture(target, textureName)) {
+        if (glutils::getBoundTexture(glutils::textTargetToBindableTarget(target), textureName)) {
 
             dglState::GLTextureObj* tex = gc->ensureTexture(textureName);
 
