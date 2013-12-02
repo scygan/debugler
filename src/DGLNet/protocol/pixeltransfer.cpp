@@ -779,7 +779,7 @@ bool DGLPixelTransfer::initializeOGLES(GLenum internalFormat,
             m_DataFormat = implReadFormatDesc;
             m_DataType = implReadTypeDesc;
         } else {
-            Os::debug("DGLPixeltransfer: implementation-dependent read formats are less eficient than defaults.");
+            OS_DEBUG("DGLPixeltransfer: implementation-dependent read formats are less eficient than defaults.");
         }
     }
 
