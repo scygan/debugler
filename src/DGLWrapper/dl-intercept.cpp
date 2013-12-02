@@ -43,6 +43,7 @@
 #include "api-loader.h"
 #include "gl-wrappers.h"
 #include "tls.h"
+#include "wa-soctors.h"
 
 #ifndef __ANDROID__
 
@@ -267,7 +268,6 @@ void DLIntercept::initialize() {
             reinterpret_cast<intptr_t>(baseAddr + dlSymAddr));
 
     m_real_dlvsym = NULL;
-
 #endif
 }
 
@@ -288,6 +288,9 @@ extern "C" {
  * Called directly by debugee
  */
 void *dlopen(const char *filename, int flag) NO_THROW {
+#ifdef __ANDROID__
+    DGLWASoCtors wasoCtors;
+#endif
     try {
         return g_DLIntercept.dlopen(filename, flag);
     }
@@ -303,6 +306,9 @@ void *dlopen(const char *filename, int flag) NO_THROW {
  * Called directly by debugee
  */
 void *dlsym(void *handle, const char *name) NO_THROW {
+#ifdef __ANDROID__
+    DGLWASoCtors wasoCtors;
+#endif
     try {
         return g_DLIntercept.dlsym(handle, name);
     }
@@ -318,6 +324,9 @@ void *dlsym(void *handle, const char *name) NO_THROW {
  * Called directly by debugee
  */
 void *dlvsym(void *handle, const char *name, const char *version) NO_THROW {
+#ifdef __ANDROID__
+    DGLWASoCtors wasoCtors;
+#endif
     try {
         return g_DLIntercept.dlvsym(handle, name, version);
     }

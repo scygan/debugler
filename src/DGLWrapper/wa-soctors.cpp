@@ -16,6 +16,8 @@
 #ifdef WA_ANDROID_SO_CONSTRUCTORS
 #include <DGLCommon/os.h>
 #include "wa-soctors.h"
+#include "dl-intercept.h" //redef dlopen
+#include <mutex>
 #include <vector>
 #include <elf.h>
 #include <dlfcn.h>
@@ -33,6 +35,8 @@ class StaticInitializerTest {
     std::vector<int> m_TestVector;
 
 } g_Test;
+
+std::mutex* g_mutex = NULL;
 
 // this is from /bionic/linker/linker.h
 #define SOINFO_NAME_LEN 128
@@ -55,50 +59,67 @@ struct soinfo {
 #endif
 
 DGLWASoCtors::DGLWASoCtors() {
+
+
     if (g_Test.passed()) {
         return;
     }
-    Os::info(
+
+    if (!g_mutex) {
+        //as initializers where not called, mutex must be constructed manually on the heap
+        g_mutex = new std::mutex();
+    }
+
+    {
+        std::lock_guard<std::mutex> guard(*g_mutex);
+
+        //check again, this is essential for threads that were waiting.
+        //Otherwise will call ctors multiple times.
+        if (g_Test.passed()) {
+            return;
+        }
+
+        Os::info(
             "Failed shared library constructor test. This is typical on "
             "Android < "
             "4.2-r1");
-    Os::info("Will try to run constructors manually now.");
+        Os::info("Will try to run constructors manually now.");
 
-    soinfo *info =
+        soinfo *info =
             reinterpret_cast<soinfo *>(dlopen("libdglwrapper.so", RTLD_NOW));
 
-    if (!info) {
-        Os::fatal("Cannot dlopen libdglwrapper.so library");
-    }
+        if (!info) {
+            Os::fatal("Cannot dlopen libdglwrapper.so library");
+        }
 
-    unsigned *dynamic = nullptr;
+        unsigned *dynamic = nullptr;
 
-    Elf32_Phdr *phdr = info->phdr;
-    int phnum = info->phnum;
+        Elf32_Phdr *phdr = info->phdr;
+        int phnum = info->phnum;
 
-    Os::info(
+        Os::info(
             "Trying to get .dynamic of libdglwrapper.so: base = 0x%x, phnum = "
             "%d",
             info->base, info->phnum);
 
-    for (; phnum > 0; --phnum, ++phdr) {
-        if (phdr->p_type == PT_DYNAMIC) {
-            dynamic = (unsigned *)(info->base + phdr->p_vaddr);
+        for (; phnum > 0; --phnum, ++phdr) {
+            if (phdr->p_type == PT_DYNAMIC) {
+                dynamic = (unsigned *)(info->base + phdr->p_vaddr);
+            }
         }
-    }
 
-    if (!dynamic || dynamic == (unsigned *)-1) {
-        Os::fatal("Cannot get .dynamic section of libdglwrapper.so.");
-    } else {
-        Os::info("Found .dynamic at 0x%x", dynamic);
-    }
+        if (!dynamic || dynamic == (unsigned *)-1) {
+            Os::fatal("Cannot get .dynamic section of libdglwrapper.so.");
+        } else {
+            Os::info("Found .dynamic at 0x%x", dynamic);
+        }
 
-    void (*init_func)(void) = nullptr;
-    unsigned *init_array = nullptr;
-    unsigned init_array_count = 0;
+        void (*init_func)(void) = nullptr;
+        unsigned *init_array = nullptr;
+        unsigned init_array_count = 0;
 
-    for (unsigned *d = dynamic; *d; d++) {
-        switch (*d++) {
+        for (unsigned *d = dynamic; *d; d++) {
+            switch (*d++) {
             case DT_INIT:
                 init_func = (void (*)(void))(info->base + *d);
                 break;
@@ -108,34 +129,36 @@ DGLWASoCtors::DGLWASoCtors() {
             case DT_INIT_ARRAY:
                 init_array = (unsigned *)(info->base + *d);
                 break;
-        }
-    }
-
-    if (init_func) {
-        Os::info("Found DT_INIT pointing at address 0x%x, Calling it",
-                 init_func);
-        init_func();
-    }
-    if (init_array_count && init_array) {
-        Os::info("Found DT_INIT_ARRAY of size %d", init_array_count);
-        for (unsigned i = 0; i < init_array_count; i++) {
-            if (init_array[i] && init_array[i] != (unsigned)-1) {
-                void (*func)() = (void (*)())init_array[i];
-                func();
-            } else {
-                Os::info("DT_INIT_ARRAY[%d] is empty", i);
             }
         }
 
-    } else {
-        Os::info("DT_INIT_ARRAY not found. (trouble ahead)");
-    }
+        if (init_func) {
+            Os::info("Found DT_INIT pointing at address 0x%x, Calling it",
+                init_func);
+            init_func();
+        }
+        if (init_array_count && init_array) {
+            Os::info("Found DT_INIT_ARRAY of size %d", init_array_count);
+            for (unsigned i = 0; i < init_array_count; i++) {
+                if (init_array[i] && init_array[i] != (unsigned)-1) {
+                    void (*func)() = (void (*)())init_array[i];
+                    func();
+                } else {
+                    Os::info("DT_INIT_ARRAY[%d] is empty", i);
+                }
+            }
 
-    if (!g_Test.passed()) {
-        Os::fatal(
+        } else {
+            Os::info("DT_INIT_ARRAY not found. (trouble ahead)");
+        }
+
+        if (!g_Test.passed()) {
+            Os::fatal(
                 "Tried to call constructors, but shared library constructor "
-                "test, "
-                "still fails.");
+                "test, still fails.");
+        }
     }
+    //we will never use this mutex again.
+    delete g_mutex; g_mutex = NULL;
 }
 #endif
