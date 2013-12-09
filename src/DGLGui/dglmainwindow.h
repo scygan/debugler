@@ -31,6 +31,10 @@
 
 #include "dglprocess.h"
 
+#include "dglprojectdialog.h"
+#include "dglproject.h"
+
+
 /**
  * Number of avaliable color schemes
  */
@@ -62,6 +66,11 @@ slots:
      * @param Error message
      */
     void connectionLost(const QString &, const QString &);
+
+    /**
+     * Slot displaying "New Project dialog window..."
+     */
+    void newProject();
 
     /**
      * Slot for displaing "Attach to process window..."
@@ -192,6 +201,8 @@ slots:
     QAction *aboutQtAct;
     QAction *quitAct;
 
+    QAction *newProjectAct;
+
     QAction *runAct;
     QAction *attachAct;
     QAction *attachAndroidAct;
@@ -232,6 +243,11 @@ slots:
      * The DGLController object - the one and only interface to debugee from UI
      */
     DglController m_controller;
+
+    std::shared_ptr<DGLProject> m_project;
+
+
+    DGLProjectDialog m_NewProjectDialog;
 
     DGLRunDialog m_RunDialog;
     DGLConnectDialog m_ConnectDialog;

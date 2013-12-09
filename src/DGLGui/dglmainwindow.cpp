@@ -223,6 +223,7 @@ void DGLMainWindow::createDockWindows() {
 
 void DGLMainWindow::createMenus() {
     fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(newProjectAct);
     fileMenu->addAction(runAct);
     fileMenu->addAction(attachAct);
     fileMenu->addAction(attachAndroidAct);
@@ -295,6 +296,11 @@ void DGLMainWindow::createActions() {
     aboutAct->setStatusTip(tr("Show the application's About box"));
     CONNASSERT(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
     aboutAct->setShortcut(QKeySequence(Qt::Key_F1));
+
+    newProjectAct = new QAction(tr("&New Project"), this);
+    newProjectAct->setStatusTip(tr("Created new debugging project"));
+    CONNASSERT(newProjectAct, SIGNAL(triggered()), this, SLOT(newProject()));
+    newProjectAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
 
     runAct = new QAction(tr("&Run application ..."), this);
     runAct->setStatusTip(tr("Opens run application dialog window"));
@@ -562,6 +568,22 @@ void DGLMainWindow::attach() {
 
         m_controller.connectServer(m_ConnectDialog.getAddress(),
                                    m_ConnectDialog.getPort());
+    }
+}
+
+void DGLMainWindow::newProject() {
+
+    if (m_project) {
+        //TODO: save it somehow?
+    }
+
+        
+    if (m_NewProjectDialog.exec() == QDialog::Accepted) {
+
+        // if dialog is successfull, get project
+
+        m_project = m_NewProjectDialog.getProject();
+
     }
 }
 

@@ -314,6 +314,24 @@
     <ClCompile Include="dglandroidselectdev.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dglproject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dglprojectdialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglprojectdialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglprojectdialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglproject.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglproject.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">
@@ -544,12 +562,30 @@
     <CustomBuild Include="ui\dglandroidselectdev.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="dglprojectdialog.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\dglprojectdialog.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dglproject.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\dglprojproperties_tcpconn.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dglqtgui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglandroidselectdev.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglprojectdialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglprojproperties_tcpconn.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
