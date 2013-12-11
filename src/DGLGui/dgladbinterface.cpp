@@ -191,7 +191,7 @@ const std::string& DGLAdbProcess::getName() const { return m_Name; }
 
 const std::string& DGLAdbProcess::getPortName() const { return m_PortName; }
 
-DGLADBDevice::DGLADBDevice(const std::string& serial) : m_Serial(serial) {}
+DGLADBDevice::DGLADBDevice(const std::string& serial) : m_Serial(serial), m_Status(InstallStatus::UNKNOWN) {}
 
 void DGLADBDevice::reloadProcesses() {
     std::vector<std::string> params;
@@ -208,6 +208,30 @@ void DGLADBDevice::reloadProcesses() {
 }
 
 const std::string& DGLADBDevice::getSerial() const { return m_Serial; }
+
+void DGLADBDevice::queryInstallStatus() {
+    std::vector<std::string> params;
+    params.push_back("shell");
+    params.push_back("ls");
+    params.push_back("/system/bin/app_process.dgl");
+
+    DGLAdbCookie* cookie = DGLAdbInterface::get()->invokeOnDevice(
+        m_Serial, params);
+    CONNASSERT(cookie, SIGNAL(failed(std::string)), this,
+        SLOT(adbFailed(std::string)));
+    CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this,
+        SLOT(doneQueryInstallStatus(std::vector<std::string>)));
+    cookie->process();
+}
+
+void DGLADBDevice::doneQueryInstallStatus(const std::vector<std::string>& prop) {
+    if (prop.size() > 0 && prop[0].find("/system/bin/app_process.dgl") != std::string::npos && prop[0].find("No such file") == std::string::npos) {
+        m_Status = InstallStatus::INSTALLED;
+    } else {
+        m_Status = InstallStatus::CLEAN;
+    }
+    emit queryInstallStatusSuccess(this);
+}
 
 void DGLADBDevice::portForward(std::string from, unsigned short to) {
 
@@ -228,6 +252,10 @@ void DGLADBDevice::portForward(std::string from, unsigned short to) {
     CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this,
         SIGNAL(portForwardSuccess()));
     cookie->process();
+}
+
+DGLADBDevice::InstallStatus DGLADBDevice::getInstallStatus() {
+    return m_Status;
 }
 
 void DGLADBDevice::reloadProcessesGotPortString(

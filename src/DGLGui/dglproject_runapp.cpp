@@ -253,6 +253,6 @@ bool DGLRunAppProjectFactory::loadPropertiedFromProject(const DGLProject* projec
     return true;
 }
 
-QString DGLRunAppProjectFactory::getName() { return tr("Remote application"); }
+QString DGLRunAppProjectFactory::getName() { return tr("Run local executable"); }
 
 QWidget* DGLRunAppProjectFactory::getGUI() { return &m_gui; }

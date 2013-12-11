@@ -72,22 +72,36 @@ class DGLADBDevice : public QObject {
     void reloadProcesses();
     const std::string& getSerial() const;
 
+    void queryInstallStatus();
+
     void portForward(std::string from, unsigned short to);
+
+    enum class InstallStatus {
+        UNKNOWN,
+        INSTALLED, 
+        CLEAN,
+    };
+
+    InstallStatus getInstallStatus();
 
    public
 slots:
     void reloadProcessesGotPortString(const std::vector<std::string>& prop);
     void reloadProcessesGotUnixSockets(const std::vector<std::string>& prop);
+    void doneQueryInstallStatus(const std::vector<std::string>& prop);
     void adbFailed(std::string reason);
 signals:
     void gotProcesses(const std::vector<DGLAdbProcess>& data);
     void failed(DGLADBDevice*, const std::string&);
     
     void portForwardSuccess();
+    void queryInstallStatusSuccess(DGLADBDevice*);
 
+    
 
    private:
     std::string m_Serial;
+    InstallStatus m_Status;
 
     QRegExp m_SocketPathRegex;
     int m_PidInSocketRegex;

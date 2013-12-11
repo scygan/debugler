@@ -189,6 +189,7 @@ slots:
 
     QMenu *projectMenu;
     QMenu *debugMenu;
+    QMenu *breakpointsMenu;
     QMenu *viewMenu;
     QMenu *toolsMenu;
     QMenu *ColorSchemeMenu;

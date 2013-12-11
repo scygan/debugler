@@ -83,9 +83,6 @@
     <ClCompile Include="dglprogramview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dglrundialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dglgpuview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -195,12 +192,6 @@
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglshaderview.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglrundialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglrundialog.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglprogramview.cpp">
@@ -394,12 +385,6 @@
     <CustomBuild Include="dglshaderviewitem.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="dglrundialog.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ui\dglrundialog.ui">
-      <Filter>Form Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="ui\dglgpuview.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
@@ -467,9 +452,6 @@
       <Filter>Generated Files</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglprogramview.h">
-      <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglrundialog.h">
       <Filter>Generated Files</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglshaderview.h">

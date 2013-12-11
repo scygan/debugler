@@ -20,6 +20,7 @@
 #include <QWizard>
 #include <QLabel>
 #include <QCheckBox>
+#include <QRadioButton>
 
 class DGLAndroidSelectDevWidget;
 
@@ -60,11 +61,18 @@ class DeviceChoice : public QWizardPage {
    public
 slots:
     void adbFailed(std::string reason);
+    void selectDevice(DGLADBDevice*);
+    void selectDeviceStatusSuccess(DGLADBDevice* device);
 
    private:
-    int nextId() const;
+    int nextId();
+
+    void setDeviceStatus(DGLADBDevice::InstallStatus);
 
     DGLAndroidSelectDevWidget * m_SelectWidget;
+    DGLADBDevice* m_Device;
+    QLabel* m_DeviceStatusLabel;
+    QRadioButton* m_RadioButtonClean, * m_RadioButtonUpdate, * m_RadioButtonInstall;
 };
 
 class Run : public QWizardPage {

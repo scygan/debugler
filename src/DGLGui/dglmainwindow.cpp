@@ -245,11 +245,13 @@ void DGLMainWindow::createMenus() {
     debugMenu->addAction(debugStepAct);
     debugMenu->addAction(debugStepDrawCallAct);
     debugMenu->addAction(debugStepFrameAct);
-    debugMenu->addAction(addDeleteBreakPointsAct);
-    debugMenu->addSeparator();
-    debugMenu->addAction(setBreakOnGLErrorAct);
-    debugMenu->addAction(setBreakOnDebugOutputAct);
-    debugMenu->addAction(setBreakOnCompilerErrAct);
+    
+    breakpointsMenu = menuBar()->addMenu(tr("&Breakpoints"));
+    breakpointsMenu->addAction(addDeleteBreakPointsAct);
+    breakpointsMenu->addSeparator();
+    breakpointsMenu->addAction(setBreakOnGLErrorAct);
+    breakpointsMenu->addAction(setBreakOnDebugOutputAct);
+    breakpointsMenu->addAction(setBreakOnCompilerErrAct);
 
     viewMenu = menuBar()->addMenu(tr("&View"));
     viewMenu->addSeparator();
@@ -269,13 +271,16 @@ void DGLMainWindow::createMenus() {
 
 void DGLMainWindow::createToolBars() {
     debugToolBar = addToolBar(tr("Debug"));
+    debugToolBar->addAction(debugStartAct);
     debugToolBar->addAction(debugContinueAct);
     debugToolBar->addAction(debugInterruptAct);
     debugToolBar->addAction(debugStepAct);
     debugToolBar->addAction(debugStepDrawCallAct);
     debugToolBar->addAction(debugStepFrameAct);
+    debugToolBar->addAction(debugStopAct);
     debugToolBar->addAction(addDeleteBreakPointsAct);
     debugToolBar->addSeparator();
+    debugToolBar->addAction(addDeleteBreakPointsAct);
     debugToolBar->addAction(setBreakOnGLErrorAct);
     debugToolBar->addAction(setBreakOnDebugOutputAct);
     debugToolBar->addAction(setBreakOnCompilerErrAct);
@@ -359,7 +364,7 @@ void DGLMainWindow::createActions() {
     CONNASSERT(debugStopAct, SIGNAL(triggered()), this, SLOT(debugStop()));
     CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), debugStopAct,
         SLOT(setEnabled(bool)));
-    debugStopAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
+    debugStopAct->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_F5));
     debugStopAct->setEnabled(false);
 
     debugContinueAct = new QAction(tr("&Continue"), this);
@@ -373,19 +378,19 @@ void DGLMainWindow::createActions() {
     debugContinueAct->setShortcut(QKeySequence(Qt::Key_F5));
     debugContinueAct->setVisible(false);
 
-    debugInterruptAct = new QAction(tr("&Interrupt (on GL)"), this);
+    debugInterruptAct = new QAction(tr("&Break on next call"), this);
     debugInterruptAct->setStatusTip(
-            tr("Interrupt program execution on GL call"));
+            tr("Break program execution on GL call"));
     CONNASSERT(debugInterruptAct, SIGNAL(triggered()), &m_controller,
                SLOT(debugInterrupt()));
     CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), debugInterruptAct,
                SLOT(setEnabled(bool)));
     CONNASSERT(&m_controller, SIGNAL(setRunning(bool)), debugInterruptAct,
                SLOT(setEnabled(bool)));
-    debugInterruptAct->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_F5));
+    debugInterruptAct->setShortcut(QKeySequence(Qt::Key_F6));
     debugInterruptAct->setEnabled(false);
 
-    debugStepAct = new QAction(tr("&Step into"), this);
+    debugStepAct = new QAction(tr("&Step"), this);
     debugStepAct->setStatusTip(tr("Step one GL call"));
     CONNASSERT(debugStepAct, SIGNAL(triggered()), &m_controller,
                SLOT(debugStep()));
@@ -396,7 +401,7 @@ void DGLMainWindow::createActions() {
     debugStepAct->setShortcut(QKeySequence(Qt::Key_F11));
     debugStepAct->setEnabled(false);
 
-    debugStepDrawCallAct = new QAction(tr("&Drawcall step"), this);
+    debugStepDrawCallAct = new QAction(tr("&Draw step"), this);
     debugStepDrawCallAct->setStatusTip(tr("Step one GL drawing call"));
     CONNASSERT(debugStepDrawCallAct, SIGNAL(triggered()), &m_controller,
                SLOT(debugStepDrawCall()));
@@ -635,7 +640,7 @@ void DGLMainWindow::projectProperties() {
             m_project = m_ProjectDialog.getProject();
             if (m_project) {
                 CONNASSERT(m_project.get(), SIGNAL(debugStarted(std::string, std::string)), this, SLOT(onDebugStartedConnectReady(std::string, std::string)));
-                CONNASSERT(m_project.get(), SIGNAL(debugError(QString, QString);), this, SLOT(onDebugError(QString, QString)));
+                CONNASSERT(m_project.get(), SIGNAL(debugError(QString, QString)), this, SLOT(onDebugError(QString, QString)));
                 CONNASSERT(m_project.get(), SIGNAL(debugExit(QString)), this, SLOT(onDebugExit(QString)));
             }
         }
