@@ -20,7 +20,7 @@
 #include "dglqtgui.h"
 #include "ui_dglprojectdialog.h"
 
-#include "dglproject.h"
+#include "dglproject_base.h"
 #include <memory>
 #include <vector>
 
@@ -33,12 +33,17 @@ public:
 
     std::shared_ptr<DGLProject> getProject();
 
+    void loadPropertiesFromProject(const DGLProject* project);
+
 public slots:
     void projectTypeSelected(int);
+    void tryAccept();
 
 private:
 
     void addProjectFactory(std::shared_ptr<DGLProjectFactory> factory);
+
+    DGLProjectFactory* m_CurrentFactory;
 
     std::vector<std::shared_ptr<DGLProjectFactory> > m_Factories;
     Ui::DGLProjectDialogClass m_ui;

@@ -25,14 +25,10 @@
 #include "ui_dglmainwindow.h"
 
 #include "dglcontroller.h"
-#include "dglrundialog.h"
-#include "dglconnectdialog.h"
 #include "dglconnectandroiddialog.h"
 
-#include "dglprocess.h"
-
 #include "dglprojectdialog.h"
-#include "dglproject.h"
+#include "dglproject_base.h"
 
 
 /**
@@ -73,9 +69,14 @@ slots:
     void newProject();
 
     /**
-     * Slot for displaing "Attach to process window..."
+     * Slot for closing current project
      */
-    void attach();
+    void closeProject();
+
+     /**
+     * Slot for displaying project properties dialog
+     */
+    void projectProperties();
 
     /**
      * Slot for displaing "Attach to Android App window..."
@@ -83,34 +84,31 @@ slots:
     void attachAndroidApp();
 
     /**
-     * Slot for displaing "Run application window..."
+     * Slot for starting debugging session
      */
-    void runDialog();
+    void debugStart();
 
     /**
-     * Debugee process crash handler
+     * Slot called on successful debug startup in project.
+     *
+     * Signalizes readiness to perform connection.
      */
-    void processCrashHandler();
+    void onDebugStartedConnectReady(std::string address, std::string port);
+
+    /** 
+     * Slot called on async error from debug startup in project
+     */
+    void onDebugError(QString error, QString message);
+
+    /** 
+     * Slot called on async debug exit from project
+     */
+    void onDebugExit(QString reason);
 
     /**
-     * Debugee process exit handler
+     * Slot for terminating current debugging session
      */
-    void processExitHandler(int);
-
-    /**
-     * Debugee process starup error event handler
-     */
-    void processErrorHandler(std::string);
-
-    /**
-     * Debugee process ready event handler
-     */
-    void processReadyHandler();
-
-    /**
-     * Slot for disconnecting current connection
-     */
-    void disconnect();
+    void debugStop();
 
     /**
      * Slot for displaying bkpoints window
@@ -166,6 +164,11 @@ slots:
     void createDockWindows();
     void createInteractions();
 
+    /** 
+     * Private method for checking if project is opened
+     */
+    bool haveProject();
+
     /**
       * Method called to read all QSettings and fed them
       * to proper objects
@@ -184,7 +187,7 @@ slots:
 
     // menus
 
-    QMenu *fileMenu;
+    QMenu *projectMenu;
     QMenu *debugMenu;
     QMenu *viewMenu;
     QMenu *toolsMenu;
@@ -202,11 +205,16 @@ slots:
     QAction *quitAct;
 
     QAction *newProjectAct;
+    QAction *projectProperiesAct;
+    QAction *openProjectAct;
+    QAction *saveProjectAct;
+    QAction *saveAsProjectAct;
+    QAction *closeProjectAct;
 
-    QAction *runAct;
-    QAction *attachAct;
-    QAction *attachAndroidAct;
-    QAction *disconnectAct;
+    QAction *attachAndroidAct; //TODO: delete
+
+    QAction *debugStartAct;
+    QAction *debugStopAct;
     QAction *debugInterruptAct;
     QAction *debugContinueAct;
     QAction *debugStepAct;
@@ -247,16 +255,9 @@ slots:
     std::shared_ptr<DGLProject> m_project;
 
 
-    DGLProjectDialog m_NewProjectDialog;
+    DGLProjectDialog m_ProjectDialog;
 
-    DGLRunDialog m_RunDialog;
-    DGLConnectDialog m_ConnectDialog;
     DGLConnectAndroidDialog m_ConnectAndroidDialog;
-
-    /**
-     * Current debugee process
-     */
-    DGLDebugeeQTProcess *m_process;
 
     /**
      * Process starting busy progress dialog

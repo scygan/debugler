@@ -75,7 +75,7 @@ QPixmap qt_pixmapFromWinHICON(HICON icon);
 #endif
 
 DGLMainWindow::DGLMainWindow(QWidget *_parent, Qt::WindowFlags flags)
-        : QMainWindow(_parent, flags), m_process(NULL) {
+        : QMainWindow(_parent, flags) {
 
 #pragma warning(push)
 #pragma warning(disable : 4127)    // conditional expression is constant
@@ -122,7 +122,7 @@ void DGLMainWindow::closeEvent(QCloseEvent *_event) {
         _event->ignore();
 
     } else {
-        disconnect();
+        debugStop();
 
         // store QSettings
 
@@ -222,17 +222,25 @@ void DGLMainWindow::createDockWindows() {
 }
 
 void DGLMainWindow::createMenus() {
-    fileMenu = menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(newProjectAct);
-    fileMenu->addAction(runAct);
-    fileMenu->addAction(attachAct);
-    fileMenu->addAction(attachAndroidAct);
-    fileMenu->addAction(disconnectAct);
-    fileMenu->addSeparator();
-    fileMenu->addAction(quitAct);
+    projectMenu = menuBar()->addMenu(tr("&Project"));
+    projectMenu->addAction(newProjectAct);
+    projectMenu->addAction(openProjectAct);
+    projectMenu->addSeparator();
+    projectMenu->addAction(projectProperiesAct);
+    projectMenu->addAction(saveProjectAct);
+    projectMenu->addAction(saveAsProjectAct);
+    projectMenu->addSeparator();
+    projectMenu->addAction(closeProjectAct);
+
+    projectMenu->addAction(attachAndroidAct); //TODO: delete
+    projectMenu->addSeparator();
+    projectMenu->addAction(quitAct);
 
     debugMenu = menuBar()->addMenu(tr("&Debug"));
+    
+    debugMenu->addAction(debugStartAct);
     debugMenu->addAction(debugContinueAct);
+    debugMenu->addAction(debugStopAct);
     debugMenu->addAction(debugInterruptAct);
     debugMenu->addAction(debugStepAct);
     debugMenu->addAction(debugStepDrawCallAct);
@@ -297,22 +305,40 @@ void DGLMainWindow::createActions() {
     CONNASSERT(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
     aboutAct->setShortcut(QKeySequence(Qt::Key_F1));
 
-    newProjectAct = new QAction(tr("&New Project"), this);
+    newProjectAct = new QAction(tr("&New Project..."), this);
     newProjectAct->setStatusTip(tr("Created new debugging project"));
     CONNASSERT(newProjectAct, SIGNAL(triggered()), this, SLOT(newProject()));
     newProjectAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
 
-    runAct = new QAction(tr("&Run application ..."), this);
-    runAct->setStatusTip(tr("Opens run application dialog window"));
-    CONNASSERT(runAct, SIGNAL(triggered()), this, SLOT(runDialog()));
-    runAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
 
-    attachAct = new QAction(tr("&Attach to"), this);
-    attachAct->setStatusTip(tr("Attach to IP target"));
-    CONNASSERT(attachAct, SIGNAL(triggered()), this, SLOT(attach()));
-    CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), attachAct,
-               SLOT(setDisabled(bool)));
-    attachAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_A));
+    openProjectAct = new QAction(tr("&Open Project..."), this);
+    openProjectAct->setStatusTip(tr("Opens a debugging project"));
+    //CONNASSERT(openProjectAct, SIGNAL(triggered()), this, SLOT(openProject())); //TODO: implement
+    openProjectAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_O));
+    openProjectAct->setDisabled(true);//TODO
+
+
+    saveProjectAct = new QAction(tr("&Save Project..."), this);
+    saveProjectAct->setStatusTip(tr("Save a debugging project.."));
+    //CONNASSERT(saveProjectAct, SIGNAL(triggered()), this, SLOT(openProject())); //TODO: implement
+    saveProjectAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
+    saveProjectAct->setDisabled(true);//TODO
+
+
+    saveAsProjectAct = new QAction(tr("&Save Project As ..."), this);
+    saveAsProjectAct->setStatusTip(tr("Save a debugging project as.."));
+    //CONNASSERT(saveAsProjectAct, SIGNAL(triggered()), this, SLOT(openProject())); //TODO: implement
+    saveAsProjectAct->setDisabled(true);//TODO
+
+
+    projectProperiesAct = new QAction(tr("&Project properties..."), this);
+    projectProperiesAct->setStatusTip(tr("Change properties of current project"));
+    CONNASSERT(projectProperiesAct, SIGNAL(triggered()), this, SLOT(projectProperties()));
+    
+
+    closeProjectAct = new QAction(tr("&Close project"), this);
+    closeProjectAct->setStatusTip(tr("Created new debugging project"));
+    CONNASSERT(closeProjectAct, SIGNAL(triggered()), this, SLOT(closeProject()));
 
     attachAndroidAct = new QAction(tr("&Attach to Android App"), this);
     attachAndroidAct->setStatusTip(tr("Attach to IP target"));
@@ -321,24 +347,31 @@ void DGLMainWindow::createActions() {
     CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), attachAndroidAct,
                SLOT(setDisabled(bool)));
 
-    disconnectAct = new QAction(tr("&Disconnect"), this);
-    disconnectAct->setStatusTip(tr("Disconnect an terminate application"));
-    CONNASSERT(disconnectAct, SIGNAL(triggered()), this, SLOT(disconnect()));
-    CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), disconnectAct,
-               SLOT(setEnabled(bool)));
-    disconnectAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
-    disconnectAct->setEnabled(false);
+    debugStartAct = new QAction(tr("&Start debugging"), this);
+    debugStartAct->setStatusTip(tr("Stop debugging."));
+    CONNASSERT(debugStartAct, SIGNAL(triggered()), this, SLOT(debugStart()));
+    CONNASSERT(&m_controller, SIGNAL(setDisconnected(bool)), debugStartAct,
+        SLOT(setVisible(bool)));
+    debugStartAct->setShortcut(QKeySequence(Qt::Key_F5));
+
+    debugStopAct = new QAction(tr("Sto&p debugging"), this);
+    debugStopAct->setStatusTip(tr("Stop debugging."));
+    CONNASSERT(debugStopAct, SIGNAL(triggered()), this, SLOT(debugStop()));
+    CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), debugStopAct,
+        SLOT(setEnabled(bool)));
+    debugStopAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
+    debugStopAct->setEnabled(false);
 
     debugContinueAct = new QAction(tr("&Continue"), this);
     debugContinueAct->setStatusTip(tr("Continue program execution"));
     CONNASSERT(debugContinueAct, SIGNAL(triggered()), &m_controller,
                SLOT(debugContinue()));
     CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), debugContinueAct,
-               SLOT(setEnabled(bool)));
+               SLOT(setVisible(bool)));
     CONNASSERT(&m_controller, SIGNAL(setBreaked(bool)), debugContinueAct,
                SLOT(setEnabled(bool)));
     debugContinueAct->setShortcut(QKeySequence(Qt::Key_F5));
-    debugContinueAct->setEnabled(false);
+    debugContinueAct->setVisible(false);
 
     debugInterruptAct = new QAction(tr("&Interrupt (on GL)"), this);
     debugInterruptAct->setStatusTip(
@@ -527,6 +560,18 @@ void DGLMainWindow::setColorScheme(int colorScheme) {
     }
 }
 
+bool DGLMainWindow::haveProject() {
+    if (!m_project) {
+        if (QMessageBox::question(this, tr("No project is opened."), tr("No project is opened - create new?")) == QMessageBox::Yes) {
+            newProject();
+        }
+        //we always return false here: we fool user into creating new project, 
+        //so he propably won't remember what he clicked earlier.
+        return false;
+    }
+    return true;
+}
+
 void DGLMainWindow::configure() {
     DGLConfigDialog dialog(m_controller.getConfig(),
                            DGLAdbInterface::get()->getAdbPath());
@@ -558,32 +603,42 @@ void DGLMainWindow::about() {
                "<a href=\"https://github.com/debugler/debugler\"/>"));
 }
 
-void DGLMainWindow::attach() {
-
-    // execute connection dialog to obtain connection parameters
-
-    if (m_ConnectDialog.exec() == QDialog::Accepted) {
-
-        // if dialog is successfull, initialte connection in DGLController
-
-        m_controller.connectServer(m_ConnectDialog.getAddress(),
-                                   m_ConnectDialog.getPort());
-    }
-}
-
 void DGLMainWindow::newProject() {
 
     if (m_project) {
-        //TODO: save it somehow?
+        closeProject();
     }
+   
+    if (m_ProjectDialog.exec() == QDialog::Accepted) {
 
-        
-    if (m_NewProjectDialog.exec() == QDialog::Accepted) {
+        // if dialog is successfull, get project and start debug
+        m_project = m_ProjectDialog.getProject();
+        if (m_project) {
+            CONNASSERT(m_project.get(), SIGNAL(debugStarted(std::string, std::string)), this, SLOT(onDebugStartedConnectReady(std::string, std::string)));
+            CONNASSERT(m_project.get(), SIGNAL(debugError(QString, QString)), this, SLOT(onDebugError(QString, QString)));
+            CONNASSERT(m_project.get(), SIGNAL(debugExit(QString)), this, SLOT(onDebugExit(QString)));
 
-        // if dialog is successfull, get project
+            debugStart();
+        }
+    }
+}
 
-        m_project = m_NewProjectDialog.getProject();
+void DGLMainWindow::closeProject() {
+    //TODO: save it somehow?
+    m_project.reset();
+}
 
+void DGLMainWindow::projectProperties() {
+    if (haveProject()) {
+        m_ProjectDialog.loadPropertiesFromProject(m_project.get());
+        if (m_ProjectDialog.exec() == QDialog::Accepted) {
+            m_project = m_ProjectDialog.getProject();
+            if (m_project) {
+                CONNASSERT(m_project.get(), SIGNAL(debugStarted(std::string, std::string)), this, SLOT(onDebugStartedConnectReady(std::string, std::string)));
+                CONNASSERT(m_project.get(), SIGNAL(debugError(QString, QString);), this, SLOT(onDebugError(QString, QString)));
+                CONNASSERT(m_project.get(), SIGNAL(debugExit(QString)), this, SLOT(onDebugExit(QString)));
+            }
+        }
     }
 }
 
@@ -597,95 +652,55 @@ void DGLMainWindow::attachAndroidApp() {
     }
 }
 
-void DGLMainWindow::runDialog() {
+void DGLMainWindow::debugStart() {
+    
+    debugStop();
 
-    // execute connection dialog to obtain connection parameters
+    if (haveProject()) {
 
-    if (m_RunDialog.exec() == QDialog::Accepted) {
+        m_BusyDialog = std::make_shared<QProgressDialog>(
+            "Starting debugging session (waiting for application to "
+            "try "
+            "use OpenGL)...",
+            "Cancel", 0, 1, this);
 
-        disconnect();
+        m_BusyDialog->setWindowModality(Qt::WindowModal);
+        m_BusyDialog->setValue(0);
+
+        QProgressBar *bar = new QProgressBar(m_BusyDialog.get());
+        m_BusyDialog->setBar(bar);
+        bar->setMaximum(0);
+        bar->setMinimum(0);
+        bar->setValue(-1);
 
         try {
-
-            m_BusyDialog = std::make_shared<QProgressDialog>(
-                    "Starting debugging session (waiting for application to "
-                    "try "
-                    "use OpenGL)...",
-                    "Cancel", 0, 1, this);
-
-            m_BusyDialog->setWindowModality(Qt::WindowModal);
-            m_BusyDialog->setValue(0);
-
-            QProgressBar *bar = new QProgressBar(m_BusyDialog.get());
-            m_BusyDialog->setBar(bar);
-            bar->setMaximum(0);
-            bar->setMinimum(0);
-            bar->setValue(-1);
-            CONNASSERT(m_BusyDialog.get(), SIGNAL(canceled()), this,
-                       SLOT(disconnect()));
-
-            // randomize connection port
-            int port = rand() % (0xffff - 1024) + 1024;
-
-            m_process = new DGLDebugeeQTProcess(port, m_RunDialog.getModeEGL());
-
-            m_process->setParent(this);
-
-            CONNASSERT(m_process, SIGNAL(processReady()), this,
-                       SLOT(processReadyHandler()));
-            CONNASSERT(m_process, SIGNAL(processError(std::string)), this,
-                       SLOT(processErrorHandler(std::string)));
-            CONNASSERT(m_process, SIGNAL(processFinished(int)), this,
-                       SLOT(processExitHandler(int)));
-            CONNASSERT(m_process, SIGNAL(processCrashed()), this,
-                       SLOT(processCrashHandler()));
-
-            m_process->run(m_RunDialog.getExecutable(), m_RunDialog.getPath(),
-                           m_RunDialog.getCommandLineArgs());
+            m_project->startDebugging();
         }
         catch (const std::runtime_error &err) {
-            if (m_process) {
-                m_process->requestDelete();
-                m_process = NULL;
-            }
             QMessageBox::critical(NULL, tr("Fatal Error"),
-                                  QString::fromStdString(err.what()));
+                QString::fromStdString(err.what()));
         }
     }
 }
 
-void DGLMainWindow::processCrashHandler() {
-    disconnect();
-    QMessageBox::critical(this, tr("Process crashed"),
-                          tr("Loader process has crashed."));
+void DGLMainWindow::onDebugStartedConnectReady(std::string address, std::string port) {
+    m_controller.connectServer(address, port);
 }
 
-void DGLMainWindow::processErrorHandler(std::string err) {
-    disconnect();
-    QMessageBox::critical(this, tr("Fatal Error"), QString::fromStdString(err));
+void DGLMainWindow::onDebugError(QString error, QString message) {
+    debugStop();
+    QMessageBox::critical(this, error, message);
 }
 
-void DGLMainWindow::processExitHandler(int code) {
-    disconnect();
-    QMessageBox::information(
-            NULL, tr("Process Exited"),
-            tr("Process has exited with code ") + QString::number(code) + ".");
+void DGLMainWindow::onDebugExit(QString reason) {
+    debugStop();
+    QMessageBox::information(this, tr("Debugging stopped"), reason);
 }
 
-void DGLMainWindow::processReadyHandler() {
-
-    m_BusyDialog->reset();
-
-    std::ostringstream portStr;
-    portStr << m_process->getPort();
-    m_controller.connectServer("127.0.0.1", portStr.str());
-}
-
-void DGLMainWindow::disconnect() {
+void DGLMainWindow::debugStop() {
     m_controller.disconnectServer();
-    if (m_process) {
-        m_process->requestDelete();
-        m_process = NULL;
+    if (m_project) {
+        m_project->stopDebugging();
     }
     m_BusyDialog.reset();
 }
@@ -724,14 +739,14 @@ void DGLMainWindow::setBreakOnWhatever(bool) {
 }
 
 void DGLMainWindow::connectionLost(const QString &title, const QString &msg) {
-    if (m_process && m_controller.isConnected()) {
-        // we still have a process, that should terminate now
+    if (m_controller.isConnected()) {
+        // we still may have a process, that should terminate now
 
         // m_process has still handler slots connected here, so user
         // will be informed about process exit.
-        m_process->exit(false);
+        m_project->stopDebugging();
     } else {
-        disconnect();
+        debugStop();
         QMessageBox::critical(this, title, msg);
     }
 }

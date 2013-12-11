@@ -50,9 +50,6 @@
     <ClCompile Include="dglmainwindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dglconnectdialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dglcontroller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -260,22 +257,10 @@
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglcontroller.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglconnectdialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglconnectdialog.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglconnectandroiddialog.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglconnectandroiddialog.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglconfigdialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglconfigdialog.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglbufferview.cpp">
@@ -314,9 +299,6 @@
     <ClCompile Include="dglandroidselectdev.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dglproject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dglprojectdialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -326,18 +308,33 @@
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglprojectdialog.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglproject.cpp">
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglconfigdialog.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglproject.cpp">
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglconfigdialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="dglproject_attach.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dglproject_runapp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglproject_base.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglproject_base.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglproject_runapp.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglproject_runapp.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="dglconnectdialog.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="dglcontroller.h">
@@ -388,9 +385,6 @@
     <CustomBuild Include="dglshaderview.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="ui\dglconnectdialog.ui">
-      <Filter>Form Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="ui\dglprogramview.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
@@ -439,9 +433,6 @@
     <CustomBuild Include="dglglsleditor.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="dglconfigdialog.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="ui\dglconfigdialog.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
@@ -458,9 +449,6 @@
       <Filter>Generated Files</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglbreakpointdialog.h">
-      <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglconnectdialog.h">
       <Filter>Generated Files</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\dump\GeneratedFiles\ui_dglfboviewitem.h">
@@ -568,11 +556,20 @@
     <CustomBuild Include="ui\dglprojectdialog.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="dglproject.h">
+    <CustomBuild Include="dglconfigdialog.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="ui\dglprojproperties_tcpconn.ui">
+    <CustomBuild Include="ui\dglprojproperties_runapp.ui">
       <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dglproject_base.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\dglprojproperties_attach.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dglproject_runapp.h">
+      <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -585,7 +582,13 @@
     <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglprojectdialog.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglprojproperties_tcpconn.h">
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglprojproperties_runapp.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dglproject_attach.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglprojproperties_attach.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>

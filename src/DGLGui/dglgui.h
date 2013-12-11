@@ -28,10 +28,10 @@
 #include <cassert>
 
 #ifdef NDEBUG
-#define CONNASSERT(obj1, slot, obj2, signal) connect(obj1, slot, obj2, signal)
+#define CONNASSERT(obj1, signal, obj2, slot) connect(obj1, signal, obj2, slot)
 #else
-#define CONNASSERT(obj1, slot, obj2, signal) \
-    assert(connect(obj1, slot, obj2, signal))
+#define CONNASSERT(obj1, signal, obj2, slot) \
+    assert(connect(obj1, signal, obj2, slot))
 
 #ifdef HAVE_VLD
 #include <vld.h>

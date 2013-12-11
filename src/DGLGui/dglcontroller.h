@@ -302,6 +302,11 @@ signals:
     void setConnected(bool);
 
     /**
+    * Signal for setting GUI state
+    */
+    void setDisconnected(bool);
+
+    /**
      * Signal for setting GUI state
      */
     void setBreaked(bool);

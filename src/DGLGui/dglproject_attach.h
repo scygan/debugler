@@ -13,39 +13,40 @@
 * limitations under the License.
 */
 
-#ifndef DGLPROJECT_H
-#define DGLPROJECT_H
+#ifndef DGLPROJECT_ATTACH_H
+#define DGLPROJECT_ATTACH_H
 
 #include <QWidget>
 
-class DGLProject {
+#include "ui_dglprojproperties_attach.h"
+
+
+
+
+class DGLAttachProject: public DGLProject {
 public:
-    virtual void startDebugging() = 0;
-    ~DGLProject() {}
-};
-
-
-class DGLTCPProject: public DGLProject {
+    DGLAttachProject(std::string address, std::string port);
+    const std::string& getAddress() const;
+    const std::string& getPort() const;
+private:
     virtual void startDebugging() override;
+    std::string m_address, m_port;
 };
 
-
-class DGLProjectFactory: QObject {
-    Q_OBJECT
+class DGLAttachProjectFactory: public DGLProjectFactory {
 public:
-    virtual QString getName() = 0;
-    virtual QWidget* getGUI() = 0;
-    virtual ~DGLProjectFactory() {}
-};
+    DGLAttachProjectFactory();
+private:
 
+    virtual std::shared_ptr<DGLProject> createProject() override;
 
-#include "ui_dglprojproperties_tcpconn.h"
-
-
-class DGLTCPConnectionProjectFactory: public DGLProjectFactory {
+    virtual bool valid(QString&);
+    virtual bool loadPropertiedFromProject(const DGLProject*);
     virtual QString getName() override;
     virtual QWidget* getGUI() override;
-    Ui::DGLProjPropertiesTCPConnClass m_ui;
+    Ui::DGLProjPropertiesAttachClass m_ui;
+    QWidget m_gui;
 };
+
 
 #endif

@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>359</width>
-    <height>167</height>
+    <width>731</width>
+    <height>194</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,7 +34,11 @@
      <property name="title">
       <string>Project parameters</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3"/>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QStackedWidget" name="stackedWidget"/>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
@@ -91,8 +95,41 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>okButton</sender>
+   <signal>clicked()</signal>
+   <receiver>DGLProjectDialogClass</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>315</x>
+     <y>173</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>60</x>
+     <y>174</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancelButton</sender>
+   <signal>clicked()</signal>
+   <receiver>DGLProjectDialogClass</receiver>
+   <slot>tryAccept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>201</x>
+     <y>163</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>116</x>
+     <y>163</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>projectTypeSelected(int)</slot>
+  <slot>tryAccept()</slot>
  </slots>
 </ui>

@@ -69,6 +69,7 @@ DGLProcess::DGLProcess(std::string executable, std::vector<std::string> args,
         }
     }
 #endif
+    (void)forceFork;
 }
 
 DGLProcess::native_process_handle_t DGLProcess::getHandle() {

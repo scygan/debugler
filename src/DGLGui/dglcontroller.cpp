@@ -207,6 +207,7 @@ void DglController::disconnectServer() {
         m_DglClient.reset();
         m_ConfiguredAndBkpointsSet = false;
         setConnected(false);
+        setDisconnected(true);
         debugeeInfo("");
     }
     m_Connected = false;
@@ -286,6 +287,7 @@ void DglController::doHandleHello(const dglnet::message::Hello& msg) {
     m_Connected = true;
     debugeeInfo(msg.m_ProcessName);
     setConnected(true);
+    setDisconnected(false);
 }
 
 void DglController::doHandleBreakedCall(
