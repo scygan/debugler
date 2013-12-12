@@ -16,11 +16,24 @@
 #include "gtest/gtest.h"
 
 #include <QApplication>
+#include <string>
+
+#ifdef _WIN32
+#include <windows.h> 
+#endif
 
 int main(int argc, char **argv) {
-
     QApplication a(argc, argv);
-
     ::testing::InitGoogleTest(&argc, argv);
+#ifdef _WIN32
+    if (argc) {
+        char drive[255];
+        char folder[255];
+        _splitpath_s(argv[0], drive, 255, folder, 255, NULL, 0, NULL, 0);
+        std::string newpath = std::string(drive) + folder + "..";
+        SetCurrentDirectory(newpath.c_str());
+    }
+#endif
     return RUN_ALL_TESTS();
 }
+
