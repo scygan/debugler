@@ -15,23 +15,18 @@
 
 #include "dglproject_attach.h"
 
-DGLAttachProject::DGLAttachProject(std::string address, std::string port):m_address(address), m_port(port) {}
+DGLAttachProject::DGLAttachProject(std::string address, std::string port)
+        : m_address(address), m_port(port) {}
 
-const std::string& DGLAttachProject::getAddress() const {
-    return m_address;
-}
+const std::string& DGLAttachProject::getAddress() const { return m_address; }
 
-const std::string& DGLAttachProject::getPort() const {
-    return m_port;
-}
+const std::string& DGLAttachProject::getPort() const { return m_port; }
 
 void DGLAttachProject::startDebugging() {
     emit debugStarted(getAddress(), getPort());
 }
 
-DGLAttachProjectFactory::DGLAttachProjectFactory() {
-    m_ui.setupUi(&m_gui);
-}
+DGLAttachProjectFactory::DGLAttachProjectFactory() { m_ui.setupUi(&m_gui); }
 
 std::shared_ptr<DGLProject> DGLAttachProjectFactory::createProject() {
     QString message;
@@ -39,34 +34,44 @@ std::shared_ptr<DGLProject> DGLAttachProjectFactory::createProject() {
         throw std::runtime_error(message.toStdString());
     } else {
         return std::make_shared<DGLAttachProject>(
-            m_ui.lineEdit_IpAddress->text().toStdString(), 
-            m_ui.lineEdit_TcpPort->text().toStdString());
+                m_ui.lineEdit_IpAddress->text().toStdString(),
+                m_ui.lineEdit_TcpPort->text().toStdString());
     }
 }
 
 bool DGLAttachProjectFactory::valid(QString& message) {
     if (!m_ui.lineEdit_IpAddress->text().length()) {
-        message = tr("No address set. Please file in network address (IP or hostname) of target machine.");
+        message =
+                tr("No address set. Please file in network address (IP or "
+                   "hostname) of target machine.");
         return false;
     }
     if (!m_ui.lineEdit_TcpPort->text().length()) {
-        message = tr("No port set. Please file in tcp port on which debugee process is listening.");
+        message =
+                tr("No port set. Please file in tcp port on which debugee "
+                   "process is listening.");
         return false;
     }
     return true;
 }
 
-bool DGLAttachProjectFactory::loadPropertiedFromProject(const DGLProject* project) {
-    const DGLAttachProject* tcpProject = dynamic_cast<const DGLAttachProject*>(project); 
+bool DGLAttachProjectFactory::loadPropertiedFromProject(
+        const DGLProject* project) {
+    const DGLAttachProject* tcpProject =
+            dynamic_cast<const DGLAttachProject*>(project);
     if (!tcpProject) {
         return false;
     } else {
-        m_ui.lineEdit_IpAddress->setText(QString::fromStdString(tcpProject->getAddress()));
-        m_ui.lineEdit_TcpPort->setText(QString::fromStdString(tcpProject->getPort()));
+        m_ui.lineEdit_IpAddress->setText(
+                QString::fromStdString(tcpProject->getAddress()));
+        m_ui.lineEdit_TcpPort->setText(
+                QString::fromStdString(tcpProject->getPort()));
     }
     return true;
 }
 
-QString DGLAttachProjectFactory::getName() { return tr("Attach to Remote debugger"); }
+QString DGLAttachProjectFactory::getName() {
+    return tr("Attach to Remote debugger");
+}
 
 QWidget* DGLAttachProjectFactory::getGUI() { return &m_gui; }

@@ -91,10 +91,10 @@ slots:
     void doneQueryInstallStatus(const std::vector<std::string>& prop);
     void adbFailed(std::string reason);
 signals:
-    void gotProcesses(const std::vector<DGLAdbProcess>& data);
+    void gotProcesses(DGLADBDevice*, const std::vector<DGLAdbProcess>& data);
     void failed(DGLADBDevice*, const std::string&);
     
-    void portForwardSuccess();
+    void portForwardSuccess(DGLADBDevice*);
     void queryInstallStatusSuccess(DGLADBDevice*);
 
     

@@ -19,24 +19,28 @@
 #include <QWidget>
 #include <string>
 
-class DGLProject: public QObject {
+class DGLProject : public QObject {
     Q_OBJECT;
 signals:
     void debugStarted(std::string address, std::string port);
     void debugError(QString error, QString message);
     void debugExit(QString reason);
-public:
+
+   public:
     virtual void startDebugging() = 0;
     virtual void stopDebugging() {}
     virtual ~DGLProject() {}
 };
 
-class DGLProjectFactory: public QObject {
+class DGLProjectFactory : public QObject {
     Q_OBJECT
-public:
+   public:
     virtual std::shared_ptr<DGLProject> createProject() = 0;
 
-    virtual bool valid(QString&) { assert(0); return true; }
+    virtual bool valid(QString&) {
+        assert(0);
+        return true;
+    }
 
     virtual bool loadPropertiedFromProject(const DGLProject*) { return false; }
 

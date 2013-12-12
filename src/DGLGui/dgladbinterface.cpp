@@ -335,7 +335,7 @@ void DGLADBDevice::reloadProcessesGotUnixSockets(
             processes.push_back(DGLAdbProcess(pid, processName, sockets[i]));
         }
     }
-    emit gotProcesses(processes);
+    emit gotProcesses(this, processes);
 }
 
 void DGLADBDevice::adbFailed(std::string reason) { emit failed(this, reason); }

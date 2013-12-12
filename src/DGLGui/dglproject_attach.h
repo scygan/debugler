@@ -20,24 +20,22 @@
 
 #include "ui_dglprojproperties_attach.h"
 
-
-
-
-class DGLAttachProject: public DGLProject {
-public:
+class DGLAttachProject : public DGLProject {
+   public:
     DGLAttachProject(std::string address, std::string port);
     const std::string& getAddress() const;
     const std::string& getPort() const;
-private:
+
+   private:
     virtual void startDebugging() override;
     std::string m_address, m_port;
 };
 
-class DGLAttachProjectFactory: public DGLProjectFactory {
-public:
+class DGLAttachProjectFactory : public DGLProjectFactory {
+   public:
     DGLAttachProjectFactory();
-private:
 
+   private:
     virtual std::shared_ptr<DGLProject> createProject() override;
 
     virtual bool valid(QString&);
@@ -47,6 +45,5 @@ private:
     Ui::DGLProjPropertiesAttachClass m_ui;
     QWidget m_gui;
 };
-
 
 #endif

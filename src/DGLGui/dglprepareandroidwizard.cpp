@@ -59,25 +59,30 @@ int Intro::nextId(void) const {
     return Wizard::Page_DeviceChoice;
 }
 
-DeviceChoice::DeviceChoice(QWidget *parent) : QWizardPage(parent), m_Device(nullptr) {
+DeviceChoice::DeviceChoice(QWidget *parent)
+        : QWizardPage(parent), m_Device(nullptr) {
     QVBoxLayout *layout = new QVBoxLayout;
 
     m_SelectWidget = new DGLAndroidSelectDevWidget(this);
 
-    CONNASSERT(m_SelectWidget, SIGNAL(selectDevice(DGLADBDevice*)), this,
-        SLOT(selectDevice(DGLADBDevice*)));
+    CONNASSERT(m_SelectWidget, SIGNAL(selectDevice(DGLADBDevice *)), this,
+               SLOT(selectDevice(DGLADBDevice *)));
     CONNASSERT(m_SelectWidget, SIGNAL(adbFailed(std::string)), this,
-        SLOT(adbFailed(std::string)));
+               SLOT(adbFailed(std::string)));
 
     layout->addWidget(m_SelectWidget);
     m_DeviceStatusLabel = new QLabel();
     layout->addWidget(m_DeviceStatusLabel);
 
-    
     m_RadioButtonClean = new QRadioButton("Uninstall debugler from device.");
     m_RadioButtonUpdate = new QRadioButton("Update debugler on device.");
     m_RadioButtonInstall = new QRadioButton("Install debugler on device.");
+
+
     QButtonGroup *bg = new QButtonGroup();
+
+    CONNASSERT(bg, SIGNAL(buttonClicked(int)), this, SIGNAL(completeChanged()));
+
     bg->addButton(m_RadioButtonClean);
     bg->addButton(m_RadioButtonUpdate);
     bg->addButton(m_RadioButtonInstall);
@@ -86,94 +91,125 @@ DeviceChoice::DeviceChoice(QWidget *parent) : QWizardPage(parent), m_Device(null
     layout->addWidget(m_RadioButtonUpdate);
     layout->addWidget(m_RadioButtonInstall);
 
+    registerField("clean-button", m_RadioButtonClean);
+    registerField("update-button", m_RadioButtonUpdate);
+    registerField("install-button", m_RadioButtonInstall);
+
+    registerField("device*", this, "device", SIGNAL(selectDevice));
+
     setDeviceStatus(DGLADBDevice::InstallStatus::UNKNOWN);
 
     setLayout(layout);
+
+    emit completeChanged();
+
+}
+
+DGLADBDevice* DeviceChoice::device() const {
+    return m_Device;
 }
 
 void DeviceChoice::setDeviceStatus(DGLADBDevice::InstallStatus status) {
     if (status == DGLADBDevice::InstallStatus::UNKNOWN) {
-            m_RadioButtonClean  ->setChecked(false);
-            m_RadioButtonUpdate ->setChecked(false);
-            m_RadioButtonInstall->setChecked(false);
-            m_RadioButtonClean   -> setEnabled(false);
-            m_RadioButtonUpdate  -> setEnabled(false);
-            m_RadioButtonInstall -> setEnabled(false);
-            m_DeviceStatusLabel->setText("Device status: unknown");
+        m_RadioButtonClean->setChecked(false);
+        m_RadioButtonUpdate->setChecked(false);
+        m_RadioButtonInstall->setChecked(false);
+        m_RadioButtonClean->setEnabled(false);
+        m_RadioButtonUpdate->setEnabled(false);
+        m_RadioButtonInstall->setEnabled(false);
+        m_DeviceStatusLabel->setText("Device status: unknown");
     }
     if (status == DGLADBDevice::InstallStatus::INSTALLED) {
         m_RadioButtonInstall->setChecked(false);
-        m_RadioButtonClean   -> setEnabled(true);
-        m_RadioButtonUpdate  -> setEnabled(true);
-        m_RadioButtonInstall -> setEnabled(false);
+        m_RadioButtonClean->setEnabled(true);
+        m_RadioButtonUpdate->setEnabled(true);
+        m_RadioButtonInstall->setEnabled(false);
         m_DeviceStatusLabel->setText("Device status: debugler is installed");
     }
     if (status == DGLADBDevice::InstallStatus::CLEAN) {
-        m_RadioButtonClean  ->setChecked(false);
-        m_RadioButtonUpdate ->setChecked(false);
-        m_RadioButtonClean   -> setEnabled(false);
-        m_RadioButtonUpdate  -> setEnabled(false);
-        m_RadioButtonInstall -> setEnabled(true);
-        m_DeviceStatusLabel->setText("Device status: debugler is not installed");
+        m_RadioButtonClean->setChecked(false);
+        m_RadioButtonUpdate->setChecked(false);
+        m_RadioButtonClean->setEnabled(false);
+        m_RadioButtonUpdate->setEnabled(false);
+        m_RadioButtonInstall->setEnabled(true);
+        m_DeviceStatusLabel->setText(
+                "Device status: debugler is not installed");
     }
 }
 
 void DeviceChoice::adbFailed(std::string reason) {
     QMessageBox::critical(this, tr("ADB Error"),
-        QString::fromStdString(reason));
+                          QString::fromStdString(reason));
     setDeviceStatus(DGLADBDevice::InstallStatus::UNKNOWN);
 }
 
-void DeviceChoice::selectDevice(DGLADBDevice* device) {
+void DeviceChoice::selectDevice(DGLADBDevice *device) {
     if (device) {
 
         if (device != m_Device) {
             setDeviceStatus(DGLADBDevice::InstallStatus::UNKNOWN);
-            CONNASSERT(device, SIGNAL(queryInstallStatusSuccess(DGLADBDevice*)), this,
-                SLOT(selectDeviceStatusSuccess(DGLADBDevice*)));
-            
+            CONNASSERT(device,
+                       SIGNAL(queryInstallStatusSuccess(DGLADBDevice *)), this,
+                       SLOT(selectDeviceStatusSuccess(DGLADBDevice *)));
+
             m_Device = device;
             m_Device->queryInstallStatus();
-        }        
+        }
     } else {
         setDeviceStatus(DGLADBDevice::InstallStatus::UNKNOWN);
     }
+
+    emit completeChanged();
 }
 
-void DeviceChoice::selectDeviceStatusSuccess(DGLADBDevice* device) {
+void DeviceChoice::selectDeviceStatusSuccess(DGLADBDevice *device) {
     if (device == m_Device) {
         setDeviceStatus(m_Device->getInstallStatus());
     }
+    emit completeChanged();
 }
 
-int DeviceChoice::nextId() {
+bool DeviceChoice::isComplete() const {
     if (m_Device) {
-        if (m_Device->getInstallStatus() == DGLADBDevice::InstallStatus::UNKNOWN) {
-            QMessageBox::warning(this, tr("Device error"), tr("Device debugler install status is unknown."));
-            return Wizard::Page_DeviceChoice;
-        }
-        if (m_Device->getInstallStatus() == DGLADBDevice::InstallStatus::INSTALLED) {
-            if (m_RadioButtonClean->isChecked() || m_RadioButtonUpdate->isChecked()) {
-                return Wizard::Page_Run;
+        if (m_Device->getInstallStatus() ==
+            DGLADBDevice::InstallStatus::INSTALLED) {
+            if (m_RadioButtonClean->isChecked() ||
+                m_RadioButtonUpdate->isChecked()) {
+                return true;
             }
-            QMessageBox::warning(this, tr("Selection error"), tr("Select on of available options."));
         }
-        if (m_Device->getInstallStatus() == DGLADBDevice::InstallStatus::CLEAN) {
+        if (m_Device->getInstallStatus() ==
+            DGLADBDevice::InstallStatus::CLEAN) {
             if (m_RadioButtonInstall->isChecked()) {
-                return Wizard::Page_Run;
+                return true;
             }
-            QMessageBox::warning(this, tr("Selection error"), tr("Select on of available options."));
         }
     }
-    QMessageBox::critical(this, tr("No device"),
-        tr("No device selected. Please select appropriate device."));
-    return Wizard::Page_DeviceChoice;
+   return false;
 }
 
-Run::Run(QWidget *parent) : QWizardPage(parent) {
+Run::Run(QWidget *parent) : QWizardPage(parent), m_Device(nullptr), m_Complete(false) {
     QVBoxLayout *layout = new QVBoxLayout;
-    // layout->addWidget();
+    
+
     setLayout(layout);
+}
+
+void Run::initializePage() {
+    m_Device = field("device").value<DGLADBDevice*>();
+    if (!m_Device) {
+        QMessageBox::critical(this, tr("Installation error"), tr("Device was not selected"));
+        setFinalPage(true);
+        m_Complete = true;
+    } else {
+        m_Complete = false;
+        setFinalPage(false);
+    }
+    emit completeChanged();
+}
+
+bool Run::isComplete() const {
+    return m_Complete;
 }
 
 Conclusion::Conclusion(QWidget *parent) : QWizardPage(parent) {

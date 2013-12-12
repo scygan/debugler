@@ -16,7 +16,6 @@
 #ifndef DGLPROJECTDIALOG_H
 #define DGLPROJECTDIALOG_H
 
-
 #include "dglqtgui.h"
 #include "ui_dglprojectdialog.h"
 
@@ -27,7 +26,7 @@
 class DGLProjectDialog : public QDialog {
     Q_OBJECT
 
-public:
+   public:
     DGLProjectDialog();
     ~DGLProjectDialog();
 
@@ -35,12 +34,12 @@ public:
 
     void loadPropertiesFromProject(const DGLProject* project);
 
-public slots:
+   public
+slots:
     void projectTypeSelected(int);
     void tryAccept();
 
-private:
-
+   private:
     void addProjectFactory(std::shared_ptr<DGLProjectFactory> factory);
 
     DGLProjectFactory* m_CurrentFactory;

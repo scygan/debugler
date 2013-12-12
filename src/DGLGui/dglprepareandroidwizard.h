@@ -58,6 +58,7 @@ class DeviceChoice : public QWizardPage {
     Q_OBJECT
    public:
     DeviceChoice(QWidget *parent = 0);
+    DGLADBDevice* device() const;
    public
 slots:
     void adbFailed(std::string reason);
@@ -65,11 +66,14 @@ slots:
     void selectDeviceStatusSuccess(DGLADBDevice* device);
 
    private:
-    int nextId();
+    virtual bool isComplete() const override;
 
     void setDeviceStatus(DGLADBDevice::InstallStatus);
-
+    
     DGLAndroidSelectDevWidget * m_SelectWidget;
+
+    Q_PROPERTY(DGLADBDevice* device READ device)
+
     DGLADBDevice* m_Device;
     QLabel* m_DeviceStatusLabel;
     QRadioButton* m_RadioButtonClean, * m_RadioButtonUpdate, * m_RadioButtonInstall;
@@ -79,6 +83,12 @@ class Run : public QWizardPage {
     Q_OBJECT
    public:
     Run(QWidget *parent = 0);
+private:
+    virtual void initializePage() override;
+    virtual bool isComplete() const override;
+
+    DGLADBDevice* m_Device;
+    bool m_Complete;
 };
 
 class Conclusion : public QWizardPage {

@@ -15,7 +15,6 @@
 
 #include "dglproject_runapp.h"
 
-
 #include <QFileInfo>
 #include <QDir>
 
@@ -33,48 +32,45 @@
 
 #include <DGLCommon/os.h>
 
+DGLRunAppProject::DGLRunAppProject(const std::string& executable,
+                                   const std::string& path, const QString& args,
+                                   bool eglMode)
+        : m_process(nullptr),
+          m_executable(executable),
+          m_path(path),
+          m_args(args),
+          m_EglMode(eglMode) {}
 
-
-DGLRunAppProject::DGLRunAppProject(const std::string& executable, const std::string& path,
-                                   const QString& args, bool eglMode):m_process(nullptr),
-                                   m_executable(executable), m_path(path), m_args(args), m_EglMode(eglMode) {}
-
-DGLRunAppProject::~DGLRunAppProject() {
-    stopDebugging();
-}
+DGLRunAppProject::~DGLRunAppProject() { stopDebugging(); }
 
 const std::string& DGLRunAppProject::getExecutable() const {
     return m_executable;
 }
 
-const std::string& DGLRunAppProject::getPath() const {
-    return m_path;
-}
+const std::string& DGLRunAppProject::getPath() const { return m_path; }
 
 std::string DGLRunAppProject::getCommandLineArgs() const {
     return m_args.toStdString();
 }
 
 void DGLRunAppProject::startDebugging() {
-   // randomize connection port
-   int port = rand() % (0xffff - 1024) + 1024;
-   
-   m_process = new DGLDebugeeQTProcess(port, m_EglMode);
-   
-   m_process->setParent(this);
-   
-   CONNASSERT(m_process, SIGNAL(processReady()), this,
-       SLOT(processReadyHandler()));
-   CONNASSERT(m_process, SIGNAL(processError(std::string)), this,
-       SLOT(processErrorHandler(std::string)));
-   CONNASSERT(m_process, SIGNAL(processFinished(int)), this,
-       SLOT(processExitHandler(int)));
-   CONNASSERT(m_process, SIGNAL(processCrashed()), this,
-       SLOT(processCrashHandler()));
-   
-   m_process->run(getExecutable(), getPath(),
-       getCommandLineArgVector());
+    // randomize connection port
+    int port = rand() % (0xffff - 1024) + 1024;
 
+    m_process = new DGLDebugeeQTProcess(port, m_EglMode);
+
+    m_process->setParent(this);
+
+    CONNASSERT(m_process, SIGNAL(processReady()), this,
+               SLOT(processReadyHandler()));
+    CONNASSERT(m_process, SIGNAL(processError(std::string)), this,
+               SLOT(processErrorHandler(std::string)));
+    CONNASSERT(m_process, SIGNAL(processFinished(int)), this,
+               SLOT(processExitHandler(int)));
+    CONNASSERT(m_process, SIGNAL(processCrashed()), this,
+               SLOT(processCrashHandler()));
+
+    m_process->run(getExecutable(), getPath(), getCommandLineArgVector());
 }
 
 void DGLRunAppProject::stopDebugging() {
@@ -102,25 +98,25 @@ void DGLRunAppProject::processErrorHandler(std::string err) {
 }
 
 void DGLRunAppProject::processExitHandler(int code) {
-    emit debugExit(tr("Process has exited with code ") + QString::number(code) + ".");
+    emit debugExit(tr("Process has exited with code ") + QString::number(code) +
+                   ".");
 }
 
 std::vector<std::string> DGLRunAppProject::getCommandLineArgVector() {
     std::vector<std::string> ret;
 
-    // some magic here. We have arguments from user, but we must pre-parse them and
-    // split into and array.
-    // due to laziness some weird system-specific functions are used here.
+// some magic here. We have arguments from user, but we must pre-parse them and
+// split into and array.
+// due to laziness some weird system-specific functions are used here.
 #ifdef _WIN32
     int numArgs;
     if (m_args.length()) {
-        LPWSTR* strings = CommandLineToArgvW(
-            m_args.toStdWString().c_str(),
-            &numArgs);
+        LPWSTR* strings =
+                CommandLineToArgvW(m_args.toStdWString().c_str(), &numArgs);
         if (!strings) {
             if (int osError = Os::getLastosError()) {
                 throw std::runtime_error("Program arguments: " +
-                    Os::translateOsError(osError));
+                                         Os::translateOsError(osError));
             } else {
                 throw std::runtime_error("Program arguments: unknown error");
             }
@@ -137,32 +133,31 @@ std::vector<std::string> DGLRunAppProject::getCommandLineArgVector() {
 #else
     wordexp_t wordExp;
 
-    int status = wordexp(m_args.toUtf8(),
-        &wordExp, 0);
+    int status = wordexp(m_args.toUtf8(), &wordExp, 0);
     switch (status) {
-    case WRDE_BADCHAR:
-        throw std::runtime_error(
-            "Program arguments: Illegal occurrence of newline or one "
-            "of |, "
-            "&, ;, <, >, (, ), {, }.");
-    case WRDE_BADVAL:
-        assert(!"no  WRDE_UNDEF was set, but got WRDE_BADVAL");
-        throw std::runtime_error(
-            "Program arguments: An undefined shell variable was "
-            "referenced");
-    case WRDE_CMDSUB:
-        assert(!" WRDE_NOCMD flag not set, but got WRDE_CMDSUB");
-        throw std::runtime_error(
-            "Program arguments: Command substitution occurred");
-    case WRDE_NOSPACE:
-        wordfree(&wordExp);
-        throw std::runtime_error("Program arguments: Out of memory.");
-    case WRDE_SYNTAX:
-        throw std::runtime_error("Program arguments: syntax error");
-    case 0:
-        break;
-    default:
-        throw std::runtime_error("Program arguments: unknown error");
+        case WRDE_BADCHAR:
+            throw std::runtime_error(
+                    "Program arguments: Illegal occurrence of newline or one "
+                    "of |, "
+                    "&, ;, <, >, (, ), {, }.");
+        case WRDE_BADVAL:
+            assert(!"no  WRDE_UNDEF was set, but got WRDE_BADVAL");
+            throw std::runtime_error(
+                    "Program arguments: An undefined shell variable was "
+                    "referenced");
+        case WRDE_CMDSUB:
+            assert(!" WRDE_NOCMD flag not set, but got WRDE_CMDSUB");
+            throw std::runtime_error(
+                    "Program arguments: Command substitution occurred");
+        case WRDE_NOSPACE:
+            wordfree(&wordExp);
+            throw std::runtime_error("Program arguments: Out of memory.");
+        case WRDE_SYNTAX:
+            throw std::runtime_error("Program arguments: syntax error");
+        case 0:
+            break;
+        default:
+            throw std::runtime_error("Program arguments: unknown error");
     }
 
     ret.resize(wordExp.we_wordc);
@@ -176,35 +171,33 @@ std::vector<std::string> DGLRunAppProject::getCommandLineArgVector() {
     return ret;
 }
 
-
 DGLRunAppProjectFactory::DGLRunAppProjectFactory() {
     m_ui.setupUi(&m_gui);
-    
+
 #ifndef _WIN32
     m_ui.radioButton_ModeWGLGLX->setText("GLX");
 #endif
 
     CONNASSERT(m_ui.lineEdit_Executable, SIGNAL(editingFinished()), this,
-        SLOT(updatePath()));
+               SLOT(updatePath()));
     CONNASSERT(m_ui.toolButton_Exec, SIGNAL(clicked()), this,
-        SLOT(browseExecutable()));
+               SLOT(browseExecutable()));
     CONNASSERT(m_ui.toolButton_Dir, SIGNAL(clicked()), this,
-        SLOT(browseDirectory()));
+               SLOT(browseDirectory()));
     m_ui.lineEdit_Executable->setFocus();
 }
 
 void DGLRunAppProjectFactory::updatePath() {
     QFileInfo info(m_ui.lineEdit_Executable->text());
-    m_ui.lineEdit_Path->setText(
-        QDir::toNativeSeparators(info.dir().path()));
+    m_ui.lineEdit_Path->setText(QDir::toNativeSeparators(info.dir().path()));
     ;
 }
 
 void DGLRunAppProjectFactory::browseExecutable() {
     QFileInfo info(m_ui.lineEdit_Executable->text());
     QString res = QFileDialog::getOpenFileName(
-        &m_gui, tr("Choose a executable to run"), info.absoluteFilePath(),
-        tr("Executables (*.exe)"));
+            &m_gui, tr("Choose a executable to run"), info.absoluteFilePath(),
+            tr("Executables (*.exe)"));
     if (!res.isNull()) {
         m_ui.lineEdit_Executable->setText(QDir::toNativeSeparators(res));
     }
@@ -213,7 +206,7 @@ void DGLRunAppProjectFactory::browseExecutable() {
 
 void DGLRunAppProjectFactory::browseDirectory() {
     QString res = QFileDialog::getExistingDirectory(&m_gui, "Choose directory",
-        m_ui.lineEdit_Path->text());
+                                                    m_ui.lineEdit_Path->text());
     if (!res.isNull()) {
         m_ui.lineEdit_Path->setText(res);
     }
@@ -225,11 +218,11 @@ std::shared_ptr<DGLProject> DGLRunAppProjectFactory::createProject() {
         throw std::runtime_error(message.toStdString());
     } else {
         return std::make_shared<DGLRunAppProject>(
-            m_ui.lineEdit_Executable->text().toStdString(),
-            m_ui.lineEdit_Path->text().toStdString(),
-            m_ui.lineEdit_CommandLineArgs->text(),
-            m_ui.radioButton_ModeEGL->isChecked() &&
-            !m_ui.radioButton_ModeWGLGLX->isChecked());
+                m_ui.lineEdit_Executable->text().toStdString(),
+                m_ui.lineEdit_Path->text().toStdString(),
+                m_ui.lineEdit_CommandLineArgs->text(),
+                m_ui.radioButton_ModeEGL->isChecked() &&
+                        !m_ui.radioButton_ModeWGLGLX->isChecked());
     }
 }
 
@@ -241,18 +234,25 @@ bool DGLRunAppProjectFactory::valid(QString& message) {
     return true;
 }
 
-bool DGLRunAppProjectFactory::loadPropertiedFromProject(const DGLProject* project) {
-    const DGLRunAppProject* runProject = dynamic_cast<const DGLRunAppProject*>(project); 
+bool DGLRunAppProjectFactory::loadPropertiedFromProject(
+        const DGLProject* project) {
+    const DGLRunAppProject* runProject =
+            dynamic_cast<const DGLRunAppProject*>(project);
     if (!runProject) {
         return false;
     } else {
-        m_ui.lineEdit_Executable->setText(QString::fromStdString(runProject->getExecutable()));
-        m_ui.lineEdit_CommandLineArgs->setText(QString::fromStdString(runProject->getCommandLineArgs()));
-        m_ui.lineEdit_Path->setText(QString::fromStdString(runProject->getPath()));
+        m_ui.lineEdit_Executable->setText(
+                QString::fromStdString(runProject->getExecutable()));
+        m_ui.lineEdit_CommandLineArgs->setText(
+                QString::fromStdString(runProject->getCommandLineArgs()));
+        m_ui.lineEdit_Path->setText(
+                QString::fromStdString(runProject->getPath()));
     }
     return true;
 }
 
-QString DGLRunAppProjectFactory::getName() { return tr("Run local executable"); }
+QString DGLRunAppProjectFactory::getName() {
+    return tr("Run local executable");
+}
 
 QWidget* DGLRunAppProjectFactory::getGUI() { return &m_gui; }

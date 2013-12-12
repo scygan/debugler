@@ -39,11 +39,11 @@ slots:
     void adbFailed(std::string reason);
     void deviceFailed(DGLADBDevice* device, std::string reason);
 
-    void gotProcesses(std::vector<DGLAdbProcess> devices);
+    void gotProcesses(DGLADBDevice*, std::vector<DGLAdbProcess> devices);
 
     void tryAccept();
 
-    void portForwardSuccess();
+    void portForwardSuccess(DGLADBDevice*);
 
    private:
 
