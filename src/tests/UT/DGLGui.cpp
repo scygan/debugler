@@ -216,8 +216,8 @@ TEST_F(DGLGui, syntax_highlighter_parse) {
              list_of((S)(B) "in")((U) " ")((K) "vec2")((U) " texcoord;"),
              list_of((S)(K) "void")((U) " main() {"),
              list_of((S)(U) "    ")((K) "vec4")((U) " texcolor = ")(
-                     (B) "texture2D")((U) "(samplerImg,texcoord);"),
-             list_of((S)(U) "    ")((B) "gl_FragColor")((U) " = texcolor;"),
+                     (R) "texture2D")((U) "(samplerImg,texcoord);"),
+             list_of((S)(U) "    ")((R) "gl_FragColor")((U) " = texcolor;"),
              list_of((S)(U) "}"));
 
     std::ostringstream shader;
