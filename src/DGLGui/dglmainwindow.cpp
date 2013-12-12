@@ -527,8 +527,9 @@ void DGLMainWindow::readSettings() {
     restoreGeometry(settings.value(DGL_GEOMETRY_SETTINGS).toByteArray());
     restoreState(settings.value(DGL_WINDOW_STATE_SETTINGS).toByteArray());
 
-    DGLAdbInterface::get()->setAdbPath(
-            settings.value(DGL_ADB_PATH_SETTINGS).toString().toStdString());
+    DGLAdbInterface::get()->setAdbCookieFactory(
+        std::make_shared<DGLAdbCookieFactory>(
+            settings.value(DGL_ADB_PATH_SETTINGS).toString().toStdString()));
 
     // decode and set actual color scheme from settings
 
@@ -582,7 +583,8 @@ void DGLMainWindow::configure() {
                            DGLAdbInterface::get()->getAdbPath());
     if (dialog.exec() == QDialog::Accepted) {
         m_controller.sendConfig(dialog.getConfig());
-        DGLAdbInterface::get()->setAdbPath(dialog.getAdbPath().toStdString());
+        DGLAdbInterface::get()->setAdbCookieFactory(
+            std::make_shared<DGLAdbCookieFactory>(dialog.getAdbPath().toStdString()));
     }
 }
 

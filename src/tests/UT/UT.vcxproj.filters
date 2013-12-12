@@ -55,6 +55,9 @@
     <ClCompile Include="..\..\..\dump\$(ConfigurationName)\GeneratedFiles\qrc_dglmainwindow.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="ADBInterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="LiveProcessWrapper.h">

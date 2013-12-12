@@ -63,6 +63,7 @@
     <ClCompile Include="..\..\..\dump\Release\GeneratedFiles\moc_LiveProcessWrapper.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="ADBInterface.cpp" />
     <ClCompile Include="DGLCommonUT.cpp" />
     <ClCompile Include="DGLGui.cpp" />
     <ClCompile Include="DGLNetUT.cpp" />

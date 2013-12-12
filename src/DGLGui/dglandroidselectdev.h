@@ -21,7 +21,7 @@
 #include "ui_dglandroidselectdev.h"
 
 #include "ui_dglconnectandroidadb.h"
-#include "dgladbinterface.h"
+#include "dgladbdevice.h"
 
 class DGLConnectAndroidAdbDialog : public QDialog {
     Q_OBJECT

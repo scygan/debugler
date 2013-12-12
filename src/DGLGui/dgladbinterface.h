@@ -29,115 +29,88 @@ class DGLAdbOutputFilter;
 class DGLAdbCookie : public QObject {
     Q_OBJECT
    public:
-    DGLAdbCookie(const std::string& adbPath,
-                 const std::vector<std::string>& params,
-                 std::shared_ptr<DGLAdbOutputFilter> filter);
-
-    void process();
+    DGLAdbCookie(std::shared_ptr<DGLAdbOutputFilter> filter);
+    virtual ~DGLAdbCookie() {}
+    virtual void process() = 0;
 
 signals:
     void done(std::vector<std::string> data);
     void failed(std::string reason);
 
-   private
-slots:
-    void handleProcessError(QProcess::ProcessError);
-    void handleProcessFinished(int, QProcess::ExitStatus);
+   protected:
+    void filterOutput(const std::vector<std::string>& lines);
 
-   private:
-
-    void DGLAdbCookie::filterOutput(const std::vector<std::string>& lines);
-
-    std::string m_adbPath;
-    std::vector<std::string> m_params;
     std::shared_ptr<DGLAdbOutputFilter> m_OutputFilter;
-    DGLBaseQTProcess* m_process;
 };
 
 
-class DGLAdbInterface {
+class DGLAdbCookieImpl : public DGLAdbCookie {
+    Q_OBJECT
+   public:
+    DGLAdbCookieImpl(const std::string& adbPath,
+                     const std::vector<std::string>& params,
+                     std::shared_ptr<DGLAdbOutputFilter> filter);
+
+    virtual void DGLAdbCookie::process() override;
+
+   private
+slots:
+    void handleProcessError(QProcess::ProcessError);
+    void handleProcessFinished(int code, QProcess::ExitStatus status);
+
+   private:
+    std::string m_adbPath;
+    std::vector<std::string> m_params;
+    DGLBaseQTProcess* m_process;
+};
+
+class DGLAdbOutputFilter {
 public:
+    virtual bool filter(const std::vector<std::string>& input,
+        std::vector<std::string>& output) = 0;
+    virtual ~DGLAdbOutputFilter() {}
+};
+
+class DGLAdbCookieFactoryBase {
+public:
+    virtual DGLAdbCookie* CreateCookie(const std::vector<std::string>& params,
+        std::shared_ptr<DGLAdbOutputFilter> filter) = 0;
+};
+
+class DGLAdbCookieFactory: public DGLAdbCookieFactoryBase {
+public:
+    DGLAdbCookieFactory(const std::string adbPath);
+    const std::string& getAdbPath();
+private:
+    virtual DGLAdbCookie* CreateCookie(const std::vector<std::string>& params,
+        std::shared_ptr<DGLAdbOutputFilter> filter) override;
+
+    std::string m_adbPath;
+};
+
+class DGLAdbInterface {
+   public:
     static DGLAdbInterface* get();
 
-    void setAdbPath(const std::string& path);
-    const std::string& getAdbPath() const;
+    void setAdbCookieFactory(std::shared_ptr<DGLAdbCookieFactoryBase>);
+    const std::string getAdbPath() const;
 
     DGLAdbCookie* killServer();
     DGLAdbCookie* connect(const std::string& address);
     DGLAdbCookie* getDevices();
 
     DGLAdbCookie* invokeOnDevice(const std::string& serial,
-        const std::vector<std::string>& params,
-        std::shared_ptr<DGLAdbOutputFilter> filter =
-        std::shared_ptr<DGLAdbOutputFilter>());
+                                 const std::vector<std::string>& params,
+                                 std::shared_ptr<DGLAdbOutputFilter> filter =
+                                         std::shared_ptr<DGLAdbOutputFilter>());
 
-private:
+   private:
     DGLAdbCookie* invokeAdb(const std::vector<std::string>& params,
-        std::shared_ptr<DGLAdbOutputFilter> filter =
-        std::shared_ptr<DGLAdbOutputFilter>());
+                            std::shared_ptr<DGLAdbOutputFilter> filter =
+                                    std::shared_ptr<DGLAdbOutputFilter>());
 
-    std::string m_adbPath;
-
+    std::shared_ptr<DGLAdbCookieFactoryBase> m_factory;
     static std::shared_ptr<DGLAdbInterface> s_self;
-};
-
-
-class DGLAdbDeviceProcess {
-   public:
-    DGLAdbDeviceProcess(const std::string& pid, const std::string& name,
-                  const std::string& portName);
-    bool operator<(const DGLAdbDeviceProcess& other) const;
-    const std::string& getPid() const;
-    const std::string& getName() const;
-    const std::string& getPortName() const;
-
-   private:
-    std::string m_Pid;
-    std::string m_Name;
-    std::string m_PortName;
-};
-
-class DGLADBDevice : public QObject {
-    Q_OBJECT
-   public:
-    DGLADBDevice(const std::string& serial);
-    void reloadProcesses();
-    const std::string& getSerial() const;
-
-    void queryInstallStatus();
-
-    void portForward(std::string from, unsigned short to);
-
-    enum class InstallStatus {
-        UNKNOWN,
-        INSTALLED, 
-        CLEAN,
-    };
-
-    InstallStatus getInstallStatus();
-
-   public
-slots:
-    void reloadProcessesGotPortString(const std::vector<std::string>& prop);
-    void reloadProcessesGotUnixSockets(const std::vector<std::string>& prop);
-    void doneQueryInstallStatus(const std::vector<std::string>& prop);
-    void adbFailed(std::string reason);
-signals:
-    void gotProcesses(DGLADBDevice*, const std::vector<DGLAdbDeviceProcess>& data);
-    void failed(DGLADBDevice*, const std::string&);
-    
-    void portForwardSuccess(DGLADBDevice*);
-    void queryInstallStatusSuccess(DGLADBDevice*);
-
-    
-
-   private:
-    std::string m_Serial;
-    InstallStatus m_Status;
-
-    QRegExp m_SocketPathRegex;
-    int m_PidInSocketRegex;
-    int m_PNameInSocketRegex;
 };
 
 

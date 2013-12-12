@@ -323,6 +323,15 @@
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglproject_runapp.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="dgladbdevice.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dgladbdevice.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dgladbdevice.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">
@@ -551,6 +560,9 @@
       <Filter>Form Files</Filter>
     </CustomBuild>
     <CustomBuild Include="dglproject_runapp.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dgladbdevice.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
