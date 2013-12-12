@@ -167,9 +167,9 @@ void DGLAdbCookie::handleProcessFinished(int code,
         }
     } else {
         emit failed("ADB process crashed");
-        disconnect();
-        deleteLater();
     }
+    disconnect();
+    deleteLater();
 }
 
 DGLAdbProcess::DGLAdbProcess(const std::string& pid, const std::string& name,
