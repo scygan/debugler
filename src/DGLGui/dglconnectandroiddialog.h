@@ -39,7 +39,7 @@ slots:
     void adbFailed(std::string reason);
     void deviceFailed(DGLADBDevice* device, std::string reason);
 
-    void gotProcesses(DGLADBDevice*, std::vector<DGLAdbProcess> devices);
+    void gotProcesses(DGLADBDevice*, std::vector<DGLAdbDeviceProcess> devices);
 
     void tryAccept();
 
@@ -51,7 +51,7 @@ slots:
 
     unsigned short m_Port;
 
-    std::vector<DGLAdbProcess>  m_CurrentProcesses;
+    std::vector<DGLAdbDeviceProcess>  m_CurrentProcesses;
 
     Ui::DGLConnectAndroidDialogClass m_ui;
 };

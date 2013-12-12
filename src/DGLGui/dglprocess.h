@@ -53,7 +53,13 @@ class DGLBaseQTProcess : public QObject {
      */
     void requestDelete();
 
-   protected:
+
+    /** 
+     * Accessor to underlying  process 
+     */
+    inline QProcess* getProcess()  { return &m_process; }
+
+   private:
     QProcess m_process;
 };
 

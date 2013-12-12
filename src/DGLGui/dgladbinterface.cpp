@@ -109,9 +109,13 @@ DGLAdbCookie::DGLAdbCookie(const std::string& adbPath,
                            const std::vector<std::string>& params,
                            std::shared_ptr<DGLAdbOutputFilter> filter)
         : m_adbPath(adbPath), m_params(params), m_OutputFilter(filter) {
-    CONNASSERT(&m_process, SIGNAL(finished(int, QProcess::ExitStatus)), this,
+
+    m_process = new DGLBaseQTProcess();
+    m_process->setParent(this);
+
+    CONNASSERT(m_process->getProcess(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
                SLOT(handleProcessFinished(int, QProcess::ExitStatus)));
-    CONNASSERT(&m_process, SIGNAL(error(QProcess::ProcessError)), this,
+    CONNASSERT(m_process->getProcess(), SIGNAL(error(QProcess::ProcessError)), this,
                SLOT(handleProcessError(QProcess::ProcessError)));
 }
 
@@ -121,12 +125,12 @@ void DGLAdbCookie::process() {
                 "ADB path is not set, go to Tools->Configuration->Android to "
                 "set it.").toStdString());
     } else {
-        run(m_adbPath, "", m_params, m_OutputFilter.get() != nullptr);
+        m_process->run(m_adbPath, "", m_params, m_OutputFilter.get() != nullptr);
     }
 }
 
 void DGLAdbCookie::handleProcessError(QProcess::ProcessError) {
-    emit failed(m_process.errorString().toStdString());
+    emit failed(m_process->getProcess()->errorString().toStdString());
     disconnect();
     deleteLater();
 }
@@ -137,11 +141,11 @@ void DGLAdbCookie::handleProcessFinished(int code,
         if (code) {
             std::ostringstream msg;
             msg << "Adb process exit code :" << code << ":" << std::endl;
-            msg << QString(m_process.readAll()).toStdString();
+            msg << QString(m_process->getProcess()->readAll()).toStdString();
             emit failed(msg.str());
         } else {
             // success
-            QByteArray qData = m_process.readAll();
+            QByteArray qData = m_process->getProcess()->readAll();
             QList<QByteArray> qLines = qData.split('\n');
             std::vector<std::string> lines;
             foreach(QByteArray qLine, qLines) {
@@ -149,21 +153,7 @@ void DGLAdbCookie::handleProcessFinished(int code,
                     lines.push_back(QString(qLine.replace("\r", QByteArray()))
                                             .toStdString());
             }
-            if (m_OutputFilter.get()) {
-                std::vector<std::string> filteredLines;
-                if (m_OutputFilter->filter(lines, filteredLines)) {
-                    emit done(filteredLines);
-                } else {
-                    std::ostringstream msg;
-                    msg << "Cannot parse adb output: " << std::endl;
-                    for (size_t i = 0; i < lines.size(); i++) {
-                        msg << lines[i] << std::endl;
-                    }
-                    emit failed(msg.str());
-                }
-            } else {
-                emit done(lines);
-            }
+            filterOutput(lines);
         }
     } else {
         emit failed("ADB process crashed");
@@ -172,11 +162,30 @@ void DGLAdbCookie::handleProcessFinished(int code,
     deleteLater();
 }
 
-DGLAdbProcess::DGLAdbProcess(const std::string& pid, const std::string& name,
+void DGLAdbCookie::filterOutput(const std::vector<std::string>& lines) {
+    if (m_OutputFilter.get()) {
+        std::vector<std::string> filteredLines;
+        if (m_OutputFilter->filter(lines, filteredLines)) {
+            emit done(filteredLines);
+        } else {
+            std::ostringstream msg;
+            msg << "Cannot parse adb output: " << std::endl;
+            for (size_t i = 0; i < lines.size(); i++) {
+                msg << lines[i] << std::endl;
+            }
+            emit failed(msg.str());
+        }
+    } else {
+        emit done(lines);
+    }
+}
+
+
+DGLAdbDeviceProcess::DGLAdbDeviceProcess(const std::string& pid, const std::string& name,
                              const std::string& portName)
         : m_Pid(pid), m_Name(name), m_PortName(portName) {}
 
-bool DGLAdbProcess::operator<(const DGLAdbProcess& other) const {
+bool DGLAdbDeviceProcess::operator<(const DGLAdbDeviceProcess& other) const {
     if (m_Name < other.getName()) {
         return true;
     } else if (m_Name == other.getName()) {
@@ -185,11 +194,11 @@ bool DGLAdbProcess::operator<(const DGLAdbProcess& other) const {
     return false;
 }
 
-const std::string& DGLAdbProcess::getPid() const { return m_Pid; }
+const std::string& DGLAdbDeviceProcess::getPid() const { return m_Pid; }
 
-const std::string& DGLAdbProcess::getName() const { return m_Name; }
+const std::string& DGLAdbDeviceProcess::getName() const { return m_Name; }
 
-const std::string& DGLAdbProcess::getPortName() const { return m_PortName; }
+const std::string& DGLAdbDeviceProcess::getPortName() const { return m_PortName; }
 
 DGLADBDevice::DGLADBDevice(const std::string& serial) : m_Serial(serial), m_Status(InstallStatus::UNKNOWN) {}
 
@@ -320,7 +329,7 @@ void DGLADBDevice::reloadProcessesGotPortString(
 
 void DGLADBDevice::reloadProcessesGotUnixSockets(
         const std::vector<std::string>& sockets) {
-    std::vector<DGLAdbProcess> processes;
+    std::vector<DGLAdbDeviceProcess> processes;
 
     for (size_t i = 0; i < sockets.size(); i++) {
         if (m_SocketPathRegex.indexIn(QString::fromStdString(sockets[i])) !=
@@ -332,7 +341,7 @@ void DGLADBDevice::reloadProcessesGotUnixSockets(
                 processName = m_SocketPathRegex.cap(m_PNameInSocketRegex + 1)
                                       .toStdString();
             }
-            processes.push_back(DGLAdbProcess(pid, processName, sockets[i]));
+            processes.push_back(DGLAdbDeviceProcess(pid, processName, sockets[i]));
         }
     }
     emit gotProcesses(this, processes);

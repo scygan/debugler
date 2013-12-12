@@ -90,14 +90,14 @@ DGLDebugeeQTProcess::DGLDebugeeQTProcess(int port, bool modeEGL)
           m_PollTimer(new QTimer(this)) {
 
     CONNASSERT(m_PollTimer, SIGNAL(timeout()), this, SLOT(pollReady()));
-    CONNASSERT(&m_process, SIGNAL(started()), this, SLOT(startPolling()));
-    CONNASSERT(&m_process, SIGNAL(error(QProcess::ProcessError)), this,
+    CONNASSERT(getProcess(), SIGNAL(started()), this, SLOT(startPolling()));
+    CONNASSERT(getProcess(), SIGNAL(error(QProcess::ProcessError)), this,
                SLOT(handleProcessError(QProcess::ProcessError)));
-    CONNASSERT(&m_process, SIGNAL(finished(int, QProcess::ExitStatus)), this,
+    CONNASSERT(getProcess(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
                SLOT(handleProcessFinished(int, QProcess::ExitStatus)));
 }
 
-DGLDebugeeQTProcess::~DGLDebugeeQTProcess() { m_process.kill(); }
+DGLDebugeeQTProcess::~DGLDebugeeQTProcess() { getProcess()->kill(); }
 
 void DGLDebugeeQTProcess::run(std::string cmd, std::string path,
                               std::vector<std::string> args, bool takeOutput) {
@@ -260,7 +260,7 @@ void DGLDebugeeQTProcess::pollReady() {
 }
 
 void DGLDebugeeQTProcess::handleProcessError(QProcess::ProcessError) {
-    emit processError(m_process.errorString().toStdString());
+    emit processError(getProcess()->errorString().toStdString());
 }
 
 void DGLDebugeeQTProcess::handleProcessFinished(int code,

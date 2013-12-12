@@ -51,9 +51,9 @@ void DGLConnectAndroidDialog::selectDevice(DGLADBDevice* device) {
 
         CONNASSERT(
                 device,
-                SIGNAL(gotProcesses(DGLADBDevice*, std::vector<DGLAdbProcess>)),
+                SIGNAL(gotProcesses(DGLADBDevice*, std::vector<DGLAdbDeviceProcess>)),
                 this,
-                SLOT(gotProcesses(DGLADBDevice*, std::vector<DGLAdbProcess>)));
+                SLOT(gotProcesses(DGLADBDevice*, std::vector<DGLAdbDeviceProcess>)));
         CONNASSERT(device, SIGNAL(failed(DGLADBDevice*, std::string)), this,
                    SLOT(deviceFailed(DGLADBDevice*, std::string)));
         CONNASSERT(device, SIGNAL(portForwardSuccess(DGLADBDevice*)), this,
@@ -68,7 +68,7 @@ void DGLConnectAndroidDialog::update() {
 }
 
 void DGLConnectAndroidDialog::gotProcesses(
-        DGLADBDevice* device, std::vector<DGLAdbProcess> processes) {
+        DGLADBDevice* device, std::vector<DGLAdbDeviceProcess> processes) {
 
     if (m_ui.selectDevWidget->getCurrentDevice() == device) {
         m_CurrentProcesses = processes;
