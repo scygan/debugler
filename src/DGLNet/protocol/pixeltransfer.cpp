@@ -722,9 +722,6 @@ bool DGLPixelTransfer::initializeOGLES(GLenum internalFormat,
         m_DataType = GLFormats::getDataType(GL_UNSIGNED_INT_2_10_10_10_REV);
     } else {
         
-        // This happens, if implementation-dependent format is not
-        // recognized or not selected because of to low precision
-
         if (internalFormat == GL_R8I || internalFormat == GL_R16I ||
             internalFormat == GL_R32I || internalFormat == GL_RG8I ||
             internalFormat == GL_RG16I || internalFormat == GL_RG32I ||
@@ -752,35 +749,36 @@ bool DGLPixelTransfer::initializeOGLES(GLenum internalFormat,
             m_DataFormat = GLFormats::getDataFormat(GL_RGBA);
             m_DataType = GLFormats::getDataType(GL_UNSIGNED_BYTE);
         }
-    }
 
-    // try implementation-dependent format
+        // try implementation-dependent format
 
-    //unfortunately sometimes implementation-dependent formats 
-    //are worse than default formats. check this.
-    bool implReadFormatTypeIsOK = false;
+        //unfortunately sometimes implementation-dependent formats 
+        //are worse than default formats. check this.
+        bool implReadFormatTypeIsOK = false;
 
-    const GLDataFormat* implReadFormatDesc = GLFormats::getDataFormat(implReadFormat);
-    const GLDataType* implReadTypeDesc = GLFormats::getDataType(implReadType);
+        const GLDataFormat* implReadFormatDesc = GLFormats::getDataFormat(implReadFormat);
+        const GLDataType* implReadTypeDesc = GLFormats::getDataType(implReadType);
 
-    const GLInternalFormat* targetInternalFormatDesc = GLFormats::getInternalFormat(internalFormat);
+        const GLInternalFormat* targetInternalFormatDesc = GLFormats::getInternalFormat(internalFormat);
 
-    if (implReadFormatDesc && implReadTypeDesc) {
-        if (!m_DataFormat || !m_DataType || !targetInternalFormatDesc) {
-            implReadFormatTypeIsOK = true;
-        } else {
-            if (implReadFormatDesc->components >=
-                GLFormats::getDataFormat(targetInternalFormatDesc->dataFormat)->components) {
-                    implReadFormatTypeIsOK = true;
+        if (implReadFormatDesc && implReadTypeDesc) {
+            if (!m_DataFormat || !m_DataType || !targetInternalFormatDesc) {
+                implReadFormatTypeIsOK = true;
+            } else {
+                if (implReadFormatDesc->components >=
+                    GLFormats::getDataFormat(targetInternalFormatDesc->dataFormat)->components) {
+                        implReadFormatTypeIsOK = true;
+                }
+            }
+
+            if (implReadFormatTypeIsOK) {
+                m_DataFormat = implReadFormatDesc;
+                m_DataType = implReadTypeDesc;
+            } else {
+                OS_DEBUG("DGLPixeltransfer: implementation-dependent read formats are less eficient than defaults.");
             }
         }
 
-        if (implReadFormatTypeIsOK) {
-            m_DataFormat = implReadFormatDesc;
-            m_DataType = implReadTypeDesc;
-        } else {
-            OS_DEBUG("DGLPixeltransfer: implementation-dependent read formats are less eficient than defaults.");
-        }
     }
 
     return isValid();
