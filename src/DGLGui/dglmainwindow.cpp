@@ -38,6 +38,7 @@
 #include "dglprepareandroidwizard.h"
 
 #include <DGLCommon/os.h>
+#include <DGLCommon/version.h>
 
 /**
  * Macros indentifying entity, that stores & loads QSettings
@@ -604,8 +605,8 @@ void DGLMainWindow::debugeeInfo(const std::string &processName) {
 void DGLMainWindow::about() {
     QMessageBox::about(
             this, tr("About Debuggler"),
-            tr("<b>Debugler " DGL_VERSION
-               "</b>, The OpenGL debugger<br/><br/>"
+            "<b>Debugler " + QString::fromStdString(getVersion()) + 
+               tr("</b>, The OpenGL debugger<br/><br/>"
                "Copyright (C) 2013 Slawomir Cygan.<br/><br/> "
                "<a href=\"https://github.com/debugler/debugler\"/>"));
 }

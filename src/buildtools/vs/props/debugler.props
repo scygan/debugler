@@ -14,7 +14,7 @@
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)\.;$(SolutionDir)\codegen\input;$(SolutionDir)\external\boost\;$(SolutionDir)\boost;$(SolutionDir)\external\;$(SolutionDir)\external\gtest\include;$(SolutionDir)\..\dump\;$(SolutionDir)\glheaders;</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_MSVC;WIN32;BOOST_ALL_NO_LIB;_WIN32_WINNT=0x0501;QT_NO_OPENGL;WIN32_LEAN_AND_MEAN;DGL_VERSION="$(DGL_VERSION)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_MSVC;WIN32;BOOST_ALL_NO_LIB;_WIN32_WINNT=0x0501;QT_NO_OPENGL;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <WarningLevel>Level4</WarningLevel>

@@ -58,11 +58,13 @@
     <ClInclude Include="ipc.h" />
     <ClInclude Include="os.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gl-types.cpp" />
     <ClCompile Include="ipc.cpp" />
     <ClCompile Include="os.cpp" />
+    <ClCompile Include="version.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="dglcommon.rc" />

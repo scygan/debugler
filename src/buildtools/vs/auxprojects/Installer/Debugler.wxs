@@ -13,11 +13,7 @@
     <?define programFilesFolder = "ProgramFilesFolder" ?>
   <?endif ?>
 
-  <?ifndef env.DGL_VERSION?>
-    <?define version = "0.0.0" ?>
-  <?else?>
-    <?define version = $(env.DGL_VERSION) ?>
-  <?endif ?>
+  <?include version.wxi ?>
   
   <Product Name='Debugler' Id='{54FE114C-FCCB-4FAC-BF68-484D4D3DE3F0}' UpgradeCode='{D2691962-72E5-4DD1-997D-09038F9C2A50}'
     Language='1033' Codepage='1252' Version='$(var.version)' Manufacturer='Slawomir Cygan'>
