@@ -23,13 +23,20 @@ namespace {
 
 namespace mock {
 
-    class DGLAdbCookieMock
+    class DGLAdbCookieMock: public DGLAdbCookie {
+    public:
+        DGLAdbCookieMock(std::shared_ptr<DGLAdbOutputFilter> filter):DGLAdbCookie(filter) {}
+    private:
+        virtual void process() override {
+
+        }
+    };
 
     class DGLAdbCookieFactoryMock: public DGLAdbCookieFactoryBase {
     private:
         virtual DGLAdbCookie* CreateCookie(const std::vector<std::string>& params,
             std::shared_ptr<DGLAdbOutputFilter> filter) override {
-                return new DGLAdbCookieMock(m_adbPath, params, filter);
+                return new DGLAdbCookieMock(/*m_adbPath, params*/ filter);
         }
     };
 }
@@ -66,7 +73,7 @@ class AdbInterface : public ::testing::Test {
 };
 
 // Smoke test all inputs of codegen has been parsed to functionList
-TEST_F(DGLCommonUT, codegen_entryps) {
+TEST_F(AdbInterface, empty) {
     
 }
 

@@ -241,6 +241,25 @@ TEST_F(LiveTest, connect_disconnect) {
     EXPECT_TRUE(client.unique());
 }
 
+TEST_F(LiveTest, connect_disconnect_multiple) {
+
+    for (int i=0; i < 20; i++) {
+        std::shared_ptr<dglnet::Client> client = getClientFor("simple");
+
+        dglnet::message::Hello* hello =
+            utils::receiveMessage<dglnet::message::Hello>(client.get(),
+            getMessageHandler());
+        ASSERT_TRUE(hello != NULL);
+#ifdef _WIN32
+        EXPECT_EQ("samples.exe", hello->m_ProcessName);
+#else
+        EXPECT_TRUE(std::string::npos != hello->m_ProcessName.find("samples"));
+#endif
+        client->abort();
+        EXPECT_TRUE(client.unique());
+    }
+}
+
 TEST_F(LiveTest, continue_break) {
     std::shared_ptr<dglnet::Client> client = getClientFor("simple");
 
