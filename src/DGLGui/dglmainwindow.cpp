@@ -673,10 +673,11 @@ void DGLMainWindow::debugStart() {
     if (haveProject()) {
 
         try {
-            m_project->startDebugging();
             m_BusyDialog.show();
+            m_project->startDebugging();
         }
         catch (const std::runtime_error &err) {
+            m_BusyDialog.hide();
             QMessageBox::critical(NULL, tr("Fatal Error"),
                 QString::fromStdString(err.what()));
         }
