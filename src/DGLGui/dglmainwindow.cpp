@@ -76,7 +76,7 @@ QPixmap qt_pixmapFromWinHICON(HICON icon);
 #endif
 
 DGLMainWindow::DGLMainWindow(QWidget *_parent, Qt::WindowFlags flags)
-        : QMainWindow(_parent, flags) {
+        : QMainWindow(_parent, flags), m_BusyDialog(this) {
 
 #pragma warning(push)
 #pragma warning(disable : 4127)    // conditional expression is constant
@@ -518,6 +518,12 @@ void DGLMainWindow::createInteractions() {
                SLOT(connectionLost(const QString &, const QString &)));
     CONNASSERT(&m_controller, SIGNAL(debugeeInfo(const std::string &)), this,
                SLOT(debugeeInfo(const std::string &)));
+
+    CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), this,
+        SLOT(onConnect(bool)));
+
+    CONNASSERT(&m_BusyDialog, SIGNAL(canceled()), this,
+        SLOT(debugStop()));
 }
 
 void DGLMainWindow::readSettings() {
@@ -666,23 +672,9 @@ void DGLMainWindow::debugStart() {
 
     if (haveProject()) {
 
-        m_BusyDialog = std::make_shared<QProgressDialog>(
-            "Starting debugging session (waiting for application to "
-            "try "
-            "use OpenGL)...",
-            "Cancel", 0, 1, this);
-
-        m_BusyDialog->setWindowModality(Qt::WindowModal);
-        m_BusyDialog->setValue(0);
-
-        QProgressBar *bar = new QProgressBar(m_BusyDialog.get());
-        m_BusyDialog->setBar(bar);
-        bar->setMaximum(0);
-        bar->setMinimum(0);
-        bar->setValue(-1);
-
         try {
             m_project->startDebugging();
+            m_BusyDialog.show();
         }
         catch (const std::runtime_error &err) {
             QMessageBox::critical(NULL, tr("Fatal Error"),
@@ -710,7 +702,7 @@ void DGLMainWindow::debugStop() {
     if (m_project) {
         m_project->stopDebugging();
     }
-    m_BusyDialog.reset();
+    m_BusyDialog.hide();
 }
 
 void DGLMainWindow::addDeleteBreakPoints() {
@@ -744,6 +736,12 @@ void DGLMainWindow::setBreakOnWhatever(bool) {
             setBreakOnCompilerErrAct->isChecked();
     m_controller.sendConfig();
     showConfig();
+}
+
+void DGLMainWindow::onConnect(bool connected) {
+    if (connected) {
+        m_BusyDialog.hide();
+    }
 }
 
 void DGLMainWindow::connectionLost(const QString &title, const QString &msg) {

@@ -29,6 +29,7 @@
 
 #include "dglprojectdialog.h"
 #include "dglproject_base.h"
+#include "dglbusydialog.h"
 
 
 /**
@@ -57,7 +58,12 @@ slots:
     void about();
 
     /**
-     * Slot for dglcontroller connection lost
+     * Slot for connection status called from dglcontroller
+     */
+    void onConnect(bool connected);
+
+    /**
+     * Slot for connection lost, called from dglcontroller
      * @param Error title
      * @param Error message
      */
@@ -263,7 +269,7 @@ slots:
     /**
      * Process starting busy progress dialog
      */
-    std::shared_ptr<QProgressDialog> m_BusyDialog;
+    DGLbusyDialog m_BusyDialog;
 };
 
 #endif    // DGLMAINWINDOW_H

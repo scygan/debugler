@@ -332,6 +332,9 @@
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dgladbdevice.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="dglbusydialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">
@@ -563,6 +566,9 @@
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="dgladbdevice.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dglbusydialog.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>

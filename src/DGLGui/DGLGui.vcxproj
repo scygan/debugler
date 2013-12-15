@@ -310,6 +310,7 @@
     <ClCompile Include="dglblitterbase.cpp" />
     <ClCompile Include="dglbreakpointdialog.cpp" />
     <ClCompile Include="dglbufferview.cpp" />
+    <ClCompile Include="dglbusydialog.cpp" />
     <ClCompile Include="dglconfigdialog.cpp" />
     <ClCompile Include="dglconnectandroiddialog.cpp" />
     <ClCompile Include="dglcontroller.cpp" />
@@ -2004,6 +2005,32 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing dgladbdevice.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe" -b dglgui.h "%(FullPath)" -o ".\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp"  -DDGLGUI_PCH -DQT_LARGEFILE_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB "-D\"$(INHERIT)\"" -DQT_XML_LIB -DQT_WIDGETS_LIB -DQT_DLL -DUSE_MSVC -DWIN32 -DBOOST_ALL_NO_LIB -D_WIN32_WINNT=0x0501 -DQT_NO_OPENGL -DWIN32_LEAN_AND_MEAN "-DDGL_VERSION=\"$(DGL_VERSION)\"" -DNDEBUG  "-I$(ProjectDir)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtCore" "-I.\..\..\dump\GeneratedFiles" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\QtWidgets" "-I.\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I$(SolutionDir)\." "-I$(SolutionDir)\codegen\input" "-I$(SolutionDir)\external\boost" "-I$(SolutionDir)\boost" "-I$(SolutionDir)\external" "-I$(SolutionDir)\external\gtest\include" "-I$(SolutionDir)\..\dump" "-I$(SolutionDir)\glheaders" "-I$(NOINHERIT)\." "-fdglgui.h" "-f../../../src/DGLGui/dgladbdevice.h"</Command>
+    </CustomBuild>
+    <CustomBuild Include="dglbusydialog.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </Command>
     </CustomBuild>
     <ClInclude Include="dglproject_attach.h" />
     <CustomBuild Include="dglproject_base.h">
