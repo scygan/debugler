@@ -252,7 +252,7 @@ void GLAuxContext::GLQueries::setupInitialState() {
 }
 
 void GLAuxContext::GLQueries::auxDrawTexture(GLuint name, GLenum target,
-                                             GLint level,
+                                             GLint level, GLint layer, GLint face,
                                              GLenum textureBaseFormat,
                                              GLenum renderableFormat, int width,
                                              int height) {
@@ -287,6 +287,9 @@ void GLAuxContext::GLQueries::auxDrawTexture(GLuint name, GLenum target,
     DIRECT_CALL_CHK(glViewport)(0, 0, width, height);
 
     DIRECT_CALL_CHK(glDrawArrays)(GL_TRIANGLE_STRIP, 0, 4);
+
+    (void) layer; //no program for 3D textures, yet
+    (void) face; //no program for CM textures, yet
 }
 
 GLuint GLAuxContext::GLQueries::getTextureShaderProgram(

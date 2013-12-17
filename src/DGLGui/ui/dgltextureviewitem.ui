@@ -25,6 +25,26 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="label_TextureLayer">
+     <property name="text">
+      <string>Texture Layer:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QSlider" name="horizontalSlider_Layer">
+     <property name="maximum">
+      <number>16</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksAbove</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Level of Detail:</string>

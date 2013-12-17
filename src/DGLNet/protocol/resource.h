@@ -97,12 +97,12 @@ class DGLResourceTexture : public DGLResource {
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         ar& ::boost::serialization::base_object<DGLResource>(*this);
-        ar& m_FacesLevels;
+        ar& m_FacesLayersLevels;
     }
 
    public:
-    std::vector<std::vector< ::boost::shared_ptr<
-            dglnet::resource::DGLPixelRectangle> > > m_FacesLevels;
+    std::vector<std::vector<std::vector< ::boost::shared_ptr<
+            dglnet::resource::DGLPixelRectangle> > > > m_FacesLayersLevels;
 };
 
 class DGLResourceBuffer : public DGLResource {

@@ -61,7 +61,7 @@ class GLAuxContext {
 
         void setupInitialState();
 
-        void auxDrawTexture(GLuint name, GLenum target, GLint level,
+        void auxDrawTexture(GLuint name, GLenum target, GLint level, GLint layer, GLint face,
                             GLenum textureBaseFormat, GLenum renderableFormat, int width, int height);
 
        private:

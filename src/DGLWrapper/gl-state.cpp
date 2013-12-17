@@ -692,6 +692,8 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
         throw std::runtime_error("Texture target is unknown");
     } else if (tex->getTarget() != GL_TEXTURE_1D &&
                tex->getTarget() != GL_TEXTURE_2D &&
+               tex->getTarget() != GL_TEXTURE_3D &&
+               tex->getTarget() != GL_TEXTURE_2D_ARRAY &&
                tex->getTarget() != GL_TEXTURE_RECTANGLE &&
                tex->getTarget() != GL_TEXTURE_1D_ARRAY &&
                tex->getTarget() != GL_TEXTURE_CUBE_MAP) {
@@ -713,21 +715,32 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
     }
 
     if (tex->getTarget() == GL_TEXTURE_CUBE_MAP) {
-        resource->m_FacesLevels.resize(6);
+        resource->m_FacesLayersLevels.resize(6);
     } else {
-        resource->m_FacesLevels.resize(1);
+        resource->m_FacesLayersLevels.resize(1);
     }
 
-    for (size_t face = 0; face < resource->m_FacesLevels.size(); face++) {
-        for (int level = 0;; level++) {
+    for (size_t face = 0; face < resource->m_FacesLayersLevels.size(); face++) {
+        for (int layer = 0;; layer++) {
 
-            boost::shared_ptr<dglnet::resource::DGLPixelRectangle> rect =
-                    queryTextureLevel(tex, level, face, defAlignment);
+            std::vector<boost::shared_ptr<dglnet::resource::DGLPixelRectangle> > currentLayer;
 
-            if (!rect) {
-                break;
+            for (int level = 0;; level++) {
+
+                boost::shared_ptr<dglnet::resource::DGLPixelRectangle> rect =
+                    queryTextureLevel(tex, level, layer, face, defAlignment);
+
+                if (!rect) {
+                    break;
+                } else {
+                    currentLayer.push_back(rect);
+                }
+            }
+
+            if (currentLayer.size()) {
+                resource->m_FacesLayersLevels[face].push_back(currentLayer);
             } else {
-                resource->m_FacesLevels[face].push_back(rect);
+                break;
             }
         }
     }
@@ -849,12 +862,12 @@ void GLContext::queryTextureLevelSize(const GLTextureObj* tex, GLuint level,
 }
 
 boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
-GLContext::queryTextureLevel(const GLTextureObj* tex, int level, int face,
+GLContext::queryTextureLevel(const GLTextureObj* tex, int level, int layer, int face,
                              state_setters::PixelStoreAlignment& defAlignment) {
     if (hasCapability(ContextCap::TextureGetters)) {
-        return queryTextureLevelGetters(tex, level, face, defAlignment);
+        return queryTextureLevelGetters(tex, level, layer, face, defAlignment);
     } else {
-        return queryTextureLevelAuxCtx(tex, level, face);
+        return queryTextureLevelAuxCtx(tex, level, layer, face);
     }
 }
 
@@ -913,7 +926,7 @@ int GLContext::textureBisectSizeES(GLenum levelTarget, int level, int coord,
 
 boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
 GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
-                                   int face) {
+                                   int layer, int face) {
 
     boost::shared_ptr<dglnet::resource::DGLPixelRectangle> ret;
 
@@ -928,8 +941,8 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
         return ret;
     }
 
-    GLint width, height;
-    queryTextureLevelSize(tex, level, &width, &height, NULL);
+    GLint width, height, depth;
+    queryTextureLevelSize(tex, level, &width, &height, &depth);
 
     try {
         GLAuxContext* auxCtx = getAuxContext();
@@ -968,7 +981,7 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
             }
 
             auxCtx->queries.auxDrawTexture(
-                    (GLuint)tex->getName(), tex->getTarget(), level,
+                    (GLuint)tex->getName(), tex->getTarget(), level, layer, face,
                     textureBaseFormat, renderableFormat, width, height);
 
             DGLPixelTransfer transfer;
@@ -1009,10 +1022,10 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
 
 boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
 GLContext::queryTextureLevelGetters(
-        const GLTextureObj* tex, int level, int face,
+        const GLTextureObj* tex, int level, int layer, int face,
         state_setters::PixelStoreAlignment& defAlignment) {
 
-    GLint height, width, samples = 0;
+    GLint height, width, depth, samples = 0;
 
     GLenum levelTarget = tex->getTextureLevelTarget(face);
 
@@ -1022,9 +1035,9 @@ GLContext::queryTextureLevelGetters(
     DIRECT_CALL_CHK(glGetTexLevelParameteriv)(
             levelTarget, level, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
 
-    queryTextureLevelSize(tex, level, &width, &height, NULL);
+    queryTextureLevelSize(tex, level, &width, &height, &depth);
 
-    if (!width || !height || DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
+    if (!width || !height || depth > layer || DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
         return ret;
 
     std::vector<GLint> rgbaSizes(4, 0);
@@ -1073,9 +1086,29 @@ GLContext::queryTextureLevelGetters(
 
     GLvoid* ptr;
     if ((ptr = ret->getPtr()) != NULL) {
+       
+        std::vector<uint8_t> tmpBuffer;
+        uint8_t* readPtr; 
+
+        const size_t layerSize = ret->getSize();
+
+        if (depth == 1) {
+            //only one 2D layer, read it in place
+            readPtr = reinterpret_cast<uint8_t*>(ptr); 
+        } else {
+            //more 2D layers present, prepare a tmp buffer for them
+            tmpBuffer.resize(layerSize * depth);
+            readPtr = &tmpBuffer[0];
+        }
+
         DIRECT_CALL_CHK(glGetTexImage)(levelTarget, level,
                                        (GLenum)transfer.getFormat(),
-                                       (GLenum)transfer.getType(), ptr);
+                                       (GLenum)transfer.getType(), readPtr);
+
+        if (readPtr != ptr) {
+            memcpy(ptr, &readPtr[layer * layerSize], layerSize);
+        }
+
     }
     return ret;
 }

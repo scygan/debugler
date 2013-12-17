@@ -263,7 +263,7 @@ class GLContext {
      * texture level query (dispatches to proper query)
      */
     boost::shared_ptr<dglnet::resource::DGLPixelRectangle> queryTextureLevel(
-            const GLTextureObj* tex, int level, int face,
+            const GLTextureObj* tex, int level, int layer, int face,
             state_setters::PixelStoreAlignment&);
 
     /**
@@ -271,14 +271,14 @@ class GLContext {
      */
     boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
             queryTextureLevelGetters(
-                    const GLTextureObj* tex, int level, int face,
+                    const GLTextureObj* tex, int level, int layer, int face,
                     state_setters::PixelStoreAlignment& defAlignment);
 
     /**
      * texture level query (OpenGL ES, using auxiliary ctx)
      */
     boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
-            queryTextureLevelAuxCtx(const GLTextureObj* tex, int level, int face);
+            queryTextureLevelAuxCtx(const GLTextureObj* tex, int level, int layer, int face);
 
 
     /**

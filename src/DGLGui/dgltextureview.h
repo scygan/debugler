@@ -45,6 +45,7 @@ class DGLTextureViewItem : public DGLTabbedViewItem {
 slots:
     void error(const std::string& message);
     void update(const dglnet::DGLResource& res);
+    void layerSliderMoved(int value);
     void levelSliderMoved(int value);
     void faceComboChanged(int value);
 
@@ -53,12 +54,12 @@ slots:
 
     Ui::DGLTextureViewItem m_Ui;
     DGLPixelRectangleScene* m_PixelRectangleScene;
-    std::vector<std::vector<boost::shared_ptr<
-            dglnet::resource::DGLPixelRectangle> > > m_FacesLevels;
+    std::vector<std::vector<std::vector<boost::shared_ptr<
+            dglnet::resource::DGLPixelRectangle> > >  > m_FacesLayersLevels;
 
     DGLResourceListener* m_Listener;
 
-    uint m_CurrentLevel, m_CurrentFace;
+    uint m_CurrentLevel, m_CurrentLayer, m_CurrentFace;
 };
 
 #endif    // DGLTEXTUREVIEW_H

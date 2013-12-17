@@ -243,7 +243,7 @@ TEST_F(LiveTest, connect_disconnect) {
 
 TEST_F(LiveTest, connect_disconnect_multiple) {
 
-    for (int i=0; i < 20; i++) {
+    for (int i=0; i < 3; i++) {
         std::shared_ptr<dglnet::Client> client = getClientFor("simple");
 
         dglnet::message::Hello* hello =
@@ -641,11 +641,12 @@ TEST_F(LiveTest, texture_query) {
     // std::vector<std::vector<
     // ::boost::shared_ptr<dglnet::resource::DGLPixelRectangle> > >
     // m_FacesLevels;
-    ASSERT_EQ(1, textureResource->m_FacesLevels.size());
-    ASSERT_EQ(1, textureResource->m_FacesLevels[0].size());
+    ASSERT_EQ(1, textureResource->m_FacesLayersLevels.size());
+    ASSERT_EQ(1, textureResource->m_FacesLayersLevels[0].size());
+    ASSERT_EQ(1, textureResource->m_FacesLayersLevels[0][0].size());
 
     dglnet::resource::DGLPixelRectangle* rect =
-            textureResource->m_FacesLevels[0][0].get();
+            textureResource->m_FacesLayersLevels[0][0][0].get();
 
     ASSERT_EQ(GL_RGBA, rect->m_GLFormat);
     ASSERT_EQ(GL_UNSIGNED_BYTE, rect->m_GLType);
