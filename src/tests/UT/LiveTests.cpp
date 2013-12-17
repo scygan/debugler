@@ -594,8 +594,8 @@ TEST_F(LiveTest, framebuffer_resize) {
     client->abort();
 }
 
-TEST_F(LiveTest, texture_query) {
-    std::shared_ptr<dglnet::Client> client = getClientFor("texture");
+TEST_F(LiveTest, texture_query_2d) {
+    std::shared_ptr<dglnet::Client> client = getClientFor("texture2d");
 
     dglnet::message::BreakedCall* breaked =
             utils::receiveUntilMessage<dglnet::message::BreakedCall>(
@@ -638,26 +638,39 @@ TEST_F(LiveTest, texture_query) {
                     reply->m_Reply.get());
     ASSERT_TRUE(textureResource != NULL);
 
-    // std::vector<std::vector<
-    // ::boost::shared_ptr<dglnet::resource::DGLPixelRectangle> > >
-    // m_FacesLevels;
     ASSERT_EQ(1, textureResource->m_FacesLayersLevels.size());
     ASSERT_EQ(1, textureResource->m_FacesLayersLevels[0].size());
-    ASSERT_EQ(1, textureResource->m_FacesLayersLevels[0][0].size());
+    ASSERT_EQ(4, textureResource->m_FacesLayersLevels[0][0].size());
 
-    dglnet::resource::DGLPixelRectangle* rect =
-            textureResource->m_FacesLayersLevels[0][0][0].get();
+    int size = 8;
 
-    ASSERT_EQ(GL_RGBA, rect->m_GLFormat);
-    ASSERT_EQ(GL_UNSIGNED_BYTE, rect->m_GLType);
-    EXPECT_TRUE(rect->m_Samples == 0 || rect->m_Samples == 1);
-    EXPECT_EQ(1, rect->m_Width);
-    EXPECT_EQ(1, rect->m_Height);
-    EXPECT_EQ(GL_RGBA8, rect->m_InternalFormat);
+    GLubyte colors[4][4] = {
+        {102, 127, 204, 255},
+        { 140, 32, 48, 223}, 
+        { 74, 189, 232, 239}, 
+        { 214, 72, 239, 87},
+    };
 
-    utils::checkColor((GLubyte*)rect->getPtr(), rect->m_Width, rect->m_Height,
-                      rect->m_RowBytes, 102, 127, 204, 255);
+    for (size_t i = 0; i < textureResource->m_FacesLayersLevels[0][0].size(); i++) {
 
+        if (i > 4) break;
+
+        dglnet::resource::DGLPixelRectangle* rect =
+            textureResource->m_FacesLayersLevels[0][0][i].get();
+
+        ASSERT_EQ(GL_RGBA, rect->m_GLFormat);
+        ASSERT_EQ(GL_UNSIGNED_BYTE, rect->m_GLType);
+        EXPECT_TRUE(rect->m_Samples == 0 || rect->m_Samples == 1);
+        EXPECT_EQ(size * 2, rect->m_Width);
+        EXPECT_EQ(size, rect->m_Height);
+        EXPECT_EQ(GL_RGBA8, rect->m_InternalFormat);
+
+        
+        utils::checkColor((GLubyte*)rect->getPtr(), rect->m_Width, rect->m_Height,
+            rect->m_RowBytes, colors[i][0], colors[i][1], colors[i][2], colors[i][3]);
+
+        size /= 2;
+    }
     client->abort();
 }
 

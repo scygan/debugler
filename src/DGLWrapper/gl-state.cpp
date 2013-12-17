@@ -1037,7 +1037,7 @@ GLContext::queryTextureLevelGetters(
 
     queryTextureLevelSize(tex, level, &width, &height, &depth);
 
-    if (!width || !height || depth > layer || DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
+    if (!width || !height || depth <= layer || DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
         return ret;
 
     std::vector<GLint> rgbaSizes(4, 0);

@@ -16,6 +16,8 @@
 #include "sample.h"
 #include "glutil.h"
 
+#include <vector>
+
 class SampleTexture : public Sample {
 
     virtual void startup() override {
@@ -63,15 +65,31 @@ class SampleTexture : public Sample {
         glGenTextures(1, &m_tex);
         glBindTexture(GL_TEXTURE_2D, m_tex);
 
-        GLubyte color[] = {102, 127, 204, 255};
+        GLubyte colors[4][4] = {
+            {102, 127, 204, 255},
+            { 140, 32, 48, 223}, 
+            { 74, 189, 232, 239}, 
+            { 214, 72, 239, 87},
+        };
+
+        int level = 0;
+
+        for (size_t i = 8; i > 0; i /=2 ) {
+            std::vector<GLubyte> pixels( i * 2  * i * 4);
+            for (size_t j = 0; j < pixels.size(); j++) {
+                pixels[j] = colors[level][j % 4];
+            }
 #ifdef OPENGL_ES2
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA,
-                     GL_UNSIGNED_BYTE, color);
+            glTexImage2D(GL_TEXTURE_2D, level, GL_RGBA, 2 * i, i, 0, GL_RGBA,
+                GL_UNSIGNED_BYTE, &pixels[0]);
 #else
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA,
-                     GL_UNSIGNED_BYTE, color);
+            glTexImage2D(GL_TEXTURE_2D, level, GL_RGBA8, 2 * i, i, 0, GL_RGBA,
+                GL_UNSIGNED_BYTE, &pixels[0]);
 #endif
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            level++;
+        }
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
 
@@ -92,4 +110,4 @@ class SampleTexture : public Sample {
     gl::ProgramPtr m_program;
 };
 
-REGISTER_SAMPLE(SampleTexture, "texture");
+REGISTER_SAMPLE(SampleTexture, "texture2d");
