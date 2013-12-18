@@ -621,12 +621,11 @@ void DGLMainWindow::newProject() {
 
     if (m_project) {
         closeProject();
+        if (m_project) {
+            return;
+        }
     }
 
-    if (m_project) {
-        return;
-    }
-   
     if (m_ProjectDialog.exec() == QDialog::Accepted) {
 
         // if dialog is successfull, get project and start debug
