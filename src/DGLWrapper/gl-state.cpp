@@ -914,8 +914,12 @@ int GLContext::textureBisectSizeES(GLenum levelTarget, int level, int coord,
 
     while (true) {
         int middle = (minSize + maxSize) / 2;
-        if (middle == minSize) {
-            return minSize;
+        if (maxSize - minSize <= 1) {
+            sizes[coord] = maxSize;
+            if (textureProbeSizeES(levelTarget, level, sizes))
+                return maxSize;
+            else
+                return minSize;
         }
         sizes[coord] = middle;
         if (textureProbeSizeES(levelTarget, level, sizes)) {
@@ -945,6 +949,10 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
 
     GLint width, height, depth;
     queryTextureLevelSize(tex, level, &width, &height, &depth);
+
+    if (!width || !height || depth <= layer) {
+        return ret;
+    }
 
     try {
         GLAuxContext* auxCtx = getAuxContext();
