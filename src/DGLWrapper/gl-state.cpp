@@ -814,6 +814,12 @@ void GLContext::queryTextureLevelSize(const GLTextureObj* tex, GLuint level,
         const GLTextureObj::GLTextureLevel* requestedLevel =
                 tex->getRequestedLevel(level);
 
+        const GLTextureObj::GLTextureLevel* requestedLevelMinusOne = nullptr;
+
+        if (level) {
+            requestedLevelMinusOne = tex->getRequestedLevel(level - 1);
+        }
+
         if (width) {
             *width = textureBisectSizeES(levelTarget, level, 0, maxSize);
             if (*width == maxSize || *width == 0) {
@@ -822,6 +828,9 @@ void GLContext::queryTextureLevelSize(const GLTextureObj* tex, GLuint level,
                 if (requestedLevel) {
                     OS_DEBUG("Will use width requested by TexImage.");
                     *width = requestedLevel->m_Width;
+                } else if (requestedLevelMinusOne && requestedLevelMinusOne->m_Width == 1) {
+                     OS_DEBUG("Will use width requested by TexImage.");
+                    *width = 0;
                 } else {
                     OS_DEBUG(
                             "Cannot use width requested by TexImage: level was "
@@ -837,6 +846,9 @@ void GLContext::queryTextureLevelSize(const GLTextureObj* tex, GLuint level,
                 if (requestedLevel) {
                     OS_DEBUG("Will use height requested by TexImage.");
                     *height = requestedLevel->m_Height;
+                } else if (requestedLevelMinusOne && requestedLevelMinusOne->m_Height == 1) {
+                    OS_DEBUG("Will use width requested by TexImage.");
+                    *height = 0;
                 } else {
                     OS_DEBUG(
                             "Cannot use height requested by TexImage: level "
@@ -853,6 +865,9 @@ void GLContext::queryTextureLevelSize(const GLTextureObj* tex, GLuint level,
                 if (requestedLevel) {
                     OS_DEBUG("Will use depth requested by TexImage.");
                     *depth = requestedLevel->m_Depth;
+                } else if (requestedLevelMinusOne && requestedLevelMinusOne->m_Depth == 1) {
+                    OS_DEBUG("Will use width requested by TexImage.");
+                    *depth = 0;
                 } else {
                     OS_DEBUG(
                             "Cannot use depth requested by TexImage: level was "
@@ -941,9 +956,7 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
     GLenum levelTarget = tex->getTextureLevelTarget(face);
 
     GLint probeSizes[3] = {1, 1, 1};
-    if (!textureProbeSizeES(levelTarget, level, probeSizes) ||
-        level > 0 /* no multilevel support for now*/) {
-        // empty level
+    if (!textureProbeSizeES(levelTarget, level, probeSizes)) {
         return ret;
     }
 
