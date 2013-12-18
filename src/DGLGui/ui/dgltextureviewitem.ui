@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>418</width>
-    <height>444</height>
+    <width>499</width>
+    <height>464</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,34 +15,45 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="DGLPixelRectangleView" name="m_PixelRectangleView" native="true">
-     <property name="minimumSize">
-      <size>
-       <width>400</width>
-       <height>320</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_TextureLayer">
-     <property name="text">
-      <string>Texture Layer:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QSlider" name="horizontalSlider_Layer">
-     <property name="maximum">
-      <number>16</number>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="tickPosition">
-      <enum>QSlider::TicksAbove</enum>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="DGLPixelRectangleView" name="m_PixelRectangleView" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>400</width>
+         <height>320</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="label_TextureLayer">
+         <property name="text">
+          <string>Texture Layer:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="horizontalSlider_Layer">
+         <property name="maximum">
+          <number>16</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>1</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QLabel" name="label">
@@ -61,6 +72,9 @@
      </property>
      <property name="tickPosition">
       <enum>QSlider::TicksAbove</enum>
+     </property>
+     <property name="tickInterval">
+      <number>1</number>
      </property>
     </widget>
    </item>

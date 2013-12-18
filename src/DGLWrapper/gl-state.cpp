@@ -700,6 +700,8 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
         throw std::runtime_error("Texture target is unsupported");
     }
 
+    resource->m_Target = tex->getTarget();
+
     // disconnect PBO if it exists
     state_setters::DefaultPBO defPBO(this);
     state_setters::PixelStoreAlignment defAlignment(this);
@@ -715,17 +717,17 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
     }
 
     if (tex->getTarget() == GL_TEXTURE_CUBE_MAP) {
-        resource->m_FacesLayersLevels.resize(6);
+        resource->m_FacesLevelsLayers.resize(6);
     } else {
-        resource->m_FacesLayersLevels.resize(1);
+        resource->m_FacesLevelsLayers.resize(1);
     }
 
-    for (size_t face = 0; face < resource->m_FacesLayersLevels.size(); face++) {
-        for (int layer = 0;; layer++) {
+    for (size_t face = 0; face < resource->m_FacesLevelsLayers.size(); face++) {
+        for (int level = 0;; level++) {
 
-            std::vector<boost::shared_ptr<dglnet::resource::DGLPixelRectangle> > currentLayer;
+            std::vector<boost::shared_ptr<dglnet::resource::DGLPixelRectangle> > currentLevel;
 
-            for (int level = 0;; level++) {
+            for (int layer = 0;; layer++) {
 
                 boost::shared_ptr<dglnet::resource::DGLPixelRectangle> rect =
                     queryTextureLevel(tex, level, layer, face, defAlignment);
@@ -733,12 +735,12 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
                 if (!rect) {
                     break;
                 } else {
-                    currentLayer.push_back(rect);
+                    currentLevel.push_back(rect);
                 }
             }
 
-            if (currentLayer.size()) {
-                resource->m_FacesLayersLevels[face].push_back(currentLayer);
+            if (currentLevel.size()) {
+                resource->m_FacesLevelsLayers[face].push_back(currentLevel);
             } else {
                 break;
             }

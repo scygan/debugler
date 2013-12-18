@@ -66,43 +66,48 @@ void DGLTextureViewItem::update(const dglnet::DGLResource& res) {
     const dglnet::resource::DGLResourceTexture* resource =
             dynamic_cast<const dglnet::resource::DGLResourceTexture*>(&res);
 
-    m_FacesLayersLevels = resource->m_FacesLayersLevels;
+    m_FacesLevelsLayers = resource->m_FacesLevelsLayers;
 
-    if (m_FacesLayersLevels.size() && m_FacesLayersLevels[0].size()) {
+    m_CurrentFace = std::min(
+        m_CurrentFace, static_cast<uint>(m_FacesLevelsLayers.size() - 1));
 
-        if (m_FacesLayersLevels.size() > 1) {
+    if (m_FacesLevelsLayers.size() && m_FacesLevelsLayers[0].size()) {
+
+        if (m_FacesLevelsLayers.size() > 1) {
             // texture has faces
             m_Ui.labelCM->show();
             m_Ui.comboBoxCM->show();
-
-            m_CurrentFace = std::min(
-                    m_CurrentFace, static_cast<uint>(m_FacesLayersLevels.size() - 1));
-
         } else {
             m_Ui.labelCM->hide();
             m_Ui.comboBoxCM->hide();
-            m_CurrentFace = 0;
         }
 
         m_Ui.comboBoxCM->setCurrentIndex(m_CurrentFace);
 
 
-        if (m_FacesLayersLevels[m_CurrentFace].size() > 1) {
-            //2D_ARRAY or 3D texture
+        m_CurrentLevel = std::min(
+            m_CurrentFace, static_cast<uint>(m_FacesLevelsLayers[m_CurrentFace].size() - 1));
 
+        m_CurrentLayer = std::min(
+            m_CurrentFace, static_cast<uint>(m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel].size() - 1));
+
+
+        m_Ui.horizontalSlider_LOD->setRange(
+            0, static_cast<int>(m_FacesLevelsLayers[m_CurrentFace].size() - 1));
+        m_Ui.horizontalSlider_LOD->setEnabled(true);
+
+
+        if (resource->m_Target == GL_TEXTURE_3D || resource->m_Target == GL_TEXTURE_2D_ARRAY) {
+            
             m_Ui.label_TextureLayer->show();
             m_Ui.horizontalSlider_Layer->show();
-
-            m_Ui.horizontalSlider_Layer->setRange(
-                0, static_cast<int>(m_FacesLayersLevels[m_CurrentFace].size() - 1));
         } else {
             m_Ui.label_TextureLayer->hide();
             m_Ui.horizontalSlider_Layer->hide();
         }
 
-        m_Ui.horizontalSlider_LOD->setRange(
-                0, static_cast<int>(m_FacesLayersLevels[m_CurrentFace][m_CurrentLayer].size() - 1));
-        m_Ui.horizontalSlider_LOD->setEnabled(true);
+        m_Ui.horizontalSlider_Layer->setRange(
+            0, static_cast<int>(m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel].size() - 1));
 
         internalUpdate();
 
@@ -113,7 +118,7 @@ void DGLTextureViewItem::update(const dglnet::DGLResource& res) {
 
 void DGLTextureViewItem::faceComboChanged(int value) {
     uint uvalue = value;
-    if (uvalue != m_CurrentFace && uvalue < static_cast<uint>(m_FacesLayersLevels.size())) {
+    if (uvalue != m_CurrentFace && uvalue < static_cast<uint>(m_FacesLevelsLayers.size())) {
         m_CurrentFace = uvalue;
         internalUpdate();
     }
@@ -122,7 +127,7 @@ void DGLTextureViewItem::faceComboChanged(int value) {
 void DGLTextureViewItem::layerSliderMoved(int value) {
     uint uvalue = value;
     if (uvalue != m_CurrentLayer &&
-        uvalue < static_cast<uint>(m_FacesLayersLevels[m_CurrentFace].size())) {
+        uvalue < static_cast<uint>(m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel].size())) {
             m_CurrentLayer = uvalue;
             internalUpdate();
     }
@@ -131,37 +136,43 @@ void DGLTextureViewItem::layerSliderMoved(int value) {
 void DGLTextureViewItem::levelSliderMoved(int value) {
     uint uvalue = value;
     if (uvalue != m_CurrentLevel &&
-        uvalue < static_cast<uint>(m_FacesLayersLevels[m_CurrentFace][m_CurrentLayer].size())) {
+        uvalue < static_cast<uint>(m_FacesLevelsLayers[m_CurrentFace].size())) {
+
         m_CurrentLevel = uvalue;
+
+        m_Ui.horizontalSlider_Layer->setRange(
+            0, static_cast<int>(m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel].size() - 1));
+
         internalUpdate();
     }
+   
 }
 
 void DGLTextureViewItem::internalUpdate() {
 
     // validate m_CurrentFace
-    if (m_CurrentFace >= static_cast<uint>(m_FacesLayersLevels.size())) {
+    if (m_CurrentFace >= static_cast<uint>(m_FacesLevelsLayers.size())) {
         m_PixelRectangleScene->setText("Selected texture face does not exists");
         return;
     }
 
+    // validate m_CurrentLevel
+    if (m_CurrentLevel >= static_cast<uint>(m_FacesLevelsLayers[m_CurrentFace].size())) {
+        m_PixelRectangleScene->setText(
+            "Selected texture level does not exists");
+        return;
+    }
+
     //validate m_CurrentLayer
-    if (m_CurrentLayer >= static_cast<uint>(m_FacesLayersLevels[m_CurrentFace].size())) {
+    if (m_CurrentLayer >= static_cast<uint>(m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel].size())) {
         m_PixelRectangleScene->setText("Selected texture layer does not exists");
         return;
-    }
-
-    // validate m_CurrentLevel
-    if (m_CurrentLevel >= static_cast<uint>(m_FacesLayersLevels[m_CurrentFace][m_CurrentLayer].size())) {
-        m_PixelRectangleScene->setText(
-                "Selected texture level does not exists");
-        return;
-    }
+    }    
 
     m_PixelRectangleScene->setPixelRectangle(
-            *m_FacesLayersLevels[m_CurrentFace][m_CurrentLayer][m_CurrentLevel].get());
+            *m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel][m_CurrentLayer].get());
     m_Ui.m_PixelRectangleView->updateFormatSizeInfo(
-            m_FacesLayersLevels[m_CurrentFace][m_CurrentLayer][m_CurrentLevel].get());
+            m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel][m_CurrentLayer].get());
 }
 
 DGLTextureView::DGLTextureView(QWidget* parrent, DglController* controller)

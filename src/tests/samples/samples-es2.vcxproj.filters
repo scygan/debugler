@@ -7,9 +7,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="samples\texture.cpp">
-      <Filter>Samples</Filter>
-    </ClCompile>
     <ClCompile Include="samples\simple.cpp">
       <Filter>Samples</Filter>
     </ClCompile>
@@ -18,6 +15,9 @@
     </ClCompile>
     <ClCompile Include="glutil.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="samples\texture2d.cpp">
+      <Filter>Samples</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

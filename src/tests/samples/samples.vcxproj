@@ -22,7 +22,8 @@
     <ClCompile Include="samples\resize.cpp" />
     <ClCompile Include="samples\shader_handling.cpp" />
     <ClCompile Include="samples\simple.cpp" />
-    <ClCompile Include="samples\texture.cpp" />
+    <ClCompile Include="samples\texture2d.cpp" />
+    <ClCompile Include="samples\texture3d.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="platform.h" />

@@ -16,7 +16,7 @@
     <ClCompile Include="platform_glfw.cpp" />
     <ClCompile Include="sample.cpp" />
     <ClCompile Include="samples\simple.cpp" />
-    <ClCompile Include="samples\texture.cpp" />
+    <ClCompile Include="samples\texture2d.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="platform.h" />
