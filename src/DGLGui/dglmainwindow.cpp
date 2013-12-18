@@ -622,6 +622,10 @@ void DGLMainWindow::newProject() {
     if (m_project) {
         closeProject();
     }
+
+    if (m_project) {
+        return;
+    }
    
     if (m_ProjectDialog.exec() == QDialog::Accepted) {
 
@@ -638,7 +642,22 @@ void DGLMainWindow::newProject() {
 }
 
 void DGLMainWindow::closeProject() {
-    //TODO: save it somehow?
+    
+    if (m_controller.isConnected()) {
+        if ( QMessageBox::question(
+            this, "Confirm close",
+            "Debugging session is in progress. Close project?",
+            QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
+                return;
+        } else {
+            debugStop();
+        }
+    }
+
+    if (m_project) {
+        //TODO: save it somehow?
+    }
+
     m_project.reset();
 }
 
