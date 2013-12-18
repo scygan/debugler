@@ -143,6 +143,9 @@ void DGLTextureViewItem::levelSliderMoved(int value) {
         m_Ui.horizontalSlider_Layer->setRange(
             0, static_cast<int>(m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel].size() - 1));
 
+        m_CurrentLayer = std::min(
+            m_CurrentFace, static_cast<uint>(m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel].size() - 1));
+
         internalUpdate();
     }
    
