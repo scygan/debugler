@@ -41,11 +41,13 @@ void DGLRequestManager::handle(const dglnet::message::RequestReply& msg) {
 }
 
 void DGLRequestManager::unregisterHandler(DGLRequestHandler* handler) {
-    for (std::map<int, DGLRequestHandler*>::iterator i =
-                 m_CurrentHandlers.begin();
-         i != m_CurrentHandlers.end(); i++) {
+    std::map<int, DGLRequestHandler*>::iterator i =
+        m_CurrentHandlers.begin();
+    while (i != m_CurrentHandlers.end()) {
         if (i->second == handler) {
             m_CurrentHandlers.erase(i++);
+        } else {
+            i++;
         }
     }
 }
