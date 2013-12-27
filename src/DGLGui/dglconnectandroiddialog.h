@@ -35,7 +35,7 @@ class DGLConnectAndroidDialog : public QDialog {
    public
 slots:
     void selectDevice(DGLADBDevice*);
-    void update();
+    void updateDialog();
     void adbFailed(std::string reason);
     void deviceFailed(DGLADBDevice* device, std::string reason);
 

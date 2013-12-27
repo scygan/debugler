@@ -26,7 +26,7 @@ DGLConnectAndroidDialog::DGLConnectAndroidDialog() : m_Port(0) {
 
     CONNASSERT(m_ui.selectDevWidget, SIGNAL(selectDevice(DGLADBDevice*)), this,
                SLOT(selectDevice(DGLADBDevice*)));
-    CONNASSERT(m_ui.selectDevWidget, SIGNAL(update()), this, SLOT(update()));
+    CONNASSERT(m_ui.selectDevWidget, SIGNAL(updateWidget()), this, SLOT(updateDialog()));
     CONNASSERT(m_ui.selectDevWidget, SIGNAL(adbFailed(std::string)), this,
                SLOT(adbFailed(std::string)));
 }
@@ -61,7 +61,7 @@ void DGLConnectAndroidDialog::selectDevice(DGLADBDevice* device) {
     }
 }
 
-void DGLConnectAndroidDialog::update() {
+void DGLConnectAndroidDialog::updateDialog() {
     if (m_ui.selectDevWidget->getCurrentDevice()) {
         m_ui.selectDevWidget->getCurrentDevice()->reloadProcesses();
     }

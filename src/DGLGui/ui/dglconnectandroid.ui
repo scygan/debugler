@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>359</width>
-    <height>173</height>
+    <width>368</width>
+    <height>141</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -52,37 +52,6 @@
         <bool>true</bool>
        </property>
       </widget>
-     </item>
-     <item row="4" column="0">
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="5" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QPushButton" name="pushButton_2">
-         <property name="text">
-          <string>adb kill-server</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pushButton">
-         <property name="text">
-          <string>adb connect...</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </item>
     </layout>
    </item>
@@ -173,38 +142,6 @@
     <hint type="destinationlabel">
      <x>179</x>
      <y>172</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_2</sender>
-   <signal>clicked()</signal>
-   <receiver>DGLConnectAndroidDialogClass</receiver>
-   <slot>adbKillServer()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>147</x>
-     <y>104</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>59</x>
-     <y>169</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>DGLConnectAndroidDialogClass</receiver>
-   <slot>adbConnect()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>287</x>
-     <y>101</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>254</x>
-     <y>80</y>
     </hint>
    </hints>
   </connection>

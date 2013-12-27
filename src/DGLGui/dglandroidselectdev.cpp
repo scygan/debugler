@@ -99,7 +99,7 @@ void DGLAndroidSelectDevWidget::gotDevices(std::vector<std::string> devices) {
         m_ui.comboBox->removeItem(j);
     }
     if (m_CurrentDevice.get()) {
-        emit update();
+        emit updateWidget();
     }
 }
 

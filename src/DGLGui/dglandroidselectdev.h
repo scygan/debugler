@@ -51,7 +51,7 @@ slots:
 
 signals:
     void selectDevice(DGLADBDevice*);
-    void update();
+    void updateWidget();
     void adbFailed(std::string reason);
 
    private

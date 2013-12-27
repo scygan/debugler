@@ -64,7 +64,7 @@ slots:
     void adbFailed(std::string reason);
     void selectDevice(DGLADBDevice*);
     void selectDeviceStatusSuccess(DGLADBDevice* device);
-
+signals:
    private:
     virtual bool isComplete() const override;
 
@@ -72,12 +72,13 @@ slots:
     
     DGLAndroidSelectDevWidget * m_SelectWidget;
 
-    Q_PROPERTY(DGLADBDevice* device READ device)
+    Q_PROPERTY(DGLADBDevice* deviceProp READ device)
 
     DGLADBDevice* m_Device;
     QLabel* m_DeviceStatusLabel;
     QRadioButton* m_RadioButtonClean, * m_RadioButtonUpdate, * m_RadioButtonInstall;
 };
+Q_DECLARE_METATYPE(DGLADBDevice*);
 
 class Run : public QWizardPage {
     Q_OBJECT

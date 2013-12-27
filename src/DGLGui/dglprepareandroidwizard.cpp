@@ -95,7 +95,7 @@ DeviceChoice::DeviceChoice(QWidget *parent)
     registerField("update-button", m_RadioButtonUpdate);
     registerField("install-button", m_RadioButtonInstall);
 
-    registerField("device*", this, "device", SIGNAL(selectDevice));
+    registerField("device*", this, "deviceProp", SIGNAL(completeChanged()));
 
     setDeviceStatus(DGLADBDevice::InstallStatus::UNKNOWN);
 
