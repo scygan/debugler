@@ -25,7 +25,7 @@ namespace mock {
 
     class DGLAdbCookieMock: public DGLAdbCookie {
     public:
-        DGLAdbCookieMock(std::shared_ptr<DGLAdbOutputFilter> filter):DGLAdbCookie(filter) {}
+        DGLAdbCookieMock(std::shared_ptr<DGLAdbOutputFilter> filter):DGLAdbCookie(nullptr, filter) {}
     private:
         virtual void process() override {
 
@@ -34,9 +34,10 @@ namespace mock {
 
     class DGLAdbCookieFactoryMock: public DGLAdbCookieFactoryBase {
     private:
-        virtual DGLAdbCookie* CreateCookie(const std::vector<std::string>& params,
+        virtual DGLAdbCookie* CreateCookie(const std::vector<std::string>& /*params*/,
+            DGLAdbHandler* /*handler*/,
             std::shared_ptr<DGLAdbOutputFilter> filter) override {
-                return new DGLAdbCookieMock(/*m_adbPath, params*/ filter);
+                return new DGLAdbCookieMock(filter/*m_adbPath, params*/);
         }
     };
 }
