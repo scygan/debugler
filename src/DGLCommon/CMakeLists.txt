@@ -1,5 +1,5 @@
 set(dglcommon_SOURCES 
-    gl-types.cpp os.cpp ipc.cpp
+    gl-types.cpp os.cpp ipc.cpp version.cpp
     )
 
 

@@ -160,7 +160,7 @@ std::string Os::translateOsError(int error) {
 
 #ifdef __ANDROID__
 #include <android/log.h>
-#define LOG_TAG "Debugler"
+#define LOG_TAG DGL_PRODUCT
 #endif
 
 class OsIconImpl : public OsIcon {

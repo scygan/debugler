@@ -46,4 +46,7 @@
 #define strncpy(dest, source, count) strncpy_s(dest, count, source, _TRUNCATE)
 #endif
 
+#define DGL_MANUFACTURER  "Slawomir Cygan"
+#define DGL_PRODUCT       "Debugler"
+#define DGL_PRODUCT_LOWER "debugler"
 #endif

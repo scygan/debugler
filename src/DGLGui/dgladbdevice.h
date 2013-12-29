@@ -16,6 +16,8 @@
 #ifndef DGLADBDEVICE_H
 #define DGLADBDEVICE_H
 
+#include "dgladbinterface.h"
+
 class DGLAdbDeviceProcess {
    public:
     DGLAdbDeviceProcess(const std::string& pid, const std::string& name,
@@ -31,46 +33,120 @@ class DGLAdbDeviceProcess {
     std::string m_PortName;
 };
 
-class DGLADBDevice : public QObject {
+
+class DGLADBDevice : public QObject, DGLAdbHandler {
     Q_OBJECT
    public:
     DGLADBDevice(const std::string& serial);
     void reloadProcesses();
     const std::string& getSerial() const;
 
-    void queryInstallStatus();
-
+    void queryStatus();
+    
     void portForward(std::string from, unsigned short to);
+
+    void installWrapper(std::string path);
+    void updateWrapper(std::string path);
+    void uninstallWrapper(std::string path);
+
 
     enum class InstallStatus {
         UNKNOWN,
+        UNAUTHORIZED,
         INSTALLED,
         CLEAN,
     };
 
-    InstallStatus getInstallStatus();
+    enum class ABI {
+        UNKNOWN,
+        X86,
+        ARMEABI,
+        MIPS
+    };
 
-   public
-slots:
-    void reloadProcessesGotPortString(const std::vector<std::string>& prop);
-    void reloadProcessesGotUnixSockets(const std::vector<std::string>& prop);
-    void doneQueryInstallStatus(const std::vector<std::string>& prop);
-    void adbFailed(std::string reason);
+    InstallStatus getInstallStatus();
+    ABI getABI();
+
+
 signals:
     void gotProcesses(DGLADBDevice*,
                       const std::vector<DGLAdbDeviceProcess>& data);
     void failed(DGLADBDevice*, const std::string&);
-
     void portForwardSuccess(DGLADBDevice*);
-    void queryInstallStatusSuccess(DGLADBDevice*);
+    void queryStatusSuccess(DGLADBDevice*);
+    void installerDone(DGLADBDevice*);
+    void log(DGLADBDevice*, const std::string& log);
 
    private:
+
+    virtual void done(const std::vector<std::string>& data) override;
+    virtual void failed(const std::string& reason) override;
+
+    void reloadProcessesGotPortString(const std::vector<std::string>& prop);
+    void reloadProcessesGotUnixSockets(const std::vector<std::string>& prop);
+    void doneQueryInstallStatus(const std::vector<std::string>& prop);
+    void doneQueryABI(const std::vector<std::string>& prop);
+
+
+    DGLAdbCookie* getProp(std::string prop);
+    DGLAdbCookie* checkUser();
+    DGLAdbCookie* remountFromAdb();
+    DGLAdbCookie* remountFromShell();
+
+    DGLAdbCookie* invokeAsShellUser(
+        const std::vector<std::string>& params,
+        std::shared_ptr<DGLAdbOutputFilter> filter =
+        std::shared_ptr<DGLAdbOutputFilter>());
+
+    DGLAdbCookie* invokeAsRoot(
+        const std::vector<std::string>& params,
+        std::shared_ptr<DGLAdbOutputFilter> filter =
+        std::shared_ptr<DGLAdbOutputFilter>());
+
+    bool checkIdle();
+
     std::string m_Serial;
     InstallStatus m_Status;
+    ABI m_ABI;
 
+    enum class RequestStatus {
+        IDLE,
+        RELOAD_PROCESSES_GET_PORTSTR,
+        RELOAD_PROCESSES_GET_UNIXSOCKETS,
+        QUERY_ABI,
+        QUERY_INSTALL_STATUS,
+        PREP_INSTALL,
+        PREP_UPDATE,
+        PREP_UNINSTALL,
+    } m_RequestStatus;
+
+
+    enum class DetailRequestStatus {
+        NONE,
+        PREP_ADB_CHECKUSER,
+        PREP_ADB_CHECK_SU_USER,
+        PREP_REMOUNT_FROM_ADB,
+        PREP_REMOUNT_FROM_SHELL,
+        PREP_FRAMEWORK_STOP,
+        PREP_FRAMEWORK_UPLOAD_INSTALLER,
+        PREP_FRAMEWORK_CHMOD_INSTALLER,
+        PREP_FRAMEWORK_RUN_INSTALLER,
+        PREP_FRAMEWORK_START,
+    } m_DetailRequestStatus;
+
+    const char* toString(RequestStatus status);
+    const char* toString(DetailRequestStatus detailStatus);
+
+    void setRequestStatus(RequestStatus status);
+    void setRequestStatus(DetailRequestStatus detailStatus);
+   
     QRegExp m_SocketPathRegex;
     int m_PidInSocketRegex;
     int m_PNameInSocketRegex;
+
+    bool m_RootSuRequired;
+
+    std::string m_InstallerPath;
 };
 
 #endif

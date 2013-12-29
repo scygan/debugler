@@ -29,6 +29,12 @@
       <Directory Id='$(var.programFilesFolder)' Name='PFiles'>
         <Directory Id='Debugler' Name='Debugler'>
           <Directory Id='INSTALLDIR' Name='Debugler'>
+            
+            <Component Id='RegistryValues' Guid='{6ABB5609-C778-487C-AC8D-EFD9550D6729}'>
+              <RegistryKey  Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' ForceDeleteOnUninstall="yes">
+                <RegistryValue Type="string" Name='InstallDir' Value="[INSTALLDIR]" KeyPath='yes'/>
+              </RegistryKey>
+            </Component>
 
             <Directory Id='DGLWrapper' Name='DGLWrapper'>
               <Component Id='WrapperLibrary' Guid='{1533E661-CA81-4306-8E38-1625C90F65C8}'>
@@ -64,7 +70,6 @@
               <File Id='Qt5CoreDLL' Name='Qt5Core$(var.debugsuffix).dll' DiskId='1' Source='Qt5Core$(var.debugsuffix).dll' />
               <File Id='icuin51DLL' Name='icuin51.dll' DiskId='1' Source='icuin51.dll' />
               <File Id='icuuc51DLL' Name='icuuc51.dll' DiskId='1' Source='icuuc51.dll' />
-              <File Id='icudt51DLL' Name='icudt51.dll' DiskId='1' Source='icudt51.dll' />
               <File Id='libEGLDLL' Name='libEGL$(var.debugsuffix).dll' DiskId='1' Source='libEGL$(var.debugsuffix).dll' />
               <File Id='libGLESv2DLL' Name='libGLESv2$(var.debugsuffix).dll' DiskId='1' Source='libGLESv2$(var.debugsuffix).dll' />
             </Component>
@@ -78,20 +83,17 @@
             
             <Directory Id='AndroidARMDir' Name='android-armeabi'>
               <Component Id='AndroidARMSupport' Guid='{4627FD07-4783-45B2-8296-E53C64898AE8}' KeyPath='yes'>
-                <File Id='dglloader_arm' Name='dglloader' DiskId='1' Source='..\..\android-armeabi\Release\bin\armeabi\dglloader' />
-                <File Id='libdglwrapper_arm' Name='libdglwrapper.so' DiskId='1' Source='..\..\android-armeabi\Release\libs\armeabi\libdglwrapper.so' />
+                <File Id='android_installer_arm' Name='dglandroidinstaller' DiskId='1' Source='..\..\android-armeabi\Release\bin\armeabi\dglandroidinstaller' />
               </Component>
             </Directory>
             <Directory Id='AndroidX86Dir' Name='android-x86'>
               <Component Id='AndroidX86Support' Guid='{6690C513-7A73-4050-8066-7F22F6F46C42}' KeyPath='yes'>
-                <File Id='dglloader_x86' Name='dglloader' DiskId='1' Source='..\..\android-x86\Release\bin\x86\dglloader' />
-                <File Id='libdglwrapper_x86' Name='libdglwrapper.so' DiskId='1' Source='..\..\android-x86\Release\libs\x86\libdglwrapper.so' />
+                <File Id='android_installer_x86' Name='dglandroidinstaller' DiskId='1' Source='..\..\android-x86\Release\bin\x86\dglandroidinstaller' />
               </Component>
             </Directory>
             <Directory Id='AndroidMIPSDir' Name='android-mips'>
               <Component Id='AndroidMIPSSupport' Guid='{1F44853E-1E2F-4446-B1EC-C1141EB4EFFF}' KeyPath='yes'>
-                <File Id='dglloader_mips' Name='dglloader' DiskId='1' Source='..\..\android-mips\Release\bin\mips\dglloader' />
-                <File Id='libdglwrapper_mips' Name='libdglwrapper.so' DiskId='1' Source='..\..\android-mips\Release\libs\mips\libdglwrapper.so' />
+                <File Id='android_installer_mips' Name='dglandroidinstaller' DiskId='1' Source='..\..\android-mips\Release\bin\mips\dglandroidinstaller' />
               </Component>
             </Directory>
 
@@ -120,6 +122,8 @@
     </DirectoryRef>
 
     <Feature Id='Complete' Level='1' Title='Debugler executables' Description='Debugler essentials.' Display='expand' ConfigurableDirectory='INSTALLDIR'>
+      <ComponentRef Id='ProgramMenuDir' />
+      <ComponentRef Id='RegistryValues' />
       <ComponentRef Id='MainExecutables' />
       <?if $(var.Platform) = x64 ?>
         <ComponentRef Id='MainExecutables64' />
@@ -130,8 +134,7 @@
         <ComponentRef Id='WrapperLibrary64' />
       <?endif?>
       <ComponentRef Id='WrapperLibrary' />
-      <ComponentRef Id='ProgramMenuDir' />
-    
+   
       <ComponentRef Id='AndroidARMSupport' />
       <ComponentRef Id='AndroidMIPSSupport' />
       <ComponentRef Id='AndroidX86Support' />
@@ -153,6 +156,7 @@
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
 
     <Icon Id="Debugler01.exe" SourceFile="Debugler.exe" />
+    <Property Id="ARPPRODUCTICON" Value="Debugler.exe" />
 
     <WixVariable Id="WixUILicenseRtf" Value="..\..\..\..\..\LICENCE.rtf" />
   </Product>

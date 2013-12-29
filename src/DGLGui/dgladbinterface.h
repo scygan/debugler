@@ -26,21 +26,35 @@
 
 class DGLAdbOutputFilter;
 
+class DGLAdbCookie;
+
+class DGLAdbHandler {
+public:
+    virtual ~DGLAdbHandler();
+    virtual void done(const std::vector<std::string>& data) = 0;
+    virtual void failed(const std::string& reason) = 0;
+    void refCookie(DGLAdbCookie*);
+    void unrefCookie(DGLAdbCookie*);
+private:
+    std::set<DGLAdbCookie*> m_RefCookies;
+};
+
 class DGLAdbCookie : public QObject {
     Q_OBJECT
    public:
-    DGLAdbCookie(std::shared_ptr<DGLAdbOutputFilter> filter);
-    virtual ~DGLAdbCookie() {}
+    DGLAdbCookie(DGLAdbHandler* handler, std::shared_ptr<DGLAdbOutputFilter> filter);
+    virtual ~DGLAdbCookie();
     virtual void process() = 0;
 
-signals:
-    void done(std::vector<std::string> data);
-    void failed(std::string reason);
-
    protected:
+    void onDone(std::vector<std::string> data);
+    void onFailed(std::string reason);
+
     void filterOutput(const std::vector<std::string>& lines);
 
     std::shared_ptr<DGLAdbOutputFilter> m_OutputFilter;
+
+    DGLAdbHandler* m_Handler;
 };
 
 
@@ -49,6 +63,7 @@ class DGLAdbCookieImpl : public DGLAdbCookie {
    public:
     DGLAdbCookieImpl(const std::string& adbPath,
                      const std::vector<std::string>& params,
+                     DGLAdbHandler* handler,
                      std::shared_ptr<DGLAdbOutputFilter> filter);
 
     virtual void DGLAdbCookie::process() override;
@@ -74,6 +89,7 @@ public:
 class DGLAdbCookieFactoryBase {
 public:
     virtual DGLAdbCookie* CreateCookie(const std::vector<std::string>& params,
+        DGLAdbHandler* handler,
         std::shared_ptr<DGLAdbOutputFilter> filter) = 0;
 };
 
@@ -83,6 +99,7 @@ public:
     const std::string& getAdbPath();
 private:
     virtual DGLAdbCookie* CreateCookie(const std::vector<std::string>& params,
+        DGLAdbHandler* handler,
         std::shared_ptr<DGLAdbOutputFilter> filter) override;
 
     std::string m_adbPath;
@@ -95,17 +112,19 @@ class DGLAdbInterface {
     void setAdbCookieFactory(std::shared_ptr<DGLAdbCookieFactoryBase>);
     const std::string getAdbPath() const;
 
-    DGLAdbCookie* killServer();
-    DGLAdbCookie* connect(const std::string& address);
-    DGLAdbCookie* getDevices();
+    DGLAdbCookie* killServer(DGLAdbHandler* handler);
+    DGLAdbCookie* connect(const std::string& address, DGLAdbHandler* handler);
+    DGLAdbCookie* getDevices(DGLAdbHandler* handler);
 
     DGLAdbCookie* invokeOnDevice(const std::string& serial,
                                  const std::vector<std::string>& params,
+                                 DGLAdbHandler* handler,
                                  std::shared_ptr<DGLAdbOutputFilter> filter =
                                          std::shared_ptr<DGLAdbOutputFilter>());
 
    private:
     DGLAdbCookie* invokeAdb(const std::vector<std::string>& params,
+                            DGLAdbHandler* handler,
                             std::shared_ptr<DGLAdbOutputFilter> filter =
                                     std::shared_ptr<DGLAdbOutputFilter>());
 

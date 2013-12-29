@@ -41,21 +41,15 @@
 #include <DGLCommon/version.h>
 
 /**
- * Macros indentifying entity, that stores & loads QSettings
- */
-#define DGL_COMPANY "SaCygan"
-#define DGL_PRODUCT "Debugler"
-
-/**
  * Macros for QSettings variable names
  */
 #define STRINGIFY(X) #X
 #define SLASHIFY(X, Y) STRINGIFY(X / Y)
-#define DGL_SETTINGS(X) SLASHIFY(widgets, X)
+#define DGL_SETTINGS(X) SLASHIFY(GUI, X)
 #define DGL_GEOMETRY_SETTINGS DGL_SETTINGS(geometry)
 #define DGL_WINDOW_STATE_SETTINGS DGL_SETTINGS(windowState)
-#define DGL_ColorScheme_SETTINGS DGL_SETTINGS(ColorScheme)
-#define DGL_ADB_PATH_SETTINGS DGL_SETTINGS(AdbPath)
+#define DGL_ColorScheme_SETTINGS DGL_SETTINGS(colorScheme)
+#define DGL_ADB_PATH_SETTINGS STRINGIFY(adbPath)
 
 /**
  * Array of available main window color settings
@@ -127,7 +121,7 @@ void DGLMainWindow::closeEvent(QCloseEvent *_event) {
 
         // store QSettings
 
-        QSettings settings(DGL_COMPANY, DGL_PRODUCT);
+        QSettings settings(DGL_MANUFACTURER, DGL_PRODUCT);
         settings.setValue(DGL_GEOMETRY_SETTINGS, saveGeometry());
         settings.setValue(DGL_WINDOW_STATE_SETTINGS, saveState());
         settings.setValue(DGL_ColorScheme_SETTINGS, m_ColorScheme);
@@ -502,7 +496,7 @@ void DGLMainWindow::createActions() {
     CONNASSERT(configurationAct, SIGNAL(triggered()), this, SLOT(configure()));
 
     prepareAndroidAct = new QAction(tr("Prepare Android device..."), this);
-    prepareAndroidAct->setStatusTip(tr("Installs debugler on Android device"));
+    prepareAndroidAct->setStatusTip(tr("Installs "DGL_PRODUCT" on Android device"));
     CONNASSERT(prepareAndroidAct, SIGNAL(triggered()), this,
                SLOT(androidPrepare()));
 }
@@ -530,7 +524,7 @@ void DGLMainWindow::readSettings() {
 
     // read settings
 
-    QSettings settings(DGL_COMPANY, DGL_PRODUCT);
+    QSettings settings(DGL_MANUFACTURER, DGL_PRODUCT);
     restoreGeometry(settings.value(DGL_GEOMETRY_SETTINGS).toByteArray());
     restoreState(settings.value(DGL_WINDOW_STATE_SETTINGS).toByteArray());
 
@@ -602,18 +596,18 @@ void DGLMainWindow::androidPrepare() {
 
 void DGLMainWindow::debugeeInfo(const std::string &processName) {
     if (processName.length()) {
-        setWindowTitle(QString::fromStdString("Debugler - " + processName));
+        setWindowTitle(QString::fromStdString(DGL_PRODUCT" - " + processName));
     } else {
-        setWindowTitle("Debugler - disconnected");
+        setWindowTitle(DGL_PRODUCT" - disconnected");
     }
 }
 
 void DGLMainWindow::about() {
     QMessageBox::about(
-            this, tr("About Debuggler"),
-            "<b>Debugler " + QString::fromStdString(getVersion()) + 
-               tr("</b>, The OpenGL debugger<br/><br/>"
-               "Copyright (C) 2013 Slawomir Cygan.<br/><br/> "
+            this, tr("About "DGL_PRODUCT),
+            "<b>"DGL_PRODUCT + QString::fromStdString(getVersion()) + 
+               tr("</b>, The OpenGL(R) debugger<br/><br/>"
+               "Copyright (C) 2013 "DGL_MANUFACTURER".<br/><br/> "
                "<a href=\"https://github.com/debugler/debugler\"/>"));
 }
 

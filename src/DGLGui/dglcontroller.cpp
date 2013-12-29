@@ -174,9 +174,8 @@ void DglController::onSocket() {
 
 // Hey! If you are trying to disable the timer-based polling here, please
 // increment the following counter.
-// You would not succeed... on windows some socketnotifies activate()-s are
-// missed, so we get stuck and
-// wait forever for read data.
+// You shall not succeed... on windows some socketnotifies activate()-s are
+// missed, so we get stuck and wait forever for data to be ready.
 
 // Timer disable try count: 2
 // m_Timer.stop();

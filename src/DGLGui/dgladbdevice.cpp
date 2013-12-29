@@ -61,6 +61,30 @@ class DGLUnixSocketsFilter : public DGLAdbOutputFilter {
         return true;
     }
 };
+
+class DGLTransferFilter : public DGLAdbOutputFilter {
+    virtual bool filter(const std::vector<std::string>& input,
+        std::vector<std::string>& output) override {
+            if (input.size() > 2 || input.size() < 1 ||
+                input[0].find("bytes in") == std::string::npos) {
+                    return false;
+            }
+            output.push_back(input[0]);
+            return true;
+    }
+};
+
+class DGLInstallerFilter : public DGLAdbOutputFilter {
+    virtual bool filter(const std::vector<std::string>& input,
+        std::vector<std::string>& output) override {
+            output = input; 
+            if (!input.size() || input[input.size() - 1].find("Success") == std::string::npos) {
+                return false;
+            }
+            return true;
+    }
+};
+
 }
 
 DGLAdbDeviceProcess::DGLAdbDeviceProcess(const std::string& pid,
@@ -86,41 +110,47 @@ const std::string& DGLAdbDeviceProcess::getPortName() const {
 }
 
 DGLADBDevice::DGLADBDevice(const std::string& serial)
-        : m_Serial(serial), m_Status(InstallStatus::UNKNOWN) {}
+        : m_Serial(serial), m_Status(InstallStatus::UNKNOWN), m_RequestStatus(RequestStatus::IDLE), m_DetailRequestStatus(DetailRequestStatus::NONE), m_RootSuRequired(false) {}
 
 void DGLADBDevice::reloadProcesses() {
-    std::vector<std::string> params;
-    params.push_back("shell");
-    params.push_back("getprop");
-    params.push_back("debug.debugler.socket");
-    DGLAdbCookie* cookie = DGLAdbInterface::get()->invokeOnDevice(
-            m_Serial, params, std::make_shared<DGLGetPropOutputFilter>());
-    CONNASSERT(cookie, SIGNAL(failed(std::string)), this,
-               SLOT(adbFailed(std::string)));
-    CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this,
-               SLOT(reloadProcessesGotPortString(std::vector<std::string>)));
-    cookie->process();
+    if (m_RequestStatus == RequestStatus::IDLE) {
+        setRequestStatus(RequestStatus::RELOAD_PROCESSES_GET_PORTSTR);
+        getProp("debug."DGL_PRODUCT_LOWER".socket")->process();    
+    }
 }
 
 const std::string& DGLADBDevice::getSerial() const { return m_Serial; }
 
-void DGLADBDevice::queryInstallStatus() {
+void DGLADBDevice::queryStatus() {
+    if (!checkIdle()) {
+        return;
+    }
+    setRequestStatus(RequestStatus::QUERY_INSTALL_STATUS);
+
     std::vector<std::string> params;
     params.push_back("shell");
     params.push_back("ls");
     params.push_back("/system/bin/app_process.dgl");
 
-    DGLAdbCookie* cookie =
-            DGLAdbInterface::get()->invokeOnDevice(m_Serial, params);
-    CONNASSERT(cookie, SIGNAL(failed(std::string)), this,
-               SLOT(adbFailed(std::string)));
-    CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this,
-               SLOT(doneQueryInstallStatus(std::vector<std::string>)));
-    cookie->process();
+    invokeAsShellUser(params)->process();
 }
+
+DGLAdbCookie* DGLADBDevice::getProp(std::string prop) {
+    std::vector<std::string> params;
+    params.push_back("shell");
+    params.push_back("getprop");
+    params.push_back(prop);
+    DGLAdbCookie* cookie = invokeAsShellUser(params,
+        std::make_shared<DGLGetPropOutputFilter>());
+    return cookie;
+}
+
 
 void DGLADBDevice::doneQueryInstallStatus(
         const std::vector<std::string>& prop) {
+
+    setRequestStatus(RequestStatus::QUERY_ABI);
+
     if (prop.size() > 0 &&
         prop[0].find("/system/bin/app_process.dgl") != std::string::npos &&
         prop[0].find("No such file") == std::string::npos) {
@@ -128,8 +158,31 @@ void DGLADBDevice::doneQueryInstallStatus(
     } else {
         m_Status = InstallStatus::CLEAN;
     }
-    emit queryInstallStatusSuccess(this);
+
+    getProp("ro.product.cpu.abi")->process();
 }
+
+void DGLADBDevice::doneQueryABI(
+    const std::vector<std::string>& prop) {
+
+        setRequestStatus(RequestStatus::IDLE);
+
+        if (prop.size()) {
+            if (prop[0].find("armeabi") != std::string::npos) {
+                m_ABI = ABI::ARMEABI;
+            }
+            if (prop[0].find("x86") != std::string::npos) {
+                m_ABI = ABI::X86;
+            }
+            if (prop[0].find("mips") != std::string::npos) {
+                m_ABI = ABI::MIPS;
+            }
+        } else {
+            m_ABI = ABI::UNKNOWN;
+        }
+        emit queryStatusSuccess(this);
+}
+
 
 void DGLADBDevice::portForward(std::string from, unsigned short to) {
 
@@ -142,21 +195,27 @@ void DGLADBDevice::portForward(std::string from, unsigned short to) {
     }
     params.push_back("localfilesystem:" + from);
 
-    DGLAdbCookie* cookie = DGLAdbInterface::get()->invokeOnDevice(
-            m_Serial, params, std::make_shared<DGLEmptyOutputFilter>());
-    CONNASSERT(cookie, SIGNAL(failed(std::string)), this,
-               SLOT(adbFailed(std::string)));
-    CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this,
-               SIGNAL(portForwardSuccess()));
-    cookie->process();
+    //DGLAdbCookie* cookie = DGLAdbInterface::get()->invokeOnDevice(
+    //        m_Serial, params, nullptr, std::make_shared<DGLEmptyOutputFilter>());
+    //CONNASSERT(cookie, SIGNAL(failed(std::string)), this,
+    //           SLOT(adbFailed(std::string)));
+    //CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this,
+    //           SIGNAL(portForwardSuccess()));
+    //cookie->process();
 }
 
 DGLADBDevice::InstallStatus DGLADBDevice::getInstallStatus() {
     return m_Status;
 }
 
+DGLADBDevice::ABI DGLADBDevice::getABI() {
+    return m_ABI;
+}
+
 void DGLADBDevice::reloadProcessesGotPortString(
         const std::vector<std::string>& prop) {
+
+    setRequestStatus(RequestStatus::RELOAD_PROCESSES_GET_UNIXSOCKETS);
 
     const std::string& portString = prop[0];
 
@@ -206,17 +265,14 @@ void DGLADBDevice::reloadProcessesGotPortString(
     params.push_back("shell");
     params.push_back("cat");
     params.push_back("/proc/net/unix");
-    DGLAdbCookie* cookie = DGLAdbInterface::get()->invokeOnDevice(
-            m_Serial, params, std::make_shared<DGLUnixSocketsFilter>());
-    CONNASSERT(cookie, SIGNAL(failed(std::string)), this,
-               SLOT(adbFailed(std::string)));
-    CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this,
-               SLOT(reloadProcessesGotUnixSockets(std::vector<std::string>)));
-    cookie->process();
+    invokeAsShellUser(params, std::make_shared<DGLUnixSocketsFilter>())->process();
 }
 
 void DGLADBDevice::reloadProcessesGotUnixSockets(
         const std::vector<std::string>& sockets) {
+
+    setRequestStatus(RequestStatus::IDLE);
+
     std::vector<DGLAdbDeviceProcess> processes;
 
     for (size_t i = 0; i < sockets.size(); i++) {
@@ -236,4 +292,308 @@ void DGLADBDevice::reloadProcessesGotUnixSockets(
     emit gotProcesses(this, processes);
 }
 
-void DGLADBDevice::adbFailed(std::string reason) { emit failed(this, reason); }
+void DGLADBDevice::installWrapper(std::string path) {
+    m_InstallerPath = path;
+    if (!checkIdle()) {
+        return;
+    }
+    setRequestStatus(RequestStatus::PREP_INSTALL);
+    checkUser()->process();
+}
+
+void DGLADBDevice::uninstallWrapper(std::string path) {
+    m_InstallerPath = path;
+    if (!checkIdle()) {
+        return;
+    }
+    setRequestStatus(RequestStatus::PREP_UNINSTALL);
+    checkUser()->process();
+}
+
+void DGLADBDevice::updateWrapper(std::string path) {
+    m_InstallerPath = path; 
+    if (!checkIdle()) {
+        return;
+    }
+    setRequestStatus(RequestStatus::PREP_UPDATE);
+    checkUser()->process();
+}
+
+
+DGLAdbCookie* DGLADBDevice::checkUser() {
+    setRequestStatus(DetailRequestStatus::PREP_ADB_CHECKUSER);
+    std::vector<std::string> params;
+    params.push_back("shell");
+    params.push_back("id");
+    return invokeAsShellUser(params);
+}
+
+DGLAdbCookie* DGLADBDevice::remountFromAdb() {
+    setRequestStatus(DetailRequestStatus::PREP_REMOUNT_FROM_ADB);
+    std::vector<std::string> params(1, "remount");
+    return invokeAsShellUser(params, std::make_shared<DGLEmptyOutputFilter>());
+}
+
+DGLAdbCookie* DGLADBDevice::remountFromShell() {
+    setRequestStatus(DetailRequestStatus::PREP_REMOUNT_FROM_SHELL);
+    std::vector<std::string> params;
+    params.push_back("shell");
+    params.push_back("mount");
+    params.push_back("-o");
+    params.push_back("remount,rw");
+    params.push_back("/system");
+    return invokeAsRoot(params, std::make_shared<DGLEmptyOutputFilter>());
+}
+
+void DGLADBDevice::done(const std::vector<std::string>& data) {
+    for (size_t i = 0; i < data.size(); i++) {
+        emit log(this, "< " + data[i]);
+    }
+    switch (m_RequestStatus) {
+        case RequestStatus::IDLE:
+            emit failed(this, "Spurious done() call.");
+            break;
+        case RequestStatus::QUERY_INSTALL_STATUS:
+            doneQueryInstallStatus(data);
+            break;
+        case RequestStatus::QUERY_ABI:
+            doneQueryABI(data);
+            break;
+        case RequestStatus::RELOAD_PROCESSES_GET_PORTSTR:
+            reloadProcessesGotPortString(data);
+            break;
+        case RequestStatus::RELOAD_PROCESSES_GET_UNIXSOCKETS:
+            reloadProcessesGotUnixSockets(data);
+            break;
+
+        case RequestStatus::PREP_INSTALL:
+        case RequestStatus::PREP_UPDATE:
+        case RequestStatus::PREP_UNINSTALL:
+            {
+                switch (m_DetailRequestStatus) {
+                case DetailRequestStatus::PREP_ADB_CHECKUSER:
+                        if (data[0].find("uid=0(root)") != std::string::npos) {
+                            remountFromAdb()->process();
+                        } else {
+                            setRequestStatus(DetailRequestStatus::PREP_ADB_CHECK_SU_USER);
+                            m_RootSuRequired = true;
+                            std::vector<std::string> params;
+                            params.push_back("shell");
+                            params.push_back("id");
+                            invokeAsRoot(params)->process();
+                        }
+                        break;
+                    case DetailRequestStatus::PREP_ADB_CHECK_SU_USER:
+                        if (data[0].find("uid=0(root)") != std::string::npos) {
+                            remountFromAdb()->process();
+                        } else {
+                            failed("Cannot get root permissions. Is this device rooted?");
+                        }
+                        break;
+                    case DetailRequestStatus::PREP_REMOUNT_FROM_ADB:
+                        remountFromShell()->process();
+                        break;
+                    case DetailRequestStatus::PREP_REMOUNT_FROM_SHELL:
+                        setRequestStatus(DetailRequestStatus::PREP_FRAMEWORK_STOP);
+                        {
+                            std::vector<std::string> params;
+                            params.push_back("shell");
+                            params.push_back("stop");
+                            invokeAsRoot(params, std::make_shared<DGLEmptyOutputFilter>())->process();
+                        }
+                        break;
+                    case DetailRequestStatus::PREP_FRAMEWORK_STOP:
+                        setRequestStatus(DetailRequestStatus::PREP_FRAMEWORK_UPLOAD_INSTALLER);
+                        {
+                            std::vector<std::string> params;
+                            params.push_back("push");
+                            params.push_back(m_InstallerPath + "/dglandroidinstaller");
+                            params.push_back("/data/local/tmp/");
+                            invokeAsShellUser(params, std::make_shared<DGLTransferFilter>())->process();
+                        }
+                        break;
+                    case DetailRequestStatus::PREP_FRAMEWORK_UPLOAD_INSTALLER:
+                        setRequestStatus(DetailRequestStatus::PREP_FRAMEWORK_CHMOD_INSTALLER);
+                        {
+                            std::vector<std::string> params;
+                            params.push_back("shell");
+                            params.push_back("chmod");
+                            params.push_back("777");
+                            params.push_back("/data/local/tmp/dglandroidinstaller");
+                            invokeAsRoot(params, std::make_shared<DGLEmptyOutputFilter>())->process();
+                        }
+                        break;
+                    case DetailRequestStatus::PREP_FRAMEWORK_CHMOD_INSTALLER:
+                        setRequestStatus(DetailRequestStatus::PREP_FRAMEWORK_RUN_INSTALLER);
+                        {
+                            std::vector<std::string> params;
+                            params.push_back("shell");
+                            params.push_back("/data/local/tmp/dglandroidinstaller");
+
+                            switch (m_RequestStatus) {
+                            case RequestStatus::PREP_INSTALL:
+                                params.push_back("install");
+                                break;
+                            case RequestStatus::PREP_UPDATE:
+                                params.push_back("update");
+                                break;
+                            case RequestStatus::PREP_UNINSTALL:
+                                params.push_back("uninstall");
+                                break;
+                            }
+                            invokeAsRoot(params, std::make_shared<DGLInstallerFilter>())->process();
+                        }
+                        break;
+                    case DetailRequestStatus::PREP_FRAMEWORK_RUN_INSTALLER:
+                        setRequestStatus(DetailRequestStatus::PREP_FRAMEWORK_START);
+                        {
+                            std::vector<std::string> params;
+                            params.push_back("shell");
+                            params.push_back("start");
+                            invokeAsRoot(params, std::make_shared<DGLEmptyOutputFilter>())->process();
+                        }
+                        break;
+                    case DetailRequestStatus::PREP_FRAMEWORK_START:
+                        setRequestStatus(DetailRequestStatus::NONE);
+                        setRequestStatus(RequestStatus::IDLE);
+                        emit installerDone(this);
+                        break;
+                }
+            }
+    }
+}
+
+void DGLADBDevice::failed(const std::string& reason) {
+    emit log(this, "Failure: " + reason);
+    switch (m_RequestStatus) {
+        case RequestStatus::QUERY_INSTALL_STATUS:
+        case RequestStatus::QUERY_ABI:
+            setRequestStatus(RequestStatus::IDLE);
+            if (reason.find("error: device unauthorized.") != std::string::npos) {
+                m_Status = InstallStatus::UNAUTHORIZED;
+                emit queryStatusSuccess(this);
+            } else {
+                emit failed(this, reason);
+            }
+            break;
+        case RequestStatus::PREP_INSTALL:
+        case RequestStatus::PREP_UNINSTALL:
+        case RequestStatus::PREP_UPDATE:
+            if (m_DetailRequestStatus == DetailRequestStatus::PREP_REMOUNT_FROM_ADB) {
+                if (reason.find("Permission denied") != std::string::npos) {
+                    //this error is acceptable, happens on production devices.
+                    remountFromShell()->process();
+                }
+            } else {
+                setRequestStatus(RequestStatus::IDLE);
+                emit failed(this, reason);
+            }
+            break;
+        default:
+            setRequestStatus(RequestStatus::IDLE);
+            emit failed(this, reason);
+    }
+}
+
+DGLAdbCookie* DGLADBDevice::invokeAsShellUser(
+    const std::vector<std::string>& params,
+    std::shared_ptr<DGLAdbOutputFilter> filter) {
+
+    std::string msg = "> adb ";
+    for (size_t i = 0; i < params.size(); i++) {
+        msg += params[i];
+        if (i < params.size()) {
+            msg += " ";
+        }
+    }
+    emit log(this, msg);
+
+    DGLAdbCookie* cookie  = DGLAdbInterface::get()->invokeOnDevice(m_Serial, params, this, filter);
+    return cookie;
+}
+
+DGLAdbCookie* DGLADBDevice::invokeAsRoot(
+    const std::vector<std::string>& params,
+    std::shared_ptr<DGLAdbOutputFilter> filter) {
+
+    if (!m_RootSuRequired || params[0] != "shell") {
+        return invokeAsShellUser(params, filter);
+    } else {
+        std::vector<std::string> rootParams(2 + params.size());
+        rootParams[0] = params[0]; //shell
+        rootParams[1] = "su";
+        rootParams[2] = "0";
+        std::copy(params.begin() + 1, params.end(), rootParams.begin() + 3);
+        return invokeAsShellUser(rootParams, filter);
+    }
+}
+
+bool DGLADBDevice::checkIdle() {
+    if (m_RequestStatus == RequestStatus::IDLE) {
+        return true;
+    }
+    emit failed("Device busy - device is currently processing some adb commands");
+    return false;
+}
+
+const char* DGLADBDevice::toString(RequestStatus status) {
+    switch (status) {
+        case RequestStatus::IDLE:
+            return "Idle";
+        case RequestStatus::RELOAD_PROCESSES_GET_PORTSTR:
+            return "Get debugging port string";
+        case RequestStatus::RELOAD_PROCESSES_GET_UNIXSOCKETS:
+            return "Get open debugging sockets";
+        case RequestStatus::QUERY_ABI:
+            return "Check ABI";
+        case RequestStatus::QUERY_INSTALL_STATUS:
+            return "Check debugger installation";
+        case RequestStatus::PREP_INSTALL:
+            return "Installing";
+        case RequestStatus::PREP_UPDATE:
+            return "Updating";
+        case RequestStatus::PREP_UNINSTALL:
+            return "Uninstalling";
+    }
+    return "Unknown";
+}
+
+const char* DGLADBDevice::toString(DetailRequestStatus detailStatus) {
+    switch (detailStatus) {
+        case DetailRequestStatus::NONE:
+            return "None";
+        case DetailRequestStatus::PREP_ADB_CHECKUSER:
+            return "Check adb user";
+        case DetailRequestStatus::PREP_ADB_CHECK_SU_USER:
+            return "Check su user";
+        case DetailRequestStatus::PREP_REMOUNT_FROM_ADB:
+            return "Remounting storage via adb";
+        case DetailRequestStatus::PREP_REMOUNT_FROM_SHELL:
+            return "Remounting storage from shell";
+        case DetailRequestStatus::PREP_FRAMEWORK_STOP:
+            return "Stopping framework";
+        case DetailRequestStatus::PREP_FRAMEWORK_UPLOAD_INSTALLER:
+            return "Uploading installer";
+        case DetailRequestStatus::PREP_FRAMEWORK_CHMOD_INSTALLER:
+            return "Setting installer permissions";
+        case DetailRequestStatus::PREP_FRAMEWORK_RUN_INSTALLER:
+            return "Running installer";
+        case DetailRequestStatus::PREP_FRAMEWORK_START:
+            return "Starting framework";
+    }
+    return "Unknown";
+}
+
+void DGLADBDevice::setRequestStatus(RequestStatus newStatus) {
+    if (newStatus != m_RequestStatus) {
+        emit log(this, std::string("Status: [") + toString(m_RequestStatus) + "] => [" + toString(newStatus) + "]");
+        m_RequestStatus = newStatus;
+    }
+    
+}
+void DGLADBDevice::setRequestStatus(DetailRequestStatus newDetailStatus) {
+    if (newDetailStatus != m_DetailRequestStatus) {
+        emit log(this, std::string("Detail Status: (") + toString(m_DetailRequestStatus) + ") => (" + toString(newDetailStatus) + ")");
+        m_DetailRequestStatus = newDetailStatus;
+    }
+}

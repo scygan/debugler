@@ -35,7 +35,7 @@ class DGLConnectAndroidAdbDialog : public QDialog {
     Ui::DGLConnectAndroidAdbDialogClass m_ui;
 };
 
-class DGLAndroidSelectDevWidget : public QWidget {
+class DGLAndroidSelectDevWidget : public QWidget, DGLAdbHandler {
     Q_OBJECT
 
    public:
@@ -52,7 +52,7 @@ slots:
 signals:
     void selectDevice(DGLADBDevice*);
     void updateWidget();
-    void adbFailed(std::string reason);
+    void adbFailed(const std::string&);
 
    private
 slots:
@@ -62,6 +62,18 @@ slots:
    private:
     virtual void hideEvent(QHideEvent* event) override;
     virtual void showEvent(QShowEvent* event) override;
+
+    class KillOrConnectHandler: public DGLAdbHandler {
+    public:
+        KillOrConnectHandler(DGLAndroidSelectDevWidget* p):m_Parent(p) {}
+        virtual void done(const std::vector<std::string>& data) override;
+        virtual void failed(const std::string& reason) override;
+    private:
+        DGLAndroidSelectDevWidget* m_Parent;
+    } m_KillOrConnectHandler;
+
+    virtual void done(const std::vector<std::string>& data) override;
+    virtual void failed(const std::string& reason) override;
 
     QTimer m_ReloadTimer;
 

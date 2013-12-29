@@ -1,2 +1,6 @@
-add_subdirectory(Installer)
-add_subdirectory(DesktopEntry)
+if (NOT ANDROID)
+	add_subdirectory(Installer)
+	add_subdirectory(DesktopEntry)
+else()
+	add_subdirectory(AndroidInstaller)
+endif()

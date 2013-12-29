@@ -49,11 +49,12 @@
 #include <DGLCommon/os.h>
 #include <DGLCommon/wa.h>
 #include <DGLCommon/ipc.h>
+#include <DGLCommon/version.h>
 
 #ifdef __ANDROID__
 #include <libgen.h>
 #include <dlfcn.h>
-#define DEBUGLER_SOCKET_PROP "debug.debugler.socket"
+#define DGL_SOCKET_PROP ("debug." DGL_PRODUCT_LOWER ".socket")
 #endif
 
 #pragma warning(disable : 4503)
@@ -117,7 +118,7 @@ std::string getWrapperPath() {
     size_t splitPoint = tmp.find_last_of("/\\");
     return tmp.substr(0, splitPoint) + "\\" + ret;
 #elif defined(__ANDROID__)
-    return "/data/local/tmp/libdglwrapper.so";
+    return "/system/lib/libdglwrapper.so";
 #else
     return "libdglwrapper.so";
 #endif
@@ -135,7 +136,13 @@ int main(int argc, char** argv) {
 
     try {
 
-        po::options_description desc("Allowed options");
+        po::options_description desc(
+            DGL_PRODUCT + getVersion() + " (dglloader)" + 
+            "\nThe OpenGL(R) debugger\n\n"
+            "Copyright (C) 2013 " DGL_MANUFACTURER ".\n\n "
+            "https://github.com/debugler/debugler\\n\n"
+            "Allowed options:");
+
         desc.add_options()("help,h", "produce help message")(
                 "egl", "use egl mode")("nowait",
                                        "do not wait for debugger to connect");
@@ -233,10 +240,10 @@ int main(int argc, char** argv) {
                         reinterpret_cast<int (*)(const char*, const char*)>(
                                 (ptrdiff_t)dlsym(libCUtils, "property_set"));
                 if (!property_set ||
-                    (ret = property_set(DEBUGLER_SOCKET_PROP,
+                    (ret = property_set(DGL_SOCKET_PROP,
                                         portPath.c_str())) < 0) {
                     Os::info("Cannot set %s system property: %d.",
-                             DEBUGLER_SOCKET_PROP, ret);
+                             DGL_SOCKET_PROP, ret);
                 }
 
 #endif
