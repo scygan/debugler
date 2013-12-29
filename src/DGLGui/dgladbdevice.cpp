@@ -480,7 +480,8 @@ void DGLADBDevice::failed(const std::string& reason) {
         case RequestStatus::PREP_UNINSTALL:
         case RequestStatus::PREP_UPDATE:
             if (m_DetailRequestStatus == DetailRequestStatus::PREP_REMOUNT_FROM_ADB) {
-                if (reason.find("Permission denied") != std::string::npos) {
+                if (reason.find("Permission denied") != std::string::npos || 
+                    reason.find("Operation not permitted")) {
                     //this error is acceptable, happens on production devices.
                     remountFromShell()->process();
                 }
