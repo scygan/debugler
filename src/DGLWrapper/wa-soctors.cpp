@@ -141,13 +141,14 @@ DGLWASoCtors::DGLWASoCtors() {
             Os::info("Found DT_INIT_ARRAY of size %d", init_array_count);
             for (unsigned i = 0; i < init_array_count; i++) {
                 if (init_array[i] && init_array[i] != (unsigned)-1) {
+                    OS_DEBUG("Calling DT_INIT_ARRAY[%d] (%p)", i, init_array[i]);
                     void (*func)() = (void (*)())init_array[i];
                     func();
                 } else {
                     Os::info("DT_INIT_ARRAY[%d] is empty", i);
                 }
             }
-
+            OS_DEBUG("Calling DT_INIT_ARRAY finished.");
         } else {
             Os::info("DT_INIT_ARRAY not found. (trouble ahead)");
         }
@@ -157,6 +158,7 @@ DGLWASoCtors::DGLWASoCtors() {
                 "Tried to call constructors, but shared library constructor "
                 "test, still fails.");
         }
+        OS_DEBUG("Shared library constructor test passed, leaving WA code.");
     }
     //we will never use this mutex again.
     delete g_mutex; g_mutex = NULL;
