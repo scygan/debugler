@@ -538,11 +538,16 @@ DGLAdbCookie* DGLADBDevice::invokeAsRoot(
     if (!m_RootSuRequired || params[0] != "shell") {
         return invokeAsShellUser(params, filter);
     } else {
-        std::vector<std::string> rootParams(2 + params.size());
+        std::vector<std::string> rootParams(4);
         rootParams[0] = params[0];    // shell
         rootParams[1] = "su";
-        rootParams[2] = "0";
-        std::copy(params.begin() + 1, params.end(), rootParams.begin() + 3);
+        rootParams[2] = "-c";
+        for (size_t i = 1; i < params.size(); i++) {
+            rootParams[3] += params[i];
+            if (i < params.size()) {
+                rootParams[3] += " ";
+            }
+        }
         return invokeAsShellUser(rootParams, filter);
     }
 }

@@ -156,10 +156,35 @@ void DGLAdbCookieImpl::handleProcessFinished(int code,
         qData.append(m_process->getProcess()->readAllStandardOutput());
         QList<QByteArray> qLines = qData.split('\n');
         std::vector<std::string> lines;
+
+        bool suException = false;
+
         foreach(QByteArray qLine, qLines) {
-            if (qLine[0] != '*')
-                lines.push_back(QString(qLine.replace("\r", QByteArray()))
-                                        .toStdString());
+            // skip adb server startup messages.
+            if (qLine[0] == '*') {
+                if (qLine.contains("daemon not running.")) {
+                    continue;
+                }
+                if (qLine.contains("daemon started successfully.")) {
+                    continue;
+                }
+            }
+            // skip ChainsDD su non-fatal exception ant it's stacktrace
+            if (suException) {
+                if (qLine.contains("at ") ||
+                    qLine.contains("Can't connect to activity manager")) {
+                    continue;
+                }
+                suException = false;
+            } else {
+                if (qLine.contains("Error type 2")) {
+                    suException = true;
+                    continue;
+                }
+            }
+
+            lines.push_back(
+                    QString(qLine.replace("\r", QByteArray())).toStdString());
         }
         if (code) {
             if (lines[0].find("error:") == 0) {
