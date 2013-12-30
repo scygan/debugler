@@ -78,8 +78,8 @@ class DGLInstallerFilter : public DGLAdbOutputFilter {
     virtual bool filter(const std::vector<std::string>& input,
                         std::vector<std::string>& output) override {
         output = input;
-        if (!input.size() ||
-            input[input.size() - 1].find("Success") == std::string::npos) {
+        if (input.size() < 2 ||
+            input[input.size() - 2].find("Success") == std::string::npos) {
             return false;
         }
         return true;
