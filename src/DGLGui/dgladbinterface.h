@@ -29,20 +29,22 @@ class DGLAdbOutputFilter;
 class DGLAdbCookie;
 
 class DGLAdbHandler {
-public:
+   public:
     virtual ~DGLAdbHandler();
     virtual void done(const std::vector<std::string>& data) = 0;
     virtual void failed(const std::string& reason) = 0;
     void refCookie(DGLAdbCookie*);
     void unrefCookie(DGLAdbCookie*);
-private:
+
+   private:
     std::set<DGLAdbCookie*> m_RefCookies;
 };
 
 class DGLAdbCookie : public QObject {
     Q_OBJECT
    public:
-    DGLAdbCookie(DGLAdbHandler* handler, std::shared_ptr<DGLAdbOutputFilter> filter);
+    DGLAdbCookie(DGLAdbHandler* handler,
+                 std::shared_ptr<DGLAdbOutputFilter> filter);
     virtual ~DGLAdbCookie();
     virtual void process() = 0;
 
@@ -56,7 +58,6 @@ class DGLAdbCookie : public QObject {
 
     DGLAdbHandler* m_Handler;
 };
-
 
 class DGLAdbCookieImpl : public DGLAdbCookie {
     Q_OBJECT
@@ -80,27 +81,28 @@ slots:
 };
 
 class DGLAdbOutputFilter {
-public:
+   public:
     virtual bool filter(const std::vector<std::string>& input,
-        std::vector<std::string>& output) = 0;
+                        std::vector<std::string>& output) = 0;
     virtual ~DGLAdbOutputFilter() {}
 };
 
 class DGLAdbCookieFactoryBase {
-public:
-    virtual DGLAdbCookie* CreateCookie(const std::vector<std::string>& params,
-        DGLAdbHandler* handler,
-        std::shared_ptr<DGLAdbOutputFilter> filter) = 0;
+   public:
+    virtual DGLAdbCookie* CreateCookie(
+            const std::vector<std::string>& params, DGLAdbHandler* handler,
+            std::shared_ptr<DGLAdbOutputFilter> filter) = 0;
 };
 
-class DGLAdbCookieFactory: public DGLAdbCookieFactoryBase {
-public:
+class DGLAdbCookieFactory : public DGLAdbCookieFactoryBase {
+   public:
     DGLAdbCookieFactory(const std::string adbPath);
     const std::string& getAdbPath();
-private:
-    virtual DGLAdbCookie* CreateCookie(const std::vector<std::string>& params,
-        DGLAdbHandler* handler,
-        std::shared_ptr<DGLAdbOutputFilter> filter) override;
+
+   private:
+    virtual DGLAdbCookie* CreateCookie(
+            const std::vector<std::string>& params, DGLAdbHandler* handler,
+            std::shared_ptr<DGLAdbOutputFilter> filter) override;
 
     std::string m_adbPath;
 };
@@ -131,6 +133,5 @@ class DGLAdbInterface {
     std::shared_ptr<DGLAdbCookieFactoryBase> m_factory;
     static std::shared_ptr<DGLAdbInterface> s_self;
 };
-
 
 #endif

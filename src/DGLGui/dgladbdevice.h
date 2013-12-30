@@ -33,7 +33,6 @@ class DGLAdbDeviceProcess {
     std::string m_PortName;
 };
 
-
 class DGLADBDevice : public QObject, DGLAdbHandler {
     Q_OBJECT
    public:
@@ -42,13 +41,12 @@ class DGLADBDevice : public QObject, DGLAdbHandler {
     const std::string& getSerial() const;
 
     void queryStatus();
-    
+
     void portForward(std::string from, unsigned short to);
 
     void installWrapper(std::string path);
     void updateWrapper(std::string path);
     void uninstallWrapper(std::string path);
-
 
     enum class InstallStatus {
         UNKNOWN,
@@ -67,7 +65,6 @@ class DGLADBDevice : public QObject, DGLAdbHandler {
     InstallStatus getInstallStatus();
     ABI getABI();
 
-
 signals:
     void gotProcesses(DGLADBDevice*,
                       const std::vector<DGLAdbDeviceProcess>& data);
@@ -78,7 +75,6 @@ signals:
     void log(DGLADBDevice*, const std::string& log);
 
    private:
-
     virtual void done(const std::vector<std::string>& data) override;
     virtual void failed(const std::string& reason) override;
 
@@ -87,21 +83,19 @@ signals:
     void doneQueryInstallStatus(const std::vector<std::string>& prop);
     void doneQueryABI(const std::vector<std::string>& prop);
 
-
     DGLAdbCookie* getProp(std::string prop);
     DGLAdbCookie* checkUser();
     DGLAdbCookie* remountFromAdb();
     DGLAdbCookie* remountFromShell();
 
     DGLAdbCookie* invokeAsShellUser(
-        const std::vector<std::string>& params,
-        std::shared_ptr<DGLAdbOutputFilter> filter =
-        std::shared_ptr<DGLAdbOutputFilter>());
+            const std::vector<std::string>& params,
+            std::shared_ptr<DGLAdbOutputFilter> filter =
+                    std::shared_ptr<DGLAdbOutputFilter>());
 
-    DGLAdbCookie* invokeAsRoot(
-        const std::vector<std::string>& params,
-        std::shared_ptr<DGLAdbOutputFilter> filter =
-        std::shared_ptr<DGLAdbOutputFilter>());
+    DGLAdbCookie* invokeAsRoot(const std::vector<std::string>& params,
+                               std::shared_ptr<DGLAdbOutputFilter> filter =
+                                       std::shared_ptr<DGLAdbOutputFilter>());
 
     bool checkIdle();
 
@@ -119,7 +113,6 @@ signals:
         PREP_UPDATE,
         PREP_UNINSTALL,
     } m_RequestStatus;
-
 
     enum class DetailRequestStatus {
         NONE,
@@ -139,7 +132,7 @@ signals:
 
     void setRequestStatus(RequestStatus status);
     void setRequestStatus(DetailRequestStatus detailStatus);
-   
+
     QRegExp m_SocketPathRegex;
     int m_PidInSocketRegex;
     int m_PNameInSocketRegex;

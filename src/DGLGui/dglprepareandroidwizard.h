@@ -29,7 +29,7 @@ namespace dglPrepareAndroidWizard {
 class Wizard : public QWizard {
     Q_OBJECT
    public:
-    Wizard(QWidget *parent = 0);
+    Wizard(QWidget* parent = 0);
     void accept();
 
     enum {
@@ -44,20 +44,20 @@ namespace pages {
 class Intro : public QWizardPage {
     Q_OBJECT
    public:
-    Intro(QWidget *parent = 0);
+    Intro(QWidget* parent = 0);
 
    private:
     int nextId() const;
 
-    QLabel *label;
-    QCheckBox *fakeAcceptBox;
-    QCheckBox *acceptBox;
+    QLabel* label;
+    QCheckBox* fakeAcceptBox;
+    QCheckBox* acceptBox;
 };
 
 class DeviceChoice : public QWizardPage {
     Q_OBJECT
    public:
-    DeviceChoice(QWidget *parent = 0);
+    DeviceChoice(QWidget* parent = 0);
     DGLADBDevice* device() const;
    public
 slots:
@@ -73,14 +73,15 @@ signals:
 
     virtual void hideEvent(QHideEvent* event) override;
     virtual void showEvent(QShowEvent* event) override;
-    
-    DGLAndroidSelectDevWidget * m_SelectWidget;
+
+    DGLAndroidSelectDevWidget* m_SelectWidget;
 
     Q_PROPERTY(DGLADBDevice* deviceProp READ device)
 
     QLabel* m_DeviceStatusLabel;
     QLabel* m_DeviceABILabel;
-    QRadioButton* m_RadioButtonClean, * m_RadioButtonUpdate, * m_RadioButtonInstall;
+    QRadioButton* m_RadioButtonClean, *m_RadioButtonUpdate,
+            *m_RadioButtonInstall;
     QTimer m_ReloadTimer;
 };
 Q_DECLARE_METATYPE(DGLADBDevice*);
@@ -88,12 +89,14 @@ Q_DECLARE_METATYPE(DGLADBDevice*);
 class Run : public QWizardPage {
     Q_OBJECT
    public:
-    Run(QWidget *parent = 0);
-public slots:
+    Run(QWidget* parent = 0);
+   public
+slots:
     void failed(DGLADBDevice*, const std::string& reason);
     void log(DGLADBDevice*, const std::string& log);
     void installerDone(DGLADBDevice*);
-private:
+
+   private:
     virtual void initializePage() override;
     virtual bool isComplete() const override;
 
@@ -105,7 +108,7 @@ private:
 class Conclusion : public QWizardPage {
     Q_OBJECT
    public:
-    Conclusion(QWidget *parent = 0);
+    Conclusion(QWidget* parent = 0);
 };
 }
 }

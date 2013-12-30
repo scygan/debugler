@@ -47,26 +47,25 @@ class DGLEmptyOutputFilter : public DGLAdbOutputFilter {
 
 class DGLDeviceOutputFilter : public DGLAdbOutputFilter {
     virtual bool filter(const std::vector<std::string>& input,
-        std::vector<std::string>& output) override {
-            if (!input.size() || input[0] != "List of devices attached ") {
-                return false;
-            }
+                        std::vector<std::string>& output) override {
+        if (!input.size() || input[0] != "List of devices attached ") {
+            return false;
+        }
 
-            for (size_t i = 1; i < input.size(); i++) {
-                if (!input[i].size()) {
-                    continue;
-                }
-                size_t pos = input[i].find('\t');
-                if (pos != std::string::npos && pos > 0) {
-                    output.push_back(input[i].substr(0, pos));
-                } else {
-                    output.push_back(input[i]);
-                }
+        for (size_t i = 1; i < input.size(); i++) {
+            if (!input[i].size()) {
+                continue;
             }
-            return true;
+            size_t pos = input[i].find('\t');
+            if (pos != std::string::npos && pos > 0) {
+                output.push_back(input[i].substr(0, pos));
+            } else {
+                output.push_back(input[i]);
+            }
+        }
+        return true;
     }
 };
-
 }
 
 DGLAdbHandler::~DGLAdbHandler() {
@@ -84,15 +83,13 @@ void DGLAdbHandler::unrefCookie(DGLAdbCookie* cookie) {
     m_RefCookies.erase(cookie);
 }
 
-DGLAdbCookie::DGLAdbCookie(DGLAdbHandler* handler, std::shared_ptr<DGLAdbOutputFilter> filter)
+DGLAdbCookie::DGLAdbCookie(DGLAdbHandler* handler,
+                           std::shared_ptr<DGLAdbOutputFilter> filter)
         : m_OutputFilter(filter), m_Handler(handler) {
     m_Handler->refCookie(this);
 }
 
-
-DGLAdbCookie::~DGLAdbCookie() {
-    m_Handler->unrefCookie(this);
-}
+DGLAdbCookie::~DGLAdbCookie() { m_Handler->unrefCookie(this); }
 
 void DGLAdbCookie::filterOutput(const std::vector<std::string>& lines) {
     if (m_OutputFilter.get()) {
@@ -116,9 +113,7 @@ void DGLAdbCookie::onDone(std::vector<std::string> data) {
     m_Handler->done(data);
 }
 
-void DGLAdbCookie::onFailed(std::string reason) {
-    m_Handler->failed(reason);
- }
+void DGLAdbCookie::onFailed(std::string reason) { m_Handler->failed(reason); }
 
 DGLAdbCookieImpl::DGLAdbCookieImpl(const std::string& adbPath,
                                    const std::vector<std::string>& params,
@@ -156,7 +151,7 @@ void DGLAdbCookieImpl::handleProcessError(QProcess::ProcessError) {
 void DGLAdbCookieImpl::handleProcessFinished(int code,
                                              QProcess::ExitStatus status) {
     if (status == QProcess::NormalExit) {
-        
+
         QByteArray qData = m_process->getProcess()->readAllStandardError();
         qData.append(m_process->getProcess()->readAllStandardOutput());
         QList<QByteArray> qLines = qData.split('\n');
@@ -164,7 +159,7 @@ void DGLAdbCookieImpl::handleProcessFinished(int code,
         foreach(QByteArray qLine, qLines) {
             if (qLine[0] != '*')
                 lines.push_back(QString(qLine.replace("\r", QByteArray()))
-                .toStdString());
+                                        .toStdString());
         }
         if (code) {
             if (lines[0].find("error:") == 0) {
@@ -172,7 +167,8 @@ void DGLAdbCookieImpl::handleProcessFinished(int code,
             } else {
                 std::ostringstream msg;
                 msg << "Adb process exit code :" << code << ":" << std::endl;
-                msg << QString(m_process->getProcess()->readAll()).toStdString();
+                msg << QString(m_process->getProcess()->readAll())
+                                .toStdString();
                 onFailed(msg.str());
             }
         } else {
@@ -192,8 +188,7 @@ DGLAdbCookieFactory::DGLAdbCookieFactory(const std::string adbPath)
 const std::string& DGLAdbCookieFactory::getAdbPath() { return m_adbPath; }
 
 DGLAdbCookie* DGLAdbCookieFactory::CreateCookie(
-        const std::vector<std::string>& params,
-        DGLAdbHandler* handler,
+        const std::vector<std::string>& params, DGLAdbHandler* handler,
         std::shared_ptr<DGLAdbOutputFilter> filter) {
 
     return new DGLAdbCookieImpl(m_adbPath, params, handler, filter);
@@ -228,16 +223,19 @@ DGLAdbCookie* DGLAdbInterface::killServer(DGLAdbHandler* handler) {
     return invokeAdb(params, handler, std::make_shared<DGLEmptyOutputFilter>());
 }
 
-DGLAdbCookie* DGLAdbInterface::connect(const std::string& address, DGLAdbHandler* handler) {
+DGLAdbCookie* DGLAdbInterface::connect(const std::string& address,
+                                       DGLAdbHandler* handler) {
     std::vector<std::string> params;
     params.push_back("connect");
     params.push_back(address);
-    return invokeAdb(params, handler, std::make_shared<DGLConnectOutputFilter>());
+    return invokeAdb(params, handler,
+                     std::make_shared<DGLConnectOutputFilter>());
 }
 
 DGLAdbCookie* DGLAdbInterface::getDevices(DGLAdbHandler* handler) {
     std::vector<std::string> params(1, "devices");
-    return invokeAdb(params, handler, std::make_shared<DGLDeviceOutputFilter>());
+    return invokeAdb(params, handler,
+                     std::make_shared<DGLDeviceOutputFilter>());
 }
 
 DGLAdbCookie* DGLAdbInterface::invokeOnDevice(
@@ -254,8 +252,7 @@ DGLAdbCookie* DGLAdbInterface::invokeOnDevice(
 }
 
 DGLAdbCookie* DGLAdbInterface::invokeAdb(
-        const std::vector<std::string>& params,
-        DGLAdbHandler* handler,
+        const std::vector<std::string>& params, DGLAdbHandler* handler,
         std::shared_ptr<DGLAdbOutputFilter> filter) {
     DGLAdbCookie* ret = m_factory->CreateCookie(params, handler, filter);
     return ret;

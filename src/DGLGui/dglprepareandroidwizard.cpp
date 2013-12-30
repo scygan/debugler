@@ -59,8 +59,7 @@ int Intro::nextId(void) const {
     return Wizard::Page_DeviceChoice;
 }
 
-DeviceChoice::DeviceChoice(QWidget *parent)
-        : QWizardPage(parent) {
+DeviceChoice::DeviceChoice(QWidget *parent) : QWizardPage(parent) {
     QVBoxLayout *layout = new QVBoxLayout;
 
     setCommitPage(true);
@@ -83,10 +82,11 @@ DeviceChoice::DeviceChoice(QWidget *parent)
     m_DeviceABILabel = new QLabel();
     layout->addWidget(m_DeviceABILabel);
 
-    m_RadioButtonClean = new QRadioButton("Uninstall "DGL_PRODUCT" from device.");
-    m_RadioButtonUpdate = new QRadioButton("Update "DGL_PRODUCT" on device.");
-    m_RadioButtonInstall = new QRadioButton("Install "DGL_PRODUCT" on device.");
-
+    m_RadioButtonClean =
+            new QRadioButton("Uninstall " DGL_PRODUCT " from device.");
+    m_RadioButtonUpdate = new QRadioButton("Update " DGL_PRODUCT " on device.");
+    m_RadioButtonInstall =
+            new QRadioButton("Install " DGL_PRODUCT " on device.");
 
     QButtonGroup *bg = new QButtonGroup();
 
@@ -106,23 +106,25 @@ DeviceChoice::DeviceChoice(QWidget *parent)
 
     registerField("device*", this, "deviceProp", SIGNAL(completeChanged()));
 
-    setDeviceStatus(DGLADBDevice::InstallStatus::UNKNOWN, DGLADBDevice::ABI::UNKNOWN);
+    setDeviceStatus(DGLADBDevice::InstallStatus::UNKNOWN,
+                    DGLADBDevice::ABI::UNKNOWN);
 
     setLayout(layout);
 
     emit completeChanged();
-
 }
 
-DGLADBDevice* DeviceChoice::device() const {
+DGLADBDevice *DeviceChoice::device() const {
     return m_SelectWidget->getCurrentDevice();
 }
 
-void DeviceChoice::setDeviceStatus(DGLADBDevice::InstallStatus status, DGLADBDevice::ABI abi) {
-    
+void DeviceChoice::setDeviceStatus(DGLADBDevice::InstallStatus status,
+                                   DGLADBDevice::ABI abi) {
+
     m_ReloadTimer.stop();
 
-    if (status == DGLADBDevice::InstallStatus::UNKNOWN || status == DGLADBDevice::InstallStatus::UNAUTHORIZED) {
+    if (status == DGLADBDevice::InstallStatus::UNKNOWN ||
+        status == DGLADBDevice::InstallStatus::UNAUTHORIZED) {
         m_RadioButtonClean->setChecked(false);
         m_RadioButtonUpdate->setChecked(false);
         m_RadioButtonInstall->setChecked(false);
@@ -130,7 +132,9 @@ void DeviceChoice::setDeviceStatus(DGLADBDevice::InstallStatus status, DGLADBDev
         m_RadioButtonUpdate->setEnabled(false);
         m_RadioButtonInstall->setEnabled(false);
         if (status == DGLADBDevice::InstallStatus::UNAUTHORIZED) {
-            m_DeviceStatusLabel->setText("error: device unauthorized. Please check the confirmation dialog on your device.");
+            m_DeviceStatusLabel->setText(
+                    "error: device unauthorized. Please check the confirmation "
+                    "dialog on your device.");
         } else {
             m_DeviceStatusLabel->setText("Device status: unknown");
         }
@@ -139,37 +143,34 @@ void DeviceChoice::setDeviceStatus(DGLADBDevice::InstallStatus status, DGLADBDev
         m_RadioButtonClean->setEnabled(true);
         m_RadioButtonUpdate->setEnabled(true);
         m_RadioButtonInstall->setEnabled(false);
-        m_DeviceStatusLabel->setText("Device status: "DGL_PRODUCT" is installed");
+        m_DeviceStatusLabel->setText("Device status: " DGL_PRODUCT
+                                     " is installed");
     } else if (status == DGLADBDevice::InstallStatus::CLEAN) {
         m_RadioButtonClean->setChecked(false);
         m_RadioButtonUpdate->setChecked(false);
         m_RadioButtonClean->setEnabled(false);
         m_RadioButtonUpdate->setEnabled(false);
         m_RadioButtonInstall->setEnabled(true);
-        m_DeviceStatusLabel->setText(
-            "Device status: "DGL_PRODUCT" is not installed");
+        m_DeviceStatusLabel->setText("Device status: " DGL_PRODUCT
+                                     " is not installed");
     }
     if (abi == DGLADBDevice::ABI::UNKNOWN) {
-        m_DeviceABILabel->setText(
-            "Device abi: unrecognized");
+        m_DeviceABILabel->setText("Device abi: unrecognized");
     } else if (abi == DGLADBDevice::ABI::X86) {
-        m_DeviceABILabel->setText(
-            "Device abi: x86 (supported)");
+        m_DeviceABILabel->setText("Device abi: x86 (supported)");
     } else if (abi == DGLADBDevice::ABI::ARMEABI) {
-        m_DeviceABILabel->setText(
-            "Device abi: armeabi (supported)");
+        m_DeviceABILabel->setText("Device abi: armeabi (supported)");
     } else if (abi == DGLADBDevice::ABI::MIPS) {
-        m_DeviceABILabel->setText(
-            "Device abi: mips (supported)");
+        m_DeviceABILabel->setText("Device abi: mips (supported)");
     }
 }
 
-void DeviceChoice::hideEvent(QHideEvent* event) {
+void DeviceChoice::hideEvent(QHideEvent *event) {
     m_ReloadTimer.stop();
     QWidget::hideEvent(event);
 }
 
-void DeviceChoice::showEvent(QShowEvent* event) {
+void DeviceChoice::showEvent(QShowEvent *event) {
     m_ReloadTimer.start();
     QWidget::showEvent(event);
 }
@@ -179,7 +180,7 @@ void DeviceChoice::adbFailed(std::string reason) {
                           QString::fromStdString(reason));
 
     setDeviceStatus(DGLADBDevice::InstallStatus::UNKNOWN,
-        DGLADBDevice::ABI::UNKNOWN);
+                    DGLADBDevice::ABI::UNKNOWN);
 }
 
 void DeviceChoice::selectDevice(DGLADBDevice *device) {
@@ -187,17 +188,15 @@ void DeviceChoice::selectDevice(DGLADBDevice *device) {
 
         if (device == m_SelectWidget->getCurrentDevice()) {
             setDeviceStatus(DGLADBDevice::InstallStatus::UNKNOWN,
-                DGLADBDevice::ABI::UNKNOWN);
-            CONNASSERT(device,
-                       SIGNAL(queryStatusSuccess(DGLADBDevice *)), this,
+                            DGLADBDevice::ABI::UNKNOWN);
+            CONNASSERT(device, SIGNAL(queryStatusSuccess(DGLADBDevice *)), this,
                        SLOT(queryDeviceStatusSuccess(DGLADBDevice *)));
 
             reloadStatus();
-            
         }
     } else {
-        setDeviceStatus(DGLADBDevice::InstallStatus::UNKNOWN, 
-            DGLADBDevice::ABI::UNKNOWN);
+        setDeviceStatus(DGLADBDevice::InstallStatus::UNKNOWN,
+                        DGLADBDevice::ABI::UNKNOWN);
     }
 
     emit completeChanged();
@@ -207,20 +206,23 @@ void DeviceChoice::reloadStatus() {
     if (m_SelectWidget->getCurrentDevice()) {
         m_SelectWidget->getCurrentDevice()->queryStatus();
     } else {
-        setDeviceStatus(DGLADBDevice::InstallStatus::UNKNOWN, 
-            DGLADBDevice::ABI::UNKNOWN);
+        setDeviceStatus(DGLADBDevice::InstallStatus::UNKNOWN,
+                        DGLADBDevice::ABI::UNKNOWN);
     }
 }
 
 void DeviceChoice::queryDeviceStatusSuccess(DGLADBDevice *device) {
     if (device == m_SelectWidget->getCurrentDevice()) {
-        setDeviceStatus(m_SelectWidget->getCurrentDevice()->getInstallStatus(), m_SelectWidget->getCurrentDevice()->getABI());
+        setDeviceStatus(m_SelectWidget->getCurrentDevice()->getInstallStatus(),
+                        m_SelectWidget->getCurrentDevice()->getABI());
     }
     emit completeChanged();
 }
 
 bool DeviceChoice::isComplete() const {
-    if (m_SelectWidget->getCurrentDevice() && m_SelectWidget->getCurrentDevice()->getABI() != DGLADBDevice::ABI::UNKNOWN) {
+    if (m_SelectWidget->getCurrentDevice() &&
+        m_SelectWidget->getCurrentDevice()->getABI() !=
+                DGLADBDevice::ABI::UNKNOWN) {
         if (m_SelectWidget->getCurrentDevice()->getInstallStatus() ==
             DGLADBDevice::InstallStatus::INSTALLED) {
             if (m_RadioButtonClean->isChecked() ||
@@ -235,10 +237,11 @@ bool DeviceChoice::isComplete() const {
             }
         }
     }
-   return false;
+    return false;
 }
 
-Run::Run(QWidget *parent) : QWizardPage(parent), m_Device(nullptr), m_Complete(false) {
+Run::Run(QWidget *parent)
+        : QWizardPage(parent), m_Device(nullptr), m_Complete(false) {
     QVBoxLayout *layout = new QVBoxLayout;
     m_LogWidget = new QListWidget;
     layout->addWidget(m_LogWidget);
@@ -247,35 +250,41 @@ Run::Run(QWidget *parent) : QWizardPage(parent), m_Device(nullptr), m_Complete(f
 
 void Run::initializePage() {
     m_LogWidget->clear();
-    m_Device = field("device").value<DGLADBDevice*>();
+    m_Device = field("device").value<DGLADBDevice *>();
     if (!m_Device) {
-        QMessageBox::critical(this, tr("Installation error"), tr("Device was not selected"));
+        QMessageBox::critical(this, tr("Installation error"),
+                              tr("Device was not selected"));
         setFinalPage(true);
         m_Complete = true;
     } else {
 
-        CONNASSERT(m_Device, SIGNAL(installerDone(DGLADBDevice*)), this, SLOT(installerDone(DGLADBDevice*)));
-        CONNASSERT(m_Device, SIGNAL(failed(DGLADBDevice*, std::string)), this, SLOT(failed(DGLADBDevice*, std::string)));
-        CONNASSERT(m_Device, SIGNAL(log(DGLADBDevice*, std::string)), this, SLOT(log(DGLADBDevice*, std::string)));
+        CONNASSERT(m_Device, SIGNAL(installerDone(DGLADBDevice *)), this,
+                   SLOT(installerDone(DGLADBDevice *)));
+        CONNASSERT(m_Device, SIGNAL(failed(DGLADBDevice *, std::string)), this,
+                   SLOT(failed(DGLADBDevice *, std::string)));
+        CONNASSERT(m_Device, SIGNAL(log(DGLADBDevice *, std::string)), this,
+                   SLOT(log(DGLADBDevice *, std::string)));
 
         m_Complete = false;
         setFinalPage(false);
 
         QSettings settings(DGL_MANUFACTURER, DGL_PRODUCT);
-        std::string path = settings.value("InstallDir").toString().toStdString();
+        std::string path =
+                settings.value("InstallDir").toString().toStdString();
 
         DGLADBDevice::ABI abi = m_Device->getABI();
 
         if (abi == DGLADBDevice::ABI::X86) {
-            path+= "/android-x86/";
+            path += "/android-x86/";
         } else if (abi == DGLADBDevice::ABI::ARMEABI) {
-            path+= "/android-armeabi/";
+            path += "/android-armeabi/";
         } else if (abi == DGLADBDevice::ABI::MIPS) {
-            path+= "/android-mips/";
+            path += "/android-mips/";
         }
 
-        if (!path.size()) { 
-            QMessageBox::critical(this, tr("Installation error"), tr("Cannot get installation path"));
+        if (!path.size()) {
+            QMessageBox::critical(this, tr("Installation error"),
+                                  tr("Cannot get installation path"));
             setFinalPage(true);
             m_Complete = true;
         } else {
@@ -295,27 +304,26 @@ void Run::initializePage() {
     emit completeChanged();
 }
 
-void Run::failed(DGLADBDevice*, const std::string& reason) {
-    QMessageBox::critical(this, tr("Installation error"), QString::fromStdString(reason));
+void Run::failed(DGLADBDevice *, const std::string &reason) {
+    QMessageBox::critical(this, tr("Installation error"),
+                          QString::fromStdString(reason));
     setFinalPage(true);
     m_Complete = true;
     emit completeChanged();
 }
 
-void Run::installerDone(DGLADBDevice*) {
+void Run::installerDone(DGLADBDevice *) {
     m_Complete = true;
     emit completeChanged();
     wizard()->next();
 }
 
-void Run::log(DGLADBDevice*, const std::string& log) {
+void Run::log(DGLADBDevice *, const std::string &log) {
     m_LogWidget->insertItem(m_LogWidget->count(), QString::fromStdString(log));
     m_LogWidget->scrollToBottom();
 }
 
-bool Run::isComplete() const {
-    return m_Complete;
-}
+bool Run::isComplete() const { return m_Complete; }
 
 Conclusion::Conclusion(QWidget *parent) : QWizardPage(parent) {
     QVBoxLayout *layout = new QVBoxLayout;
@@ -338,8 +346,5 @@ Wizard::Wizard(QWidget *parent) : QWizard(parent) {
     setWizardStyle(QWizard::ModernStyle);
 }
 
-void Wizard::accept() {
-    
-    QDialog::accept();
-}
+void Wizard::accept() { QDialog::accept(); }
 }

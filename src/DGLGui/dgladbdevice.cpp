@@ -64,27 +64,27 @@ class DGLUnixSocketsFilter : public DGLAdbOutputFilter {
 
 class DGLTransferFilter : public DGLAdbOutputFilter {
     virtual bool filter(const std::vector<std::string>& input,
-        std::vector<std::string>& output) override {
-            if (input.size() > 2 || input.size() < 1 ||
-                input[0].find("bytes in") == std::string::npos) {
-                    return false;
-            }
-            output.push_back(input[0]);
-            return true;
+                        std::vector<std::string>& output) override {
+        if (input.size() > 2 || input.size() < 1 ||
+            input[0].find("bytes in") == std::string::npos) {
+            return false;
+        }
+        output.push_back(input[0]);
+        return true;
     }
 };
 
 class DGLInstallerFilter : public DGLAdbOutputFilter {
     virtual bool filter(const std::vector<std::string>& input,
-        std::vector<std::string>& output) override {
-            output = input; 
-            if (!input.size() || input[input.size() - 1].find("Success") == std::string::npos) {
-                return false;
-            }
-            return true;
+                        std::vector<std::string>& output) override {
+        output = input;
+        if (!input.size() ||
+            input[input.size() - 1].find("Success") == std::string::npos) {
+            return false;
+        }
+        return true;
     }
 };
-
 }
 
 DGLAdbDeviceProcess::DGLAdbDeviceProcess(const std::string& pid,
@@ -110,12 +110,16 @@ const std::string& DGLAdbDeviceProcess::getPortName() const {
 }
 
 DGLADBDevice::DGLADBDevice(const std::string& serial)
-        : m_Serial(serial), m_Status(InstallStatus::UNKNOWN), m_RequestStatus(RequestStatus::IDLE), m_DetailRequestStatus(DetailRequestStatus::NONE), m_RootSuRequired(false) {}
+        : m_Serial(serial),
+          m_Status(InstallStatus::UNKNOWN),
+          m_RequestStatus(RequestStatus::IDLE),
+          m_DetailRequestStatus(DetailRequestStatus::NONE),
+          m_RootSuRequired(false) {}
 
 void DGLADBDevice::reloadProcesses() {
     if (m_RequestStatus == RequestStatus::IDLE) {
         setRequestStatus(RequestStatus::RELOAD_PROCESSES_GET_PORTSTR);
-        getProp("debug."DGL_PRODUCT_LOWER".socket")->process();    
+        getProp("debug." DGL_PRODUCT_LOWER ".socket")->process();
     }
 }
 
@@ -140,11 +144,10 @@ DGLAdbCookie* DGLADBDevice::getProp(std::string prop) {
     params.push_back("shell");
     params.push_back("getprop");
     params.push_back(prop);
-    DGLAdbCookie* cookie = invokeAsShellUser(params,
-        std::make_shared<DGLGetPropOutputFilter>());
+    DGLAdbCookie* cookie = invokeAsShellUser(
+            params, std::make_shared<DGLGetPropOutputFilter>());
     return cookie;
 }
-
 
 void DGLADBDevice::doneQueryInstallStatus(
         const std::vector<std::string>& prop) {
@@ -162,27 +165,25 @@ void DGLADBDevice::doneQueryInstallStatus(
     getProp("ro.product.cpu.abi")->process();
 }
 
-void DGLADBDevice::doneQueryABI(
-    const std::vector<std::string>& prop) {
+void DGLADBDevice::doneQueryABI(const std::vector<std::string>& prop) {
 
-        setRequestStatus(RequestStatus::IDLE);
+    setRequestStatus(RequestStatus::IDLE);
 
-        if (prop.size()) {
-            if (prop[0].find("armeabi") != std::string::npos) {
-                m_ABI = ABI::ARMEABI;
-            }
-            if (prop[0].find("x86") != std::string::npos) {
-                m_ABI = ABI::X86;
-            }
-            if (prop[0].find("mips") != std::string::npos) {
-                m_ABI = ABI::MIPS;
-            }
-        } else {
-            m_ABI = ABI::UNKNOWN;
+    if (prop.size()) {
+        if (prop[0].find("armeabi") != std::string::npos) {
+            m_ABI = ABI::ARMEABI;
         }
-        emit queryStatusSuccess(this);
+        if (prop[0].find("x86") != std::string::npos) {
+            m_ABI = ABI::X86;
+        }
+        if (prop[0].find("mips") != std::string::npos) {
+            m_ABI = ABI::MIPS;
+        }
+    } else {
+        m_ABI = ABI::UNKNOWN;
+    }
+    emit queryStatusSuccess(this);
 }
-
 
 void DGLADBDevice::portForward(std::string from, unsigned short to) {
 
@@ -195,22 +196,21 @@ void DGLADBDevice::portForward(std::string from, unsigned short to) {
     }
     params.push_back("localfilesystem:" + from);
 
-    //DGLAdbCookie* cookie = DGLAdbInterface::get()->invokeOnDevice(
-    //        m_Serial, params, nullptr, std::make_shared<DGLEmptyOutputFilter>());
-    //CONNASSERT(cookie, SIGNAL(failed(std::string)), this,
+    // DGLAdbCookie* cookie = DGLAdbInterface::get()->invokeOnDevice(
+    //        m_Serial, params, nullptr,
+    // std::make_shared<DGLEmptyOutputFilter>());
+    // CONNASSERT(cookie, SIGNAL(failed(std::string)), this,
     //           SLOT(adbFailed(std::string)));
-    //CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this,
+    // CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this,
     //           SIGNAL(portForwardSuccess()));
-    //cookie->process();
+    // cookie->process();
 }
 
 DGLADBDevice::InstallStatus DGLADBDevice::getInstallStatus() {
     return m_Status;
 }
 
-DGLADBDevice::ABI DGLADBDevice::getABI() {
-    return m_ABI;
-}
+DGLADBDevice::ABI DGLADBDevice::getABI() { return m_ABI; }
 
 void DGLADBDevice::reloadProcessesGotPortString(
         const std::vector<std::string>& prop) {
@@ -265,7 +265,8 @@ void DGLADBDevice::reloadProcessesGotPortString(
     params.push_back("shell");
     params.push_back("cat");
     params.push_back("/proc/net/unix");
-    invokeAsShellUser(params, std::make_shared<DGLUnixSocketsFilter>())->process();
+    invokeAsShellUser(params, std::make_shared<DGLUnixSocketsFilter>())
+            ->process();
 }
 
 void DGLADBDevice::reloadProcessesGotUnixSockets(
@@ -311,14 +312,13 @@ void DGLADBDevice::uninstallWrapper(std::string path) {
 }
 
 void DGLADBDevice::updateWrapper(std::string path) {
-    m_InstallerPath = path; 
+    m_InstallerPath = path;
     if (!checkIdle()) {
         return;
     }
     setRequestStatus(RequestStatus::PREP_UPDATE);
     checkUser()->process();
 }
-
 
 DGLAdbCookie* DGLADBDevice::checkUser() {
     setRequestStatus(DetailRequestStatus::PREP_ADB_CHECKUSER);
@@ -368,69 +368,80 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
 
         case RequestStatus::PREP_INSTALL:
         case RequestStatus::PREP_UPDATE:
-        case RequestStatus::PREP_UNINSTALL:
-            {
-                switch (m_DetailRequestStatus) {
+        case RequestStatus::PREP_UNINSTALL: {
+            switch (m_DetailRequestStatus) {
                 case DetailRequestStatus::PREP_ADB_CHECKUSER:
-                        if (data[0].find("uid=0(root)") != std::string::npos) {
-                            remountFromAdb()->process();
-                        } else {
-                            setRequestStatus(DetailRequestStatus::PREP_ADB_CHECK_SU_USER);
-                            m_RootSuRequired = true;
-                            std::vector<std::string> params;
-                            params.push_back("shell");
-                            params.push_back("id");
-                            invokeAsRoot(params)->process();
-                        }
-                        break;
-                    case DetailRequestStatus::PREP_ADB_CHECK_SU_USER:
-                        if (data[0].find("uid=0(root)") != std::string::npos) {
-                            remountFromAdb()->process();
-                        } else {
-                            failed("Cannot get root permissions. Is this device rooted?");
-                        }
-                        break;
-                    case DetailRequestStatus::PREP_REMOUNT_FROM_ADB:
-                        remountFromShell()->process();
-                        break;
-                    case DetailRequestStatus::PREP_REMOUNT_FROM_SHELL:
-                        setRequestStatus(DetailRequestStatus::PREP_FRAMEWORK_STOP);
-                        {
-                            std::vector<std::string> params;
-                            params.push_back("shell");
-                            params.push_back("stop");
-                            invokeAsRoot(params, std::make_shared<DGLEmptyOutputFilter>())->process();
-                        }
-                        break;
-                    case DetailRequestStatus::PREP_FRAMEWORK_STOP:
-                        setRequestStatus(DetailRequestStatus::PREP_FRAMEWORK_UPLOAD_INSTALLER);
-                        {
-                            std::vector<std::string> params;
-                            params.push_back("push");
-                            params.push_back(m_InstallerPath + "/dglandroidinstaller");
-                            params.push_back("/data/local/tmp/");
-                            invokeAsShellUser(params, std::make_shared<DGLTransferFilter>())->process();
-                        }
-                        break;
-                    case DetailRequestStatus::PREP_FRAMEWORK_UPLOAD_INSTALLER:
-                        setRequestStatus(DetailRequestStatus::PREP_FRAMEWORK_CHMOD_INSTALLER);
-                        {
-                            std::vector<std::string> params;
-                            params.push_back("shell");
-                            params.push_back("chmod");
-                            params.push_back("777");
-                            params.push_back("/data/local/tmp/dglandroidinstaller");
-                            invokeAsRoot(params, std::make_shared<DGLEmptyOutputFilter>())->process();
-                        }
-                        break;
-                    case DetailRequestStatus::PREP_FRAMEWORK_CHMOD_INSTALLER:
-                        setRequestStatus(DetailRequestStatus::PREP_FRAMEWORK_RUN_INSTALLER);
-                        {
-                            std::vector<std::string> params;
-                            params.push_back("shell");
-                            params.push_back("/data/local/tmp/dglandroidinstaller");
+                    if (data[0].find("uid=0(root)") != std::string::npos) {
+                        remountFromAdb()->process();
+                    } else {
+                        setRequestStatus(
+                                DetailRequestStatus::PREP_ADB_CHECK_SU_USER);
+                        m_RootSuRequired = true;
+                        std::vector<std::string> params;
+                        params.push_back("shell");
+                        params.push_back("id");
+                        invokeAsRoot(params)->process();
+                    }
+                    break;
+                case DetailRequestStatus::PREP_ADB_CHECK_SU_USER:
+                    if (data[0].find("uid=0(root)") != std::string::npos) {
+                        remountFromAdb()->process();
+                    } else {
+                        failed("Cannot get root permissions. Is this device "
+                               "rooted?");
+                    }
+                    break;
+                case DetailRequestStatus::PREP_REMOUNT_FROM_ADB:
+                    remountFromShell()->process();
+                    break;
+                case DetailRequestStatus::PREP_REMOUNT_FROM_SHELL:
+                    setRequestStatus(DetailRequestStatus::PREP_FRAMEWORK_STOP);
+                    {
+                        std::vector<std::string> params;
+                        params.push_back("shell");
+                        params.push_back("stop");
+                        invokeAsRoot(params,
+                                     std::make_shared<DGLEmptyOutputFilter>())
+                                ->process();
+                    }
+                    break;
+                case DetailRequestStatus::PREP_FRAMEWORK_STOP:
+                    setRequestStatus(DetailRequestStatus::
+                                             PREP_FRAMEWORK_UPLOAD_INSTALLER);
+                    {
+                        std::vector<std::string> params;
+                        params.push_back("push");
+                        params.push_back(m_InstallerPath +
+                                         "/dglandroidinstaller");
+                        params.push_back("/data/local/tmp/");
+                        invokeAsShellUser(params,
+                                          std::make_shared<DGLTransferFilter>())
+                                ->process();
+                    }
+                    break;
+                case DetailRequestStatus::PREP_FRAMEWORK_UPLOAD_INSTALLER:
+                    setRequestStatus(DetailRequestStatus::
+                                             PREP_FRAMEWORK_CHMOD_INSTALLER);
+                    {
+                        std::vector<std::string> params;
+                        params.push_back("shell");
+                        params.push_back("chmod");
+                        params.push_back("777");
+                        params.push_back("/data/local/tmp/dglandroidinstaller");
+                        invokeAsRoot(params,
+                                     std::make_shared<DGLEmptyOutputFilter>())
+                                ->process();
+                    }
+                    break;
+                case DetailRequestStatus::PREP_FRAMEWORK_CHMOD_INSTALLER:
+                    setRequestStatus(
+                            DetailRequestStatus::PREP_FRAMEWORK_RUN_INSTALLER);
+                    {
+                        std::vector<std::string> params;
+                        params.push_back("shell");
+                        params.push_back("/data/local/tmp/dglandroidinstaller");
 
-                            switch (m_RequestStatus) {
+                        switch (m_RequestStatus) {
                             case RequestStatus::PREP_INSTALL:
                                 params.push_back("install");
                                 break;
@@ -440,26 +451,30 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
                             case RequestStatus::PREP_UNINSTALL:
                                 params.push_back("uninstall");
                                 break;
-                            }
-                            invokeAsRoot(params, std::make_shared<DGLInstallerFilter>())->process();
                         }
-                        break;
-                    case DetailRequestStatus::PREP_FRAMEWORK_RUN_INSTALLER:
-                        setRequestStatus(DetailRequestStatus::PREP_FRAMEWORK_START);
-                        {
-                            std::vector<std::string> params;
-                            params.push_back("shell");
-                            params.push_back("start");
-                            invokeAsRoot(params, std::make_shared<DGLEmptyOutputFilter>())->process();
-                        }
-                        break;
-                    case DetailRequestStatus::PREP_FRAMEWORK_START:
-                        setRequestStatus(DetailRequestStatus::NONE);
-                        setRequestStatus(RequestStatus::IDLE);
-                        emit installerDone(this);
-                        break;
-                }
+                        invokeAsRoot(params,
+                                     std::make_shared<DGLInstallerFilter>())
+                                ->process();
+                    }
+                    break;
+                case DetailRequestStatus::PREP_FRAMEWORK_RUN_INSTALLER:
+                    setRequestStatus(DetailRequestStatus::PREP_FRAMEWORK_START);
+                    {
+                        std::vector<std::string> params;
+                        params.push_back("shell");
+                        params.push_back("start");
+                        invokeAsRoot(params,
+                                     std::make_shared<DGLEmptyOutputFilter>())
+                                ->process();
+                    }
+                    break;
+                case DetailRequestStatus::PREP_FRAMEWORK_START:
+                    setRequestStatus(DetailRequestStatus::NONE);
+                    setRequestStatus(RequestStatus::IDLE);
+                    emit installerDone(this);
+                    break;
             }
+        }
     }
 }
 
@@ -469,7 +484,8 @@ void DGLADBDevice::failed(const std::string& reason) {
         case RequestStatus::QUERY_INSTALL_STATUS:
         case RequestStatus::QUERY_ABI:
             setRequestStatus(RequestStatus::IDLE);
-            if (reason.find("error: device unauthorized.") != std::string::npos) {
+            if (reason.find("error: device unauthorized.") !=
+                std::string::npos) {
                 m_Status = InstallStatus::UNAUTHORIZED;
                 emit queryStatusSuccess(this);
             } else {
@@ -479,10 +495,11 @@ void DGLADBDevice::failed(const std::string& reason) {
         case RequestStatus::PREP_INSTALL:
         case RequestStatus::PREP_UNINSTALL:
         case RequestStatus::PREP_UPDATE:
-            if (m_DetailRequestStatus == DetailRequestStatus::PREP_REMOUNT_FROM_ADB) {
-                if (reason.find("Permission denied") != std::string::npos || 
+            if (m_DetailRequestStatus ==
+                DetailRequestStatus::PREP_REMOUNT_FROM_ADB) {
+                if (reason.find("Permission denied") != std::string::npos ||
                     reason.find("Operation not permitted")) {
-                    //this error is acceptable, happens on production devices.
+                    // this error is acceptable, happens on production devices.
                     remountFromShell()->process();
                 }
             } else {
@@ -497,8 +514,8 @@ void DGLADBDevice::failed(const std::string& reason) {
 }
 
 DGLAdbCookie* DGLADBDevice::invokeAsShellUser(
-    const std::vector<std::string>& params,
-    std::shared_ptr<DGLAdbOutputFilter> filter) {
+        const std::vector<std::string>& params,
+        std::shared_ptr<DGLAdbOutputFilter> filter) {
 
     std::string msg = "> adb ";
     for (size_t i = 0; i < params.size(); i++) {
@@ -509,19 +526,20 @@ DGLAdbCookie* DGLADBDevice::invokeAsShellUser(
     }
     emit log(this, msg);
 
-    DGLAdbCookie* cookie  = DGLAdbInterface::get()->invokeOnDevice(m_Serial, params, this, filter);
+    DGLAdbCookie* cookie = DGLAdbInterface::get()->invokeOnDevice(
+            m_Serial, params, this, filter);
     return cookie;
 }
 
 DGLAdbCookie* DGLADBDevice::invokeAsRoot(
-    const std::vector<std::string>& params,
-    std::shared_ptr<DGLAdbOutputFilter> filter) {
+        const std::vector<std::string>& params,
+        std::shared_ptr<DGLAdbOutputFilter> filter) {
 
     if (!m_RootSuRequired || params[0] != "shell") {
         return invokeAsShellUser(params, filter);
     } else {
         std::vector<std::string> rootParams(2 + params.size());
-        rootParams[0] = params[0]; //shell
+        rootParams[0] = params[0];    // shell
         rootParams[1] = "su";
         rootParams[2] = "0";
         std::copy(params.begin() + 1, params.end(), rootParams.begin() + 3);
@@ -533,7 +551,8 @@ bool DGLADBDevice::checkIdle() {
     if (m_RequestStatus == RequestStatus::IDLE) {
         return true;
     }
-    emit failed("Device busy - device is currently processing some adb commands");
+    emit failed(
+            "Device busy - device is currently processing some adb commands");
     return false;
 }
 
@@ -587,14 +606,16 @@ const char* DGLADBDevice::toString(DetailRequestStatus detailStatus) {
 
 void DGLADBDevice::setRequestStatus(RequestStatus newStatus) {
     if (newStatus != m_RequestStatus) {
-        emit log(this, std::string("Status: [") + toString(m_RequestStatus) + "] => [" + toString(newStatus) + "]");
+        emit log(this, std::string("Status: [") + toString(m_RequestStatus) +
+                               "] => [" + toString(newStatus) + "]");
         m_RequestStatus = newStatus;
     }
-    
 }
 void DGLADBDevice::setRequestStatus(DetailRequestStatus newDetailStatus) {
     if (newDetailStatus != m_DetailRequestStatus) {
-        emit log(this, std::string("Detail Status: (") + toString(m_DetailRequestStatus) + ") => (" + toString(newDetailStatus) + ")");
+        emit log(this, std::string("Detail Status: (") +
+                               toString(m_DetailRequestStatus) + ") => (" +
+                               toString(newDetailStatus) + ")");
         m_DetailRequestStatus = newDetailStatus;
     }
 }
