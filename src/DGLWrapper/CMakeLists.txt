@@ -5,7 +5,7 @@ set(dglwrapper_SOURCES
 	dl-intercept.cpp display.cpp
 	tls.cpp gl-utils.cpp
 	gl-auxcontext.cpp gl-statesetters.cpp
-#dllmain.cpp should be at the end, until all static ctors are fixed:
+#dllmain.cpp should be at the end, requires all static ctors to run before dllmain.
     dllmain.cpp
     )
 	
@@ -16,8 +16,9 @@ endif()
 add_definitions(-include ${CMAKE_CURRENT_SOURCE_DIR}/DGLWrapper.h)
 
 add_library(dglwrapper SHARED
-    ${dglwrapper_SOURCES}
-	${wa-soctors_SOURCES}
+#wa-soctors goes at the beginning. This ensures static ctors are called before dtors.
+    ${wa-soctors_SOURCES}
+	${dglwrapper_SOURCES}
 )
 
 if (ANDROID)

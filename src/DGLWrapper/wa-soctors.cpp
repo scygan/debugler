@@ -22,6 +22,16 @@
 #include <elf.h>
 #include <dlfcn.h>
 
+void __attribute__((destructor)) InitializersRunOnDestructionEnforcer(void) {
+    // this is the first static destructor called in application (depends on
+    // CMakeLists.txt).
+
+    // this ensures all contructors are called before destructors, if nobody
+    // cared to call them earlier.
+
+    DGLWASoCtors soCtorsWa;
+}
+
 class StaticInitializerTest {
    public:
     StaticInitializerTest() {
