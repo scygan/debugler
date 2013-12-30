@@ -241,7 +241,10 @@ bool DeviceChoice::isComplete() const {
 }
 
 Run::Run(QWidget *parent)
-        : QWizardPage(parent), m_Device(nullptr), m_Complete(false) {
+        : QWizardPage(parent),
+          m_Device(nullptr),
+          m_Complete(false),
+          m_Final(false) {
     QVBoxLayout *layout = new QVBoxLayout;
     m_LogWidget = new QListWidget;
     layout->addWidget(m_LogWidget);
@@ -256,6 +259,7 @@ void Run::initializePage() {
                               tr("Device was not selected"));
         setFinalPage(true);
         m_Complete = true;
+        m_Final = true;
     } else {
 
         CONNASSERT(m_Device, SIGNAL(installerDone(DGLADBDevice *)), this,
@@ -266,6 +270,7 @@ void Run::initializePage() {
                    SLOT(log(DGLADBDevice *, std::string)));
 
         m_Complete = false;
+        m_Final = false;
         setFinalPage(false);
 
         QSettings settings(DGL_MANUFACTURER, DGL_PRODUCT);
@@ -309,11 +314,13 @@ void Run::failed(DGLADBDevice *, const std::string &reason) {
                           QString::fromStdString(reason));
     setFinalPage(true);
     m_Complete = true;
+    m_Final = true;
     emit completeChanged();
 }
 
 void Run::installerDone(DGLADBDevice *) {
     m_Complete = true;
+    m_Final = false;
     emit completeChanged();
     wizard()->next();
 }
@@ -324,6 +331,11 @@ void Run::log(DGLADBDevice *, const std::string &log) {
 }
 
 bool Run::isComplete() const { return m_Complete; }
+
+int Run::nextId() const {
+    if (m_Final) return -1;
+    return Wizard::Page_Conclusion;
+}
 
 Conclusion::Conclusion(QWidget *parent) : QWizardPage(parent) {
     QVBoxLayout *layout = new QVBoxLayout;

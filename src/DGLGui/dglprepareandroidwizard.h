@@ -47,7 +47,7 @@ class Intro : public QWizardPage {
     Intro(QWidget* parent = 0);
 
    private:
-    int nextId() const;
+    int nextId() const override;
 
     QLabel* label;
     QCheckBox* fakeAcceptBox;
@@ -99,10 +99,20 @@ slots:
    private:
     virtual void initializePage() override;
     virtual bool isComplete() const override;
+    virtual int nextId() const override;
 
     DGLADBDevice* m_Device;
     QListWidget* m_LogWidget;
+
+    /**
+     * Set to true, if we can get out of this wizard page
+     */
     bool m_Complete;
+
+    /**
+     * Set to true on error, so this is the last page we can show.
+     */
+    bool m_Final;
 };
 
 class Conclusion : public QWizardPage {
