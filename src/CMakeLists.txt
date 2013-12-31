@@ -34,6 +34,14 @@ else()
 endif()
 
 
+if (ANDROID) 
+	#WA for sloppy static dtors implementation on Android. 
+	#For some reason all c++ static dtors in libdglwrapper.so are run twice, leading to crash.
+	
+	#This helps (propably disables dtors also). 
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-use-cxa-atexit")
+endif()
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wno-unknown-pragmas -Wextra -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-include-dirs -Wnoexcept -Wsign-promo -Wstrict-null-sentinel -Woverloaded-virtual")
 
 # These seems incompatible with Qt:
