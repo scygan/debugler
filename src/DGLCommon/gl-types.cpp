@@ -23,17 +23,22 @@
 #include <boost/make_shared.hpp>
 
 namespace lists {
-#define FUNC_LIST_ELEM_SUPPORTED(name, type, library) #name,
+#define FUNC_LIST_ELEM_SUPPORTED(name, type, library) { #name, false, false }, 
 #define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library) \
     FUNC_LIST_ELEM_SUPPORTED(name, type, library)
-const char* g_EntrypointNames[] = {
+struct GLEntrypoint {
+    const char* name;
+    bool isFrameDelimiter;
+    bool isDrawCall;
+} g_Entrypoints[] = {
 #include "codegen/functionList.inl"
-        "<unknown>"};
+        { "<unknown>", false, false }
+};
 #undef FUNC_LIST_ELEM_SUPPORTED
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED
 
-#define ENUM_LIST_ELEMENT(value) \
-    { #value, value }            \
+#define ENUM_LIST_ELEMENT(value)    \
+    { #value, value } \
     ,
 struct GLEnum {
     const char* name;
@@ -79,7 +84,7 @@ boost::shared_ptr<MapCache> MapCache::s_cache;
 }
 
 const char* GetEntryPointName(Entrypoint entryp) {
-    return lists::g_EntrypointNames[entryp];
+    return lists::g_Entrypoints[entryp].name;
 }
 
 Entrypoint GetEntryPointEnum(const char* name) {
@@ -198,19 +203,30 @@ Entrypoint drawCalls[] = {glDrawElements_Call,
                           glDrawTransformFeedbackStream_Call,
                           glDrawTransformFeedbackStreamInstanced_Call,
                           glEnd_Call, };
-
-std::set<Entrypoint> drawCallSet(
-        &drawCalls[0], &drawCalls[sizeof(drawCalls) / sizeof(drawCalls[0])]);
-std::set<Entrypoint> frameDelimsSet(
-        &frameDelims[0],
-        &frameDelims[sizeof(frameDelims) / sizeof(frameDelims[0])]);
 }
 
 bool IsDrawCall(Entrypoint entryp) {
-    return call_sets::drawCallSet.find(entryp) != call_sets::drawCallSet.end();
+
+    //check if structure is initialized
+    if (!lists::g_Entrypoints[call_sets::drawCalls[0]].isDrawCall) {
+        //initialize
+        for (size_t i = 0; i < sizeof(call_sets::drawCalls)/sizeof(call_sets::drawCalls[0]); i++) {
+            lists::g_Entrypoints[call_sets::drawCalls[i]].isDrawCall = true;
+        }
+    }
+
+    return lists::g_Entrypoints[entryp].isDrawCall;
 }
 
 bool IsFrameDelimiter(Entrypoint entryp) {
-    return call_sets::frameDelimsSet.find(entryp) !=
-           call_sets::frameDelimsSet.end();
+
+    //check if structure is initialized
+    if (!lists::g_Entrypoints[call_sets::frameDelims[0]].isFrameDelimiter) {
+        //initialize
+        for (size_t i = 0; i < sizeof(call_sets::frameDelims)/sizeof(call_sets::frameDelims[0]); i++) {
+            lists::g_Entrypoints[call_sets::frameDelims[i]].isFrameDelimiter = true;
+        }
+    }
+
+    return lists::g_Entrypoints[entryp].isFrameDelimiter;
 }
