@@ -33,7 +33,10 @@ Intro::Intro(QWidget *parent) : QWizardPage(parent) {
             "<p>Only <b>development</b>,  <b>eng</b>,  <b>debug</b> or  "
             "<b>userdebug</b> AOSP builds are supported. <b>user</b> builds "
             "should be manually rooted before using this wizard.</p>"
-            ""
+            "<p>Rooted devices should use latest versions of <b>su</b> binary. "
+            "<b>Chainfire SuperSU</b> is known to be problematic. Use "
+            "<a href=\"https://play.google.com/store/apps/details?id=com.noshufou.android.su\">"
+            " ChainsDD Superuser</a> instead.</p>"
             "<p>Your device may misbehave after this, including boot problems "
             "or soft-brick. Re-flash your device in case of serious"
             " problems.</p>"
@@ -41,6 +44,8 @@ Intro::Intro(QWidget *parent) : QWizardPage(parent) {
             "WARRANTIES OR CONDITIONS OF ANY KIND.</p>"
             "<p>You have been warned!</p><br>"));
     label->setWordWrap(true);
+    label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    label->setOpenExternalLinks(true);
 
     fakeAcceptBox = new QCheckBox("I agree.");
     acceptBox = new QCheckBox("I have understood and I agree to above.");
