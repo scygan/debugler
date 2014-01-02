@@ -340,6 +340,7 @@ DGLAdbCookie* DGLADBDevice::remountFromShell() {
     params.push_back("mount");
     params.push_back("-o");
     params.push_back("remount,rw");
+    params.push_back("nodev");
     params.push_back("/system");
     return invokeAsRoot(params, std::make_shared<DGLEmptyOutputFilter>());
 }
