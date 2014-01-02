@@ -32,6 +32,7 @@
 #include "gl-utils.h"
 #include "tls.h"
 #include "gl-auxcontext.h"
+#include "display.h"
 
 #include <DGLCommon/def.h>
 #include <DGLCommon/os.h>
@@ -326,8 +327,8 @@ void GLFBObj::setTarget(GLenum target) {
 
 GLenum GLFBObj::getTarget() { return m_Target; }
 
-GLContextVersion::GLContextVersion(Type type)
-        : m_Initialized(false), m_Type(type) {}
+GLContextVersion::GLContextVersion(Type type, int majorVersion, int minorVersion)
+        : m_Initialized(false), m_Type(type), m_MajorVersion(majorVersion), m_MinorVersion(minorVersion) {}
 
 bool GLContextVersion::check(Type type, int majorVersion,
                              int minorVersion) const {
@@ -400,6 +401,27 @@ void GLContextVersion::initialize(const char* cVersion) {
 }
 
 int GLContextVersion::getMajor() const { return m_MajorVersion; }
+
+ApiLibrary GLContextVersion::getNeededApiLibrary(const DGLDisplayState* display) {
+    if (m_Type == Type::UNSUPPORTED) {
+        return LIBRARY_NONE;
+    }
+    if (display->getType() != DGLDisplayState::Type::EGL || m_Type == Type::DT) {
+        return LIBRARY_GL;
+    }
+    if (display->getType() == DGLDisplayState::Type::EGL && m_Type == Type::ES) {
+        switch (m_MajorVersion) {
+            case 3:
+                return LIBRARY_ES3;
+            case 2:
+                return LIBRARY_ES2;
+            case 1:
+                return LIBRARY_ES1;
+        }
+    }
+    assert(0);
+    return LIBRARY_NONE;
+}
 
 GLContextCreationData::GLContextCreationData()
         : m_Entrypoint(NO_ENTRYPOINT), m_pixelFormat(0) {}
@@ -3135,6 +3157,16 @@ void GLContext::firstUse() {
 
     m_Version.initialize(reinterpret_cast<const char*>(
             DIRECT_CALL_CHK(glGetString)(GL_VERSION)));
+
+    //Needed API library is already loaded during startup or in CreateContext-related action
+    // depending on requested ctx version.
+    //However, drivers may give higher versions than requested,/making more
+    //entrypoints usable. To avoid nullptr crashes on additional pointers recompute
+    //needed library according to GL strings and load more entrypoints.
+    //For example LIBRARY_ES2 is usually promoted to LIBRARY_ES3 on EGL, if ES3.0 is supported.
+    //On WGL/GLX nothing happens below.
+    g_ApiLoader.loadLibrary(m_Version.getNeededApiLibrary(getDisplay()));
+    
 
     if (hasCapability(ContextCap::HasGetStringI)) {
         DIRECT_CALL_CHK(glGetIntegerv)(GL_NUM_EXTENSIONS, &maxExtensions);

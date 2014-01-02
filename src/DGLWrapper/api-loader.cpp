@@ -164,6 +164,10 @@ void APILoader::setPointer(Entrypoint entryp, FUNC_PTR direct) {
 
 void APILoader::loadLibrary(ApiLibrary apiLibrary) {
 
+    if (apiLibrary == LIBRARY_NONE) {
+        return;
+    }
+
     std::string libraryName = getLibraryName(apiLibrary);
 
     if (m_LoadedLibraries.find(libraryName) == m_LoadedLibraries.end()) {

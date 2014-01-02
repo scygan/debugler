@@ -416,54 +416,36 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                     }
                 }
 
-                if (DGLThreadState::get()->getEGLApi() == EGL_OPENGL_ES_API) {
-
-                    ApiLibrary lib = LIBRARY_ES1;
-
-                    for (size_t i = 0; i < attributes.size(); i += 2) {
-                        if (attributes[i] == EGL_CONTEXT_CLIENT_VERSION ||
-                            attributes[i] == EGL_CONTEXT_MAJOR_VERSION_KHR) {
-                            switch (attributes[i + 1]) {
-                                case 1:
-                                    lib = LIBRARY_ES1;
-                                    break;
-                                case 2:
-                                    lib = LIBRARY_ES2;
-                                    break;
-                                case 3:
-                                    lib = LIBRARY_ES3;
-                                    break;
-                                default:
-                                    assert(0);
-                                    return;
-                            }
-                        }
+                int major = 1, minor = 1;
+                for (size_t i = 0; i < attributes.size() - 1; i += 2) {
+                    if (attributes[i] == EGL_CONTEXT_CLIENT_VERSION ||
+                        attributes[i] == EGL_CONTEXT_MAJOR_VERSION_KHR) {
+                            major = static_cast<int>(attributes[i + 1]);
                     }
-
-                    g_ApiLoader.loadLibrary(lib);
-
-                    DGLDisplayState::get((opaque_id_t)eglDpy,
-                                         DGLDisplayState::Type::EGL)
-                            ->createContext(
-                                      dglState::GLContextVersion::Type::ES,
-                                      dglState::GLContextCreationData(
-                                              entryp, (opaque_id_t)eglConfig,
-                                              attributes),
-                                      reinterpret_cast<opaque_id_t>(eglCtx));
-
-                } else if (DGLThreadState::get()->getEGLApi() ==
-                           EGL_OPENGL_API) {
-                    g_ApiLoader.loadLibrary(LIBRARY_GL);
-
-                    DGLDisplayState::get((opaque_id_t)eglDpy,
-                                         DGLDisplayState::Type::EGL)
-                            ->createContext(
-                                      dglState::GLContextVersion::Type::DT,
-                                      dglState::GLContextCreationData(
-                                              entryp, (opaque_id_t)eglConfig,
-                                              attributes),
-                                      reinterpret_cast<opaque_id_t>(eglCtx));
+                    if (attributes[i] == EGL_CONTEXT_MINOR_VERSION_KHR) {
+                            minor = static_cast<int>(attributes[i + 1]);
+                    }
                 }
+
+                DGLDisplayState* displayState = DGLDisplayState::get((opaque_id_t)eglDpy,
+                    DGLDisplayState::Type::EGL);
+
+                dglState::GLContextVersion::Type contextType = dglState::GLContextVersion::Type::UNSUPPORTED;
+                if (DGLThreadState::get()->getEGLApi() == EGL_OPENGL_ES_API) {
+                    contextType = dglState::GLContextVersion::Type::ES;
+                } else {
+                    contextType = dglState::GLContextVersion::Type::DT;
+                }
+                dglState::GLContextVersion version(contextType, major, minor);
+
+                g_ApiLoader.loadLibrary(version.getNeededApiLibrary(displayState));
+
+                displayState->createContext(
+                    dglState::GLContextVersion::Type::ES,
+                    dglState::GLContextCreationData(
+                    entryp, (opaque_id_t)eglConfig,
+                    attributes),
+                    reinterpret_cast<opaque_id_t>(eglCtx));
             }
             break;
         case eglMakeCurrent_Call:

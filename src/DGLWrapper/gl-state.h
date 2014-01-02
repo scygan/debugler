@@ -24,6 +24,7 @@
 #include <DGLNet/protocol/resource.h>
 
 #include "gl-statesetters.h"
+#include "api-loader.h"
 
 class DGLDisplayState;
 
@@ -189,12 +190,14 @@ class GLContextVersion {
         ES,
         UNSUPPORTED,
     };
-    GLContextVersion(Type type);
+    GLContextVersion(Type type, int majorVersion = 0, int minorVersion = 0);
 
     bool check(Type type, int majorVersion = 0, int minorVersion = 0) const;
     void initialize(const char* cVersion);
 
     int getMajor() const;
+
+    ApiLibrary getNeededApiLibrary(const DGLDisplayState* display);
 
    private:
     bool m_Initialized;
