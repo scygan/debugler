@@ -27,6 +27,8 @@ class DGLAdbDeviceProcess {
     const std::string& getName() const;
     const std::string& getPortName() const;
 
+    const std::string getDescriptionStr() const;
+
    private:
     std::string m_Pid;
     std::string m_Name;

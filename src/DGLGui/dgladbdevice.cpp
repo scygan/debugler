@@ -109,6 +109,10 @@ const std::string& DGLAdbDeviceProcess::getPortName() const {
     return m_PortName;
 }
 
+const std::string DGLAdbDeviceProcess::getDescriptionStr() const {
+    return m_Name + " (" + m_Pid + ")";
+}
+
 DGLADBDevice::DGLADBDevice(const std::string& serial)
         : m_Serial(serial),
           m_Status(InstallStatus::UNKNOWN),
@@ -232,7 +236,7 @@ void DGLADBDevice::reloadProcessesGotPortString(
 
     for (size_t i = 0; i < portString.length(); i++) {
         if (portString[i] == '%' && i < (portString.length() + 1)) {
-            std::string current = portString.substr(lastOffset, i);
+            std::string current = portString.substr(lastOffset, i - lastOffset);
             pathRegexStr += QRegExp::escape(QString::fromStdString(current));
 
             switch (portString[i + 1]) {
@@ -538,16 +542,11 @@ DGLAdbCookie* DGLADBDevice::invokeAsRoot(
     if (!m_RootSuRequired || params[0] != "shell") {
         return invokeAsShellUser(params, filter);
     } else {
-        std::vector<std::string> rootParams(4);
+        std::vector<std::string> rootParams(params.size() + 2);
         rootParams[0] = params[0];    // shell
         rootParams[1] = "su";
         rootParams[2] = "-c";
-        for (size_t i = 1; i < params.size(); i++) {
-            rootParams[3] += params[i];
-            if (i < params.size()) {
-                rootParams[3] += " ";
-            }
-        }
+        std::copy(params.begin() + 1, params.end(), rootParams.begin() + 3);
         return invokeAsShellUser(rootParams, filter);
     }
 }
