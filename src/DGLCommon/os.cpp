@@ -157,6 +157,7 @@ std::string Os::translateOsError(int error) {
 #include <stdexcept>    //remove me
 #include <unistd.h>
 #include <libgen.h>
+#include <dlfcn.h>
 
 #ifdef __ANDROID__
 #include <android/log.h>
@@ -205,14 +206,39 @@ std::string Os::getEnv(const char* variable) {
 int Os::getProcessPid() { return getpid(); }
 
 std::string Os::getProcessName() {
-    std::string ret = "<unknown>";
-    size_t linknamelen;
-    char cmdline[256] = {0};
-    const char* file = "/proc/self/exe";
-    linknamelen =
+    const char* fullname = NULL;
+
+#ifdef __ANDROID__
+    static bool once = false;
+    static const char** s_progname = NULL;
+    if (!once) {
+        once = true;
+        //Not really portable way of accessing argv[0]
+        s_progname = reinterpret_cast<const char**>(dlsym(RTLD_DEFAULT, "__progname"));
+    }
+    if (s_progname) {
+        fullname = *s_progname;
+    } else {
+        Os::info("Missing __progname symbol in current process - cannot reliably quess process name.");
+    }
+#endif
+    if (!fullname) {
+        size_t linknamelen;
+        char cmdline[256] = {0};
+        const char* file = "/proc/self/exe";
+        linknamelen =
             readlink(file, cmdline, sizeof(cmdline) / sizeof(*cmdline) - 1);
-    cmdline[linknamelen + 1] = 0;
-    return basename(cmdline);
+        if (linknamelen > 0) {
+            cmdline[linknamelen + 1] = 0;
+            fullname = cmdline;
+        }
+    }
+
+    if (!fullname) {
+        fullname = "<unknown>";
+    }
+    
+    return basename(fullname);
 }
 
 void Os::terminate() { _exit(0); }
