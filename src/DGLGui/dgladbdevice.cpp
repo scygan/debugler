@@ -423,6 +423,19 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
                     break;
                 case DetailRequestStatus::PREP_FRAMEWORK_UPLOAD_INSTALLER:
                     setRequestStatus(DetailRequestStatus::
+                        PREP_FRAMEWORK_SYNC_FLUSH);
+                    {
+                        std::vector<std::string> params;
+                        params.push_back("shell");
+                        params.push_back("sync");
+                        invokeAsRoot(params,
+                            std::make_shared<DGLEmptyOutputFilter>())
+                            ->process();
+                    }
+                    break;
+                    break;
+                case DetailRequestStatus::PREP_FRAMEWORK_SYNC_FLUSH:
+                    setRequestStatus(DetailRequestStatus::
                                              PREP_FRAMEWORK_CHMOD_INSTALLER);
                     {
                         std::vector<std::string> params;
@@ -576,6 +589,8 @@ const char* DGLADBDevice::toString(RequestStatus status) {
             return "Updating";
         case RequestStatus::PREP_UNINSTALL:
             return "Uninstalling";
+        case RequestStatus::PORT_FORWARD:
+            return "Forwarding port";
     }
     return "Unknown";
 }
@@ -596,6 +611,8 @@ const char* DGLADBDevice::toString(DetailRequestStatus detailStatus) {
             return "Stopping framework";
         case DetailRequestStatus::PREP_FRAMEWORK_UPLOAD_INSTALLER:
             return "Uploading installer";
+        case DetailRequestStatus::PREP_FRAMEWORK_SYNC_FLUSH:
+            return "Sync-ing storage";
         case DetailRequestStatus::PREP_FRAMEWORK_CHMOD_INSTALLER:
             return "Setting installer permissions";
         case DetailRequestStatus::PREP_FRAMEWORK_RUN_INSTALLER:
