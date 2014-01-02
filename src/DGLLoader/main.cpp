@@ -55,6 +55,11 @@
 #include <libgen.h>
 #include <dlfcn.h>
 #define DGL_SOCKET_PROP ("debug." DGL_PRODUCT_LOWER ".socket")
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fstream>
 #endif
 
 #pragma warning(disable : 4503)
@@ -192,6 +197,22 @@ int main(int argc, char** argv) {
         std::string wrapperPath = getWrapperPath();
         Os::info("Executable: %s\nWrapper: %s\n\n\n", executable.c_str(),
                  wrapperPath.c_str());
+
+#ifdef __ANDROID__
+        //Disable SELinux - otherwise it will kill us on Android < 4.4
+        {
+            struct stat S;
+            if (stat("/sys/fs/selinux/enforce", &S) == 0) {
+                std::ofstream enforce("/sys/fs/selinux/enforce");
+                enforce << "0\n";
+                if (!enforce.good()) {
+                    Os::info("Cannot disable SELinux");
+                } else {
+                    Os::info("SELinux disabled");
+                }
+            }
+        }
+#endif
 
         std::shared_ptr<DGLIPC> dglIPC = DGLIPC::Create();
 
