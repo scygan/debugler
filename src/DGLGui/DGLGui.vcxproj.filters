@@ -128,9 +128,6 @@
     <ClCompile Include="dgladbinterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dglconnectandroiddialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dglguipch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -246,12 +243,6 @@
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglcontroller.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglconnectandroiddialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglconnectandroiddialog.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglbufferview.cpp">
@@ -529,14 +520,8 @@
     <CustomBuild Include="icons\textures.png">
       <Filter>Resource Files\qrc-sources\icons</Filter>
     </CustomBuild>
-    <CustomBuild Include="ui\dglconnectandroid.ui">
-      <Filter>Form Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="ui\dglconnectandroidadb.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="dglconnectandroiddialog.h">
-      <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="dglprocess.h">
       <Filter>Header Files</Filter>

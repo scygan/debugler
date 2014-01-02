@@ -20,6 +20,8 @@
 
 #include "ui_dglprojproperties_runapp.h"
 
+#include "dglprocess.h"
+
 class DGLRunAppProject: public DGLProject {
     Q_OBJECT
 public:
@@ -93,7 +95,7 @@ private:
     virtual std::shared_ptr<DGLProject> createProject() override;
 
     virtual bool valid(QString&);
-    virtual bool loadPropertiedFromProject(const DGLProject*);
+    virtual bool loadPropertiesFromProject(const DGLProject*);
     virtual QString getName() override;
     virtual QWidget* getGUI() override;
     Ui::DGLProjPropertiesRunAppClass m_ui;

@@ -17,12 +17,42 @@
 
 #include <QMessageBox>
 
-DGLAndroidProject::DGLAndroidProject(std::string deviceSerial, std::string processName)
-        : m_deviceSerial(deviceSerial), m_processName(processName) {}
+DGLAndroidProject::DGLAndroidProject(std::string deviceSerial, std::string processPort)
+        : m_deviceSerial(deviceSerial), m_processPort(processPort), m_Device(nullptr) {}
+
+DGLAndroidProject::~DGLAndroidProject() {
+    if (m_Device) {
+        m_Device->deleteLater();
+    }
+}
 
 void DGLAndroidProject::startDebugging() {
-    
-    emit debugStarted("127.0.0.1", "");
+    m_ForwardedPort = rand() % (0xffff - 1024) + 1024;
+
+    m_Device = new DGLADBDevice(m_deviceSerial);
+
+    m_Device->portForward(m_processPort, m_ForwardedPort);
+    CONNASSERT(m_Device, SIGNAL(portForwardSuccess(DGLADBDevice*)), this,
+        SLOT(portForwardSuccess(DGLADBDevice*)));
+}
+
+void DGLAndroidProject::portForwardSuccess(DGLADBDevice* device) {
+   if (device == m_Device) {
+       std::ostringstream portStr; 
+       portStr << m_ForwardedPort;
+       emit debugStarted("127.0.0.1", portStr.str());
+       m_Device->deleteLater();
+       m_Device = NULL;
+   }
+}
+
+void DGLAndroidProject::deviceFailed(DGLADBDevice* device, const std::string& message) {
+    if (device == m_Device) {
+        emit debugError(tr("Device Error"), QString::fromStdString(m_Device->getSerial()) + ": " +
+            QString::fromStdString(message));
+        m_Device->deleteLater();
+        m_Device = NULL;
+    }   
 }
 
 DGLAndroidProjectFactory::DGLAndroidProjectFactory() {
@@ -41,30 +71,30 @@ std::shared_ptr<DGLProject> DGLAndroidProjectFactory::createProject() {
     if (!valid(message)) {
         throw std::runtime_error(message.toStdString());
     } else {
-        return std::shared_ptr<DGLProject>();
-        //return std::make_shared<DGLAndroidProject>(
-        //        m_ui.lineEdit_IpAddress->text().toStdString(),
-        //        m_ui.lineEdit_TcpPort->text().toStdString());
+        int idx = m_ui.comboBoxProcess->currentIndex();
+        return std::make_shared<DGLAndroidProject>(m_ui.selectDevWidget->getCurrentDevice()->getSerial(), 
+            m_CurrentProcesses[idx].getPortName());
     }
 }
 
 bool DGLAndroidProjectFactory::valid(QString& message) {
-    //if (!m_ui.lineEdit_IpAddress->text().length()) {
-    //    message =
-    //            tr("No address set. Please file in network address (IP or "
-    //               "hostname) of target machine.");
-    //    return false;
-    //}
-    //if (!m_ui.lineEdit_TcpPort->text().length()) {
-    //    message =
-    //            tr("No port set. Please file in tcp port on which debugee "
-    //               "process is listening.");
-    //    return false;
-    //}
+    if (!m_ui.selectDevWidget->getCurrentDevice()) {
+        message =
+                tr("No device selected. Please select desired device from the list. Use \"adb connect...\" to connect to networked adb devices.");
+        return false;
+    }
+    int idx = m_ui.comboBoxProcess->currentIndex();
+    if (m_CurrentProcesses.size() == 0 ||
+        (idx = m_ui.comboBoxProcess->currentIndex()) < 0) {
+        message =
+            tr("o process selected. Please select "
+            "appropriate process running on device.");
+        return false;
+    }
     return true;
 }
 
-bool DGLAndroidProjectFactory::loadPropertiedFromProject(
+bool DGLAndroidProjectFactory::loadPropertiesFromProject(
         const DGLProject* project) {
     const DGLAndroidProject* androidProject =
             dynamic_cast<const DGLAndroidProject*>(project);

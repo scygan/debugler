@@ -55,7 +55,7 @@ bool DGLAttachProjectFactory::valid(QString& message) {
     return true;
 }
 
-bool DGLAttachProjectFactory::loadPropertiedFromProject(
+bool DGLAttachProjectFactory::loadPropertiesFromProject(
         const DGLProject* project) {
     const DGLAttachProject* tcpProject =
             dynamic_cast<const DGLAttachProject*>(project);

@@ -200,14 +200,9 @@ void DGLADBDevice::portForward(std::string from, unsigned short to) {
     }
     params.push_back("localfilesystem:" + from);
 
-    // DGLAdbCookie* cookie = DGLAdbInterface::get()->invokeOnDevice(
-    //        m_Serial, params, nullptr,
-    // std::make_shared<DGLEmptyOutputFilter>());
-    // CONNASSERT(cookie, SIGNAL(failed(std::string)), this,
-    //           SLOT(adbFailed(std::string)));
-    // CONNASSERT(cookie, SIGNAL(done(std::vector<std::string>)), this,
-    //           SIGNAL(portForwardSuccess()));
-    // cookie->process();
+    setRequestStatus(RequestStatus::PORT_FORWARD);
+    invokeAsShellUser(params, std::make_shared<DGLEmptyOutputFilter>())
+        ->process();
 }
 
 DGLADBDevice::InstallStatus DGLADBDevice::getInstallStatus() {
@@ -369,7 +364,9 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
         case RequestStatus::RELOAD_PROCESSES_GET_UNIXSOCKETS:
             reloadProcessesGotUnixSockets(data);
             break;
-
+        case RequestStatus::PORT_FORWARD:
+            emit portForwardSuccess(this);
+            break;
         case RequestStatus::PREP_INSTALL:
         case RequestStatus::PREP_UPDATE:
         case RequestStatus::PREP_UNINSTALL: {

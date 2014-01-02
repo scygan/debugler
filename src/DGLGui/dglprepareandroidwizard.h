@@ -22,6 +22,8 @@
 #include <QCheckBox>
 #include <QRadioButton>
 
+#include "dgladbdevice.h"
+
 class DGLAndroidSelectDevWidget;
 
 namespace dglPrepareAndroidWizard {

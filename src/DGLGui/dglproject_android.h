@@ -22,13 +22,21 @@
 #include "dgladbdevice.h"
 
 class DGLAndroidProject : public DGLProject {
+   Q_OBJECT
    public:
-    DGLAndroidProject(std::string deviceSerial, std::string port);
+    DGLAndroidProject(std::string deviceSerial, std::string processPort);
+    ~DGLAndroidProject();
 
+   private slots:
+    void portForwardSuccess(DGLADBDevice*);
+    void deviceFailed(DGLADBDevice*, const std::string&);
    private:
     virtual void startDebugging() override;
     std::string m_deviceSerial;
-    std::string m_processName;
+    std::string m_processPort;
+
+    unsigned short m_ForwardedPort;
+    DGLADBDevice* m_Device;
 };
 
 class DGLAndroidProjectFactory : public DGLProjectFactory {
@@ -40,7 +48,7 @@ class DGLAndroidProjectFactory : public DGLProjectFactory {
     virtual std::shared_ptr<DGLProject> createProject() override;
 
     virtual bool valid(QString&);
-    virtual bool loadPropertiedFromProject(const DGLProject*);
+    virtual bool loadPropertiesFromProject(const DGLProject*);
     virtual QString getName() override;
     virtual QWidget* getGUI() override;
 

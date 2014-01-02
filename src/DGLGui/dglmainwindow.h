@@ -25,7 +25,6 @@
 #include "ui_dglmainwindow.h"
 
 #include "dglcontroller.h"
-#include "dglconnectandroiddialog.h"
 
 #include "dglprojectdialog.h"
 #include "dglproject_base.h"
@@ -83,11 +82,6 @@ slots:
      * Slot for displaying project properties dialog
      */
     void projectProperties();
-
-    /**
-     * Slot for displaing "Attach to Android App window..."
-     */
-    void attachAndroidApp();
 
     /**
      * Slot for starting debugging session
@@ -218,8 +212,6 @@ slots:
     QAction *saveAsProjectAct;
     QAction *closeProjectAct;
 
-    QAction *attachAndroidAct; //TODO: delete
-
     QAction *debugStartAct;
     QAction *debugStopAct;
     QAction *debugInterruptAct;
@@ -263,8 +255,6 @@ slots:
 
 
     DGLProjectDialog m_ProjectDialog;
-
-    DGLConnectAndroidDialog m_ConnectAndroidDialog;
 
     /**
      * Process starting busy progress dialog

@@ -234,7 +234,7 @@ bool DGLRunAppProjectFactory::valid(QString& message) {
     return true;
 }
 
-bool DGLRunAppProjectFactory::loadPropertiedFromProject(
+bool DGLRunAppProjectFactory::loadPropertiesFromProject(
         const DGLProject* project) {
     const DGLRunAppProject* runProject =
             dynamic_cast<const DGLRunAppProject*>(project);

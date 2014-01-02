@@ -227,7 +227,6 @@ void DGLMainWindow::createMenus() {
     projectMenu->addSeparator();
     projectMenu->addAction(closeProjectAct);
 
-    projectMenu->addAction(attachAndroidAct); //TODO: delete
     projectMenu->addSeparator();
     projectMenu->addAction(quitAct);
 
@@ -339,13 +338,6 @@ void DGLMainWindow::createActions() {
     closeProjectAct = new QAction(tr("&Close project"), this);
     closeProjectAct->setStatusTip(tr("Created new debugging project"));
     CONNASSERT(closeProjectAct, SIGNAL(triggered()), this, SLOT(closeProject()));
-
-    attachAndroidAct = new QAction(tr("&Attach to Android App"), this);
-    attachAndroidAct->setStatusTip(tr("Attach to IP target"));
-    CONNASSERT(attachAndroidAct, SIGNAL(triggered()), this,
-               SLOT(attachAndroidApp()));
-    CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), attachAndroidAct,
-               SLOT(setDisabled(bool)));
 
     debugStartAct = new QAction(tr("&Start debugging"), this);
     debugStartAct->setStatusTip(tr("Stop debugging."));
@@ -665,16 +657,6 @@ void DGLMainWindow::projectProperties() {
                 CONNASSERT(m_project.get(), SIGNAL(debugExit(QString)), this, SLOT(onDebugExit(QString)));
             }
         }
-    }
-}
-
-void DGLMainWindow::attachAndroidApp() {
-
-    // execute connection dialog to obtain connection parameters
-
-    if (m_ConnectAndroidDialog.exec() == QDialog::Accepted) {
-        m_controller.connectServer("127.0.0.1",
-            m_ConnectAndroidDialog.getPort());
     }
 }
 

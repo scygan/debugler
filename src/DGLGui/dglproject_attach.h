@@ -39,7 +39,7 @@ class DGLAttachProjectFactory : public DGLProjectFactory {
     virtual std::shared_ptr<DGLProject> createProject() override;
 
     virtual bool valid(QString&);
-    virtual bool loadPropertiedFromProject(const DGLProject*);
+    virtual bool loadPropertiesFromProject(const DGLProject*);
     virtual QString getName() override;
     virtual QWidget* getGUI() override;
     Ui::DGLProjPropertiesAttachClass m_ui;

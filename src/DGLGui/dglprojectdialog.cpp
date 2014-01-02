@@ -74,7 +74,7 @@ std::shared_ptr<DGLProject> DGLProjectDialog::getProject() {
 
 void DGLProjectDialog::loadPropertiesFromProject(const DGLProject* project) {
     for (size_t i = 0; i < m_Factories.size(); i++) {
-        if (m_Factories[i]->loadPropertiedFromProject(project)) {
+        if (m_Factories[i]->loadPropertiesFromProject(project)) {
             return;
         }
     }

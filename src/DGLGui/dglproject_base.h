@@ -42,7 +42,7 @@ class DGLProjectFactory : public QObject {
         return true;
     }
 
-    virtual bool loadPropertiedFromProject(const DGLProject*) { return false; }
+    virtual bool loadPropertiesFromProject(const DGLProject*) { return false; }
 
     virtual QString getName() = 0;
     virtual QWidget* getGUI() = 0;

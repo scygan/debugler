@@ -114,6 +114,7 @@ signals:
         PREP_INSTALL,
         PREP_UPDATE,
         PREP_UNINSTALL,
+        PORT_FORWARD,
     } m_RequestStatus;
 
     enum class DetailRequestStatus {
