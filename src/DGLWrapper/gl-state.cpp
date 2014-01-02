@@ -1031,6 +1031,7 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
             if (DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR) {
                 throw std::runtime_error("Got GL error on auxiliary context");
             }
+            auxsess.dispose();
         }
     }
     catch (const std::runtime_error& e) {

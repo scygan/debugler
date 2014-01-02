@@ -28,7 +28,22 @@ GLAuxContextSession::GLAuxContextSession(GLAuxContext* ctx) : m_ctx(ctx) {
     m_ctx->queries.setupInitialState();
 }
 
-GLAuxContextSession::~GLAuxContextSession() { m_ctx->doUnrefCurrent(); }
+GLAuxContextSession::~GLAuxContextSession() {
+    if (m_ctx) {
+        m_ctx->doUnrefCurrent();
+    }
+}
+
+void GLAuxContextSession::dispose() {
+    if (m_ctx) {
+        GLAuxContext* unrefCtx = nullptr;
+        std::swap(unrefCtx, m_ctx);        
+        if (!unrefCtx->doUnrefCurrent()) {
+            throw std::runtime_error(
+                "Cannot switch back from auxiliary context.");
+        }
+    }
+}
 
 GLAuxContextSurface::GLAuxContextSurface(const DGLDisplayState* display,
                                          opaque_id_t pixfmt)
@@ -125,7 +140,7 @@ void GLAuxContext::doRefCurrent() {
     m_MakeCurrentRef++;
 }
 
-void GLAuxContext::doUnrefCurrent() {
+bool GLAuxContext::doUnrefCurrent() {
     if (m_MakeCurrentRef) {
         m_MakeCurrentRef--;
     }
@@ -136,10 +151,10 @@ void GLAuxContext::doUnrefCurrent() {
                 (EGLSurface)m_Parrent->getNativeReadSurface()->getId(),
                 (EGLContext)m_Parrent->getId());
         if (!status) {
-            throw std::runtime_error(
-                    "Cannot switch back from auxaliary context.");
+            return false;
         }
     }
+    return true;
 }
 
 opaque_id_t GLAuxContext::choosePixelFormat(opaque_id_t preferred,

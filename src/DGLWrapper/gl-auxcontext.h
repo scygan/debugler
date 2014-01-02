@@ -32,6 +32,8 @@ class GLAuxContextSession {
    public:
     ~GLAuxContextSession();
     GLAuxContextSession(GLAuxContext*);
+    
+    void dispose();
 
    private:
     GLAuxContext* m_ctx;
@@ -80,7 +82,7 @@ class GLAuxContext {
     opaque_id_t choosePixelFormat(opaque_id_t preferred, opaque_id_t displayId);
 
     void doRefCurrent();
-    void doUnrefCurrent();
+    bool doUnrefCurrent();
 
     opaque_id_t m_Id, m_PixelFormat;
     const GLContext* m_Parrent;
