@@ -361,6 +361,13 @@ class DGLDebugController : public dglnet::MessageHandler {
      * Server connection
      */
     DGLDebugServer m_Server;
+
+    /**
+     * Last pid of process
+     *
+     * Used for fork() detection and restaring Transport on process change
+     */
+    int m_LastPid;
 };
 
 /**

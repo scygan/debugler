@@ -206,6 +206,12 @@ void DGLDebugController::doHandleDisconnect(const std::string&) {
 }
 
 DGLDebugServer& DGLDebugController::getServer() {
+    int pid;
+    if (m_LastPid != (pid = Os::getProcessPid())) {
+        //fork occured. Reset connection.
+        m_Server.abort();
+        m_LastPid = pid;
+    }
     if (!m_Server.getTransport()) {
         std::string port;
         DGLIPC::DebuggerPortType portType = getIPC()->getDebuggerPort(port);
