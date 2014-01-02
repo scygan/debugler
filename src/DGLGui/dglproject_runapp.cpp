@@ -252,7 +252,7 @@ bool DGLRunAppProjectFactory::loadPropertiedFromProject(
 }
 
 QString DGLRunAppProjectFactory::getName() {
-    return tr("Run local executable");
+    return tr("Run local Application");
 }
 
 QWidget* DGLRunAppProjectFactory::getGUI() { return &m_gui; }

@@ -335,6 +335,15 @@
     <ClCompile Include="dglbusydialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dglproject_android.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglproject_android.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglproject_android.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">
@@ -571,6 +580,12 @@
     <CustomBuild Include="dglbusydialog.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="ui\dglprojproperties_android.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dglproject_android.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dglqtgui.h">
@@ -589,6 +604,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglprojproperties_attach.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglprojproperties_android.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>

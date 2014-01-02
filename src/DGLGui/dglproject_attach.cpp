@@ -71,7 +71,7 @@ bool DGLAttachProjectFactory::loadPropertiedFromProject(
 }
 
 QString DGLAttachProjectFactory::getName() {
-    return tr("Attach to Remote debugger");
+    return tr("Attach to Remote Application (DGLLoader/TCP)");
 }
 
 QWidget* DGLAttachProjectFactory::getGUI() { return &m_gui; }

@@ -17,14 +17,16 @@
 
 #include "dglproject_attach.h"
 #include "dglproject_runapp.h"
+#include "dglproject_android.h"
 
 #include <QMessageBox>
 
 DGLProjectDialog::DGLProjectDialog():m_CurrentFactory(nullptr) {
     m_ui.setupUi(this);
 
-    addProjectFactory(std::make_shared<DGLAttachProjectFactory>());
     addProjectFactory(std::make_shared<DGLRunAppProjectFactory>());
+    addProjectFactory(std::make_shared<DGLAttachProjectFactory>());
+    addProjectFactory(std::make_shared<DGLAndroidProjectFactory>());
 }
 
 DGLProjectDialog::~DGLProjectDialog() {}
