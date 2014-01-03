@@ -240,15 +240,28 @@ void GLAuxContext::GLQueries::setupInitialState() {
     DIRECT_CALL_CHK(glEnableVertexAttribArray)(0);
 
     vshobj = DIRECT_CALL_CHK(glCreateShader)(GL_VERTEX_SHADER);
-    const char* vsh =
-            "attribute vec4 inPos;\n"
-            "varying vec2 texPos;\n"
-            "void main() {\n"
-            "   gl_Position = inPos;\n"
-            "   texPos = inPos.xy * 0.5 + 0.5;\n"
-            "}\n";
 
-    DIRECT_CALL_CHK(glShaderSource)(vshobj, 1, &vsh, NULL);
+    std::string vsh;
+
+    if (m_AuxCtx->m_Parrent->getVersion().check(GLContextVersion::Type::ES, 3)) {
+        vsh += 
+            "#version 300 es\n"
+            "in vec4 inPos;\n"
+            "out vec2 texPos;\n";
+    } else {
+        vsh += 
+            "attribute vec4 inPos;\n"
+            "varying vec2 texPos;\n";
+    }
+    vsh += 
+        "void main() {\n"
+        "   gl_Position = inPos;\n"
+        "   texPos = inPos.xy * 0.5 + 0.5;\n"
+        "}\n";
+
+    const char* vshSrc[] = { vsh.c_str() };
+
+    DIRECT_CALL_CHK(glShaderSource)(vshobj, 1, vshSrc, NULL);
     DIRECT_CALL_CHK(glCompileShader)(vshobj);
     GLint status = 0;
     DIRECT_CALL_CHK(glGetShaderiv)(vshobj, GL_COMPILE_STATUS, &status);
