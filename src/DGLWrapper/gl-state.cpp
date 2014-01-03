@@ -328,7 +328,7 @@ void GLFBObj::setTarget(GLenum target) {
 GLenum GLFBObj::getTarget() { return m_Target; }
 
 GLContextVersion::GLContextVersion(Type type, int majorVersion, int minorVersion)
-        : m_Initialized(false), m_Type(type), m_MajorVersion(majorVersion), m_MinorVersion(minorVersion) {}
+        : m_Initialized(false), m_MajorVersion(majorVersion), m_MinorVersion(minorVersion), m_Type(type) {}
 
 bool GLContextVersion::check(Type type, int majorVersion,
                              int minorVersion) const {

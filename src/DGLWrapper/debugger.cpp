@@ -225,9 +225,9 @@ DGLDebugServer& DGLDebugController::getServer() {
         {
             size_t pos = 0;
             while ((pos = port.find("%p")) != std::string::npos) {
-                std::ostringstream pid;
-                pid << Os::getProcessPid();
-                port.replace(pos, 2, pid.str());
+                std::ostringstream pidStr;
+                pidStr << pid;
+                port.replace(pos, 2, pidStr.str());
             }
         }
 
