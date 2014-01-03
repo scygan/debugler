@@ -408,22 +408,20 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 call.getArgs()[3].get(attribList);
 
                 std::vector<gl_t> attributes;
+                int major = 1, minor = 1;
+
                 if (attribList) {
                     int i = 0;
                     while (attribList[i] != EGL_NONE) {
+                        if (attribList[i] == EGL_CONTEXT_CLIENT_VERSION ||
+                            attribList[i] == EGL_CONTEXT_MAJOR_VERSION_KHR) {
+                                major = static_cast<int>(attribList[i + 1]);
+                        }
+                        if (attribList[i] == EGL_CONTEXT_MINOR_VERSION_KHR) {
+                            minor = static_cast<int>(attribList[i + 1]);
+                        }
                         attributes.push_back(attribList[i++]);
                         attributes.push_back(attribList[i++]);
-                    }
-                }
-
-                int major = 1, minor = 1;
-                for (size_t i = 0; i < attributes.size() - 1; i += 2) {
-                    if (attributes[i] == EGL_CONTEXT_CLIENT_VERSION ||
-                        attributes[i] == EGL_CONTEXT_MAJOR_VERSION_KHR) {
-                            major = static_cast<int>(attributes[i + 1]);
-                    }
-                    if (attributes[i] == EGL_CONTEXT_MINOR_VERSION_KHR) {
-                            minor = static_cast<int>(attributes[i + 1]);
                     }
                 }
 
