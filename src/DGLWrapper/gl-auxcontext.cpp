@@ -352,17 +352,22 @@ GLuint GLAuxContext::GLQueries::getTextureShaderProgram(
 
     if (glsl300) {
         fsh << "#version 300 es\n"
-            << "out vec4 oColor\n;"
-            << "varying vec2 texPos;\n";
+            << "out vec4 oColor;\n";
     }
     fsh << "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
-        << "precision highp float;           \n"
-        << "#else                            \n"
-        << "precision mediump float;         \n"
-        << "#endif                           \n"
-           "uniform sampler" << suffix << " s;\n"
-                                          "uniform float level;\n"
-        << "varying vec2 texPos;\n";
+            "precision highp float;           \n"
+            "#else                            \n"
+            "precision mediump float;         \n"
+            "#endif                           \n"
+            "uniform sampler" << suffix << " s;\n"
+            "uniform float level;\n";
+    if (glsl300) {
+        fsh << 
+            "in vec2 texPos;\n";
+    } else {
+        fsh <<
+            "varying vec2 texPos;\n";
+    }
 
     fsh << "void main() {\n";
 
