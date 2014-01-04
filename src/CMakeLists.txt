@@ -65,6 +65,7 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow -Wundef")
 
+add_subdirectory(codegen)
 add_subdirectory(DGLCommon)
 add_subdirectory(DGLNet)
 add_subdirectory(DGLWrapper)
