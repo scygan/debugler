@@ -61,6 +61,8 @@ private:
 
     virtual void stopDebugging() override;
 
+    virtual bool shouldTerminateOnStop() override;
+
     std::vector<std::string> getCommandLineArgVector();
 
 

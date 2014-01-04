@@ -33,6 +33,7 @@ class Hello;
 class Configuration;
 class BreakedCall;
 class ContinueBreak;
+class Terminate;
 class QueryCallTrace;
 class CallTrace;
 
@@ -48,6 +49,7 @@ class MessageHandler {
     virtual void doHandleConfiguration(const message::Configuration&);
     virtual void doHandleBreakedCall(const message::BreakedCall&);
     virtual void doHandleContinueBreak(const message::ContinueBreak&);
+    virtual void doHandleTerminate(const message::Terminate&);
     virtual void doHandleQueryCallTrace(const message::QueryCallTrace&);
     virtual void doHandleCallTrace(const message::CallTrace&);
     virtual void doHandleRequest(const message::Request&);
@@ -216,6 +218,19 @@ class ContinueBreak : public Message {
     StepMode m_StepMode;
 };
 
+class Terminate : public Message {
+    friend class boost::serialization::access;
+
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned) {
+        ar& boost::serialization::base_object<Message>(*this);
+    }
+
+    virtual void handle(MessageHandler* h) const {
+        h->doHandleTerminate(*this);
+    }
+};
+
 class QueryCallTrace : public Message {
     friend class boost::serialization::access;
 
@@ -361,6 +376,7 @@ REGISTER_CLASS(dglnet::message::BreakedCall)
 REGISTER_CLASS(dglnet::message::ContinueBreak)
 REGISTER_CLASS(dglnet::message::QueryCallTrace)
 REGISTER_CLASS(dglnet::message::CallTrace)
+REGISTER_CLASS(dglnet::message::Terminate)
 REGISTER_CLASS(dglnet::message::Request)
 REGISTER_CLASS(dglnet::message::RequestReply)
 REGISTER_CLASS(dglnet::message::RequestReply::ReplyBase)

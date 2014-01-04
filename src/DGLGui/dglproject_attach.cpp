@@ -26,6 +26,10 @@ void DGLAttachProject::startDebugging() {
     emit debugStarted(getAddress(), getPort());
 }
 
+bool DGLAttachProject::shouldTerminateOnStop() {
+    return false;
+}
+
 DGLAttachProjectFactory::DGLAttachProjectFactory() { m_ui.setupUi(&m_gui); }
 
 std::shared_ptr<DGLProject> DGLAttachProjectFactory::createProject() {

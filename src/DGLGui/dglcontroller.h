@@ -334,6 +334,7 @@ slots:
     void debugStep();
     void debugStepDrawCall();
     void debugStepFrame();
+    void debugTerminate();
     void queryCallTrace(uint, uint);
 
    private:

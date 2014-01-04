@@ -28,6 +28,8 @@ class DGLAttachProject : public DGLProject {
 
    private:
     virtual void startDebugging() override;
+    virtual bool shouldTerminateOnStop() override;
+
     std::string m_address, m_port;
 };
 

@@ -181,6 +181,13 @@ class DGLDebugServer {
     DGLDebugServer(DGLDebugController*);
 
     /**
+     * Ctor
+     */
+    ~DGLDebugServer();
+
+
+
+    /**
      * Getter for mutex guarding server
      */
     std::mutex& getMutex();
@@ -268,7 +275,7 @@ class DGLDebugController : public dglnet::MessageHandler {
     /**
      * Run one event on associated server;
      */
-    void run_one();
+    void run_one(bool& newConnection);
 
     /**
      * Poll events on associated server;
@@ -295,6 +302,11 @@ class DGLDebugController : public dglnet::MessageHandler {
      * Message handler - pass continue & break message to breakstate object
      */
     void doHandleContinueBreak(const dglnet::message::ContinueBreak&) override;
+
+    /**
+     * Message handler - terminate current process.
+     */
+    void doHandleTerminate(const dglnet::message::Terminate&) override;
 
     /**
      * Message handler - pass history query message to call history object
@@ -355,7 +367,7 @@ class DGLDebugController : public dglnet::MessageHandler {
     /**
      * Application abnormal terminator
      */
-    void tearDown();
+    void onConnectionLost();
 
     /**
      * Server connection

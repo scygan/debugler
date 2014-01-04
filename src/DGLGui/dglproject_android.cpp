@@ -36,6 +36,10 @@ void DGLAndroidProject::startDebugging() {
         SLOT(portForwardSuccess(DGLADBDevice*)));
 }
 
+bool DGLAndroidProject::shouldTerminateOnStop() {
+    return false;
+}
+
 void DGLAndroidProject::portForwardSuccess(DGLADBDevice* device) {
    if (device == m_Device) {
        std::ostringstream portStr; 

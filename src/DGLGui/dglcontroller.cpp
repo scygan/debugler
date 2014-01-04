@@ -276,6 +276,13 @@ void DglController::debugStepFrame() {
     newStatus("Running...");
 }
 
+void DglController::debugTerminate() {
+    assert(isConnected());
+    dglnet::message::Terminate message;
+    m_DglClient->sendMessage(&message);
+    newStatus("Terminating...");
+}
+
 void DglController::onSetStatus(std::string str) { newStatus(str.c_str()); }
 
 void DglController::queryCallTrace(uint startOffset, uint endOffset) {

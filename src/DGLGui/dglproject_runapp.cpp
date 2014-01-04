@@ -81,6 +81,10 @@ void DGLRunAppProject::stopDebugging() {
     }
 }
 
+bool DGLRunAppProject::shouldTerminateOnStop() {
+    return true;
+}
+
 void DGLRunAppProject::processReadyHandler() {
 
     std::ostringstream portStr;

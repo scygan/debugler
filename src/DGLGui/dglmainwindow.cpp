@@ -235,6 +235,9 @@ void DGLMainWindow::createMenus() {
     debugMenu->addAction(debugStartAct);
     debugMenu->addAction(debugContinueAct);
     debugMenu->addAction(debugStopAct);
+    debugMenu->addSeparator();
+    debugMenu->addAction(debugTerminateAct);
+    debugMenu->addSeparator();
     debugMenu->addAction(debugInterruptAct);
     debugMenu->addAction(debugStepAct);
     debugMenu->addAction(debugStepDrawCallAct);
@@ -353,6 +356,13 @@ void DGLMainWindow::createActions() {
         SLOT(setEnabled(bool)));
     debugStopAct->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_F5));
     debugStopAct->setEnabled(false);
+
+    debugTerminateAct = new QAction(tr("Terminate"), this);
+    debugTerminateAct->setStatusTip(tr("Terminate debugged process."));
+    CONNASSERT(debugTerminateAct, SIGNAL(triggered()), this, SLOT(debugTerminate()));
+    CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), debugTerminateAct,
+        SLOT(setEnabled(bool)));
+    debugTerminateAct->setEnabled(false);
 
     debugContinueAct = new QAction(tr("&Continue"), this);
     debugContinueAct->setStatusTip(tr("Continue program execution"));
@@ -693,11 +703,22 @@ void DGLMainWindow::onDebugExit(QString reason) {
 }
 
 void DGLMainWindow::debugStop() {
+
+    if (m_controller.isConnected() && m_project->shouldTerminateOnStop()) {
+        m_controller.debugTerminate();
+    }
+
     m_controller.disconnectServer();
     if (m_project) {
         m_project->stopDebugging();
     }
     m_BusyDialog.hide();
+}
+
+void DGLMainWindow::debugTerminate() {
+     if (m_controller.isConnected()) {
+         m_controller.debugTerminate();
+     }
 }
 
 void DGLMainWindow::addDeleteBreakPoints() {

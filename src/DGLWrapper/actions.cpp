@@ -50,27 +50,48 @@ void ActionBase::PrevPost(const CalledEntryPoint& call, const RetValue& ret) {
 RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
     RetValue ret = PrevPre(call);
 
-    std::lock_guard<std::mutex> server_lock(
+    bool newConnection;
+
+    do {
+
+        newConnection = false;
+
+        std::lock_guard<std::mutex> server_lock(
             getController()->getServer().getMutex());
 
-    // do a fast non-blocking poll to get "interrupt" message, etc.."
-    getController()->poll();
+        // do a fast non-blocking poll to get "interrupt" message, etc.."
+        getController()->poll();
 
-    // check if any break is pending
-    if (getController()->getBreakState().mayBreakAt(call.getEntrypoint())) {
-        // we just hit a break;
-        dglState::GLContext* ctx = gc;
-        dglnet::message::BreakedCall callStateMessage(
+        // check if any break is pending
+        if (getController()->getBreakState().mayBreakAt(call.getEntrypoint())) {
+            // we just hit a break;
+            dglState::GLContext* ctx = gc;
+            dglnet::message::BreakedCall callStateMessage(
                 call, (value_t)getController()->getCallHistory().size(),
                 ctx ? ctx->getId() : 0, DGLDisplayState::describeAll());
-        getController()->getServer().getTransport()->sendMessage(
+            getController()->getServer().getTransport()->sendMessage(
                 &callStateMessage);
-    }
+        }
 
-    while (getController()->getBreakState().isBreaked()) {
-        // iterate block & loop until someone unbreaks us
-        getController()->run_one();
-    }
+        while (getController()->getBreakState().isBreaked()) {
+            // iterate block & loop until someone unbreaks us
+
+            getController()->run_one(newConnection);
+
+            if (newConnection) {
+                //in the meantime reconnection happened.
+
+                //In such case start processing this part of Pre() once again.
+                
+                break;
+            }
+        }
+
+    } while (newConnection);
+
+   
+
+    
 
     // now there should be no breaks
 

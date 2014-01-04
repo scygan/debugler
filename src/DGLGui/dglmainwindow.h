@@ -111,6 +111,11 @@ slots:
     void debugStop();
 
     /**
+     * Slot for terminating current debugging process
+     */
+    void debugTerminate();
+
+    /**
      * Slot for displaying bkpoints window
      */
     void addDeleteBreakPoints();
@@ -214,6 +219,7 @@ slots:
 
     QAction *debugStartAct;
     QAction *debugStopAct;
+    QAction *debugTerminateAct;
     QAction *debugInterruptAct;
     QAction *debugContinueAct;
     QAction *debugStepAct;

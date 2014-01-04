@@ -29,6 +29,9 @@ signals:
    public:
     virtual void startDebugging() = 0;
     virtual void stopDebugging() {}
+
+    virtual bool shouldTerminateOnStop() = 0;
+
     virtual ~DGLProject() {}
 };
 

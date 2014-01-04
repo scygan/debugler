@@ -32,6 +32,7 @@ class DGLAndroidProject : public DGLProject {
     void deviceFailed(DGLADBDevice*, const std::string&);
    private:
     virtual void startDebugging() override;
+    virtual bool shouldTerminateOnStop() override;
     std::string m_deviceSerial;
     std::string m_processPort;
 

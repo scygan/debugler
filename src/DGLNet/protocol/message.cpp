@@ -36,6 +36,10 @@ void MessageHandler::doHandleContinueBreak(const message::ContinueBreak&) {
     unsupported();
 }
 
+void MessageHandler::doHandleTerminate(const message::Terminate&) {
+    unsupported();
+}
+
 void MessageHandler::doHandleQueryCallTrace(const message::QueryCallTrace&) {
     unsupported();
 }

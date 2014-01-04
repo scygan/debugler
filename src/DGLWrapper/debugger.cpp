@@ -139,6 +139,10 @@ void CallHistory::setDebugOutput(const std::string& message) {
 DGLDebugServer::DGLDebugServer(DGLDebugController* parrent)
         : m_parrent(parrent) {}
 
+DGLDebugServer::~DGLDebugServer() {
+    //getMutex().unlock();
+}
+
 std::mutex& DGLDebugServer::getMutex() { return m_ServerMutex; }
 
 std::shared_ptr<dglnet::ITransport> DGLDebugServer::getTransport() {
@@ -233,7 +237,11 @@ DGLDebugServer& DGLDebugController::getServer() {
 
         Os::info("port = %s", port.c_str());
 
-        bool wait = getIPC()->getWaitForConnection();
+        //We should wait for actual connection when: 
+        // no -nowait was specified in dglloader (so application runs freely)
+        // execution is not breaked. (If it is, it requires connection).
+        //Otherwise we set socket in listening state and continue.
+        bool wait = getIPC()->getWaitForConnection() || getBreakState().isBreaked();
 
         switch (portType) {
             case DGLIPC::DebuggerPortType::TCP:
@@ -256,26 +264,40 @@ DGLDebugServer& DGLDebugController::getServer() {
     return m_Server;
 }
 
-void DGLDebugController::run_one() {
+void DGLDebugController::run_one(bool& newConnection) {
     getServer().getTransport()->run_one();
+    
+    newConnection = m_Disconnected;
+
     if (m_Disconnected) {
-        tearDown();
+        onConnectionLost();
     }
 }
 
 void DGLDebugController::poll() {
     getServer().getTransport()->poll();
+
     if (m_Disconnected) {
-        tearDown();
+        onConnectionLost();
     }
 }
 
-void DGLDebugController::tearDown() {
-    // it is better to die here, than allow app to run uncontrolled.
+void DGLDebugController::onConnectionLost() {
+    
+    //recover, wait for new connection
 
-    m_presenter->setStatus(Os::getProcessName() + ": terminating");
+    m_Disconnected = false;
 
-    throw TeardownException();
+    m_presenter->setStatus(Os::getProcessName() + ": connection lost");
+    
+    m_Server.abort();
+
+    //Reinitialize break state.
+    // So, for example, -nowait application will never break if not connected
+    m_BreakState = BreakState(getIPC()->getWaitForConnection());
+
+    //now continue executing action code. Someone will eventually 
+    //call getServer() now and connection will be re-estabilished.
 }
 
 BreakState& DGLDebugController::getBreakState() { return m_BreakState; }
@@ -289,6 +311,12 @@ void DGLDebugController::doHandleConfiguration(
 void DGLDebugController::doHandleContinueBreak(
         const dglnet::message::ContinueBreak& msg) {
     m_BreakState.handle(msg);
+}
+
+void DGLDebugController::doHandleTerminate(
+    const dglnet::message::Terminate&) {
+
+    throw TeardownException();
 }
 
 void DGLDebugController::doHandleQueryCallTrace(
