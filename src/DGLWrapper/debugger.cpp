@@ -316,6 +316,8 @@ void DGLDebugController::doHandleContinueBreak(
 void DGLDebugController::doHandleTerminate(
     const dglnet::message::Terminate&) {
 
+    //Exiting here would cause locked mutexes and dead thread owning them problem. 
+    //So throw, and exit few frames higher, where no locks exist.
     throw TeardownException();
 }
 
