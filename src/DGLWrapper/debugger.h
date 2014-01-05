@@ -36,7 +36,12 @@ class BreakState {
     /**
      * Ctor
      */
-    BreakState(bool breaked);
+    BreakState();
+
+    /**
+     * Enable/disable breaking.
+     */
+    void setEnabled(bool enabled);
 
     /**
      * Method deciding if application should be breaked at given entrypoint
@@ -86,10 +91,25 @@ class BreakState {
     void handle(const dglnet::message::SetBreakPoints&);
 
    private:
+
+    /**
+     * Internal m_break setter.
+     * Always considers m_BreakingEnabled
+     */     
+    void setBreak(bool _break = true);
+
     /**
      * application break state (true if breaked, false otherwise)
      */
     bool m_break;
+
+    /** 
+     * Breaking enable.
+     *
+     * May break only if this is set to true.
+     * Set to false when running disconnected in -nowait mode.
+     */
+    bool m_BreakingEnabled;
 
     /**
      * True if in step mode (pending break, despite m_break == false)

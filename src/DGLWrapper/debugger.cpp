@@ -36,47 +36,52 @@ DGLDebugController* getController() {
 
 DGLConfiguration g_Config;
 
-BreakState::BreakState(bool breaked)
-        : m_break(breaked),
+BreakState::BreakState()
+        : m_break(true), //always give initial break
+          m_BreakingEnabled(false), //initially all breaks are masked until connection is made.
           m_StepModeEnabled(false),
           m_StepMode(dglnet::message::ContinueBreak::StepMode::CALL) {}
+
+void BreakState::setEnabled(bool enabled) {
+    m_BreakingEnabled = enabled;
+}
 
 bool BreakState::mayBreakAt(const Entrypoint& e) {
     if (m_StepModeEnabled) {
         switch (m_StepMode) {
             case dglnet::message::ContinueBreak::StepMode::CALL:
-                m_break = true;
+                setBreak();
                 break;
             case dglnet::message::ContinueBreak::StepMode::DRAW_CALL:
-                if (IsDrawCall(e)) m_break = true;
+                if (IsDrawCall(e)) setBreak();
                 break;
             case dglnet::message::ContinueBreak::StepMode::FRAME:
-                if (IsFrameDelimiter(e)) m_break = true;
+                if (IsFrameDelimiter(e)) setBreak();
                 break;
         }
     }
 
     if (m_BreakPoints.find(e) != m_BreakPoints.end()) {
-        m_break = true;
+        setBreak();
     }
     return isBreaked();
 }
 
 void BreakState::setBreakAtGLError(GLenum glError) {
     if (glError != GL_NO_ERROR && g_Config.m_BreakOnGLError) {
-        m_break = true;
+        setBreak();
     }
 }
 
 void BreakState::setBreakAtDebugOutput() {
-    if (g_Config.m_BreakOnDebugOutput) m_break = true;
+    if (g_Config.m_BreakOnDebugOutput) setBreak();
 }
 
 void BreakState::setBreakAtCompilerError() {
-    if (g_Config.m_BreakOnCompilerError) m_break = true;
+    if (g_Config.m_BreakOnCompilerError) setBreak();
 }
 
-bool BreakState::isBreaked() { return m_break; }
+bool BreakState::isBreaked() { return m_break && m_BreakingEnabled; }
 
 void BreakState::handle(const dglnet::message::ContinueBreak& msg) {
     m_break = msg.isBreaked();
@@ -89,6 +94,14 @@ void BreakState::handle(const dglnet::message::ContinueBreak& msg) {
 
 void BreakState::handle(const dglnet::message::SetBreakPoints& msg) {
     m_BreakPoints = msg.get();
+}
+
+void BreakState::setBreak(bool _break) {
+    //mask all changes to m_break by m_BreakingEnabled
+    //If apps run with braking disabled, m_break will not be modified.
+    if (m_BreakingEnabled) {
+        m_break = _break;
+    }
 }
 
 CallHistory::CallHistory() {
@@ -168,7 +181,7 @@ void DGLDebugServer::abort() {
 }
 
 DGLDebugController::DGLDebugController()
-        : m_BreakState(getIPC()->getWaitForConnection()),
+        : m_BreakState(),
           m_Disconnected(false),
           m_Server(this) {}
 
@@ -196,6 +209,9 @@ void DGLDebugController::doHandleListen(const std::string& port) {
 }
 
 void DGLDebugController::doHandleConnect() {
+
+    getBreakState().setEnabled(true);
+
     dglnet::message::Hello hello(Os::getProcessName());
 
     getServer().getTransport()->sendMessage(&hello);
@@ -292,9 +308,9 @@ void DGLDebugController::onConnectionLost() {
     
     m_Server.abort();
 
-    //Reinitialize break state.
+    //Disable breaks.
     // So, for example, -nowait application will never break if not connected
-    m_BreakState = BreakState(getIPC()->getWaitForConnection());
+    getBreakState().setEnabled(false);
 
     //now continue executing action code. Someone will eventually 
     //call getServer() now and connection will be re-estabilished.
