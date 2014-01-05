@@ -91,12 +91,22 @@ class LiveTest : public ::testing::Test {
     std::shared_ptr<dglnet::Client> getClientFor(std::string sampleName) {
 
         m_ProcessWrapper = std::make_shared<LiveProcessWrapper>(sampleName);
+        
+        return getAnotherConnection();
+        
+    }
 
+    std::shared_ptr<dglnet::Client> getAnotherConnection() {
         std::shared_ptr<dglnet::Client> client =
-                dglnet::Client::Create(&m_Controller, &m_MessageHandler);
+            dglnet::Client::Create(&m_Controller, &m_MessageHandler);
         client->connectServer("127.0.0.1", "8888");
-
         return client;
+    }
+
+    void terminate(std::shared_ptr<dglnet::Client> client) {
+        dglnet::message::Terminate msg;
+        client->sendMessage(&msg);
+        client->abort();
     }
 
     DGLConfiguration getUsualConfig() {
@@ -237,27 +247,58 @@ TEST_F(LiveTest, connect_disconnect) {
 #else
     EXPECT_TRUE(std::string::npos != hello->m_ProcessName.find("samples"));
 #endif
-    client->abort();
+    terminate(client);
     EXPECT_TRUE(client.unique());
 }
 
-TEST_F(LiveTest, connect_disconnect_multiple) {
+TEST_F(LiveTest, multiple_connect_disconnect) {
 
-    for (int i=0; i < 3; i++) {
-        std::shared_ptr<dglnet::Client> client = getClientFor("simple");
+    std::shared_ptr<dglnet::Client> client = getClientFor("simple");
+
+    dglnet::message::Hello* hello =
+        utils::receiveMessage<dglnet::message::Hello>(client.get(),
+        getMessageHandler());
+    ASSERT_TRUE(hello != NULL);
+#ifdef _WIN32
+    EXPECT_EQ("samples.exe", hello->m_ProcessName);
+#else
+    EXPECT_TRUE(std::string::npos != hello->m_ProcessName.find("samples"));
+#endif
+    terminate(client);
+    EXPECT_TRUE(client.unique());
+}
+
+TEST_F(LiveTest, connect_disconnect_reconnect) {
+
+    //connect
+    std::shared_ptr<dglnet::Client> client = getClientFor("simple");
+
+    dglnet::message::Hello* hello =
+        utils::receiveMessage<dglnet::message::Hello>(client.get(),
+        getMessageHandler());
+    ASSERT_TRUE(hello != NULL);
+
+    dglnet::message::BreakedCall* breaked =
+        utils::receiveMessage<dglnet::message::BreakedCall>(
+        client.get(), getMessageHandler());
+    ASSERT_TRUE(breaked != NULL);
+
+    for (int i=0; i < 10; i++) {
+        client->abort();
+        client = getAnotherConnection();
 
         dglnet::message::Hello* hello =
             utils::receiveMessage<dglnet::message::Hello>(client.get(),
             getMessageHandler());
         ASSERT_TRUE(hello != NULL);
-#ifdef _WIN32
-        EXPECT_EQ("samples.exe", hello->m_ProcessName);
-#else
-        EXPECT_TRUE(std::string::npos != hello->m_ProcessName.find("samples"));
-#endif
-        client->abort();
-        EXPECT_TRUE(client.unique());
+
+        dglnet::message::BreakedCall* breaked =
+            utils::receiveMessage<dglnet::message::BreakedCall>(
+            client.get(), getMessageHandler());
+        ASSERT_TRUE(breaked != NULL);
+
     }
+    terminate(client);
 }
 
 TEST_F(LiveTest, continue_break) {
@@ -297,7 +338,7 @@ TEST_F(LiveTest, continue_break) {
     EXPECT_NE(0, breaked->m_TraceSize);
     EXPECT_EQ(1, breaked->m_CtxReports.size());
     EXPECT_NE(0, breaked->m_CurrentCtx);
-    client->abort();
+    terminate(client);
 }
 
 TEST_F(LiveTest, breakpoint) {
@@ -336,7 +377,7 @@ TEST_F(LiveTest, breakpoint) {
 
     EXPECT_EQ(glDrawArrays_Call, breaked->m_entryp.getEntrypoint());
 
-    client->abort();
+    terminate(client);
 }
 
 TEST_F(LiveTest, entryp_retvals) {
@@ -441,7 +482,7 @@ TEST_F(LiveTest, entryp_retvals) {
         }
     }
 
-    client->abort();
+    terminate(client);
 }
 
 TEST_F(LiveTest, framebuffer_query) {
@@ -521,7 +562,7 @@ TEST_F(LiveTest, framebuffer_query) {
                             client.get(), getMessageHandler()) != NULL);
     }
 
-    client->abort();
+    terminate(client);
 }
 
 TEST_F(LiveTest, framebuffer_resize) {
@@ -591,7 +632,7 @@ TEST_F(LiveTest, framebuffer_resize) {
         dglnet::message::ContinueBreak stepFrame(
                 dglnet::message::ContinueBreak::StepMode::FRAME);
     }
-    client->abort();
+    terminate(client);
 }
 
 TEST_F(LiveTest, texture_query_2d) {
@@ -674,7 +715,7 @@ TEST_F(LiveTest, texture_query_2d) {
 
         size /= 2;
     }
-    client->abort();
+    terminate(client);
 }
 
 
@@ -763,7 +804,7 @@ TEST_F(LiveTest, texture_query_3d) {
 
         size /= 2;
     }
-    client->abort();
+    terminate(client);
 }
 
 
@@ -905,7 +946,7 @@ TEST_F(LiveTest, edit_shader) {
     ASSERT_EQ(oldSource, shaderResource->m_Source);
     ASSERT_EQ(shaderResource->m_CompileStatus.second, GL_TRUE);
 
-    client->abort();
+    terminate(client);
 }
 
 TEST_F(LiveTest, shader_handling) {
@@ -1198,7 +1239,7 @@ TEST_F(LiveTest, shader_handling) {
                 std::string::npos);
     // glFlush(); #flush is only to mark case end
 
-    client->abort();
+   terminate(client);
 }
 
 }    // namespace
