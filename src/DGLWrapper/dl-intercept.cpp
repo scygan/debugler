@@ -45,6 +45,8 @@
 #include "tls.h"
 #include "wa-soctors.h"
 
+//#define DL_INTERCEPT_DEBUG
+
 #ifndef __ANDROID__
 
 class ELFAnalyzer {
@@ -202,10 +204,20 @@ boost::recursive_mutex::scoped_lock lock(mutex);
         g_ApiLoader.setPointer(entryp,
                                reinterpret_cast<FUNC_PTR>((ptrdiff_t)ptr));
 
+
+        void* ret = reinterpret_cast<void *>((ptrdiff_t)getWrapperPointer(entryp));
+
+#ifdef DL_INTERCEPT_DEBUG
+        Os::info("dlintercept: intercepted dlsym(0x%x, %s): orig 0x%x, returning 0x%x", handle, name, ptr, ret);
+#endif
+
         //return address of a wrapper to application
-        return reinterpret_cast<void *>((ptrdiff_t)getWrapperPointer(entryp));
+        return ret;
 
     } else {
+#ifdef DL_INTERCEPT_DEBUG
+        Os::info("dlintercept: not intercepting dlsym(0x%x, %s) =  0x%x", handle, name, ptr);
+#endif
         return ptr;
     }
 }
@@ -221,6 +233,10 @@ void *DLIntercept::dlopen(const char *filename, int flag) {
             mSupportedLibraries[reinterpret_cast<uint64_t>(ret)] = libraries;
         }
     }
+
+#ifdef DL_INTERCEPT_DEBUG
+    Os::info("dlintercept: dlopen(%s, %d) = 0x%x", filename, flag, ret);
+#endif
 
     return ret;
 }
