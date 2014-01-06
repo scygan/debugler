@@ -41,6 +41,12 @@ class Os {
 
     static void setEnv(const char* variable, const char* value);
 
+#ifdef __ANDROID__
+    static std::string getProp(const char* property);
+
+    static bool setProp(const char* property, const char* value);
+#endif 
+
     NO_RETURN static void fatal(const char* fmt, ...);
 
     static void nonFatal(const char* fmt, ...);

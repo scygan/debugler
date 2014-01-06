@@ -24,17 +24,21 @@
 class DGLAndroidProject : public DGLProject {
    Q_OBJECT
    public:
-    DGLAndroidProject(std::string deviceSerial, std::string processPort);
+    DGLAndroidProject(const std::string& deviceSerial, const std::string& processName, const std::string& pid = "");
+
     ~DGLAndroidProject();
 
    private slots:
     void portForwardSuccess(DGLADBDevice*);
+    void setProcessBreakPointSuccess(DGLADBDevice*);
     void deviceFailed(DGLADBDevice*, const std::string&);
+    void gotProcesses(DGLADBDevice*, std::vector<DGLAdbDeviceProcess>);
    private:
     virtual void startDebugging() override;
     virtual bool shouldTerminateOnStop() override;
     std::string m_deviceSerial;
-    std::string m_processPort;
+    std::string m_processName;
+    std::string m_pid;
 
     unsigned short m_ForwardedPort;
     DGLADBDevice* m_Device;
@@ -54,13 +58,16 @@ class DGLAndroidProjectFactory : public DGLProjectFactory {
     virtual QWidget* getGUI() override;
 
     void updateProcesses();
+    void updatePackages();
 
    private
 slots:
     void selectDevice(DGLADBDevice*);
+    void radioStartupChanged(bool);
     void updateDialog();
     void adbFailed(std::string);
     void gotProcesses(DGLADBDevice*, std::vector<DGLAdbDeviceProcess>);
+    void gotPackages(DGLADBDevice*, std::vector<std::string>);
     void deviceFailed(DGLADBDevice* device, std::string reason);
 
    private:
@@ -68,6 +75,9 @@ slots:
     QWidget m_gui;
 
     std::vector<DGLAdbDeviceProcess> m_CurrentProcesses;
+    std::vector<std::string> m_CurrentPackages;
+
+    bool m_Attach;
 };
 
 #endif

@@ -227,6 +227,7 @@ void DGLDebugController::doHandleDisconnect(const std::string&) {
 
 DGLDebugServer& DGLDebugController::getServer() {
     int pid;
+
     if (m_LastPid != (pid = Os::getProcessPid())) {
         //fork occured. Reset connection.
         m_Server.abort();
@@ -254,10 +255,25 @@ DGLDebugServer& DGLDebugController::getServer() {
         Os::info("port = %s", port.c_str());
 
         //We should wait for actual connection when: 
-        // no -nowait was specified in dglloader (so application runs freely)
-        // execution is not breaked. (If it is, it requires connection).
+        // - no -nowait was specified in dglloader (so application runs freely)
+        // - execution is breaked. (It requires connection if breaked).
+        // - on Android, when explicitely requested by property variable.
         //Otherwise we set socket in listening state and continue.
         bool wait = getIPC()->getWaitForConnection() || getBreakState().isBreaked();
+
+#ifdef __ANDROID__
+        {
+            std::string processBreakPoint = Os::getProp("debug." DGL_PRODUCT_LOWER ".break");
+            std::string processName = Os::getProcessName();
+
+            bool droidWait = (processBreakPoint == processName);
+
+            Os::info("Process name: %s, process breakpoint: %s, waiting for debugger: %d", 
+                processName.c_str(), processBreakPoint.c_str(), (int)droidWait);
+
+            wait |= droidWait;
+        }
+#endif
 
         switch (portType) {
             case DGLIPC::DebuggerPortType::TCP:

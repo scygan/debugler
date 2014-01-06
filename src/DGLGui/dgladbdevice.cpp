@@ -54,7 +54,10 @@ class DGLUnixSocketsFilter : public DGLAdbOutputFilter {
 
         for (size_t i = 1; i < input.size(); i++) {
             if (input[i].size() > pathOffset) {
-                output.push_back(input[i].substr(pathOffset));
+                std::string path = input[i].substr(pathOffset);
+                size_t j = 0; 
+                while (j < path.size() && path[j] != '/') j++;
+                output.push_back(path.substr(j));
             }
         }
         output.push_back(input[0]);
@@ -83,6 +86,25 @@ class DGLInstallerFilter : public DGLAdbOutputFilter {
             return false;
         }
         return true;
+    }
+};
+
+class DGLPackageListFilter : public DGLAdbOutputFilter {
+    virtual bool filter(const std::vector<std::string>& input,
+        std::vector<std::string>& output) override {
+        
+        const size_t offset = strlen("package:");
+
+        for (size_t i = 0; i < input.size(); i++) {
+            int pos = input[i].find("package:"); 
+            if (pos == 0) {
+                output.push_back(input[i].substr(offset));
+            }
+        }
+        if (output.size()) {
+            return true;
+        }
+        return false;
     }
 };
 }
@@ -122,8 +144,17 @@ DGLADBDevice::DGLADBDevice(const std::string& serial)
 
 void DGLADBDevice::reloadProcesses() {
     if (m_RequestStatus == RequestStatus::IDLE) {
-        setRequestStatus(RequestStatus::RELOAD_PROCESSES_GET_PORTSTR);
+        setRequestStatus(RequestStatus::RELOAD_PROCESSES);
+        setRequestStatus(DetailRequestStatus::RELOAD_GET_PORTSTR);
         getProp("debug." DGL_PRODUCT_LOWER ".socket")->process();
+    }
+}
+
+void DGLADBDevice::reloadPackages() {
+    if (m_RequestStatus == RequestStatus::IDLE) {
+        setRequestStatus(RequestStatus::RELOAD_PACKAGES);
+        setRequestStatus(DetailRequestStatus::RELOAD_GET_PORTSTR);
+            getProp("debug." DGL_PRODUCT_LOWER ".socket")->process();
     }
 }
 
@@ -205,6 +236,18 @@ void DGLADBDevice::portForward(std::string from, unsigned short to) {
         ->process();
 }
 
+void DGLADBDevice::setProcessBreakpoint(const std::string& processName) {
+    std::vector<std::string> params;
+    params.push_back("shell");
+    params.push_back("setprop");
+    params.push_back("debug." DGL_PRODUCT_LOWER ".break");
+    params.push_back(processName);
+    
+    setRequestStatus(RequestStatus::SET_BREAKPOINT);
+    invokeAsShellUser(params, std::make_shared<DGLEmptyOutputFilter>())
+        ->process();
+}
+
 DGLADBDevice::InstallStatus DGLADBDevice::getInstallStatus() {
     return m_Status;
 }
@@ -214,7 +257,7 @@ DGLADBDevice::ABI DGLADBDevice::getABI() { return m_ABI; }
 void DGLADBDevice::reloadProcessesGotPortString(
         const std::vector<std::string>& prop) {
 
-    setRequestStatus(RequestStatus::RELOAD_PROCESSES_GET_UNIXSOCKETS);
+    setRequestStatus(DetailRequestStatus::RELOAD_GET_UNIXSOCKETS);
 
     const std::string& portString = prop[0];
 
@@ -270,8 +313,6 @@ void DGLADBDevice::reloadProcessesGotPortString(
 
 void DGLADBDevice::reloadProcessesGotUnixSockets(
         const std::vector<std::string>& sockets) {
-
-    setRequestStatus(RequestStatus::IDLE);
 
     std::vector<DGLAdbDeviceProcess> processes;
 
@@ -359,14 +400,43 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
         case RequestStatus::QUERY_ABI:
             doneQueryABI(data);
             break;
-        case RequestStatus::RELOAD_PROCESSES_GET_PORTSTR:
-            reloadProcessesGotPortString(data);
+        case RequestStatus::RELOAD_PROCESSES:
+            switch (m_DetailRequestStatus) {
+                case DetailRequestStatus::RELOAD_GET_PORTSTR:
+                    reloadProcessesGotPortString(data);
+                    break;
+                case DetailRequestStatus::RELOAD_GET_UNIXSOCKETS:
+                    setRequestStatus(RequestStatus::IDLE);
+                    reloadProcessesGotUnixSockets(data);
+                    break;
+            }
             break;
-        case RequestStatus::RELOAD_PROCESSES_GET_UNIXSOCKETS:
-            reloadProcessesGotUnixSockets(data);
+        case RequestStatus::RELOAD_PACKAGES:
+            switch (m_DetailRequestStatus) {
+            case DetailRequestStatus::RELOAD_GET_PORTSTR:
+                {
+                    setRequestStatus(DetailRequestStatus::RELOAD_GET_PACKAGELIST);
+                    std::vector<std::string> params;
+                    params.push_back("shell");
+                    params.push_back("pm");
+                    params.push_back("list");
+                    params.push_back("package");
+                    invokeAsShellUser(params, std::make_shared<DGLPackageListFilter>())->process();
+                }
+                break;
+            case DetailRequestStatus::RELOAD_GET_PACKAGELIST:
+                setRequestStatus(RequestStatus::IDLE);
+                emit gotPackages(this, data);
+                break;
+            }
             break;
         case RequestStatus::PORT_FORWARD:
+            setRequestStatus(RequestStatus::IDLE);
             emit portForwardSuccess(this);
+            break;
+        case RequestStatus::SET_BREAKPOINT:
+            setRequestStatus(RequestStatus::IDLE);
+            emit setProcessBreakPointSuccess(this);
             break;
         case RequestStatus::PREP_INSTALL:
         case RequestStatus::PREP_UPDATE:
@@ -575,10 +645,12 @@ const char* DGLADBDevice::toString(RequestStatus status) {
     switch (status) {
         case RequestStatus::IDLE:
             return "Idle";
-        case RequestStatus::RELOAD_PROCESSES_GET_PORTSTR:
-            return "Get debugging port string";
-        case RequestStatus::RELOAD_PROCESSES_GET_UNIXSOCKETS:
-            return "Get open debugging sockets";
+        case RequestStatus::RELOAD_PACKAGES:
+            return "Getting package list";
+        case RequestStatus::RELOAD_PROCESSES:
+            return "Getting process list";
+        case RequestStatus::SET_BREAKPOINT:
+            return "Setting breakpoint";
         case RequestStatus::QUERY_ABI:
             return "Check ABI";
         case RequestStatus::QUERY_INSTALL_STATUS:
@@ -599,6 +671,12 @@ const char* DGLADBDevice::toString(DetailRequestStatus detailStatus) {
     switch (detailStatus) {
         case DetailRequestStatus::NONE:
             return "None";
+        case DetailRequestStatus::RELOAD_GET_PORTSTR:
+            return "Get unix port string";
+        case DetailRequestStatus::RELOAD_GET_UNIXSOCKETS:
+            return "Get unix sockets";
+        case DetailRequestStatus::RELOAD_GET_PACKAGELIST:
+            return "Get package list";
         case DetailRequestStatus::PREP_ADB_CHECKUSER:
             return "Check adb user";
         case DetailRequestStatus::PREP_ADB_CHECK_SU_USER:

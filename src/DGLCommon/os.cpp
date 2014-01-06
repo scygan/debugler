@@ -324,3 +324,54 @@ std::string Os::vargsToString(const char* fmt, va_list args) {
 #endif
     return std::string(&buff[0]);
 }
+
+
+#ifdef __ANDROID__
+
+namespace libcutils {
+    void* dso = NULL;
+     int (*property_set)(const char * key, const char* value) = NULL;
+     int (*property_get)(const char *key, char *value, const char *default_value) = NULL;
+}
+
+
+std::string Os::getProp(const char* property) {
+
+    if (!libcutils::dso) {
+        libcutils::dso = dlopen("libcutils.so", RTLD_NOW);
+    }
+
+    if (!libcutils::property_get) {
+        libcutils::property_get =
+            reinterpret_cast<int (*)(const char *key, char *value, const char *default_value)>(
+            (ptrdiff_t)dlsym(libcutils::dso, "property_get"));
+    }
+    
+    char value[200]; //actually PROP_VALUE_MAX is 92 
+
+    if (libcutils::property_get && libcutils::property_get(property, value, "")) {
+        return value;
+    }
+    Os::info("Cannot get system property %s.",
+        property);
+    return "";
+}
+
+bool Os::setProp(const char* property, const char* value) {
+    if (!libcutils::dso) {
+        libcutils::dso = dlopen("libcutils.so", RTLD_NOW);
+    }
+    if (!libcutils::property_set) {
+        libcutils::property_set =
+            reinterpret_cast<int (*)(const char*, const char*)>(
+            (ptrdiff_t)dlsym(libcutils::dso, "property_set"));;
+    }
+       
+    if (!libcutils::property_set || libcutils::property_set(property, value) < 0) {
+        Os::info("Cannot set system property %s.",
+            property);
+        return false;
+    }
+    return true;
+}
+#endif

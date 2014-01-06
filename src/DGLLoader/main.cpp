@@ -255,18 +255,7 @@ int main(int argc, char** argv) {
 
                 // On Android we want to leave a trace of unix socket path, so
                 // GUI knows where to look for sockets.
-                int ret = 0;
-                void* libCUtils = dlopen("libcutils.so", RTLD_NOW);
-                int (*property_set)(const char * key, const char* value) =
-                        reinterpret_cast<int (*)(const char*, const char*)>(
-                                (ptrdiff_t)dlsym(libCUtils, "property_set"));
-                if (!property_set ||
-                    (ret = property_set(DGL_SOCKET_PROP,
-                                        portPath.c_str())) < 0) {
-                    Os::info("Cannot set %s system property: %d.",
-                             DGL_SOCKET_PROP, ret);
-                }
-
+                Os::setProp(DGL_SOCKET_PROP, portPath.c_str());
 #endif
                 dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::UNIX,
                                         portPath);

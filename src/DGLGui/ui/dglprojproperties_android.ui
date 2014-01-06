@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>368</width>
-    <height>141</height>
+    <width>459</width>
+    <height>223</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,14 +39,84 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
+    </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBoxStartup">
+     <property name="title">
+      <string>Start up</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QRadioButton" name="radioButtonAttach">
+        <property name="text">
+         <string>Attach to running application</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButtonNew">
+        <property name="text">
+         <string>Start new application</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Process:</string>
+        <string>Process name</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Package / Activity</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QComboBox" name="comboBoxPackage">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QCheckBox" name="checkBoxManualStart">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Manual start</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>/</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3">
+      <widget class="QLineEdit" name="lineEditActivity"/>
+     </item>
+     <item row="0" column="1" colspan="3">
       <widget class="QComboBox" name="comboBoxProcess">
        <property name="editable">
         <bool>true</bool>
@@ -71,6 +141,6 @@
   <slot>adbKillServer()</slot>
   <slot>adbConnect()</slot>
   <slot>selectDevice(QString)</slot>
-  <slot>tryAccept()</slot>
+  <slot>radioStartupChanged(bool)</slot>
  </slots>
 </ui>

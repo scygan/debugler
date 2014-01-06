@@ -40,11 +40,14 @@ class DGLADBDevice : public QObject, DGLAdbHandler {
    public:
     DGLADBDevice(const std::string& serial);
     void reloadProcesses();
+    void reloadPackages();
     const std::string& getSerial() const;
 
     void queryStatus();
 
     void portForward(std::string from, unsigned short to);
+
+    void setProcessBreakpoint(const std::string& processName);
 
     void installWrapper(std::string path);
     void updateWrapper(std::string path);
@@ -70,8 +73,11 @@ class DGLADBDevice : public QObject, DGLAdbHandler {
 signals:
     void gotProcesses(DGLADBDevice*,
                       const std::vector<DGLAdbDeviceProcess>& data);
+    void gotPackages(DGLADBDevice*,
+        const std::vector<std::string>& data);
     void failed(DGLADBDevice*, const std::string&);
     void portForwardSuccess(DGLADBDevice*);
+    void setProcessBreakPointSuccess(DGLADBDevice*);
     void queryStatusSuccess(DGLADBDevice*);
     void installerDone(DGLADBDevice*);
     void log(DGLADBDevice*, const std::string& log);
@@ -107,8 +113,9 @@ signals:
 
     enum class RequestStatus {
         IDLE,
-        RELOAD_PROCESSES_GET_PORTSTR,
-        RELOAD_PROCESSES_GET_UNIXSOCKETS,
+        RELOAD_PROCESSES,
+        RELOAD_PACKAGES,
+        SET_BREAKPOINT,
         QUERY_ABI,
         QUERY_INSTALL_STATUS,
         PREP_INSTALL,
@@ -119,6 +126,9 @@ signals:
 
     enum class DetailRequestStatus {
         NONE,
+        RELOAD_GET_PORTSTR,
+        RELOAD_GET_UNIXSOCKETS,
+        RELOAD_GET_PACKAGELIST,
         PREP_ADB_CHECKUSER,
         PREP_ADB_CHECK_SU_USER,
         PREP_REMOUNT_FROM_ADB,

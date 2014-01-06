@@ -17,8 +17,8 @@
 
 #include <QMessageBox>
 
-DGLAndroidProject::DGLAndroidProject(std::string deviceSerial, std::string processPort)
-        : m_deviceSerial(deviceSerial), m_processPort(processPort), m_Device(nullptr) {}
+DGLAndroidProject::DGLAndroidProject(const std::string& deviceSerial, const std::string& processName, const std::string& pid)
+        : m_deviceSerial(deviceSerial), m_processName(processName), m_pid(pid), m_Device(nullptr) {}
 
 DGLAndroidProject::~DGLAndroidProject() {
     if (m_Device) {
@@ -31,14 +31,71 @@ void DGLAndroidProject::startDebugging() {
 
     m_Device = new DGLADBDevice(m_deviceSerial);
 
-    m_Device->portForward(m_processPort, m_ForwardedPort);
+    CONNASSERT(m_Device, SIGNAL(failed(DGLADBDevice*, std::string)), this,
+        SLOT(deviceFailed(DGLADBDevice*, std::string)));
+
+    CONNASSERT(
+        m_Device,
+        SIGNAL(gotProcesses(DGLADBDevice*, std::vector<DGLAdbDeviceProcess>)),
+        this,
+        SLOT(gotProcesses(DGLADBDevice*, std::vector<DGLAdbDeviceProcess>)));
+
     CONNASSERT(m_Device, SIGNAL(portForwardSuccess(DGLADBDevice*)), this,
         SLOT(portForwardSuccess(DGLADBDevice*)));
+
+    CONNASSERT(m_Device, SIGNAL(setProcessBreakPointSuccess(DGLADBDevice*)), this,
+        SLOT(setProcessBreakPointSuccess(DGLADBDevice*)));
+
+    if (!m_pid.length()) {
+        //process is not running. inject global breakpoint to break it when in starts
+        m_Device->setProcessBreakpoint(m_processName);
+    } else {
+        //just list running processes and pick one.
+        m_Device->reloadProcesses();
+    }
+
 }
 
 bool DGLAndroidProject::shouldTerminateOnStop() {
     return false;
 }
+
+void DGLAndroidProject::gotProcesses(DGLADBDevice* device, std::vector<DGLAdbDeviceProcess> processes) {
+
+    if (device != m_Device) return;
+
+    if (m_pid.length()) {
+
+        for (size_t i = 0; i < processes.size(); i++) {
+            if (processes[i].getName() == m_processName && processes[i].getPid() == m_pid) {
+                m_Device->portForward(processes[i].getPortName(), m_ForwardedPort);
+                return;
+            }
+        }
+        m_Device->deleteLater();
+        m_Device = NULL;
+        emit debugError(tr("Cannot find process"), tr("Cannot find selected process"));
+
+    } else {
+        for (size_t i = 0; i < processes.size(); i++) {
+            if (processes[i].getName() == m_processName) {
+                m_Device->portForward(processes[i].getPortName(), m_ForwardedPort);
+                return;
+            }
+        }
+        //todo: wait here. prevent looping.
+        m_Device->reloadProcesses();
+    }
+}
+
+
+void DGLAndroidProject::setProcessBreakPointSuccess(DGLADBDevice* device) {
+    if (device == m_Device) {
+        //breakpoint inserted. now look for the process:
+        m_Device->reloadProcesses();
+    }
+}
+
 
 void DGLAndroidProject::portForwardSuccess(DGLADBDevice* device) {
    if (device == m_Device) {
@@ -67,6 +124,16 @@ DGLAndroidProjectFactory::DGLAndroidProjectFactory() {
     CONNASSERT(m_ui.selectDevWidget, SIGNAL(updateWidget()), this, SLOT(updateDialog()));
     CONNASSERT(m_ui.selectDevWidget, SIGNAL(adbFailed(std::string)), this,
         SLOT(adbFailed(std::string)));
+
+    CONNASSERT(m_ui.radioButtonAttach, SIGNAL(toggled(bool)), this,
+        SLOT(radioStartupChanged(bool)));
+    CONNASSERT(m_ui.radioButtonNew, SIGNAL(toggled(bool)), this,
+        SLOT(radioStartupChanged(bool)));
+
+    m_ui.checkBoxManualStart->setChecked(true);
+    m_ui.checkBoxManualStart->setDisabled(true);
+
+    radioStartupChanged(true);
 }
 
 
@@ -75,9 +142,15 @@ std::shared_ptr<DGLProject> DGLAndroidProjectFactory::createProject() {
     if (!valid(message)) {
         throw std::runtime_error(message.toStdString());
     } else {
-        int idx = m_ui.comboBoxProcess->currentIndex();
-        return std::make_shared<DGLAndroidProject>(m_ui.selectDevWidget->getCurrentDevice()->getSerial(), 
-            m_CurrentProcesses[idx].getPortName());
+        if (m_Attach) {
+            int idx = m_ui.comboBoxProcess->currentIndex();
+            return std::make_shared<DGLAndroidProject>(m_ui.selectDevWidget->getCurrentDevice()->getSerial(), 
+                m_CurrentProcesses[idx].getName(), m_CurrentProcesses[idx].getPid());
+        } else {
+            int idx = m_ui.comboBoxPackage->currentIndex();
+            return std::make_shared<DGLAndroidProject>(m_ui.selectDevWidget->getCurrentDevice()->getSerial(), 
+                m_CurrentPackages[idx]);
+        }
     }
 }
 
@@ -87,14 +160,27 @@ bool DGLAndroidProjectFactory::valid(QString& message) {
                 tr("No device selected. Please select desired device from the list. Use \"adb connect...\" to connect to networked adb devices.");
         return false;
     }
-    int idx = m_ui.comboBoxProcess->currentIndex();
-    if (m_CurrentProcesses.size() == 0 ||
-        (idx = m_ui.comboBoxProcess->currentIndex()) < 0) {
-        message =
-            tr("o process selected. Please select "
-            "appropriate process running on device.");
-        return false;
+
+    if (m_Attach) {
+        int idx = m_ui.comboBoxProcess->currentIndex();
+        if (m_CurrentProcesses.size() == 0 ||
+            (idx = m_ui.comboBoxProcess->currentIndex()) < 0) {
+                message =
+                    tr("No process selected. Please select "
+                    "appropriate process running on device.");
+                return false;
+        }
+    } else {
+        int idx = m_ui.comboBoxPackage->currentIndex();
+        if (m_CurrentPackages.size() == 0 ||
+            (idx = m_ui.comboBoxPackage->currentIndex()) < 0) {
+                message =
+                    tr("No process name given. Please fill "
+                    "appropriate process name.");
+                return false;
+        }
     }
+    
     return true;
 }
 
@@ -143,11 +229,41 @@ void DGLAndroidProjectFactory::updateProcesses() {
     }
 }
 
+void DGLAndroidProjectFactory::updatePackages() {
+
+    m_ui.label_deviceStatus->setText("ok.");
+
+    std::sort(m_CurrentPackages.begin(), m_CurrentPackages.end());
+    int j = 0;
+    for (size_t i = 0; i < m_CurrentPackages.size(); i++) {
+        while (j < m_ui.comboBoxPackage->count() &&
+            m_CurrentPackages[i] <
+            m_ui.comboBoxPackage->itemText(j).toStdString()) {
+                m_ui.comboBoxProcess->removeItem(j);
+        }
+        if (m_ui.comboBoxPackage->itemText(j).toStdString() !=
+            m_CurrentPackages[i]) {
+                m_ui.comboBoxPackage->insertItem(
+                    j, QIcon(),
+                    QString::fromStdString(m_CurrentPackages[i]));
+        }
+        j++;
+    }
+    while (m_ui.comboBoxPackage->count() > j) {
+        m_ui.comboBoxPackage->removeItem(j);
+    }
+}
+
+
+
 
 void DGLAndroidProjectFactory::selectDevice(DGLADBDevice* device) {
 
     m_CurrentProcesses.clear();
     updateProcesses();
+
+    m_CurrentPackages.clear();
+    updatePackages();
 
     if (!device) {
         m_ui.label_deviceStatus->setText("No device selected.");
@@ -161,14 +277,42 @@ void DGLAndroidProjectFactory::selectDevice(DGLADBDevice* device) {
             SIGNAL(gotProcesses(DGLADBDevice*, std::vector<DGLAdbDeviceProcess>)),
             this,
             SLOT(gotProcesses(DGLADBDevice*, std::vector<DGLAdbDeviceProcess>)));
+
+        CONNASSERT(
+            device,
+            SIGNAL(gotPackages(DGLADBDevice*, std::vector<std::string>)),
+            this,
+            SLOT(gotPackages(DGLADBDevice*, std::vector<std::string>)));
+
         CONNASSERT(device, SIGNAL(failed(DGLADBDevice*, std::string)), this,
             SLOT(deviceFailed(DGLADBDevice*, std::string)));
     }
 }
 
+void DGLAndroidProjectFactory::radioStartupChanged(bool) {
+    assert(m_ui.radioButtonAttach->isChecked() != m_ui.radioButtonNew->isChecked());
+
+    m_Attach = m_ui.radioButtonAttach->isChecked();
+
+    m_ui.comboBoxProcess->setEnabled(m_Attach);
+    m_ui.comboBoxPackage->setEnabled(!m_Attach);
+    m_ui.lineEditActivity->setEnabled(!m_Attach && !m_ui.checkBoxManualStart->isChecked());
+
+    if (m_Attach) {
+        m_ui.comboBoxPackage->clear();
+        m_ui.lineEditActivity->clear();
+    } else {
+        m_ui.comboBoxProcess->clear();
+    }
+}
+
 void DGLAndroidProjectFactory::updateDialog() {
     if (m_ui.selectDevWidget->getCurrentDevice()) {
-        m_ui.selectDevWidget->getCurrentDevice()->reloadProcesses();
+        if (m_Attach) {
+            m_ui.selectDevWidget->getCurrentDevice()->reloadProcesses();
+        } else {
+            m_ui.selectDevWidget->getCurrentDevice()->reloadPackages();
+        }
     }
 }
 
@@ -184,6 +328,16 @@ void DGLAndroidProjectFactory::gotProcesses(
             m_CurrentProcesses = processes;
 
             updateProcesses();
+        }
+}
+
+void DGLAndroidProjectFactory::gotPackages(
+    DGLADBDevice* device, std::vector<std::string> packages) {
+
+        if (m_ui.selectDevWidget->getCurrentDevice() == device) {
+            m_CurrentPackages = packages;
+
+            updatePackages();
         }
 }
 
