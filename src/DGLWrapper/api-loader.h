@@ -84,8 +84,18 @@ class APILoader {
      *
      * Used on *nix platform, when we can intercept loader calls. This checks
      * if filename in dlopen() is interresting for us
+     *
+     * Returns LIBRARY_NONE, or mask of LIBRARY_*
      */
-    bool isLibGL(const char* name);
+    int whichLibrary(const char* name);
+
+
+    /** 
+     * Gets entrypoint library mask
+     * For each library entrypoint is present in LIBRARY_* bit is set.
+     */
+    int getEntryPointLibrary(Entrypoint entryp);
+
 
     /**
      * Set pointer to entrypoint implementation

@@ -145,15 +145,33 @@ std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
     }
 }
 
-bool APILoader::isLibGL(const char* name) {
+int APILoader::whichLibrary(const char* name) {
     std::string nameStr(name);
-    bool ret =
-            nameStr.find(STRIP_VERSION(LIBGL_NAME)) != std::string::npos ||
-            nameStr.find(STRIP_VERSION(LIBGLES1_NAME)) != std::string::npos ||
-            nameStr.find(STRIP_VERSION(LIBGLES2_NAME)) != std::string::npos ||
-            nameStr.find(STRIP_VERSION(LIBEGL_NAME)) != std::string::npos;
 
-    return ret;
+    if (nameStr.find(STRIP_VERSION(LIBGL_NAME)) != std::string::npos) {
+        return LIBRARY_GL | LIBRARY_WGL | LIBRARY_GLX
+            //as an exception assume app can load GL exts via dynamic library load
+            //This is some because some Linux libraries contain much more syms than ABI specifies
+                | LIBRARY_GL_EXT;
+    }
+
+    if (nameStr.find(STRIP_VERSION(LIBGLES1_NAME)) != std::string::npos) {
+        return LIBRARY_ES1;
+    }
+
+    if (nameStr.find(STRIP_VERSION(LIBGLES2_NAME)) != std::string::npos) {
+        return LIBRARY_ES2 | LIBRARY_ES3;
+    }
+
+    if (nameStr.find(STRIP_VERSION(LIBEGL_NAME)) != std::string::npos) {
+        return LIBRARY_EGL;
+    }
+
+    return LIBRARY_NONE;
+}
+
+int APILoader::getEntryPointLibrary(Entrypoint entryp) {
+    return g_DirectPointers[entryp].libraryMask;
 }
 
 void APILoader::setPointer(Entrypoint entryp, FUNC_PTR direct) {

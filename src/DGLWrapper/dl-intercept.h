@@ -33,13 +33,14 @@ class DLIntercept {
     void* real_dlopen(const char* filename, int flag);
 
    private:
+    void* dlsymImpl(void* handle, const char* name, void* ptr);
     void initialize();
 
     void* (*m_real_dlsym)(void* handle, const char* name);
     void* (*m_real_dlvsym)(void* handle, const char* name, const char* version);
     void* (*m_real_dlopen)(const char* filename, int flag);
 
-    std::map<uint64_t, bool> mSupportedLibraries;
+    std::map<uint64_t, int> mSupportedLibraries; //handle -> ApiLibrary mask
 
     bool m_initialized;
     boost::recursive_mutex mutex;

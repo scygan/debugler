@@ -172,41 +172,39 @@ void *DLIntercept::dlsym(void *handle, const char *name) {
 
     void *ptr = real_dlsym(handle, name);
 
-    boost::recursive_mutex::scoped_lock lock(mutex);
-
-    std::map<uint64_t, bool>::iterator i =
-            mSupportedLibraries.find(reinterpret_cast<uint64_t>(handle));
-
-    Entrypoint entryp = GetEntryPointEnum(name);
-
-    if (!DGLThreadState::get()->inActionProcessing() &&
-        i != mSupportedLibraries.end() && i->second &&
-        entryp != NO_ENTRYPOINT) {
-        g_ApiLoader.setPointer(entryp,
-                               reinterpret_cast<FUNC_PTR>((ptrdiff_t)ptr));
-        return reinterpret_cast<void *>((ptrdiff_t)getWrapperPointer(entryp));
-    } else {
-        return ptr;
-    }
+    return dlsymImpl(handle, name, ptr);
 }
 
 void *DLIntercept::dlvsym(void *handle, const char *name, const char *version) {
 
     void *ptr = real_dlvsym(handle, name, version);
 
-    boost::recursive_mutex::scoped_lock lock(mutex);
+    return dlsymImpl(handle, name, ptr);
+}
 
-    std::map<uint64_t, bool>::iterator i =
+void* DLIntercept::dlsymImpl(void* handle, const char* name, void* ptr) {
+boost::recursive_mutex::scoped_lock lock(mutex);
+
+    std::map<uint64_t, int>::iterator i =
             mSupportedLibraries.find(reinterpret_cast<uint64_t>(handle));
 
     Entrypoint entryp = GetEntryPointEnum(name);
 
-    if (!DGLThreadState::get()->inActionProcessing() &&
-        i != mSupportedLibraries.end() && i->second &&
-        entryp != NO_ENTRYPOINT) {
+    if (
+        ptr &&                                          //entrypoint pointer is not NULL
+        entryp != NO_ENTRYPOINT &&                      //entrypoint is supported by debugger
+        !DGLThreadState::get()->inActionProcessing() && //dlsym was not emited by GL implementation
+        i != mSupportedLibraries.end() &&               //library from handle is supported by debugger
+        (i->second & g_ApiLoader.getEntryPointLibrary(entryp)) //library from handle match entrypoint library mask
+       ) {
+
+        //set debugger to use new entrypoint
         g_ApiLoader.setPointer(entryp,
                                reinterpret_cast<FUNC_PTR>((ptrdiff_t)ptr));
+
+        //return address of a wrapper to application
         return reinterpret_cast<void *>((ptrdiff_t)getWrapperPointer(entryp));
+
     } else {
         return ptr;
     }
@@ -217,8 +215,11 @@ void *DLIntercept::dlopen(const char *filename, int flag) {
 
     void *ret = real_dlopen(filename, flag);
 
-    if (ret && filename && g_ApiLoader.isLibGL(filename)) {
-        mSupportedLibraries[reinterpret_cast<uint64_t>(ret)] = true;
+    if (ret && filename) {
+        int libraries = g_ApiLoader.whichLibrary(filename);
+        if (libraries != LIBRARY_NONE) {
+            mSupportedLibraries[reinterpret_cast<uint64_t>(ret)] = libraries;
+        }
     }
 
     return ret;
