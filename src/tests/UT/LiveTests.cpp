@@ -106,6 +106,7 @@ class LiveTest : public ::testing::Test {
     void terminate(std::shared_ptr<dglnet::Client> client) {
         dglnet::message::Terminate msg;
         client->sendMessage(&msg);
+        while (client->run_one()) {}
         client->abort();
     }
 

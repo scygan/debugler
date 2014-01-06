@@ -103,8 +103,8 @@ void Transport<proto>::poll() {
 }
 
 template <class proto>
-void Transport<proto>::run_one() {
-    m_detail->m_io_service.run_one();
+bool Transport<proto>::run_one() {
+    return m_detail->m_io_service.run_one() > 0;
 }
 
 template <class proto>

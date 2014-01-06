@@ -44,7 +44,7 @@ class ITransport : public std::enable_shared_from_this<ITransport> {
     virtual ~ITransport() {}
     virtual void sendMessage(const Message* msg) = 0;
     virtual void poll() = 0;
-    virtual void run_one() = 0;
+    virtual bool run_one() = 0;
     virtual void abort() = 0;
 
     std::shared_ptr<ITransport> get_shared_from_base() {
@@ -59,7 +59,7 @@ class Transport : public ITransport {
     virtual ~Transport();
     virtual void sendMessage(const Message* msg) override;
     virtual void poll() override;
-    virtual void run_one() override;
+    virtual bool run_one() override;
     virtual void abort() override;
 
    protected:
