@@ -1,16 +1,11 @@
 .PHONY: all force
-all: $(OUT)\.dir $(OUT)\bin\$(ABI)\dglloader $(OUT)\libs\$(ABI)\libdglwrapper.so
+all: $(OUT)\.dir $(OUT)\bin\$(ABI)\dglandroidinstaller
 
 $(OUT)\.dir:
 	mkdir $(OUT)
 	echo dir > $(OUT)\.dir
 
-$(OUT)\libs\$(ABI)\libdglwrapper.so: $(OUT)\build.ninja force
-	cd $(OUT)
-	set PATH=%PATH%;c:\python27
-	..\..\..\tools\ninja.exe
-
-$(OUT)\bin\$(ABI)\dglloader: $(OUT)\build.ninja force
+$(OUT)\bin\$(ABI)\dglandroidinstaller: $(OUT)\build.ninja force
 	cd $(OUT)
 	set PATH=%PATH%;c:\python27
 	..\..\..\tools\ninja.exe
