@@ -95,16 +95,20 @@ class DGLPackageListFilter : public DGLAdbOutputFilter {
         
         const size_t offset = strlen("package:");
 
+        bool frameworkNotRunning = false;
+
         for (size_t i = 0; i < input.size(); i++) {
             int pos = input[i].find("package:"); 
             if (pos == 0) {
                 output.push_back(input[i].substr(offset));
+            } else {
+                if (input[i].find("Could not access the Package Manager") != std::string::npos) {
+                    frameworkNotRunning = true;
+                }
             }
         }
-        if (output.size()) {
-            return true;
-        }
-        return false;
+
+        return (output.size() > 0 || frameworkNotRunning);
     }
 };
 }
