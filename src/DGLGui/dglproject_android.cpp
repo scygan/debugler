@@ -280,7 +280,7 @@ void DGLAndroidProjectFactory::updatePackages() {
         while (j < m_ui.comboBoxPackage->count() &&
             m_CurrentPackages[i] <
             m_ui.comboBoxPackage->itemText(j).toStdString()) {
-                m_ui.comboBoxProcess->removeItem(j);
+                m_ui.comboBoxPackage->removeItem(j);
         }
         if (m_ui.comboBoxPackage->itemText(j).toStdString() !=
             m_CurrentPackages[i]) {
