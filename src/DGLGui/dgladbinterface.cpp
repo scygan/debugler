@@ -162,10 +162,10 @@ void DGLAdbCookieImpl::handleProcessFinished(int code,
         foreach(QByteArray qLine, qLines) {
             // skip adb server startup messages.
             if (qLine[0] == '*') {
-                if (qLine.contains("daemon not running.")) {
+                if (qLine.contains("daemon not running")) {
                     continue;
                 }
-                if (qLine.contains("daemon started successfully.")) {
+                if (qLine.contains("daemon started successfully")) {
                     continue;
                 }
             }
