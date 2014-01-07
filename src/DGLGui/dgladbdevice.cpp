@@ -145,6 +145,7 @@ const std::string DGLAdbDeviceProcess::getDescriptionStr() const {
 DGLADBDevice::DGLADBDevice(const std::string& serial)
         : m_Serial(serial),
           m_Status(InstallStatus::UNKNOWN),
+          m_ABI(ABI::UNKNOWN),
           m_RequestStatus(RequestStatus::IDLE),
           m_DetailRequestStatus(DetailRequestStatus::NONE),
           m_RootSuRequired(false) {}
