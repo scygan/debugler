@@ -111,8 +111,12 @@ DeviceChoice::DeviceChoice(QWidget *parent) : QWizardPage(parent) {
 
     registerField("device*", this, "deviceProp", SIGNAL(completeChanged()));
 
+
+    m_Status = DGLADBDevice::InstallStatus::UNKNOWN;
+    m_Abi = DGLADBDevice::ABI::UNKNOWN;
+    
     setDeviceStatus(DGLADBDevice::InstallStatus::UNKNOWN,
-                    DGLADBDevice::ABI::UNKNOWN);
+                    DGLADBDevice::ABI::UNKNOWN, true);
 
     setLayout(layout);
 
@@ -124,7 +128,14 @@ DGLADBDevice *DeviceChoice::device() const {
 }
 
 void DeviceChoice::setDeviceStatus(DGLADBDevice::InstallStatus status,
-                                   DGLADBDevice::ABI abi) {
+                                   DGLADBDevice::ABI abi, bool force) {
+
+    if (m_Status ==  status && m_Abi == abi && !force) {
+        return; 
+    }
+
+    m_Status = status;
+    m_Abi = abi;
 
     m_ReloadTimer.stop();
 
@@ -168,6 +179,9 @@ void DeviceChoice::setDeviceStatus(DGLADBDevice::InstallStatus status,
     } else if (abi == DGLADBDevice::ABI::MIPS) {
         m_DeviceABILabel->setText("Device abi: mips (supported)");
     }
+
+    emit completeChanged();
+
 }
 
 void DeviceChoice::hideEvent(QHideEvent *event) {
@@ -221,22 +235,18 @@ void DeviceChoice::queryDeviceStatusSuccess(DGLADBDevice *device) {
         setDeviceStatus(m_SelectWidget->getCurrentDevice()->getInstallStatus(),
                         m_SelectWidget->getCurrentDevice()->getABI());
     }
-    emit completeChanged();
 }
 
 bool DeviceChoice::isComplete() const {
     if (m_SelectWidget->getCurrentDevice() &&
-        m_SelectWidget->getCurrentDevice()->getABI() !=
-                DGLADBDevice::ABI::UNKNOWN) {
-        if (m_SelectWidget->getCurrentDevice()->getInstallStatus() ==
-            DGLADBDevice::InstallStatus::INSTALLED) {
+        m_Abi != DGLADBDevice::ABI::UNKNOWN) {
+        if (m_Status == DGLADBDevice::InstallStatus::INSTALLED) {
             if (m_RadioButtonClean->isChecked() ||
                 m_RadioButtonUpdate->isChecked()) {
                 return true;
             }
         }
-        if (m_SelectWidget->getCurrentDevice()->getInstallStatus() ==
-            DGLADBDevice::InstallStatus::CLEAN) {
+        if (m_Status == DGLADBDevice::InstallStatus::CLEAN) {
             if (m_RadioButtonInstall->isChecked()) {
                 return true;
             }

@@ -28,6 +28,11 @@ class DGLAndroidProject : public DGLProject {
 
     ~DGLAndroidProject();
 
+    const std::string& getDeviceSerial() const;
+    const std::string& getPid() const;
+    const std::string& getProcessName() const;
+
+
    private slots:
     void portForwardSuccess(DGLADBDevice*);
     void setProcessBreakPointSuccess(DGLADBDevice*);

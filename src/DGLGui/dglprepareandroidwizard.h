@@ -71,7 +71,7 @@ signals:
    private:
     virtual bool isComplete() const override;
 
-    void setDeviceStatus(DGLADBDevice::InstallStatus, DGLADBDevice::ABI);
+    void setDeviceStatus(DGLADBDevice::InstallStatus, DGLADBDevice::ABI, bool force = false);
 
     virtual void hideEvent(QHideEvent* event) override;
     virtual void showEvent(QShowEvent* event) override;
@@ -85,6 +85,9 @@ signals:
     QRadioButton* m_RadioButtonClean, *m_RadioButtonUpdate,
             *m_RadioButtonInstall;
     QTimer m_ReloadTimer;
+
+    DGLADBDevice::InstallStatus m_Status;
+    DGLADBDevice::ABI m_Abi;
 };
 Q_DECLARE_METATYPE(DGLADBDevice*);
 

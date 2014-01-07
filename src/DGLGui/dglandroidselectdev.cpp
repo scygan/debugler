@@ -26,6 +26,10 @@ DGLADBDevice* DGLAndroidSelectDevWidget::getCurrentDevice() {
     return m_CurrentDevice.get();
 }
 
+void DGLAndroidSelectDevWidget::setPreselectedDevice(const std::string& serial) {
+    m_PreselectedDeviceSerial = serial;
+}
+
 void DGLAndroidSelectDevWidget::adbKillServer() {
 
     DGLAdbCookie* cookie = DGLAdbInterface::get()->killServer(&m_KillOrConnectHandler);
@@ -70,6 +74,10 @@ void DGLAndroidSelectDevWidget::gotDevices(std::vector<std::string> devices) {
 
     std::sort(devices.begin(), devices.end());
 
+    if (m_PreselectedDeviceSerial.length()) {
+        m_ui.comboBox->setCurrentIndex(-1);
+    }
+
     int j = 0;
     for (size_t i = 0; i < devices.size(); i++) {
         while (j < m_ui.comboBox->count() &&
@@ -85,6 +93,23 @@ void DGLAndroidSelectDevWidget::gotDevices(std::vector<std::string> devices) {
     while (m_ui.comboBox->count() > j) {
         m_ui.comboBox->removeItem(j);
     }
+
+    if (m_PreselectedDeviceSerial.length()) {
+
+        std::vector<std::string>::iterator i =
+            std::find(devices.begin(), devices.end(), m_PreselectedDeviceSerial);
+
+        if (i == devices.end()) {
+            std::string serial = "";
+            std::swap(m_PreselectedDeviceSerial, serial);
+            emit adbFailed("Device not found: " + serial);
+        } else {
+            m_ui.comboBox->setCurrentIndex(i - devices.begin());
+        }
+
+        m_PreselectedDeviceSerial = "";
+    }
+
     if (m_CurrentDevice.get()) {
         emit updateWidget();
     }

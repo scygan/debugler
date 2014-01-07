@@ -41,6 +41,9 @@ class DGLAndroidSelectDevWidget : public QWidget, DGLAdbHandler {
    public:
     DGLAndroidSelectDevWidget(QWidget* parent);
     DGLADBDevice* getCurrentDevice();
+
+    void setPreselectedDevice(const std::string& serial);
+
    public
 slots:
     void adbKillServer();
@@ -82,6 +85,9 @@ slots:
     std::shared_ptr<DGLADBDevice> m_CurrentDevice;
 
     Ui::DGLAndroidSelectDev m_ui;
+
+    std::string m_PreselectedDeviceSerial;
+
 };
 
 #endif    // DGLCONNECTDIALOG_H

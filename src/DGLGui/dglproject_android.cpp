@@ -26,6 +26,14 @@ DGLAndroidProject::~DGLAndroidProject() {
     }
 }
 
+const std::string& DGLAndroidProject::getDeviceSerial() const {
+    return m_deviceSerial;
+}
+
+const std::string& DGLAndroidProject::getPid() const {
+    return m_pid;
+}
+
 void DGLAndroidProject::startDebugging() {
     m_ForwardedPort = rand() % (0xffff - 1024) + 1024;
 
@@ -191,11 +199,19 @@ bool DGLAndroidProjectFactory::loadPropertiesFromProject(
     if (!androidProject) {
         return false;
     }
-    //m_ui.lineEdit_IpAddress->setText(
-    //        QString::fromStdString(tcpProject->getAddress()));
-    //m_ui.lineEdit_TcpPort->setText(
-    //        QString::fromStdString(tcpProject->getPort()));
-    return false;
+
+    std::string pid = androidProject->getPid();
+
+    m_Attach = (pid.length() > 0);
+
+    m_ui.selectDevWidget->setPreselectedDevice(androidProject->getDeviceSerial());
+
+    
+    //TODO: pid
+    //TODO: processName
+
+
+    return true;
 }
 
 QString DGLAndroidProjectFactory::getName() {
