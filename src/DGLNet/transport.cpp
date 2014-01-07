@@ -82,12 +82,12 @@ Transport<proto>::~Transport() {
     if (!m_Abort) abort();
 }
 
-template <class proto>
-void Transport<proto>::abort() {
+template <>
+void Transport<boost::asio::ip::tcp>::abort() {
     m_Abort = true;
     try {
         m_detail->m_socket.shutdown(
-                boost::asio::ip::tcp::socket::shutdown_both);
+            boost::asio::ip::tcp::socket::shutdown_both);
         m_detail->m_socket.close();
         while (m_detail->m_io_service.run_one()) {
         }
@@ -95,6 +95,22 @@ void Transport<proto>::abort() {
     catch (...) {
     }
 }
+
+#ifdef BOOST_ASIO_HAS_LOCAL_SOCKETS
+template <>
+void Transport<boost::asio::local::stream_protocol>::abort() {
+    m_Abort = true;
+    try {
+        m_detail->m_socket.shutdown(
+            boost::asio::local::stream_protocol::socket::shutdown_both);
+        m_detail->m_socket.close();
+        while (m_detail->m_io_service.run_one()) {
+        }
+    }
+    catch (...) {
+    }
+}
+#endif
 
 template <class proto>
 void Transport<proto>::poll() {

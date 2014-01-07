@@ -275,7 +275,7 @@ DGLDebugServer& DGLDebugController::getServer() {
 
             if (droidWait) {
                  //reset the global breakpoint
-                 Os::getProp("debug." DGL_PRODUCT_LOWER ".break", "");
+                 Os::setProp("debug." DGL_PRODUCT_LOWER ".break", "");
             }
 
             wait |= droidWait;
@@ -290,6 +290,7 @@ DGLDebugServer& DGLDebugController::getServer() {
             case DGLIPC::DebuggerPortType::UNIX:
 
 #ifndef _WIN32
+                unlink(port.c_str());
                 m_Server.listen<dglnet::ServerUnixDomain>(port, wait);
 #else
                 throw std::runtime_error(
