@@ -263,13 +263,20 @@ DGLDebugServer& DGLDebugController::getServer() {
 
 #ifdef __ANDROID__
         {
+            //get global breakpoint
             std::string processBreakPoint = Os::getProp("debug." DGL_PRODUCT_LOWER ".break");
+
             std::string processName = Os::getProcessName();
 
             bool droidWait = (processBreakPoint == processName);
 
             Os::info("Process name: %s, process breakpoint: %s, waiting for debugger: %d", 
                 processName.c_str(), processBreakPoint.c_str(), (int)droidWait);
+
+            if (droidWait) {
+                 //reset the global breakpoint
+                 Os::getProp("debug." DGL_PRODUCT_LOWER ".break", "");
+            }
 
             wait |= droidWait;
         }
