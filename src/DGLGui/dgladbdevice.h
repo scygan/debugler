@@ -21,7 +21,10 @@
 class DGLAdbDeviceProcess {
    public:
     DGLAdbDeviceProcess(const std::string& pid, const std::string& name,
-                        const std::string& portName);
+                        const std::string& portName = "");
+
+    bool operator==(const DGLAdbDeviceProcess& rhs) const;
+
     bool operator<(const DGLAdbDeviceProcess& other) const;
     const std::string& getPid() const;
     const std::string& getName() const;

@@ -34,6 +34,10 @@ const std::string& DGLAndroidProject::getPid() const {
     return m_pid;
 }
 
+const std::string& DGLAndroidProject::getProcessName() const {
+    return m_processName;
+}
+
 void DGLAndroidProject::startDebugging() {
     m_ForwardedPort = rand() % (0xffff - 1024) + 1024;
 
@@ -155,9 +159,8 @@ std::shared_ptr<DGLProject> DGLAndroidProjectFactory::createProject() {
             return std::make_shared<DGLAndroidProject>(m_ui.selectDevWidget->getCurrentDevice()->getSerial(), 
                 m_CurrentProcesses[idx].getName(), m_CurrentProcesses[idx].getPid());
         } else {
-            int idx = m_ui.comboBoxPackage->currentIndex();
             return std::make_shared<DGLAndroidProject>(m_ui.selectDevWidget->getCurrentDevice()->getSerial(), 
-                m_CurrentPackages[idx]);
+                m_ui.comboBoxPackage->lineEdit()->text().toStdString());
         }
     }
 }
@@ -179,9 +182,7 @@ bool DGLAndroidProjectFactory::valid(QString& message) {
                 return false;
         }
     } else {
-        int idx = m_ui.comboBoxPackage->currentIndex();
-        if (m_CurrentPackages.size() == 0 ||
-            (idx = m_ui.comboBoxPackage->currentIndex()) < 0) {
+        if (m_ui.comboBoxPackage->lineEdit()->text().length() < 0) {
                 message =
                     tr("No process name given. Please fill "
                     "appropriate process name.");
@@ -206,10 +207,12 @@ bool DGLAndroidProjectFactory::loadPropertiesFromProject(
 
     m_ui.selectDevWidget->setPreselectedDevice(androidProject->getDeviceSerial());
 
-    
-    //TODO: pid
-    //TODO: processName
 
+    if (m_Attach) {
+        m_PreselectedProcess = std::make_shared<DGLAdbDeviceProcess>(pid, androidProject->getProcessName());
+    } else {
+        m_ui.comboBoxPackage->setEditText(QString::fromStdString(androidProject->getProcessName()));
+    }
 
     return true;
 }
@@ -243,6 +246,23 @@ void DGLAndroidProjectFactory::updateProcesses() {
     while (m_ui.comboBoxProcess->count() > j) {
         m_ui.comboBoxProcess->removeItem(j);
     }
+
+
+    if (m_PreselectedProcess) {
+        std::vector<DGLAdbDeviceProcess>::iterator i =
+            std::find(m_CurrentProcesses.begin(), m_CurrentProcesses.end(), *m_PreselectedProcess);
+
+        if (i != m_CurrentProcesses.end()) {
+            m_ui.comboBoxProcess->setCurrentIndex(i - m_CurrentProcesses.begin());
+        } else {
+            std::shared_ptr<DGLAdbDeviceProcess> process;
+            std::swap(m_PreselectedProcess, process);
+            QMessageBox::critical(&m_gui, tr("Project properties error"),
+                QString::fromStdString("Process " + process->getDescriptionStr() + "not found."));
+        }
+        m_PreselectedProcess.reset();
+    }
+
 }
 
 void DGLAndroidProjectFactory::updatePackages() {

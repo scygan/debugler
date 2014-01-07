@@ -114,6 +114,13 @@ DGLAdbDeviceProcess::DGLAdbDeviceProcess(const std::string& pid,
                                          const std::string& portName)
         : m_Pid(pid), m_Name(name), m_PortName(portName) {}
 
+bool DGLAdbDeviceProcess::operator==(const DGLAdbDeviceProcess& rhs) const {
+    return 
+        rhs.getName() == m_Name && 
+        rhs.getPid() == m_Pid;
+    //we don't compare port strings, as they are not mandatory in ctor
+}
+
 bool DGLAdbDeviceProcess::operator<(const DGLAdbDeviceProcess& other) const {
     if (m_Name < other.getName()) {
         return true;

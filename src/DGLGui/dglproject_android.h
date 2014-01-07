@@ -80,6 +80,8 @@ slots:
     QWidget m_gui;
 
     std::vector<DGLAdbDeviceProcess> m_CurrentProcesses;
+    std::shared_ptr<DGLAdbDeviceProcess> m_PreselectedProcess;
+
     std::vector<std::string> m_CurrentPackages;
 
     bool m_Attach;
