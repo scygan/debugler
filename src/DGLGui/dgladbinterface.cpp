@@ -119,7 +119,7 @@ DGLAdbCookieImpl::DGLAdbCookieImpl(const std::string& adbPath,
                                    const std::vector<std::string>& params,
                                    DGLAdbHandler* handler,
                                    std::shared_ptr<DGLAdbOutputFilter> filter)
-        : m_adbPath(adbPath), m_params(params), DGLAdbCookie(handler, filter) {
+        : m_adbPath(adbPath), m_params(params), m_Deleted(false), DGLAdbCookie(handler, filter) {
 
     m_process = new DGLBaseQTProcess();
     m_process->setParent(this);
@@ -144,8 +144,11 @@ void DGLAdbCookieImpl::process() {
 
 void DGLAdbCookieImpl::handleProcessError(QProcess::ProcessError) {
     onFailed(m_process->getProcess()->errorString().toStdString());
-    disconnect();
-    deleteLater();
+    if (!m_Deleted) {
+        m_Deleted = true;
+        disconnect();
+        deleteLater();
+    }
 }
 
 void DGLAdbCookieImpl::handleProcessFinished(int code,
@@ -203,8 +206,11 @@ void DGLAdbCookieImpl::handleProcessFinished(int code,
     } else {
         onFailed("ADB process crashed");
     }
-    disconnect();
-    deleteLater();
+    if (!m_Deleted) {
+        m_Deleted = true;
+        disconnect();
+        deleteLater();
+    }
 }
 
 DGLAdbCookieFactory::DGLAdbCookieFactory(const std::string adbPath)

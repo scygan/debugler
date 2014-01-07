@@ -78,6 +78,7 @@ slots:
     std::string m_adbPath;
     std::vector<std::string> m_params;
     DGLBaseQTProcess* m_process;
+    bool m_Deleted;
 };
 
 class DGLAdbOutputFilter {
