@@ -18,7 +18,6 @@
 DGLAndroidSelectDevWidget::DGLAndroidSelectDevWidget(QWidget* parent)
         : m_KillOrConnectHandler(this), QWidget(parent) {
     m_ui.setupUi(this);
-    m_ReloadTimer.setInterval(1000);
 
     CONNASSERT(&m_ReloadTimer, SIGNAL(timeout()), this, SLOT(reloadDevices()));
 }
@@ -59,10 +58,11 @@ void DGLAndroidSelectDevWidget::selectDevice(const QString& serial) {
 
 void DGLAndroidSelectDevWidget::reloadDevices() {
 
+    m_ReloadTimer.setInterval(1000);
     m_ReloadTimer.start();
 
     DGLAdbCookie* cookie = DGLAdbInterface::get()->getDevices(this);
-    
+
     cookie->process();
 }
 
@@ -91,7 +91,10 @@ void DGLAndroidSelectDevWidget::gotDevices(std::vector<std::string> devices) {
 }
 
 void DGLAndroidSelectDevWidget::showEvent(QShowEvent* event) {
-    reloadDevices();
+    if (!m_ReloadTimer.isActive()) {
+        m_ReloadTimer.setInterval(1);
+        m_ReloadTimer.start();
+    }
     QWidget::showEvent(event);
 }
 
@@ -113,8 +116,8 @@ void DGLAndroidSelectDevWidget::done(const std::vector<std::string>& data) {
 }
 
 void DGLAndroidSelectDevWidget::failed(const std::string& reason) {
-    emit adbFailed(reason);
     m_ReloadTimer.stop();
+    emit adbFailed(reason);
 }
 
 DGLConnectAndroidAdbDialog::DGLConnectAndroidAdbDialog() { m_ui.setupUi(this); }
