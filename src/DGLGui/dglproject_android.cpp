@@ -269,6 +269,8 @@ void DGLAndroidProjectFactory::updatePackages() {
 
     m_ui.label_deviceStatus->setText("ok.");
 
+    QString tmpValue = m_ui.comboBoxPackage->lineEdit()->text();
+
     std::sort(m_CurrentPackages.begin(), m_CurrentPackages.end());
     int j = 0;
     for (size_t i = 0; i < m_CurrentPackages.size(); i++) {
@@ -288,6 +290,8 @@ void DGLAndroidProjectFactory::updatePackages() {
     while (m_ui.comboBoxPackage->count() > j) {
         m_ui.comboBoxPackage->removeItem(j);
     }
+
+    m_ui.comboBoxPackage->lineEdit()->setText(tmpValue);
 }
 
 
@@ -296,10 +300,12 @@ void DGLAndroidProjectFactory::updatePackages() {
 void DGLAndroidProjectFactory::selectDevice(DGLADBDevice* device) {
 
     m_CurrentProcesses.clear();
-    updateProcesses();
+    m_ui.comboBoxProcess->clear();
 
     m_CurrentPackages.clear();
-    updatePackages();
+    QString tmpValue = m_ui.comboBoxPackage->lineEdit()->text();
+    m_ui.comboBoxPackage->clear();
+    m_ui.comboBoxPackage->lineEdit()->setText(tmpValue);
 
     if (!device) {
         m_ui.label_deviceStatus->setText("No device selected.");
@@ -334,10 +340,7 @@ void DGLAndroidProjectFactory::radioStartupChanged(bool) {
     m_ui.comboBoxPackage->setEnabled(!m_Attach);
     m_ui.lineEditActivity->setEnabled(!m_Attach && !m_ui.checkBoxManualStart->isChecked());
 
-    if (m_Attach) {
-        m_ui.comboBoxPackage->clear();
-        m_ui.lineEditActivity->clear();
-    } else {
+    if (!m_Attach) {
         m_ui.comboBoxProcess->clear();
     }
 }
