@@ -40,6 +40,7 @@ class DGLAndroidProject : public DGLProject {
     void gotProcesses(DGLADBDevice*, std::vector<DGLAdbDeviceProcess>);
    private:
     virtual void startDebugging() override;
+    virtual void stopDebugging() override;
     virtual bool shouldTerminateOnStop() override;
     std::string m_deviceSerial;
     std::string m_processName;

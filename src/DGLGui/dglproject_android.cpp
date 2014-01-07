@@ -68,6 +68,13 @@ void DGLAndroidProject::startDebugging() {
 
 }
 
+void DGLAndroidProject::stopDebugging() {
+    if (m_Device) {
+        m_Device->deleteLater();
+        m_Device = NULL;
+    }
+}
+
 bool DGLAndroidProject::shouldTerminateOnStop() {
     return false;
 }
@@ -114,8 +121,6 @@ void DGLAndroidProject::portForwardSuccess(DGLADBDevice* device) {
        std::ostringstream portStr; 
        portStr << m_ForwardedPort;
        emit debugStarted("127.0.0.1", portStr.str());
-       m_Device->deleteLater();
-       m_Device = NULL;
    }
 }
 
@@ -123,8 +128,6 @@ void DGLAndroidProject::deviceFailed(DGLADBDevice* device, const std::string& me
     if (device == m_Device) {
         emit debugError(tr("Device Error"), QString::fromStdString(m_Device->getSerial()) + ": " +
             QString::fromStdString(message));
-        m_Device->deleteLater();
-        m_Device = NULL;
     }   
 }
 
