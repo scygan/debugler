@@ -18,7 +18,7 @@
 #include <QMessageBox>
 
 DGLAndroidProject::DGLAndroidProject(const std::string& deviceSerial, const std::string& processName, const std::string& pid)
-        : m_deviceSerial(deviceSerial), m_processName(processName), m_pid(pid), m_Device(nullptr) {}
+        : m_deviceSerial(deviceSerial), m_processName(processName), m_pid(pid), m_Device(nullptr), m_Deleting(false) {}
 
 DGLAndroidProject::~DGLAndroidProject() {
     if (m_Device) {
@@ -39,6 +39,9 @@ const std::string& DGLAndroidProject::getProcessName() const {
 }
 
 void DGLAndroidProject::startDebugging() {
+
+    m_Deleting = false;
+
     m_ForwardedPort = rand() % (0xffff - 1024) + 1024;
 
     m_Device = new DGLADBDevice(m_deviceSerial);
@@ -58,6 +61,9 @@ void DGLAndroidProject::startDebugging() {
     CONNASSERT(m_Device, SIGNAL(setProcessBreakPointSuccess(DGLADBDevice*)), this,
         SLOT(setProcessBreakPointSuccess(DGLADBDevice*)));
 
+    CONNASSERT(m_Device, SIGNAL(unsetProcessBreakPointSuccess(DGLADBDevice*)), this,
+        SLOT(unsetProcessBreakPointSuccess(DGLADBDevice*)));
+
     if (!m_pid.length()) {
         //process is not running. inject global breakpoint to break it when in starts
         m_Device->setProcessBreakpoint(m_processName);
@@ -70,8 +76,13 @@ void DGLAndroidProject::startDebugging() {
 
 void DGLAndroidProject::stopDebugging() {
     if (m_Device) {
-        m_Device->deleteLater();
-        m_Device = NULL;
+        if (!m_pid.length()) {
+            m_Deleting = true;
+            m_Device->unsetProcessBreakpoint();
+        } else {
+            m_Device->deleteLater();
+            m_Device = nullptr;
+        }
     }
 }
 
@@ -98,7 +109,10 @@ void DGLAndroidProject::gotProcesses(DGLADBDevice* device, std::vector<DGLAdbDev
     } else {
         for (size_t i = 0; i < processes.size(); i++) {
             if (processes[i].getName() == m_processName) {
+
+                //found matching process. forward connection to it:
                 m_Device->portForward(processes[i].getPortName(), m_ForwardedPort);
+
                 return;
             }
         }
@@ -115,12 +129,25 @@ void DGLAndroidProject::setProcessBreakPointSuccess(DGLADBDevice* device) {
     }
 }
 
+void DGLAndroidProject::unsetProcessBreakPointSuccess(DGLADBDevice* device) {
+    if (device == m_Device) {
+
+        if (!m_Deleting) {
+            //breakpoint removed. start debug.
+            std::ostringstream portStr; 
+            portStr << m_ForwardedPort;
+            emit debugStarted("127.0.0.1", portStr.str());
+        } else {
+            m_Device->deleteLater();
+            m_Device = nullptr;
+        }
+    }
+}
+
 
 void DGLAndroidProject::portForwardSuccess(DGLADBDevice* device) {
    if (device == m_Device) {
-       std::ostringstream portStr; 
-       portStr << m_ForwardedPort;
-       emit debugStarted("127.0.0.1", portStr.str());
+      m_Device->unsetProcessBreakpoint();
    }
 }
 

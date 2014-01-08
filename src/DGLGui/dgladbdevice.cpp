@@ -260,6 +260,19 @@ void DGLADBDevice::setProcessBreakpoint(const std::string& processName) {
         ->process();
 }
 
+void DGLADBDevice::unsetProcessBreakpoint() {
+    std::vector<std::string> params;
+    params.push_back("shell");
+    params.push_back("setprop");
+    params.push_back("debug." DGL_PRODUCT_LOWER ".break");
+    params.push_back("");
+
+    setRequestStatus(RequestStatus::UNSET_BREAKPOINT);
+    invokeAsShellUser(params, std::make_shared<DGLEmptyOutputFilter>())
+        ->process();
+}
+
+
 DGLADBDevice::InstallStatus DGLADBDevice::getInstallStatus() {
     return m_Status;
 }
@@ -449,6 +462,10 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
         case RequestStatus::SET_BREAKPOINT:
             setRequestStatus(RequestStatus::IDLE);
             emit setProcessBreakPointSuccess(this);
+            break;
+        case RequestStatus::UNSET_BREAKPOINT:
+            setRequestStatus(RequestStatus::IDLE);
+            emit unsetProcessBreakPointSuccess(this);
             break;
         case RequestStatus::PREP_INSTALL:
         case RequestStatus::PREP_UPDATE:
@@ -663,6 +680,8 @@ const char* DGLADBDevice::toString(RequestStatus status) {
             return "Getting process list";
         case RequestStatus::SET_BREAKPOINT:
             return "Setting breakpoint";
+        case RequestStatus::UNSET_BREAKPOINT:
+            return "Unsetting breakpoint";
         case RequestStatus::QUERY_ABI:
             return "Check ABI";
         case RequestStatus::QUERY_INSTALL_STATUS:

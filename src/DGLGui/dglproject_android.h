@@ -36,6 +36,7 @@ class DGLAndroidProject : public DGLProject {
    private slots:
     void portForwardSuccess(DGLADBDevice*);
     void setProcessBreakPointSuccess(DGLADBDevice*);
+    void unsetProcessBreakPointSuccess(DGLADBDevice*);
     void deviceFailed(DGLADBDevice*, const std::string&);
     void gotProcesses(DGLADBDevice*, std::vector<DGLAdbDeviceProcess>);
    private:
@@ -48,6 +49,7 @@ class DGLAndroidProject : public DGLProject {
 
     unsigned short m_ForwardedPort;
     DGLADBDevice* m_Device;
+    bool m_Deleting;
 };
 
 class DGLAndroidProjectFactory : public DGLProjectFactory {

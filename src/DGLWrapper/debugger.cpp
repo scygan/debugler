@@ -273,11 +273,6 @@ DGLDebugServer& DGLDebugController::getServer() {
             Os::info("Process name: %s, process breakpoint: %s, waiting for debugger: %d", 
                 processName.c_str(), processBreakPoint.c_str(), (int)droidWait);
 
-            if (droidWait) {
-                 //reset the global breakpoint
-                 Os::setProp("debug." DGL_PRODUCT_LOWER ".break", "");
-            }
-
             wait |= droidWait;
         }
 #endif

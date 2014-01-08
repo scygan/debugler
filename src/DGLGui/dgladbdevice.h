@@ -51,6 +51,7 @@ class DGLADBDevice : public QObject, DGLAdbHandler {
     void portForward(std::string from, unsigned short to);
 
     void setProcessBreakpoint(const std::string& processName);
+    void unsetProcessBreakpoint();
 
     void installWrapper(std::string path);
     void updateWrapper(std::string path);
@@ -81,6 +82,7 @@ signals:
     void failed(DGLADBDevice*, const std::string&);
     void portForwardSuccess(DGLADBDevice*);
     void setProcessBreakPointSuccess(DGLADBDevice*);
+    void unsetProcessBreakPointSuccess(DGLADBDevice*);
     void queryStatusSuccess(DGLADBDevice*);
     void installerDone(DGLADBDevice*);
     void log(DGLADBDevice*, const std::string& log);
@@ -119,6 +121,7 @@ signals:
         RELOAD_PROCESSES,
         RELOAD_PACKAGES,
         SET_BREAKPOINT,
+        UNSET_BREAKPOINT,
         QUERY_ABI,
         QUERY_INSTALL_STATUS,
         PREP_INSTALL,
