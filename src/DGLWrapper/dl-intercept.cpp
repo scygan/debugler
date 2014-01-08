@@ -139,6 +139,43 @@ class ELFAnalyzer {
 };
 #endif
 
+#ifdef __ANDROID__
+class BackTrace {
+public: 
+    BackTrace() {
+        Os::info("BackTrace: hello");
+        if (!dso) {
+            dso = g_DLIntercept.real_dlopen("libutils.so", RTLD_NOW);
+        }
+        Os::info("BackTrace: dso");
+        if (dso && (!ptrCtor || !ptrDtor)) {
+            ptrCtor = reinterpret_cast<ptrdiff_t>(g_DLIntercept.real_dlsym(dso, "_ZN7android9CallStackC1EPKcii"));
+            ptrDtor = reinterpret_cast<ptrdiff_t>(g_DLIntercept.real_dlsym(dso, "_ZN7android9CallStackD1Ev"));
+        }
+        Os::info("BackTrace: dlsym");
+        if (ptrCtor && ptrDtor) {
+            Os::info("BackTrace: ctor = 0x%x, dtor = 0x%x", ptrCtor, ptrDtor);
+            char*  obj[100000]; void* ptr = obj;
+
+            typedef  void (*ctorType)(void*, char const*, int, int);
+            typedef  void (*dtorType)(void*);
+
+            reinterpret_cast<ctorType>(ptrCtor)(ptr, DGL_PRODUCT, 1, 31);
+            reinterpret_cast<dtorType>(ptrDtor)(ptr);
+
+        } else {
+            Os::info("backtrace: incomplete api");
+        }
+    }
+private:
+    static void* dso; 
+    static ptrdiff_t ptrCtor, ptrDtor; 
+};
+void* BackTrace::dso = nullptr;
+ptrdiff_t BackTrace::ptrCtor = 0;
+ptrdiff_t BackTrace::ptrDtor = 0;
+#endif
+
 DLIntercept g_DLIntercept;
 
 DLIntercept::DLIntercept() : m_initialized(false) {}
@@ -307,6 +344,9 @@ extern "C" {
 void *dlopen(const char *filename, int flag) NO_THROW {
 #ifdef __ANDROID__
     DGLWASoCtors wasoCtors;
+#ifdef DL_INTERCEPT_DEBUG
+    BackTrace backtrace;
+#endif
 #endif
     try {
         return g_DLIntercept.dlopen(filename, flag);
@@ -325,6 +365,9 @@ void *dlopen(const char *filename, int flag) NO_THROW {
 void *dlsym(void *handle, const char *name) NO_THROW {
 #ifdef __ANDROID__
     DGLWASoCtors wasoCtors;
+#ifdef DL_INTERCEPT_DEBUG
+    BackTrace backtrace;
+#endif
 #endif
     try {
         return g_DLIntercept.dlsym(handle, name);
@@ -343,6 +386,9 @@ void *dlsym(void *handle, const char *name) NO_THROW {
 void *dlvsym(void *handle, const char *name, const char *version) NO_THROW {
 #ifdef __ANDROID__
     DGLWASoCtors wasoCtors;
+#ifdef DL_INTERCEPT_DEBUG
+    BackTrace backtrace;
+#endif
 #endif
     try {
         return g_DLIntercept.dlvsym(handle, name, version);

@@ -405,6 +405,9 @@ class DGLWrapperCookie {
 
 
     ~DGLWrapperCookie() {
+#ifdef DEBUG_WRAPPERS
+        Os::info("tracePost %s", GetEntryPointName(m_Call.getEntrypoint()));
+#endif
         if (m_ProcessActions) {
             try {
                 g_Actions[m_Call.getEntrypoint()]->Post(m_Call, retVal);
@@ -423,6 +426,10 @@ class DGLWrapperCookie {
 
    private:
     void tracePre() {
+#ifdef DEBUG_WRAPPERS
+        Os::info("tracePre %s", GetEntryPointName(m_Call.getEntrypoint()));
+        Os::backtrace();
+#endif
         try {
             retVal = g_Actions[m_Call.getEntrypoint()]->Pre(m_Call);
         }
