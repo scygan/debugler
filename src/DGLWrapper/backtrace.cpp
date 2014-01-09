@@ -14,7 +14,10 @@
 */
 
 #include "backtrace.h"
+
+#ifndef _WIN32
 #include "dl-intercept.h"
+#endif
 
 #ifdef __ANDROID__
 class BackTraceImpl: public BackTrace {
