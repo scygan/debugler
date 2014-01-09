@@ -5,6 +5,7 @@ set(dglwrapper_SOURCES
 	dl-intercept.cpp display.cpp
 	tls.cpp gl-utils.cpp
 	gl-auxcontext.cpp gl-statesetters.cpp
+	backtrace.cpp
 #dllmain.cpp should be at the end, requires all static ctors to run before dllmain.
     dllmain.cpp
     )
