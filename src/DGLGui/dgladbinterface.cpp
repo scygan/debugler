@@ -119,7 +119,7 @@ DGLAdbCookieImpl::DGLAdbCookieImpl(const std::string& adbPath,
                                    const std::vector<std::string>& params,
                                    DGLAdbHandler* handler,
                                    std::shared_ptr<DGLAdbOutputFilter> filter)
-        : m_adbPath(adbPath), m_params(params), m_Deleted(false), DGLAdbCookie(handler, filter) {
+        : DGLAdbCookie(handler, filter), m_adbPath(adbPath), m_params(params), m_Deleted(false) {
 
     m_process = new DGLBaseQTProcess();
     m_process->setParent(this);

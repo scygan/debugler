@@ -498,7 +498,7 @@ void DGLMainWindow::createActions() {
     CONNASSERT(configurationAct, SIGNAL(triggered()), this, SLOT(configure()));
 
     prepareAndroidAct = new QAction(tr("Prepare Android device..."), this);
-    prepareAndroidAct->setStatusTip(tr("Installs "DGL_PRODUCT" on Android device"));
+    prepareAndroidAct->setStatusTip(tr("Installs " DGL_PRODUCT " on Android device"));
     CONNASSERT(prepareAndroidAct, SIGNAL(triggered()), this,
                SLOT(androidPrepare()));
 }
@@ -606,10 +606,10 @@ void DGLMainWindow::debugeeInfo(const std::string &processName) {
 
 void DGLMainWindow::about() {
     QMessageBox::about(
-            this, tr("About "DGL_PRODUCT),
-            "<b>"DGL_PRODUCT + QString::fromStdString(getVersion()) + 
+            this, tr("About " DGL_PRODUCT),
+            "<b>" DGL_PRODUCT + QString::fromStdString(getVersion()) + 
                tr("</b>, The OpenGL(R) debugger<br/><br/>"
-               "Copyright (C) 2013 "DGL_MANUFACTURER".<br/><br/> "
+               "Copyright (C) 2013 " DGL_MANUFACTURER ".<br/><br/> "
                "<a href=\"https://github.com/debugler/debugler\"/>"));
 }
 

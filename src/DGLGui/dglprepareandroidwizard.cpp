@@ -17,7 +17,10 @@
 
 #include <QMessageBox>
 
+#include <DGLCommon/def.h>
+
 #include "dglandroidselectdev.h"
+
 
 namespace dglPrepareAndroidWizard {
 

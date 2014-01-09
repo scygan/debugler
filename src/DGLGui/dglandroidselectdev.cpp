@@ -15,8 +15,8 @@
 
 #include "dglandroidselectdev.h"
 
-DGLAndroidSelectDevWidget::DGLAndroidSelectDevWidget(QWidget* parent)
-        : m_KillOrConnectHandler(this), QWidget(parent) {
+DGLAndroidSelectDevWidget::DGLAndroidSelectDevWidget(QWidget* _parent)
+        : m_KillOrConnectHandler(this), QWidget(_parent) {
     m_ui.setupUi(this);
 
     CONNASSERT(&m_ReloadTimer, SIGNAL(timeout()), this, SLOT(reloadDevices()));

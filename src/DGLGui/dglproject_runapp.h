@@ -20,6 +20,7 @@
 
 #include "ui_dglprojproperties_runapp.h"
 
+#include "dglproject_base.h"
 #include "dglprocess.h"
 
 class DGLRunAppProject: public DGLProject {

@@ -19,6 +19,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <set>
 
 #include <QRegExp>
 
@@ -67,7 +68,7 @@ class DGLAdbCookieImpl : public DGLAdbCookie {
                      DGLAdbHandler* handler,
                      std::shared_ptr<DGLAdbOutputFilter> filter);
 
-    virtual void DGLAdbCookie::process() override;
+    virtual void process() override;
 
    private
 slots:

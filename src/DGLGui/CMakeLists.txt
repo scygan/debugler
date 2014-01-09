@@ -3,50 +3,89 @@ find_package(Qt4 REQUIRED)
 set(QT_USE_QTXML TRUE)
 
 set(dglgui_SOURCES 
-    dglbreakpointdialog.cpp dglbufferview.cpp  dglconnectdialog.cpp
-    dglcontroller.cpp dglfboview.cpp dglframebufferview.cpp
-    dglgpuview.cpp dglmainwindow.cpp dglpixelrectangle.cpp
-    dglprogramview.cpp dglrundialog.cpp dglshaderview.cpp
-    dglstateview.cpp dgltabbedview.cpp dgltextureview.cpp
-    dgltraceview.cpp dgltreeview.cpp dglprocess.cpp
-    dglsyntaxhighlight.cpp dglblitterbase.cpp
-    dglglsleditor.cpp dglconfigdialog.cpp dgladbinterface.cpp
-    dglconnectandroiddialog.cpp dglprepareandroidwizard.cpp
+    dglbreakpointdialog.cpp
+    dglbufferview.cpp
+    dglcontroller.cpp
+    dglfboview.cpp
+    dglframebufferview.cpp
+    dglgpuview.cpp
+    dglmainwindow.cpp
+    dglpixelrectangle.cpp
+    dglprogramview.cpp
+    dglshaderview.cpp
+    dglstateview.cpp
+    dgltabbedview.cpp
+    dgltextureview.cpp
+    dgltraceview.cpp
+    dgltreeview.cpp
+    dglprocess.cpp
+    dglsyntaxhighlight.cpp
+    dglblitterbase.cpp
+    dglglsleditor.cpp
+    dglconfigdialog.cpp
+    dgladbinterface.cpp
+    dgladbdevice.cpp
+    dglprepareandroidwizard.cpp
     dglandroidselectdev.cpp
+    dglprojectdialog.cpp
+    dglproject_runapp.cpp
+    dglproject_attach.cpp
+    dglproject_android.cpp
+    dglbusydialog.cpp
     )
 
 set(dglgui_HEADERS
-    dglbreakpointdialog.h dglbufferview.h dglconnectdialog.h
-    dglcontroller.h dglfboview.h dglframebufferview.h
-    dglgpuview.h dglmainwindow.h
-    dglpixelrectangle.h dglprogramview.h dglrundialog.h
-    dglshaderview.h dglshaderviewitem.h dglstateview.h
-    dgltabbedview.h dgltextureview.h dgltraceview.h
-    dgltreeview.h dglsyntaxhighlight.h
-    dglconfigdialog.h dglglsleditor.h dglconnectandroiddialog.h
-    dglprocess.h dgladbinterface.h
-    dglconnectandroiddialog.h dglprepareandroidwizard.h
+    dglbreakpointdialog.h
+    dglbufferview.h
+    dglcontroller.h
+    dglfboview.h
+    dglframebufferview.h
+    dglgpuview.h
+    dglmainwindow.h
+    dglpixelrectangle.h
+    dglprogramview.h
+    dglshaderview.h
+    dglshaderviewitem.h
+    dglstateview.h
+    dgltabbedview.h
+    dgltextureview.h
+    dgltraceview.h
+    dgltreeview.h
+    dglprocess.h
+    dglsyntaxhighlight.h
+    #    dglblitterbase.h
+    dglglsleditor.h
+    dglconfigdialog.h
+    dgladbinterface.h
+    dgladbdevice.h
+    dglprepareandroidwizard.h
     dglandroidselectdev.h
-    #dglblitterbase.h <- no need for Qt moc here.
+    dglprojectdialog.h
+    dglproject_base.h
+    dglproject_runapp.h
+    dglproject_attach.h
+    dglproject_android.h
+    dglbusydialog.h
     )
 
 set(dglgui_FORMS
-    ui/dglbreakpointdialog.ui
-    ui/dglconnectdialog.ui
-    ui/dglfboviewitem.ui
-    ui/dglframebufferviewitem.ui
-    ui/dglgpuview.ui
-    ui/dglmainwindow.ui
-    ui/dglpixelrectangleview.ui
-    ui/dglprogramview.ui
-    ui/dglrundialog.ui
-    ui/dglshaderview.ui
-    ui/dglstateview.ui
-    ui/dgltextureviewitem.ui
-    ui/dglconfigdialog.ui
-    ui/dglconnectandroid.ui
-    ui/dglconnectandroidadb.ui
+    ui/dglprojectdialog.ui
     ui/dglandroidselectdev.ui
+    ui/dglshaderview.ui
+    ui/dglprogramview.ui
+    ui/dglbreakpointdialog.ui
+    ui/dglprojproperties_runapp.ui
+    ui/dglfboviewitem.ui
+    ui/dglconfigdialog.ui
+    ui/dglframebufferviewitem.ui
+    ui/dglmainwindow.ui
+    ui/dgltextureviewitem.ui
+    ui/dglgpuview.ui
+    ui/dglstateview.ui
+    ui/dglconnectandroidadb.ui
+    ui/dglprojproperties_android.ui
+    ui/dglpixelrectangleview.ui
+    ui/dglprojproperties_attach.ui
     )
 
 SET(dglgui_RESOURCES dglmainwindow.qrc)

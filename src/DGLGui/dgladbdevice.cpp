@@ -15,6 +15,10 @@
 
 #include "dgladbdevice.h"
 
+#include <memory>
+
+#include <DGLCommon/def.h>
+
 namespace {
 
 class DGLEmptyOutputFilter : public DGLAdbOutputFilter {
@@ -434,6 +438,8 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
                     setRequestStatus(RequestStatus::IDLE);
                     reloadProcessesGotUnixSockets(data);
                     break;
+                default:
+                    assert(0);
             }
             break;
         case RequestStatus::RELOAD_PACKAGES:
@@ -453,6 +459,8 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
                 setRequestStatus(RequestStatus::IDLE);
                 emit gotPackages(this, data);
                 break;
+            default:
+                assert(0);
             }
             break;
         case RequestStatus::PORT_FORWARD:
@@ -587,6 +595,8 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
                     setRequestStatus(RequestStatus::IDLE);
                     emit installerDone(this);
                     break;
+                default:
+                    assert(0);
             }
         }
     }

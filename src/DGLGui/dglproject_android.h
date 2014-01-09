@@ -20,6 +20,7 @@
 
 #include "ui_dglprojproperties_android.h"
 #include "dgladbdevice.h"
+#include "dglproject_base.h"
 
 class DGLAndroidProject : public DGLProject {
    Q_OBJECT

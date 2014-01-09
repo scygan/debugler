@@ -237,8 +237,12 @@ std::string Os::getProcessName() {
     if (!fullname) {
         fullname = "<unknown>";
     }
-    
-    return basename(fullname);
+
+    //basename() is weird and cam modify passed string, co make a copy
+    char* fullNameCp = strdup(fullname);
+    const char* ret = basename(fullNameCp);
+    free(fullNameCp);
+    return ret;
 }
 
 void Os::terminate() { _exit(0); }

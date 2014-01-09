@@ -9,7 +9,8 @@ set(samples_SOURCES
     glutil.cpp
     samples/shader_handling.cpp
     samples/simple.cpp
-    samples/texture.cpp
+    samples/texture2d.cpp
+    samples/texture3d.cpp
     samples/fbo_msaa.cpp
     samples/resize.cpp
     )

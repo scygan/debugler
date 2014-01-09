@@ -18,9 +18,10 @@
 
 #include <QWidget>
 #include <string>
+#include <memory>
 
 class DGLProject : public QObject {
-    Q_OBJECT;
+    Q_OBJECT
 signals:
     void debugStarted(std::string address, std::string port);
     void debugError(QString error, QString message);

@@ -89,7 +89,7 @@ signals:
     DGLADBDevice::InstallStatus m_Status;
     DGLADBDevice::ABI m_Abi;
 };
-Q_DECLARE_METATYPE(DGLADBDevice*);
+
 
 class Run : public QWizardPage {
     Q_OBJECT
@@ -127,4 +127,7 @@ class Conclusion : public QWizardPage {
 };
 }
 }
+
+Q_DECLARE_METATYPE(DGLADBDevice*)
+
 #endif    // DGLPROVISIONANDROIDDIALOG_H

@@ -15,6 +15,9 @@
 
 #include "dglproject_attach.h"
 
+#include <memory>
+#include <stdexcept>
+
 DGLAttachProject::DGLAttachProject(std::string address, std::string port)
         : m_address(address), m_port(port) {}
 

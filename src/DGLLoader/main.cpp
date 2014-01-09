@@ -145,7 +145,7 @@ int main(int argc, char** argv) {
             DGL_PRODUCT + getVersion() + " (dglloader)" + 
             "\nThe OpenGL(R) debugger\n\n"
             "Copyright (C) 2013 " DGL_MANUFACTURER ".\n\n "
-            "https://github.com/debugler/debugler\\n\n"
+            "https://github.com/debugler/debugler\n\n"
             "Allowed options:");
 
         desc.add_options()("help,h", "produce help message")(

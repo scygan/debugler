@@ -16,7 +16,11 @@
 #ifndef DGLPROJECT_ATTACH_H
 #define DGLPROJECT_ATTACH_H
 
+#include <memory>
+
 #include <QWidget>
+
+#include "dglproject_base.h"
 
 #include "ui_dglprojproperties_attach.h"
 
