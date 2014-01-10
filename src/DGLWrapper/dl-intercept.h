@@ -14,6 +14,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+#ifndef _WIN32
 
 #include <boost/thread/recursive_mutex.hpp>
 #include <map>
@@ -52,6 +53,8 @@ extern DLIntercept g_DLIntercept;
 #define dlopen g_DLIntercept.real_dlopen
 #define dlsym g_DLIntercept.real_dlsym
 #define dlvsym g_DLIntercept.real_dlvsym
+#endif
+
 #endif
 
 #endif
