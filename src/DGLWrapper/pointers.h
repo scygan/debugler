@@ -23,13 +23,12 @@
 
 // POINTER_TYPE(X) returns type of function pointer for entrypoint X. The actual
 // definitions are generated from codegen output
-// For entrypoints unsupported on given platform bare void* is returned.
+// For entrypoints unsupported on given platform type is undefined.
 #define POINTER_TYPE(X) X##_Type
 
 #define FUNC_LIST_ELEM_SUPPORTED(name, type, library) \
     typedef type POINTER_TYPE(name);
-#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library) \
-    typedef void* POINTER_TYPE(name);
+#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library);
 #include "codegen/functionList.inl"
 #undef FUNC_LIST_ELEM_SUPPORTED
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED
