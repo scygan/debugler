@@ -16,16 +16,18 @@
 #ifndef GL_HEADERS_H
 #define GL_HEADERS_H
 
-#ifdef _WIN32
-#include <windows.h>
-#else
+#if _WIN32
+#if !defined(WINGDIAPI) || !defined(APIENTRY)
+#define TEMPORARY_APIENTRY_TO_AVOID_WINDOWS_H
+#endif
+#endif
+
+#if !defined(_WIN32) || defined(TEMPORARY_APIENTRY_TO_AVOID_WINDOWS_H)
+#include <KHR/khrplatform.h>
 #define WINGDIAPI KHRONOS_APICALL
 #define APIENTRY KHRONOS_APIENTRY
 #endif
 
-// Only headers needed to compile debugger + some corrections
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
 #include <GL/GL.h>
 #include <GL/glext.h>
 #undef __gl_h_
@@ -46,13 +48,9 @@
 #define PFNGLVERTEXATTRIBDIVISORNVPROC PFNVERTEXATTRIBDIVISORNVPROC
 #define PFNGLFRAMEBUFFERTEXTURE3DOESPROC PFNGLFRAMEBUFFERTEXTURE3DOES
 
-#ifdef _WIN32
-#include <GL/wglext.h>
-#else
-#ifndef __ANDROID__
-#include <GL/glx.h>
-#include <GL/glxext.h>
-#endif
+#ifdef TEMPORARY_APIENTRY_TO_AVOID_WINDOWS_H
+#undef WINGDIAPI
+#undef APIENTRY
 #endif
 
 #endif

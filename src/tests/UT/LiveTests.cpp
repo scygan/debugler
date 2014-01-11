@@ -17,6 +17,7 @@
 
 #include "gtest/gtest.h"
 #include <DGLNet/client.h>
+#include <DGLCommon/gl-glue-headers.h>
 #include <DGLCommon/gl-headers.h>
 
 #include <DGLNet/protocol/request.h>

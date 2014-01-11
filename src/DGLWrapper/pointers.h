@@ -14,6 +14,7 @@
 */
 
 #include <DGLCommon/gl-headers.h>
+#include <DGLCommon/gl-glue-headers.h>
 #include <DGLCommon/gl-types.h>
 
 #include "api-loader.h"

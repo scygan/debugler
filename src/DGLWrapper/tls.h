@@ -59,15 +59,21 @@ class DGLThreadState {
     */
     static DGLThreadState* get();
 
+    enum class BoundEGLApi {
+        OPENGL_ES_API,
+        OPENGL_API,		
+        UNKNOWN_API,
+    };
+
     /**
      *  Set current API (only on EGL, called on eglBindApi)
      */
-    void bindEGLApi(EGLenum api);
+    void bindEGLApi(BoundEGLApi api);
 
     /**
      *  Set current EGL API
      */
-    EGLenum getEGLApi();
+    BoundEGLApi getEGLApi();
 
     /**
      *  Try enter actions processing
@@ -96,7 +102,7 @@ class DGLThreadState {
         /**
          * Current EGL api
          */
-        EGLenum m_EGLApi;
+        BoundEGLApi m_EGLApi;
 
     } privAPI;
 

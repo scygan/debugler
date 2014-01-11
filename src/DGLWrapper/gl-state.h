@@ -301,7 +301,7 @@ class GLContext {
     /**
      * Debugger's specific debug message callback
      */
-    static void APIENTRY
+    static void KHRONOS_APIENTRY
             debugOutputCallback(GLenum source, GLenum type, GLuint id,
                                 GLenum severity, GLsizei length,
                                 const GLchar* message, GLvoid* userParam);

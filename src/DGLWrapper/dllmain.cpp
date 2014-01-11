@@ -183,6 +183,7 @@ void __attribute__((destructor)) DGLWrapperUnload(void) { TearDown(); }
 #else
 
 #ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
+#include <windows.h>
 class ThreadWatcher {
    public:
     ThreadWatcher() : m_ThreadCount() {

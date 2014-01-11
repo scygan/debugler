@@ -19,7 +19,7 @@
 
 void DGLThreadState::resetAPI() {
     privAPI.m_Current = NULL;
-    privAPI.m_EGLApi = EGL_OPENGL_ES_API;
+    privAPI.m_EGLApi = BoundEGLApi::OPENGL_ES_API;
 }
 
 void DGLThreadState::releaseAPI() { get()->resetAPI(); }
@@ -77,9 +77,9 @@ void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId,
     }
 }
 
-void DGLThreadState::bindEGLApi(EGLenum api) { privAPI.m_EGLApi = api; }
+void DGLThreadState::bindEGLApi(BoundEGLApi api) { privAPI.m_EGLApi = api; }
 
-EGLenum DGLThreadState::getEGLApi() { return privAPI.m_EGLApi; }
+DGLThreadState::BoundEGLApi DGLThreadState::getEGLApi() { return privAPI.m_EGLApi; }
 
 bool DGLThreadState::enterActionProcessing() {
     if (privDebugger.m_ActionProcessing) {

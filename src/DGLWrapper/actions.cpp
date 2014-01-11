@@ -415,7 +415,19 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             ret.get(eglBool);
             if (eglBool) {
                 call.getArgs()[0].get(enumWrapped);
-                DGLThreadState::get()->bindEGLApi(enumWrapped);
+
+                DGLThreadState::BoundEGLApi api = 
+                    DGLThreadState::BoundEGLApi::UNKNOWN_API;
+
+                switch (enumWrapped) {
+                    case EGL_OPENGL_ES_API:
+                        api = DGLThreadState::BoundEGLApi::OPENGL_ES_API;
+                        break;
+                    case EGL_OPENGL_API:
+                        api = DGLThreadState::BoundEGLApi::OPENGL_API;
+                }
+                DGLThreadState::get()->bindEGLApi(api);
+                
             }
             break;
         case eglCreateContext_Call:
@@ -450,10 +462,12 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                     DGLDisplayState::Type::EGL);
 
                 dglState::GLContextVersion::Type contextType = dglState::GLContextVersion::Type::UNSUPPORTED;
-                if (DGLThreadState::get()->getEGLApi() == EGL_OPENGL_ES_API) {
+                if (DGLThreadState::get()->getEGLApi() == DGLThreadState::BoundEGLApi::OPENGL_ES_API) {
                     contextType = dglState::GLContextVersion::Type::ES;
-                } else {
+                } else if (DGLThreadState::get()->getEGLApi() == DGLThreadState::BoundEGLApi::OPENGL_API) {
                     contextType = dglState::GLContextVersion::Type::DT;
+                } else {
+                    contextType = dglState::GLContextVersion::Type::UNSUPPORTED;
                 }
                 dglState::GLContextVersion version(contextType, major, minor);
 
