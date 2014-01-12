@@ -21,7 +21,6 @@
 #include <GL/glxproto.h>
 #endif
 
-#include <boost/make_shared.hpp>
 #include <string>
 #include <cstring>
 #include <stdexcept>
@@ -36,7 +35,12 @@
 
 #include <DGLCommon/def.h>
 #include <DGLCommon/os.h>
+#include <DGLNet/protocol/msgutils.h>
+#include <DGLNet/protocol/resource.h>
 #include <DGLNet/protocol/pixeltransfer.h>
+#include <DGLNet/protocol/shared_ptr_converter.h>
+
+#include <boost/make_shared.hpp>
 
 namespace dglState {
 
@@ -460,8 +464,8 @@ GLContext::GLContext(const DGLDisplayState* display, GLContextVersion version,
           m_CreationData(creationData),
           m_Display(display) {}
 
-dglnet::message::BreakedCall::ContextReport GLContext::describe() {
-    dglnet::message::BreakedCall::ContextReport ret(m_Id);
+dglnet::message::utils::ContextReport GLContext::describe() {
+    dglnet::message::utils::ContextReport ret(m_Id);
     for (std::map<GLuint, GLTextureObj>::iterator i = m_Textures.begin();
          i != m_Textures.end(); i++) {
         ret.m_TextureSpace.insert(dglnet::ContextObjectName(
@@ -695,12 +699,12 @@ bool GLContext::unboundMayDelete() {
 
 const GLContextVersion& GLContext::getVersion() const { return m_Version; }
 
-boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
+std::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
 
     GLuint name = static_cast<GLuint>(_name);
 
     dglnet::resource::DGLResourceTexture* resource;
-    boost::shared_ptr<dglnet::DGLResource> ret(
+    std::shared_ptr<dglnet::DGLResource> ret(
             resource = new dglnet::resource::DGLResourceTexture());
 
     // check if GL knows about a texture
@@ -751,13 +755,13 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
 
             for (int layer = 0;; layer++) {
 
-                boost::shared_ptr<dglnet::resource::DGLPixelRectangle> rect =
+                std::shared_ptr<dglnet::resource::DGLPixelRectangle> rect =
                     queryTextureLevel(tex, level, layer, face, defAlignment);
 
                 if (!rect) {
                     break;
                 } else {
-                    currentLevel.push_back(rect);
+                    currentLevel.push_back(convert_shared_ptr(rect));
                 }
             }
 
@@ -900,7 +904,7 @@ void GLContext::queryTextureLevelSize(const GLTextureObj* tex, GLuint level,
     }
 }
 
-boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
+std::shared_ptr<dglnet::resource::DGLPixelRectangle>
 GLContext::queryTextureLevel(const GLTextureObj* tex, int level, int layer, int face,
                              state_setters::PixelStoreAlignment& defAlignment) {
     if (hasCapability(ContextCap::TextureGetters)) {
@@ -967,11 +971,11 @@ int GLContext::textureBisectSizeES(GLenum levelTarget, int level, int coord,
     }
 }
 
-boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
+std::shared_ptr<dglnet::resource::DGLPixelRectangle>
 GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
                                    int layer, int face) {
 
-    boost::shared_ptr<dglnet::resource::DGLPixelRectangle> ret;
+    std::shared_ptr<dglnet::resource::DGLPixelRectangle> ret;
 
     queryCheckError();
 
@@ -1042,9 +1046,10 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
                 transfer.initializeOGL(renderableFormat);
             }
 
-            ret = boost::make_shared<dglnet::resource::DGLPixelRectangle>(
+            ret = std::shared_ptr<dglnet::resource::DGLPixelRectangle>(
+                new dglnet::resource::DGLPixelRectangle(
                     width, height, ALIGNED(width * transfer.getPixelSize(), 4),
-                    transfer.getFormat(), transfer.getType(), 0, 0);
+                    transfer.getFormat(), transfer.getType(), 0, 0));
 
             DIRECT_CALL_CHK(glReadPixels)(
                     0, 0, width, height, (GLenum)transfer.getFormat(),
@@ -1066,7 +1071,7 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
     return ret;
 }
 
-boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
+std::shared_ptr<dglnet::resource::DGLPixelRectangle>
 GLContext::queryTextureLevelGetters(
         const GLTextureObj* tex, int level, int layer, int face,
         state_setters::PixelStoreAlignment& defAlignment) {
@@ -1075,7 +1080,7 @@ GLContext::queryTextureLevelGetters(
 
     GLenum levelTarget = tex->getTextureLevelTarget(face);
 
-    boost::shared_ptr<dglnet::resource::DGLPixelRectangle> ret;
+    std::shared_ptr<dglnet::resource::DGLPixelRectangle> ret;
 
     GLint internalFormat;
     DIRECT_CALL_CHK(glGetTexLevelParameteriv)(
@@ -1125,10 +1130,11 @@ GLContext::queryTextureLevelGetters(
         transfer.initializeOGL(internalFormat, rgbaSizes, deptStencilSizes);
     }
 
-    ret = boost::make_shared<dglnet::resource::DGLPixelRectangle>(
+    ret = std::shared_ptr<dglnet::resource::DGLPixelRectangle>(
+        new dglnet::resource::DGLPixelRectangle(
             width, height,
             defAlignment.getAligned(width * transfer.getPixelSize()),
-            transfer.getFormat(), transfer.getType(), internalFormat, samples);
+            transfer.getFormat(), transfer.getType(), internalFormat, samples));
 
     GLvoid* ptr;
     if ((ptr = ret->getPtr()) != NULL) {
@@ -1159,12 +1165,12 @@ GLContext::queryTextureLevelGetters(
     return ret;
 }
 
-boost::shared_ptr<dglnet::DGLResource> GLContext::queryBuffer(gl_t _name) {
+std::shared_ptr<dglnet::DGLResource> GLContext::queryBuffer(gl_t _name) {
 
     GLuint name = static_cast<GLuint>(_name);
 
     dglnet::resource::DGLResourceBuffer* resource;
-    boost::shared_ptr<dglnet::DGLResource> ret(
+    std::shared_ptr<dglnet::DGLResource> ret(
             resource = new dglnet::resource::DGLResourceBuffer());
 
     // check if GL knows about a texture
@@ -1264,13 +1270,13 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryBuffer(gl_t _name) {
     return ret;
 }
 
-boost::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(
+std::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(
         gl_t _bufferEnum) {
 
     GLuint bufferEnum = static_cast<GLuint>(_bufferEnum);
 
     dglnet::resource::DGLResourceFramebuffer* resource;
-    boost::shared_ptr<dglnet::DGLResource> ret(
+    std::shared_ptr<dglnet::DGLResource> ret(
             resource = new dglnet::resource::DGLResourceFramebuffer);
 
     if (!m_NativeReadSurface) {
@@ -1312,10 +1318,11 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(
     }
 
     resource->m_PixelRectangle =
-            boost::make_shared<dglnet::resource::DGLPixelRectangle>(
+            boost::shared_ptr<dglnet::resource::DGLPixelRectangle>(
+                new dglnet::resource::DGLPixelRectangle(
                     width, height,
                     defAlignment.getAligned(width * transfer.getPixelSize()),
-                    transfer.getFormat(), transfer.getType(), 0, 0);
+                    transfer.getFormat(), transfer.getType(), 0, 0));
 #pragma message("GLContext::queryFramebuffer: query MSAA")
 
     GLvoid* ptr;
@@ -1327,12 +1334,12 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(
     return ret;
 }
 
-boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
+std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
 
     GLuint name = static_cast<GLuint>(_name);
 
     dglnet::resource::DGLResourceFBO* resource;
-    boost::shared_ptr<dglnet::DGLResource> ret(
+    std::shared_ptr<dglnet::DGLResource> ret(
             resource = new dglnet::resource::DGLResourceFBO());
 
     state_setters::ReadBuffer readBuffer(this);
@@ -1405,7 +1412,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
         // now look for the attached object and query internal format and
         // dimensions
         GLint width = 0, height = 0, internalFormat = 0, samples = 0;
-        GLenum attTarget;
+        GLenum attTarget = 0;
         bool multisampled = false;
 
         std::vector<GLint> rgbaSizes(4, 0);
@@ -1594,7 +1601,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
         // there should be no errors. Otherwise something nasty happened
         queryCheckError();
 
-        boost::shared_ptr<glutils::MSAADownSampler> downSampler;
+        std::shared_ptr<glutils::MSAADownSampler> downSampler;
         if (multisampled) {
 
             DGLPixelTransfer downsamplerTransfer;
@@ -1611,9 +1618,10 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
                                                   deptStencilSizes);
             }
 
-            downSampler = boost::make_shared<glutils::MSAADownSampler>(
+            downSampler = std::shared_ptr<glutils::MSAADownSampler>(
+                new glutils::MSAADownSampler(
                     this, attTarget, attachments[i], name, internalFormat,
-                    &downsamplerTransfer, width, height);
+                    &downsamplerTransfer, width, height));
             DIRECT_CALL_CHK(glBindFramebuffer)(
                     GL_READ_FRAMEBUFFER, downSampler->getDownsampledFBO());
         }
@@ -1668,12 +1676,12 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
     return ret;
 }
 
-boost::shared_ptr<dglnet::DGLResource> GLContext::queryShader(gl_t _name) {
+std::shared_ptr<dglnet::DGLResource> GLContext::queryShader(gl_t _name) {
 
     GLuint name = static_cast<GLuint>(_name);
 
     dglnet::resource::DGLResourceShader* resource;
-    boost::shared_ptr<dglnet::DGLResource> ret(
+    std::shared_ptr<dglnet::DGLResource> ret(
             resource = new dglnet::resource::DGLResourceShader);
 
     GLShaderObj* shader = findShader(name);
@@ -1694,12 +1702,12 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryShader(gl_t _name) {
     return ret;
 }
 
-boost::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
+std::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
 
     GLuint name = static_cast<GLuint>(_name);
 
     dglnet::resource::DGLResourceProgram* resource;
-    boost::shared_ptr<dglnet::DGLResource> ret(
+    std::shared_ptr<dglnet::DGLResource> ret(
             resource = new dglnet::resource::DGLResourceProgram);
 
     std::map<GLuint, GLProgramObj>::iterator i = m_Programs.find(name);
@@ -1959,10 +1967,10 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
     return ret;
 }
 
-boost::shared_ptr<dglnet::DGLResource> GLContext::queryGPU() {
+std::shared_ptr<dglnet::DGLResource> GLContext::queryGPU() {
 
     dglnet::resource::DGLResourceGPU* resource;
-    boost::shared_ptr<dglnet::DGLResource> ret(
+    std::shared_ptr<dglnet::DGLResource> ret(
             resource = new dglnet::resource::DGLResourceGPU);
 
     // Forgot about:
@@ -2016,27 +2024,26 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryGPU() {
     return ret;
 }
 
-dglnet::resource::DGLResourceState::StateItem GLContext::getStateIntegerv(
-        const char* name, GLenum value, size_t length) {
-    dglnet::resource::DGLResourceState::StateItem ret;
-    ret.m_Name = name;
+void GLContext::getStateIntegerv(
+        const char* name, GLenum value, size_t length, 
+        dglnet::resource::utils::StateItem* ret) {
+    ret->m_Name = name;
     std::vector<GLint> val(length, 0);
 
     DIRECT_CALL_CHK(glGetIntegerv)(value, &val[0]);
 
     if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {
-        ret.m_Values.resize(val.size());
+        ret->m_Values.resize(val.size());
         for (size_t i = 0; i < length; i++) {
-            ret.m_Values[i] = val[i];
+            ret->m_Values[i] = val[i];
         }
     }
-    return ret;
 }
 
-dglnet::resource::DGLResourceState::StateItem GLContext::getStateInteger64v(
-        const char* name, GLenum value, size_t length) {
-    dglnet::resource::DGLResourceState::StateItem ret;
-    ret.m_Name = name;
+void GLContext::getStateInteger64v(
+        const char* name, GLenum value, size_t length,
+        dglnet::resource::utils::StateItem* ret) {
+    ret->m_Name = name;
     std::vector<GLint64> val(length, 0);
 
     if (hasCapability(ContextCap::Has64BitGetters)) {
@@ -2048,80 +2055,75 @@ dglnet::resource::DGLResourceState::StateItem GLContext::getStateInteger64v(
     }
 
     if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {
-        ret.m_Values.resize(val.size());
+        ret->m_Values.resize(val.size());
         for (size_t i = 0; i < length; i++) {
-            ret.m_Values[i] = val[i];
+            ret->m_Values[i] = val[i];
         }
     }
-    return ret;
 }
 
-dglnet::resource::DGLResourceState::StateItem GLContext::getStateFloatv(
-        const char* name, GLenum value, size_t length) {
-    dglnet::resource::DGLResourceState::StateItem ret;
-    ret.m_Name = name;
+void GLContext::getStateFloatv(
+        const char* name, GLenum value, size_t length,
+        dglnet::resource::utils::StateItem* ret) {
+    ret->m_Name = name;
     std::vector<GLfloat> val(length, 0);
 
     DIRECT_CALL_CHK(glGetFloatv)(value, &val[0]);
 
     if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {
-        ret.m_Values.resize(val.size());
+        ret->m_Values.resize(val.size());
         for (size_t i = 0; i < length; i++) {
-            ret.m_Values[i] = val[i];
+            ret->m_Values[i] = val[i];
         }
     }
-    return ret;
 }
 
-dglnet::resource::DGLResourceState::StateItem GLContext::getStateDoublev(
-        const char* name, GLenum value, size_t length) {
-    dglnet::resource::DGLResourceState::StateItem ret;
-    ret.m_Name = name;
+void GLContext::getStateDoublev(
+        const char* name, GLenum value, size_t length,
+        dglnet::resource::utils::StateItem* ret) {
+    ret->m_Name = name;
     std::vector<GLdouble> val(length, 0);
 
     DIRECT_CALL_CHK(glGetDoublev)(value, &val[0]);
 
     if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {
-        ret.m_Values.resize(val.size());
+        ret->m_Values.resize(val.size());
         for (size_t i = 0; i < length; i++) {
-            ret.m_Values[i] = val[i];
+            ret->m_Values[i] = val[i];
         }
     }
-    return ret;
 }
 
-dglnet::resource::DGLResourceState::StateItem GLContext::getStateBooleanv(
-        const char* name, GLenum value, size_t length) {
-    dglnet::resource::DGLResourceState::StateItem ret;
-    ret.m_Name = name;
+void GLContext::getStateBooleanv(
+        const char* name, GLenum value, size_t length,
+        dglnet::resource::utils::StateItem* ret) {
+    ret->m_Name = name;
     std::vector<GLboolean> val(length, 0);
 
     DIRECT_CALL_CHK(glGetBooleanv)(value, &val[0]);
 
     if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {
-        ret.m_Values.resize(val.size());
+        ret->m_Values.resize(val.size());
         for (size_t i = 0; i < length; i++) {
-            ret.m_Values[i] = val[i];
+            ret->m_Values[i] = val[i];
         }
     }
-    return ret;
 }
 
-dglnet::resource::DGLResourceState::StateItem GLContext::getStateIsEnabled(
-        const char* name, GLenum value) {
-    dglnet::resource::DGLResourceState::StateItem ret;
-    ret.m_Name = name;
+void GLContext::getStateIsEnabled(
+        const char* name, GLenum value, size_t,
+        dglnet::resource::utils::StateItem* ret) {
+    ret->m_Name = name;
     GLboolean val = DIRECT_CALL_CHK(glIsEnabled)(value);
     if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {
-        ret.m_Values.resize(1, val);
+        ret->m_Values.resize(1, val);
     }
-    return ret;
 }
 
-boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
+std::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
 
     dglnet::resource::DGLResourceState* resource;
-    boost::shared_ptr<dglnet::DGLResource> ret(
+    std::shared_ptr<dglnet::DGLResource> ret(
             resource = new dglnet::resource::DGLResourceState);
 
 #ifdef WA_ES_QUERY_STATE
@@ -2129,21 +2131,29 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
         return ret;    // not really supported on non-DT
 #endif
 
-#define STATE_INTEGERV(NAME, LENGTH) \
-    resource->m_Items.push_back(getStateIntegerv(#NAME, NAME, LENGTH))
-#define STATE_INTEGER64V(NAME, LENGTH) \
-    resource->m_Items.push_back(getStateInteger64v(#NAME, NAME, LENGTH))
-// TODO: we may handle enums properly here
-#define STATE_INTEGERENUMV(NAME, LENGTH) \
-    resource->m_Items.push_back(getStateIntegerv(#NAME, NAME, LENGTH))
-#define STATE_FLOATV(NAME, LENGTH) \
-    resource->m_Items.push_back(getStateFloatv(#NAME, NAME, LENGTH))
-#define STATE_DOUBLEV(NAME, LENGTH) \
-    resource->m_Items.push_back(getStateDoublev(#NAME, NAME, LENGTH))
-#define STATE_BOOLEANV(NAME, LENGTH) \
-    resource->m_Items.push_back(getStateBooleanv(#NAME, NAME, LENGTH))
-#define STATE_ISENABLED(NAME) \
-    resource->m_Items.push_back(getStateIsEnabled(#NAME, NAME))
+
+
+    int loc = 0;
+    for (int store = 0; store <=1; store++) {
+        if (store) {
+            resource->m_Items.resize(loc);
+        }
+
+#define STATE_BASE(SETTER, NAME, LENGTH)                                \
+        if (store) {                                                    \
+            SETTER(#NAME, NAME, LENGTH, &resource->m_Items[loc]);       \
+        } else {                                                        \
+            loc++;                                                      \
+        }                                                               \
+
+#define STATE_INTEGERV(NAME, LENGTH)     STATE_BASE(getStateIntegerv,   NAME, LENGTH)
+#define STATE_INTEGER64V(NAME, LENGTH)   STATE_BASE(getStateInteger64v, NAME, LENGTH)
+#define STATE_INTEGERENUMV(NAME, LENGTH) STATE_BASE(getStateIntegerv,   NAME, LENGTH)
+#define STATE_FLOATV(NAME, LENGTH)       STATE_BASE(getStateFloatv,     NAME, LENGTH)
+#define STATE_DOUBLEV(NAME, LENGTH)      STATE_BASE(getStateDoublev,    NAME, LENGTH)
+#define STATE_BOOLEANV(NAME, LENGTH)     STATE_BASE(getStateBooleanv,   NAME, LENGTH)
+#define STATE_ISENABLED(NAME)            STATE_BASE(getStateIsEnabled,  NAME, 1)
+
 
     // Current Values and Associated Data                //Compat!
     // GL_CURRENT COLOR                                  //Compat!
@@ -3091,6 +3101,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     STATE_INTEGERV(GL_SAMPLES, 1);
     STATE_INTEGERV(GL_COPY_READ_BUFFER_BINDING, 1);
     STATE_INTEGERV(GL_COPY_WRITE_BUFFER_BINDING, 1);
+    }
     return ret;
 }
 

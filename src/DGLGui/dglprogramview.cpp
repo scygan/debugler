@@ -17,6 +17,9 @@
 
 #include "dglshaderviewitem.h"
 
+#include <DGLNet/protocol/request.h>
+//#include <DGLNet/protocol/message.h>
+
 #include <QMessageBox>
 #include <sstream>
 
@@ -48,7 +51,7 @@ DGLProgramViewItem::DGLProgramViewItem(dglnet::ContextObjectName name,
             2, new QTableWidgetItem("value"));
 
     m_Listener = resManager->createListener(
-            name, dglnet::DGLResource::ObjectType::Program);
+            name, dglnet::message::ObjectType::Program);
     m_Listener->setParent(this);
 
     CONNASSERT(m_Listener, SIGNAL(update(const dglnet::DGLResource&)), this,
@@ -144,13 +147,14 @@ void DGLProgramViewItem::update(const dglnet::DGLResource& res) {
 }
 
 void DGLProgramViewItem::onRequestFinished(
-        const dglnet::message::RequestReply* reply) {
-    std::string replyStr;
-    if (!reply->isOk(replyStr)) {
-        QMessageBox::critical(this, "Cannot link program",
-                              QString::fromStdString(replyStr));
-    }
+        const dglnet::message::utils::ReplyBase* reply) {
     m_Listener->fire();
+}
+
+void DGLProgramViewItem::onRequestFailed(
+    const std::string& msg) {
+    QMessageBox::critical(this, "Cannot link program",
+        QString::fromStdString(msg));
 }
 
 void DGLProgramViewItem::forceLink() {

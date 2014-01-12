@@ -19,6 +19,8 @@
 #include <QStyledItemDelegate>
 #include <QPainter>
 
+#include <DGLNet/protocol/entrypoint.h>
+
 class DGLTraceViewDelegate : public QStyledItemDelegate {
    public:
     DGLTraceViewDelegate(QObject* _parent = 0) : QStyledItemDelegate(_parent) {}
@@ -115,8 +117,8 @@ DGLTraceView::DGLTraceView(QWidget* parrent, DglController* controller)
                SLOT(setEnabled(bool)));
     CONNASSERT(controller, SIGNAL(setRunning(bool)), this,
                SLOT(setRunning(bool)));
-    CONNASSERT(controller, SIGNAL(breaked(CalledEntryPoint, uint)), this,
-               SLOT(breaked(CalledEntryPoint, uint)));
+    CONNASSERT(controller, SIGNAL(breaked(const CalledEntryPoint&, uint)), this,
+               SLOT(breaked(const CalledEntryPoint&, uint)));
     CONNASSERT(controller, SIGNAL(gotCallTraceChunkChunk(
                                    uint, const std::vector<CalledEntryPoint>&)),
                this, SLOT(gotCallTraceChunkChunk(
@@ -153,7 +155,7 @@ void DGLTraceView::mayNeedNewElements() {
     }
 }
 
-void DGLTraceView::breaked(CalledEntryPoint entryp, uint traceSize) {
+void DGLTraceView::breaked(const CalledEntryPoint& entryp, uint traceSize) {
     m_traceList.clear();
     m_QueryUpperBound = 0;
     for (uint i = 0; i < traceSize; i++) {

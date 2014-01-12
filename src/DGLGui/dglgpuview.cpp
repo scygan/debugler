@@ -85,7 +85,7 @@ void DGLGPUView::setConnected(bool connected) {
 
         m_Listener = m_Controller->getResourceManager()->createListener(
                 dglnet::ContextObjectName(),
-                dglnet::DGLResource::ObjectType::GPU);
+                dglnet::message::ObjectType::GPU);
         m_Listener->setParent(m_Ui->groupBox);
 
         CONNASSERT(m_Listener, SIGNAL(update(const dglnet::DGLResource&)), this,

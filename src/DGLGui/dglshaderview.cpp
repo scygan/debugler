@@ -21,6 +21,9 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+#include <DGLNet/protocol/request.h>
+#include <DGLNet/protocol/message.h>
+
 // line numbering taken from
 // http://doc.qt.digia.com/4.6/widgets-codeeditor.html
 
@@ -62,7 +65,7 @@ DGLShaderViewItem::DGLShaderViewItem(dglnet::ContextObjectName name,
     m_Ui.verticalLayout->setStretch(2, 1);
 
     m_Listener = resManager->createListener(
-            name, dglnet::DGLResource::ObjectType::Shader);
+            name, dglnet::message::ObjectType::Shader);
     m_Listener->setParent(this);
 
     // cannot edit shader now: no shader to edit
@@ -245,14 +248,17 @@ DGLShaderViewItem::EditRequestHandler::EditRequestHandler(
         : DGLRequestHandler(manager), m_Parrent(parrent) {}
 
 void DGLShaderViewItem::EditRequestHandler::onRequestFinished(
-        const dglnet::message::RequestReply* reply) {
-    std::string replyStr;
-    if (!reply->isOk(replyStr)) {
-        QMessageBox::critical(m_Parrent, "Cannot edit shader",
-                              QString::fromStdString(replyStr));
-        m_Parrent->editAction(EditAction::A_NOTIFY_ERROR);
-    }
+        const dglnet::message::utils::ReplyBase*) {
+
     m_Parrent->m_Listener->fire();
+}
+
+void DGLShaderViewItem::EditRequestHandler::onRequestFailed(
+    const std::string& reply) {
+
+    QMessageBox::critical(m_Parrent, "Cannot edit shader",
+        QString::fromStdString(reply));
+    m_Parrent->editAction(EditAction::A_NOTIFY_ERROR);
 }
 
 DGLShaderViewItem::ResetRequestHandler::ResetRequestHandler(
@@ -260,14 +266,18 @@ DGLShaderViewItem::ResetRequestHandler::ResetRequestHandler(
         : DGLRequestHandler(manager), m_Parrent(parrent) {}
 
 void DGLShaderViewItem::ResetRequestHandler::onRequestFinished(
-        const dglnet::message::RequestReply* reply) {
-    std::string replyStr;
-    if (!reply->isOk(replyStr)) {
-        QMessageBox::critical(m_Parrent, "Cannot reset shader edits",
-                              QString::fromStdString(replyStr));
-    } else {
-        m_Parrent->editAction(EditAction::A_DISABLE);
-    }
+        const dglnet::message::utils::ReplyBase*) {
+    
+    m_Parrent->editAction(EditAction::A_DISABLE);
+    m_Parrent->m_Listener->fire();
+}
+
+void DGLShaderViewItem::ResetRequestHandler::onRequestFailed(
+    const std::string& reply) {
+       
+    QMessageBox::critical(m_Parrent, "Cannot reset shader edits",
+        QString::fromStdString(reply));
+        
     m_Parrent->m_Listener->fire();
 }
 

@@ -41,10 +41,14 @@
     <ClInclude Include="protocol\anyvalue.h" />
     <ClInclude Include="protocol\ctxobjname.h" />
     <ClInclude Include="protocol\entrypoint.h" />
+    <ClInclude Include="protocol\fwd.h" />
     <ClInclude Include="protocol\message.h" />
+    <ClInclude Include="protocol\messagehandler.h" />
+    <ClInclude Include="protocol\msgutils.h" />
     <ClInclude Include="protocol\pixeltransfer.h" />
     <ClInclude Include="protocol\request.h" />
     <ClInclude Include="protocol\resource.h" />
+    <ClInclude Include="protocol\shared_ptr_converter.h" />
     <ClInclude Include="serializer-fwd.h" />
     <ClInclude Include="server.h" />
     <ClInclude Include="transport.h" />

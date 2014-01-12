@@ -15,6 +15,9 @@
 
 #include "dglcontroller.h"
 
+#include <DGLNet/protocol/message.h>
+#include <DGLNet/protocol/request.h>
+
 DGLRequestHandler::DGLRequestHandler(DGLRequestManager* manager)
         : m_Manager(manager) {}
 
@@ -35,7 +38,12 @@ void DGLRequestManager::handle(const dglnet::message::RequestReply& msg) {
     std::map<int, DGLRequestHandler*>::iterator i =
             m_CurrentHandlers.find(msg.getId());
     if (i != m_CurrentHandlers.end()) {
-        i->second->onRequestFinished(&msg);
+        std::string error;
+        if (msg.isOk(error)) {
+             i->second->onRequestFinished(msg.m_Reply.get());
+        } else {
+             i->second->onRequestFailed(error);
+        }
         m_CurrentHandlers.erase(i);
     }
 }
@@ -53,7 +61,7 @@ void DGLRequestManager::unregisterHandler(DGLRequestHandler* handler) {
 }
 
 DGLResourceListener::DGLResourceListener(dglnet::ContextObjectName obName,
-                                         dglnet::DGLResource::ObjectType type,
+                                         dglnet::message::ObjectType type,
                                          DGLResourceManager* manager)
         : DGLRequestHandler(manager->getRequestManager()),
           m_ObjectType(type),
@@ -65,13 +73,13 @@ DGLResourceListener::~DGLResourceListener() {
 }
 
 void DGLResourceListener::onRequestFinished(
-        const dglnet::message::RequestReply* msg) {
-    std::string errorMessage;
-    if (msg->isOk(errorMessage)) {
-        update(*dynamic_cast<dglnet::DGLResource*>(msg->m_Reply.get()));
-    } else {
-        error(errorMessage);
-    }
+        const dglnet::message::utils::ReplyBase* msg) {
+        update(*dynamic_cast<const dglnet::DGLResource*>(msg));
+}
+
+void DGLResourceListener::onRequestFailed(
+    const std::string& msg) {
+        error(msg);
 }
 
 void DGLResourceListener::fire() {
@@ -94,7 +102,7 @@ void DGLResourceManager::emitQueries() {
 }
 
 DGLResourceListener* DGLResourceManager::createListener(
-        dglnet::ContextObjectName name, dglnet::DGLResource::ObjectType type) {
+        dglnet::ContextObjectName name, dglnet::message::ObjectType type) {
     DGLResourceListener* listener = new DGLResourceListener(name, type, this);
 
     m_Listeners.insert(m_Listeners.end(), listener);
@@ -118,24 +126,24 @@ void DGLResourceManager::unregisterListener(DGLResourceListener* listener) {
 }
 
 void DGLViewRouter::show(const dglnet::ContextObjectName& name,
-                         dglnet::DGLResource::ObjectType type) {
+                         dglnet::message::ObjectType type) {
     switch (type) {
-        case dglnet::DGLResource::ObjectType::Buffer:
+        case dglnet::message::ObjectType::Buffer:
             emit showBuffer(name.m_Context, name.m_Name);
             break;
-        case dglnet::DGLResource::ObjectType::Framebuffer:
+        case dglnet::message::ObjectType::Framebuffer:
             emit showFramebuffer(name.m_Context, name.m_Name);
             break;
-        case dglnet::DGLResource::ObjectType::FBO:
+        case dglnet::message::ObjectType::FBO:
             emit showFBO(name.m_Context, name.m_Name);
             break;
-        case dglnet::DGLResource::ObjectType::Texture:
+        case dglnet::message::ObjectType::Texture:
             emit showTexture(name.m_Context, name.m_Name);
             break;
-        case dglnet::DGLResource::ObjectType::Shader:
+        case dglnet::message::ObjectType::Shader:
             emit showShader(name.m_Context, name.m_Name, name.m_Target);
             break;
-        case dglnet::DGLResource::ObjectType::Program:
+        case dglnet::message::ObjectType::Program:
             emit showProgram(name.m_Context, name.m_Name);
             break;
         default:
@@ -251,7 +259,7 @@ void DglController::debugStep() {
     setRunning(true);
     assert(isConnected());
     dglnet::message::ContinueBreak message(
-            dglnet::message::ContinueBreak::StepMode::CALL);
+            dglnet::message::StepMode::CALL);
     m_DglClient->sendMessage(&message);
     newStatus("Running...");
 }
@@ -261,7 +269,7 @@ void DglController::debugStepDrawCall() {
     setRunning(true);
     assert(isConnected());
     dglnet::message::ContinueBreak message(
-            dglnet::message::ContinueBreak::StepMode::DRAW_CALL);
+            dglnet::message::StepMode::DRAW_CALL);
     m_DglClient->sendMessage(&message);
     newStatus("Running...");
 }
@@ -271,7 +279,7 @@ void DglController::debugStepFrame() {
     setRunning(true);
     assert(isConnected());
     dglnet::message::ContinueBreak message(
-            dglnet::message::ContinueBreak::StepMode::FRAME);
+            dglnet::message::StepMode::FRAME);
     m_DglClient->sendMessage(&message);
     newStatus("Running...");
 }

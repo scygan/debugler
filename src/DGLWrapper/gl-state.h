@@ -20,11 +20,13 @@
 #include <queue>
 
 #include <DGLCommon/gl-types.h>
-#include <DGLNet/protocol/message.h>
-#include <DGLNet/protocol/resource.h>
+#include <DGLNet/protocol/fwd.h>
 
 #include "gl-statesetters.h"
 #include "api-loader.h"
+
+#include <set>
+#include <memory>
 
 class DGLDisplayState;
 
@@ -235,7 +237,7 @@ class GLContext {
     std::map<GLuint, GLShaderObj> m_Shaders;
     std::map<GLuint, GLFBObj> m_FBOs;
 
-    dglnet::message::BreakedCall::ContextReport describe();
+    dglnet::message::utils::ContextReport describe();
 
     NativeSurfaceBase* getNativeReadSurface() const;
     NativeSurfaceBase* getNativeDrawSurface() const;
@@ -253,26 +255,26 @@ class GLContext {
     GLShaderObj* ensureShader(GLuint name, bool fromArbAPI);
     GLShaderObj* findShader(GLuint name);
 
-    boost::shared_ptr<dglnet::DGLResource> queryTexture(gl_t name);
-    boost::shared_ptr<dglnet::DGLResource> queryBuffer(gl_t name);
-    boost::shared_ptr<dglnet::DGLResource> queryFramebuffer(gl_t bufferEnum);
-    boost::shared_ptr<dglnet::DGLResource> queryFBO(gl_t name);
-    boost::shared_ptr<dglnet::DGLResource> queryShader(gl_t name);
-    boost::shared_ptr<dglnet::DGLResource> queryProgram(gl_t name);
-    boost::shared_ptr<dglnet::DGLResource> queryGPU();
-    boost::shared_ptr<dglnet::DGLResource> queryState(gl_t name);
+    std::shared_ptr<dglnet::DGLResource> queryTexture(gl_t name);
+    std::shared_ptr<dglnet::DGLResource> queryBuffer(gl_t name);
+    std::shared_ptr<dglnet::DGLResource> queryFramebuffer(gl_t bufferEnum);
+    std::shared_ptr<dglnet::DGLResource> queryFBO(gl_t name);
+    std::shared_ptr<dglnet::DGLResource> queryShader(gl_t name);
+    std::shared_ptr<dglnet::DGLResource> queryProgram(gl_t name);
+    std::shared_ptr<dglnet::DGLResource> queryGPU();
+    std::shared_ptr<dglnet::DGLResource> queryState(gl_t name);
 
     /**
      * texture level query (dispatches to proper query)
      */
-    boost::shared_ptr<dglnet::resource::DGLPixelRectangle> queryTextureLevel(
+    std::shared_ptr<dglnet::resource::DGLPixelRectangle> queryTextureLevel(
             const GLTextureObj* tex, int level, int layer, int face,
             state_setters::PixelStoreAlignment&);
 
     /**
      * texture level query (OpenGL, using getters)
      */
-    boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
+    std::shared_ptr<dglnet::resource::DGLPixelRectangle>
             queryTextureLevelGetters(
                     const GLTextureObj* tex, int level, int layer, int face,
                     state_setters::PixelStoreAlignment& defAlignment);
@@ -280,7 +282,7 @@ class GLContext {
     /**
      * texture level query (OpenGL ES, using auxiliary ctx)
      */
-    boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
+    std::shared_ptr<dglnet::resource::DGLPixelRectangle>
             queryTextureLevelAuxCtx(const GLTextureObj* tex, int level, int layer, int face);
 
 
@@ -456,38 +458,44 @@ class GLContext {
     /**
      * Get state element (using glGetIntegerv)
      */
-    dglnet::resource::DGLResourceState::StateItem getStateIntegerv(
-            const char* name, GLenum value, size_t length);
+    void getStateIntegerv(
+            const char* name, GLenum value, size_t length, 
+            dglnet::resource::utils::StateItem* ret);
 
     /**
     * Get state element (using glGetInteger64v)
     */
-    dglnet::resource::DGLResourceState::StateItem getStateInteger64v(
-            const char* name, GLenum value, size_t length);
+    void getStateInteger64v(
+            const char* name, GLenum value, size_t length, 
+            dglnet::resource::utils::StateItem* ret);
 
     /**
      * Get state element (using glGetFloatv)
      */
-    dglnet::resource::DGLResourceState::StateItem getStateFloatv(
-            const char* name, GLenum value, size_t length);
+    void getStateFloatv(
+            const char* name, GLenum value, size_t length, 
+            dglnet::resource::utils::StateItem* ret);
 
     /**
      * Get state element (using glGetDoublev)
      */
-    dglnet::resource::DGLResourceState::StateItem getStateDoublev(
-            const char* name, GLenum value, size_t length);
+    void getStateDoublev(
+            const char* name, GLenum value, size_t length,
+            dglnet::resource::utils::StateItem* ret);
 
     /**
      * Get state element (using glGetBooleanv)
      */
-    dglnet::resource::DGLResourceState::StateItem getStateBooleanv(
-            const char* name, GLenum value, size_t length);
+    void getStateBooleanv(
+            const char* name, GLenum value, size_t length,
+            dglnet::resource::utils::StateItem* ret);
 
     /**
      * Get state element (using glIsEnabled)
      */
-    dglnet::resource::DGLResourceState::StateItem getStateIsEnabled(
-            const char* name, GLenum value);
+    void getStateIsEnabled(
+            const char* name, GLenum value, size_t,
+            dglnet::resource::utils::StateItem* ret);
 
     /**
      * True if ctx was ever bound, false otherwise

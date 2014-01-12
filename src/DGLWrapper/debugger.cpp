@@ -20,6 +20,9 @@
 #include "ipc.h"
 
 #include <DGLNet/server.h>
+#include <DGLNet/protocol/message.h>
+#include <DGLNet/protocol/resource.h>
+#include <DGLNet/protocol/shared_ptr_converter.h>
 
 #include <sstream>
 #include <boost/make_shared.hpp>
@@ -40,7 +43,7 @@ BreakState::BreakState()
         : m_break(true), //always give initial break
           m_BreakingEnabled(false), //initially all breaks are masked until connection is made.
           m_StepModeEnabled(false),
-          m_StepMode(dglnet::message::ContinueBreak::StepMode::CALL) {}
+          m_StepMode(dglnet::message::StepMode::CALL) {}
 
 void BreakState::setEnabled(bool enabled) {
     m_BreakingEnabled = enabled;
@@ -49,13 +52,13 @@ void BreakState::setEnabled(bool enabled) {
 bool BreakState::mayBreakAt(const Entrypoint& e) {
     if (m_StepModeEnabled) {
         switch (m_StepMode) {
-            case dglnet::message::ContinueBreak::StepMode::CALL:
+            case dglnet::message::StepMode::CALL:
                 setBreak();
                 break;
-            case dglnet::message::ContinueBreak::StepMode::DRAW_CALL:
+            case dglnet::message::StepMode::DRAW_CALL:
                 if (IsDrawCall(e)) setBreak();
                 break;
-            case dglnet::message::ContinueBreak::StepMode::FRAME:
+            case dglnet::message::StepMode::FRAME:
                 if (IsFrameDelimiter(e)) setBreak();
                 break;
         }
@@ -375,9 +378,9 @@ void DGLDebugController::doHandleRequest(const dglnet::message::Request& msg) {
         // only one request type for now
         if (dynamic_cast<const dglnet::request::QueryResource*>(
                     msg.m_Request.get())) {
-            reply.m_Reply = doHandleRequest(
+            reply.m_Reply = convert_shared_ptr_nref(doHandleRequest(
                     *dynamic_cast<const dglnet::request::QueryResource*>(
-                             msg.m_Request.get()));
+                             msg.m_Request.get())));
         } else if (dynamic_cast<const dglnet::request::EditShaderSource*>(
                            msg.m_Request.get())) {
             doHandleRequest(
@@ -400,10 +403,10 @@ void DGLDebugController::doHandleRequest(const dglnet::message::Request& msg) {
     getServer().getTransport()->sendMessage(&reply);
 }
 
-boost::shared_ptr<dglnet::DGLResource> DGLDebugController::doHandleRequest(
+std::shared_ptr<dglnet::DGLResource> DGLDebugController::doHandleRequest(
         const dglnet::request::QueryResource& request) {
 
-    boost::shared_ptr<dglnet::DGLResource> resource;
+    std::shared_ptr<dglnet::DGLResource> resource;
 
     dglState::GLContext* ctx = gc;
 
@@ -419,28 +422,28 @@ boost::shared_ptr<dglnet::DGLResource> DGLDebugController::doHandleRequest(
     }
     ctx->startQuery();
     switch (request.m_Type) {
-        case dglnet::DGLResource::ObjectType::Buffer:
+        case dglnet::message::ObjectType::Buffer:
             resource = ctx->queryBuffer(request.m_ObjectName.m_Name);
             break;
-        case dglnet::DGLResource::ObjectType::Framebuffer:
+        case dglnet::message::ObjectType::Framebuffer:
             resource = ctx->queryFramebuffer(request.m_ObjectName.m_Name);
             break;
-        case dglnet::DGLResource::ObjectType::FBO:
+        case dglnet::message::ObjectType::FBO:
             resource = ctx->queryFBO(request.m_ObjectName.m_Name);
             break;
-        case dglnet::DGLResource::ObjectType::Texture:
+        case dglnet::message::ObjectType::Texture:
             resource = ctx->queryTexture(request.m_ObjectName.m_Name);
             break;
-        case dglnet::DGLResource::ObjectType::Shader:
+        case dglnet::message::ObjectType::Shader:
             resource = ctx->queryShader(request.m_ObjectName.m_Name);
             break;
-        case dglnet::DGLResource::ObjectType::Program:
+        case dglnet::message::ObjectType::Program:
             resource = ctx->queryProgram(request.m_ObjectName.m_Name);
             break;
-        case dglnet::DGLResource::ObjectType::GPU:
+        case dglnet::message::ObjectType::GPU:
             resource = ctx->queryGPU();
             break;
-        case dglnet::DGLResource::ObjectType::State:
+        case dglnet::message::ObjectType::State:
             resource = ctx->queryState(request.m_ObjectName.m_Name);
             break;
         default:

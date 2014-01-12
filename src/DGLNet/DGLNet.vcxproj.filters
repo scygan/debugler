@@ -85,5 +85,17 @@
     <ClInclude Include="transport_detail.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\fwd.h">
+      <Filter>protocol\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\shared_ptr_converter.h">
+      <Filter>protocol\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\msgutils.h">
+      <Filter>protocol\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\messagehandler.h">
+      <Filter>protocol\Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

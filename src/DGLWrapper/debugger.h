@@ -19,6 +19,9 @@
 #include <DGLNet/transport.h>
 #include <boost/circular_buffer.hpp>
 
+#include <DGLNet/protocol/fwd.h>
+#include <DGLNet/protocol/entrypoint.h>
+#include <DGLNet/protocol/messagehandler.h>
 #include <DGLNet/protocol/dglconfiguration.h>
 #include <DGLNet/protocol/request.h>
 #include <DGLCommon/os.h>
@@ -121,7 +124,7 @@ class BreakState {
      * Actual step mode (call, draw call, frame) if in step mode
      * irrelevant, if m_StepModeEnabled == false
      */
-    dglnet::message::ContinueBreak::StepMode m_StepMode;
+    dglnet::message::StepMode m_StepMode;
 
     /**
      * List of actually set breakpoints
@@ -348,7 +351,7 @@ class DGLDebugController : public dglnet::MessageHandler {
     /**
      * Request handler - query resource request
      */
-    boost::shared_ptr<dglnet::DGLResource> doHandleRequest(
+    std::shared_ptr<dglnet::DGLResource> doHandleRequest(
             const dglnet::request::QueryResource&);
 
     /**

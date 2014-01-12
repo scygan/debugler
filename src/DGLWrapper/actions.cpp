@@ -26,6 +26,8 @@
 
 #include <DGLCommon/gl-types.h>
 
+#include <DGLNet/protocol/message.h>
+
 std::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];
 
 void ActionBase::SetPrev(const std::shared_ptr<ActionBase>& prev) {

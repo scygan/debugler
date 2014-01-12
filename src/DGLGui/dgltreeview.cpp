@@ -40,12 +40,12 @@ DGLTreeView::DGLTreeView(QWidget* parrent, DglController* controller)
                SIGNAL(breakedWithStateReports(
                        opaque_id_t,
                        const std::vector<
-                               dglnet::message::BreakedCall::ContextReport>&)),
+                               dglnet::message::utils::ContextReport>&)),
                this,
                SLOT(breakedWithStateReports(
                        opaque_id_t,
                        const std::vector<
-                               dglnet::message::BreakedCall::ContextReport>&)));
+                               dglnet::message::utils::ContextReport>&)));
 
     // internal
     CONNASSERT(&m_TreeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
@@ -81,7 +81,7 @@ class DGLTextureWidget : public QClickableTreeWidgetItem {
 
     virtual void handleDoubleClick(DglController* controller) {
         controller->getViewRouter()->show(
-                m_name, dglnet::DGLResource::ObjectType::Texture);
+                m_name, dglnet::message::ObjectType::Texture);
     }
 
    private:
@@ -98,7 +98,7 @@ class DGLBufferWidget : public QClickableTreeWidgetItem {
     }
     void handleDoubleClick(DglController* controller) {
         controller->getViewRouter()->show(
-                m_name, dglnet::DGLResource::ObjectType::Buffer);
+                m_name, dglnet::message::ObjectType::Buffer);
     }
 
    private:
@@ -115,7 +115,7 @@ class DGLFBOWidget : public QClickableTreeWidgetItem {
     }
     void handleDoubleClick(DglController* controller) {
         controller->getViewRouter()->show(m_name,
-                                          dglnet::DGLResource::ObjectType::FBO);
+                                          dglnet::message::ObjectType::FBO);
     }
 
    private:
@@ -135,7 +135,7 @@ class DGLShaderWidget : public QClickableTreeWidgetItem {
     }
     void handleDoubleClick(DglController* controller) {
         controller->getViewRouter()->show(
-                m_name, dglnet::DGLResource::ObjectType::Shader);
+                m_name, dglnet::message::ObjectType::Shader);
     }
 
    private:
@@ -152,7 +152,7 @@ class DGLProgramWidget : public QClickableTreeWidgetItem {
     }
     void handleDoubleClick(DglController* controller) {
         controller->getViewRouter()->show(
-                m_name, dglnet::DGLResource::ObjectType::Program);
+                m_name, dglnet::message::ObjectType::Program);
     }
 
    private:
@@ -184,7 +184,7 @@ class DGLFramebufferWidget : public QClickableTreeWidgetItem {
     }
     void handleDoubleClick(DglController* controller) {
         controller->getViewRouter()->show(
-                m_type, dglnet::DGLResource::ObjectType::Framebuffer);
+                m_type, dglnet::message::ObjectType::Framebuffer);
     }
     dglnet::ContextObjectName m_type;
 };
@@ -247,7 +247,7 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
     }
     opaque_id_t getId() { return m_Id; }
 
-    void update(const dglnet::message::BreakedCall::ContextReport& report,
+    void update(const dglnet::message::utils::ContextReport& report,
                 bool current) {
         QFont fnt = font(0);
         fnt.setBold(current);
@@ -276,7 +276,7 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
 
 void DGLTreeView::breakedWithStateReports(
         opaque_id_t currentContextId,
-        const std::vector<dglnet::message::BreakedCall::ContextReport>&
+        const std::vector<dglnet::message::utils::ContextReport>&
                 report) {
     for (size_t i = 0; i < report.size(); i++) {
         DGLCtxTreeWidget* treeWidget = 0;

@@ -14,11 +14,13 @@
 */
 
 #include <boost/serialization/export.hpp>
-#define REGISTER_CLASS(X) BOOST_CLASS_EXPORT(X)
+#define REGISTER_CLASS(class, key) BOOST_CLASS_EXPORT_GUID(class, #key)
 #include "protocol/message.h"
 #include "protocol/resource.h"
 #include "protocol/request.h"
 #undef REGISTER_CLASS
+
+#include "protocol/messagehandler.h"
 
 #include "transport.h"
 #include "transport_detail.h"
@@ -41,6 +43,7 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/binary_object.hpp>
 
 #include <boost/asio/read.hpp>
 #include <boost/asio/write.hpp>

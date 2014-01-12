@@ -13,9 +13,8 @@
 * limitations under the License.
 */
 
-#include <DGLNet/protocol/message.h>
-#include <DGLNet/protocol/resource.h>
 #include <DGLNet/protocol/ctxobjname.h>
+#include <DGLNet/protocol/msgutils.h>
 
 #ifndef REQUEST_H
 #define REQUEST_H
@@ -32,9 +31,7 @@ class DGLRequest {
 namespace request {
 
 class QueryResource : public DGLRequest {
-
-    friend class boost::serialization::access;
-
+   public:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         ar& boost::serialization::base_object<DGLRequest>(*this);
@@ -42,17 +39,15 @@ class QueryResource : public DGLRequest {
         ar& m_ObjectName;
     }
 
-   public:
-    QueryResource() : m_Type(DGLResource::ObjectType::Invalid) {}
-    QueryResource(DGLResource::ObjectType type, ContextObjectName name)
+    QueryResource() : m_Type(message::ObjectType::Invalid) {}
+    QueryResource(message::ObjectType type, ContextObjectName name)
             : m_Type(type), m_ObjectName(name) {}
-    DGLResource::ObjectType m_Type;
+    message::ObjectType m_Type;
     ContextObjectName m_ObjectName;
 };
 
 class EditShaderSource : public DGLRequest {
-    friend class boost::serialization::access;
-
+   public:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         ar& boost::serialization::base_object<DGLRequest>(*this);
@@ -64,7 +59,6 @@ class EditShaderSource : public DGLRequest {
         }
     }
 
-   public:
     EditShaderSource() {}
     EditShaderSource(opaque_id_t context, gl_t shaderId, bool reset,
                      std::string source = "");
@@ -76,8 +70,7 @@ class EditShaderSource : public DGLRequest {
 };
 
 class ForceLinkProgram : public DGLRequest {
-    friend class boost::serialization::access;
-
+   public:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         ar& boost::serialization::base_object<DGLRequest>(*this);
@@ -85,7 +78,6 @@ class ForceLinkProgram : public DGLRequest {
         ar& m_ProgramId;
     }
 
-   public:
     ForceLinkProgram() {}
     ForceLinkProgram(opaque_id_t context, gl_t programId);
 
@@ -97,9 +89,9 @@ class ForceLinkProgram : public DGLRequest {
 }    // namespace dglnet
 
 #ifdef REGISTER_CLASS
-REGISTER_CLASS(dglnet::request::QueryResource)
-REGISTER_CLASS(dglnet::request::EditShaderSource)
-REGISTER_CLASS(dglnet::request::ForceLinkProgram)
+REGISTER_CLASS(dglnet::request::QueryResource,     drQR)
+REGISTER_CLASS(dglnet::request::EditShaderSource,  drESS)
+REGISTER_CLASS(dglnet::request::ForceLinkProgram,  drFLP)
 #endif
 
 #endif    // REQUEST_H

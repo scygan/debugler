@@ -48,7 +48,8 @@ slots:
     void forceLink();
 
    private:
-    virtual void onRequestFinished(const dglnet::message::RequestReply* reply);
+    virtual void onRequestFinished(const dglnet::message::utils::ReplyBase* reply);
+    virtual void onRequestFailed(const std::string& reply);
 
     Ui::DGLProgramViewItem m_Ui;
     QLabel* m_Label;

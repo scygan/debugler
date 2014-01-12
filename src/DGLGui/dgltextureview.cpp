@@ -30,7 +30,7 @@ DGLTextureViewItem::DGLTextureViewItem(dglnet::ContextObjectName name,
     m_Ui.m_PixelRectangleView->setScene(m_PixelRectangleScene);
 
     m_Listener = resManager->createListener(
-            name, dglnet::DGLResource::ObjectType::Texture);
+            name, dglnet::message::ObjectType::Texture);
     m_Listener->setParent(this);
 
     m_Ui.horizontalSlider_LOD->setDisabled(true);

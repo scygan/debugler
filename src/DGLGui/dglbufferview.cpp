@@ -26,7 +26,7 @@ DGLBufferViewItem::DGLBufferViewItem(dglnet::ContextObjectName name,
     m_VerticalLayout->addWidget(m_Label);
 
     m_Listener = resManager->createListener(
-            name, dglnet::DGLResource::ObjectType::Buffer);
+            name, dglnet::message::ObjectType::Buffer);
     m_Listener->setParent(this);
 
     CONNASSERT(m_Listener, SIGNAL(update(const dglnet::DGLResource&)), this,

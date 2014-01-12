@@ -49,7 +49,7 @@ signals:
 slots:
     void setEnabled(bool);
     void setRunning(bool);
-    void breaked(CalledEntryPoint, uint);
+    void breaked(const CalledEntryPoint&, uint);
     void gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&);
 
     void mayNeedNewElements();

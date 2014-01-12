@@ -15,10 +15,12 @@
 #ifndef TRANSPORT_H
 #define TRANSPORT_H
 
-#include <DGLNet/protocol/message.h>
+#include <DGLNet/protocol/fwd.h>
 #include <boost/asio/basic_streambuf_fwd.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/system/error_code.hpp>
+
+#include<vector>
 
 namespace boost {
 namespace asio {

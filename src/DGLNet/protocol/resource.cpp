@@ -13,11 +13,9 @@
 * limitations under the License.
 */
 
-#include <cstring>
 
 #include "resource.h"
-#include <DGLCommon/gl-types.h>
-#include <boost/serialization/export.hpp>
+
 
 namespace dglnet {
 namespace resource {

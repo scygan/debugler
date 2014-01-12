@@ -19,25 +19,23 @@
 #include <boost/variant/variant.hpp>
 #include <boost/variant/get.hpp>
 
-#include <DGLNet/serializer-fwd.h>
 #include <DGLCommon/gl-types.h>
 
 // Pointers that are serialized by value must be wrapped with this class
 template <typename T>
 class PtrWrap {
-    friend class boost::serialization::access;
-
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int) {
-        ar& m_value;
-    }
-
     typedef int64_t pointer_store_t;    // should be platform-independent,
                                         // rather than intptr_t
     static_assert(sizeof(int64_t) >= sizeof(intptr_t),
                   "Pointer sizes larger than 8 bytes");
 
    public:
+
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& m_value;
+    }
+
     PtrWrap() : m_value(0) {}
 
     PtrWrap(intptr_t v) : m_value(static_cast<pointer_store_t>(v)) {}
@@ -49,14 +47,13 @@ class PtrWrap {
 };
 
 class GLenumWrap {
-    friend class boost::serialization::access;
+   public:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         ar& m_value;
     }
 
-   public:
     GLenumWrap() : m_value(0) {}
 
     GLenumWrap(gl_t v) : m_value(v) {}
@@ -69,14 +66,13 @@ class GLenumWrap {
 };
 
 class AnyValue {
-    friend class boost::serialization::access;
+   public:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         ar& m_value;
     }
 
-   public:
     AnyValue() {};
     template <typename T>
     AnyValue(T v)

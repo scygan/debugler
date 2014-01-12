@@ -31,14 +31,14 @@ class DGLDisplayState {
      * Iterator for container of all GL context state objects
      */
     typedef std::map<opaque_id_t,
-                     boost::shared_ptr<dglState::GLContext> >::iterator
+                     std::shared_ptr<dglState::GLContext> >::iterator
             ContextListIter;
 
     /**
      * Iterator for container of all native surfaces
      */
     typedef std::map<opaque_id_t,
-                     boost::shared_ptr<dglState::NativeSurfaceBase> >::iterator
+                     std::shared_ptr<dglState::NativeSurfaceBase> >::iterator
             SurfaceListIter;
 
    public:
@@ -115,12 +115,12 @@ class DGLDisplayState {
     /**
      * Getter for short context state report
      */
-    std::vector<dglnet::message::BreakedCall::ContextReport> describe();
+    std::vector<dglnet::message::utils::ContextReport> describe();
 
     /**
      * Getter for short context state report from all Displays
      */
-    static std::vector<dglnet::message::BreakedCall::ContextReport>
+    static std::vector<dglnet::message::utils::ContextReport>
             describeAll();
 
     /**
@@ -132,13 +132,13 @@ class DGLDisplayState {
     /**
      * Container of all GL context state objects
      */
-    std::map<opaque_id_t, boost::shared_ptr<dglState::GLContext> >
+    std::map<opaque_id_t, std::shared_ptr<dglState::GLContext> >
             m_ContextList;
 
     /**
      * Container of  all native surfaces
      */
-    std::map<opaque_id_t, boost::shared_ptr<dglState::NativeSurfaceBase> >
+    std::map<opaque_id_t, std::shared_ptr<dglState::NativeSurfaceBase> >
             m_SurfaceList;
 
     /**
@@ -154,7 +154,7 @@ class DGLDisplayState {
     /**
      *  Collection of all displays
      */
-    static std::map<opaque_id_t, boost::shared_ptr<DGLDisplayState> >
+    static std::map<opaque_id_t, std::shared_ptr<DGLDisplayState> >
             s_Displays;
 
     /**

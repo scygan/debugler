@@ -68,8 +68,10 @@ slots:
         EditRequestHandler(DGLShaderViewItem*, DGLRequestManager*);
 
        private:
-        virtual void onRequestFinished(
-                const dglnet::message::RequestReply* reply) override;
+           virtual void onRequestFinished(
+               const dglnet::message::utils::ReplyBase* reply) override;
+           virtual void onRequestFailed(
+               const std::string& error) override;
         DGLShaderViewItem* m_Parrent;
     } m_EditRequestHandler;
 
@@ -79,7 +81,9 @@ slots:
 
        private:
         virtual void onRequestFinished(
-                const dglnet::message::RequestReply* reply) override;
+                const dglnet::message::utils::ReplyBase* reply) override;
+        virtual void onRequestFailed(
+            const std::string& reply) override;
         DGLShaderViewItem* m_Parrent;
     } m_ResetRequestHandler;
 

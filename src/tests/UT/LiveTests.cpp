@@ -17,11 +17,15 @@
 
 #include "gtest/gtest.h"
 #include <DGLNet/client.h>
-#include <DGLCommon/gl-glue-headers.h>
 #include <DGLCommon/gl-headers.h>
+#include <DGLCommon/gl-glue-headers.h>
 
+#include <DGLNet/protocol/message.h>
 #include <DGLNet/protocol/request.h>
 #include <DGLNet/protocol/resource.h>
+#include <DGLNet/protocol/messagehandler.h>
+#include <DGLNet/protocol/dglconfiguration.h>
+
 
 #include <thread>
 #include <chrono>
@@ -432,7 +436,7 @@ TEST_F(LiveTest, entryp_retvals) {
             {
                 // advance one call
                 dglnet::message::ContinueBreak step(
-                        dglnet::message::ContinueBreak::StepMode::CALL);
+                        dglnet::message::StepMode::CALL);
                 client->sendMessage(&step);
                 ASSERT_TRUE(utils::receiveUntilMessage<
                                     dglnet::message::BreakedCall>(
@@ -517,7 +521,7 @@ TEST_F(LiveTest, framebuffer_query) {
         {
             // query framebuffer
             dglnet::message::Request request(new dglnet::request::QueryResource(
-                    dglnet::DGLResource::ObjectType::Framebuffer,
+                    dglnet::message::ObjectType::Framebuffer,
                     dglnet::ContextObjectName(breaked->m_CurrentCtx, GL_BACK)));
             client->sendMessage(&request);
         }
@@ -558,7 +562,7 @@ TEST_F(LiveTest, framebuffer_query) {
 
         // advance one call
         dglnet::message::ContinueBreak stepCall(
-                dglnet::message::ContinueBreak::StepMode::CALL);
+                dglnet::message::StepMode::CALL);
         client->sendMessage(&stepCall);
         ASSERT_TRUE(utils::receiveUntilMessage<dglnet::message::BreakedCall>(
                             client.get(), getMessageHandler()) != NULL);
@@ -595,7 +599,7 @@ TEST_F(LiveTest, framebuffer_resize) {
                                             glDrawArrays_Call);
         // advance one call
         dglnet::message::ContinueBreak stepCall(
-                dglnet::message::ContinueBreak::StepMode::CALL);
+                dglnet::message::StepMode::CALL);
         client->sendMessage(&stepCall);
         ASSERT_TRUE(utils::receiveUntilMessage<dglnet::message::BreakedCall>(
                             client.get(), getMessageHandler()) != NULL);
@@ -603,7 +607,7 @@ TEST_F(LiveTest, framebuffer_resize) {
         {
             // query framebuffer
             dglnet::message::Request request(new dglnet::request::QueryResource(
-                    dglnet::DGLResource::ObjectType::Framebuffer,
+                    dglnet::message::ObjectType::Framebuffer,
                     dglnet::ContextObjectName(breaked->m_CurrentCtx, GL_BACK)));
             client->sendMessage(&request);
         }
@@ -632,7 +636,7 @@ TEST_F(LiveTest, framebuffer_resize) {
                 204, 255);
 
         dglnet::message::ContinueBreak stepFrame(
-                dglnet::message::ContinueBreak::StepMode::FRAME);
+                dglnet::message::StepMode::FRAME);
     }
     terminate(client);
 }
@@ -663,7 +667,7 @@ TEST_F(LiveTest, texture_query_2d) {
     {
         // query texture
         dglnet::message::Request request(new dglnet::request::QueryResource(
-                dglnet::DGLResource::ObjectType::Texture,
+                dglnet::message::ObjectType::Texture,
                 dglnet::ContextObjectName(breaked->m_CurrentCtx,
                                           breaked->m_CtxReports[0]
                                                   .m_TextureSpace.begin()
@@ -747,7 +751,7 @@ TEST_F(LiveTest, texture_query_3d) {
     {
         // query texture
         dglnet::message::Request request(new dglnet::request::QueryResource(
-            dglnet::DGLResource::ObjectType::Texture,
+            dglnet::message::ObjectType::Texture,
             dglnet::ContextObjectName(breaked->m_CurrentCtx,
             breaked->m_CtxReports[0]
         .m_TextureSpace.begin()
@@ -843,7 +847,7 @@ TEST_F(LiveTest, edit_shader) {
     {
         dglnet::message::Request requestMessage(
                 new dglnet::request::QueryResource(
-                        dglnet::DGLResource::ObjectType::Shader,
+                        dglnet::message::ObjectType::Shader,
                         dglnet::ContextObjectName(breaked->m_CurrentCtx,
                                                   fragId)));
         client->sendMessage(&requestMessage);
@@ -879,7 +883,7 @@ TEST_F(LiveTest, edit_shader) {
     // Verify frag shader
     {
         dglnet::message::Request req(new dglnet::request::QueryResource(
-                dglnet::DGLResource::ObjectType::Shader,
+                dglnet::message::ObjectType::Shader,
                 dglnet::ContextObjectName(breaked->m_CurrentCtx, fragId)));
         client->sendMessage(&req);
     }
@@ -894,7 +898,7 @@ TEST_F(LiveTest, edit_shader) {
     // Skip few frames (first frames rendering broken on some implementations).
     for (int i = 0; i < 4; i++) {
         dglnet::message::ContinueBreak stepDrawCall(
-                dglnet::message::ContinueBreak::StepMode::FRAME);
+                dglnet::message::StepMode::FRAME);
         client->sendMessage(&stepDrawCall);
         ASSERT_TRUE(utils::receiveUntilMessage<dglnet::message::BreakedCall>(
                             client.get(), getMessageHandler()) != NULL);
@@ -904,7 +908,7 @@ TEST_F(LiveTest, edit_shader) {
     // Query back framebuffer
     {
         dglnet::message::Request req(new dglnet::request::QueryResource(
-                dglnet::DGLResource::ObjectType::Framebuffer,
+                dglnet::message::ObjectType::Framebuffer,
                 dglnet::ContextObjectName(breaked->m_CurrentCtx, GL_BACK)));
         client->sendMessage(&req);
     }
@@ -936,7 +940,7 @@ TEST_F(LiveTest, edit_shader) {
     // Verify frag shader
     {
         dglnet::message::Request req(new dglnet::request::QueryResource(
-                dglnet::DGLResource::ObjectType::Shader,
+                dglnet::message::ObjectType::Shader,
                 dglnet::ContextObjectName(breaked->m_CurrentCtx, fragId)));
         client->sendMessage(&req);
     }
@@ -986,7 +990,7 @@ TEST_F(LiveTest, shader_handling) {
     {
         dglnet::message::Request requestMessage(
                 new dglnet::request::QueryResource(
-                        dglnet::DGLResource::ObjectType::Shader,
+                        dglnet::message::ObjectType::Shader,
                         dglnet::ContextObjectName(breaked->m_CurrentCtx,
                                                   shaderId)));
         client->sendMessage(&requestMessage);
@@ -1022,7 +1026,7 @@ TEST_F(LiveTest, shader_handling) {
     {
         dglnet::message::Request requestMessage(
                 new dglnet::request::QueryResource(
-                        dglnet::DGLResource::ObjectType::Shader,
+                        dglnet::message::ObjectType::Shader,
                         dglnet::ContextObjectName(breaked->m_CurrentCtx,
                                                   shaderId)));
         client->sendMessage(&requestMessage);
@@ -1051,7 +1055,7 @@ TEST_F(LiveTest, shader_handling) {
     {
         dglnet::message::Request requestMessage(
                 new dglnet::request::QueryResource(
-                        dglnet::DGLResource::ObjectType::Program,
+                        dglnet::message::ObjectType::Program,
                         dglnet::ContextObjectName(breaked->m_CurrentCtx,
                                                   programId)));
         client->sendMessage(&requestMessage);
@@ -1072,7 +1076,7 @@ TEST_F(LiveTest, shader_handling) {
     {
         dglnet::message::Request requestMessage(
                 new dglnet::request::QueryResource(
-                        dglnet::DGLResource::ObjectType::Shader,
+                        dglnet::message::ObjectType::Shader,
                         dglnet::ContextObjectName(breaked->m_CurrentCtx,
                                                   shaderId)));
         client->sendMessage(&requestMessage);
@@ -1089,7 +1093,7 @@ TEST_F(LiveTest, shader_handling) {
     {
         dglnet::message::Request requestMessage(
                 new dglnet::request::QueryResource(
-                        dglnet::DGLResource::ObjectType::Shader,
+                        dglnet::message::ObjectType::Shader,
                         dglnet::ContextObjectName(breaked->m_CurrentCtx,
                                                   shaderId)));
         client->sendMessage(&requestMessage);
@@ -1102,7 +1106,7 @@ TEST_F(LiveTest, shader_handling) {
     {
         dglnet::message::Request requestMessage(
                 new dglnet::request::QueryResource(
-                        dglnet::DGLResource::ObjectType::Program,
+                        dglnet::message::ObjectType::Program,
                         dglnet::ContextObjectName(breaked->m_CurrentCtx,
                                                   programId)));
         client->sendMessage(&requestMessage);
@@ -1130,7 +1134,7 @@ TEST_F(LiveTest, shader_handling) {
     {
         dglnet::message::Request requestMessage(
                 new dglnet::request::QueryResource(
-                        dglnet::DGLResource::ObjectType::Shader,
+                        dglnet::message::ObjectType::Shader,
                         dglnet::ContextObjectName(breaked->m_CurrentCtx,
                                                   shaderId)));
         client->sendMessage(&requestMessage);
@@ -1143,7 +1147,7 @@ TEST_F(LiveTest, shader_handling) {
     {
         dglnet::message::Request requestMessage(
                 new dglnet::request::QueryResource(
-                        dglnet::DGLResource::ObjectType::Program,
+                        dglnet::message::ObjectType::Program,
                         dglnet::ContextObjectName(breaked->m_CurrentCtx,
                                                   programId)));
         client->sendMessage(&requestMessage);
@@ -1164,7 +1168,7 @@ TEST_F(LiveTest, shader_handling) {
     {
         dglnet::message::Request requestMessage(
                 new dglnet::request::QueryResource(
-                        dglnet::DGLResource::ObjectType::Shader,
+                        dglnet::message::ObjectType::Shader,
                         dglnet::ContextObjectName(breaked->m_CurrentCtx,
                                                   shaderId)));
         client->sendMessage(&requestMessage);
@@ -1193,7 +1197,7 @@ TEST_F(LiveTest, shader_handling) {
     {
         dglnet::message::Request requestMessage(
                 new dglnet::request::QueryResource(
-                        dglnet::DGLResource::ObjectType::Shader,
+                        dglnet::message::ObjectType::Shader,
                         dglnet::ContextObjectName(breaked->m_CurrentCtx,
                                                   shaderId)));
         client->sendMessage(&requestMessage);
@@ -1226,7 +1230,7 @@ TEST_F(LiveTest, shader_handling) {
     {
         dglnet::message::Request requestMessage(
                 new dglnet::request::QueryResource(
-                        dglnet::DGLResource::ObjectType::Shader,
+                        dglnet::message::ObjectType::Shader,
                         dglnet::ContextObjectName(breaked->m_CurrentCtx,
                                                   shaderId)));
         client->sendMessage(&requestMessage);

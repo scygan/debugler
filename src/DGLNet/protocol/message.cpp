@@ -19,10 +19,13 @@
 #include <boost/serialization/export.hpp>
 
 #include "request.h"
+#include "messagehandler.h"
 
 namespace dglnet {
 
-void MessageHandler::doHandleHello(const message::Hello&) { unsupported(); }
+void MessageHandler::doHandleHello(const message::Hello&) {
+    unsupported();
+}
 
 void MessageHandler::doHandleConfiguration(const message::Configuration&) {
     unsupported();
@@ -48,7 +51,9 @@ void MessageHandler::doHandleCallTrace(const message::CallTrace&) {
     unsupported();
 }
 
-void MessageHandler::doHandleRequest(const message::Request&) { unsupported(); }
+void MessageHandler::doHandleRequest(const message::Request&) {
+    unsupported();
+}
 
 void MessageHandler::doHandleRequestReply(const message::RequestReply&) {
     unsupported();
@@ -64,9 +69,26 @@ void MessageHandler::unsupported() {
 }
 
 namespace message {
+
+
+#define DEF_MESSAGE_HANDLER(cls) \
+    void cls::handle(MessageHandler* h) const { h->doHandle##cls(*this); }
+
+DEF_MESSAGE_HANDLER(Hello)
+DEF_MESSAGE_HANDLER(Configuration)
+DEF_MESSAGE_HANDLER(BreakedCall)
+DEF_MESSAGE_HANDLER(ContinueBreak)
+DEF_MESSAGE_HANDLER(Terminate)
+DEF_MESSAGE_HANDLER(QueryCallTrace)
+DEF_MESSAGE_HANDLER(CallTrace)
+DEF_MESSAGE_HANDLER(Request)
+DEF_MESSAGE_HANDLER(RequestReply)
+DEF_MESSAGE_HANDLER(SetBreakPoints)
+#undef DEF_MESSAGE_HANDLER
+
 bool ContinueBreak::isBreaked() const { return m_Breaked; }
 
-std::pair<bool, ContinueBreak::StepMode> ContinueBreak::getStep() const {
+std::pair<bool, StepMode> ContinueBreak::getStep() const {
     return std::pair<bool, StepMode>(m_InStepMode, m_StepMode);
 }
 

@@ -96,7 +96,7 @@ void DGLStateView::setConnected(bool connected) {
 
         m_Listener = m_Controller->getResourceManager()->createListener(
                 dglnet::ContextObjectName(),
-                dglnet::DGLResource::ObjectType::State);
+                dglnet::message::ObjectType::State);
         m_Listener->setParent(m_Ui->frame);
 
         CONNASSERT(m_Listener, SIGNAL(update(const dglnet::DGLResource&)), this,

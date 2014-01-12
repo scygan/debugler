@@ -24,7 +24,7 @@ DGLFramebufferViewItem::DGLFramebufferViewItem(dglnet::ContextObjectName name,
     m_Ui.m_PixelRectangleView->setScene(m_PixelRectangleScene);
 
     m_Listener = resManager->createListener(
-            name, dglnet::DGLResource::ObjectType::Framebuffer);
+            name, dglnet::message::ObjectType::Framebuffer);
     m_Listener->setParent(this);
 
     CONNASSERT(m_Listener, SIGNAL(update(const dglnet::DGLResource&)), this,

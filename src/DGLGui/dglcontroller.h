@@ -21,9 +21,11 @@
 #include <QSocketNotifier>
 
 #include <DGLNet/client.h>
+#include <DGLNet/protocol/fwd.h>
 #include <DGLNet/protocol/dglconfiguration.h>
-#include <DGLNet/protocol/resource.h>
-#include <DGLNet/protocol/request.h>
+#include <DGLNet/protocol/ctxobjname.h>
+#include <DGLNet/protocol/msgutils.h>
+#include <DGLNet/protocol/messagehandler.h>
 #include <boost/make_shared.hpp>
 
 #include <DGLCommon/def.h>
@@ -40,7 +42,9 @@ class DGLRequestHandler {
    public:
     DGLRequestHandler(DGLRequestManager*);
     virtual void onRequestFinished(
-            const dglnet::message::RequestReply* reply) = 0;
+            const dglnet::message::utils::ReplyBase* reply) = 0;
+    virtual void onRequestFailed(
+            const std::string& error) = 0;
     virtual ~DGLRequestHandler();
 
    private:
@@ -84,12 +88,15 @@ class DGLResourceListener : public QObject, public DGLRequestHandler {
     Q_OBJECT
 
     DGLResourceListener(dglnet::ContextObjectName objectName,
-                        dglnet::DGLResource::ObjectType type,
+                        dglnet::message::ObjectType type,
                         DGLResourceManager* manager);
 
     ~DGLResourceListener();
 
-    virtual void onRequestFinished(const dglnet::message::RequestReply* msg);
+    virtual void onRequestFinished(
+        const dglnet::message::utils::ReplyBase* reply) override;
+    virtual void onRequestFailed(
+        const std::string& error) override;
 
    public:
     void fire();
@@ -99,7 +106,7 @@ signals:
     void error(const std::string&);
 
    private:
-    dglnet::DGLResource::ObjectType m_ObjectType;
+    dglnet::message::ObjectType m_ObjectType;
     dglnet::ContextObjectName m_ObjectName;
     DGLResourceManager* m_Manager;
 };
@@ -119,7 +126,7 @@ class DGLResourceManager {
     void emitQueries();
 
     DGLResourceListener* createListener(dglnet::ContextObjectName name,
-                                        dglnet::DGLResource::ObjectType type);
+                                        dglnet::message::ObjectType type);
 
     DGLRequestManager* getRequestManager();
 
@@ -173,7 +180,7 @@ class DGLViewRouter : public QObject {
     Q_OBJECT
    public:
     void show(const dglnet::ContextObjectName& name,
-              dglnet::DGLResource::ObjectType type);
+              dglnet::message::ObjectType type);
 signals:
     void showTexture(opaque_id_t ctx, gl_t name);
     void showBuffer(opaque_id_t ctx, gl_t name);
@@ -316,10 +323,10 @@ signals:
      */
     void setRunning(bool);
 
-    void breaked(CalledEntryPoint, uint);
+    void breaked(const CalledEntryPoint&, uint);
     void breakedWithStateReports(
             opaque_id_t,
-            const std::vector<dglnet::message::BreakedCall::ContextReport>&);
+            const std::vector<dglnet::message::utils::ContextReport>&);
 
     void gotCallTraceChunkChunk(uint, const std::vector<CalledEntryPoint>&);
 
