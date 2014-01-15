@@ -16,7 +16,7 @@
 #ifndef GL_HEADERS_H
 #define GL_HEADERS_H
 
-#if _WIN32
+#ifdef _WIN32
 #if !defined(WINGDIAPI) || !defined(APIENTRY)
 #define TEMPORARY_APIENTRY_TO_AVOID_WINDOWS_H
 #endif
