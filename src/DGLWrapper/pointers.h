@@ -28,7 +28,7 @@
 
 #define FUNC_LIST_ELEM_SUPPORTED(name, type, library) \
     typedef type POINTER_TYPE(name);
-#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library);
+#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library)
 #include "codegen/functionList.inl"
 #undef FUNC_LIST_ELEM_SUPPORTED
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED
