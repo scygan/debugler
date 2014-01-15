@@ -55,7 +55,7 @@ namespace resource {
 
     namespace utils {
         class StateItem;
-    };
+    }
 }
 
 }

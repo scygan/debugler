@@ -15,6 +15,7 @@
 
 #include <DGLNet/protocol/ctxobjname.h>
 #include <DGLNet/protocol/msgutils.h>
+#include <boost/serialization/base_object.hpp>
 
 #ifndef REQUEST_H
 #define REQUEST_H

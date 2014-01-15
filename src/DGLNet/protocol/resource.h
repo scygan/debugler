@@ -21,6 +21,8 @@
 
 #include <DGLNet/protocol/msgutils.h>
 #include <DGLNet/protocol/anyvalue.h>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/binary_object.hpp>
 
 namespace dglnet {
 
