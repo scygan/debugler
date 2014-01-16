@@ -4,19 +4,12 @@ import shutil
 
 
 if len(sys.argv) < 2:
-    print "not enough arhuments"
+    print "not enough arguments"
     exit(1)
 
-shutil.move("../DGLCommon/version.cpp", "../DGLCommon/version.cpp.old")
-outFile = open("../DGLCommon/version.cpp", "w")
-with open("../DGLCommon/version.cpp.old", "r") as inFile:
-    for line in inFile:
-        if line.startswith("#define DGL_VERSION"): 
-            line = "#define DGL_VERSION \"" + sys.argv[1] + "\"\n"
-        outFile.write(line)
-inFile.close()
+outFile = open("../version.inl", "w")
+outFile.write("\"" + sys.argv[1] + "\"\n")
 outFile.close()
-os.remove("../DGLCommon/version.cpp.old")
 
 
 shutil.move("../buildtools/vs/auxprojects/Installer/version.wxi", "../buildtools/vs/auxprojects/Installer/version.wxi.old")

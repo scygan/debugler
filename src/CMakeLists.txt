@@ -8,10 +8,7 @@ endif()
 project(debugler)
 
 
-if(NOT DEFINED DGL_VERSION)
-    set(DGL_VERSION 0.0.0)
-endif()
-
+file(STRINGS version.inl DGL_VERSION )
 
 include_directories(
     .

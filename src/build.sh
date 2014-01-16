@@ -1,9 +1,4 @@
 #!/bin/bash
-if [ "$DGL_VERSION" != "" ]; then
-    version="-DDGL_VERSION=$DGL_VERSION"
-else
-    version=""
-fi
 
 ARCH=$1
 BUILDTYPE=$2
@@ -44,7 +39,7 @@ esac
 
 
 CWD=`pwd`
-mkdir -p ../build/$ARCH/$BUILDTYPE && cd ../build/$ARCH/$BUILDTYPE && cmake -DARCH=$ARCH $CMAKEFLAGS -DCMAKE_BUILD_TYPE=$BUILDTYPE -G "Eclipse CDT4 - Unix Makefiles" ../../../src $version 
+mkdir -p ../build/$ARCH/$BUILDTYPE && cd ../build/$ARCH/$BUILDTYPE && cmake -DARCH=$ARCH $CMAKEFLAGS -DCMAKE_BUILD_TYPE=$BUILDTYPE -G "Eclipse CDT4 - Unix Makefiles" ../../../src
 
 if [ "$?" != "0" ]; then 
     echo CMAKE failed.

@@ -15,7 +15,9 @@
 
 #include "version.h"
 
-#define DGL_VERSION "0.0.0"
+const char* DGL_VERSION  = 
+#include "..\version.inl"
+;
 
 
 std::string getVersion() {
