@@ -156,7 +156,8 @@ DGLADBDevice::DGLADBDevice(const std::string& serial)
           m_ABI(ABI::UNKNOWN),
           m_RequestStatus(RequestStatus::IDLE),
           m_DetailRequestStatus(DetailRequestStatus::NONE),
-          m_RootSuRequired(false) {}
+          m_RootSuRequired(false),
+          m_RootSuParamConcat(false) {}
 
 void DGLADBDevice::reloadProcesses() {
     if (m_RequestStatus == RequestStatus::IDLE) {
@@ -494,11 +495,25 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
                     break;
                 case DetailRequestStatus::PREP_ADB_CHECK_SU_USER:
                     if (data[0].find("uid=0(root)") != std::string::npos) {
-                        remountFromAdb()->process();
+                        setRequestStatus(
+                            DetailRequestStatus::PREP_ADB_CHECK_SU_PARAM_MODE);
+                        m_RootSuRequired = true;
+                        std::vector<std::string> params;
+                        params.push_back("shell");
+                        params.push_back("ls");
+                        params.push_back("/system/bin/app_process");
+                        invokeAsRoot(params)->process();
                     } else {
                         failed("Cannot get root permissions. Is this device "
                                "rooted?");
                     }
+                    break;
+
+                case DetailRequestStatus::PREP_ADB_CHECK_SU_PARAM_MODE:
+                    if (data[0].find("id") != std::string::npos) {
+                        m_RootSuParamConcat = !m_RootSuParamConcat;
+                    }
+                    remountFromAdb()->process();
                     break;
                 case DetailRequestStatus::PREP_REMOUNT_FROM_ADB:
                     remountFromShell()->process();
@@ -662,11 +677,30 @@ DGLAdbCookie* DGLADBDevice::invokeAsRoot(
     if (!m_RootSuRequired || params[0] != "shell") {
         return invokeAsShellUser(params, filter);
     } else {
-        std::vector<std::string> rootParams(params.size() + 2);
-        rootParams[0] = params[0];    // shell
-        rootParams[1] = "su";
-        rootParams[2] = "-c";
-        std::copy(params.begin() + 1, params.end(), rootParams.begin() + 3);
+        std::vector<std::string> rootParams;
+        if (!m_RootSuParamConcat) {
+            rootParams.resize(params.size() + 2);
+            rootParams[0] = params[0];    // shell
+            rootParams[1] = "su";
+            rootParams[2] = "-c";
+            std::copy(params.begin() + 1, params.end(), rootParams.begin() + 3);
+        } else {
+            rootParams.resize(4);
+            rootParams[0] = params[0];    // shell
+            rootParams[1] = "su";
+            rootParams[2] = "-c";
+            std::ostringstream concat;
+            //concat << "\"";
+            for (size_t i = 1; i < params.size(); i++) {
+                if (i > 1) {
+                    concat << " ";
+                }
+                concat << params[i];
+            }
+            //concat << "\"";
+            rootParams[3] = concat.str();
+        }
+       
         return invokeAsShellUser(rootParams, filter);
     }
 }
@@ -722,6 +756,8 @@ const char* DGLADBDevice::toString(DetailRequestStatus detailStatus) {
             return "Check adb user";
         case DetailRequestStatus::PREP_ADB_CHECK_SU_USER:
             return "Check su user";
+        case DetailRequestStatus::PREP_ADB_CHECK_SU_PARAM_MODE:
+            return "Check su parameter passing mode";
         case DetailRequestStatus::PREP_REMOUNT_FROM_ADB:
             return "Remounting storage via adb";
         case DetailRequestStatus::PREP_REMOUNT_FROM_SHELL:

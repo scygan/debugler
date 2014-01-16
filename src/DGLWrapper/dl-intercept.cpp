@@ -45,7 +45,7 @@
 #include "tls.h"
 #include "wa-soctors.h"
 
-//#define DL_INTERCEPT_DEBUG
+#define DL_INTERCEPT_DEBUG
 
 #ifdef DL_INTERCEPT_DEBUG
 #include "backtrace.h"

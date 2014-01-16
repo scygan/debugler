@@ -137,6 +137,7 @@ signals:
         RELOAD_GET_PACKAGELIST,
         PREP_ADB_CHECKUSER,
         PREP_ADB_CHECK_SU_USER,
+        PREP_ADB_CHECK_SU_PARAM_MODE,
         PREP_REMOUNT_FROM_ADB,
         PREP_REMOUNT_FROM_SHELL,
         PREP_FRAMEWORK_STOP,
@@ -158,6 +159,7 @@ signals:
     int m_PNameInSocketRegex;
 
     bool m_RootSuRequired;
+    bool m_RootSuParamConcat;
 
     std::string m_InstallerPath;
 };
