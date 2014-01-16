@@ -16,7 +16,7 @@
 #include "version.h"
 
 const char* DGL_VERSION  = 
-#include "..\version.inl"
+#include "../version.inl"
 ;
 
 
