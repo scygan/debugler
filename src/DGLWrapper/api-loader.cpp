@@ -139,6 +139,8 @@ std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
         case LIBRARY_ES2:
         case LIBRARY_ES3:
             return LIBGLES2_NAME;
+        case LIBRARY_WINGDI:            
+            return "gdi32.dll";
         default:
             assert(!"unknown library");
             throw std::runtime_error("Unknown GL library name");

@@ -305,8 +305,13 @@ if len(entrypoints["wglGetDefaultProcAddress"].libraries) > 0:
 entrypoints["wglGetDefaultProcAddress"].addLibrary("LIBRARY_WGL")
 
 #Registry enlists these functions as WGL, however they present only in gdi32.dll
-#dglwrapper does not support these. This could be easily done, but WINAPI is out of project scope.
-entrypoints["GetPixelFormat"].libraries = ["LIBRARY_WINGDI"];
+entrypoints["GetPixelFormat"].libraries =            ["LIBRARY_WINGDI"];
+entrypoints["ChoosePixelFormat"].libraries =         ["LIBRARY_WINGDI"];
+entrypoints["DescribePixelFormat"].libraries =       ["LIBRARY_WINGDI"];
+entrypoints["GetEnhMetaFilePixelFormat"].libraries = ["LIBRARY_WINGDI"];
+entrypoints["GetPixelFormat"].libraries =            ["LIBRARY_WINGDI"];
+entrypoints["SetPixelFormat"].libraries =            ["LIBRARY_WINGDI"];
+entrypoints["SwapBuffers"].libraries =               ["LIBRARY_WINGDI"];
 
 #writeout files:
 

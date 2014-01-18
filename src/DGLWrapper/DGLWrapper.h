@@ -46,8 +46,7 @@
 #ifdef _WIN32
 #define HAVE_LIBRARY_WGL
 #define HAVE_LIBRARY_WGL_EXT
-//HAVE_LIBRARY_WINGDI is not defined. Some entrypoints
-//from khr registry (like GetPixelFormat) are put there
+#define HAVE_LIBRARY_WINGDI
 #else
 #ifndef __ANDROID__
 #define HAVE_LIBRARY_GLX
