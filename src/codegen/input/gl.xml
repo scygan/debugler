@@ -127,8 +127,8 @@ typedef unsigned int GLhandleARB;
         <type api="gles1" requires="khrplatform">typedef khronos_int32_t <name>GLfixed</name>;</type>
         <type api="gles1" requires="khrplatform">typedef khronos_int64_t <name>GLint64</name>;</type>
         <type api="gles1" requires="khrplatform">typedef khronos_uint64_t <name>GLuint64</name>;</type>
-        <type api="gles1" requires="khrplatform">typedef khronos_intptr_t <name>GLintptr</name>;</type>
-        <type api="gles1" requires="khrplatform">typedef khronos_ssize_t <name>GLsizeiptr</name>;</type>
+        <!-- <type api="gles1" requires="khrplatform">typedef khronos_intptr_t <name>GLintptr</name>;</type>
+             <type api="gles1" requires="khrplatform">typedef khronos_ssize_t <name>GLsizeiptr</name>;</type> dgl: glext.h conflict, so commented out" -->
             <!-- GLES 1/2 types (tagged for GLES 2 - attribute syntax is limited) -->
         <type api="gles2" requires="khrplatform">typedef khronos_int8_t <name>GLbyte</name>;</type>
         <type api="gles2" requires="khrplatform">typedef khronos_uint8_t <name>GLubyte</name>;</type>

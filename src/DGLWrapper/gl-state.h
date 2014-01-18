@@ -304,14 +304,14 @@ class GLContext {
     static void APIENTRY
             debugOutputCallback(GLenum source, GLenum type, GLuint id,
                                 GLenum severity, GLsizei length,
-                                const GLchar* message, GLvoid* userParam);
+                                const GLchar* message, const GLvoid* userParam);
 
     /**
      * non-static function called from debug message callback
      */
     void setDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity,
                         GLsizei length, const GLchar* message,
-                        GLvoid* userParam);
+                        const GLvoid* userParam);
 
     /**
      * Returns true, if got debug message output

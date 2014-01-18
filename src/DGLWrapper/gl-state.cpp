@@ -606,7 +606,7 @@ GLenum GLContext::peekError() {
 
 void GLContext::setDebugOutput(GLenum source, GLenum type, GLuint id,
                                GLenum severity, GLsizei length,
-                               const GLchar* message, GLvoid* userParam) {
+                               const GLchar* message, const GLvoid* userParam) {
 
     if (m_InQuery) return;
 
@@ -3141,7 +3141,7 @@ opaque_id_t GLContext::getId() const { return m_Id; }
 void APIENTRY
 GLContext::debugOutputCallback(GLenum source, GLenum type, GLuint id,
                                GLenum severity, GLsizei length,
-                               const GLchar* message, GLvoid* userParam) {
+                               const GLchar* message, const GLvoid* userParam) {
     if (gc) {
         gc->setDebugOutput(source, type, id, severity, length, message,
                            userParam);

@@ -37,8 +37,8 @@ struct GLEntrypoint {
 #undef FUNC_LIST_ELEM_SUPPORTED
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED
 
-#define ENUM_LIST_ELEMENT(value)    \
-    { #value, value } \
+#define ENUM_LIST_ELEMENT(name, value)    \
+    { #name, (gl_t)value } \
     ,
 struct GLEnum {
     const char* name;
@@ -156,9 +156,8 @@ std::string GetTextureTargetName(gl_t glEnum) {
 
 namespace call_sets {
 Entrypoint frameDelims[] = {
-        wglSwapBuffers_Call,         wglSwapLayerBuffers_Call,
-        wglSwapMultipleBuffers_Call, eglSwapBuffers_Call,
-        glXSwapBuffers_Call};
+        SwapBuffers_Call, wglSwapLayerBuffers_Call,
+        eglSwapBuffers_Call,  glXSwapBuffers_Call};
 Entrypoint drawCalls[] = {glDrawElements_Call,
                           glDrawElementsBaseVertex_Call,
                           glDrawElementsIndirect_Call,

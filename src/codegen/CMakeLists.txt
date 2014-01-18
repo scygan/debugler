@@ -8,28 +8,31 @@ set(codegen_GENERATED
     ${codegen_out}/exporters-ext.inl
     ${codegen_out}/functionList.inl
     ${codegen_out}/enum.inl
+    
+    ${codegen_in}/GL/glx.h
+    ${codegen_in}/GL/glxext.h
+    ${codegen_in}/GL/wgl.h
+    ${codegen_in}/GL/wglext.h
+    ${codegen_in}/GLES/gl.h
+    ${codegen_in}/GL/glext.h
+    ${codegen_in}/GLES2/gl2.h
+    ${codegen_in}/GLES2/gl2ext.h
+    ${codegen_in}/GLES3/gl3.h 
 )
 add_custom_command(
     OUTPUT ${codegen_GENERATED}
     COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/../codegen/codegen.py 
         ${codegen_in} ${codegen_out}
-        MAIN_DEPENDENCY ../codegen/input/GL/glext.h
-    DEPENDS
+        MAIN_DEPENDENCY ${codegen_in}/gl.xml
+        DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/../codegen/codegen.py
-        ${codegen_in}/GL/GL.h
-        ${codegen_in}/GL/glext.h
-        ${codegen_in}/GL/wgl-notrace.h
-        ${codegen_in}/GL/wgl.h
-        ${codegen_in}/GL/wglext.h 
-        ${codegen_in}/EGL/egl.h 
-        ${codegen_in}/EGL/eglext.h 
-		${codegen_in}/GLESv1/gl.h
-		${codegen_in}/GLESv1/glext.h
-        ${codegen_in}/GLES2/gl2.h
-		${codegen_in}/GLES2/gl2ext.h
-        ${codegen_in}/GLES3/gl3.h
-        ${codegen_in}/GL/glx.h
-        ${codegen_in}/GL/glxext.h
+        ${codegen_in}/gl.xml
+        ${codegen_in}/egl.xml
+        ${codegen_in}/glx.xml
+        ${codegen_in}/wgl.xml
+        ${codegen_in}/../wgl-notrace.xml
+        ${codegen_in}/reg.py
+        ${codegen_in}/genheaders.py
     COMMENT "Generating code from GL headers"
     VERBATIM
     )

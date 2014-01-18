@@ -5,3 +5,5 @@
 /dump/*
 /build/*
 *.user
+*.pyc
+/src/codegen/input/diag.txt

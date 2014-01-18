@@ -23,9 +23,8 @@ from sets import Set
 import subprocess
 from lxml import etree
 
-inputDir  = sys.argv[1]
-khrXMLDir = inputDir + "/../khronos-xml/"
-outputDir = sys.argv[2]
+inputDir  = sys.argv[1] + os.sep
+outputDir = sys.argv[2] + os.sep
 
 if not os.path.exists(outputDir):
     os.makedirs(outputDir)
@@ -38,27 +37,49 @@ functionListFile = open(outputDir + "functionList.inl", "w")
 defFile = open(outputDir + "OpenGL32.def", "w")
 enumFile = open(outputDir + "enum.inl", "w")
 
+gles2onlyPat = re.compile('2\.[0-9]')
+gles3onlyPat = re.compile('3\.[0-9]')
+gl11and10Match = re.compile('1\.[0-1]')
+gl12andLaterMatch = re.compile('1\.[2-9]|[234]\.[0-9]')
+
+# These are "mandatory" OpenGL ES 1 extensions, to
+# be LIBRARY_ES1 (not LIBRARY_ES1_EXT).
+es1CoreList = [
+    'GL_OES_read_format',
+    'GL_OES_compressed_paletted_texture',
+    'GL_OES_point_size_array',
+    'GL_OES_point_sprite'
+]
+
 
 entrypoints = dict()
 enums = dict()
 
 class Enum:
-    def __init__(self):
-        pass
+    def __init__(self, value):
+        self.value = value
 
 
 class Entrypoint:
-    def __init__(self, library, genTypeDef, skipTrace, retType, paramList, paramDeclList):
+    def __init__(self, library, skipTrace, retType, paramList, paramDeclList):
         self.libraries = library
-        self.genTypeDef = genTypeDef
+        self.genTypeDef = True
         self.skipTrace = skipTrace
         self.retType = retType
         self.paramList = paramList
         self.paramDeclList = paramDeclList
     
     def addLibrary(self, library):
+        if self.genTypeDef and "EXT" in library:
+            self.genTypeDef = False
         if library not in self.libraries:
             self.libraries.append(library);
+        
+        if "LIBRARY_GL_EXT" in self.libraries and "LIBRARY_GL" in self.libraries:
+            #this happens, when entrypoint is introduced in GL 1.1, removed in 3.2 and re-introduced later
+            #we don't care for this, we cannot mark is as ext - PFN...PROC defintion is still required.
+            self.libraries.remove("LIBRARY_GL_EXT")
+            self.genTypeDef = True
         
     def getLibaryBitMask(self): 
         if len(self.libraries) == 0:
@@ -67,7 +88,7 @@ class Entrypoint:
         ret = ""
         for lib in self.libraries: 
             if len(ret) > 0:
-                ret += " || "
+                ret += " | "
             ret += lib.strip()
         return ret
         
@@ -98,95 +119,77 @@ def isPointer(type):
         return True
     return False
     
-def parse(path, library, genNonExtTypedefs = False, skipTrace = False):
-    lines = open(path, "r").readlines()
-    
-    #merge expressions spanning multiple lines
-    expressions = []
-    currentExpression = ""
-    for line in lines:
-        if '#' in line or ';' in line or '/*' in line or '*/' in line: 
-            expressions.append(currentExpression + line.strip())
-            currentExpression = ""
-        else:
-            currentExpression = currentExpression + line.rstrip().strip()    
-        if currentExpression != "":
-            currentExpression += " "
-    
-    for line in expressions:
-        enumMatch = re.match("^#define GL([a-zA-Z0-9_]*) (.*)0x(.*)$", line)
-        if enumMatch and not "_LINE_BIT" in enumMatch.group(1):
-            print >> enumFile, "#ifdef GL" + enumMatch.group(1)
-            print >> enumFile, "    ENUM_LIST_ELEMENT(GL" + enumMatch.group(1) + ")"
-            print >> enumFile, "#endif"
-        coarseFunctionMatch = re.match("^([a-zA-Z0-9_]*) (.*? (?:\*)?)(WINAPI|APIENTRY|EGLAPIENTRY|GL_APIENTRY|) ?((?:w?e?gl)[a-zA-Z0-9]*) ?\((.*)\)(.*)$", line)
-        if coarseFunctionMatch: 
-            #print coarseFunctionMatch.groups()
-            #print line
-            retType = coarseFunctionMatch.group(2).strip()
-            entryPointName = coarseFunctionMatch.group(4)
-            #print entryPointName
-            entrypointParamsStr = coarseFunctionMatch.group(5)
-            entrypointParams = entrypointParamsStr.split(",")
-            paramNames = []            
-            paramDeclList = []
-                    
-            implicitParamCount = 0
-            if entrypointParamsStr.strip() == "VOID" or entrypointParamsStr.strip() == "void":
-                paramDeclList = [ entrypointParamsStr ]
-            else:
-                for param in entrypointParams:
-                    #print param
-                    paramMatch = re.match("^[ ]*(const|CONST|)[ ]*(struct|)[ ]*((?:unsigned )?[a-zA-Z0-9_]*)[ ]*(\*?)[ ]*(const|CONST|)[ ]*(\*?)[ ]*([a-zA-Z0-9_]*)(\[.*\])? *$", param)
-                    #print paramMatch.groups()
-                    paramName = paramMatch.group(7)
-                    
-                    if paramName == "":
-                        paramName = "unnamed" + str(implicitParamCount)
-                        implicitParamCount += 1
-                    
-                    paramNames.append(paramName)
-                    
-                    paramDecl = ""
-                    if paramMatch.group(1):
-                        paramDecl += paramMatch.group(1) + " "
-                    if paramMatch.group(2):
-                        paramDecl += paramMatch.group(2) + " "
-                    paramDecl += paramMatch.group(3) + " "
-                    if paramMatch.group(4):
-                        paramDecl += paramMatch.group(4) + " "
-                    if paramMatch.group(5):
-                        paramDecl += paramMatch.group(5)
-                    if paramMatch.group(6):
-                        paramDecl += paramMatch.group(6)
-                    paramDecl += paramName
-                    if paramMatch.group(8):
-                        paramDecl += paramMatch.group(8)
-                    paramDeclList.append(paramDecl)
-                
-            if entryPointName in entrypoints:
-                if not (library in entrypoints[entryPointName].libraries):
-                    entrypoints[entryPointName].addLibrary(library)
-                continue #no further processing of entrypoint
-            else:
-                entrypoints[entryPointName] = Entrypoint(library, genNonExtTypedefs, skipTrace, retType, paramNames, paramDeclList)
-                if entryPointName == "glXGetProcAddressARB":
-                    #it would be very hard to parse glXGetProcAddress from glx.h (there is func ret type in definition).
-                    #So for simplicity assume glXGetProcAddress is the same as glXGetProcAddressARB
-                    entrypoints["glXGetProcAddress"] = Entrypoint(library, genNonExtTypedefs, skipTrace, retType, paramNames, paramDeclList)
 
-                    
-def parseXML(path): 
+def libraryFromApiXML(api, isExtension, version = ""):
+    if isExtension:
+        if api == "gl" or api == "glcore":
+            return "LIBRARY_GL_EXT"
+        elif api == "gles1":
+            return "LIBRARY_ES1_EXT"
+        elif api == "gles2":
+            return "LIBRARY_ES2_EXT"
+        elif api == "egl":
+            return "LIBRARY_EGL_EXT"
+        elif api == "wgl":
+            return "LIBRARY_WGL_EXT"
+        elif api == "glx":
+            return "LIBRARY_GLX_EXT"
+        else:
+            print "Unspported api: " + api
+            exit(1)
+    else:
+        if api == "gl":
+            if gl11and10Match.match(version):
+                return "LIBRARY_GL"
+            elif gl12andLaterMatch.match(version):
+                return "LIBRARY_GL_EXT"
+            else:
+                print "Unspported version: " + version
+                exit(1)
+        elif api == "gles1":
+            return "LIBRARY_ES1"
+        elif api == "gles2":
+            if gles2onlyPat.match(version):
+                return "LIBRARY_ES2"
+            elif gles3onlyPat.match(version):
+                return "LIBRARY_ES3"
+            else:
+                print "Unspported version: " + version
+        elif api == "egl":
+            return "LIBRARY_EGL"
+        elif api == "wgl":
+            return "LIBRARY_WGL"
+        elif api == "glx":
+            return "LIBRARY_GLX"
+        else:
+            print "Unspported api: " + api
+            exit(1)
+    
+
+def getCTypeFromXML(element):
+    if element.text != None:
+        retType = element.text
+    else:
+        retType = ""
+    if element.find("ptype") != None:
+        retType += element.find("ptype").text
+        retType += element.find("ptype").tail
+    return retType.strip()
+
+    
+def parseXML(path, skipTrace = False): 
     root = etree.parse(path).getroot()
     
     #gather all entrypoints
     for enumsElement in root.iter("enums"):
         for enumElement in enumsElement.iter("enum"):
-            if enumElement.get("name") == None:
-                print "No entrypoint name"
+            name = enumElement.get("name")
+            value = enumElement.get("value")
+            if name == None or value == None:
+                print "No entrypoint name/value"
                 print etree.tostring(enumElement)
                 exit(1)
-            enums[enumElement.get("name")] = Enum()
+            enums[name] = Enum(value)
        
     for commandsElement in root.iter("commands"):
         for commandElement in commandsElement.iter("command"):
@@ -194,134 +197,122 @@ def parseXML(path):
            
             prototype = commandElement.find("proto")
             
-            retType = ""
-            if prototype.find("ptype") == None:
-                retType = prototype.text
-            else:
-                retType = prototype.find("ptype").text
-            
-           
+            retType = getCTypeFromXML(prototype)
+          
             paramNames = []            
             paramDeclList = []
             
             for paramElement in commandElement.iter("param"):
-                paramNames.append(paramElement.find("name").text)
-                if paramElement.find("ptype") == None:
-                    type = paramElement.text
-                else:
-                    type = paramElement.find("ptype").text
-                paramDeclList.append(type + " " + paramElement.find("name").text)
-            
-            genNonExtTypedefs = "TODO"
-            skipTrace = "TODO"  #only wgl-notrace.h
-            
+                name = paramElement.find("name").text
+                if name == "near" or name == "far": 
+                    #these are reserved keywords in C
+                    name = "_" + name
+                paramNames.append(name)
+                type = getCTypeFromXML(paramElement)
+                paramDeclList.append(type + " " + name)
+                        
             if entryPointName in entrypoints:
                 print "Entrypoint already defined"
                 exit(1)
             else:
-                entrypoints[entryPointName] = Entrypoint([], genNonExtTypedefs, skipTrace, retType, paramNames, paramDeclList)
+                entrypoints[entryPointName] = Entrypoint([], skipTrace, retType, paramNames, paramDeclList)
 
     
-    gles2onlyPat = re.compile('2\.[0-9]')
-    gles3onlyPat = re.compile('3\.[0-9]')
-    gl11and10Match = re.compile('1\.[0-1]')
-    gl12andLaterMatch = re.compile('1\.[2-9]|[234]\.[0-9]')
+
                 
     for featureElement in root.iter("feature"):
         api = featureElement.get("api")
         version = featureElement.get("number")
        
-        if api == "gl":
-            if gl11and10Match.match(version):
-                library = "LIBRARY_GL"
-            elif gl12andLaterMatch.match(version):
-                library = "LIBRARY_GL_EXT"
-            else:
-                print "Unspported version: " + version
-                exit(1)
-        elif api == "gles1":
-            library = "LIBRARY_ES1"
-        elif api == "gles2":
-            if gles2onlyPat.match(version):
-                library = "LIBRARY_ES2"
-            elif gles3onlyPat.match(version):
-                library = "LIBRARY_ES3"
-            else:
-                print "Unspported version: " + version
-        else:
-            print "Unspported api: " + api
-            exit(1)
+        library = libraryFromApiXML(api, False, version)
         
         for requireElement in featureElement.iter("require"):
             for commandElement in requireElement.iter("command"):
                 entrypoints[commandElement.get("name")].addLibrary(library)
         
-        for extensionsElement in root.iter("extensions"):
-            for extensionElement in extensionsElement.iter("extension"):
-                apis = extensionElement.get("supported")
+    
+    for extensionsElement in root.iter("extensions"):
+        for extensionElement in extensionsElement.iter("extension"):
+            apis = extensionElement.get("supported")
+            
+            for api in apis.split("|"):
+                library = libraryFromApiXML(api, True)
                 
-                for api in apis.split("|"):
-                    if api == "gl" or api == "glcore":
-                        library = "LIBRARY_GL_EXT"
-                    elif api == "gles1":
-                        library = "LIBRARY_ES1_EXT"
-                    elif api == "gles2":
-                        library = "LIBRARY_ES2_EXT"
-                    else:
-                        print "Unspported api: " + api
-                        exit(1)
-                     
-                    for requireElement in extensionElement.iter("require"):
-                            for commandElement in requireElement.iter("command"):
-                                entrypoints[commandElement.get("name")].addLibrary(library)
+                #there are three "mandatory" exts in es1, that are defined in GLES/gl.h
+                forceLibEs1 = (extensionElement.get("name") in es1CoreList and api == "gles1")
+                
+                for requireElement in extensionElement.iter("require"):
+                    if requireElement.get("api") != None and requireElement.get("api") != api:
+                        #skip incompatible <require> element. will handle when doing proper api.
+                        continue
+                    for commandElement in requireElement.iter("command"):
+                        if forceLibEs1:
+                            entrypoints[commandElement.get("name")].addLibrary("LIBRARY_ES1")
+                        else:
+                            entrypoints[commandElement.get("name")].addLibrary(library)
         
 print >> defFile, "EXPORTS"
 
-#currendDir = os.getcwd();
-#os.chdir(khrXMLDir)
-#p = subprocess.Popen(sys.executable + " genheaders.py", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-#out, error = p.communicate()
-#os.chdir(currendDir)
-#print out
-#print error
+headersToGenerate = dict()
+headersToGenerate["GL/glext.h"] = "gl.xml"
+headersToGenerate["GLES/gl.h"] = "gl.xml"
+headersToGenerate["GLES/glext.h"] = "gl.xml"
+headersToGenerate["GLES2/gl2.h"] = "gl.xml"
+headersToGenerate["GLES2/gl2ext.h"] = "gl.xml"
+headersToGenerate["GLES3/gl3.h"] = "gl.xml"
 
-#if p.returncode != 0:
-    #print "Khronos header generation failed: " + str(p.returncode)
-#    exit(1)
+headersToGenerate["EGL/egl.h"] = "egl.xml"
+headersToGenerate["EGL/eglext.h"] = "egl.xml"
+
+headersToGenerate["GL/wgl.h"] = "wgl.xml"
+headersToGenerate["GL/wglext.h"] = "wgl.xml"
+
+headersToGenerate["GL/glx.h"] = "glx.xml"
+headersToGenerate["GL/glxext.h"] = "glx.xml"
+
+for name, registry in headersToGenerate.items():
+    currendDir = os.getcwd();
+    os.chdir(inputDir)
+    p = subprocess.Popen(sys.executable + " genheaders.py -registry " + registry + " " + name, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, error = p.communicate()
+    os.chdir(currendDir)
+    print out
+    print error
+
+    if p.returncode != 0:
+        print "Khronos header generation failed: " + str(p.returncode)
+        exit(1)
+
+
+
     
-parseXML(khrXMLDir + os.sep + "gl.xml")
-#parseXML(khrXMLDir + os.sep + "egl.xml")
-#parseXML(khrXMLDir + os.sep + "wgl.xml")
-#parseXML(khrXMLDir + os.sep + "glx.xml")
+parseXML(inputDir + "gl.xml")
+parseXML(inputDir + "egl.xml")
+parseXML(inputDir + "wgl.xml")
+parseXML(inputDir + ".." + os.sep + "wgl-notrace.xml", True)
+parseXML(inputDir + "glx.xml")
 
-#parse(inputDir + "/GL/GL.h", "LIBRARY_GL", True)
-#parse(inputDir + "/GL/glext.h", "LIBRARY_GL_EXT")
 
-#parse(inputDir + "/GLESv1/gl.h", "LIBRARY_ES1", True)
-#parse(inputDir + "/GLESv1/glext.h", "LIBRARY_ES1_EXT")
-#parse(inputDir + "/GLES2/gl2.h", "LIBRARY_ES2", True)
-#parse(inputDir + "/GLES2/gl2ext.h", "LIBRARY_ES2_EXT")
-#parse(inputDir + "/GLES3/gl3.h", "LIBRARY_ES3", True)
+#Workarounds:
 
-#parse(inputDir + "/GL/wgl.h", "LIBRARY_WGL", True)
-#parse(inputDir + "/GL/wgl-notrace.h", "LIBRARY_WGL", True, True)
-#parse(inputDir + "/GL/wglext.h", "LIBRARY_WGL_EXT")
-
-#parse(inputDir + "/EGL/egl.h", "LIBRARY_EGL", True)
-#parse(inputDir + "/EGL/eglext.h", "LIBRARY_EGL_EXT")
-
-#parse(inputDir + "/GL/glx.h", "LIBRARY_GLX", True)
-#parse(inputDir + "/GL/glxext.h", "LIBRARY_GLX_EXT")
-
+#These rare functions require some external headers. 
 blacklist = ["glXAssociateDMPbufferSGIX", "glXCreateGLXVideoSourceSGIX", "glXDestroyGLXVideoSourceSGIX" ]
+
+#This function exist in khronox xml registry, but is not associated with any feature:
+if len(entrypoints["wglGetDefaultProcAddress"].libraries) > 0:
+    print "Fix me - remove WA"
+    exit(1)
+entrypoints["wglGetDefaultProcAddress"].addLibrary("LIBRARY_WGL")
+
+#Registry enlists these functions as WGL, however they present only in gdi32.dll
+#dglwrapper does not support these. This could be easily done, but WINAPI is out of project scope.
+entrypoints["GetPixelFormat"].libraries = ["LIBRARY_WINGDI"];
 
 #writeout files:
 
 for name, enum in sorted(enums.items()):
     if not "_LINE_BIT" in name:  #TODO: what about _LINE_BIT stuff?
-        print >> enumFile, "#ifdef " + name
-        print >> enumFile, "    ENUM_LIST_ELEMENT(" + name + ")"
-        print >> enumFile, "#endif"
+        print >> enumFile, "ENUM_LIST_ELEMENT(" + name + ","  + enum.value + ")"
 
 for name, entrypoint in sorted(entrypoints.items()):
     if name in blacklist:
@@ -332,7 +323,7 @@ for name, entrypoint in sorted(entrypoints.items()):
     print >> functionListFile, entrypoint.getLibraryIfdef()
     print >> functionListFile, "    FUNC_LIST_ELEM_SUPPORTED(" + name + ", " + entrypointPtrType + ", " + entrypoint.getLibaryBitMask() + ")"
     print >> functionListFile,"#else"
-    print >> functionListFile, "    FUNC_LIST_ELEM_NOT_SUPPORTED(" + name + ", " + entrypointPtrType + ", " + entrypoint.getLibaryBitMask() + ")"
+    print >> functionListFile, "    FUNC_LIST_ELEM_NOT_SUPPORTED(" + name + ", " + entrypointPtrType + ", LIBRARY_NONE)"
     print >> functionListFile,"#endif"
     
 #entrypoint exporters

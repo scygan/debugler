@@ -87,17 +87,25 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "samples", "tests\samples\samples.vcxproj", "{1CD99A24-16C6-46A8-8C31-2C31BBD42E7B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{126CAA69-F774-4B1D-A4E5-2BD1CAAD2201} = {126CAA69-F774-4B1D-A4E5-2BD1CAAD2201}
+		{F16EFBD2-E47A-4E5B-B091-7D400430745A} = {F16EFBD2-E47A-4E5B-B091-7D400430745A}
 		{3E07C0ED-2E87-4722-B32F-BB7401F07A90} = {3E07C0ED-2E87-4722-B32F-BB7401F07A90}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glfw", "external\glfw-3.0.2\glfw.vcxproj", "{126CAA69-F774-4B1D-A4E5-2BD1CAAD2201}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F16EFBD2-E47A-4E5B-B091-7D400430745A} = {F16EFBD2-E47A-4E5B-B091-7D400430745A}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "samples-es2", "tests\samples\samples-es2.vcxproj", "{20EF2947-E2F6-4D02-BDF0-4E720FB9926F}"
 	ProjectSection(ProjectDependencies) = postProject
 		{EBF0059A-D8DD-4BEA-92F4-FB5FFC332D07} = {EBF0059A-D8DD-4BEA-92F4-FB5FFC332D07}
+		{F16EFBD2-E47A-4E5B-B091-7D400430745A} = {F16EFBD2-E47A-4E5B-B091-7D400430745A}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glfw-es2", "external\glfw-3.0.2\glfw-es2.vcxproj", "{EBF0059A-D8DD-4BEA-92F4-FB5FFC332D07}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F16EFBD2-E47A-4E5B-B091-7D400430745A} = {F16EFBD2-E47A-4E5B-B091-7D400430745A}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "android-arm", "buildtools\vs\auxprojects\AndroidBuild\android-armeabi.vcxproj", "{8AF96288-59F4-4F67-9590-11429468C558}"
 EndProject

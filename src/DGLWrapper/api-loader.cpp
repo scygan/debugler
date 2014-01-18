@@ -83,7 +83,7 @@ FUNC_PTR APILoader::loadGLPointer(LoadedLib library, Entrypoint entryp) {
     return reinterpret_cast<FUNC_PTR>(
             GetProcAddress((HINSTANCE)library, GetEntryPointName(entryp)));
 #else
-    //(int) -> see http://www.trilithium.com/johan/2004/12/problem-with-dlsym/
+    //(ptrdiff_t) -> see http://www.trilithium.com/johan/2004/12/problem-with-dlsym/
     return reinterpret_cast<FUNC_PTR>(
             (ptrdiff_t)dlsym(library, GetEntryPointName(entryp)));
 #endif
