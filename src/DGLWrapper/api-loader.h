@@ -46,9 +46,17 @@ class APILoader {
     APILoader();
 
     /**
+     * Load given libraries
+     *
+     * Calls loadLibrary() for every non-zero bit
+     * Called on context creation or first bind (for loading specific api, like GL or ES2)
+     */
+    void loadLibraries(int apiLibraries);
+
+    /**
      * Load whole API library
      *
-     * Called on initialization (for loading WGL/GLX/EGL
+     * Called on initialization (for loading WGL/GLX/EGL)
      * Called on context creation (for loading specific api, like GL or ES2)
      */
     void loadLibrary(ApiLibrary apiLibrary);

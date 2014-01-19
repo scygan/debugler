@@ -101,6 +101,21 @@ TEST_F(DGLCommonUT, codegen_entryps) {
     ASSERT_STREQ(GetEntryPointName(NO_ENTRYPOINT), "<unknown>");
 }
 
+
+#define HAVE_LIBRARY_GL
+#define HAVE_LIBRARY_GL_EXT
+#define HAVE_LIBRARY_EGL
+#define HAVE_LIBRARY_EGL_EXT
+#define HAVE_LIBRARY_ES1
+#define HAVE_LIBRARY_ES1_EXT
+#define HAVE_LIBRARY_ES2
+#define HAVE_LIBRARY_ES2_EXT
+#define HAVE_LIBRARY_ES3
+#define HAVE_LIBRARY_WGL
+#define HAVE_LIBRARY_WGL_EXT
+#define HAVE_LIBRARY_WINGDI
+#define HAVE_LIBRARY_GLX
+#define HAVE_LIBRARY_GLX_EXT
 // here direct pointers are kept (pointers to entrypoints exposed by underlying
 // OpenGL32 implementation
 // use DIRECT_CALL(name) to call one of these pointers
@@ -115,7 +130,7 @@ int ut_PointerLibraries[Entrypoints_NUM] = {
 
 TEST_F(DGLCommonUT, codegen_libraries) {
     // gl.h + gl2.h
-    EXPECT_EQ(LIBRARY_GL | LIBRARY_ES2 | LIBRARY_ES1 | LIBRARY_ES3,
+    EXPECT_EQ(LIBRARY_GL | LIBRARY_ES2 | LIBRARY_ES1,
               ut_PointerLibraries[glEnable_Call]);
 
     // all ES2 entryps are should be shared with GL or GL_EXT
@@ -125,6 +140,9 @@ TEST_F(DGLCommonUT, codegen_libraries) {
                       0);
         }
     }
+
+    EXPECT_EQ(LIBRARY_GL_EXT | LIBRARY_ES3,
+        ut_PointerLibraries[glTransformFeedbackVaryings_Call]);
 
     // glext.h
     EXPECT_EQ(LIBRARY_GL_EXT,
@@ -142,6 +160,14 @@ TEST_F(DGLCommonUT, codegen_libraries) {
     EXPECT_EQ(LIBRARY_WGL_EXT,
               ut_PointerLibraries[wglCreateContextAttribsARB_Call]);
 
+    //wingdi 
+    EXPECT_EQ(LIBRARY_WINGDI,
+        ut_PointerLibraries[SwapBuffers_Call]);
+    EXPECT_EQ(LIBRARY_WINGDI,
+        ut_PointerLibraries[SetPixelFormat_Call]);
+    EXPECT_EQ(LIBRARY_WINGDI,
+        ut_PointerLibraries[ChoosePixelFormat_Call]);
+
     // egl.h
     EXPECT_EQ(LIBRARY_EGL, ut_PointerLibraries[eglBindAPI_Call]);
 
@@ -153,7 +179,7 @@ TEST_F(DGLCommonUT, codegen_libraries) {
     EXPECT_EQ(LIBRARY_EGL_EXT, ut_PointerLibraries[eglCreateImageKHR_Call]);
 
     // glx.h
-    EXPECT_EQ(LIBRARY_GLX | LIBRARY_GLX_EXT,
+    EXPECT_EQ(LIBRARY_GLX,
               ut_PointerLibraries[glXChooseFBConfig_Call]);
 
     // glxext.h
