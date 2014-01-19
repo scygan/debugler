@@ -152,10 +152,15 @@ void DGLAndroidProject::portForwardSuccess(DGLADBDevice* device) {
 }
 
 void DGLAndroidProject::deviceFailed(DGLADBDevice* device, const std::string& message) {
-    if (device == m_Device) {
-        emit debugError(tr("Device Error"), QString::fromStdString(m_Device->getSerial()) + ": " +
-            QString::fromStdString(message));
-    }   
+    if (m_Deleting) {
+        m_Device->deleteLater();
+        m_Device = nullptr;
+    } else {
+        if (device == m_Device) {
+            emit debugError(tr("Device Error"), QString::fromStdString(m_Device->getSerial()) + ": " +
+                QString::fromStdString(message));
+        }   
+    }
 }
 
 DGLAndroidProjectFactory::DGLAndroidProjectFactory() {
