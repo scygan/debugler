@@ -18,6 +18,11 @@
 
 #ifdef _WIN32
     #include <windows.h>
+
+//these two are defined into *A or *W functions. remove this ifdef.
+#undef wglUseFontBitmaps
+#undef wglUseFontOutlines
+
 #endif
 
 #include <EGL/egl.h>

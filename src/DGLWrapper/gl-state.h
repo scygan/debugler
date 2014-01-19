@@ -23,7 +23,6 @@
 #include <DGLNet/protocol/fwd.h>
 
 #include "gl-statesetters.h"
-#include "api-loader.h"
 
 #include <set>
 #include <memory>
@@ -199,7 +198,7 @@ class GLContextVersion {
 
     int getMajor() const;
 
-    ApiLibrary getNeededApiLibrary(const DGLDisplayState* display);
+    int getNeededApiLibraries(const DGLDisplayState* display);
 
    private:
     bool m_Initialized;
@@ -306,14 +305,14 @@ class GLContext {
     static void KHRONOS_APIENTRY
             debugOutputCallback(GLenum source, GLenum type, GLuint id,
                                 GLenum severity, GLsizei length,
-                                const GLchar* message, GLvoid* userParam);
+                                const GLchar* message, const GLvoid* userParam);
 
     /**
      * non-static function called from debug message callback
      */
     void setDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity,
                         GLsizei length, const GLchar* message,
-                        GLvoid* userParam);
+                        const GLvoid* userParam);
 
     /**
      * Returns true, if got debug message output

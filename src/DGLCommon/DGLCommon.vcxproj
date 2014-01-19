@@ -54,8 +54,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="def.h" />
-    <ClInclude Include="gl-glue-headers.h" />
     <ClInclude Include="gl-headers.h" />
+    <ClInclude Include="gl-glue-headers.h" />
     <ClInclude Include="gl-types.h" />
     <ClInclude Include="ipc.h" />
     <ClInclude Include="os.h" />

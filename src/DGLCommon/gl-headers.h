@@ -28,29 +28,31 @@
 #define APIENTRY KHRONOS_APIENTRY
 #endif
 
-#include <GL/GL.h>
+#include <GL/gl.h>
 #include <GL/glext.h>
 #undef __gl_h_
-#include <GLESv1/gl.h>
+#include <GLES/gl.h>
 #undef __glext_h_
-#include <GLESv1/glext.h>
+#undef GL_OES_fixed_point
+#include <GLES/glext.h>
 
 #undef GL_EXT_separate_shader_objects
+#undef GL_ACTIVE_PROGRAM_EXT
 #undef GL_KHR_debug
-#undef GL_EXT_draw_buffers
-#include <GLES2/gl2ext.h>
-// fix some errors in gl2ext:
-#define PFNGLBLITFRAMEBUFFERNVPROC PFNBLITFRAMEBUFFERNVPROC
-#define PFNGLDRAWARRAYSINSTANCEDNVPROC PFNDRAWARRAYSINSTANCEDNVPROC
-#define PFNGLDRAWELEMENTSINSTANCEDNVPROC PFNDRAWELEMENTSINSTANCEDNVPROC
-#define PFNGLRENDERBUFFERSTORAGEMULTISAMPLENVPROC \
-    PFNRENDERBUFFERSTORAGEMULTISAMPLENVPROC
-#define PFNGLVERTEXATTRIBDIVISORNVPROC PFNVERTEXATTRIBDIVISORNVPROC
-#define PFNGLFRAMEBUFFERTEXTURE3DOESPROC PFNGLFRAMEBUFFERTEXTURE3DOES
 
+//#undef GL_EXT_draw_buffers
+#include <GLES2/gl2ext.h>
 #ifdef TEMPORARY_APIENTRY_TO_AVOID_WINDOWS_H
 #undef WINGDIAPI
 #undef APIENTRY
+#endif
+
+
+#ifdef _WIN32
+//these two are defined into *A or *W functions. remove this ifdef.
+#undef wglUseFontBitmaps
+#undef wglUseFontOutlines
+
 #endif
 
 #endif

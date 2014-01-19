@@ -318,7 +318,7 @@ TEST_F(LiveTest, continue_break) {
     ASSERT_TRUE(breaked != NULL);
 
 #ifdef _WIN32
-    EXPECT_EQ(wglCreateContext_Call, breaked->m_entryp.getEntrypoint());
+    EXPECT_EQ(DescribePixelFormat_Call, breaked->m_entryp.getEntrypoint());
 #else
     EXPECT_EQ(glXQueryExtension_Call, breaked->m_entryp.getEntrypoint());
 #endif
@@ -358,7 +358,7 @@ TEST_F(LiveTest, breakpoint) {
     ASSERT_TRUE(breaked != NULL);
 
 #ifdef _WIN32
-    EXPECT_EQ(wglCreateContext_Call, breaked->m_entryp.getEntrypoint());
+    EXPECT_EQ(DescribePixelFormat_Call, breaked->m_entryp.getEntrypoint());
 #else
     EXPECT_EQ(glXQueryExtension_Call, breaked->m_entryp.getEntrypoint());
 #endif

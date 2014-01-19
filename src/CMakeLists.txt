@@ -14,7 +14,7 @@ include_directories(
     .
     external
     glheaders
-    codegen/input
+    codegen/input/
     ${CMAKE_CURRENT_BINARY_DIR}
     )
 

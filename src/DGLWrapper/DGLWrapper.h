@@ -46,6 +46,7 @@
 #ifdef _WIN32
 #define HAVE_LIBRARY_WGL
 #define HAVE_LIBRARY_WGL_EXT
+#define HAVE_LIBRARY_WINGDI
 #else
 #ifndef __ANDROID__
 #define HAVE_LIBRARY_GLX

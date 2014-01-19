@@ -147,7 +147,7 @@ void DGLProgramViewItem::update(const dglnet::DGLResource& res) {
 }
 
 void DGLProgramViewItem::onRequestFinished(
-        const dglnet::message::utils::ReplyBase* reply) {
+        const dglnet::message::utils::ReplyBase*) {
     m_Listener->fire();
 }
 

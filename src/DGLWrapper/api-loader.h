@@ -34,6 +34,7 @@ enum ApiLibrary {
     LIBRARY_WGL_EXT = 1024,
     LIBRARY_GLX = 2048,
     LIBRARY_GLX_EXT = 4096,
+    LIBRARY_WINGDI = 8192,
     LIBRARY_NONE = 0
 };
 
@@ -45,9 +46,17 @@ class APILoader {
     APILoader();
 
     /**
+     * Load given libraries
+     *
+     * Calls loadLibrary() for every non-zero bit
+     * Called on context creation or first bind (for loading specific api, like GL or ES2)
+     */
+    void loadLibraries(int apiLibraries);
+
+    /**
      * Load whole API library
      *
-     * Called on initialization (for loading WGL/GLX/EGL
+     * Called on initialization (for loading WGL/GLX/EGL)
      * Called on context creation (for loading specific api, like GL or ES2)
      */
     void loadLibrary(ApiLibrary apiLibrary);

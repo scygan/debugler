@@ -56,6 +56,7 @@ void Initialize(void) {
     } else {
 #ifdef _WIN32
         g_ApiLoader.loadLibrary(LIBRARY_WGL);
+        g_ApiLoader.loadLibrary(LIBRARY_WINGDI);
 #else
         g_ApiLoader.loadLibrary(LIBRARY_GLX);
 #endif

@@ -473,7 +473,7 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 }
                 dglState::GLContextVersion version(contextType, major, minor);
 
-                g_ApiLoader.loadLibrary(version.getNeededApiLibrary(displayState));
+                g_ApiLoader.loadLibraries(version.getNeededApiLibraries(displayState));
 
                 displayState->createContext(
                     dglState::GLContextVersion::Type::ES,

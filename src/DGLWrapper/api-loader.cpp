@@ -83,7 +83,7 @@ FUNC_PTR APILoader::loadGLPointer(LoadedLib library, Entrypoint entryp) {
     return reinterpret_cast<FUNC_PTR>(
             GetProcAddress((HINSTANCE)library, GetEntryPointName(entryp)));
 #else
-    //(int) -> see http://www.trilithium.com/johan/2004/12/problem-with-dlsym/
+    //(ptrdiff_t) -> see http://www.trilithium.com/johan/2004/12/problem-with-dlsym/
     return reinterpret_cast<FUNC_PTR>(
             (ptrdiff_t)dlsym(library, GetEntryPointName(entryp)));
 #endif
@@ -139,6 +139,8 @@ std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
         case LIBRARY_ES2:
         case LIBRARY_ES3:
             return LIBGLES2_NAME;
+        case LIBRARY_WINGDI:            
+            return "gdi32.dll";
         default:
             assert(!"unknown library");
             throw std::runtime_error("Unknown GL library name");
@@ -177,6 +179,15 @@ int APILoader::getEntryPointLibrary(Entrypoint entryp) {
 void APILoader::setPointer(Entrypoint entryp, FUNC_PTR direct) {
     if (entryp < NO_ENTRYPOINT) {
         g_DirectPointers[entryp].ptr = direct;
+    }
+}
+
+void APILoader::loadLibraries(int apiLibraries) {
+    int i = 1;
+    while (i) {
+        if (apiLibraries & i)
+            loadLibrary(static_cast<ApiLibrary>(i));
+        i *= 2;
     }
 }
 

@@ -406,7 +406,7 @@ void GLContextVersion::initialize(const char* cVersion) {
 
 int GLContextVersion::getMajor() const { return m_MajorVersion; }
 
-ApiLibrary GLContextVersion::getNeededApiLibrary(const DGLDisplayState* display) {
+int GLContextVersion::getNeededApiLibraries(const DGLDisplayState* display) {
     if (m_Type == Type::UNSUPPORTED) {
         return LIBRARY_NONE;
     }
@@ -416,7 +416,7 @@ ApiLibrary GLContextVersion::getNeededApiLibrary(const DGLDisplayState* display)
     if (display->getType() == DGLDisplayState::Type::EGL && m_Type == Type::ES) {
         switch (m_MajorVersion) {
             case 3:
-                return LIBRARY_ES3;
+                return LIBRARY_ES2 | LIBRARY_ES3;
             case 2:
                 return LIBRARY_ES2;
             case 1:
@@ -610,7 +610,7 @@ GLenum GLContext::peekError() {
 
 void GLContext::setDebugOutput(GLenum source, GLenum type, GLuint id,
                                GLenum severity, GLsizei length,
-                               const GLchar* message, GLvoid* userParam) {
+                               const GLchar* message, const GLvoid* userParam) {
 
     if (m_InQuery) return;
 
@@ -3152,7 +3152,7 @@ opaque_id_t GLContext::getId() const { return m_Id; }
 void APIENTRY
 GLContext::debugOutputCallback(GLenum source, GLenum type, GLuint id,
                                GLenum severity, GLsizei length,
-                               const GLchar* message, GLvoid* userParam) {
+                               const GLchar* message, const GLvoid* userParam) {
     if (gc) {
         gc->setDebugOutput(source, type, id, severity, length, message,
                            userParam);
@@ -3176,7 +3176,7 @@ void GLContext::firstUse() {
     //needed library according to GL strings and load more entrypoints.
     //For example LIBRARY_ES2 is usually promoted to LIBRARY_ES3 on EGL, if ES3.0 is supported.
     //On WGL/GLX nothing happens below.
-    g_ApiLoader.loadLibrary(m_Version.getNeededApiLibrary(getDisplay()));
+    g_ApiLoader.loadLibraries(m_Version.getNeededApiLibraries(getDisplay()));
     
 
     if (hasCapability(ContextCap::HasGetStringI)) {

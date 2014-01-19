@@ -22,6 +22,8 @@ Needed:
  * Android NDK r8e
 
  * Python 2.7.*, http://www.python.org/download/
+ 
+ * LXML, http://www.lfd.uci.edu/~gohlke/pythonlibs/cua72n5h/lxml-3.2.4.win32-py2.7.exe
 
  * Qt 5.1.1, http://www.nic.funet.fi/pub/mirrors/download.qt-project.org/official_releases/qt/5.1/5.1.1/qt-windows-opensource-5.1.1-msvc2012-x86-offline.exe
  

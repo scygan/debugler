@@ -467,6 +467,14 @@ FUNC_PTR wrapperPtrs[] = {
 FUNC_PTR getWrapperPointer(Entrypoint entryp) { return wrapperPtrs[entryp]; }
 
 extern "C" {
+
+#ifdef HAVE_LIBRARY_WINGDI
+//do not export wingdi symbols.
+//We depend on this library, so it is impossible to get them "preloaded"
+//We trace them using binary interception
+#undef HAVE_LIBRARY_WINGDI 
+#endif
+
 #include "codegen/exporters.inl"
 #ifndef __ANDROID__
 // on Linuxes ABI is not really expected and all EXT symbols are exported
