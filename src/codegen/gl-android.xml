@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registry>
+    <!--
+    Copyright (C) 2014 Slawomir Cygan <slawomir.cygan@gmail.com>
+    
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    
+         http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -->
+
+    <!-- SECTION: GL type definitions. -->
+
+    <types>
+        <type name="BOOL"/>W
+        <type name="HDC"/>
+        <type name="UINT"/>
+        <type name="VOID"/>
+        <type name="PIXELFORMATDESCRIPTOR"/>
+    </types>
+
+    <!-- SECTION: Android - specific GL type definitions.. -->
+    <!-- These are ES1.1 functions exported in libGLESv1_CM.so, called by JNI -->
+    <!-- See $(AOSP)/frameworks/native/opengl/libs/GLES_CM/gl.cpp -->
+    <commands>
+        <command>
+            <proto>void <name>glColorPointerBounds</name></proto>
+            <param><ptype>GLint</ptype> <name>size</name></param>
+            <param group="ColorPointerType"><ptype>GLenum</ptype> <name>type</name></param>
+            <param><ptype>GLsizei</ptype> <name>stride</name></param>
+            <param len="COMPSIZE(size,type,stride)">const void *<name>pointer</name></param>
+            <param><ptype>GLsizei</ptype> <name>count</name></param>
+        </command>
+        <command>
+            <proto>void <name>glNormalPointerBounds</name></proto>
+            <param group="NormalPointerType"><ptype>GLenum</ptype> <name>type</name></param>
+            <param><ptype>GLsizei</ptype> <name>stride</name></param>
+            <param len="COMPSIZE(type,stride)">const void *<name>pointer</name></param>
+            <param><ptype>GLsizei</ptype> <name>count</name></param>
+        </command>
+        <command>
+            <proto>void <name>glTexCoordPointerBounds</name></proto>
+            <param><ptype>GLint</ptype> <name>size</name></param>
+            <param group="TexCoordPointerType"><ptype>GLenum</ptype> <name>type</name></param>
+            <param><ptype>GLsizei</ptype> <name>stride</name></param>
+            <param len="COMPSIZE(size,type,stride)">const void *<name>pointer</name></param>
+            <param><ptype>GLsizei</ptype> <name>count</name></param>
+        </command>
+        <command>
+            <proto>void <name>glVertexPointerBounds</name></proto>
+            <param><ptype>GLint</ptype> <name>size</name></param>
+            <param group="VertexPointerType"><ptype>GLenum</ptype> <name>type</name></param>
+            <param><ptype>GLsizei</ptype> <name>stride</name></param>
+            <param len="COMPSIZE(size,type,stride)">const void *<name>pointer</name></param>
+            <param><ptype>GLsizei</ptype> <name>count</name></param>
+        </command>
+        <command>
+            <proto>void <name>glPointSizePointerOESBounds</name></proto>
+            <param><ptype>GLenum</ptype> <name>type</name></param>
+            <param><ptype>GLsizei</ptype> <name>stride</name></param>
+            <param>const void *<name>pointer</name></param>
+            <param><ptype>GLsizei</ptype> <name>count</name></param>
+        </command>
+        <command>
+            <proto>void <name>glMatrixIndexPointerOESBounds</name></proto>
+            <param><ptype>GLint</ptype> <name>size</name></param>
+            <param><ptype>GLenum</ptype> <name>type</name></param>
+            <param><ptype>GLsizei</ptype> <name>stride</name></param>
+            <param>const void *<name>pointer</name></param>
+            <param><ptype>GLsizei</ptype> <name>count</name></param>
+        </command>
+        <command>
+            <proto>void <name>glWeightPointerOESBounds</name></proto>
+            <param><ptype>GLint</ptype> <name>size</name></param>
+            <param><ptype>GLenum</ptype> <name>type</name></param>
+            <param><ptype>GLsizei</ptype> <name>stride</name></param>
+            <param>const void *<name>pointer</name></param>
+            <param><ptype>GLsizei</ptype> <name>count</name></param>
+        </command>
+    </commands>
+
+    <!-- SECTION: WGL API interface definitions. -->
+    <feature api="gles1" name="GL_VERSION_ES_CM_1_0_ANDROID_SPECIFIC" number="1.0">
+        <require>
+            <command name="glColorPointerBounds"/>
+            <command name="glNormalPointerBounds"/>
+            <command name="glTexCoordPointerBounds"/>
+            <command name="glVertexPointerBounds"/>
+            <command name="glPointSizePointerOESBounds"/>
+            <command name="glMatrixIndexPointerOESBounds"/>
+            <command name="glWeightPointerOESBounds"/>
+        </require>
+    </feature>
+</registry>

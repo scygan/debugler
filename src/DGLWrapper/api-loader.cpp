@@ -135,8 +135,10 @@ std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
         case LIBRARY_GLX:
             return LIBGL_NAME;
         case LIBRARY_ES1:
+        case LIBRARY_ES1_ANDROID:
             return LIBGLES1_NAME;
         case LIBRARY_ES2:
+        case LIBRARY_ES2_ANDROID:
         case LIBRARY_ES3:
             return LIBGLES2_NAME;
         case LIBRARY_WINGDI:            

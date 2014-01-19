@@ -413,14 +413,24 @@ int GLContextVersion::getNeededApiLibraries(const DGLDisplayState* display) {
     if (display->getType() != DGLDisplayState::Type::EGL || m_Type == Type::DT) {
         return LIBRARY_GL;
     }
+
+#ifdef __ANDROID__
+    //On android load also ext symbols defined in system libraries.
+    const int es2Libs = LIBRARY_ES2 | LIBRARY_ES2_ANDROID;
+    const int es1Libs = LIBRARY_ES1 | LIBRARY_ES1_ANDROID;
+#else
+    const int es2Libs = LIBRARY_ES2;
+    const int es1Libs = LIBRARY_ES1;
+#endif
+
     if (display->getType() == DGLDisplayState::Type::EGL && m_Type == Type::ES) {
         switch (m_MajorVersion) {
             case 3:
-                return LIBRARY_ES2 | LIBRARY_ES3;
+                return es2Libs | LIBRARY_ES3;
             case 2:
-                return LIBRARY_ES2;
+                return es2Libs;
             case 1:
-                return LIBRARY_ES1;
+                return es1Libs;
         }
     }
     assert(0);

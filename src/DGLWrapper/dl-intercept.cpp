@@ -45,7 +45,7 @@
 #include "tls.h"
 #include "wa-soctors.h"
 
-#define DL_INTERCEPT_DEBUG
+//#define DL_INTERCEPT_DEBUG
 
 #ifdef DL_INTERCEPT_DEBUG
 #include "backtrace.h"
@@ -233,6 +233,17 @@ void *DLIntercept::dlopen(const char *filename, int flag) {
 
     if (ret && filename) {
         int libraries = g_ApiLoader.whichLibrary(filename);
+#ifdef __ANDROID__
+        if (libraries & (LIBRARY_ES1 | LIBRARY_ES2)) {
+            //unity3d apps on Android open libGLESvX  using dlopen,
+            //but mysteriously dlsym is not visible. So on Android
+            //just return libdglwrapper's base adrress to override both libs..
+            Os::info("dlintercept: dlopen(%s, %d): returning dglwrapper's address.", filename, flag);
+            ret = dlopen("libdglwrapper.so", RTLD_NOW);
+            //we unset libraries - libdglwrapper.so cannot be marked supported.
+            libraries = LIBRARY_NONE;
+        }
+#endif
         if (libraries != LIBRARY_NONE) {
             mSupportedLibraries[reinterpret_cast<uint64_t>(ret)] = libraries;
         }

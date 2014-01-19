@@ -21,21 +21,23 @@
 #include <map>
 
 enum ApiLibrary {
-    LIBRARY_WGL = 1,
-    LIBRARY_EGL = 2,
-    LIBRARY_GL = 4,
-    LIBRARY_ES1 = 8,
-    LIBRARY_ES1_EXT = 16,
-    LIBRARY_ES2 = 32,
-    LIBRARY_ES2_EXT = 64,
-    LIBRARY_ES3 = 128,
-    LIBRARY_GL_EXT = 256,
-    LIBRARY_EGL_EXT = 512,
-    LIBRARY_WGL_EXT = 1024,
-    LIBRARY_GLX = 2048,
-    LIBRARY_GLX_EXT = 4096,
-    LIBRARY_WINGDI = 8192,
-    LIBRARY_NONE = 0
+    LIBRARY_WGL           = ( 1 << 0  ),
+    LIBRARY_EGL           = ( 1 << 1  ),
+    LIBRARY_GL            = ( 1 << 2  ),
+    LIBRARY_ES1           = ( 1 << 3  ),
+    LIBRARY_ES1_EXT       = ( 1 << 4  ),
+    LIBRARY_ES2           = ( 1 << 5  ),
+    LIBRARY_ES2_EXT       = ( 1 << 6  ),
+    LIBRARY_ES3           = ( 1 << 7  ),
+    LIBRARY_GL_EXT        = ( 1 << 8  ),
+    LIBRARY_EGL_EXT       = ( 1 << 9  ),
+    LIBRARY_WGL_EXT       = ( 1 << 10 ),
+    LIBRARY_GLX           = ( 1 << 11 ),
+    LIBRARY_GLX_EXT       = ( 1 << 12 ),
+    LIBRARY_WINGDI        = ( 1 << 13 ),
+    LIBRARY_ES1_ANDROID   = ( 1 << 14 ),
+    LIBRARY_ES2_ANDROID   = ( 1 << 15 ),
+    LIBRARY_NONE     = 0
 };
 
 /**

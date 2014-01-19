@@ -428,7 +428,6 @@ class DGLWrapperCookie {
     void tracePre() {
 #ifdef DEBUG_WRAPPERS
         Os::info("tracePre %s", GetEntryPointName(m_Call.getEntrypoint()));
-        Os::backtrace();
 #endif
         try {
             retVal = g_Actions[m_Call.getEntrypoint()]->Pre(m_Call);
@@ -476,8 +475,13 @@ extern "C" {
 #endif
 
 #include "codegen/exporters.inl"
-#ifndef __ANDROID__
-// on Linuxes ABI is not really expected and all EXT symbols are exported
+#ifdef __ANDROID__
+// Export extension symbols exported by android system libraries.
+// We don't want to  export all extensions due to same apps that
+// use dlsym() to check if ext is supported...
+#include "codegen/exporters-android.inl"
+#else
+// on Linuxes ABI is not really respected and all EXT symbols are exported
 // It does not hurt Windows, also.
 #include "codegen/exporters-ext.inl"
 #endif

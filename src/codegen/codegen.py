@@ -33,6 +33,7 @@ nonExtTypedefs = open(outputDir + "nonExtTypedefs.inl", "w")
 wrappersFile = open(outputDir + "wrappers.inl", "w")
 exportersFile = open(outputDir + "exporters.inl", "w")
 exportersExtFile = open(outputDir + "exporters-ext.inl", "w")
+exportersAndroidFile = open(outputDir + "exporters-android.inl", "w")
 functionListFile = open(outputDir + "functionList.inl", "w")
 defFile = open(outputDir + "OpenGL32.def", "w")
 enumFile = open(outputDir + "enum.inl", "w")
@@ -68,6 +69,7 @@ class Entrypoint:
         self.retType = retType
         self.paramList = paramList
         self.paramDeclList = paramDeclList
+        self.forceEnumIndices = []
     
     def addLibrary(self, library):
         if self.genTypeDef and "EXT" in library:
@@ -289,21 +291,55 @@ for name, registry in headersToGenerate.items():
 parseXML(inputDir + "gl.xml")
 parseXML(inputDir + "egl.xml")
 parseXML(inputDir + "wgl.xml")
-parseXML(inputDir + ".." + os.sep + "wgl-notrace.xml", True)
 parseXML(inputDir + "glx.xml")
 
 
-#Workarounds:
+#----- WORKAROUNDS START -------
 
-#These rare functions require some external headers. 
-blacklist = ["glXAssociateDMPbufferSGIX", "glXCreateGLXVideoSourceSGIX", "glXDestroyGLXVideoSourceSGIX" ]
+#System: ALL
+#API: GL, GLES
+#
+# Change <internalFormat> of all *TexImage* calls to GLenum, as GLint cannot be nicely printed.
+    #WA for <internalFormat> in glTexImage, glTextureImage
+    # - treats internalFormat as GLenum instead of GLint, so it can be nicely displayed.
+for name, entrypoint in sorted(entrypoints.items()):
+    if name.startswith("glTexImage") or name.startswith("glTextureImage"):
+        if "MultisampleCoverageNV" in name:
+            internalFormatIdx = 3;
+        else:
+            internalFormatIdx = 2;        
+        if name.startswith("glTextureImage"):
+            internalFormatIdx += 1
+        if entrypoint.paramList[internalFormatIdx].lower() == "internalformat":
+            if "GLenum" in entrypoint.paramDeclList[internalFormatIdx]:
+                pass#this is ok
+            elif "GLint" in entrypoint.paramDeclList[internalFormatIdx]:
+                #replace
+                entrypoints[name].forceEnumIndices.append(internalFormatIdx)
+            else:
+                raise Exception(name + '\'s 3rd parameter assumed GLuint or GLenum, got ' + entrypoint.paramDeclList[internalFormatIdx] + ', bailing out')
+        else:
+            raise Exception(name + '\'s 3rd parameter assumed internalFormat, got ' + entrypoint.paramDeclList[internalFormatIdx] + ', bailing out')
 
+
+#System: ALL
+#
 #This function exist in khronox xml registry, but is not associated with any feature:
 if len(entrypoints["wglGetDefaultProcAddress"].libraries) > 0:
     print "Fix me - remove WA"
     exit(1)
 entrypoints["wglGetDefaultProcAddress"].addLibrary("LIBRARY_WGL")
 
+
+#System: Windows
+#API: WGL, undocumented, called by GDI
+#
+#These are required, if we want to act as "opengl32.dll". However we do not trace them.
+parseXML(inputDir + ".." + os.sep + "wgl-notrace.xml", True)
+
+
+#System: Windows
+#API: gdi32.dll
 #Registry enlists these functions as WGL, however they present only in gdi32.dll
 entrypoints["GetPixelFormat"].libraries =            ["LIBRARY_WINGDI"];
 entrypoints["ChoosePixelFormat"].libraries =         ["LIBRARY_WINGDI"];
@@ -312,6 +348,38 @@ entrypoints["GetEnhMetaFilePixelFormat"].libraries = ["LIBRARY_WINGDI"];
 entrypoints["GetPixelFormat"].libraries =            ["LIBRARY_WINGDI"];
 entrypoints["SetPixelFormat"].libraries =            ["LIBRARY_WINGDI"];
 entrypoints["SwapBuffers"].libraries =               ["LIBRARY_WINGDI"];
+
+
+#System: Android
+#API: GLES1, undocumented *Bounds entrypoins
+#These undocumented symbols exported by libGLESv1.so, called sometimes by JNI
+parseXML(inputDir + ".." + os.sep + "gl-android.xml", True)
+
+#System: Android
+#API: GLES1
+#Some extensions are exported in libGLESv1.so
+androidGLES1Exports = open( inputDir + ".." + os.sep + "android-gles1ext.exports", "r" )
+for entryp in androidGLES1Exports:
+    if "LIBRARY_ES1" not in entrypoints[entryp.strip()].libraries:
+        entrypoints[entryp.strip()].addLibrary("LIBRARY_ES1_ANDROID")
+
+#System: Android
+#API: GLES2
+#Some extensions are exported in libGLESv2.so
+androidGLES2Exports = open( inputDir + ".." + os.sep + "android-gles2ext.exports", "r" )
+for entryp in androidGLES2Exports:
+    if "LIBRARY_ES2" not in entrypoints[entryp.strip()].libraries:
+        entrypoints[entryp.strip()].addLibrary("LIBRARY_ES2_ANDROID")
+
+
+#System: Linux/X11
+#API: GLX EXT
+#These rare functions require some external headers. 
+blacklist = ["glXAssociateDMPbufferSGIX", "glXCreateGLXVideoSourceSGIX", "glXDestroyGLXVideoSourceSGIX" ]
+
+
+#----- WORKAROUNDS END -------
+
 
 #writeout files:
 
@@ -337,7 +405,7 @@ for name, entrypoint in sorted(entrypoints.items()):
         for coreLib2 in ["LIBRARY_WGL", "LIBRARY_GLX", "LIBRARY_EGL", "LIBRARY_GL", "LIBRARY_ES1", "LIBRARY_ES2", "LIBRARY_ES3" ]:
             if coreLib1.strip() == coreLib2.strip():
                 coreLib = True
-
+                
     if coreLib:
         print >> exportersFile, entrypoint.getLibraryIfdef()
         print >> exportersFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType + " APIENTRY " + name + "(" + listToString(entrypoint.paramDeclList) + ") {"
@@ -350,39 +418,30 @@ for name, entrypoint in sorted(entrypoints.items()):
         print >> exportersExtFile, "        return " + name + "_Wrapper(" + listToString(entrypoint.paramList) + ");"        
         print >> exportersExtFile, "}"
         print >> exportersExtFile, "#endif"
-
+        
+    androidLib = False
+    for androidLib1 in entrypoint.libraries:
+        for androidLib2 in ["LIBRARY_ES1_ANDROID", "LIBRARY_ES2_ANDROID" ]:
+            if androidLib1.strip() == androidLib2.strip():
+                androidLib = True
+    if androidLib:
+        print >> exportersAndroidFile, entrypoint.getLibraryIfdef()
+        print >> exportersAndroidFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType + " APIENTRY " + name + "(" + listToString(entrypoint.paramDeclList) + ") {"
+        print >> exportersAndroidFile, "        return " + name + "_Wrapper(" + listToString(entrypoint.paramList) + ");"        
+        print >> exportersAndroidFile, "}"
+        print >> exportersAndroidFile, "#endif"
+        
 #entrypoint wrappers
 
     print >> wrappersFile, entrypoint.getLibraryIfdef()
     print >> wrappersFile, "extern \"C\" " + entrypoint.retType + " APIENTRY " + name + "_Wrapper(" + listToString(entrypoint.paramDeclList) + ") {"
-    
-    #WA for <internalFormat> in glTexImage, glTextureImage
-    # - treats internalFormat as GLenum instead of GLint, so it can be nicely displayed.
-    if name.startswith("glTexImage") or name.startswith("glTextureImage"):
-        if "MultisampleCoverageNV" in name:
-            internalFormatIdx = 3;
-        else:
-            internalFormatIdx = 2;        
-        if name.startswith("glTextureImage"):
-            internalFormatIdx += 1
-        if entrypoint.paramList[internalFormatIdx].lower() == "internalformat":
-            if "GLenum" in entrypoint.paramDeclList[internalFormatIdx]:
-                pass#this is ok
-            elif "GLint" in entrypoint.paramDeclList[internalFormatIdx]:
-                #replace
-                entrypoint.paramDeclList[internalFormatIdx] = entrypoint.paramDeclList[internalFormatIdx].replace("GLint", "GLenum")
-            else:
-                raise Exception(name + '\'s 3rd parameter assumed GLuint or GLenum, got ' + entrypoint.paramDeclList[internalFormatIdx] + ', bailing out')
-        else:
-            raise Exception(name + '\'s 3rd parameter assumed internalFormat, got ' + entrypoint.paramDeclList[internalFormatIdx] + ', bailing out')
-            
     
     if not entrypoint.skipTrace:
         cookie = "    DGLWrapperCookie cookie( " + name + "_Call"
         i = 0
         while i < len(entrypoint.paramList):
             cookie = cookie + ", "
-            if "GLenum" in entrypoint.paramDeclList[i] and not "*" in entrypoint.paramDeclList[i]:
+            if ("GLenum" in entrypoint.paramDeclList[i] and not "*" in entrypoint.paramDeclList[i]) or i in entrypoint.forceEnumIndices:
                 cookie = cookie + "GLenumWrap(" + entrypoint.paramList[i] + ")"
             else:
                 cookie = cookie + entrypoint.paramList[i]
