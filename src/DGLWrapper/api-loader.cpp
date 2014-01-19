@@ -183,11 +183,11 @@ void APILoader::setPointer(Entrypoint entryp, FUNC_PTR direct) {
 }
 
 void APILoader::loadLibraries(int apiLibraries) {
-    int i = 1;
-    while (i) {
-        if (apiLibraries & i)
-            loadLibrary(static_cast<ApiLibrary>(i));
-        i *= 2;
+    int j = 1;
+    for (size_t i = 1; i < sizeof(apiLibraries) * 8; i++) {
+        if (apiLibraries & j)
+            loadLibrary(static_cast<ApiLibrary>(j));
+        j *= 2;
     }
 }
 
