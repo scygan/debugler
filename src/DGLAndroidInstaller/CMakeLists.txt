@@ -9,19 +9,40 @@ elseif (MIPS)
 	set(OBJCOPY_FORMAT  "elf32-tradlittlemips")
 endif()
 
+
+add_custom_command(
+    OUTPUT ${LIBRARY_OUTPUT_PATH}/libdglwrapper.stripped.so
+    COMMAND ${CMAKE_STRIP} ${LIBRARY_OUTPUT_PATH}/libdglwrapper.so --strip-unneeded -o ${LIBRARY_OUTPUT_PATH}/libdglwrapper.stripped.so
+    DEPENDS ${LIBRARY_OUTPUT_PATH}/libdglwrapper.so
+    COMMENT "stripping libdglwrapper"
+	WORKING_DIRECTORY ${LIBRARY_OUTPUT_PATH}
+    VERBATIM
+    )
+    
+    
+
 add_custom_command(
     OUTPUT ${LIBRARY_OUTPUT_PATH}/libdglwrapper_pack.o
-    COMMAND ${CMAKE_OBJCOPY} -I binary -B ${OBJCOPY_MACHINE} -O ${OBJCOPY_FORMAT} libdglwrapper.so libdglwrapper_pack.o
-    DEPENDS ${LIBRARY_OUTPUT_PATH}/libdglwrapper.so
+    COMMAND ${CMAKE_OBJCOPY} -I binary -B ${OBJCOPY_MACHINE} -O ${OBJCOPY_FORMAT} libdglwrapper.stripped.so libdglwrapper_pack.o
+    DEPENDS ${LIBRARY_OUTPUT_PATH}/libdglwrapper.stripped.so
     COMMENT "Packing libdglwrapper"
+	WORKING_DIRECTORY ${LIBRARY_OUTPUT_PATH}
+    VERBATIM
+    )
+    
+add_custom_command(
+    OUTPUT ${EXECUTABLE_OUTPUT_PATH}/dglloader.stripped
+    COMMAND ${CMAKE_STRIP}  ${EXECUTABLE_OUTPUT_PATH}/dglloader --strip-unneeded -o ${EXECUTABLE_OUTPUT_PATH}/dglloader.stripped
+    DEPENDS ${EXECUTABLE_OUTPUT_PATH}/dglloader
+    COMMENT "stripping dglloader"
 	WORKING_DIRECTORY ${LIBRARY_OUTPUT_PATH}
     VERBATIM
     )
 	
 add_custom_command(
     OUTPUT ${EXECUTABLE_OUTPUT_PATH}/dglloader_pack.o
-    COMMAND ${CMAKE_OBJCOPY} -I binary  -B ${OBJCOPY_MACHINE} -O ${OBJCOPY_FORMAT} dglloader dglloader_pack.o
-    DEPENDS ${EXECUTABLE_OUTPUT_PATH}/dglloader
+    COMMAND ${CMAKE_OBJCOPY} -I binary  -B ${OBJCOPY_MACHINE} -O ${OBJCOPY_FORMAT} dglloader.stripped dglloader_pack.o
+    DEPENDS ${EXECUTABLE_OUTPUT_PATH}/dglloader.stripped
     COMMENT "Packing dglloader"
 	WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
     VERBATIM
