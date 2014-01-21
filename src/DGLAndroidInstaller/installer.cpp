@@ -35,7 +35,7 @@ extern char _binary_libdglwrapper_stripped_so_end;
 
 const char* app_process = 
     "#!/system/bin/sh\n"
-    "exec /system/bin/dglloader /system/bin/app_process.dgl --egl --nowait --port=unix:/data/local/tmp/dgl-%p-%n -- $*\n";
+    "exec /system/bin/dglloader /system/bin/app_process.dgl --egl --nowait --port=unix:/data/local/tmp/dgl-%p-%n -- \"$@\"\n";
 
 
 struct {
