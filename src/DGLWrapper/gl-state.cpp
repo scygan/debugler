@@ -1175,25 +1175,11 @@ GLContext::queryTextureLevelGetters(
     return ret;
 }
 
-std::shared_ptr<dglnet::DGLResource> GLContext::queryBuffer(gl_t _name) {
-
-    GLuint name = static_cast<GLuint>(_name);
-
+boost::shared_ptr<dglnet::DGLResource> GLContext::queryBufferGetters(GLBufferObj* buff) {
     dglnet::resource::DGLResourceBuffer* resource;
     std::shared_ptr<dglnet::DGLResource> ret(
-            resource = new dglnet::resource::DGLResourceBuffer());
-
-    // check if GL knows about a texture
-    if (DIRECT_CALL_CHK(glIsBuffer)(name) != GL_TRUE) {
-        throw std::runtime_error("Buffer does not exist");
-    }
-
-    // check if we know about a texture target
-    GLBufferObj* buff = ensureBuffer(name);
-    if (buff->getTarget() == 0) {
-        throw std::runtime_error("Buffer target is unknown");
-    }
-
+        resource = new dglnet::resource::DGLResourceBuffer());
+    
     // rebind buffer, so we can access it
     GLint i;
     switch (buff->getTarget()) {
@@ -1285,10 +1271,53 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryBuffer(gl_t _name) {
     if (lastBuffer != buff->getName()) {
         DIRECT_CALL_CHK(glBindBuffer)(buff->getTarget(), lastBuffer);
     }
+
     return ret;
 }
 
-std::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(
+boost::shared_ptr<dglnet::DGLResource> GLContext::queryBufferAuxCtx(GLBufferObj* buff) { 
+
+    dglnet::resource::DGLResourceBuffer* resource;
+    boost::shared_ptr<dglnet::DGLResource> ret(
+        resource = new dglnet::resource::DGLResourceBuffer());
+
+    GLAuxContext* auxCtx = getAuxContext();
+    {
+        GLAuxContextSession auxsess = auxCtx->makeCurrent();
+
+        auxCtx->queries.auxGetBufferData(buff->getName(), resource->m_Data);
+
+        auxsess.dispose();
+    }
+
+
+    return ret;
+}
+
+boost::shared_ptr<dglnet::DGLResource> GLContext::queryBuffer(gl_t _name) {
+
+    GLuint name = static_cast<GLuint>(_name);
+
+    // check if GL knows about a texture
+    if (DIRECT_CALL_CHK(glIsBuffer)(name) != GL_TRUE) {
+        throw std::runtime_error("Buffer does not exist");
+    }
+
+    // check if we know about a texture target
+    GLBufferObj* buff = ensureBuffer(name);
+    if (buff->getTarget() == 0) {
+        throw std::runtime_error("Buffer target is unknown");
+    }
+
+    if (hasCapability(ContextCap::GetBufferSubData)) {
+        return queryBufferGetters(buff);
+
+    } else {
+        return queryBufferAuxCtx(buff);
+    }
+}
+
+boost::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(
         gl_t _bufferEnum) {
 
     GLuint bufferEnum = static_cast<GLuint>(_bufferEnum);
@@ -3279,6 +3308,10 @@ bool GLContext::hasCapability(ContextCap cap) {
 
         case ContextCap::TextureGetters:
             return version.check(GLContextVersion::Type::DT);
+
+        case ContextCap::GetBufferSubData:
+            return version.check(GLContextVersion::Type::DT) ||
+                   version.check(GLContextVersion::Type::ES, 3);
 
         default:
             assert(0);

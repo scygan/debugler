@@ -234,42 +234,77 @@ void GLAuxContext::GLQueries::setupInitialState() {
     GLfloat triangleStrip[] = {-1.0f, 1.0f,  0.0f, 1.0f, -1.0f, -1.0f,
                                0.0f,  1.0f,  1.0f, 1.0f, 0.0f,  1.0f,
                                1.0f,  -1.0f, 0.0f, 1.0f};
-    DIRECT_CALL_CHK(glBufferData)(GL_ARRAY_BUFFER, sizeof(triangleStrip),
-                                  triangleStrip, GL_STATIC_DRAW);
+
+    GLfloat vertexIds[BufferGetterChunkSize];
+    for (int i = 0; i < BufferGetterChunkSize; i++) vertexIds[i] = static_cast<GLfloat>(i);
+
+    DIRECT_CALL_CHK(glBufferData)(GL_ARRAY_BUFFER, sizeof(triangleStrip) + sizeof(vertexIds),
+                                  NULL, GL_STATIC_DRAW);
+
+    DIRECT_CALL_CHK(glBufferSubData)(GL_ARRAY_BUFFER, NULL, sizeof(triangleStrip), triangleStrip);
+    DIRECT_CALL_CHK(glBufferSubData)(GL_ARRAY_BUFFER, sizeof(triangleStrip), sizeof(vertexIds), vertexIds);
+
     DIRECT_CALL_CHK(glVertexAttribPointer)(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
     DIRECT_CALL_CHK(glEnableVertexAttribArray)(0);
+    DIRECT_CALL_CHK(glVertexAttribPointer)(1, 1, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(sizeof(triangleStrip)));
+    DIRECT_CALL_CHK(glEnableVertexAttribArray)(1);
 
-    vshobj = DIRECT_CALL_CHK(glCreateShader)(GL_VERTEX_SHADER);
+    {
+        std::string vshTex;
 
-    std::string vsh;
+        if (m_AuxCtx->m_Parrent->getVersion().check(GLContextVersion::Type::ES, 3)) {
+            vshTex += 
+                "#version 300 es\n"
+                "in vec4 in_Position;\n"
+                "out vec2 texPos;\n";
+        } else {
+            vshTex += 
+                "attribute vec4 in_Position;\n"
+                "varying vec2 texPos;\n";
+        }
+        vshTex += 
+            "void main() {\n"
+            "   gl_Position = in_Position;\n"
+            "   texPos = in_Position.xy * 0.5 + 0.5;\n"
+            "}\n";
 
-    if (m_AuxCtx->m_Parrent->getVersion().check(GLContextVersion::Type::ES, 3)) {
-        vsh += 
-            "#version 300 es\n"
-            "in vec4 inPos;\n"
-            "out vec2 texPos;\n";
-    } else {
-        vsh += 
-            "attribute vec4 inPos;\n"
-            "varying vec2 texPos;\n";
+        vshobjTexture = compileShader(GL_VERTEX_SHADER, vshTex.c_str());
     }
-    vsh += 
-        "void main() {\n"
-        "   gl_Position = inPos;\n"
-        "   texPos = inPos.xy * 0.5 + 0.5;\n"
-        "}\n";
 
-    const char* vshSrc[] = { vsh.c_str() };
 
-    DIRECT_CALL_CHK(glShaderSource)(vshobj, 1, vshSrc, NULL);
-    DIRECT_CALL_CHK(glCompileShader)(vshobj);
-    GLint status = 0;
-    DIRECT_CALL_CHK(glGetShaderiv)(vshobj, GL_COMPILE_STATUS, &status);
-    if (!status) {
-        char log[1000];
-        DIRECT_CALL_CHK(glGetShaderInfoLog)(vshobj, 1000, NULL, log);
-        throw std::runtime_error(std::string("Cannot compile vertex shader") +
-                                 log);
+    programGetBuffer = DIRECT_CALL_CHK(glCreateProgram)();
+    {
+        const char* vsh =
+            "attribute float in_VertexId;\n"
+            "attribute vec4 in_BufferData;\n"
+            "varying vec4 out_Color;\n"
+            "void main() {\n"
+            "   gl_Position = vec4(float(in_VertexId / 128.0) - 2.0, 0.0, 0.0, 1.0);\n"
+            "   out_Color = in_BufferData;\n"
+            "}\n";
+
+        const char* fsh = 
+            "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+            "precision highp float;           \n"
+            "#else                            \n"
+            "precision mediump float;         \n"
+            "#endif                           \n"
+            "varying vec4 out_Color;\n"
+            "void main() {\n"
+            " gl_FragColor = out_Color;\n"
+            "}\n";
+
+        GLuint vshObj = compileShader(GL_VERTEX_SHADER, vsh);
+        DIRECT_CALL_CHK(glAttachShader)(programGetBuffer, vshObj);
+        DIRECT_CALL_CHK(glDeleteShader)(vshObj);
+        GLuint fshObj = compileShader(GL_FRAGMENT_SHADER, fsh);
+        DIRECT_CALL_CHK(glAttachShader)(programGetBuffer, fshObj);
+        DIRECT_CALL_CHK(glDeleteShader)(fshObj);
+        
+        DIRECT_CALL_CHK(glBindAttribLocation)(programGetBuffer, 1, "in_VertexId");
+        DIRECT_CALL_CHK(glBindAttribLocation)(programGetBuffer, 2, "in_BufferData");
+        
+        linkProgram(programGetBuffer);
     }
 
     if (DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR) {
@@ -318,6 +353,40 @@ void GLAuxContext::GLQueries::auxDrawTexture(GLuint name, GLenum target,
 
     (void) layer; //no program for 3D textures, yet
     (void) face; //no program for CM textures, yet
+}
+
+
+void GLAuxContext::GLQueries::auxGetBufferData(GLuint name, std::vector<char>& ret) {
+    GLint size;
+
+    DIRECT_CALL_CHK(glRenderbufferStorage)(GL_RENDERBUFFER, GL_RGBA, BufferGetterChunkSize, 1);
+    
+    DIRECT_CALL_CHK(glViewport)(0, 0, BufferGetterChunkSize, 1);
+
+    DIRECT_CALL_CHK(glBindBuffer)(GL_ARRAY_BUFFER, name);
+
+    DIRECT_CALL_CHK(glGetBufferParameteriv)(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+
+    ret.resize(size);
+
+    DIRECT_CALL_CHK(glUseProgram)(programGetBuffer);
+
+    DIRECT_CALL_CHK(glEnableVertexAttribArray)(2);
+
+
+    std::vector<char> chunk;
+    for (int i =0; i < size; i+= BufferGetterChunkSize) {
+        DIRECT_CALL_CHK(glVertexAttribPointer)(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, reinterpret_cast<GLvoid*>(i));
+        DIRECT_CALL_CHK(glClear)(GL_COLOR_BUFFER_BIT);
+        DIRECT_CALL_CHK(glDrawArrays)(GL_POINTS, 0, BufferGetterChunkSize / 4);
+        DIRECT_CALL_CHK(glReadPixels)(0, 0, BufferGetterChunkSize, 1, GL_RGBA, GL_UNSIGNED_BYTE, &ret[i]);
+    }
+    DIRECT_CALL_CHK(glBindBuffer)(GL_ARRAY_BUFFER, 0);
+    DIRECT_CALL_CHK(glDisableVertexAttribArray)(2);
+
+    if (DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR) {
+        throw std::runtime_error("Got GL error on auxiliary context");
+    }
 }
 
 GLuint GLAuxContext::GLQueries::getTextureShaderProgram(
@@ -396,46 +465,60 @@ GLuint GLAuxContext::GLQueries::getTextureShaderProgram(
     fsh << ");\n"
         << "}\n";
 
-    auto i = programs.find(fsh.str());
-    if (i != programs.end()) {
+    auto i = programsTexture.find(fsh.str());
+    if (i != programsTexture.end()) {
         return i->second;
     } else {
 
         GLuint program = DIRECT_CALL_CHK(glCreateProgram)();
-        DIRECT_CALL_CHK(glAttachShader)(program, vshobj);
-
-        GLuint fShader = DIRECT_CALL_CHK(glCreateShader)(GL_FRAGMENT_SHADER);
-        DIRECT_CALL_CHK(glAttachShader)(program, fShader);
-        DIRECT_CALL_CHK(glDeleteShader)(fShader);
+        DIRECT_CALL_CHK(glAttachShader)(program, vshobjTexture);
 
         std::string fshStr = fsh.str();
-        const char* csrc[] = {fshStr.c_str()};
+        GLuint fShader = compileShader(GL_FRAGMENT_SHADER, fshStr.c_str());
+        DIRECT_CALL_CHK(glAttachShader)(program, fShader);
+        DIRECT_CALL_CHK(glDeleteShader)(fShader);
+       
+        DIRECT_CALL_CHK(glBindAttribLocation)(program, 0, "in_Position");
 
-        DIRECT_CALL_CHK(glShaderSource)(fShader, 1, csrc, NULL);
-        DIRECT_CALL_CHK(glCompileShader)(fShader);
+        linkProgram(program);
 
-        GLint status = 0;
-        DIRECT_CALL_CHK(glGetShaderiv)(fShader, GL_COMPILE_STATUS, &status);
-        if (!status) {
-            char log[1000];
-            DIRECT_CALL_CHK(glGetShaderInfoLog)(fShader, 1000, NULL, log);
-            throw std::runtime_error(
-                    std::string("Cannot compile fragment shader:") + log);
-        }
+        programsTexture[fshStr] = program;
+        return program;
+    }
+}
 
-        DIRECT_CALL_CHK(glLinkProgram)(program);
 
-        DIRECT_CALL_CHK(glGetProgramiv)(program, GL_LINK_STATUS, &status);
-        if (status != GL_TRUE) {
-            char log[10000];
-            DIRECT_CALL_CHK(glGetProgramInfoLog)(program, 10000, NULL, log);
-            DIRECT_CALL_CHK(glDeleteProgram)(program);
-            throw std::runtime_error(std::string("cannot link program: ") +
-                                     log);
-        } else {
-            programs[fshStr] = program;
-            return program;
-        }
+GLuint GLAuxContext::GLQueries::compileShader(GLenum type, const char* src) {
+    GLuint shader = DIRECT_CALL_CHK(glCreateShader)(type);
+
+    const char* csrc[] = { src };
+
+    DIRECT_CALL_CHK(glShaderSource)(shader, 1, csrc, NULL);
+    DIRECT_CALL_CHK(glCompileShader)(shader);
+
+    GLint status = 0;
+    DIRECT_CALL_CHK(glGetShaderiv)(shader, GL_COMPILE_STATUS, &status);
+    if (!status) {
+        char log[1000];
+        DIRECT_CALL_CHK(glGetShaderInfoLog)(shader, 1000, NULL, log);
+        throw std::runtime_error(
+            std::string("Cannot compile shader:") + log);
+    }
+
+    return shader;
+}
+
+void GLAuxContext::GLQueries::linkProgram(GLuint program) {
+    DIRECT_CALL_CHK(glLinkProgram)(program);
+
+    GLint status;
+    DIRECT_CALL_CHK(glGetProgramiv)(program, GL_LINK_STATUS, &status);
+    if (status != GL_TRUE) {
+        char log[10000];
+        DIRECT_CALL_CHK(glGetProgramInfoLog)(program, 10000, NULL, log);
+        DIRECT_CALL_CHK(glDeleteProgram)(program);
+        throw std::runtime_error(std::string("cannot link program: ") +
+            log);
     }
 }
 

@@ -294,6 +294,17 @@ class GLContext {
     bool textureProbeSizeES(GLenum levelTarget, int level, const int sizes[3]);
     int textureBisectSizeES(GLenum levelTarget, int level, int coord, int maxSize);
 
+
+    /**
+     * buffer query using getters
+     */
+    boost::shared_ptr<dglnet::DGLResource> GLContext::queryBufferGetters(GLBufferObj* buff);
+
+    /**
+     * buffer query using auxaliary ctx.
+     */
+    boost::shared_ptr<dglnet::DGLResource> GLContext::queryBufferAuxCtx(GLBufferObj* buff);
+
     opaque_id_t getId() const;
 
     std::pair<bool, GLenum> getPokedError();
@@ -375,7 +386,8 @@ class GLContext {
         MultipleFramebufferAttachments,
         Has64BitGetters,
         HasGetStringI,
-        TextureGetters
+        TextureGetters,
+        GetBufferSubData,
     };
 
     /**

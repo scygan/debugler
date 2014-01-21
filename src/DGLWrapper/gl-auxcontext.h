@@ -19,6 +19,7 @@
 #include <DGLCommon/gl-types.h>
 #include <map>
 #include <memory>
+#include <vector>
 
 class DGLDisplayState;
 
@@ -66,11 +67,21 @@ class GLAuxContext {
         void auxDrawTexture(GLuint name, GLenum target, GLint level, GLint layer, GLint face,
                             GLenum textureBaseFormat, GLenum renderableFormat, int width, int height);
 
+        void auxGetBufferData(GLuint name, std::vector<char>& ret);
+
        private:
+
+        static const int BufferGetterChunkSize = 256;
+
         GLuint getTextureShaderProgram(GLenum target, GLenum textureBaseFormat);
 
-        GLuint fbo, vao, vbo, rbo, vshobj;
-        std::map<std::string, GLuint> programs;
+        GLuint compileShader(GLenum type, const char* src);
+        void linkProgram(GLuint program);
+
+
+        GLuint fbo, vao, vbo, rbo, vshobjTexture;
+        std::map<std::string, GLuint> programsTexture;
+        GLuint programGetBuffer;
 
         bool m_InitialState;
 
