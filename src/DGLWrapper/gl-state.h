@@ -298,12 +298,12 @@ class GLContext {
     /**
      * buffer query using getters
      */
-    boost::shared_ptr<dglnet::DGLResource> GLContext::queryBufferGetters(GLBufferObj* buff);
+    std::shared_ptr<dglnet::DGLResource> GLContext::queryBufferGetters(GLBufferObj* buff);
 
     /**
      * buffer query using auxaliary ctx.
      */
-    boost::shared_ptr<dglnet::DGLResource> GLContext::queryBufferAuxCtx(GLBufferObj* buff);
+    std::shared_ptr<dglnet::DGLResource> GLContext::queryBufferAuxCtx(GLBufferObj* buff);
 
     opaque_id_t getId() const;
 

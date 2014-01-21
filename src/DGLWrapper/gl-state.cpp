@@ -1175,7 +1175,7 @@ GLContext::queryTextureLevelGetters(
     return ret;
 }
 
-boost::shared_ptr<dglnet::DGLResource> GLContext::queryBufferGetters(GLBufferObj* buff) {
+std::shared_ptr<dglnet::DGLResource> GLContext::queryBufferGetters(GLBufferObj* buff) {
     dglnet::resource::DGLResourceBuffer* resource;
     std::shared_ptr<dglnet::DGLResource> ret(
         resource = new dglnet::resource::DGLResourceBuffer());
@@ -1275,10 +1275,10 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryBufferGetters(GLBufferObj
     return ret;
 }
 
-boost::shared_ptr<dglnet::DGLResource> GLContext::queryBufferAuxCtx(GLBufferObj* buff) { 
+std::shared_ptr<dglnet::DGLResource> GLContext::queryBufferAuxCtx(GLBufferObj* buff) { 
 
     dglnet::resource::DGLResourceBuffer* resource;
-    boost::shared_ptr<dglnet::DGLResource> ret(
+    std::shared_ptr<dglnet::DGLResource> ret(
         resource = new dglnet::resource::DGLResourceBuffer());
 
     GLAuxContext* auxCtx = getAuxContext();
@@ -1294,7 +1294,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryBufferAuxCtx(GLBufferObj*
     return ret;
 }
 
-boost::shared_ptr<dglnet::DGLResource> GLContext::queryBuffer(gl_t _name) {
+std::shared_ptr<dglnet::DGLResource> GLContext::queryBuffer(gl_t _name) {
 
     GLuint name = static_cast<GLuint>(_name);
 
@@ -1317,7 +1317,7 @@ boost::shared_ptr<dglnet::DGLResource> GLContext::queryBuffer(gl_t _name) {
     }
 }
 
-boost::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(
+std::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(
         gl_t _bufferEnum) {
 
     GLuint bufferEnum = static_cast<GLuint>(_bufferEnum);
