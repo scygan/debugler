@@ -43,7 +43,7 @@ struct {
     bool isExecutable;
     bool sysOverwrite;
     const char* begin;
-    const char* end;
+    const char* end;    
 } files[] = {
     { "dglloader",        true,  false, &_binary_dglloader_stripped_start,        &_binary_dglloader_stripped_end },
     { "app_process",      true,  true,  app_process,                     app_process + strlen(app_process) + 1 },

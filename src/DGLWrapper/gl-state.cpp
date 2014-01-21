@@ -1268,8 +1268,16 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryBuffer(gl_t _name) {
             throw std::runtime_error("Buffer empty (GL_BUFFER_SIZE is 0)");
         } else {
             resource->m_Data.resize(size);
-            DIRECT_CALL_CHK(glGetBufferSubData)(buff->getTarget(), 0, size,
-                                                &resource->m_Data[0]);
+
+            if (m_Version.check(GLContextVersion::Type::ES)) {
+                const char* ptr = reinterpret_cast<const char*>(
+                    DIRECT_CALL_CHK(glMapBufferRange)(buff->getTarget(), 0, size, GL_MAP_READ_BIT));
+                std::copy(ptr, ptr + size, resource->m_Data.begin());
+                DIRECT_CALL_CHK(glUnmapBuffer)(buff->getTarget());
+            } else {
+                DIRECT_CALL_CHK(glGetBufferSubData)(buff->getTarget(), 0, size,
+                    &resource->m_Data[0]);
+            }
         }
     }
 
