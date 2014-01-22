@@ -71,7 +71,7 @@ class GLAuxContext {
 
        private:
 
-        static const int BufferGetterChunkSize = 256;
+        static const int BufferGetterChunkSize;
 
         GLuint getTextureShaderProgram(GLenum target, GLenum textureBaseFormat);
 
@@ -79,7 +79,7 @@ class GLAuxContext {
         void linkProgram(GLuint program);
 
 
-        GLuint fbo, vao, vbo, rbo, vshobjTexture;
+        GLuint fbo, vao, vbo, rtt, vshobjTexture;
         std::map<std::string, GLuint> programsTexture;
         GLuint programGetBuffer;
 

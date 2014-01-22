@@ -19,7 +19,10 @@
 #include "native-surface.h"
 #include "pointers.h"
 
+#include <DGLNet/protocol/pixeltransfer.h>
+
 #include <sstream>
+#include <DGLCommon/def.h>
 
 namespace dglState {
 
@@ -210,16 +213,23 @@ opaque_id_t GLAuxContext::choosePixelFormat(opaque_id_t preferred,
 GLAuxContext::GLQueries::GLQueries(GLAuxContext* ctx)
         : m_InitialState(false), m_AuxCtx(ctx) {}
 
+const int GLAuxContext::GLQueries::BufferGetterChunkSize = 256;
+
 void GLAuxContext::GLQueries::setupInitialState() {
 
     if (m_InitialState) return;
     DIRECT_CALL_CHK(glGenFramebuffers)(1, &fbo);
     DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, fbo);
 
-    DIRECT_CALL_CHK(glGenRenderbuffers)(1, &rbo);
-    DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, rbo);
-    DIRECT_CALL_CHK(glFramebufferRenderbuffer)(
-            GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rbo);
+    DIRECT_CALL_CHK(glGenTextures)(1, &rtt);
+    DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D, rtt);
+    DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D, 0);
+    DIRECT_CALL_CHK(glFramebufferTexture2D)(
+            GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, rtt, 0);
 
     if (m_AuxCtx->m_Parrent->getVersion().check(GLContextVersion::Type::ES,
                                                 3) ||
@@ -235,14 +245,14 @@ void GLAuxContext::GLQueries::setupInitialState() {
                                0.0f,  1.0f,  1.0f, 1.0f, 0.0f,  1.0f,
                                1.0f,  -1.0f, 0.0f, 1.0f};
 
-    GLfloat vertexIds[BufferGetterChunkSize];
-    for (int i = 0; i < BufferGetterChunkSize; i++) vertexIds[i] = static_cast<GLfloat>(i);
+    GLfloat vertexPos[BufferGetterChunkSize];
+    for (int i = 0; i < BufferGetterChunkSize; i++) vertexPos[i] = static_cast<GLfloat>(i)/static_cast<GLfloat>(BufferGetterChunkSize) * 2.0f - 1.0f;
 
-    DIRECT_CALL_CHK(glBufferData)(GL_ARRAY_BUFFER, sizeof(triangleStrip) + sizeof(vertexIds),
+    DIRECT_CALL_CHK(glBufferData)(GL_ARRAY_BUFFER, sizeof(triangleStrip) + sizeof(vertexPos),
                                   NULL, GL_STATIC_DRAW);
 
-    DIRECT_CALL_CHK(glBufferSubData)(GL_ARRAY_BUFFER, NULL, sizeof(triangleStrip), triangleStrip);
-    DIRECT_CALL_CHK(glBufferSubData)(GL_ARRAY_BUFFER, sizeof(triangleStrip), sizeof(vertexIds), vertexIds);
+    DIRECT_CALL_CHK(glBufferSubData)(GL_ARRAY_BUFFER, 0, sizeof(triangleStrip), triangleStrip);
+    DIRECT_CALL_CHK(glBufferSubData)(GL_ARRAY_BUFFER, sizeof(triangleStrip), sizeof(vertexPos), vertexPos);
 
     DIRECT_CALL_CHK(glVertexAttribPointer)(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
     DIRECT_CALL_CHK(glEnableVertexAttribArray)(0);
@@ -279,7 +289,7 @@ void GLAuxContext::GLQueries::setupInitialState() {
             "attribute vec4 in_BufferData;\n"
             "varying vec4 out_Color;\n"
             "void main() {\n"
-            "   gl_Position = vec4(float(in_VertexId / 128.0) - 2.0, 0.0, 0.0, 1.0);\n"
+            "   gl_Position = vec4(in_VertexId, 0.0, 0.0, 1.0);\n"
             "   out_Color = in_BufferData;\n"
             "}\n";
 
@@ -333,10 +343,21 @@ void GLAuxContext::GLQueries::auxDrawTexture(GLuint name, GLenum target,
                 "Texture object not found in auxaliary context");
     }
 
-    DIRECT_CALL_CHK(glBindTexture)(target, name);
+    DIRECT_CALL_CHK(glBindTexture)(target, rtt);
 
-    DIRECT_CALL_CHK(glRenderbufferStorage)(GL_RENDERBUFFER, renderableFormat, width,
-                                           height);
+
+    const GLInternalFormat* internalFormatDesc =
+        GLFormats::getInternalFormat(renderableFormat);
+
+    if (!m_AuxCtx->m_Parrent->getVersion().check(GLContextVersion::Type::ES, 3)) {
+        //On ES2.0 only unsized formats are supported.
+        renderableFormat = (GLenum)internalFormatDesc->dataFormat;
+    }
+
+    DIRECT_CALL_CHK(glTexImage2D)(GL_TEXTURE_2D, 0, renderableFormat, width, height, 0, (GLenum)internalFormatDesc->dataFormat,  (GLenum)internalFormatDesc->dataType, NULL);
+
+    
+    DIRECT_CALL_CHK(glBindTexture)(target, name);
 
     GLuint program = getTextureShaderProgram(target, textureBaseFormat);
     DIRECT_CALL_CHK(glUseProgram)(program);
@@ -349,7 +370,13 @@ void GLAuxContext::GLQueries::auxDrawTexture(GLuint name, GLenum target,
     DIRECT_CALL_CHK(glClear)(GL_COLOR_BUFFER_BIT);
     DIRECT_CALL_CHK(glViewport)(0, 0, width, height);
 
+    DIRECT_CALL_CHK(glEnableVertexAttribArray)(0);
+    DIRECT_CALL_CHK(glDisableVertexAttribArray)(1);
+    DIRECT_CALL_CHK(glDisableVertexAttribArray)(2);
+
     DIRECT_CALL_CHK(glDrawArrays)(GL_TRIANGLE_STRIP, 0, 4);
+
+    DIRECT_CALL_CHK(glDisableVertexAttribArray)(0);
 
     (void) layer; //no program for 3D textures, yet
     (void) face; //no program for CM textures, yet
@@ -359,8 +386,14 @@ void GLAuxContext::GLQueries::auxDrawTexture(GLuint name, GLenum target,
 void GLAuxContext::GLQueries::auxGetBufferData(GLuint name, std::vector<char>& ret) {
     GLint size;
 
-    DIRECT_CALL_CHK(glRenderbufferStorage)(GL_RENDERBUFFER, GL_RGBA, BufferGetterChunkSize, 1);
-    
+    DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D, rtt);
+    DIRECT_CALL_CHK(glTexImage2D)(GL_TEXTURE_2D, 0, GL_RGBA, BufferGetterChunkSize, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, fbo);
     DIRECT_CALL_CHK(glViewport)(0, 0, BufferGetterChunkSize, 1);
 
     DIRECT_CALL_CHK(glBindBuffer)(GL_ARRAY_BUFFER, name);
@@ -371,16 +404,49 @@ void GLAuxContext::GLQueries::auxGetBufferData(GLuint name, std::vector<char>& r
 
     DIRECT_CALL_CHK(glUseProgram)(programGetBuffer);
 
+    DIRECT_CALL_CHK(glEnableVertexAttribArray)(1);
     DIRECT_CALL_CHK(glEnableVertexAttribArray)(2);
+    DIRECT_CALL_CHK(glDisableVertexAttribArray)(0);
 
 
     std::vector<char> chunk;
-    for (int i =0; i < size; i+= BufferGetterChunkSize) {
-        DIRECT_CALL_CHK(glVertexAttribPointer)(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, reinterpret_cast<GLvoid*>(i));
+
+    int offset = 0;
+
+    while (offset < size) {
+
+        int thisChunkSize = std::min(BufferGetterChunkSize, size - offset);
+
+        if (thisChunkSize > 4) {
+            //if chunk is larger than element size, blit only full elements.
+            thisChunkSize &= -3;
+        }
+
+        int elementSize = 4;
+        if (thisChunkSize < 4) {
+            elementSize = thisChunkSize;
+        }
+
+        DIRECT_CALL_CHK(glVertexAttribPointer)(2, elementSize, GL_UNSIGNED_BYTE, GL_TRUE, 0, reinterpret_cast<GLvoid*>(offset));
+
+        DIRECT_CALL_CHK(glClearColor)(1.0, 1.0, 1.0, 1.0);
+
         DIRECT_CALL_CHK(glClear)(GL_COLOR_BUFFER_BIT);
-        DIRECT_CALL_CHK(glDrawArrays)(GL_POINTS, 0, BufferGetterChunkSize / 4);
-        DIRECT_CALL_CHK(glReadPixels)(0, 0, BufferGetterChunkSize, 1, GL_RGBA, GL_UNSIGNED_BYTE, &ret[i]);
+
+        DIRECT_CALL_CHK(glDrawArrays)(GL_POINTS, 0, thisChunkSize / elementSize);
+
+        if (thisChunkSize < 4) {
+            GLubyte buff[4];
+            DIRECT_CALL_CHK(glReadPixels)(0, 0, thisChunkSize / elementSize, 1, GL_RGBA, GL_UNSIGNED_BYTE, &buff);
+            for (int i =0; i < thisChunkSize; i++) {
+                ret[offset + i] = buff[i];
+            }
+        } else {
+            DIRECT_CALL_CHK(glReadPixels)(0, 0, thisChunkSize / elementSize, 1, GL_RGBA, GL_UNSIGNED_BYTE, &ret[offset]);
+        }
+        offset += thisChunkSize;
     }
+
     DIRECT_CALL_CHK(glBindBuffer)(GL_ARRAY_BUFFER, 0);
     DIRECT_CALL_CHK(glDisableVertexAttribArray)(2);
 
