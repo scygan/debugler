@@ -370,35 +370,39 @@ void GLContextVersion::initialize(const char* cVersion) {
 
     std::string version = cVersion;
 
-    int vOffset = -1;
-    if (m_Type == Type::DT) {
-        vOffset = 0;
-    } else if (m_Type == Type::ES) {
-        if (version.substr(0, strlen("OpenGL ES ")) == "OpenGL ES ") {
-            vOffset = (int)strlen("OpenGL ES ");
-        } else if (version.substr(0, strlen("OpenGL ES-CM ")) ==
-                   "OpenGL ES-CM ") {
-            vOffset = (int)strlen("OpenGL ES-CM ");
-        } else if (version.substr(0, strlen("OpenGL ES-CL ")) ==
-                   "OpenGL ES-CL ") {
-            vOffset = (int)strlen("OpenGL ES-CL ");
-        } else if (version.substr(0, strlen("OpenGL ES-")) == "OpenGL ES-") {
-            vOffset = (int)strlen("OpenGL ES-");
-        } else {
-            assert(!"unrecognized GL_VERSION string");
-        }
+    Type parsedType = m_Type;
+
+    int vOffset = 0;
+
+    //ES versions usually have an prefix.
+    if (version.substr(0, strlen("OpenGL ES ")) == "OpenGL ES ") {
+        vOffset = (int)strlen("OpenGL ES ");
+        parsedType = Type::ES;
+    } else if (version.substr(0, strlen("OpenGL ES-CM ")) == "OpenGL ES-CM ") {
+        vOffset = (int)strlen("OpenGL ES-CM ");
+        parsedType = Type::ES;
+    } else if (version.substr(0, strlen("OpenGL ES-CL ")) == "OpenGL ES-CL ") {
+        vOffset = (int)strlen("OpenGL ES-CL ");
+        parsedType = Type::ES;
+    } else if (version.substr(0, strlen("OpenGL ES-")) == "OpenGL ES-") {
+        vOffset = (int)strlen("OpenGL ES-");
+        parsedType = Type::ES;
     }
 
-    if (vOffset >= 0 && vOffset + 2 <= (int)version.length()) {
+    assert (parsedType == m_Type);
 
-        char buf[] = {0, 0};
-        buf[0] = version[vOffset];
-        m_MajorVersion = atoi(buf);
-        assert(version[vOffset + 1] == '.');
-        buf[0] = version[vOffset + 2];
-        m_MinorVersion = atoi(buf);
+    m_Type = parsedType;
+
+    if (vOffset >= 0 && vOffset + 2 <= (int)version.length() &&
+        version[vOffset] >= '0' && version[vOffset] <= '9' &&
+        version[vOffset + 1] == '.' &&
+        version[vOffset + 2] >= '0' && version[vOffset + 2] <= '9') {
+        m_MajorVersion = version[vOffset] - '0';
+        m_MinorVersion = version[vOffset + 2] - '0';
     } else {
         assert(!"cannot reliably detect OpenGL version");
+        //this is rather serious, so mark ctx as not supported.
+        m_Type = Type::UNSUPPORTED;
     }
 
     m_Initialized = true;
