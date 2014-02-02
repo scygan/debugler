@@ -240,18 +240,27 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 call.getArgs()[0].get(device);
                 call.getArgs()[2].get(attribList);
 
+                dglState::GLContextVersion::Type contextType = 
+                    dglState::GLContextVersion::Type::DT;
+
+
                 std::vector<gl_t> attributes;
                 if (attribList) {
                     int i = 0;
                     while (attribList[i]) {
                         attributes.push_back(attribList[i++]);
                         attributes.push_back(attribList[i++]);
+
+                        if (attributes[i - 2] == WGL_CONTEXT_PROFILE_MASK_ARB && 
+                            attributes[i - 1] == WGL_CONTEXT_ES_PROFILE_BIT_EXT) {
+                                contextType = dglState::GLContextVersion::Type::ES;
+                        }
                     }
                 }
 
                 DGLDisplayState::defDpy(DGLDisplayState::Type::WGL)
                         ->createContext(
-                                  dglState::GLContextVersion::Type::DT,
+                                  contextType,
                                   dglState::GLContextCreationData(
                                           entryp,
                                           (opaque_id_t)GetPixelFormat(device),
@@ -300,17 +309,24 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 call.getArgs()[4].get(attribList);
 
                 std::vector<gl_t> attributes;
+                dglState::GLContextVersion::Type contextType =
+                    dglState::GLContextVersion::Type::DT;
+
                 if (attribList) {
                     int i = 0;
                     while (attribList[i] != None) {
                         attributes.push_back(attribList[i++]);
                         attributes.push_back(attribList[i++]);
                     }
+                    if (attributes[i - 2] == GLX_CONTEXT_PROFILE_MASK_ARB && 
+                        attributes[i - 1] == GLX_CONTEXT_ES_PROFILE_BIT_EXT) {
+                            contextType = dglState::GLContextVersion::Type::ES;
+                    }
                 }
 
                 DGLDisplayState::get(reinterpret_cast<opaque_id_t>(dpy),
                                      DGLDisplayState::Type::GLX)
-                        ->createContext(dglState::GLContextVersion::Type::DT,
+                        ->createContext(contextType,
                                         dglState::GLContextCreationData(
                                                 entryp, (opaque_id_t)config,
                                                 attributes),
