@@ -2179,19 +2179,17 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
 #endif
 
 
-
-    int loc = 0;
     for (int store = 0; store <=1; store++) {
-        if (store) {
-            resource->m_Items.resize(loc);
-        }
+        
+        //this points to location in returned resource.
+        int loc = 0;
 
 #define STATE_BASE(SETTER, NAME, LENGTH)                                \
         if (store) {                                                    \
             SETTER(#NAME, NAME, LENGTH, &resource->m_Items[loc]);       \
-        } else {                                                        \
-            loc++;                                                      \
         }                                                               \
+        loc++;                                                          \
+
 
 #define STATE_INTEGERV(NAME, LENGTH)     STATE_BASE(getStateIntegerv,   NAME, LENGTH)
 #define STATE_INTEGER64V(NAME, LENGTH)   STATE_BASE(getStateInteger64v, NAME, LENGTH)
@@ -3148,6 +3146,13 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     STATE_INTEGERV(GL_SAMPLES, 1);
     STATE_INTEGERV(GL_COPY_READ_BUFFER_BINDING, 1);
     STATE_INTEGERV(GL_COPY_WRITE_BUFFER_BINDING, 1);
+
+
+        if (!store) {
+            //in the first run of this loop just resize the container.
+            resource->m_Items.resize(loc + 1);
+        }
+
     }
     return ret;
 }
