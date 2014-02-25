@@ -14,13 +14,18 @@
   <?endif ?>
 
   <?include version.wxi ?>
+
   
-  <Product Name='Debugler' Id='{54FE114C-FCCB-4FAC-BF68-484D4D3DE3F0}' UpgradeCode='{D2691962-72E5-4DD1-997D-09038F9C2A50}'
+  
+  <Product Name='Debugler' Id='*' UpgradeCode='{D2691962-72E5-4DD1-997D-09038F9C2A50}'
     Language='1033' Codepage='1252' Version='$(var.version)' Manufacturer='Slawomir Cygan'>
 
+   
     <Package Id='*' Keywords='Installer' Description="Debugler $(var.version) Installer"
       Manufacturer='Slawomir Cygan'
       InstallerVersion='450' Languages='1033' Compressed='yes' SummaryCodepage='1252' Platform='$(var.Platform)'/>
+
+    <Property Id="AllUSERS" Value="1"/>
 
     <Media Id='1' Cabinet='Sample.cab' EmbedCab='yes' DiskPrompt="CD-ROM #1" />
     <Property Id='DiskPrompt' Value="Debugler $(var.version) Installation [1]" />
@@ -157,8 +162,11 @@
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
 
     <Icon Id="Debugler01.exe" SourceFile="Debugler.exe" />
-    <Property Id="ARPPRODUCTICON" Value="Debugler.exe" />
+    <Property Id="ARPPRODUCTICON" Value="Debugler01.exe" />
 
     <WixVariable Id="WixUILicenseRtf" Value="..\..\..\..\..\LICENCE.rtf" />
+
+    <MajorUpgrade DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit."/>
+    
   </Product>
 </Wix>
