@@ -290,6 +290,7 @@ void GLAuxContext::GLQueries::setupInitialState() {
             "varying vec4 out_Color;\n"
             "void main() {\n"
             "   gl_Position = vec4(in_VertexId, 0.0, 0.0, 1.0);\n"
+            "   gl_PointSize = 1.0;\n"
             "   out_Color = in_BufferData;\n"
             "}\n";
 
