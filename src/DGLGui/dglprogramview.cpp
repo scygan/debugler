@@ -44,11 +44,13 @@ DGLProgramViewItem::DGLProgramViewItem(dglnet::ContextObjectName name,
             QHeaderView::ResizeToContents);
 #endif
     m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(
-            0, new QTableWidgetItem("name"));
+            kUniformTable_NameIdx, new QTableWidgetItem("name"));
     m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(
-            1, new QTableWidgetItem("type"));
+            kUniformTable_TypeIdx, new QTableWidgetItem("type"));
     m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(
-            2, new QTableWidgetItem("value"));
+            kUniformTable_ValueIdx, new QTableWidgetItem("value"));
+    m_Ui.tableWidgetUniforms->setHorizontalHeaderItem(
+            kUniformTable_LocationIdx, new QTableWidgetItem("location"));
 
     m_Listener = resManager->createListener(
             name, dglnet::message::ObjectType::Program);
@@ -118,19 +120,31 @@ void DGLProgramViewItem::update(const dglnet::DGLResource& res) {
         QTableWidgetItem* item =
                 new QTableWidgetItem(resource->m_Uniforms[i].m_name.c_str());
         item->setFlags(Qt::ItemIsEnabled);
-        m_Ui.tableWidgetUniforms->setItem(static_cast<int>(i), 0, item);
+        m_Ui.tableWidgetUniforms->setItem(static_cast<int>(i), kUniformTable_NameIdx, item);
 
         item = new QTableWidgetItem(
                 GetGLEnumName(resource->m_Uniforms[i].m_type).c_str());
         item->setFlags(Qt::ItemIsEnabled);
-        m_Ui.tableWidgetUniforms->setItem(static_cast<int>(i), 1, item);
+        m_Ui.tableWidgetUniforms->setItem(static_cast<int>(i), kUniformTable_TypeIdx, item);
+
+
+        {
+            std::ostringstream locStream; 
+            locStream << resource->m_Uniforms[i].m_location;
+            item = new QTableWidgetItem(
+                locStream.str().c_str());
+            item->setFlags(Qt::ItemIsEnabled);
+            m_Ui.tableWidgetUniforms->setItem(static_cast<int>(i), kUniformTable_LocationIdx, item);
+        }
+        
 
         if (resource->m_Uniforms[i].m_supportedType) {
             std::ostringstream valStream;
             valStream << std::showpoint;
             for (size_t j = 0; j < resource->m_Uniforms[i].m_value.size();
                  j++) {
-                if (j % resource->m_Uniforms[i].m_rowSize == 0)
+                if (resource->m_Uniforms[i].m_rowSize > 1 && 
+                    j % resource->m_Uniforms[i].m_rowSize == 0)
                     valStream << std::endl;
                 else if (j)
                     valStream << ", ";
@@ -141,7 +155,7 @@ void DGLProgramViewItem::update(const dglnet::DGLResource& res) {
             item = new QTableWidgetItem(tr("Not supported by debugger"));
         }
         item->setFlags(Qt::ItemIsEnabled);
-        m_Ui.tableWidgetUniforms->setItem(static_cast<int>(i), 2, item);
+        m_Ui.tableWidgetUniforms->setItem(static_cast<int>(i), kUniformTable_ValueIdx, item);
     }
     m_Ui.tableWidgetUniforms->resizeRowsToContents();
 }

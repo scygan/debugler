@@ -1861,6 +1861,25 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
                     case GL_INT_VEC2:
                     case GL_INT_VEC3:
                     case GL_INT_VEC4:
+                        /*samplers hold also one INT */
+                    case GL_SAMPLER_BUFFER:
+                    case GL_SAMPLER_1D:
+                    case GL_SAMPLER_2D:
+                    case GL_SAMPLER_2D_RECT:
+                    case GL_SAMPLER_3D:
+                    case GL_SAMPLER_CUBE:
+                    case GL_SAMPLER_1D_ARRAY:
+                    case GL_SAMPLER_2D_ARRAY:
+                    case GL_SAMPLER_CUBE_MAP_ARRAY:
+                    case GL_SAMPLER_2D_MULTISAMPLE:
+                    case GL_SAMPLER_2D_MULTISAMPLE_ARRAY:
+                    case GL_SAMPLER_1D_SHADOW:
+                    case GL_SAMPLER_2D_SHADOW:
+                    case GL_SAMPLER_2D_RECT_SHADOW:
+                    case GL_SAMPLER_CUBE_SHADOW:
+                    case GL_SAMPLER_1D_ARRAY_SHADOW:
+                    case GL_SAMPLER_2D_ARRAY_SHADOW:
+                    case GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW:
                         baseType = GL_INT;
                         break;
                     case GL_UNSIGNED_INT:
@@ -1886,6 +1905,25 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
                         case GL_INT:
                         case GL_UNSIGNED_INT:
                         case GL_BOOL:
+                            /*samplers also hold 1 element */
+                        case GL_SAMPLER_BUFFER:
+                        case GL_SAMPLER_1D:
+                        case GL_SAMPLER_2D:
+                        case GL_SAMPLER_2D_RECT:
+                        case GL_SAMPLER_3D:
+                        case GL_SAMPLER_CUBE:
+                        case GL_SAMPLER_1D_ARRAY:
+                        case GL_SAMPLER_2D_ARRAY:
+                        case GL_SAMPLER_CUBE_MAP_ARRAY:
+                        case GL_SAMPLER_2D_MULTISAMPLE:
+                        case GL_SAMPLER_2D_MULTISAMPLE_ARRAY:
+                        case GL_SAMPLER_1D_SHADOW:
+                        case GL_SAMPLER_2D_SHADOW:
+                        case GL_SAMPLER_2D_RECT_SHADOW:
+                        case GL_SAMPLER_CUBE_SHADOW:
+                        case GL_SAMPLER_1D_ARRAY_SHADOW:
+                        case GL_SAMPLER_2D_ARRAY_SHADOW:
+                        case GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW:
                             typeSize = 1;
                             uniform.m_rowSize = 1;
                             break;

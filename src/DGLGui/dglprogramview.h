@@ -51,6 +51,12 @@ slots:
     virtual void onRequestFinished(const dglnet::message::utils::ReplyBase* reply);
     virtual void onRequestFailed(const std::string& reply);
 
+
+    static const int kUniformTable_NameIdx     = 0;
+    static const int kUniformTable_TypeIdx     = 1;
+    static const int kUniformTable_ValueIdx    = 2;
+    static const int kUniformTable_LocationIdx = 3;
+
     Ui::DGLProgramViewItem m_Ui;
     QLabel* m_Label;
     DGLResourceListener* m_Listener;
