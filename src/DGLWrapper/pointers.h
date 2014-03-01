@@ -19,7 +19,7 @@
 
 #include "api-loader.h"
 
-#include "codegen/nonExtTypedefs.inl"
+#include "codegen/entrypTypedefs.inl"
 
 // POINTER_TYPE(X) returns type of function pointer for entrypoint X. The actual
 // definitions are generated from codegen output

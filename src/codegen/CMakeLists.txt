@@ -2,7 +2,7 @@ set(codegen_in ${CMAKE_CURRENT_SOURCE_DIR}/input)
 set(codegen_out ${CMAKE_CURRENT_BINARY_DIR}/)
 
 set(codegen_GENERATED
-    ${codegen_out}/nonExtTypedefs.inl
+    ${codegen_out}/entrypTypedefs.inl
     ${codegen_out}/wrappers.inl
     ${codegen_out}/exporters.inl
     ${codegen_out}/exporters-ext.inl

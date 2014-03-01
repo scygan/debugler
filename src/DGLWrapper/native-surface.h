@@ -18,6 +18,11 @@
 
 #include <DGLCommon/gl-types.h>
 
+#ifdef HAVE_LIBRARY_GLX
+#include <DGLCommon/gl-glue-headers.h>
+#endif
+
+
 class DGLDisplayState;
 
 namespace dglState {

@@ -28,6 +28,8 @@
 #include "api-loader.h"
 #include "display.h"
 
+#include <cassert>
+
 namespace dglState {
 
 NativeSurfaceBase::NativeSurfaceBase(opaque_id_t id) : m_Id(id) {}
@@ -172,7 +174,7 @@ class XErrorHandler {
         }
         if (error->error_code) {
             int errorBase, eventBase;
-            glXQueryExtension(display, &errorBase, &eventBase);
+            DIRECT_CALL_CHK(glXQueryExtension)(display, &errorBase, &eventBase);
             s_errorCode = error->error_code - errorBase;
         }
         return 0;

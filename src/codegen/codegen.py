@@ -29,7 +29,7 @@ outputDir = sys.argv[2] + os.sep
 if not os.path.exists(outputDir):
     os.makedirs(outputDir)
 
-nonExtTypedefs = open(outputDir + "nonExtTypedefs.inl", "w")
+entrypTypedefs = open(outputDir + "entrypTypedefs.inl", "w")
 wrappersFile = open(outputDir + "wrappers.inl", "w")
 exportersFile = open(outputDir + "exporters.inl", "w")
 exportersExtFile = open(outputDir + "exporters-ext.inl", "w")
@@ -64,7 +64,6 @@ class Enum:
 class Entrypoint:
     def __init__(self, library, skipTrace, retType, paramList, paramDeclList):
         self.libraries = library
-        self.genTypeDef = True
         self.skipTrace = skipTrace
         self.retType = retType
         self.paramList = paramList
@@ -72,8 +71,6 @@ class Entrypoint:
         self.forceEnumIndices = []
     
     def addLibrary(self, library):
-        if self.genTypeDef and "EXT" in library:
-            self.genTypeDef = False
         if library not in self.libraries:
             self.libraries.append(library);
         
@@ -81,7 +78,6 @@ class Entrypoint:
             #this happens, when entrypoint is introduced in GL 1.1, removed in 3.2 and re-introduced later
             #we don't care for this, we cannot mark is as ext - PFN...PROC defintion is still required.
             self.libraries.remove("LIBRARY_GL_EXT")
-            self.genTypeDef = True
         
     def getLibaryBitMask(self): 
         if len(self.libraries) == 0:
@@ -392,7 +388,7 @@ for name, entrypoint in sorted(entrypoints.items()):
         continue;
 
 #list of entrypoints
-    entrypointPtrType = "PFN" + name.upper() + "PROC"
+    entrypointPtrType = "DGL_PFN" + name.upper() + "PROC"
     print >> functionListFile, entrypoint.getLibraryIfdef()
     print >> functionListFile, "    FUNC_LIST_ELEM_SUPPORTED(" + name + ", " + entrypointPtrType + ", " + entrypoint.getLibaryBitMask() + ")"
     print >> functionListFile,"#else"
@@ -471,12 +467,11 @@ for name, entrypoint in sorted(entrypoints.items()):
     
     
 #additional PFN definitions
-    if entrypoint.genTypeDef:
-        print >> nonExtTypedefs, entrypoint.getLibraryIfdef()
-        print >> nonExtTypedefs, "typedef " + entrypoint.retType + " (APIENTRYP " + entrypointPtrType + ")(" + listToString(entrypoint.paramDeclList) + ");"
-        print >> nonExtTypedefs, "#else"
-        print >> nonExtTypedefs, "typedef void * " +  entrypointPtrType + ";"
-        print >> nonExtTypedefs, "#endif"
+    print >> entrypTypedefs, entrypoint.getLibraryIfdef()
+    print >> entrypTypedefs, "typedef " + entrypoint.retType + " (APIENTRYP " + entrypointPtrType + ")(" + listToString(entrypoint.paramDeclList) + ");"
+    print >> entrypTypedefs, "#else"
+    print >> entrypTypedefs, "typedef void * " +  entrypointPtrType + ";"
+    print >> entrypTypedefs, "#endif"
         
 #def file for DLL symbols export
     if "LIBRARY_GL" in entrypoint.libraries  or "LIBRARY_WGL" in entrypoint.libraries:
