@@ -275,7 +275,7 @@ headersToGenerate["GL/glxext.h"] = "glx.xml"
 for name, registry in headersToGenerate.items():
     currendDir = os.getcwd();
     os.chdir(inputDir)
-    p = subprocess.Popen(sys.executable + " genheaders.py -registry " + registry + " " + name, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen([sys.executable, "genheaders.py", "-registry", registry, name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, error = p.communicate()
     os.chdir(currendDir)
     print out
