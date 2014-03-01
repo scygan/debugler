@@ -571,7 +571,7 @@ void DGLMainWindow::setColorScheme(int colorScheme) {
 
 bool DGLMainWindow::haveProject() {
     if (!m_project) {
-        if (QMessageBox::question(this, tr("No project is opened."), tr("No project is opened - create new?")) == QMessageBox::Yes) {
+        if (QMessageBox::question(this, tr("No project is opened."), tr("No project is opened - create new?"), QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes) {
             newProject();
         }
         //we always return false here: we fool user into creating new project, 
