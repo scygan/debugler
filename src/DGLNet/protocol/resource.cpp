@@ -15,6 +15,8 @@
 
 
 #include "resource.h"
+#include <cstring>
+
 
 
 namespace dglnet {

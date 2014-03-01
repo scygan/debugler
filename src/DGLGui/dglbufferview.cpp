@@ -15,6 +15,8 @@
 
 #include "dglbufferview.h"
 
+#include <DGLNet/protocol/resource.h>
+
 DGLBufferViewItem::DGLBufferViewItem(dglnet::ContextObjectName name,
                                      DGLResourceManager* resManager,
                                      QWidget* parrent)

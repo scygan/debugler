@@ -15,6 +15,8 @@
 
 #include "dglstateview.h"
 
+#include <DGLNet/protocol/resource.h>
+
 #include <set>
 #include <climits>
 #include <iomanip>

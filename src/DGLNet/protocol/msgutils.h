@@ -13,8 +13,8 @@
 * limitations under the License.
 */
 
-#ifndef _CTXREPORT_H
-#define _CTXREPORT_H
+#ifndef _MSGUTILS_H
+#define _MSGUTILS_H
 
 #include <DGLNet/protocol/fwd.h>
 #include <DGLNet/protocol/ctxobjname.h>

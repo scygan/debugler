@@ -34,6 +34,7 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
+#include <X11/Xutil.h>
 
 //// The Xf86VidMode extension provides fallback gamma control
 #include <X11/extensions/xf86vmode.h>

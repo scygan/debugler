@@ -17,11 +17,11 @@
 
 #include <QProgressBar>
 
-DGLbusyDialog::DGLbusyDialog(QWidget* parent):QProgressDialog(
+DGLbusyDialog::DGLbusyDialog(QWidget* _parent):QProgressDialog(
     "Starting debugging session (waiting for application to "
     "try "
     "use OpenGL)...",
-    "Cancel", 0, 1, parent) {
+    "Cancel", 0, 1, _parent) {
     
     setValue(0);
 

@@ -18,7 +18,7 @@
 #include "dglshaderviewitem.h"
 
 #include <DGLNet/protocol/request.h>
-//#include <DGLNet/protocol/message.h>
+#include <DGLNet/protocol/resource.h>
 
 #include <QMessageBox>
 #include <sstream>

@@ -15,6 +15,8 @@
 
 #include "dglgpuview.h"
 
+#include <DGLNet/protocol/resource.h>
+
 #include <set>
 #include <climits>
 

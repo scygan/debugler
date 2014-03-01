@@ -12,7 +12,7 @@ add_dependencies(dglloader Boost)
 if (ANDROID)
 	set(libs log)
 else()
-	set(libs rt)
+	set(libs rt pthread)
 endif()
 target_link_libraries(dglloader boost_program_options dglcommon ${libs})
 

@@ -17,6 +17,7 @@
 
 #include <DGLNet/protocol/message.h>
 #include <DGLNet/protocol/request.h>
+#include <DGLNet/protocol/resource.h>
 
 DGLRequestHandler::DGLRequestHandler(DGLRequestManager* manager)
         : m_Manager(manager) {}

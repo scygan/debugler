@@ -25,6 +25,6 @@ add_executable(samples
     ${samples_SOURCES}
 )
 
-target_link_libraries(samples glfw boost_program_options X11 GL)
+target_link_libraries(samples glfw boost_program_options X11 GL pthread)
 
 
