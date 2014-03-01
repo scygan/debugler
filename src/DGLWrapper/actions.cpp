@@ -684,6 +684,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
             call.getArgs()[2].get(sharedContext);
             call.getArgs()[3].get(direct);
             call.getArgs()[4].get(attribList);
+            break;
         default:
             assert(0);
     }
