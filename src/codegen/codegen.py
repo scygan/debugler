@@ -318,13 +318,20 @@ for name, entrypoint in sorted(entrypoints.items()):
             raise Exception(name + '\'s 3rd parameter assumed internalFormat, got ' + entrypoint.paramDeclList[internalFormatIdx] + ', bailing out')
 
 
-#System: ALL
+#System: Windows
 #
 #This function exist in khronox xml registry, but is not associated with any feature:
 if len(entrypoints["wglGetDefaultProcAddress"].libraries) > 0:
     print "Fix me - remove WA"
     exit(1)
 entrypoints["wglGetDefaultProcAddress"].addLibrary("LIBRARY_WGL")
+
+
+#System: Linux/X11
+#
+#This function is an EXT, however the only way to load it is dlsym()
+#So it is placed also in core GLX
+entrypoints['glXGetProcAddressARB'].addLibrary("LIBRARY_GLX")
 
 
 #System: Windows
