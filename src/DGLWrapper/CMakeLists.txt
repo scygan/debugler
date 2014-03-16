@@ -1,6 +1,8 @@
 set(dglwrapper_SOURCES 
     api-loader.cpp  debugger.cpp
-    gl-state.cpp gl-wrappers.cpp
+    gl-context.cpp
+    gl-objects.cpp
+    gl-wrappers.cpp
     actions.cpp native-surface.cpp
 	dl-intercept.cpp display.cpp
 	tls.cpp gl-utils.cpp
