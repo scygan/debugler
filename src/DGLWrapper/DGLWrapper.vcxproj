@@ -76,8 +76,9 @@
     <ClInclude Include="DGLWrapper.h" />
     <ClInclude Include="display.h" />
     <ClInclude Include="gl-auxcontext.h" />
+    <ClInclude Include="gl-context.h" />
     <ClInclude Include="gl-headers-inside.h" />
-    <ClInclude Include="gl-state.h" />
+    <ClInclude Include="gl-objects.h" />
     <ClInclude Include="gl-statesetters.h" />
     <ClInclude Include="gl-utils.h" />
     <ClInclude Include="gl-wrappers.h" />
@@ -99,7 +100,8 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="api-loader.cpp" />
     <ClCompile Include="gl-auxcontext.cpp" />
-    <ClCompile Include="gl-state.cpp" />
+    <ClCompile Include="gl-context.cpp" />
+    <ClCompile Include="gl-objects.cpp" />
     <ClCompile Include="gl-statesetters.cpp" />
     <ClCompile Include="gl-utils.cpp" />
     <ClCompile Include="gl-wrappers.cpp" />

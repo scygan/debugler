@@ -26,7 +26,7 @@
 #include <DGLNet/protocol/request.h>
 #include <DGLCommon/os.h>
 
-#include "gl-state.h"
+#include "gl-context.h"
 
 #include <mutex>
 

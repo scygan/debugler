@@ -14,7 +14,7 @@
 */
 
 #include "gl-statesetters.h"
-#include "gl-state.h"
+#include "gl-context.h"
 #include "pointers.h"
 
 namespace dglState {

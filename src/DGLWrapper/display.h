@@ -20,7 +20,7 @@
 #include <map>
 
 #include <DGLCommon/gl-types.h>
-#include "gl-state.h"
+#include "gl-context.h"
 
 /**
  * Class aggregating all OpenGL state read needed by debugger
