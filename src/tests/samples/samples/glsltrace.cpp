@@ -19,9 +19,6 @@
 
 #include <glsl_optimizer.h>
 
-
-
-
 class SampleGLSLTrace: public Sample {
     
     virtual void startup() override {
@@ -56,13 +53,16 @@ class SampleGLSLTrace: public Sample {
                 "void main()\n"
                 "{\n"
                 "    gl_FragColor = vec4(0.4, 0.5, 0.8, 1.0); vec2(5);\n"
+                "    vec4 bla = vec4(1.0);\n"
+                "    bla.x += 0.1f;\n"
+                "    int i = 1;\n"
+                "    i++;\n"
                 "}\n";
 
             const char* newFsh;
 
-
             glslopt_ctx* ctx = glslopt_initialize(kGlslTargetOpenGL);
-            glslopt_shader* shader = glslopt_optimize (ctx, kGlslOptShaderFragment, fshSrc, 0);
+            glslopt_shader* shader = glslopt_trace (ctx, kGlslOptShaderFragment, fshSrc, 0);
             if (glslopt_get_status (shader)) {
                 newFsh = glslopt_get_output (shader);
             } else {
