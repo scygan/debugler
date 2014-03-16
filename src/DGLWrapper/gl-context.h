@@ -101,6 +101,7 @@ class GLContext {
     void deleteProgram(GLuint name);
     GLShaderObj* ensureShader(GLuint name, bool fromArbAPI);
     GLShaderObj* findShader(GLuint name);
+    void deleteShader(GLuint name);
 
     std::shared_ptr<dglnet::DGLResource> queryTexture(gl_t name);
     std::shared_ptr<dglnet::DGLResource> queryBuffer(gl_t name);

@@ -224,19 +224,12 @@ void DGLShaderViewItem::update(const dglnet::DGLResource& res) {
         std::swap(m_EditState, lastEditState);
     }
 
-    if (resource->m_ShaderObjDeleted) {
-        m_Ui.shaderStatus->setText(
-                tr("Shader object already deleted. Shown cached source."));
-        // no shader to edit:
-        editAction(EditAction::A_NOTIFY_ERROR);
+     // have shader to edit
+    editAction(EditAction::A_NOTIFY_NOERROR);
+    if (!resource->m_CompileStatus.second) {
+        m_Ui.shaderStatus->setText(tr("Compile status: failed"));
     } else {
-        // have shader to edit
-        editAction(EditAction::A_NOTIFY_NOERROR);
-        if (!resource->m_CompileStatus.second) {
-            m_Ui.shaderStatus->setText(tr("Compile status: failed"));
-        } else {
-            m_Ui.shaderStatus->setText(tr("Compile status: success"));
-        }
+        m_Ui.shaderStatus->setText(tr("Compile status: success"));
     }
 }
 

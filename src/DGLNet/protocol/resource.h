@@ -157,13 +157,12 @@ class DGLResourceShader : public DGLResource {
     void serialize(Archive& ar, const unsigned int) {
         ar& ::boost::serialization::base_object<DGLResource>(*this);
         ar& m_Source;
-        ar& m_ShaderObjDeleted;
         ar& m_IsESSLDefault;
         ar& m_CompileStatus;
     }
 
     std::string m_Source;
-    bool m_ShaderObjDeleted, m_IsESSLDefault;
+    bool m_IsESSLDefault;
     std::pair<std::string, gl_t> m_CompileStatus;
 };
 

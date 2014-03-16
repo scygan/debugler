@@ -19,10 +19,13 @@
 #include <DGLCommon/gl-headers.h>
 
 #include <set>
+#include <map>
 #include <vector>
 #include <string>
 
 namespace dglState {
+
+class GLContext;
 
 class GLObj {
    public:
@@ -113,8 +116,7 @@ class GLBufferObj : public GLObj {
 
 class GLShaderObj : public GLObj {
    public:
-    GLShaderObj(GLuint name, bool arbApi);
-    GLShaderObj() {}
+    GLShaderObj(GLContext* parrent, GLuint name, bool arbApi);
     void deleteCalled();
     void incRefCount();
     void decRefCount();
@@ -128,21 +130,21 @@ class GLShaderObj : public GLObj {
 
     void shaderSourceCalled();
 
-    const std::string& querySource();
-    bool isDeleted() const;
+    std::string querySource();
 
     void editSource(const std::string& source);
     void resetSourceToOrig();
 
    private:
-    void mayDelete();
+    void deleteSelfIfNeeded();
 
-    bool m_Deleted;
     bool m_DeleteCalled;
-    std::string m_Source, m_OrigSource;
+    std::string m_OrigSource;
     GLenum m_Target;
     bool m_arbApi;
     int m_RefCount;
+
+    GLContext* m_Parrent;
 };
 
 class GLProgramObj : public GLObj {

@@ -35,11 +35,11 @@ class SampleShaderHandling : public Sample {
         // test point: shader deleted
         glFlush();    // flush is only to mark case end
 
-        // source cache test
+        // shader delete test
         shader = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(shader, 1, &source, NULL);
         glDeleteShader(shader);
-        // test point: shader deleted, has cached source
+        // test point: shader deleted
         glFlush();    // flush is only to mark case end
 
         // lazy deletion test, create-attach-delete-detach
@@ -62,28 +62,6 @@ class SampleShaderHandling : public Sample {
         // test point: shader not deleted, program has shader
         glDeleteProgram(program);
         // test point: shader deleted
-        glFlush();    // flush is only to mark case end
-
-        // caching in lazy deletion test (source after delete by detach)
-        shader = glCreateShader(GL_VERTEX_SHADER);
-        program = glCreateProgram();
-        glAttachShader(program, shader);
-        glDeleteShader(shader);
-        glShaderSource(shader, 1, &source, NULL);
-        glDetachShader(program, shader);
-        // test point: cached source
-        glDeleteProgram(program);
-        glFlush();    // flush is only to mark case end
-
-        // caching in lazy deletion test 2 (source after delete by
-        // deleteprogram)
-        shader = glCreateShader(GL_VERTEX_SHADER);
-        program = glCreateProgram();
-        glAttachShader(program, shader);
-        glDeleteShader(shader);
-        glShaderSource(shader, 1, &source, NULL);
-        glDeleteProgram(program);
-        // test point: cached source
         glFlush();    // flush is only to mark case end
     }
 

@@ -985,60 +985,16 @@ TEST_F(LiveTest, shader_handling) {
     //#test point: shader deleted
     breaked = utils::runUntilEntryPoint(client, getMessageHandler(),
                                         glFlush_Call);
-    EXPECT_EQ(1, breaked->m_CtxReports[0].m_ShaderSpace.size());
-    shaderId = (GLuint)breaked->m_CtxReports[0].m_ShaderSpace.begin()->m_Name;
-    {
-        dglnet::message::Request requestMessage(
-                new dglnet::request::QueryResource(
-                        dglnet::message::ObjectType::Shader,
-                        dglnet::ContextObjectName(breaked->m_CurrentCtx,
-                                                  shaderId)));
-        client->sendMessage(&requestMessage);
-    }
-    reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(
-            client.get(), getMessageHandler());
-    ASSERT_TRUE(reply->isOk(nothing));
-    EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(
-            reply->m_Reply.get())->m_ShaderObjDeleted);
+    EXPECT_EQ(0, breaked->m_CtxReports[0].m_ShaderSpace.size());
     // glFlush(); #flush is only to mark case end
 
-    //#source cache test
     // shader = glCreateShader(GL_VERTEX_SHADER);
     // glShaderSource(shader, source);
     // glDeleteShader(shader);
-    //#test point: shader deleted, has cached source
+    //#test point: shader deleted
     breaked = utils::runUntilEntryPoint(client, getMessageHandler(),
                                         glFlush_Call);
-    if (breaked->m_CtxReports[0].m_ShaderSpace.size() == 1) {
-        // same id for new shader
-        shaderId =
-                (GLuint)breaked->m_CtxReports[0].m_ShaderSpace.begin()->m_Name;
-    } else if (breaked->m_CtxReports[0].m_ShaderSpace.size() == 2) {
-        // new id for new shader, look up the list
-        auto i = breaked->m_CtxReports[0].m_ShaderSpace.begin();
-        if (shaderId != i->m_Name)
-            shaderId = (GLuint)i->m_Name;
-        else
-            shaderId = (GLuint)(++i)->m_Name;
-    } else {
-        ASSERT_TRUE(0);
-    }
-    {
-        dglnet::message::Request requestMessage(
-                new dglnet::request::QueryResource(
-                        dglnet::message::ObjectType::Shader,
-                        dglnet::ContextObjectName(breaked->m_CurrentCtx,
-                                                  shaderId)));
-        client->sendMessage(&requestMessage);
-    }
-    reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(
-            client.get(), getMessageHandler());
-    ASSERT_TRUE(reply->isOk(nothing));
-    EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(
-            reply->m_Reply.get())->m_ShaderObjDeleted);
-    EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(
-                        reply->m_Reply.get())->m_Source.find("gl_Position") !=
-                std::string::npos);
+    EXPECT_EQ(0, breaked->m_CtxReports[0].m_ShaderSpace.size());
     // glFlush(); #flush is only to mark case end
 
     //#lazy deletion test, create-attach-delete-detach
@@ -1084,8 +1040,6 @@ TEST_F(LiveTest, shader_handling) {
     reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(
             client.get(), getMessageHandler());
     ASSERT_TRUE(reply->isOk(nothing));
-    EXPECT_FALSE(dynamic_cast<dglnet::resource::DGLResourceShader*>(
-            reply->m_Reply.get())->m_ShaderObjDeleted);
     // glDetachShader(program, shader);
     //#test point: shader deleted, program has no shader
     breaked = utils::runUntilEntryPoint(client, getMessageHandler(),
@@ -1100,9 +1054,7 @@ TEST_F(LiveTest, shader_handling) {
     }
     reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(
             client.get(), getMessageHandler());
-    ASSERT_TRUE(reply->isOk(nothing));
-    EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(
-            reply->m_Reply.get())->m_ShaderObjDeleted);
+    ASSERT_FALSE(reply->isOk(nothing));
     {
         dglnet::message::Request requestMessage(
                 new dglnet::request::QueryResource(
@@ -1142,8 +1094,6 @@ TEST_F(LiveTest, shader_handling) {
     reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(
             client.get(), getMessageHandler());
     ASSERT_TRUE(reply->isOk(nothing));
-    EXPECT_FALSE(dynamic_cast<dglnet::resource::DGLResourceShader*>(
-            reply->m_Reply.get())->m_ShaderObjDeleted);
     {
         dglnet::message::Request requestMessage(
                 new dglnet::request::QueryResource(
@@ -1175,76 +1125,8 @@ TEST_F(LiveTest, shader_handling) {
     }
     reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(
             client.get(), getMessageHandler());
-    ASSERT_TRUE(reply->isOk(nothing));
-    EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(
-            reply->m_Reply.get())->m_ShaderObjDeleted);
+    ASSERT_FALSE(reply->isOk(nothing));
     // glFlush(); #flush is only to mark case end
-
-    //#caching in lazy deletion test (source after delete by detach)
-    // shader = glCreateShader(GL_VERTEX_SHADER);
-    // program = glCreateProgram();
-    // glAttachShader(program, shader);
-    breaked = utils::runUntilEntryPoint(client, getMessageHandler(),
-                                        glAttachShader_Call);
-    breaked->m_entryp.getArgs()[0].get(programId);
-    breaked->m_entryp.getArgs()[1].get(shaderId);
-    // glDeleteShader(shader);
-    // glShaderSource(shader, source);
-    // glDetachShader(program, shader);
-    //#test point: cached source
-    breaked = utils::runUntilEntryPoint(client, getMessageHandler(),
-                                        glDeleteProgram_Call);
-    {
-        dglnet::message::Request requestMessage(
-                new dglnet::request::QueryResource(
-                        dglnet::message::ObjectType::Shader,
-                        dglnet::ContextObjectName(breaked->m_CurrentCtx,
-                                                  shaderId)));
-        client->sendMessage(&requestMessage);
-    }
-    reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(
-            client.get(), getMessageHandler());
-    ASSERT_TRUE(reply->isOk(nothing));
-    EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(
-            reply->m_Reply.get())->m_ShaderObjDeleted);
-    EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(
-                        reply->m_Reply.get())->m_Source.find("gl_Position") !=
-                std::string::npos);
-    // glDeleteProgram(program)
-    // glFlush(); #flush is only to mark case end
-
-    //#caching in lazy deletion test 2 (source after delete by deleteprogram)
-    // shader = glCreateShader(GL_VERTEX_SHADER);
-    // program = glCreateProgram();
-    // glAttachShader(program, shader);
-    breaked = utils::runUntilEntryPoint(client, getMessageHandler(),
-                                        glAttachShader_Call);
-    breaked->m_entryp.getArgs()[0].get(programId);
-    breaked->m_entryp.getArgs()[1].get(shaderId);
-    // glDeleteShader(shader);
-    // glShaderSource(shader, source);
-    // glDeleteProgram(program)
-    //#test point: cached source
-    breaked = utils::runUntilEntryPoint(client, getMessageHandler(),
-                                        glFlush_Call);
-    {
-        dglnet::message::Request requestMessage(
-                new dglnet::request::QueryResource(
-                        dglnet::message::ObjectType::Shader,
-                        dglnet::ContextObjectName(breaked->m_CurrentCtx,
-                                                  shaderId)));
-        client->sendMessage(&requestMessage);
-    }
-    reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(
-            client.get(), getMessageHandler());
-    ASSERT_TRUE(reply->isOk(nothing));
-    EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(
-            reply->m_Reply.get())->m_ShaderObjDeleted);
-    EXPECT_TRUE(dynamic_cast<dglnet::resource::DGLResourceShader*>(
-                        reply->m_Reply.get())->m_Source.find("gl_Position") !=
-                std::string::npos);
-    // glFlush(); #flush is only to mark case end
-
    terminate(client);
 }
 

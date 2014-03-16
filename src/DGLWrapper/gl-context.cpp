@@ -1450,8 +1450,6 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryShader(gl_t _name) {
 
     resource->m_Source = shader->querySource();
 
-    resource->m_ShaderObjDeleted = shader->isDeleted();
-
     resource->m_IsESSLDefault = getVersion().check(GLContextVersion::Type::ES);
 
     return ret;
@@ -2931,7 +2929,7 @@ GLShaderObj* GLContext::ensureShader(GLuint name, bool fromArbAPI) {
     std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.find(name);
     if (i == m_Shaders.end()) {
         i = m_Shaders.insert(std::pair<GLuint, GLShaderObj>(
-                                     name, GLShaderObj(name, fromArbAPI)))
+                                     name, GLShaderObj(this, name, fromArbAPI)))
                     .first;
     }
     return &(*i).second;
@@ -2943,6 +2941,13 @@ GLShaderObj* GLContext::findShader(GLuint name) {
         return NULL;
     }
     return &(*i).second;
+}
+
+void GLContext::deleteShader(GLuint name) {
+    std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.find(name);
+    if (i != m_Shaders.end()) {
+        m_Shaders.erase(i);
+    }
 }
 
 opaque_id_t GLContext::getId() const { return m_Id; }

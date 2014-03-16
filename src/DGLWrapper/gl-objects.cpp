@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+#include <gl-context.h>
+
 #include "gl-objects.h"
 #include "pointers.h"
 
@@ -157,31 +159,28 @@ void GLProgramObj::forceLink() {
     }
 }
 
-GLShaderObj::GLShaderObj(GLuint name, bool arbApi)
+GLShaderObj::GLShaderObj(GLContext* parrent, GLuint name, bool arbApi)
         : GLObj(name),
-          m_Deleted(false),
           m_DeleteCalled(false),
           m_Target(0),
           m_arbApi(arbApi),
-          m_RefCount(0) {}
+          m_RefCount(0), 
+          m_Parrent(parrent) {}
 
 void GLShaderObj::deleteCalled() {
     m_DeleteCalled = true;
-    mayDelete();
+    deleteSelfIfNeeded();
 }
 
 void GLShaderObj::incRefCount() { m_RefCount++; }
 void GLShaderObj::decRefCount() {
     m_RefCount--;
-    mayDelete();
+    deleteSelfIfNeeded();
 }
 
 int GLShaderObj::getRefCount() { return m_RefCount; }
 
 GLint GLShaderObj::queryCompilationStatus() const {
-    if (m_Deleted) {
-        return 0;
-    }
     GLint compileStatus;
     if (m_arbApi) {
         DIRECT_CALL_CHK(glGetObjectParameterivARB)(
@@ -194,10 +193,6 @@ GLint GLShaderObj::queryCompilationStatus() const {
 }
 
 std::string GLShaderObj::queryCompilationInfoLog() const {
-    if (m_Deleted) {
-        return "";
-    }
-
     GLint infoLogLength;
     if (m_arbApi) {
         DIRECT_CALL_CHK(glGetObjectParameterivARB)(
@@ -225,12 +220,7 @@ std::string GLShaderObj::queryCompilationInfoLog() const {
     return &infoLog[0];
 }
 
-const std::string& GLShaderObj::querySource() {
-    if (isDeleted()) {
-        // shader does not exist in shader memory any more
-        return m_Source;
-    }
-
+std::string GLShaderObj::querySource() {
     std::vector<GLchar> sources;
     GLint length;
     if (m_arbApi) {
@@ -252,28 +242,14 @@ const std::string& GLShaderObj::querySource() {
     sources[std::min(sources.size() - 1, static_cast<size_t>(actualLength))] =
             0;
 
-    m_Source = &sources[0];
-
-    return m_Source;
+    return &sources[0];
 }
 
 void GLShaderObj::shaderSourceCalled() {
-    if (isDeleted()) {
-        throw std::runtime_error(
-                "glShaderSource was called, but shader already marked as "
-                "deleted");
-    }
     m_OrigSource = querySource();
 }
 
-bool GLShaderObj::isDeleted() const { return m_Deleted; }
-
 void GLShaderObj::editSource(const std::string& source) {
-    if (isDeleted()) {
-        throw std::runtime_error(
-                "Error: trying to edit source of already deleted shader");
-    }
-
     const char* sourcePtr = source.c_str();
     if (m_arbApi) {
         DIRECT_CALL_CHK(glShaderSourceARB)(getName(), 1, &sourcePtr, NULL);
@@ -286,9 +262,9 @@ void GLShaderObj::editSource(const std::string& source) {
 
 void GLShaderObj::resetSourceToOrig() { editSource(m_OrigSource); }
 
-void GLShaderObj::mayDelete() {
+void GLShaderObj::deleteSelfIfNeeded() {
     if (m_RefCount == 0 && m_DeleteCalled) {
-        m_Deleted = true;
+        m_Parrent->deleteShader(getName());
     }
 }
 
@@ -296,7 +272,6 @@ GLenum GLShaderObj::getTarget() const { return m_Target; }
 
 void GLShaderObj::createCalled(GLenum target) {
     m_Target = target;
-    m_Deleted = false;
     m_DeleteCalled = false;
     m_RefCount = 0;
 }
