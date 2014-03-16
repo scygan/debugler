@@ -230,17 +230,24 @@ std::string GLShaderObj::querySource() {
         DIRECT_CALL_CHK(glGetShaderiv)(getName(), GL_SHADER_SOURCE_LENGTH,
                                        &length);
     }
+
     sources.resize(length + 1);
-    GLint actualLength;
-    if (m_arbApi) {
-        DIRECT_CALL_CHK(glGetShaderSourceARB)(getName(), length, &actualLength,
-                                              &sources[0]);
-    } else {
-        DIRECT_CALL_CHK(glGetShaderSource)(getName(), length, &actualLength,
-                                           &sources[0]);
+
+    GLint actualLength = 0;
+
+    if (length) {
+        
+        if (m_arbApi) {
+            DIRECT_CALL_CHK(glGetShaderSourceARB)(getName(), length, &actualLength,
+                &sources[0]);
+        } else {
+            DIRECT_CALL_CHK(glGetShaderSource)(getName(), length, &actualLength,
+                &sources[0]);
+        }
     }
+
     sources[std::min(sources.size() - 1, static_cast<size_t>(actualLength))] =
-            0;
+        0;
 
     return &sources[0];
 }
