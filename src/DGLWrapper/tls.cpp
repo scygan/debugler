@@ -14,7 +14,7 @@
 */
 
 #include "tls.h"
-#include "gl-state.h"
+#include "gl-context.h"
 #include "display.h"
 
 void DGLThreadState::resetAPI() {

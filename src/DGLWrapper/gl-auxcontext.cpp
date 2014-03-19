@@ -14,7 +14,7 @@
 */
 
 #include "gl-auxcontext.h"
-#include "gl-state.h"
+#include "gl-context.h"
 #include "display.h"
 #include "native-surface.h"
 #include "pointers.h"

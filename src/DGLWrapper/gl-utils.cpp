@@ -14,7 +14,7 @@
 */
 
 #include "gl-utils.h"
-#include "gl-state.h"
+#include "gl-context.h"
 #include "pointers.h"
 #include "api-loader.h"
 
