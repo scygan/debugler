@@ -179,7 +179,7 @@ int APILoader::getEntryPointLibrary(Entrypoint entryp) {
 }
 
 void APILoader::setPointer(Entrypoint entryp, FUNC_PTR direct) {
-    if (entryp < NO_ENTRYPOINT) {
+    if (entryp < NO_ENTRYPOINT && direct != nullptr) {
         g_DirectPointers[entryp].ptr = direct;
     }
 }
