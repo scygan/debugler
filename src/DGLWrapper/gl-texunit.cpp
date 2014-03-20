@@ -34,10 +34,16 @@ namespace dglState {
     }
 
     void TextureUnit::unbindTexture(GLuint name) {
-        for (auto i = m_BoundTextures.begin(); i != m_BoundTextures.end(); i++) {
+        
+        auto i = m_BoundTextures.begin();
+
+        while(i != m_BoundTextures.end()) {
+            auto next = i;
+            next++;
             if (i->second == name) {
                 bindTexture(i->first, 0);
             }
+            i = next;
         }
     }
 
