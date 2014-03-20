@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-#include <gl-context.h>
+#include "gl-context.h"
 
 #include "gl-objects.h"
 #include "pointers.h"
