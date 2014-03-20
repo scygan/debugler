@@ -18,6 +18,7 @@
 
 #include "gl-objects.h"
 #include "gl-statesetters.h"
+#include "gl-texunit.h"
 
 #include <DGLCommon/gl-types.h> //should be gl-entrypoint, when done
 #include <DGLNet/protocol/msgutils.h>
@@ -259,6 +260,11 @@ class GLContext {
      */
     const DGLDisplayState* getDisplay() const;
 
+    /* 
+     * Getter for texture units container
+     */
+    AllTextureUnits& texUnits();
+
    private:
     void queryCheckError();
 
@@ -392,6 +398,11 @@ class GLContext {
      * Parent display
      */
     const DGLDisplayState* m_Display;
+
+    /**
+     * Shadow of all bound textures
+     */
+    AllTextureUnits m_TextureUnits;
 };
 
 }    // namespace

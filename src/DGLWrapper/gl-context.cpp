@@ -231,6 +231,10 @@ dglnet::message::utils::ContextReport GLContext::describe() {
                     dglnet::ContextObjectName(m_Id, GL_BACK));
         }
     }
+
+    ret.m_TextureUnitSpace = m_TextureUnits.report(m_Id);
+
+
     return ret;
 }
 
@@ -3009,6 +3013,8 @@ void GLContext::firstUse() {
         DIRECT_CALL_CHK(glEnable)(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
         DIRECT_CALL_CHK(glDebugMessageCallbackARB)(debugOutputCallback, NULL);
     }
+
+    m_TextureUnits.init();
 }
 
 bool GLContext::hasCapability(ContextCap cap) {
@@ -3087,5 +3093,9 @@ GLAuxContext* GLContext::getAuxContext() {
 }
 
 const DGLDisplayState* GLContext::getDisplay() const { return m_Display; }
+
+AllTextureUnits& GLContext::texUnits() {
+    return m_TextureUnits;
+}
 
 }    // namespace dglState

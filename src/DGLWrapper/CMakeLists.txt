@@ -3,10 +3,15 @@ set(dglwrapper_SOURCES
     gl-context.cpp
     gl-objects.cpp
     gl-wrappers.cpp
-    actions.cpp native-surface.cpp
-	dl-intercept.cpp display.cpp
-	tls.cpp gl-utils.cpp
-	gl-auxcontext.cpp gl-statesetters.cpp
+    actions.cpp
+    native-surface.cpp
+	dl-intercept.cpp
+    display.cpp
+	tls.cpp
+    gl-utils.cpp
+	gl-auxcontext.cpp
+    gl-statesetters.cpp
+    gl-texunit.cpp
 	backtrace.cpp
 #dllmain.cpp should be at the end, requires all static ctors to run before dllmain.
     dllmain.cpp

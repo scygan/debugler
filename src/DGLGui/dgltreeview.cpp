@@ -190,13 +190,25 @@ class DGLFramebufferWidget : public QClickableTreeWidgetItem {
 };
 
 template <typename ObjType>
-class DGLObjectNodeWidget : public QClickableTreeWidgetItem {
+class DGLObjectNodeWidgetBase : public QClickableTreeWidgetItem {
    public:
-    DGLObjectNodeWidget(opaque_id_t ctxId, QString header, QString iconPath)
+    DGLObjectNodeWidgetBase(opaque_id_t ctxId, QString header, QString iconPath)
             : m_CtxId(ctxId), m_IconPath(iconPath) {
         setText(0, header);
         setIcon(0, QIcon(iconPath));
     }
+    
+   protected:
+    QString m_IconPath;
+    opaque_id_t m_CtxId;
+};
+
+template <typename ObjType>
+class DGLObjectNodeWidget : public DGLObjectNodeWidgetBase<ObjType> {
+public:
+    DGLObjectNodeWidget(opaque_id_t ctxId, QString header, QString iconPath)
+        : DGLObjectNodeWidgetBase(ctxId, header, iconPath) {}
+
     template <typename T>
     void update(const std::set<T>& names) {
         typedef typename std::set<T>::iterator set_iter;
@@ -219,11 +231,46 @@ class DGLObjectNodeWidget : public QClickableTreeWidgetItem {
             i = next;
         }
     }
-
    private:
     std::map<gl_t, ObjType> m_Childs;
-    opaque_id_t m_CtxId;
-    QString m_IconPath;
+};
+
+template <typename ObjType>
+class DGLIndexedObjectNodeWidget : public DGLObjectNodeWidgetBase<ObjType> {
+public:
+    DGLIndexedObjectNodeWidget(opaque_id_t ctxId, QString header, QString childHeader, QString iconPath)
+        : DGLObjectNodeWidgetBase(ctxId, header, iconPath), m_ChildHeader(childHeader) {}
+   
+     template<typename T>
+    void update(const std::vector<std::set<T> >& elements) {
+
+        if (elements.size() != m_Childs.size()) {
+            //resising a vector rellloc all pointers, 
+            //so delete & create all object once again
+
+            //this happend no more than once per ctx.
+
+            for (size_t i = 0; i < m_Childs.size(); i++) {
+                removeChild(&m_Childs[i]);
+            }
+
+            m_Childs.resize(elements.size(), DGLObjectNodeWidget<ObjType>(0, "", ""));
+
+            for (size_t i = 0; i < m_Childs.size(); i++) {
+                m_Childs[i] = DGLObjectNodeWidget<ObjType>(m_CtxId, m_ChildHeader + QString::number(i), m_IconPath);
+                addChild(&m_Childs[i]);
+            }
+        }
+
+        assert(elements.size() == m_Childs.size());
+        
+        for (size_t i = 0; i < elements.size(); i++) {
+            m_Childs[i].update(elements[i]);
+        }
+    }
+   private:
+    std::vector<DGLObjectNodeWidget<ObjType> > m_Childs;
+    QString m_ChildHeader;
 };
 
 class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
@@ -236,13 +283,15 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
               m_ShaderNode(ctxId, "Shaders", ":/icons/shader.png"),
               m_ProgramNode(ctxId, "Shader Programs", ":/icons/program.png"),
               m_FramebufferNode(ctxId, "Frame Buffers",
-                                ":/icons/framebuffer.png") {
+                                ":/icons/framebuffer.png"),
+              m_TextureUnitNode(ctxId, "Texture units", "Unit ", "")  {
         addChild(&m_TextureNode);
         addChild(&m_BufferNode);
         addChild(&m_FBONode);
         addChild(&m_ShaderNode);
         addChild(&m_ProgramNode);
         addChild(&m_FramebufferNode);
+        addChild(&m_TextureUnitNode);
         setIcon(0, QIcon(":/icons/context.png"));
     }
     opaque_id_t getId() { return m_Id; }
@@ -262,6 +311,7 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
         m_ProgramNode.update(report.m_ProgramSpace);
         m_BufferNode.update(report.m_BufferSpace);
         m_FramebufferNode.update(report.m_FramebufferSpace);
+        m_TextureUnitNode.update(report.m_TextureUnitSpace);
     }
 
    private:
@@ -272,6 +322,7 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
     DGLObjectNodeWidget<DGLShaderWidget> m_ShaderNode;
     DGLObjectNodeWidget<DGLProgramWidget> m_ProgramNode;
     DGLObjectNodeWidget<DGLFramebufferWidget> m_FramebufferNode;
+    DGLIndexedObjectNodeWidget<DGLTextureWidget> m_TextureUnitNode;
 };
 
 void DGLTreeView::breakedWithStateReports(

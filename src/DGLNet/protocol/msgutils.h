@@ -20,6 +20,7 @@
 #include <DGLNet/protocol/ctxobjname.h>
 
 #include <set>
+#include <vector>
 
 namespace dglnet {
     namespace message {
@@ -36,6 +37,7 @@ namespace dglnet {
                     ar& m_ProgramSpace;
                     ar& m_FBOSpace;
                     ar& m_FramebufferSpace;
+                    ar& m_TextureUnitSpace;
                 }
 
                 ContextReport() : m_Id(0) {}
@@ -47,6 +49,7 @@ namespace dglnet {
                 std::set<ContextObjectName> m_ProgramSpace;
                 std::set<ContextObjectName> m_FBOSpace;
                 std::set<ContextObjectName> m_FramebufferSpace;
+                std::vector<std::set<ContextObjectName> > m_TextureUnitSpace;
             };
 
 

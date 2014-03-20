@@ -752,6 +752,7 @@ void TextureAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             call.getArgs()[1].get(names);
 
             for (GLsizei i = 0; i < n; i++) {
+                gc->texUnits().unbindTexture(names[i]);
                 gc->deleteTexture(names[i]);
             }
         } else if (entrp == glBindTexture_Call ||
@@ -761,6 +762,7 @@ void TextureAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             GLuint name;
             call.getArgs()[1].get(name);
             gc->ensureTexture(name)->setTarget(target);
+            gc->texUnits().bindTexture(target, name);
         }
     }
     PrevPost(call, ret);
