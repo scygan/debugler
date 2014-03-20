@@ -284,7 +284,7 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
               m_ProgramNode(ctxId, "Shader Programs", ":/icons/program.png"),
               m_FramebufferNode(ctxId, "Frame Buffers",
                                 ":/icons/framebuffer.png"),
-              m_TextureUnitNode(ctxId, "Texture units", "Unit ", "")  {
+              m_TextureUnitNode(ctxId, "Texture units", "Unit ", ":/icons/textureunit.png")  {
         addChild(&m_TextureNode);
         addChild(&m_BufferNode);
         addChild(&m_FBONode);
