@@ -1586,6 +1586,39 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
                     case GL_SAMPLER_1D_ARRAY_SHADOW:
                     case GL_SAMPLER_2D_ARRAY_SHADOW:
                     case GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW:
+                    case GL_IMAGE_1D:
+                    case GL_IMAGE_2D:
+                    case GL_IMAGE_3D:
+                    case GL_IMAGE_2D_RECT:
+                    case GL_IMAGE_CUBE:
+                    case GL_IMAGE_BUFFER:
+                    case GL_IMAGE_1D_ARRAY:
+                    case GL_IMAGE_2D_ARRAY:
+                    case GL_IMAGE_CUBE_MAP_ARRAY:
+                    case GL_IMAGE_2D_MULTISAMPLE:
+                    case GL_IMAGE_2D_MULTISAMPLE_ARRAY:
+                    case GL_INT_IMAGE_1D:
+                    case GL_INT_IMAGE_2D:
+                    case GL_INT_IMAGE_3D:
+                    case GL_INT_IMAGE_2D_RECT:
+                    case GL_INT_IMAGE_CUBE:
+                    case GL_INT_IMAGE_BUFFER:
+                    case GL_INT_IMAGE_1D_ARRAY:
+                    case GL_INT_IMAGE_2D_ARRAY:
+                    case GL_INT_IMAGE_CUBE_MAP_ARRAY:
+                    case GL_INT_IMAGE_2D_MULTISAMPLE:
+                    case GL_INT_IMAGE_2D_MULTISAMPLE_ARRAY:
+                    case GL_UNSIGNED_INT_IMAGE_1D:
+                    case GL_UNSIGNED_INT_IMAGE_2D:
+                    case GL_UNSIGNED_INT_IMAGE_3D:
+                    case GL_UNSIGNED_INT_IMAGE_2D_RECT:
+                    case GL_UNSIGNED_INT_IMAGE_CUBE:
+                    case GL_UNSIGNED_INT_IMAGE_BUFFER:
+                    case GL_UNSIGNED_INT_IMAGE_1D_ARRAY:
+                    case GL_UNSIGNED_INT_IMAGE_2D_ARRAY:
+                    case GL_UNSIGNED_INT_IMAGE_CUBE_MAP_ARRAY:
+                    case GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE:
+                    case GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY:
                         baseType = GL_INT;
                         break;
                     case GL_UNSIGNED_INT:
@@ -1630,6 +1663,39 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
                         case GL_SAMPLER_1D_ARRAY_SHADOW:
                         case GL_SAMPLER_2D_ARRAY_SHADOW:
                         case GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW:
+                        case GL_IMAGE_1D:
+                        case GL_IMAGE_2D:
+                        case GL_IMAGE_3D:
+                        case GL_IMAGE_2D_RECT:
+                        case GL_IMAGE_CUBE:
+                        case GL_IMAGE_BUFFER:
+                        case GL_IMAGE_1D_ARRAY:
+                        case GL_IMAGE_2D_ARRAY:
+                        case GL_IMAGE_CUBE_MAP_ARRAY:
+                        case GL_IMAGE_2D_MULTISAMPLE:
+                        case GL_IMAGE_2D_MULTISAMPLE_ARRAY:
+                        case GL_INT_IMAGE_1D:
+                        case GL_INT_IMAGE_2D:
+                        case GL_INT_IMAGE_3D:
+                        case GL_INT_IMAGE_2D_RECT:
+                        case GL_INT_IMAGE_CUBE:
+                        case GL_INT_IMAGE_BUFFER:
+                        case GL_INT_IMAGE_1D_ARRAY:
+                        case GL_INT_IMAGE_2D_ARRAY:
+                        case GL_INT_IMAGE_CUBE_MAP_ARRAY:
+                        case GL_INT_IMAGE_2D_MULTISAMPLE:
+                        case GL_INT_IMAGE_2D_MULTISAMPLE_ARRAY:
+                        case GL_UNSIGNED_INT_IMAGE_1D:
+                        case GL_UNSIGNED_INT_IMAGE_2D:
+                        case GL_UNSIGNED_INT_IMAGE_3D:
+                        case GL_UNSIGNED_INT_IMAGE_2D_RECT:
+                        case GL_UNSIGNED_INT_IMAGE_CUBE:
+                        case GL_UNSIGNED_INT_IMAGE_BUFFER:
+                        case GL_UNSIGNED_INT_IMAGE_1D_ARRAY:
+                        case GL_UNSIGNED_INT_IMAGE_2D_ARRAY:
+                        case GL_UNSIGNED_INT_IMAGE_CUBE_MAP_ARRAY:
+                        case GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE:
+                        case GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY:
                             typeSize = 1;
                             uniform.m_rowSize = 1;
                             break;
