@@ -39,7 +39,8 @@ defFile = open(outputDir + "OpenGL32.def", "w")
 enumFile = open(outputDir + "enum.inl", "w")
 
 gles2onlyPat = re.compile('2\.[0-9]')
-gles3onlyPat = re.compile('3\.[0-9]')
+gles3onlyPat = re.compile('3\.0')
+gles31onlyPat = re.compile('3\.1')
 gl11and10Match = re.compile('1\.[0-1]')
 gl12andLaterMatch = re.compile('1\.[2-9]|[234]\.[0-9]')
 
@@ -151,8 +152,10 @@ def libraryFromApiXML(api, isExtension, version = ""):
                 return "LIBRARY_ES2"
             elif gles3onlyPat.match(version):
                 return "LIBRARY_ES3"
+            elif gles31onlyPat.match(version):
+                return "LIBRARY_ES2_EXT" #we treat ES31 as an ext for now (no library exports it)
             else:
-                print "Unspported version: " + version
+                print "Unspported gles2 version: " + version
         elif api == "egl":
             return "LIBRARY_EGL"
         elif api == "wgl":
