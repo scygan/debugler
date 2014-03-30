@@ -720,13 +720,22 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
         {
             GLAuxContextSession auxsess = auxCtx->makeCurrent();
 
+            //the format of RT, where texture will be rendered to now
             GLenum renderableFormat = GL_RGBA4;
+
+            //the base format of queried texture
             GLenum textureBaseFormat = GL_RGBA;
+
+            //the internalformat, that will be displayed to the user
+            GLenum textureDisplayInternalFormat = 0;
 
             const GLTextureObj::GLTextureLevel* levelDesc =
                     tex->getRequestedLevel(level);
 
             if (levelDesc) {
+
+                textureDisplayInternalFormat = levelDesc->m_RequestedInternalFormat;
+
                 renderableFormat = static_cast<GLenum>(
                         GLFormats::getBestColorRenderableFormatES(
                                 levelDesc->m_RequestedInternalFormat,
@@ -771,7 +780,7 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
             ret = std::shared_ptr<dglnet::resource::DGLPixelRectangle>(
                 new dglnet::resource::DGLPixelRectangle(
                     width, height, ALIGNED(width * transfer.getPixelSize(), 4),
-                    transfer.getFormat(), transfer.getType(), 0, 0));
+                    transfer.getFormat(), transfer.getType(), textureDisplayInternalFormat, 0));
 
             DIRECT_CALL_CHK(glReadPixels)(
                     0, 0, width, height, (GLenum)transfer.getFormat(),
