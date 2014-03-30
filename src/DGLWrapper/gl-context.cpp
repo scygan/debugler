@@ -481,7 +481,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
     for (size_t face = 0; face < resource->m_FacesLevelsLayers.size(); face++) {
         for (int level = 0;; level++) {
 
-            std::vector<boost::shared_ptr<dglnet::resource::DGLPixelRectangle> > currentLevel;
+            std::vector<dglnet::resource::DGLResourceTexture::TextureLayer> currentLevel;
 
             for (int layer = 0;; layer++) {
 
@@ -491,7 +491,9 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
                 if (!rect) {
                     break;
                 } else {
-                    currentLevel.push_back(convert_shared_ptr(rect));
+                    dglnet::resource::DGLResourceTexture::TextureLayer currentLayer;
+                    currentLayer.m_PixelRectangle = convert_shared_ptr(rect);
+                    currentLevel.push_back((currentLayer));
                 }
             }
 

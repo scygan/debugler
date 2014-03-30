@@ -54,8 +54,8 @@ slots:
 
     Ui::DGLTextureViewItem m_Ui;
     DGLPixelRectangleScene* m_PixelRectangleScene;
-    std::vector<std::vector<std::vector<boost::shared_ptr<
-            dglnet::resource::DGLPixelRectangle> > >  > m_FacesLevelsLayers;
+    std::vector<std::vector<std::vector<
+            dglnet::resource::DGLResourceTexture::TextureLayer> > > m_FacesLevelsLayers;
 
     DGLResourceListener* m_Listener;
 

@@ -176,9 +176,9 @@ void DGLTextureViewItem::internalUpdate() {
     }    
 
     m_PixelRectangleScene->setPixelRectangle(
-            *m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel][m_CurrentLayer].get());
+            *m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel][m_CurrentLayer].m_PixelRectangle.get());
     m_Ui.m_PixelRectangleView->updateFormatSizeInfo(
-            m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel][m_CurrentLayer].get(),
+            m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel][m_CurrentLayer].m_PixelRectangle.get(),
             m_TextureInternalFormat, m_TextureSamples);
 }
 

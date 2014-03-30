@@ -708,7 +708,7 @@ TEST_F(LiveTest, texture_query_2d) {
         if (i > 4) break;
 
         dglnet::resource::DGLPixelRectangle* rect =
-            textureResource->m_FacesLevelsLayers[0][i][0].get();
+            textureResource->m_FacesLevelsLayers[0][i][0].m_PixelRectangle.get();
 
         ASSERT_EQ(GL_RGBA, rect->m_GLFormat);
         ASSERT_EQ(GL_UNSIGNED_BYTE, rect->m_GLType);
@@ -797,7 +797,7 @@ TEST_F(LiveTest, texture_query_3d) {
         if (i > 4) break;
 
         dglnet::resource::DGLPixelRectangle* rect =
-            textureResource->m_FacesLevelsLayers[0][i][0].get();
+            textureResource->m_FacesLevelsLayers[0][i][0].m_PixelRectangle.get();
 
         ASSERT_EQ(GL_RGBA, rect->m_GLFormat);
         ASSERT_EQ(GL_UNSIGNED_BYTE, rect->m_GLType);
