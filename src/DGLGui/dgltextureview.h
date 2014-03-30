@@ -60,6 +60,8 @@ slots:
     DGLResourceListener* m_Listener;
 
     uint m_CurrentLevel, m_CurrentLayer, m_CurrentFace;
+    gl_t m_TextureInternalFormat;
+    value_t m_TextureSamples;
 };
 
 #endif    // DGLTEXTUREVIEW_H

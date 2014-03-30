@@ -186,16 +186,16 @@ void DGLPixelRectangleView::showChannelS(bool _show) {
 }
 
 void DGLPixelRectangleView::updateFormatSizeInfo(
-        const dglnet::resource::DGLPixelRectangle* pixelRectangle) {
+        const dglnet::resource::DGLPixelRectangle* pixelRectangle, gl_t format, value_t samples) {
     if (pixelRectangle) {
         std::ostringstream formatSize;
-        if (pixelRectangle->m_InternalFormat)
-            formatSize << GetGLEnumName(pixelRectangle->m_InternalFormat)
+        if (format)
+            formatSize << GetGLEnumName(format)
                        << " ";
         formatSize << "(" << pixelRectangle->m_Width << "x"
                    << pixelRectangle->m_Height << ") ";
-        if (pixelRectangle->m_Samples) {
-            formatSize << "MSAA: " << pixelRectangle->m_Samples;
+        if (samples) {
+            formatSize << "MSAA: " << samples;
         }
         m_Ui->labelFormatSize->setText(
                 QString::fromStdString(formatSize.str()));

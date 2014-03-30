@@ -450,6 +450,14 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
 
     resource->m_Target = tex->getTarget();
 
+    {
+        GLint samples, internalFormat;
+        //TODO: is it safe to assume texture always has 0 level?
+        tex->getFormat(this, 0, tex->getTextureLevelTarget(0), internalFormat, samples);
+        resource->m_Samples = samples;
+        resource->m_InternalFormat = internalFormat;
+    }
+
     // disconnect PBO if it exists
     state_setters::DefaultPBO defPBO(this);
     state_setters::PixelStoreAlignment defAlignment(this);
@@ -726,15 +734,10 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
             //the base format of queried texture
             GLenum textureBaseFormat = GL_RGBA;
 
-            //the internalformat, that will be displayed to the user
-            GLenum textureDisplayInternalFormat = 0;
-
             const GLTextureObj::GLTextureLevel* levelDesc =
                     tex->getRequestedLevel(level);
 
             if (levelDesc) {
-
-                textureDisplayInternalFormat = levelDesc->m_RequestedInternalFormat;
 
                 renderableFormat = static_cast<GLenum>(
                         GLFormats::getBestColorRenderableFormatES(
@@ -780,7 +783,7 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
             ret = std::shared_ptr<dglnet::resource::DGLPixelRectangle>(
                 new dglnet::resource::DGLPixelRectangle(
                     width, height, ALIGNED(width * transfer.getPixelSize(), 4),
-                    transfer.getFormat(), transfer.getType(), textureDisplayInternalFormat, 0));
+                    transfer.getFormat(), transfer.getType()));
 
             DIRECT_CALL_CHK(glReadPixels)(
                     0, 0, width, height, (GLenum)transfer.getFormat(),
@@ -807,15 +810,11 @@ GLContext::queryTextureLevelGetters(
         const GLTextureObj* tex, int level, int layer, int face,
         state_setters::PixelStoreAlignment& defAlignment) {
 
-    GLint height, width, depth, samples = 0;
+    GLint height, width, depth;
 
     GLenum levelTarget = tex->getTextureLevelTarget(face);
 
     std::shared_ptr<dglnet::resource::DGLPixelRectangle> ret;
-
-    GLint internalFormat;
-    DIRECT_CALL_CHK(glGetTexLevelParameteriv)(
-            levelTarget, level, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
 
     queryTextureLevelSize(tex, level, &width, &height, &depth);
 
@@ -832,11 +831,6 @@ GLContext::queryTextureLevelGetters(
     DIRECT_CALL_CHK(glGetTexLevelParameteriv)(
             levelTarget, level, GL_TEXTURE_ALPHA_SIZE, &rgbaSizes[3]);
 
-    if (hasCapability(ContextCap::TextureMultisample)) {
-        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level,
-                                                  GL_TEXTURE_SAMPLES, &samples);
-    }
-
     std::vector<GLint> deptStencilSizes(2, 0);
     DIRECT_CALL_CHK(glGetTexLevelParameteriv)(
             levelTarget, level, GL_TEXTURE_DEPTH_SIZE, &deptStencilSizes[0]);
@@ -848,6 +842,9 @@ GLContext::queryTextureLevelGetters(
     }
 
     queryCheckError();
+
+    GLint internalFormat, samples;
+    tex->getFormat(this, level, levelTarget, internalFormat, samples);
 
     DGLPixelTransfer transfer;
     if (getVersion().check(GLContextVersion::Type::ES)) {
@@ -865,7 +862,7 @@ GLContext::queryTextureLevelGetters(
         new dglnet::resource::DGLPixelRectangle(
             width, height,
             defAlignment.getAligned(width * transfer.getPixelSize()),
-            transfer.getFormat(), transfer.getType(), internalFormat, samples));
+            transfer.getFormat(), transfer.getType()));
 
     GLvoid* ptr;
     if ((ptr = ret->getPtr()) != NULL) {
@@ -1090,7 +1087,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(
                 new dglnet::resource::DGLPixelRectangle(
                     width, height,
                     defAlignment.getAligned(width * transfer.getPixelSize()),
-                    transfer.getFormat(), transfer.getType(), 0, 0));
+                    transfer.getFormat(), transfer.getType()));
 #pragma message("GLContext::queryFramebuffer: query MSAA")
 
     GLvoid* ptr;
@@ -1218,25 +1215,14 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
 
             queryTextureLevelSize(tex, level, &width, &height, NULL);
 
-            if (hasCapability(ContextCap::TextureGetters)) {
-                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(
-                        attTarget, level, GL_TEXTURE_INTERNAL_FORMAT,
-                        &internalFormat);
-            } else {
-                const GLTextureObj::GLTextureLevel* requestedLevel =
-                        tex->getRequestedLevel(level);
-                if (requestedLevel) {
-                    internalFormat = tex->getRequestedLevel(level)
-                                             ->m_RequestedInternalFormat;
-                }    // if requestedLevel was not traced this query would
-                     // probably fail (no way to discover format, or bit sizes).
-            }
+            {
+                tex->getFormat(this, level, attTarget, internalFormat, samples);
 
-            if (hasCapability(ContextCap::TextureMultisample)) {
-                DIRECT_CALL_CHK(glGetTexLevelParameteriv)(
-                        attTarget, level, GL_TEXTURE_SAMPLES, &samples);
+                // if internalFormat is returned as 0 (happens if not traced on ES), query will
+                // probably fail (no way to discover format, or bit sizes).
+                assert(internalFormat);
             }
-
+            
             DIRECT_CALL_CHK(glBindTexture)(bindableTarget, lastTexture);
 
         } else if (type == GL_RENDERBUFFER) {
@@ -1366,6 +1352,9 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
             }
         }
 
+        resource->m_Attachments.back().m_Samples = samples;
+        resource->m_Attachments.back().m_Internalformat = internalFormat;
+
         // there should be no errors. Otherwise something nasty happened
         queryCheckError();
 
@@ -1420,8 +1409,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
                 boost::make_shared<dglnet::resource::DGLPixelRectangle>(
                         width, height, defAlignment.getAligned(
                                                width * transfer.getPixelSize()),
-                        transfer.getFormat(), transfer.getType(),
-                        internalFormat, samples);
+                        transfer.getFormat(), transfer.getType());
 
         GLvoid* ptr = resource->m_Attachments.back().m_PixelRectangle->getPtr();
         if (ptr) {

@@ -38,7 +38,7 @@ void DGLFBOViewItem::error(const std::string& message) {
     m_Ui.m_AttListWidget->clear();
     m_PixelRectangleScene->setText(message);
     m_Error = true;
-    m_Ui.m_pixelRectangleView->updateFormatSizeInfo(NULL);
+    m_Ui.m_pixelRectangleView->updateFormatSizeInfo(NULL, 0, 0);
 }
 
 void DGLFBOViewItem::update(const dglnet::DGLResource& res) {
@@ -68,7 +68,9 @@ void DGLFBOViewItem::showAttachment(int id) {
         m_PixelRectangleScene->setPixelRectangle(
                 *m_Attachments[id].m_PixelRectangle.get());
         m_Ui.m_pixelRectangleView->updateFormatSizeInfo(
-                (m_Attachments[id].m_PixelRectangle.get()));
+                (m_Attachments[id].m_PixelRectangle.get()),
+                m_Attachments[id].m_Internalformat,
+                m_Attachments[id].m_Samples);
     }
 }
 

@@ -35,7 +35,7 @@ DGLFramebufferViewItem::DGLFramebufferViewItem(dglnet::ContextObjectName name,
 
 void DGLFramebufferViewItem::error(const std::string& message) {
     m_PixelRectangleScene->setText(message);
-    m_Ui.m_PixelRectangleView->updateFormatSizeInfo(NULL);
+    m_Ui.m_PixelRectangleView->updateFormatSizeInfo(NULL, 0, 0);
 }
 
 void DGLFramebufferViewItem::update(const dglnet::DGLResource& res) {
@@ -43,7 +43,7 @@ void DGLFramebufferViewItem::update(const dglnet::DGLResource& res) {
             dynamic_cast<const dglnet::resource::DGLResourceFramebuffer*>(&res);
     m_PixelRectangle = resource->m_PixelRectangle;
     m_PixelRectangleScene->setPixelRectangle(*m_PixelRectangle);
-    m_Ui.m_PixelRectangleView->updateFormatSizeInfo(m_PixelRectangle.get());
+    m_Ui.m_PixelRectangleView->updateFormatSizeInfo(m_PixelRectangle.get(), 0, 0);
 }
 
 DGLFramebufferView::DGLFramebufferView(QWidget* parrent,

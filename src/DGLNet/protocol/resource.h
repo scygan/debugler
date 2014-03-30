@@ -58,16 +58,14 @@ public:
      * @param rowBytes byte with of pixel rectangle (including alignment)
      * @param glFormat GL data format of sent data
      * @param glType GL data type of sent data
-     * @param iFormat storage internal format (for informational purposes only)
      */
     DGLPixelRectangle(value_t width, value_t height, value_t rowBytes,
-                      gl_t glFormat, gl_t glType, gl_t iFormat,
-                      value_t samples);
+                      gl_t glFormat, gl_t glType);
     DGLPixelRectangle(const DGLPixelRectangle& rhs);
     ~DGLPixelRectangle();
 
-    value_t m_Width, m_Height, m_RowBytes, m_Samples;
-    gl_t m_GLFormat, m_GLType, m_InternalFormat;
+    value_t m_Width, m_Height, m_RowBytes;
+    gl_t m_GLFormat, m_GLType;
 
     void* getPtr() const;
     size_t getSize() const;
@@ -83,12 +81,16 @@ class DGLResourceTexture : public DGLResource {
         ar& ::boost::serialization::base_object<DGLResource>(*this);
         ar& m_FacesLevelsLayers;
         ar& m_Target;
+        ar& m_InternalFormat;
+        ar& m_Samples;
     }
 
     std::vector<std::vector<std::vector< ::boost::shared_ptr<
             dglnet::resource::DGLPixelRectangle> > > > m_FacesLevelsLayers;
 
     gl_t m_Target;
+    gl_t m_InternalFormat;
+    value_t m_Samples;
 };
 
 class DGLResourceBuffer : public DGLResource {
@@ -131,6 +133,8 @@ class DGLResourceFBO : public DGLResource {
             ar& m_ErrorMsg;
             ar& m_PixelRectangle;
             ar& m_Id;
+            ar& m_Internalformat;
+            ar& m_Samples;
         }
 
         FBOAttachment() {}
@@ -142,6 +146,8 @@ class DGLResourceFBO : public DGLResource {
         ::boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
                 m_PixelRectangle;
         gl_t m_Id;
+        gl_t m_Internalformat;
+        value_t m_Samples;
 
        private:
         bool m_Ok;
@@ -274,8 +280,6 @@ inline void save_construct_data(Archive& ar,
     ar << t->m_RowBytes;
     ar << t->m_GLFormat;
     ar << t->m_GLType;
-    ar << t->m_InternalFormat;
-    ar << t->m_Samples;
 }
 
 template <class Archive>
@@ -283,18 +287,15 @@ inline void load_construct_data(Archive& ar,
                                 dglnet::resource::DGLPixelRectangle* t,
                                 const unsigned int /*version*/) {
     // retrieve data from archive required to construct new instance
-    value_t width, height, rowBytes, glFormat, glType, samples;
-    gl_t iformat;
+    value_t width, height, rowBytes, glFormat, glType;
     ar >> width;
     ar >> height;
     ar >> rowBytes;
     ar >> glFormat;
     ar >> glType;
-    ar >> iformat;
-    ar >> samples;
     // invoke inplace constructor
     ::new (t) dglnet::resource::DGLPixelRectangle(
-            width, height, rowBytes, glFormat, glType, iformat, samples);
+            width, height, rowBytes, glFormat, glType);
 }
 }
 }

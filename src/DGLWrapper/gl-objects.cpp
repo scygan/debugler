@@ -67,6 +67,27 @@ void GLTextureObj::setTexStorage(GLuint levels, GLsizei width, GLsizei height,
 
 GLenum GLTextureObj::getTarget() const { return m_Target; }
 
+void GLTextureObj::getFormat(GLContext* ctx, int level, GLenum levelTarget, GLint& retInternalFormat, GLint& retSamples) const {
+
+    retInternalFormat = 0; 
+    retSamples = 0;
+
+    if (ctx->hasCapability(GLContext::ContextCap::TextureMultisample)) {
+        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(levelTarget, level,
+            GL_TEXTURE_SAMPLES, &retSamples);
+    }
+
+    if (ctx->hasCapability(GLContext::ContextCap::TextureGetters)) {
+        DIRECT_CALL_CHK(glGetTexLevelParameteriv)(
+            levelTarget, level, GL_TEXTURE_INTERNAL_FORMAT,
+            &retInternalFormat);
+    } else {
+        if (m_Levels.size()) {
+            retInternalFormat = m_Levels[0].m_RequestedInternalFormat;
+        }
+    }
+}
+
 const GLTextureObj::GLTextureLevel* GLTextureObj::getRequestedLevel(GLint level)
         const {
     if (static_cast<size_t>(level) < m_Levels.size()) {

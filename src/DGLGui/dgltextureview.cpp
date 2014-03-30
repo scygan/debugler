@@ -59,12 +59,15 @@ void DGLTextureViewItem::error(const std::string& message) {
     m_PixelRectangleScene->setText(message);
     m_Ui.horizontalSlider_LOD->setDisabled(true);
     m_Ui.horizontalSlider_Layer->setDisabled(true);
-    m_Ui.m_PixelRectangleView->updateFormatSizeInfo(NULL);
+    m_Ui.m_PixelRectangleView->updateFormatSizeInfo(NULL, 0, 0);
 }
 
 void DGLTextureViewItem::update(const dglnet::DGLResource& res) {
     const dglnet::resource::DGLResourceTexture* resource =
             dynamic_cast<const dglnet::resource::DGLResourceTexture*>(&res);
+
+    m_TextureInternalFormat = resource->m_InternalFormat;
+    m_TextureSamples = resource->m_Samples;
 
     m_FacesLevelsLayers = resource->m_FacesLevelsLayers;
 
@@ -175,7 +178,8 @@ void DGLTextureViewItem::internalUpdate() {
     m_PixelRectangleScene->setPixelRectangle(
             *m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel][m_CurrentLayer].get());
     m_Ui.m_PixelRectangleView->updateFormatSizeInfo(
-            m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel][m_CurrentLayer].get());
+            m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel][m_CurrentLayer].get(),
+            m_TextureInternalFormat, m_TextureSamples);
 }
 
 DGLTextureView::DGLTextureView(QWidget* parrent, DglController* controller)

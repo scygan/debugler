@@ -67,6 +67,11 @@ class GLTextureObj : public GLObj {
     GLenum getTarget() const;
 
     /**
+     * Get texture format and sample count
+     */
+    void getFormat(GLContext* ctx, int level, GLenum levelTarget, GLint& retInternalFormat, GLint& retSamples) const;
+
+    /**
      * Get  target of texture level. 
      *
      * Face is required argument for cubemaps.

@@ -539,10 +539,9 @@ TEST_F(LiveTest, framebuffer_query) {
         ASSERT_EQ(GL_RGBA, framebufferResource->m_PixelRectangle->m_GLFormat);
         ASSERT_EQ(GL_UNSIGNED_BYTE,
                   framebufferResource->m_PixelRectangle->m_GLType);
-        EXPECT_EQ(0, framebufferResource->m_PixelRectangle->m_Samples);
+
         EXPECT_EQ(640, framebufferResource->m_PixelRectangle->m_Width);
         EXPECT_EQ(480, framebufferResource->m_PixelRectangle->m_Height);
-        EXPECT_EQ(0, framebufferResource->m_PixelRectangle->m_InternalFormat);
 
         if (step) {
             utils::checkColorRect(
@@ -701,6 +700,9 @@ TEST_F(LiveTest, texture_query_2d) {
         { 144, 223, 142, 223 },
     };
 
+    EXPECT_TRUE(textureResource->m_Samples == 0 || textureResource->m_Samples == 1);
+    EXPECT_EQ(GL_RGBA8, textureResource->m_InternalFormat);
+
     for (size_t i = 0; i < textureResource->m_FacesLevelsLayers[0].size(); i++) {
 
         if (i > 4) break;
@@ -710,11 +712,8 @@ TEST_F(LiveTest, texture_query_2d) {
 
         ASSERT_EQ(GL_RGBA, rect->m_GLFormat);
         ASSERT_EQ(GL_UNSIGNED_BYTE, rect->m_GLType);
-        EXPECT_TRUE(rect->m_Samples == 0 || rect->m_Samples == 1);
         EXPECT_EQ(size, rect->m_Width);
         EXPECT_EQ((size + 1) / 2, rect->m_Height);
-        EXPECT_EQ(GL_RGBA8, rect->m_InternalFormat);
-
         
         utils::checkColor((GLubyte*)rect->getPtr(), rect->m_Width, rect->m_Height,
             rect->m_RowBytes, colors[i][0], colors[i][1], colors[i][2], colors[i][3]);
@@ -790,6 +789,9 @@ TEST_F(LiveTest, texture_query_3d) {
         { 144, 223, 142, 223 },
     };
 
+    EXPECT_TRUE(textureResource->m_Samples == 0 || textureResource->m_Samples == 1);
+    EXPECT_EQ(GL_RGBA8, textureResource->m_InternalFormat);
+
     for (size_t i = 0; i < textureResource->m_FacesLevelsLayers[0].size(); i++) {
 
         if (i > 4) break;
@@ -799,10 +801,8 @@ TEST_F(LiveTest, texture_query_3d) {
 
         ASSERT_EQ(GL_RGBA, rect->m_GLFormat);
         ASSERT_EQ(GL_UNSIGNED_BYTE, rect->m_GLType);
-        EXPECT_TRUE(rect->m_Samples == 0 || rect->m_Samples == 1);
         EXPECT_EQ(size, rect->m_Width);
         EXPECT_EQ((size + 1) / 2, rect->m_Height);
-        EXPECT_EQ(GL_RGBA8, rect->m_InternalFormat);
 
 
         utils::checkColor((GLubyte*)rect->getPtr(), rect->m_Width, rect->m_Height,
