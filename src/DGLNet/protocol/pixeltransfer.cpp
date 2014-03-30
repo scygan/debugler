@@ -474,7 +474,7 @@ const GLInternalFormat* GLFormats::adjustInternalFormatFromTypeES(gl_t internalF
 }
 
 
-gl_t GLFormats::getBestRenderableFormatES(gl_t internalFormat, gl_t type, int ctxMajor) {
+gl_t GLFormats::getBestColorRenderableFormatES(gl_t internalFormat, gl_t type, int ctxMajor) {
     const GLInternalFormat* ret;
 
     //These are the fallbacks, if internalFormat is not recognized.
@@ -527,17 +527,18 @@ gl_t GLFormats::getBestRenderableFormatES(gl_t internalFormat, gl_t type, int ct
                 case GL_RED:
                 case GL_RG:
                 case GL_RGB:
+
+                //getting these two as 565 sucks, but there is no other way on getting 
+                //depth texture contents on ES2.
+                case GL_DEPTH_STENCIL:
+                case GL_DEPTH_COMPONENT:
+
+                //nearly impossible (no device implements stencil texturing on ES2?)
+                case GL_STENCIL_INDEX:
                     ret = getInternalFormat(GL_RGB565);
                     break;
                 case GL_RGBA:
                     ret = getInternalFormat(GL_RGBA4);
-                    break;
-                case GL_DEPTH_STENCIL:
-                case GL_DEPTH_COMPONENT:
-                    ret = getInternalFormat(GL_DEPTH_COMPONENT16);
-                    break;
-                case GL_STENCIL_INDEX:
-                    ret = getInternalFormat(GL_STENCIL_INDEX8);
                     break;
                 case GL_RED_INTEGER:
                 case GL_RG_INTEGER:
@@ -596,13 +597,11 @@ gl_t GLFormats::getBestRenderableFormatES(gl_t internalFormat, gl_t type, int ct
                     }
                     break;
                 case GL_DEPTH_COMPONENT:
-                    ret = getInternalFormat(GL_DEPTH_COMPONENT32F);
-                    break;
                 case GL_STENCIL_INDEX:
-                    ret = getInternalFormat(GL_STENCIL_INDEX8);
+                    ret = getInternalFormat(GL_R8);
                     break;
                 case GL_DEPTH_STENCIL:
-                    ret = getInternalFormat(GL_DEPTH32F_STENCIL8);
+                    ret = getInternalFormat(GL_RG8);
                     break;
                 case GL_ALPHA:
                 case GL_LUMINANCE:

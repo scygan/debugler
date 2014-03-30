@@ -55,7 +55,7 @@ class GLFormats {
     static const GLDataFormat* getDataFormat(gl_t dataFormat);
     static const GLDataType* getDataType(gl_t dataType);
 
-    static gl_t getBestRenderableFormatES(gl_t internalFormat, gl_t type,
+    static gl_t getBestColorRenderableFormatES(gl_t internalFormat, gl_t type,
                                           int ctxMajor);
     static const GLInternalFormat* adjustInternalFormatFromTypeES(
             gl_t internalFormat, gl_t type);

@@ -728,7 +728,7 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
 
             if (levelDesc) {
                 renderableFormat = static_cast<GLenum>(
-                        GLFormats::getBestRenderableFormatES(
+                        GLFormats::getBestColorRenderableFormatES(
                                 levelDesc->m_RequestedInternalFormat,
                                 levelDesc->m_RequestedDataType,
                                 getVersion().getMajor()));
