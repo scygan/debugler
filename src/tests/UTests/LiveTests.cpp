@@ -711,7 +711,7 @@ TEST_F(LiveTest, texture_query_2d) {
         EXPECT_TRUE(layer.m_Samples == 0 || layer.m_Samples == 1);
         EXPECT_EQ(GL_RGBA8, layer.m_InternalFormat);
 
-        ASSERT_EQ(GL_RGBA, rect->m_GLFormat);
+        ASSERT_EQ(4, rect->m_NumChannels);
         ASSERT_EQ(GL_UNSIGNED_BYTE, rect->m_GLType);
         EXPECT_EQ(size, rect->m_Width);
         EXPECT_EQ((size + 1) / 2, rect->m_Height);
@@ -802,7 +802,7 @@ TEST_F(LiveTest, texture_query_3d) {
 
         EXPECT_TRUE(layer.m_Samples == 0 || layer.m_Samples == 1);
         EXPECT_EQ(GL_RGBA8, layer.m_InternalFormat);
-        ASSERT_EQ(GL_RGBA, rect->m_GLFormat);
+        ASSERT_EQ(4, rect->m_NumChannels);
         ASSERT_EQ(GL_UNSIGNED_BYTE, rect->m_GLType);
         EXPECT_EQ(size, rect->m_Width);
         EXPECT_EQ((size + 1) / 2, rect->m_Height);

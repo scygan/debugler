@@ -82,6 +82,7 @@ class DGLPixelTransfer {
     bool isValid();
     gl_t getFormat();
     gl_t getType();
+    int getNumOfChannels();
     unsigned int getPixelSize();
 
    private:

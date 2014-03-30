@@ -30,7 +30,7 @@ class DGLBlitterBase {
     DGLBlitterBase();
 
     void blit(unsigned int width, unsigned int height, unsigned int rowBytes,
-              gl_t format, gl_t type, const void* data);
+              int numChannels, gl_t type, const void* data);
 
     enum Channel {
         CHANNEL_R,

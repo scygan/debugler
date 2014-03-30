@@ -60,12 +60,13 @@ public:
      * @param glType GL data type of sent data
      */
     DGLPixelRectangle(value_t width, value_t height, value_t rowBytes,
-                      gl_t glFormat, gl_t glType);
+                      gl_t glType, int numChannels);
     DGLPixelRectangle(const DGLPixelRectangle& rhs);
     ~DGLPixelRectangle();
 
     value_t m_Width, m_Height, m_RowBytes;
-    gl_t m_GLFormat, m_GLType;
+    gl_t m_GLType;
+    int m_NumChannels;
 
     void* getPtr() const;
     size_t getSize() const;
@@ -315,8 +316,8 @@ inline void save_construct_data(Archive& ar,
     ar << t->m_Width;
     ar << t->m_Height;
     ar << t->m_RowBytes;
-    ar << t->m_GLFormat;
     ar << t->m_GLType;
+    ar << t->m_NumChannels;
 }
 
 template <class Archive>
@@ -324,15 +325,16 @@ inline void load_construct_data(Archive& ar,
                                 dglnet::resource::DGLPixelRectangle* t,
                                 const unsigned int /*version*/) {
     // retrieve data from archive required to construct new instance
-    value_t width, height, rowBytes, glFormat, glType;
+    value_t width, height, rowBytes, glType;
+    int numChannels;
     ar >> width;
     ar >> height;
     ar >> rowBytes;
-    ar >> glFormat;
     ar >> glType;
+    ar >> numChannels;
     // invoke inplace constructor
     ::new (t) dglnet::resource::DGLPixelRectangle(
-            width, height, rowBytes, glFormat, glType);
+            width, height, rowBytes, glType, numChannels);
 }
 }
 }

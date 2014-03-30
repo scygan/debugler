@@ -755,7 +755,7 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
             ret = std::shared_ptr<dglnet::resource::DGLPixelRectangle>(
                 new dglnet::resource::DGLPixelRectangle(
                     width, height, DGL_ALIGNED(width * transfer.getPixelSize(), 4),
-                    transfer.getFormat(), transfer.getType()));
+                    transfer.getType(), transfer.getNumOfChannels()));
 
             DIRECT_CALL_CHK(glReadPixels)(
                     0, 0, width, height, (GLenum)transfer.getFormat(),
@@ -841,7 +841,7 @@ GLContext::queryTextureLevelGetters(
             new dglnet::resource::DGLPixelRectangle(
             width, height,
             defAlignment.getAligned(width * transfer.getPixelSize()),
-            transfer.getFormat(), transfer.getType()));
+            transfer.getType(), transfer.getNumOfChannels()));
 
         GLvoid* ptr;
         if ((ptr = ret->getPtr()) != NULL) {
@@ -1132,7 +1132,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(
                 new dglnet::resource::DGLPixelRectangle(
                     width, height,
                     defAlignment.getAligned(width * transfer.getPixelSize()),
-                    transfer.getFormat(), transfer.getType()));
+                    transfer.getType(), transfer.getNumOfChannels()));
 #pragma message("GLContext::queryFramebuffer: query MSAA")
 
     GLvoid* ptr;
@@ -1653,11 +1653,11 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryRenderbuffer(gl_t name) {
             transfer.initializeOGL(internalFormat, rgbaSizes, deptStencilSizes);
         }
 
-        resource->m_PixelRectangle =
-            boost::make_shared<dglnet::resource::DGLPixelRectangle>(
-            width, height, defAlignment.getAligned(
-            width * transfer.getPixelSize()),
-            transfer.getFormat(), transfer.getType());
+        resource->m_Attachments.back().m_PixelRectangle =
+                boost::make_shared<dglnet::resource::DGLPixelRectangle>(
+                        width, height, defAlignment.getAligned(
+                                               width * transfer.getPixelSize()),
+                        transfer.getType(), transfer.getNumOfChannels());
 
         GLvoid* ptr = resource->m_PixelRectangle->getPtr();
         if (ptr) {

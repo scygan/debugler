@@ -28,7 +28,7 @@ DGLBlitterBase::DGLBlitterBase() {
 }
 
 void DGLBlitterBase::blit(unsigned int width, unsigned int height,
-                          unsigned int rowBytes, gl_t format, gl_t type,
+                          unsigned int rowBytes, int numChannels, gl_t type,
                           const void* data) {
 
     m_SrcStride = rowBytes;
