@@ -81,8 +81,6 @@ class DGLResourceTexture : public DGLResource {
         ar& ::boost::serialization::base_object<DGLResource>(*this);
         ar& m_FacesLevelsLayers;
         ar& m_Target;
-        ar& m_InternalFormat;
-        ar& m_Samples;
     }
 
     class TextureLayer {
@@ -90,16 +88,18 @@ class DGLResourceTexture : public DGLResource {
         template <class Archive>
         void serialize(Archive& ar, const unsigned int) {
             ar& m_PixelRectangle;
+            ar& m_InternalFormat;
+            ar& m_Samples;
         }
         ::boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
             m_PixelRectangle;
+        gl_t m_InternalFormat;
+        value_t m_Samples;
     };
 
     std::vector<std::vector<std::vector<TextureLayer> > > m_FacesLevelsLayers;
 
     gl_t m_Target;
-    gl_t m_InternalFormat;
-    value_t m_Samples;
 };
 
 class DGLResourceBuffer : public DGLResource {

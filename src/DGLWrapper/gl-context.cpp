@@ -450,14 +450,6 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
 
     resource->m_Target = tex->getTarget();
 
-    {
-        GLint samples, internalFormat;
-        //TODO: is it safe to assume texture always has 0 level?
-        tex->getFormat(this, 0, tex->getTextureLevelTarget(0), internalFormat, samples);
-        resource->m_Samples = samples;
-        resource->m_InternalFormat = internalFormat;
-    }
-
     // disconnect PBO if it exists
     state_setters::DefaultPBO defPBO(this);
     state_setters::PixelStoreAlignment defAlignment(this);
@@ -483,6 +475,9 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
 
             std::vector<dglnet::resource::DGLResourceTexture::TextureLayer> currentLevel;
 
+            GLint samples, internalFormat;
+            tex->getFormat(this, level, tex->getTextureLevelTarget(face), internalFormat, samples);
+
             for (int layer = 0;; layer++) {
 
                 std::shared_ptr<dglnet::resource::DGLPixelRectangle> rect =
@@ -492,6 +487,10 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
                     break;
                 } else {
                     dglnet::resource::DGLResourceTexture::TextureLayer currentLayer;
+
+                    currentLayer.m_Samples = samples;
+                    currentLayer.m_InternalFormat = internalFormat;
+
                     currentLayer.m_PixelRectangle = convert_shared_ptr(rect);
                     currentLevel.push_back((currentLayer));
                 }

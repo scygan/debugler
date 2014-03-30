@@ -700,15 +700,19 @@ TEST_F(LiveTest, texture_query_2d) {
         { 144, 223, 142, 223 },
     };
 
-    EXPECT_TRUE(textureResource->m_Samples == 0 || textureResource->m_Samples == 1);
-    EXPECT_EQ(GL_RGBA8, textureResource->m_InternalFormat);
-
+    
     for (size_t i = 0; i < textureResource->m_FacesLevelsLayers[0].size(); i++) {
 
         if (i > 4) break;
 
+        dglnet::resource::DGLResourceTexture::TextureLayer& layer = 
+            textureResource->m_FacesLevelsLayers[0][i][0];
+
         dglnet::resource::DGLPixelRectangle* rect =
-            textureResource->m_FacesLevelsLayers[0][i][0].m_PixelRectangle.get();
+            layer.m_PixelRectangle.get();
+
+        EXPECT_TRUE(layer.m_Samples == 0 || layer.m_Samples == 1);
+        EXPECT_EQ(GL_RGBA8, layer.m_InternalFormat);
 
         ASSERT_EQ(GL_RGBA, rect->m_GLFormat);
         ASSERT_EQ(GL_UNSIGNED_BYTE, rect->m_GLType);
@@ -789,16 +793,20 @@ TEST_F(LiveTest, texture_query_3d) {
         { 144, 223, 142, 223 },
     };
 
-    EXPECT_TRUE(textureResource->m_Samples == 0 || textureResource->m_Samples == 1);
-    EXPECT_EQ(GL_RGBA8, textureResource->m_InternalFormat);
+
 
     for (size_t i = 0; i < textureResource->m_FacesLevelsLayers[0].size(); i++) {
 
         if (i > 4) break;
 
-        dglnet::resource::DGLPixelRectangle* rect =
-            textureResource->m_FacesLevelsLayers[0][i][0].m_PixelRectangle.get();
+        dglnet::resource::DGLResourceTexture::TextureLayer& layer = 
+            textureResource->m_FacesLevelsLayers[0][i][0];
 
+        dglnet::resource::DGLPixelRectangle* rect =
+            layer.m_PixelRectangle.get();
+
+        EXPECT_TRUE(layer.m_Samples == 0 || layer.m_Samples == 1);
+        EXPECT_EQ(GL_RGBA8, layer.m_InternalFormat);
         ASSERT_EQ(GL_RGBA, rect->m_GLFormat);
         ASSERT_EQ(GL_UNSIGNED_BYTE, rect->m_GLType);
         EXPECT_EQ(size, rect->m_Width);

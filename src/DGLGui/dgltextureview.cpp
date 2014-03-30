@@ -66,9 +66,6 @@ void DGLTextureViewItem::update(const dglnet::DGLResource& res) {
     const dglnet::resource::DGLResourceTexture* resource =
             dynamic_cast<const dglnet::resource::DGLResourceTexture*>(&res);
 
-    m_TextureInternalFormat = resource->m_InternalFormat;
-    m_TextureSamples = resource->m_Samples;
-
     m_FacesLevelsLayers = resource->m_FacesLevelsLayers;
 
     m_CurrentFace = std::min(
@@ -179,7 +176,8 @@ void DGLTextureViewItem::internalUpdate() {
             *m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel][m_CurrentLayer].m_PixelRectangle.get());
     m_Ui.m_PixelRectangleView->updateFormatSizeInfo(
             m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel][m_CurrentLayer].m_PixelRectangle.get(),
-            m_TextureInternalFormat, m_TextureSamples);
+            m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel][m_CurrentLayer].m_InternalFormat,
+            m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel][m_CurrentLayer].m_Samples);
 }
 
 DGLTextureView::DGLTextureView(QWidget* parrent, DglController* controller)
