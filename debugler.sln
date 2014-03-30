@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLWrapper", "DGLWrapper\DGLWrapper.vcxproj", "{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLWrapper", "src\DGLWrapper\DGLWrapper.vcxproj", "{68B5196F-82CE-48E3-96A2-90FD8ADEBC3F}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF} = {B8B2B603-0DAD-4C84-B375-091A5C36D6FF}
 		{7FBFE438-A40B-40E5-860B-C69882D8977F} = {7FBFE438-A40B-40E5-860B-C69882D8977F}
@@ -9,38 +9,38 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLWrapper", "DGLWrapper\DG
 		{13B36CE3-1A60-4184-8DAC-836D59E885AC} = {13B36CE3-1A60-4184-8DAC-836D59E885AC}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLGUI", "DGLGui\DGLGui.vcxproj", "{28B3A2F3-8E6F-4D4C-B29F-BF6180067E26}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLGUI", "src\DGLGui\DGLGui.vcxproj", "{28B3A2F3-8E6F-4D4C-B29F-BF6180067E26}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF} = {B8B2B603-0DAD-4C84-B375-091A5C36D6FF}
 		{5C2A907E-02DA-4D13-B84B-B48500DBEFA3} = {5C2A907E-02DA-4D13-B84B-B48500DBEFA3}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLNet", "DGLNet\DGLNet.vcxproj", "{5C2A907E-02DA-4D13-B84B-B48500DBEFA3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLNet", "src\DGLNet\DGLNet.vcxproj", "{5C2A907E-02DA-4D13-B84B-B48500DBEFA3}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF} = {B8B2B603-0DAD-4C84-B375-091A5C36D6FF}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLCommon", "DGLCommon\DGLCommon.vcxproj", "{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLCommon", "src\DGLCommon\DGLCommon.vcxproj", "{B8B2B603-0DAD-4C84-B375-091A5C36D6FF}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F16EFBD2-E47A-4E5B-B091-7D400430745A} = {F16EFBD2-E47A-4E5B-B091-7D400430745A}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "codegen", "codegen\codegen.vcxproj", "{F16EFBD2-E47A-4E5B-B091-7D400430745A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "codegen", "src\codegen\codegen.vcxproj", "{F16EFBD2-E47A-4E5B-B091-7D400430745A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLLoader", "DGLLoader\DGLLoader.vcxproj", "{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLLoader", "src\DGLLoader\DGLLoader.vcxproj", "{6A2EBCC0-8817-4333-B3DE-E730359DC0E8}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF} = {B8B2B603-0DAD-4C84-B375-091A5C36D6FF}
 		{7FBFE438-A40B-40E5-860B-C69882D8977F} = {7FBFE438-A40B-40E5-860B-C69882D8977F}
 		{3E07C0ED-2E87-4722-B32F-BB7401F07A90} = {3E07C0ED-2E87-4722-B32F-BB7401F07A90}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gtest", "external\gtest\msvc\gtest.vcxproj", "{C8F6C172-56F2-4E76-B5FA-C3B423B31BE7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gtest", "src\external\gtest\msvc\gtest.vcxproj", "{C8F6C172-56F2-4E76-B5FA-C3B423B31BE7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "external", "external", "{A95D3136-CB96-4744-B344-B745B40E6167}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "external", "src\external", "{A95D3136-CB96-4744-B344-B745B40E6167}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{BC0B380D-40D6-4DB2-A1E8-390B684490BC}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "src\tests", "{BC0B380D-40D6-4DB2-A1E8-390B684490BC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UT", "tests\UT\UT.vcxproj", "{09FC62AB-3D0A-46AC-BBB4-CB34A0E3CD29}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UT", "src\tests\UT\UT.vcxproj", "{09FC62AB-3D0A-46AC-BBB4-CB34A0E3CD29}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B8B2B603-0DAD-4C84-B375-091A5C36D6FF} = {B8B2B603-0DAD-4C84-B375-091A5C36D6FF}
 		{7FBFE438-A40B-40E5-860B-C69882D8977F} = {7FBFE438-A40B-40E5-860B-C69882D8977F}
@@ -52,7 +52,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UT", "tests\UT\UT.vcxproj",
 		{28B3A2F3-8E6F-4D4C-B29F-BF6180067E26} = {28B3A2F3-8E6F-4D4C-B29F-BF6180067E26}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Debugler", "DGLGui\Debugler.vcxproj", "{DA1E89A2-A0A1-44B3-B295-72ED4B8E5CF4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Debugler", "src\DGLGui\Debugler.vcxproj", "{DA1E89A2-A0A1-44B3-B295-72ED4B8E5CF4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{7FBFE438-A40B-40E5-860B-C69882D8977F} = {7FBFE438-A40B-40E5-860B-C69882D8977F}
 		{3EBFDD5C-E730-48B1-BB5B-468EAC760B67} = {3EBFDD5C-E730-48B1-BB5B-468EAC760B67}
@@ -63,17 +63,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Debugler", "DGLGui\Debugler
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "boost", "boost", "{981970E8-D98A-4E3B-98D4-E04F7C6F898A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboost_program_options", "external\boost\libboost_program_options.vcxproj", "{3E07C0ED-2E87-4722-B32F-BB7401F07A90}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboost_program_options", "src\external\boost\libboost_program_options.vcxproj", "{3E07C0ED-2E87-4722-B32F-BB7401F07A90}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboost_regexp", "external\boost\libboost_regexp.vcxproj", "{DC8A5399-5884-421A-9B15-2335000EC895}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboost_regexp", "src\external\boost\libboost_regexp.vcxproj", "{DC8A5399-5884-421A-9B15-2335000EC895}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboost_serialization", "external\boost\libboost_serialization.vcxproj", "{13B36CE3-1A60-4184-8DAC-836D59E885AC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboost_serialization", "src\external\boost\libboost_serialization.vcxproj", "{13B36CE3-1A60-4184-8DAC-836D59E885AC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboost_system", "external\boost\libboost_system.vcxproj", "{7FBFE438-A40B-40E5-860B-C69882D8977F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboost_system", "src\external\boost\libboost_system.vcxproj", "{7FBFE438-A40B-40E5-860B-C69882D8977F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QTCopy", "buildtools\vs\auxprojects\QTCopy\QTCopy.vcxproj", "{3EBFDD5C-E730-48B1-BB5B-468EAC760B67}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QTCopy", "tools\build\vs\auxprojects\QTCopy\QTCopy.vcxproj", "{3EBFDD5C-E730-48B1-BB5B-468EAC760B67}"
 EndProject
-Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "Installer", "buildtools\vs\auxprojects\Installer\Installer.wixproj", "{F343E478-708F-46B6-A736-866317ED8D57}"
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "Installer", "tools\build\vs\auxprojects\Installer\Installer.wixproj", "{F343E478-708F-46B6-A736-866317ED8D57}"
 	ProjectSection(ProjectDependencies) = postProject
 		{3EBFDD5C-E730-48B1-BB5B-468EAC760B67} = {3EBFDD5C-E730-48B1-BB5B-468EAC760B67}
 		{1473B16E-9FE7-4F42-B1A6-29A950AB6804} = {1473B16E-9FE7-4F42-B1A6-29A950AB6804}
@@ -84,36 +84,36 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "Installer", "buildtools\vs\
 		{6A2EBCC0-8817-4333-B3DE-E730359DC0E8} = {6A2EBCC0-8817-4333-B3DE-E730359DC0E8}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "samples", "tests\samples\samples.vcxproj", "{1CD99A24-16C6-46A8-8C31-2C31BBD42E7B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "samples", "src\tests\samples\samples.vcxproj", "{1CD99A24-16C6-46A8-8C31-2C31BBD42E7B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{126CAA69-F774-4B1D-A4E5-2BD1CAAD2201} = {126CAA69-F774-4B1D-A4E5-2BD1CAAD2201}
 		{F16EFBD2-E47A-4E5B-B091-7D400430745A} = {F16EFBD2-E47A-4E5B-B091-7D400430745A}
 		{3E07C0ED-2E87-4722-B32F-BB7401F07A90} = {3E07C0ED-2E87-4722-B32F-BB7401F07A90}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glfw", "external\glfw-3.0.2\glfw.vcxproj", "{126CAA69-F774-4B1D-A4E5-2BD1CAAD2201}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glfw", "src\external\glfw-3.0.2\glfw.vcxproj", "{126CAA69-F774-4B1D-A4E5-2BD1CAAD2201}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F16EFBD2-E47A-4E5B-B091-7D400430745A} = {F16EFBD2-E47A-4E5B-B091-7D400430745A}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "samples-es2", "tests\samples\samples-es2.vcxproj", "{20EF2947-E2F6-4D02-BDF0-4E720FB9926F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "samples-es2", "src\tests\samples\samples-es2.vcxproj", "{20EF2947-E2F6-4D02-BDF0-4E720FB9926F}"
 	ProjectSection(ProjectDependencies) = postProject
 		{EBF0059A-D8DD-4BEA-92F4-FB5FFC332D07} = {EBF0059A-D8DD-4BEA-92F4-FB5FFC332D07}
 		{F16EFBD2-E47A-4E5B-B091-7D400430745A} = {F16EFBD2-E47A-4E5B-B091-7D400430745A}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glfw-es2", "external\glfw-3.0.2\glfw-es2.vcxproj", "{EBF0059A-D8DD-4BEA-92F4-FB5FFC332D07}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glfw-es2", "src\external\glfw-3.0.2\glfw-es2.vcxproj", "{EBF0059A-D8DD-4BEA-92F4-FB5FFC332D07}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F16EFBD2-E47A-4E5B-B091-7D400430745A} = {F16EFBD2-E47A-4E5B-B091-7D400430745A}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "android-arm", "buildtools\vs\auxprojects\AndroidBuild\android-armeabi.vcxproj", "{8AF96288-59F4-4F67-9590-11429468C558}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "android-arm", "tools\build\vs\auxprojects\AndroidBuild\android-armeabi.vcxproj", "{8AF96288-59F4-4F67-9590-11429468C558}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "android-x86", "buildtools\vs\auxprojects\AndroidBuild\android-x86.vcxproj", "{1473B16E-9FE7-4F42-B1A6-29A950AB6804}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "android-x86", "tools\build\vs\auxprojects\AndroidBuild\android-x86.vcxproj", "{1473B16E-9FE7-4F42-B1A6-29A950AB6804}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "android", "android", "{086BBC9E-7E2A-41FC-89DD-282657F4FADF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "android-mips", "buildtools\vs\auxprojects\AndroidBuild\android-mips.vcxproj", "{04A158AA-7B05-4936-A2D2-BB8D4952833C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "android-mips", "tools\build\vs\auxprojects\AndroidBuild\android-mips.vcxproj", "{04A158AA-7B05-4936-A2D2-BB8D4952833C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

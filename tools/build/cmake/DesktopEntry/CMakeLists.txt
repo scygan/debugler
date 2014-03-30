@@ -1,4 +1,4 @@
-set (icons_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../../DGLGui/icons)
+set (icons_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../../src/DGLGui/icons)
 
 install (FILES debugler-mime.xml DESTINATION /tmp/debugler-inst/)
 install (FILES debugler.desktop DESTINATION /tmp/debugler-inst/)

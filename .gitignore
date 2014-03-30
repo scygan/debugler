@@ -1,9 +1,9 @@
-/src/ipch
-/src/*.suo
-/src/*.sdf
-/src/*.opensdf
-/dump/*
-/build/*
+/ipch
+*.suo
+*.sdf
+*.opensdf
+/dump/
+/build/
 *.user
 *.pyc
 /src/codegen/input/diag.txt

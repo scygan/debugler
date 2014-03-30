@@ -27,13 +27,13 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)'=='Debug'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.debug.props" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.debug.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)'=='Release'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.release.props" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.release.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>
@@ -74,10 +74,10 @@
     <CustomBuild Include="LiveProcessWrapper.h">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing LiveProcessWrapper.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\..\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\..\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp"  -D_VARIADIC_MAX=10 "-D\"$(INHERIT)\"" -DQT_CORE_LIB -DQT_DLL -DUSE_MSVC -DWIN32 -DBOOST_ALL_NO_LIB -DBOOST_ALL_COMPILE_IN_PLACE -DBOOST_THREAD_BUILD_LIB -D_WIN32_WINNT=0x0501 -DQT_NO_OPENGL -DWIN32_LEAN_AND_MEAN "-DDGL_VERSION=\"$(DGL_VERSION)\"" "-D$(NOINHERIT)\." -DNDEBUG "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I.\..\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I$(SolutionDir)\." "-I$(SolutionDir)\external\boost" "-I$(SolutionDir)\boost" "-I$(SolutionDir)\external" "-I$(SolutionDir)\external\gtest\include" "-I$(SolutionDir)\..\dump" "-I$(SolutionDir)\glheaders" "-I$(NOINHERIT)\."</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\..\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp"  -D_VARIADIC_MAX=10 "-D\"$(INHERIT)\"" -DQT_CORE_LIB -DQT_DLL -DUSE_MSVC -DWIN32 -DBOOST_ALL_NO_LIB -DBOOST_ALL_COMPILE_IN_PLACE -DBOOST_THREAD_BUILD_LIB -D_WIN32_WINNT=0x0501 -DQT_NO_OPENGL -DWIN32_LEAN_AND_MEAN "-DDGL_VERSION=\"$(DGL_VERSION)\"" "-D$(NOINHERIT)\." -DNDEBUG "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I.\..\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I$(SolutionDir)\." "-I$(SolutionDir)\external\boost" "-I$(SolutionDir)\boost" "-I$(SolutionDir)\external" "-I$(SolutionDir)\external\gtest\include" "-I$(SolutionDir)\dump" "-I$(SolutionDir)\glheaders" "-I$(NOINHERIT)\."</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing LiveProcessWrapper.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\..\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\..\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp"  -D_VARIADIC_MAX=10 "-D\"$(INHERIT)\"" -DQT_CORE_LIB -DQT_DLL -DUSE_MSVC -DWIN32 -DBOOST_ALL_NO_LIB -DBOOST_ALL_COMPILE_IN_PLACE -DBOOST_THREAD_BUILD_LIB -D_WIN32_WINNT=0x0501 -DQT_NO_OPENGL -DWIN32_LEAN_AND_MEAN "-DDGL_VERSION=\"$(DGL_VERSION)\"" "-D$(NOINHERIT)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I.\..\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I$(SolutionDir)\." "-I$(SolutionDir)\external\boost" "-I$(SolutionDir)\boost" "-I$(SolutionDir)\external" "-I$(SolutionDir)\external\gtest\include" "-I$(SolutionDir)\..\dump" "-I$(SolutionDir)\glheaders" "-I$(NOINHERIT)\."</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\..\..\..\dump\$(ConfigurationName)\GeneratedFiles\moc_%(Filename).cpp"  -D_VARIADIC_MAX=10 "-D\"$(INHERIT)\"" -DQT_CORE_LIB -DQT_DLL -DUSE_MSVC -DWIN32 -DBOOST_ALL_NO_LIB -DBOOST_ALL_COMPILE_IN_PLACE -DBOOST_THREAD_BUILD_LIB -D_WIN32_WINNT=0x0501 -DQT_NO_OPENGL -DWIN32_LEAN_AND_MEAN "-DDGL_VERSION=\"$(DGL_VERSION)\"" "-D$(NOINHERIT)\." "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtCore" "-I.\..\..\..\dump\$(ConfigurationName)\GeneratedFiles" "-I$(SolutionDir)\." "-I$(SolutionDir)\external\boost" "-I$(SolutionDir)\boost" "-I$(SolutionDir)\external" "-I$(SolutionDir)\external\gtest\include" "-I$(SolutionDir)\dump" "-I$(SolutionDir)\glheaders" "-I$(NOINHERIT)\."</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>

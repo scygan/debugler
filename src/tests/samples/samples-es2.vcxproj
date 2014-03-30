@@ -39,13 +39,13 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)'=='Debug'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.debug.props" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.debug.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)'=='Release'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.release.props" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.release.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>
@@ -54,7 +54,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>glfw-es2.lib;libGLESv2.lib;libEGL.lib;libboost_program_options.lib;Winmm.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\..\build\$(Platform)\$(Configuration)\glfw-es2;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\build\$(Platform)\$(Configuration)\glfw-es2;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>GLEW_STATIC;_VARIADIC_MAX=10;%(PreprocessorDefinitions);QT_CORE_LIB;QT_DLL;OPENGL_ES2</PreprocessorDefinitions>

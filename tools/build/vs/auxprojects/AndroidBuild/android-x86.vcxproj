@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{04A158AA-7B05-4936-A2D2-BB8D4952833C}</ProjectGuid>
+    <ProjectGuid>{1473B16E-9FE7-4F42-B1A6-29A950AB6804}</ProjectGuid>
     <Keyword>MakeFileProj</Keyword>
-    <ProjectName>android-mips</ProjectName>
+    <ProjectName>android-x86</ProjectName>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <PlatformToolset>v110</PlatformToolset>
@@ -32,20 +32,20 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)'=='Debug'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.debug.props" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.debug.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)'=='Release'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.debug.props" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.debug.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)..\build\android-mips\$(Configuration)\ TYPE=Release ABI=mips</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)\build\android-x86\$(Configuration)\ TYPE=Release ABI=x86</NMakeBuildCommandLine>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)..\build\android-mips\$(Configuration)\ TYPE=Debug ABI=mips</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)\build\android-x86\$(Configuration)\ TYPE=Debug ABI=x86</NMakeBuildCommandLine>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>

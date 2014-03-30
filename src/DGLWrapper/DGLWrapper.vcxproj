@@ -35,13 +35,13 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)'=='Debug'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.debug.props" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.debug.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)'=='Release'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.release.props" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.release.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -49,11 +49,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)..\build\$(Platform)\$(Configuration)\$(ProjectName)64\</OutDir>
+    <OutDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\$(ProjectName)64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)..\build\$(Platform)\$(Configuration)\$(ProjectName)64\</OutDir>
+    <OutDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\$(ProjectName)64\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -61,7 +61,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <ModuleDefinitionFile>$(SolutionDir)..\dump\codegen\OpenGL32.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>$(SolutionDir)\dump\codegen\OpenGL32.def</ModuleDefinitionFile>
       <AdditionalDependencies>%(AdditionalDependencies);DGLNet.lib;DGLCommon.lib;libboost_serialization.lib;libboost_system.lib;dglcommon.res</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

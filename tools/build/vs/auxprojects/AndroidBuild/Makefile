@@ -12,6 +12,6 @@ $(OUT)\bin\$(ABI)\dglandroidinstaller: $(OUT)\build.ninja force
 
 $(OUT)\build.ninja:
 	cd $(OUT)
-	cmake -DCMAKE_TOOLCHAIN_FILE=..\..\..\src\buildtools\toolchains\android.toolchain.cmake -DCMAKE_BUILD_TYPE=$(TYPE) -DANDROID_ABI=$(ABI) -DCMAKE_MAKE_PROGRAM=..\..\..\tools\ninja.exe -G "Eclipse CDT4 - Ninja" ..\..\..\src\ 
+	cmake -DCMAKE_TOOLCHAIN_FILE=..\..\..\tools\build\cmake\toolchains\android.toolchain.cmake -DCMAKE_BUILD_TYPE=$(TYPE) -DANDROID_ABI=$(ABI) -DCMAKE_MAKE_PROGRAM=..\..\..\tools\ninja.exe -G "Eclipse CDT4 - Ninja" ..\..\..\
 
 force:

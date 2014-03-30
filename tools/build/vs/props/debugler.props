@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <IntDir>$(SolutionDir)\dump\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalLibraryDirectories>$(AdditionalLibraryDirectories);$(SolutionDir)\build\$(Platform)\$(Configuration)\DGLNet;$(SolutionDir)\dump\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\build\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\build\$(Platform)\$(Configuration)\gtest;$(SolutionDir)\build\$(Platform)\$(Configuration)\DGLGUI;$(SolutionDir)\build\$(Platform)\$(Configuration)\libboost_program_options;$(SolutionDir)\build\$(Platform)\$(Configuration)\libboost_serialization;$(SolutionDir)\build\$(Platform)\$(Configuration)\libboost_system;$(SolutionDir)\build\$(Platform)\$(Configuration)\libboost_thread;$(SolutionDir)\build\$(Platform)\$(Configuration)\libboost_regexp;$(SolutionDir)\tools\build\vs\auxlibs\$(Platform);</AdditionalLibraryDirectories>
+    </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)\src\;$(SolutionDir)\src\codegen\input;$(SolutionDir)\src\\external\boost\;$(SolutionDir)\boost;$(SolutionDir)\src\external\;$(SolutionDir)\src\\external\gtest\include;$(SolutionDir)\dump\;$(SolutionDir)\src\glheaders;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>USE_MSVC;WIN32;BOOST_ALL_NO_LIB;_WIN32_WINNT=0x0501;QT_NO_OPENGL;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <WarningLevel>Level4</WarningLevel>
+      <DisableSpecificWarnings>4481;4127</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <AdditionalLibraryDirectories>$(AdditionalLibraryDirectories);$(SolutionDir)\build\$(Platform)\$(Configuration)\DGLNet;$(SolutionDir)\build\$(Platform)\$(Configuration)\DGLGUI;</AdditionalLibraryDirectories>
+      <TargetMachine Condition="'$(Platform)'=='Win32'">MachineX86</TargetMachine>
+      <TargetMachine Condition="'$(Platform)'=='x64'">MachineX64</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

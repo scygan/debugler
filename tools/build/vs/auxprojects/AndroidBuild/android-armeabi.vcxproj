@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{1473B16E-9FE7-4F42-B1A6-29A950AB6804}</ProjectGuid>
+    <ProjectGuid>{8AF96288-59F4-4F67-9590-11429468C558}</ProjectGuid>
     <Keyword>MakeFileProj</Keyword>
-    <ProjectName>android-x86</ProjectName>
+    <ProjectName>android-arm</ProjectName>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <PlatformToolset>v110</PlatformToolset>
@@ -32,20 +32,20 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)'=='Debug'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.debug.props" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.debug.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)'=='Release'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.debug.props" />
-    <Import Project="$(SolutionDir)\buildtools\vs\props\debugler.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.debug.props" />
+    <Import Project="$(SolutionDir)\tools\build\vs\props\debugler.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)..\build\android-x86\$(Configuration)\ TYPE=Release ABI=x86</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)\build\android-armeabi\$(Configuration)\ TYPE=Release ABI=armeabi</NMakeBuildCommandLine>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)..\build\android-x86\$(Configuration)\ TYPE=Debug ABI=x86</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)\build\android-armeabi\$(Configuration)\ TYPE=Debug ABI=armeabi</NMakeBuildCommandLine>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>

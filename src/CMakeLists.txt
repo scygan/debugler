@@ -1,12 +1,7 @@
-cmake_minimum_required(VERSION 2.8)
-
 if (ARCH EQUAL 32 OR ARCH EQUAL 64)
     set (CMAKE_C_FLAGS "-m${ARCH} ${CMAKE_C_FLAGS}")
     set (CMAKE_CXX_FLAGS "-m${ARCH} ${CMAKE_CXX_FLAGS}")
 endif()
-
-project(debugler)
-
 
 file(STRINGS version.inl DGL_VERSION )
 
@@ -75,5 +70,3 @@ if (NOT ANDROID)
 else()
 	add_subdirectory(DGLAndroidInstaller)
 endif()
-add_subdirectory(buildtools/cmake)
-
