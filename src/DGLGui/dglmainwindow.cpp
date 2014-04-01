@@ -518,6 +518,9 @@ void DGLMainWindow::createInteractions() {
     CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), this,
         SLOT(onConnect(bool)));
 
+    CONNASSERT(&m_controller, SIGNAL(breaked(const CalledEntryPoint, uint)), this,
+        SLOT(bringupToFront()));
+
     CONNASSERT(&m_BusyDialog, SIGNAL(canceled()), this,
         SLOT(debugStop()));
 }
@@ -567,6 +570,11 @@ void DGLMainWindow::setColorScheme(int colorScheme) {
             qApp->setStyleSheet(colorSchemeSheet);
         }
     }
+}
+
+void DGLMainWindow::bringupToFront() {
+    raise();
+    activateWindow();
 }
 
 bool DGLMainWindow::haveProject() {

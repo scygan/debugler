@@ -149,6 +149,12 @@ slots:
      */
     void debugeeInfo(const std::string &);
 
+    /** 
+     * slot bringing window up to front 
+     * Called on debug breaks.
+     */
+    void bringupToFront();
+
    private:
     /**
      * Private funcion for creation & initialization of all QActons
