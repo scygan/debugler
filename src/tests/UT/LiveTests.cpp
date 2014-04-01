@@ -293,15 +293,15 @@ TEST_F(LiveTest, connect_disconnect_reconnect) {
         client->abort();
         client = getAnotherConnection();
 
-        dglnet::message::Hello* hello =
+        dglnet::message::Hello* hello2 =
             utils::receiveMessage<dglnet::message::Hello>(client.get(),
             getMessageHandler());
-        ASSERT_TRUE(hello != NULL);
+        ASSERT_TRUE(hello2 != NULL);
 
-        dglnet::message::BreakedCall* breaked =
+        dglnet::message::BreakedCall* breaked2 =
             utils::receiveMessage<dglnet::message::BreakedCall>(
             client.get(), getMessageHandler());
-        ASSERT_TRUE(breaked != NULL);
+        ASSERT_TRUE(breaked2 != NULL);
 
     }
     terminate(client);

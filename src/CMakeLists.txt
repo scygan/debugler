@@ -3,8 +3,6 @@ if (ARCH EQUAL 32 OR ARCH EQUAL 64)
     set (CMAKE_CXX_FLAGS "-m${ARCH} ${CMAKE_CXX_FLAGS}")
 endif()
 
-file(STRINGS version.inl DGL_VERSION )
-
 include_directories(
     .
     external

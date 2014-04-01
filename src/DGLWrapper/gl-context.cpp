@@ -29,6 +29,7 @@
 #include "tls.h"
 
 #include <cassert>
+#include <cstring>
 #include <sstream>
 
 #include <boost/make_shared.hpp>

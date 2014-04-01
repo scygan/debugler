@@ -207,15 +207,15 @@ template <typename ObjType>
 class DGLObjectNodeWidget : public DGLObjectNodeWidgetBase<ObjType> {
 public:
     DGLObjectNodeWidget(opaque_id_t ctxId, QString header, QString iconPath)
-        : DGLObjectNodeWidgetBase(ctxId, header, iconPath) {}
+        : DGLObjectNodeWidgetBase<ObjType>(ctxId, header, iconPath) {}
 
     template <typename T>
     void update(const std::set<T>& names) {
         typedef typename std::set<T>::iterator set_iter;
         for (set_iter i = names.begin(); i != names.end(); i++) {
             if (m_Childs.find(i->m_Name) == m_Childs.end()) {
-                m_Childs[i->m_Name] = ObjType(*i, m_IconPath);
-                addChild(&m_Childs[i->m_Name]);
+                m_Childs[i->m_Name] = ObjType(*i, DGLObjectNodeWidgetBase<ObjType>::m_IconPath);
+                this->addChild(&m_Childs[i->m_Name]);
             }
         }
 
@@ -224,8 +224,8 @@ public:
         while (i != m_Childs.end()) {
             map_iter next = i;
             next++;
-            if (names.find(T(m_CtxId, i->first)) == names.end()) {
-                removeChild(&(i->second));
+            if (names.find(T(DGLObjectNodeWidgetBase<ObjType>::m_CtxId, i->first)) == names.end()) {
+                this->removeChild(&(i->second));
                 m_Childs.erase(i);
             }
             i = next;
@@ -239,7 +239,7 @@ template <typename ObjType>
 class DGLIndexedObjectNodeWidget : public DGLObjectNodeWidgetBase<ObjType> {
 public:
     DGLIndexedObjectNodeWidget(opaque_id_t ctxId, QString header, QString childHeader, QString iconPath)
-        : DGLObjectNodeWidgetBase(ctxId, header, iconPath), m_ChildHeader(childHeader) {}
+        : DGLObjectNodeWidgetBase<ObjType>(ctxId, header, iconPath), m_ChildHeader(childHeader) {}
    
      template<typename T>
     void update(const std::vector<std::set<T> >& elements) {
@@ -251,14 +251,16 @@ public:
             //this happend no more than once per ctx.
 
             for (size_t i = 0; i < m_Childs.size(); i++) {
-                removeChild(&m_Childs[i]);
+                this->removeChild(&m_Childs[i]);
             }
 
             m_Childs.resize(elements.size(), DGLObjectNodeWidget<ObjType>(0, "", ""));
 
             for (size_t i = 0; i < m_Childs.size(); i++) {
-                m_Childs[i] = DGLObjectNodeWidget<ObjType>(m_CtxId, m_ChildHeader + QString::number(i), m_IconPath);
-                addChild(&m_Childs[i]);
+                m_Childs[i] = 
+                    DGLObjectNodeWidget<ObjType>(DGLObjectNodeWidgetBase<ObjType>::m_CtxId, m_ChildHeader + QString::number(i),
+                            DGLObjectNodeWidgetBase<ObjType>::m_IconPath);
+                this->addChild(&m_Childs[i]);
             }
         }
 
