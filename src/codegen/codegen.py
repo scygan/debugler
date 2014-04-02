@@ -35,6 +35,7 @@ exportersFile = open(outputDir + "exporters.inl", "w")
 exportersExtFile = open(outputDir + "exporters-ext.inl", "w")
 exportersAndroidFile = open(outputDir + "exporters-android.inl", "w")
 functionListFile = open(outputDir + "functionList.inl", "w")
+entrypointEnumListFile = open(outputDir + "entrypointEnumList.inl", "w")
 defFile = open(outputDir + "OpenGL32.def", "w")
 enumFile = open(outputDir + "enum.inl", "w")
 
@@ -404,6 +405,8 @@ for name, entrypoint in sorted(entrypoints.items()):
     print >> functionListFile,"#else"
     print >> functionListFile, "    FUNC_LIST_ELEM_NOT_SUPPORTED(" + name + ", " + entrypointPtrType + ", LIBRARY_NONE)"
     print >> functionListFile,"#endif"
+    
+    print >> entrypointEnumListFile, name + "_Call,"
     
 #entrypoint exporters
     coreLib = False

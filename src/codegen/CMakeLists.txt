@@ -8,6 +8,7 @@ set(codegen_GENERATED
     ${codegen_out}/exporters-ext.inl
     ${codegen_out}/exporters-android.inl
     ${codegen_out}/functionList.inl
+    ${codegen_out}/entrypointEnumList.inl
     ${codegen_out}/enum.inl
     
     ${codegen_in}/GL/glx.h

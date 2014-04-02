@@ -27,15 +27,10 @@ typedef int32_t value_t;         // any gl values (GLints)
 
 typedef int (*FUNC_PTR)();
 
-#define FUNC_LIST_ELEM_SUPPORTED(name, type, library) name##_Call,
-#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library) \
-    FUNC_LIST_ELEM_SUPPORTED(name, type, library)
 enum Entrypoints {
-#include <codegen/functionList.inl>
+#include <codegen/entrypointEnumList.inl>
     Entrypoints_NUM
 };
-#undef FUNC_LIST_ELEM_SUPPORTED
-#undef FUNC_LIST_ELEM_NOT_SUPPORTED
 
 #define NUM_ENTRYPOINTS Entrypoints_NUM
 #define NO_ENTRYPOINT Entrypoints_NUM
