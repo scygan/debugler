@@ -128,6 +128,7 @@ es1CoreList = [
 
 allVersions     = allExtensions = '.*'
 noVersions      = noExtensions = None
+gl11Pat         = '1\.[0-1]'
 gl12andLaterPat = '1\.[2-9]|[234]\.[0-9]'
 gles2onlyPat    = '2\.[0-9]'
 gles2and30Pat   = '2\.[0-9]|3.0'
@@ -266,6 +267,25 @@ protectFeature = protect
 protectProto = protect
 
 buildList = [
+    # GL API <= 1.1 no extensions - GL/gl.h
+    CGeneratorOptions(
+        filename          = 'GL/gl.h',
+        apiname           = 'gl',
+        profile           = 'compatibility',
+        versions          = allVersions,
+        emitversions      = gl11Pat,
+        defaultExtensions = None,                   # Default extensions for GL
+        addExtensions     = None,
+        removeExtensions  = None,
+        prefixText        = prefixStrings + glExtPlatformStrings + glextVersionStrings,
+        genFuncPointers   = False,
+        protectFile       = protectFile,
+        protectFeature    = protectFeature,
+        protectProto      = protectProto,
+        protectProtoStr   = 'GL_GL_PROTOTYPES',
+        apicall           = 'GLAPI ',
+        apientry          = 'APIENTRY ',
+        apientryp         = 'APIENTRYP '),
     # GL API 1.2+ + extensions - GL/glext.h
     CGeneratorOptions(
         filename          = 'GL/glext.h',

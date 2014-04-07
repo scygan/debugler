@@ -256,6 +256,7 @@ def parseXML(path, skipTrace = False):
 print >> defFile, "EXPORTS"
 
 headersToGenerate = dict()
+headersToGenerate["GL/gl.h"] = "gl.xml"
 headersToGenerate["GL/glext.h"] = "gl.xml"
 headersToGenerate["GLES/gl.h"] = "gl.xml"
 headersToGenerate["GLES/glext.h"] = "gl.xml"

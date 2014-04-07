@@ -20,6 +20,7 @@ set(codegen_GENERATED
     ${codegen_in}/GLES2/gl2.h
     ${codegen_in}/GLES2/gl2ext.h
     ${codegen_in}/GLES3/gl3.h 
+    ${codegen_in}/GL/gl.h 
 )
 add_custom_command(
     OUTPUT ${codegen_GENERATED}
