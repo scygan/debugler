@@ -282,15 +282,15 @@ buildList = [
         defaultExtensions = None,                   # Default extensions for GL
         addExtensions     = None,
         removeExtensions  = None,
-        prefixText        = prefixStrings + glExtPlatformStrings,
+        prefixText        = prefixStrings + gles1PlatformStrings,
         genFuncPointers   = False,
         protectFile       = protectFile,
         protectFeature    = protectFeature,
         protectProto      = False,
         protectProtoStr   = 'GL_GL_PROTOTYPES',
-        apicall           = 'GLAPI ',
-        apientry          = 'APIENTRY ',
-        apientryp         = 'APIENTRYP '),
+        apicall           = 'GL_API ',
+        apientry          = 'GL_APIENTRY ',
+        apientryp         = 'GL_APIENTRYP '),
     # GL API 1.2+ + extensions - GL/glext.h
     CGeneratorOptions(
         filename          = 'GL/glext.h',
