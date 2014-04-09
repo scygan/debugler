@@ -27,7 +27,7 @@ inputDir  = sys.argv[1] + os.sep
 outputDir = sys.argv[2] + os.sep
 
 if not os.path.exists(outputDir):
-    os.makedirs(outputDir)
+    os.makedirs(outputDir)    
 
 entrypTypedefs = open(outputDir + "entrypTypedefs.inl", "w")
 wrappersFile = open(outputDir + "wrappers.inl", "w")
@@ -255,28 +255,43 @@ def parseXML(path, skipTrace = False):
         
 print >> defFile, "EXPORTS"
 
+outRegistryDir = os.path.abspath(outputDir)
+
 headersToGenerate = dict()
+
+if not os.path.exists(outRegistryDir + os.sep + "GL"):
+    os.makedirs(outRegistryDir + os.sep + "GL")
 headersToGenerate["GL/gl.h"] = "gl.xml"
 headersToGenerate["GL/glext.h"] = "gl.xml"
+headersToGenerate["GL/wgl.h"] = "wgl.xml"
+headersToGenerate["GL/wglext.h"] = "wgl.xml"
+headersToGenerate["GL/glx.h"] = "glx.xml"
+headersToGenerate["GL/glxext.h"] = "glx.xml"
+
+if not os.path.exists(outRegistryDir + os.sep + "GLES"):
+    os.makedirs(outRegistryDir + os.sep + "GLES")
 headersToGenerate["GLES/gl.h"] = "gl.xml"
 headersToGenerate["GLES/glext.h"] = "gl.xml"
+
+if not os.path.exists(outRegistryDir + os.sep + "GLES2"):
+    os.makedirs(outRegistryDir + os.sep + "GLES2")
 headersToGenerate["GLES2/gl2.h"] = "gl.xml"
 headersToGenerate["GLES2/gl2ext.h"] = "gl.xml"
+
+if not os.path.exists(outRegistryDir + os.sep + "GLES3"):
+    os.makedirs(outRegistryDir + os.sep + "GLES3")
 headersToGenerate["GLES3/gl3.h"] = "gl.xml"
 
+if not os.path.exists(outRegistryDir + os.sep + "EGL"):
+    os.makedirs(outRegistryDir + os.sep + "EGL")
 headersToGenerate["EGL/egl.h"] = "egl.xml"
 headersToGenerate["EGL/eglext.h"] = "egl.xml"
 
-headersToGenerate["GL/wgl.h"] = "wgl.xml"
-headersToGenerate["GL/wglext.h"] = "wgl.xml"
-
-headersToGenerate["GL/glx.h"] = "glx.xml"
-headersToGenerate["GL/glxext.h"] = "glx.xml"
 
 for name, registry in headersToGenerate.items():
     currendDir = os.getcwd();
     os.chdir(inputDir)
-    p = subprocess.Popen([sys.executable, "genheaders.py", "-registry", registry, name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen([sys.executable, "genheaders.py", "-registry", registry, "-out", outRegistryDir, name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, error = p.communicate()
     os.chdir(currendDir)
     print out

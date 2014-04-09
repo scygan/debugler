@@ -39,6 +39,7 @@ protect = True
 target  = None
 timeit  = False
 validate= False
+outDir  = ''
 # Default input / log files
 errFilename = None
 diagFilename = 'diag.txt'
@@ -71,6 +72,10 @@ if __name__ == '__main__':
         elif (arg == '-validate'):
             write('Enabling group validation (-validate)', file=sys.stderr)
             validate = True
+        elif (arg == '-out'):
+            outDir = sys.argv[i]
+            i = i+1
+            write('Output directory (-out)', outDir, file=sys.stderr)
         elif (arg[0:1] == '-'):
             write('Unrecognized argument:', arg, file=sys.stderr)
             exit(1)
@@ -574,6 +579,8 @@ def genHeaders():
         if (target and target != genOpts.filename):
             # write('*** Skipping', genOpts.filename)
             continue
+        if len(outDir):
+            genOpts.filename = outDir + os.sep + genOpts.filename
         write('*** Building', genOpts.filename)
         generated = generated + 1
         startTimer()
