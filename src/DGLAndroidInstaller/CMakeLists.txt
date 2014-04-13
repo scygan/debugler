@@ -13,7 +13,7 @@ endif()
 add_custom_command(
     OUTPUT ${LIBRARY_OUTPUT_PATH}/libdglwrapper.stripped.so
     COMMAND ${CMAKE_STRIP} ${LIBRARY_OUTPUT_PATH}/libdglwrapper.so --strip-unneeded -o ${LIBRARY_OUTPUT_PATH}/libdglwrapper.stripped.so
-    DEPENDS ${LIBRARY_OUTPUT_PATH}/libdglwrapper.so
+    DEPENDS dglwrapper
     COMMENT "stripping libdglwrapper"
 	WORKING_DIRECTORY ${LIBRARY_OUTPUT_PATH}
     VERBATIM
@@ -33,7 +33,7 @@ add_custom_command(
 add_custom_command(
     OUTPUT ${EXECUTABLE_OUTPUT_PATH}/dglloader.stripped
     COMMAND ${CMAKE_STRIP}  ${EXECUTABLE_OUTPUT_PATH}/dglloader --strip-unneeded -o ${EXECUTABLE_OUTPUT_PATH}/dglloader.stripped
-    DEPENDS ${EXECUTABLE_OUTPUT_PATH}/dglloader
+    DEPENDS dglloader
     COMMENT "stripping dglloader"
 	WORKING_DIRECTORY ${LIBRARY_OUTPUT_PATH}
     VERBATIM
