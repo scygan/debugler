@@ -22,7 +22,11 @@ import logging
 
 class BaseTarget(object):
     def __init__(self):
+        self.deps = []
         pass
+
+    def depend(self, target):
+        self.deps.append(target)
 
     def getBuildTypeStr(self, debug):
         if debug:
@@ -30,6 +34,11 @@ class BaseTarget(object):
         else:
             return 'Release'
 
+    def prepare(self, targetName, debug = False):
+        pass
+
+    def build(self):
+        pass
 
 class CMakeTarget(BaseTarget):
     def __init__(self):
@@ -87,12 +96,13 @@ class LinuxBuildTarget(CMakeTarget):
 
 
 class WindowsBuildTarget(BaseTarget):
-    def __init__(self, platform):
+    def __init__(self, platform, configSuffix):
         super(WindiwsBuildTarget, self).__init__()
         self.platform = platform
+        self.configSuffix = configSuffix
 
     def prepare(self, targetName, debug = False):
-        self.config = self.getBuildTypeStr(debug) + "-ALL"
+        self.config = self.getBuildTypeStr(debug) + configSuffix
         return 0
 
     def build(self):
@@ -101,20 +111,39 @@ class WindowsBuildTarget(BaseTarget):
         return subprocess.call([os.getenv('WINDIR') + '\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild', args ])
 
 
+
 logging.basicConfig(level=logging.INFO)
 
 buildTargets = {}
+#Android build targets
 buildTargets['android-arm']    = AndroidBuildTarget('armeabi')
-buildTargets['android-armv7a'] = AndroidBuildTarget('armeabi-v7a')
+buildTargets['android-armv7a'] = AndroidBuildTarget('armeabi-v7a') #not really used
 buildTargets['android-x86']    = AndroidBuildTarget('x86')
 buildTargets['android-mips']   = AndroidBuildTarget('mips')
+
+buildTargets['android']        = BaseTarget()
+buildTargets['android'].depend('android-arm')
+buildTargets['android'].depend('android-x86')
+buildTargets['android'].depend('android-mips')
+
 
 if not sys.platform.startswith('win'):
     buildTargets['32']             = LinuxBuildTarget('32')
     buildTargets['64']             = LinuxBuildTarget('64')
+
+    buildTargets['32-dist']         = BaseTarget()
+    buildTargets['32-dist'].depend('32')
+    buildTargets['32-dist'].depend('android')
+
+    buildTargets['64-dist']         = BaseTarget()
+    buildTargets['64-dist'].depend('64')
+    buildTargets['64-dist'].depend('android')
+
 else:
-    buildTargets['32']             = WindowsBuildTarget('Win32')
-    buildTargets['64']             = WindowsBuildTarget('x64')
+    buildTargets['32-dist']         = WindowsBuildTarget('Win32', '-ALL')
+    buildTargets['64-dist']         = WindowsBuildTarget('x64',   '-ALL')
+    buildTargets['32']              = WindowsBuildTarget('Win32', '')
+    buildTargets['64']              = WindowsBuildTarget('x64',   '')
 
 
 
@@ -139,27 +168,36 @@ if options.list_targets:
 if len(args) != 1: 
     parser.error('Please supply target to build')
 
-targetName = args[0]
-
-if targetName not in buildTargets.keys():
-    parser.error('Unrecognized target: ' + targetName)
-else:
-    target = buildTargets[targetName]
 
 
-logging.info('Preparing target ' + targetName)
-ret = target.prepare(targetName, options.build_debug)
+def Build(targetName):
+    ret = 0
+    if targetName not in buildTargets.keys():
+        parser.error('Unrecognized target: ' + targetName)
+    else:
+        target = buildTargets[targetName]
 
-if ret != 0:
-    logging.critical('Builld prepare failed for target ' + targetName + '. Error code = ' + str(ret) + '.')
-    exit(ret)
+    for dep in target.deps:
+        ret = Build(dep)
+        if ret != 0:
+            return ret
 
-ret = target.build()
-if ret != 0:
-    logging.critical('Builld failed for target ' + targetName + '. Error code = ' + str(ret) + '.')
+    logging.info('Preparing target ' + targetName)
+    ret = target.prepare(targetName, options.build_debug)
+
+    if ret != 0:
+        logging.critical('Builld prepare failed for target ' + targetName + '. Error code = ' + str(ret) + '.')
+        return ret
+
+    ret = target.build()
+    if ret != 0:
+        logging.critical('Builld failed for target ' + targetName + '. Error code = ' + str(ret) + '.')
+
+    return ret
 
 
-exit(ret)
+
+exit(Build(args[0]))
 
 
 '''
