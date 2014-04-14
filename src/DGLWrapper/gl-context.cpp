@@ -183,6 +183,16 @@ GLContext::GLContext(const DGLDisplayState* display, GLContextVersion version,
           m_CreationData(creationData),
           m_Display(display) {}
 
+
+GLContext::~GLContext() {
+    m_Textures.clear();
+    m_Buffers.clear();
+    m_Programs.clear();
+    m_Shaders.clear();
+    m_FBOs.clear();
+}
+
+
 dglnet::message::utils::ContextReport GLContext::describe() {
     dglnet::message::utils::ContextReport ret(m_Id);
     for (std::map<GLuint, GLTextureObj>::iterator i = m_Textures.begin();

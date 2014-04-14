@@ -79,6 +79,7 @@ class GLContext {
    public:
     GLContext(const DGLDisplayState* dpy, GLContextVersion version,
               opaque_id_t id, const GLContextCreationData& creationData);
+    ~GLContext();
     std::map<GLuint, GLTextureObj> m_Textures;
     std::map<GLuint, GLBufferObj> m_Buffers;
     std::map<GLuint, GLProgramObj> m_Programs;
