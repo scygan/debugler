@@ -219,7 +219,7 @@ dglnet::message::utils::ContextReport GLContext::describe() {
             ret.m_FramebufferSpace.insert(
                     dglnet::ContextObjectName(m_Id, GL_FRONT_RIGHT));
         }
-        if (hasCapability(ContextCap::ReadBufferSelector)) {
+        if (hasCapability(ContextCap::ReadBuffersFrontBuffer)) {
             // we have glReadBuffer, so we can read from front/back
             if (m_NativeReadSurface->isDoubleBuffered()) {
                 ret.m_FramebufferSpace.insert(
@@ -1054,9 +1054,12 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(
     state_setters::CurrentFramebuffer currentFramebuffer(this, 0);
     state_setters::PixelStoreAlignment defAlignment(this);
 
+    if (!hasCapability(ContextCap::ReadBuffersFrontBuffer) && bufferEnum != GL_BACK) {
+        throw std::runtime_error("Current context does not have front buffer read capability.");
+    }
+
     // select read buffer
-    if (m_Version.check(GLContextVersion::Type::ES, 3) ||
-        m_Version.check(GLContextVersion::Type::DT)) {
+    if (hasCapability(ContextCap::ReadBuffer)) {
         DIRECT_CALL_CHK(glReadBuffer)(bufferEnum);
     }
 
@@ -1389,7 +1392,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
             attachments[i] != GL_STENCIL_ATTACHMENT &&
             attachments[i] != GL_DEPTH_STENCIL_ATTACHMENT) {
             // select color attachment
-            if (hasCapability(ContextCap::ReadBufferSelector)) {
+            if (hasCapability(ContextCap::ReadBuffer)) {
                 DIRECT_CALL_CHK(glReadBuffer)(attachments[i]);
             }
         }
@@ -3098,9 +3101,12 @@ bool GLContext::hasCapability(ContextCap cap) {
                    (version.check(GLContextVersion::Type::DT, 3) ||
                     version.check(GLContextVersion::Type::ES, 3));
 
-        case ContextCap::ReadBufferSelector:
+        case ContextCap::ReadBuffer:
             return version.check(GLContextVersion::Type::ES, 3) ||
                    version.check(GLContextVersion::Type::DT);
+
+        case ContextCap::ReadBuffersFrontBuffer:
+            return version.check(GLContextVersion::Type::DT);
 
         case ContextCap::DrawBuffersMRT:
             return version.check(GLContextVersion::Type::ES, 3) ||

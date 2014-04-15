@@ -116,7 +116,7 @@ MSAADownSampler::MSAADownSampler(dglState::GLContext* context, GLenum attTarget,
         att != GL_DEPTH_STENCIL_ATTACHMENT) {
         // select buffers for downsampling
         if (m_Context->hasCapability(
-                    dglState::GLContext::ContextCap::ReadBufferSelector))
+                    dglState::GLContext::ContextCap::ReadBuffer))
             DIRECT_CALL_CHK(glReadBuffer)(att);
         if (m_Context->hasCapability(
                     dglState::GLContext::ContextCap::DrawBuffersMRT))

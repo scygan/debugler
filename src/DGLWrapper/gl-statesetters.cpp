@@ -70,12 +70,12 @@ CurrentFramebuffer::~CurrentFramebuffer() {
 }
 
 ReadBuffer::ReadBuffer(GLContext* ctx) : m_Ctx(ctx) {
-    if (m_Ctx->hasCapability(GLContext::ContextCap::ReadBufferSelector)) {
+    if (m_Ctx->hasCapability(GLContext::ContextCap::ReadBuffer)) {
         DIRECT_CALL_CHK(glGetIntegerv)(GL_READ_BUFFER, &m_ReadBuffer);
     }
 }
 ReadBuffer::~ReadBuffer() {
-    if (m_Ctx->hasCapability(GLContext::ContextCap::ReadBufferSelector)) {
+    if (m_Ctx->hasCapability(GLContext::ContextCap::ReadBuffer)) {
         DIRECT_CALL_CHK(glReadBuffer)(m_ReadBuffer);
     }
 }
