@@ -149,7 +149,7 @@ else:
 
 usage = 'usage: %prog [options] target'
 parser = OptionParser(usage=usage)
-parser.set_defaults(build_debug=True)
+parser.set_defaults(build_debug=False)
 parser.add_option('-l', '--listTargets', dest='list_targets', action='store_true', help='List avaliable targets')
 parser.add_option('-d', '--debug', dest='build_debug', action='store_true', help='Debug build')
 parser.add_option('-r', '--release', dest='build_debug', action='store_false', help='Release build')
