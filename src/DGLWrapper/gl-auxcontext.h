@@ -58,6 +58,20 @@ public:
     ~GLAuxEGLContextSurface();
 };
 
+class GLAuxWGLContextSurface: public GLAuxContextSurfaceBase  {
+public:
+    GLAuxWGLContextSurface(const DGLDisplayState* display, opaque_id_t pixfmt);
+    ~GLAuxWGLContextSurface();
+};
+
+/*
+class GLAuxGLXContextSurface: public GLAuxContextSurfaceBase  {
+public:
+    GLAuxGLXContextSurface(const DGLDisplayState* display, opaque_id_t pixfmt);
+    ~GLAuxGLXContextSurface();
+};
+*/
+
 class GLAuxContext {
    public:
     GLAuxContext(const GLContext*);

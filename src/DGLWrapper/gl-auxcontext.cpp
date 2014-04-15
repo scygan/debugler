@@ -77,6 +77,23 @@ GLAuxEGLContextSurface::~GLAuxEGLContextSurface() {
     }
 }
 
+GLAuxWGLContextSurface::GLAuxWGLContextSurface(const DGLDisplayState* display, opaque_id_t pixfmt):
+    GLAuxContextSurfaceBase(display) {
+
+        const int  attributes[] = {
+            0, 0,            
+        };
+
+        HDC hdc = DIRECT_CALL_CHK(wglGetCurrentDC)();
+        m_Id = reinterpret_cast<opaque_id_t>(
+            DIRECT_CALL_CHK(wglCreatePbufferARB)(hdc, static_cast<int>(pixfmt), 1, 1, attributes));
+}
+
+GLAuxWGLContextSurface::~GLAuxWGLContextSurface() {
+    if (m_Id) {
+        DIRECT_CALL_CHK(wglDestroyPbufferARB)((HPBUFFERARB)m_Id);
+    }
+}
 
 GLAuxContext::GLAuxContext(const GLContext* origCtx)
         : queries(this),
