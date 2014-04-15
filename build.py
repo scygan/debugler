@@ -97,18 +97,18 @@ class LinuxBuildTarget(CMakeTarget):
 
 class WindowsBuildTarget(BaseTarget):
     def __init__(self, platform, configSuffix):
-        super(WindiwsBuildTarget, self).__init__()
+        super(WindowsBuildTarget, self).__init__()
         self.platform = platform
         self.configSuffix = configSuffix
 
     def prepare(self, targetName, debug = False):
-        self.config = self.getBuildTypeStr(debug) + configSuffix
+        self.config = self.getBuildTypeStr(debug) + self.configSuffix
         return 0
 
     def build(self):
-        args = 'debugler.sln', '/p:VisualStudioVersion=11.0', '/m', '/nologo', '/t:Build',  'p:Configuration=' + os.config + ';platform=' + self.platform
-        logging.debug('Running MSBUILD with args ' + args + '...')
-        return subprocess.call([os.getenv('WINDIR') + '\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild', args ])
+        args = ['debugler.sln', '/p:VisualStudioVersion=11.0', '/m', '/nologo', '/t:Build',  '/p:Configuration=' + self.config + ';platform=' + self.platform]
+        logging.debug('Running MSBUILD with args ' + str(args) + '...')
+        return subprocess.call([os.getenv('WINDIR') + os.sep + 'Microsoft.NET' + os.sep + 'Framework' + os.sep + 'v4.0.30319' + os.sep + 'MSBuild.exe'] + args)
 
 
 
