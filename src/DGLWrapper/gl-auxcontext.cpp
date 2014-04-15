@@ -48,25 +48,35 @@ void GLAuxContextSession::dispose() {
     }
 }
 
-GLAuxContextSurface::GLAuxContextSurface(const DGLDisplayState* display,
-                                         opaque_id_t pixfmt)
-        : m_DisplayId(display->getId()), m_Id(0) {
-    EGLint attributes[] = {EGL_HEIGHT, 1, EGL_WIDTH, 1, EGL_NONE};
+GLAuxContextSurfaceBase::GLAuxContextSurfaceBase(const DGLDisplayState* display)
+        : m_DisplayId(display->getId()), m_Id(0) {}
+
+opaque_id_t GLAuxContextSurfaceBase::getId() const { return m_Id; }
+
+
+GLAuxEGLContextSurface::GLAuxEGLContextSurface(const DGLDisplayState* display, opaque_id_t pixfmt):
+        GLAuxContextSurfaceBase(display) {
+
+    EGLint attributes[] = {
+        EGL_HEIGHT, 1,
+        EGL_WIDTH, 1,
+        EGL_NONE
+    };
+
     m_Id = (opaque_id_t)DIRECT_CALL_CHK(eglCreatePbufferSurface)(
-            (EGLDisplay)m_DisplayId, (EGLConfig)pixfmt, attributes);
+        (EGLDisplay)m_DisplayId, (EGLConfig)pixfmt, attributes);
     if (!m_Id) {
         throw std::runtime_error("Cannot allocate axualiary pbuffer surface");
     }
 }
 
-GLAuxContextSurface::~GLAuxContextSurface() {
+GLAuxEGLContextSurface::~GLAuxEGLContextSurface() {
     if (m_Id) {
         DIRECT_CALL_CHK(eglDestroySurface)((EGLDisplay)m_DisplayId,
-                                           (EGLSurface)m_Id);
+            (EGLSurface)m_Id);
     }
 }
 
-opaque_id_t GLAuxContextSurface::getId() const { return m_Id; }
 
 GLAuxContext::GLAuxContext(const GLContext* origCtx)
         : queries(this),
@@ -127,7 +137,7 @@ void GLAuxContext::doRefCurrent() {
 
     if (!m_MakeCurrentRef) {
         if (!m_AuxSurface) {
-            m_AuxSurface = std::make_shared<GLAuxContextSurface>(
+            m_AuxSurface = std::make_shared<GLAuxEGLContextSurface>(
                     m_Parrent->getDisplay(), m_PixelFormat);
         }
         EGLBoolean status = DIRECT_CALL_CHK(eglMakeCurrent)(

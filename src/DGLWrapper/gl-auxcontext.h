@@ -40,15 +40,22 @@ class GLAuxContextSession {
     GLAuxContext* m_ctx;
 };
 
-class GLAuxContextSurface {
+class GLAuxContextSurfaceBase {
+   protected:
+    GLAuxContextSurfaceBase(const DGLDisplayState* display);
    public:
-    GLAuxContextSurface(const DGLDisplayState* display, opaque_id_t pixfmt);
-    ~GLAuxContextSurface();
+    virtual ~GLAuxContextSurfaceBase() {}
     opaque_id_t getId() const;
 
-   private:
+   protected:
     opaque_id_t m_DisplayId;
     opaque_id_t m_Id;
+};
+
+class GLAuxEGLContextSurface: public GLAuxContextSurfaceBase  {
+public:
+    GLAuxEGLContextSurface(const DGLDisplayState* display, opaque_id_t pixfmt);
+    ~GLAuxEGLContextSurface();
 };
 
 class GLAuxContext {
@@ -99,7 +106,7 @@ class GLAuxContext {
     const GLContext* m_Parrent;
     int m_MakeCurrentRef;
 
-    std::shared_ptr<GLAuxContextSurface> m_AuxSurface;
+    std::shared_ptr<GLAuxContextSurfaceBase> m_AuxSurface;
 
     friend class GLAuxContextSession;
 };
