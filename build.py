@@ -142,6 +142,8 @@ if not sys.platform.startswith('win'):
 else:
     buildTargets['32-dist']         = WindowsBuildTarget('Win32', '-ALL')
     buildTargets['64-dist']         = WindowsBuildTarget('x64',   '-ALL')
+    buildTargets['64-dist'].depend('32-dist')
+	
     buildTargets['32']              = WindowsBuildTarget('Win32', '')
     buildTargets['64']              = WindowsBuildTarget('x64',   '')
 
