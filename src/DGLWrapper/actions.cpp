@@ -289,6 +289,37 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                         reinterpret_cast<opaque_id_t>(ctx), surface, surface);
             }
             break;
+        case wglMakeContextCurrentARB_Call:
+            ret.get(retBool);
+            if (retBool) {
+                HDC deviceDraw;
+                HDC deviceRead;
+                call.getArgs()[0].get(deviceDraw);
+                call.getArgs()[1].get(deviceRead);
+                call.getArgs()[2].get(ctx);
+
+                dglState::NativeSurfaceBase* surfaceDraw = NULL;
+                if (deviceDraw) {
+                    surfaceDraw =
+                        DGLDisplayState::defDpy(DGLDisplayState::Type::WGL)
+                        ->ensureSurface<dglState::NativeSurfaceWGL>(
+                        (opaque_id_t)deviceDraw)
+                        ->second.get();
+                }
+                dglState::NativeSurfaceBase* surfaceRead = NULL;
+                if (deviceRead) {
+                    surfaceRead =
+                        DGLDisplayState::defDpy(DGLDisplayState::Type::WGL)
+                        ->ensureSurface<dglState::NativeSurfaceWGL>(
+                        (opaque_id_t)deviceRead)
+                        ->second.get();
+                }
+
+                DGLThreadState::get()->bindContext(
+                    DGLDisplayState::defDpy(DGLDisplayState::Type::WGL),
+                    reinterpret_cast<opaque_id_t>(ctx), surfaceDraw, surfaceRead);
+            }
+            break;
         case wglDeleteContext_Call:
             ret.get(retBool);
             if (retBool) {

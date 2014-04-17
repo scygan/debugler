@@ -84,6 +84,7 @@ void Initialize(void) {
     ActionBase::SetNext<ContextAction>(wglCreateContext_Call);
     ActionBase::SetNext<ContextAction>(wglCreateContextAttribsARB_Call);
     ActionBase::SetNext<ContextAction>(wglMakeCurrent_Call);
+    ActionBase::SetNext<ContextAction>(wglMakeContextCurrentARB_Call);
     ActionBase::SetNext<ContextAction>(wglDeleteContext_Call);
 
     ActionBase::SetNext<ContextAction>(glXCreateContext_Call);
