@@ -218,6 +218,7 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     switch (entryp) {
 #ifdef HAVE_LIBRARY_WGL
         case wglCreateContext_Call:
+        case wglCreateLayerContext_Call:
             ret.get(ctx);
             if (NULL != ctx) {
                 HDC device;

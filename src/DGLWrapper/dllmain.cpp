@@ -82,6 +82,7 @@ void Initialize(void) {
 #endif
 
     ActionBase::SetNext<ContextAction>(wglCreateContext_Call);
+    ActionBase::SetNext<ContextAction>(wglCreateLayerContext_Call);
     ActionBase::SetNext<ContextAction>(wglCreateContextAttribsARB_Call);
     ActionBase::SetNext<ContextAction>(wglMakeCurrent_Call);
     ActionBase::SetNext<ContextAction>(wglMakeContextCurrentARB_Call);
@@ -102,6 +103,7 @@ void Initialize(void) {
     ActionBase::SetNext<ContextAction>(eglBindAPI_Call);
 
     ActionBase::SetNext<DebugContextAction>(wglCreateContext_Call);
+    ActionBase::SetNext<DebugContextAction>(wglCreateLayerContext_Call);
     ActionBase::SetNext<DebugContextAction>(wglCreateContextAttribsARB_Call);
     ActionBase::SetNext<DebugContextAction>(glXCreateContext_Call);
     ActionBase::SetNext<DebugContextAction>(glXCreateNewContext_Call);
