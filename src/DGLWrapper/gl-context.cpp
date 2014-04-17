@@ -728,7 +728,7 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
     try {
         GLAuxContext* auxCtx = getAuxContext();
         {
-            GLAuxContextSession auxsess = auxCtx->makeCurrent();
+            GLAuxContextSession auxsess = auxCtx->createAuxCtxSession();
 
             //the format of RT, where texture will be rendered to now
             GLenum renderableFormat = GL_RGBA4;
@@ -1003,7 +1003,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryBufferAuxCtx(GLBufferObj* b
 
     GLAuxContext* auxCtx = getAuxContext();
     {
-        GLAuxContextSession auxsess = auxCtx->makeCurrent();
+        GLAuxContextSession auxsess = auxCtx->createAuxCtxSession();
 
         auxCtx->queries.auxGetBufferData(buff->getName(), resource->m_Data);
 
@@ -3158,7 +3158,7 @@ const GLContextCreationData& GLContext::getContextCreationData() const {
 
 GLAuxContext* GLContext::getAuxContext() {
     if (!m_AuxContext) {
-        m_AuxContext = std::make_shared<GLAuxContext>(this);
+        m_AuxContext = GLAuxContext::Create(this);
     }
     return m_AuxContext.get();
 }

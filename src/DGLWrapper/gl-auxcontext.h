@@ -58,11 +58,16 @@ public:
     ~GLAuxEGLContextSurface();
 };
 
+
+#ifdef _WIN32
 class GLAuxWGLContextSurface: public GLAuxContextSurfaceBase  {
 public:
     GLAuxWGLContextSurface(const DGLDisplayState* display, opaque_id_t pixfmt);
     ~GLAuxWGLContextSurface();
+private:
+    opaque_id_t m_pBuffer;
 };
+#endif
 
 /*
 class GLAuxGLXContextSurface: public GLAuxContextSurfaceBase  {
@@ -74,10 +79,12 @@ public:
 
 class GLAuxContext {
    public:
-    GLAuxContext(const GLContext*);
-    ~GLAuxContext();
+    GLAuxContext(const GLContext* parrent);
+    virtual ~GLAuxContext();
 
-    GLAuxContextSession makeCurrent();
+    static std::shared_ptr<GLAuxContext> Create(const GLContext* parrent);
+
+    GLAuxContextSession createAuxCtxSession();
 
     class GLQueries {
        public:
@@ -111,19 +118,46 @@ class GLAuxContext {
     } queries;
 
    private:
-    opaque_id_t choosePixelFormat(opaque_id_t preferred, opaque_id_t displayId);
-
+    
     void doRefCurrent();
     bool doUnrefCurrent();
 
-    opaque_id_t m_Id, m_PixelFormat;
-    const GLContext* m_Parrent;
+    virtual bool makeCurrent() = 0;
+    virtual bool unmakeCurrent() = 0;
+   
     int m_MakeCurrentRef;
 
+protected:
+    opaque_id_t m_Id, m_PixelFormat;
+    const GLContext* m_Parrent;
     std::shared_ptr<GLAuxContextSurfaceBase> m_AuxSurface;
 
     friend class GLAuxContextSession;
 };
+
+class GLEGLAuxContext: public GLAuxContext {
+public:
+    GLEGLAuxContext(const GLContext*);
+    ~GLEGLAuxContext();
+
+private:
+    opaque_id_t choosePixelFormat(opaque_id_t preferred, opaque_id_t displayId);
+    virtual bool makeCurrent();
+    virtual bool unmakeCurrent();
+};
+
+#ifdef _WIN32
+class GLWGLAuxContext: public GLAuxContext {
+public:
+    GLWGLAuxContext(const GLContext*);
+    ~GLWGLAuxContext();
+
+private:
+    int choosePixelFormat(opaque_id_t preferred, int displayId);
+    virtual bool makeCurrent();
+    virtual bool unmakeCurrent();
+};
+#endif
 
 }    // namespace
 #endif
