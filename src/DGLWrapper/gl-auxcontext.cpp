@@ -129,7 +129,7 @@ std::shared_ptr<GLAuxContext> GLAuxContext::Create(const GLContext* parrent) {
     }
 #endif
 
-    throw std::runtime_error("auxaliary contexts implemented only for EGL");
+    throw std::runtime_error("auxaliary contexts not implemented for this platform");
 }
 
 GLAuxContextSession GLAuxContext::createAuxCtxSession() {
