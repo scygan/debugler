@@ -114,6 +114,8 @@ add_library(dglgui
     ${dglgui_RESOURCES_RCC}
 )
 
+add_dependencies(dglgui codegen)
+
 add_executable(debugler main.cpp)
 target_link_libraries(debugler dglgui QHexEdit dglcommon dglnet ${QT_LIBRARIES} boost_system boost_serialization pthread rt)
 

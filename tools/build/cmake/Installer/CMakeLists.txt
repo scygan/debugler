@@ -1,4 +1,14 @@
+if (ANDROID_PREBUILD)
+    install(FILES ${CMAKE_BINARY_DIR}/../../android-x86/${CMAKE_BUILD_TYPE}/bin/x86/dglandroidinstaller     DESTINATION share/${CMAKE_PROJECT_NAME}/android-x86/)
+    install(FILES ${CMAKE_BINARY_DIR}/../../android-arm/${CMAKE_BUILD_TYPE}/bin/armeabi/dglandroidinstaller DESTINATION share/${CMAKE_PROJECT_NAME}/android-arm/)
+    install(FILES ${CMAKE_BINARY_DIR}/../../android-mips/${CMAKE_BUILD_TYPE}/bin/mips/dglandroidinstaller   DESTINATION share/${CMAKE_PROJECT_NAME}/android-mips/)
+endif()
+
 set(CPACK_GENERATOR "DEB")
+
+if (ANDROID_PREBUILD)
+    set(CPACK_SYSTEM_NAME ${CMAKE_SYSTEM_NAME}-withAndroid)
+endif()
 
 string(REPLACE "\"" "" DGL_VERSION_TMP ${DGL_VERSION})
 string(REPLACE "." ";" DGL_VERSION_STRING ${DGL_VERSION_TMP})

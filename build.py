@@ -39,10 +39,10 @@ class BaseTarget(object):
             return 'Release'
 
     def prepare(self, targetName, debug = False):
-        pass
+        return 0
 
     def build(self):
-        pass
+        return 0
 
 class CMakeTarget(BaseTarget):
     def __init__(self):
@@ -95,12 +95,13 @@ class AndroidBuildTarget(CMakeTarget):
 
 
 class LinuxBuildTarget(CMakeTarget):
-    def __init__(self, arch):
+    def __init__(self, arch, cmakeFlags = ''):
         super(LinuxBuildTarget, self).__init__()
         self.arch = arch
+        self.cmakeFlags = cmakeFlags
 
     def prepare(self, targetName, debug = False):
-        return super(LinuxBuildTarget, self).prepare(targetName, debug, ['-DARCH=' + self.arch])
+        return super(LinuxBuildTarget, self).prepare(targetName, debug, ['-DARCH=' + self.arch] + self.cmakeFlags)
 
     def build(self):
         return super(LinuxBuildTarget, self).build('package')
@@ -142,12 +143,10 @@ if not sys.platform.startswith('win'):
     buildTargets['32']             = LinuxBuildTarget('32')
     buildTargets['64']             = LinuxBuildTarget('64')
 
-    buildTargets['32-dist']         = BaseTarget()
-    buildTargets['32-dist'].depend('32')
+    buildTargets['32-dist']         = LinuxBuildTarget('32', ['-DANDROID_PREBUILD=1'])
     buildTargets['32-dist'].depend('android')
 
-    buildTargets['64-dist']         = BaseTarget()
-    buildTargets['64-dist'].depend('64')
+    buildTargets['64-dist']         = LinuxBuildTarget('64', ['-DANDROID_PREBUILD=1'])
     buildTargets['64-dist'].depend('android')
 
 else:
@@ -193,12 +192,12 @@ def Build(targetName):
     ret = target.prepare(targetName, options.build_debug)
 
     if ret != 0:
-        logging.critical('Builld prepare failed for target ' + targetName + '. Error code = ' + str(ret) + '.')
+        logging.critical('Build prepare failed for target ' + targetName + '. Error code = ' + str(ret) + '.')
         return ret
 
     ret = target.build()
     if ret != 0:
-        logging.critical('Builld failed for target ' + targetName + '. Error code = ' + str(ret) + '.')
+        logging.critical('Build failed for target ' + targetName + '. Error code = ' + str(ret) + '.')
 
     return ret
 
@@ -208,57 +207,3 @@ elif len(args) == 1:
     exit(Build(args[0]))
 else:
     exit(Build("64-dist"))
-
-
-'''
-
-ARCH=$1
-BUILDTYPE=$2
-
-if [ 'x$ARCH' == 'x' ]; then 
-    ARCH=32
-fi
-
-if [ 'x$BUILDTYPE' == 'x' ]; then 
-    BUILDTYPE=Release
-fi
-
-case '$ARCH' in
-'32')
-    TARGET=package
-    ;;
-'64')
-    TARGET=package
-    ;;
-'android-arm')
-    CMAKEFLAGS='-DCMAKE_TOOLCHAIN_FILE=../../../tools/cmake/toolchains/android.toolchain.cmake -DANDROID_ABI=armeabi'
-    ;;
-'android-armv7a')
-    CMAKEFLAGS='-DCMAKE_TOOLCHAIN_FILE=../../../tools/cmake/toolchains/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a'
-    ;;
-'android-mips')
-    CMAKEFLAGS='-DCMAKE_TOOLCHAIN_FILE=../../../tools/cmake/toolchains/android.toolchain.cmake -DANDROID_ABI=mips'
-    ;;
-'android-x86')
-    CMAKEFLAGS='-DCMAKE_TOOLCHAIN_FILE=../../../tools/cmake/toolchains/android.toolchain.cmake -DANDROID_ABI=x86'
-    ;;
- 
-*)
-    echo 'Platform $ARCH unsupported.'
-    exit 1
-    ;;
-esac
-
-
-CWD=`pwd`
-mkdir -p build/$ARCH/$BUILDTYPE && cd build/$ARCH/$BUILDTYPE && cmake -DARCH=$ARCH $CMAKEFLAGS -DCMAKE_BUILD_TYPE=$BUILDTYPE -G 'Eclipse CDT4 - Unix Makefiles' ../../..
-
-if [ '$?' != '0' ]; then 
-    echo CMAKE failed.
-    exit 1
-fi
-
-cd $CWD
-make -C build/$ARCH/$BUILDTYPE  $TARGET
-
-'''

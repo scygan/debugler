@@ -292,15 +292,20 @@ void Run::initializePage() {
         setFinalPage(false);
 
         QSettings settings(DGL_MANUFACTURER, DGL_PRODUCT);
+#ifdef _WIN32
         std::string path =
                 settings.value("InstallDir").toString().toStdString();
+#else
+       std::string path =  QFileInfo(QCoreApplication::applicationFilePath()).absoluteDir().path().toStdString() +
+                "/../share/debugler";
+#endif
 
         DGLADBDevice::ABI abi = m_Device->getABI();
 
         if (abi == DGLADBDevice::ABI::X86) {
             path += "/android-x86/";
         } else if (abi == DGLADBDevice::ABI::ARMEABI) {
-            path += "/android-armeabi/";
+            path += "/android-arm/";
         } else if (abi == DGLADBDevice::ABI::MIPS) {
             path += "/android-mips/";
         }
