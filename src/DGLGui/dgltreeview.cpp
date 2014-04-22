@@ -292,8 +292,8 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
         addChild(&m_FBONode);
         addChild(&m_ShaderNode);
         addChild(&m_ProgramNode);
-        addChild(&m_FramebufferNode);
         addChild(&m_TextureUnitNode);
+        addChild(&m_FramebufferNode);
         setIcon(0, QIcon(":/icons/context.png"));
     }
     opaque_id_t getId() { return m_Id; }
