@@ -149,7 +149,7 @@ else:
 
 
 
-usage = 'usage: %prog [options] target'
+usage = 'usage: %prog [options] [target]'
 parser = OptionParser(usage=usage)
 parser.set_defaults(build_debug=False)
 parser.add_option('-l', '--listTargets', dest='list_targets', action='store_true', help='List avaliable targets')
@@ -164,12 +164,6 @@ if options.list_targets:
     for k in buildTargets.keys():
         print k
     exit(0)
-
-
-
-if len(args) != 1: 
-    parser.error('Please supply target to build')
-
 
 
 def Build(targetName):
@@ -197,9 +191,14 @@ def Build(targetName):
 
     return ret
 
+	
 
-
-exit(Build(args[0]))
+if len(args) > 1: 
+    parser.error('Please supply one target to build')
+elif len(args) == 1:
+	exit(Build(args[0]))
+else:
+	exit(Build("64-dist"))
 
 
 '''
