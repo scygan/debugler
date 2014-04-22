@@ -22,7 +22,7 @@ import logging
 
 
 def getLocalPath():
-	return os.path.dirname(os.path.realpath(__file__))
+    return os.path.dirname(os.path.realpath(__file__))
 
 class BaseTarget(object):
     def __init__(self):
@@ -62,7 +62,13 @@ class CMakeTarget(BaseTarget):
             cmdLine += ['-DCMAKE_TOOLCHAIN_FILE=' + toolchain]
 
         cmdLine += ['-DCMAKE_BUILD_TYPE=' + self.getBuildTypeStr(debug)]
-        cmdLine += ['-G', 'Eclipse CDT4 - Unix Makefiles']
+
+        if not sys.platform.startswith('win'):
+            cmdLine += ['-G', 'Eclipse CDT4 - Unix Makefiles']
+        else:
+            cmdLine += ['-G', 'Eclipse CDT4 - Ninja']
+            cmdLine += ['-DCMAKE_MAKE_PROGRAM=' + getLocalPath() + "/tools/ninja.exe"]
+
         cmdLine += ['..' + os.sep + '..']
 
         logging.debug('Running CMAKE in ' + self.path + ' with args: ' + str(cmdLine) + '...')
@@ -71,8 +77,10 @@ class CMakeTarget(BaseTarget):
 
     def build(self, target = 'all'):
         logging.debug('Running make for ' + self.path + '...')
-        return subprocess.call(['make', '-j', '-C', self.path, target])
-        
+        if not sys.platform.startswith('win'):
+            return subprocess.call(['make', '-j', '-C', self.path, target])
+        else:
+            return subprocess.call([getLocalPath() + "/tools/ninja.exe", '-C', self.path, target], env={"PATH":'c:\\python27'})
 
 class AndroidBuildTarget(CMakeTarget):
     def __init__(self, arch):
@@ -80,7 +88,7 @@ class AndroidBuildTarget(CMakeTarget):
         self.arch = arch
 
     def prepare(self, targetName, debug = False):
-        return super(AndroidBuildTarget, self).prepare(targetName, debug, ['-DANDROID_ABI=' + self.arch],  '../../tools/build/cmake/toolchains/android.toolchain.cmake')
+        return super(AndroidBuildTarget, self).prepare(targetName, debug, ['-DANDROID_ABI=' + self.arch],  getLocalPath() + '/tools/build/cmake/toolchains/android.toolchain.cmake')
 
     def build(self):
         return super(AndroidBuildTarget, self).build()
@@ -146,7 +154,7 @@ else:
     buildTargets['32-dist']         = WindowsBuildTarget('Win32', '-ALL')
     buildTargets['64-dist']         = WindowsBuildTarget('x64',   '-ALL')
     buildTargets['64-dist'].depend('32-dist')
-	
+    
     buildTargets['32']              = WindowsBuildTarget('Win32', '')
     buildTargets['64']              = WindowsBuildTarget('x64',   '')
 
@@ -197,9 +205,9 @@ def Build(targetName):
 if len(args) > 1: 
     parser.error('Please supply one target to build')
 elif len(args) == 1:
-	exit(Build(args[0]))
+    exit(Build(args[0]))
 else:
-	exit(Build("64-dist"))
+    exit(Build("64-dist"))
 
 
 '''
