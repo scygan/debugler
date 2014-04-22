@@ -20,6 +20,10 @@ import subprocess
 from optparse import OptionParser
 import logging
 
+
+def getLocalPath():
+	return os.path.dirname(os.path.realpath(__file__))
+
 class BaseTarget(object):
     def __init__(self):
         self.deps = []
@@ -47,7 +51,7 @@ class CMakeTarget(BaseTarget):
 
     def prepare(self, targetName, debug, cmakeOpts, toolchain = ''):
 
-        self.path = 'build' + os.sep + targetName
+        self.path = getLocalPath() + os.sep + 'build' + os.sep + targetName
         
         if not os.path.exists(self.path):
            os.makedirs(self.path)
@@ -60,10 +64,9 @@ class CMakeTarget(BaseTarget):
         cmdLine += ['-DCMAKE_BUILD_TYPE=' + self.getBuildTypeStr(debug)]
         cmdLine += ['-G', 'Eclipse CDT4 - Unix Makefiles']
         cmdLine += ['..' + os.sep + '..']
-        path = os.getcwd() + os.sep + self.path
 
-        logging.debug('Running CMAKE in ' + path + ' with args: ' + str(cmdLine) + '...')
-        return subprocess.call(['cmake'] + cmdLine, cwd=path)
+        logging.debug('Running CMAKE in ' + self.path + ' with args: ' + str(cmdLine) + '...')
+        return subprocess.call(['cmake'] + cmdLine, cwd=self.path)
 
 
     def build(self, target = 'all'):
@@ -108,7 +111,7 @@ class WindowsBuildTarget(BaseTarget):
     def build(self):
         args = ['debugler.sln', '/p:VisualStudioVersion=11.0', '/m', '/nologo', '/t:Build',  '/p:Configuration=' + self.config + ';platform=' + self.platform]
         logging.debug('Running MSBUILD with args ' + str(args) + '...')
-        return subprocess.call([os.getenv('WINDIR') + os.sep + 'Microsoft.NET' + os.sep + 'Framework' + os.sep + 'v4.0.30319' + os.sep + 'MSBuild.exe'] + args)
+        return subprocess.call([os.getenv('WINDIR') + os.sep + 'Microsoft.NET' + os.sep + 'Framework' + os.sep + 'v4.0.30319' + os.sep + 'MSBuild.exe'] + args, cwd = getLocalPath())
 
 
 
@@ -190,8 +193,6 @@ def Build(targetName):
         logging.critical('Builld failed for target ' + targetName + '. Error code = ' + str(ret) + '.')
 
     return ret
-
-	
 
 if len(args) > 1: 
     parser.error('Please supply one target to build')
