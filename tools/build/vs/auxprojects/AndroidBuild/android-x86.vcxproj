@@ -42,10 +42,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)\build\android-x86\$(Configuration)\ TYPE=Release ABI=x86</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>nmake BUILDPY_PARAMS="" TARGET=android-x86</NMakeBuildCommandLine>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)\build\android-x86\$(Configuration)\ TYPE=Debug ABI=x86</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>nmake BUILDPY_PARAMS="-d" TARGET=android-x86</NMakeBuildCommandLine>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>

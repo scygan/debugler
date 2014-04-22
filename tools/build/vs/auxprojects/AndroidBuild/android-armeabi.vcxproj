@@ -42,10 +42,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)\build\android-armeabi\$(Configuration)\ TYPE=Release ABI=armeabi</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>nmake BUILDPY_PARAMS="" TARGET=android-arm</NMakeBuildCommandLine>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)\build\android-armeabi\$(Configuration)\ TYPE=Debug ABI=armeabi</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>nmake BUILDPY_PARAMS="-d" TARGET=android-arm</NMakeBuildCommandLine>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>

@@ -42,10 +42,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)\build\android-mips\$(Configuration)\ TYPE=Release ABI=mips</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>nmake BUILDPY_PARAMS="" TARGET=android-mips</NMakeBuildCommandLine>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <NMakeBuildCommandLine>nmake OUT=$(SolutionDir)\build\android-mips\$(Configuration)\ TYPE=Debug ABI=mips</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>nmake BUILDPY_PARAMS="-d" TARGET=android-mips</NMakeBuildCommandLine>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
