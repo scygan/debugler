@@ -87,9 +87,9 @@
             </Directory>
             
             
-            <Directory Id='AndroidARMDir' Name='android-armeabi'>
+            <Directory Id='AndroidARMDir' Name='android-arm'>
               <Component Id='AndroidARMSupport' Guid='{4627FD07-4783-45B2-8296-E53C64898AE8}' KeyPath='yes'>
-                <File Id='android_installer_arm' Name='dglandroidinstaller' DiskId='1' Source='..\..\android-armeabi\Release\bin\armeabi\dglandroidinstaller' />
+                <File Id='android_installer_arm' Name='dglandroidinstaller' DiskId='1' Source='..\..\android-arm\Release\bin\armeabi\dglandroidinstaller' />
               </Component>
             </Directory>
             <Directory Id='AndroidX86Dir' Name='android-x86'>
