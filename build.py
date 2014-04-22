@@ -51,7 +51,7 @@ class CMakeTarget(BaseTarget):
 
     def prepare(self, targetName, debug, cmakeOpts, toolchain = ''):
 
-        self.path = getLocalPath() + os.sep + 'build' + os.sep + targetName
+        self.path = getLocalPath() + os.sep + 'build' + os.sep + targetName + os.sep + self.getBuildTypeStr(debug)
         
         if not os.path.exists(self.path):
            os.makedirs(self.path)
@@ -69,7 +69,7 @@ class CMakeTarget(BaseTarget):
             cmdLine += ['-G', 'Eclipse CDT4 - Ninja']
             cmdLine += ['-DCMAKE_MAKE_PROGRAM=' + getLocalPath() + "/tools/ninja.exe"]
 
-        cmdLine += ['..' + os.sep + '..']
+        cmdLine += [getLocalPath()]
 
         logging.debug('Running CMAKE in ' + self.path + ' with args: ' + str(cmdLine) + '...')
         return subprocess.call(['cmake'] + cmdLine, cwd=self.path)
