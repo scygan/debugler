@@ -203,7 +203,7 @@ void validateHL(QPlainTextEdit* editor,
         line++;
     }
 }
-};
+}
 
 TEST_F(DGLGui, syntax_highlighter_parse) {
     QPlainTextEdit editor;
