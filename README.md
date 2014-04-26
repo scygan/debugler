@@ -70,13 +70,13 @@ built.py [target]
 ####Running unit tests
 
  * Run
-  ```
-  cd build/<target>/<configuration>/UT
-  ut
-  ```
+```
+cd build/<target>/<configuration>/UT
+ut
+```
 
-####Development
-### Code style
+### Development
+#### Code style
   * Use clanf-format from llvm project, use provided .clang_format definitions. 
    * http://llvm.org/builds/downloads/ClangFormat.vsix
    * http://llvm.org/builds/downloads/LLVM-3.4.r194000-win32.exe
