@@ -173,6 +173,11 @@ void DGLShaderViewItem::error(const std::string& message) {
 void DGLShaderViewItem::saveShader() {
     QString fileName = QFileDialog::getSaveFileName(
             this, tr("Save shader as..."), QString(), tr("Text files (*.txt)"));
+
+    if (fileName.isEmpty()) {
+        return;
+    }
+
     QFile f(fileName);
     if (!f.open(QIODevice::WriteOnly)) {
         QMessageBox::critical(this, tr("Write error"),

@@ -33,12 +33,20 @@ signals:
 
     virtual bool shouldTerminateOnStop() = 0;
 
+    void saveToStream(std::ostream& oStream) const;
+    static std::shared_ptr<DGLProject> createFromStream(std::istream& iStream);
+    bool operator== (const DGLProject& rhs);
+
     virtual ~DGLProject() {}
+
+    template<class Archive>
+    void serialize(Archive & /* ar */, const unsigned int /* version */) {} 
 };
 
 class DGLProjectFactory : public QObject {
     Q_OBJECT
    public:
+
     virtual std::shared_ptr<DGLProject> createProject() = 0;
 
     virtual bool valid(QString&) {

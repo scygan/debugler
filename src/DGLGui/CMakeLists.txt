@@ -28,6 +28,7 @@ set(dglgui_SOURCES
     dglprepareandroidwizard.cpp
     dglandroidselectdev.cpp
     dglprojectdialog.cpp
+    dglproject_base.cpp
     dglproject_runapp.cpp
     dglproject_attach.cpp
     dglproject_android.cpp

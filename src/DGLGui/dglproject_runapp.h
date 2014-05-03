@@ -27,13 +27,23 @@ class DGLRunAppProject: public DGLProject {
     Q_OBJECT
 public:
     DGLRunAppProject(const std::string& executable,
-        const std::string& path, const QString& args, bool eglMode);
+        const std::string& path, const std::wstring& args, bool eglMode);
+    DGLRunAppProject();
     ~DGLRunAppProject();
 
     const std::string& getExecutable() const;
     const std::string& getPath() const;
-    std::string getCommandLineArgs() const;
+    const std::wstring& getCommandLineArgs() const;
+    bool isEglMode();
 
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int /* version */) {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(DGLProject);
+        ar & BOOST_SERIALIZATION_NVP(m_executable);
+        ar & BOOST_SERIALIZATION_NVP(m_path);
+        ar & BOOST_SERIALIZATION_NVP(m_args);
+        ar & BOOST_SERIALIZATION_NVP(m_EglMode);
+    }
 
 private slots:
      /**
@@ -56,7 +66,6 @@ private slots:
      */
     void processReadyHandler();
 
-
 private:
     virtual void startDebugging() override;
 
@@ -72,14 +81,11 @@ private:
      */
     DGLDebugeeQTProcess *m_process;
 
-
     std::string m_executable, m_path;
-    
-    QString m_args; //we store these as QT string, to easy convert to utf8/wide char.
+    std::wstring m_args;
 
     bool m_EglMode;
 };
-
 
 class DGLRunAppProjectFactory: public DGLProjectFactory {
     Q_OBJECT

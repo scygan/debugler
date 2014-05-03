@@ -33,13 +33,15 @@
 #include <DGLCommon/os.h>
 
 DGLRunAppProject::DGLRunAppProject(const std::string& executable,
-                                   const std::string& path, const QString& args,
+                                   const std::string& path, const std::wstring& args,
                                    bool eglMode)
         : m_process(nullptr),
           m_executable(executable),
           m_path(path),
           m_args(args),
           m_EglMode(eglMode) {}
+
+DGLRunAppProject::DGLRunAppProject() : m_process(nullptr) {}
 
 DGLRunAppProject::~DGLRunAppProject() { stopDebugging(); }
 
@@ -49,8 +51,12 @@ const std::string& DGLRunAppProject::getExecutable() const {
 
 const std::string& DGLRunAppProject::getPath() const { return m_path; }
 
-std::string DGLRunAppProject::getCommandLineArgs() const {
-    return m_args.toStdString();
+const std::wstring& DGLRunAppProject::getCommandLineArgs() const {
+    return m_args;
+}
+
+bool DGLRunAppProject::isEglMode() {
+    return m_EglMode;
 }
 
 void DGLRunAppProject::startDebugging() {
@@ -116,7 +122,7 @@ std::vector<std::string> DGLRunAppProject::getCommandLineArgVector() {
     int numArgs;
     if (m_args.length()) {
         LPWSTR* strings =
-                CommandLineToArgvW(m_args.toStdWString().c_str(), &numArgs);
+                CommandLineToArgvW(m_args.c_str(), &numArgs);
         if (!strings) {
             if (int osError = Os::getLastosError()) {
                 throw std::runtime_error("Program arguments: " +
@@ -224,7 +230,7 @@ std::shared_ptr<DGLProject> DGLRunAppProjectFactory::createProject() {
         return std::make_shared<DGLRunAppProject>(
                 m_ui.lineEdit_Executable->text().toStdString(),
                 m_ui.lineEdit_Path->text().toStdString(),
-                m_ui.lineEdit_CommandLineArgs->text(),
+                m_ui.lineEdit_CommandLineArgs->text().toStdWString(),
                 m_ui.radioButton_ModeEGL->isChecked() &&
                         !m_ui.radioButton_ModeWGLGLX->isChecked());
     }
@@ -248,7 +254,7 @@ bool DGLRunAppProjectFactory::loadPropertiesFromProject(
         m_ui.lineEdit_Executable->setText(
                 QString::fromStdString(runProject->getExecutable()));
         m_ui.lineEdit_CommandLineArgs->setText(
-                QString::fromStdString(runProject->getCommandLineArgs()));
+                QString::fromStdWString(runProject->getCommandLineArgs()));
         m_ui.lineEdit_Path->setText(
                 QString::fromStdString(runProject->getPath()));
     }

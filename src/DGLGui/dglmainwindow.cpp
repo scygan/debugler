@@ -21,6 +21,7 @@
 #include <QFile>
 #include <QToolBar>
 #include <QProgressDialog>
+#include <QFileDialog>
 
 #include "dglbreakpointdialog.h"
 #include "dglconfigdialog.h"
@@ -70,7 +71,7 @@ QPixmap qt_pixmapFromWinHICON(HICON icon);
 #endif
 
 DGLMainWindow::DGLMainWindow(QWidget *_parent, Qt::WindowFlags flags)
-        : QMainWindow(_parent, flags), m_BusyDialog(this) {
+        : QMainWindow(_parent, flags), m_BusyDialog(this), m_ProjectSaved(false) {
 
 #pragma warning(push)
 #pragma warning(disable : 4127)    // conditional expression is constant
@@ -109,31 +110,27 @@ DGLMainWindow::~DGLMainWindow() {}
 
 void DGLMainWindow::closeEvent(QCloseEvent *_event) {
 
-    if (m_controller.isConnected() &&
-        QMessageBox::question(
-                this, "Confirm close",
-                "Debugging session is in progress. Close application?",
-                QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
+    if (!closeProject()) {
         _event->ignore();
-
-    } else {
-        debugStop();
-
-        // store QSettings
-
-        QSettings settings(DGL_MANUFACTURER, DGL_PRODUCT);
-        settings.setValue(DGL_GEOMETRY_SETTINGS, saveGeometry());
-        settings.setValue(DGL_WINDOW_STATE_SETTINGS, saveState());
-        settings.setValue(DGL_ColorScheme_SETTINGS, m_ColorScheme);
-        settings.setValue(
-                DGL_ADB_PATH_SETTINGS,
-                QString::fromStdString(DGLAdbInterface::get()->getAdbPath())
-                        .toUtf8());
-
-        // Send even to parrent class
-
-        _event->accept();
+        return;
     }
+
+    debugStop();
+
+    // store QSettings
+
+    QSettings settings(DGL_MANUFACTURER, DGL_PRODUCT);
+    settings.setValue(DGL_GEOMETRY_SETTINGS, saveGeometry());
+    settings.setValue(DGL_WINDOW_STATE_SETTINGS, saveState());
+    settings.setValue(DGL_ColorScheme_SETTINGS, m_ColorScheme);
+    settings.setValue(
+            DGL_ADB_PATH_SETTINGS,
+            QString::fromStdString(DGLAdbInterface::get()->getAdbPath())
+                    .toUtf8());
+
+    // Send event to parent class
+
+    _event->accept();
 }
 
 void DGLMainWindow::createDockWindows() {
@@ -315,23 +312,19 @@ void DGLMainWindow::createActions() {
 
     openProjectAct = new QAction(tr("&Open Project..."), this);
     openProjectAct->setStatusTip(tr("Opens a debugging project"));
-    //CONNASSERT(openProjectAct, SIGNAL(triggered()), this, SLOT(openProject())); //TODO: implement
+    CONNASSERT(openProjectAct, SIGNAL(triggered()), this, SLOT(openProject())); //TODO: implement
     openProjectAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_O));
-    openProjectAct->setDisabled(true);//TODO
 
-
-    saveProjectAct = new QAction(tr("&Save Project..."), this);
-    saveProjectAct->setStatusTip(tr("Save a debugging project.."));
-    //CONNASSERT(saveProjectAct, SIGNAL(triggered()), this, SLOT(openProject())); //TODO: implement
+    saveProjectAct = new QAction(tr("&Save Project"), this);
+    saveProjectAct->setStatusTip(tr("Save a debugging project"));
+    CONNASSERT(saveProjectAct, SIGNAL(triggered()), this, SLOT(saveProject())); //TODO: implement
     saveProjectAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
-    saveProjectAct->setDisabled(true);//TODO
-
 
     saveAsProjectAct = new QAction(tr("&Save Project As ..."), this);
-    saveAsProjectAct->setStatusTip(tr("Save a debugging project as.."));
-    //CONNASSERT(saveAsProjectAct, SIGNAL(triggered()), this, SLOT(openProject())); //TODO: implement
-    saveAsProjectAct->setDisabled(true);//TODO
-
+    saveAsProjectAct->setStatusTip(tr("Save a debugging project as as a file ..."));
+    CONNASSERT(saveAsProjectAct, SIGNAL(triggered()), this, SLOT(saveProjectAs())); //TODO: implement
+    saveAsProjectAct->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_S));
+    
 
     projectProperiesAct = new QAction(tr("&Project properties..."), this);
     projectProperiesAct->setStatusTip(tr("Change properties of current project"));
@@ -624,8 +617,7 @@ void DGLMainWindow::about() {
 void DGLMainWindow::newProject() {
 
     if (m_project) {
-        closeProject();
-        if (m_project) {
+        if (!closeProject()) {
             return;
         }
     }
@@ -635,6 +627,9 @@ void DGLMainWindow::newProject() {
         // if dialog is successfull, get project and start debug
         m_project = m_ProjectDialog.getProject();
         if (m_project) {
+
+            m_ProjectSaved = false;
+
             CONNASSERT(m_project.get(), SIGNAL(debugStarted(std::string, std::string)), this, SLOT(onDebugStartedConnectReady(std::string, std::string)));
             CONNASSERT(m_project.get(), SIGNAL(debugError(QString, QString)), this, SLOT(onDebugError(QString, QString)));
             CONNASSERT(m_project.get(), SIGNAL(debugExit(QString)), this, SLOT(onDebugExit(QString)));
@@ -644,31 +639,51 @@ void DGLMainWindow::newProject() {
     }
 }
 
-void DGLMainWindow::closeProject() {
+bool DGLMainWindow::closeProject() {
     
     if (m_controller.isConnected()) {
         if ( QMessageBox::question(
             this, "Confirm close",
             "Debugging session is in progress. Close project?",
             QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
-                return;
+                return false;
         } else {
             debugStop();
         }
     }
 
-    if (m_project) {
-        //TODO: save it somehow?
+    if (m_project && !m_ProjectSaved) {
+        
+        if (QMessageBox::question(
+            this, "Save project",
+            "Current project is not saved and will be lost on exit. Save?",
+            QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+            
+            if (!saveProject()) {
+                return false;
+            }
+        }
     }
 
     m_project.reset();
+
+    m_ProjectSaved = false;
+
+    return true;
 }
 
 void DGLMainWindow::projectProperties() {
     if (haveProject()) {
         m_ProjectDialog.loadPropertiesFromProject(m_project.get());
         if (m_ProjectDialog.exec() == QDialog::Accepted) {
-            m_project = m_ProjectDialog.getProject();
+
+            std::shared_ptr<DGLProject> newProject =  m_ProjectDialog.getProject();
+
+            m_ProjectSaved = ( !newProject || *newProject == *m_project );
+
+            m_project = newProject;
+
+
             if (m_project) {
                 CONNASSERT(m_project.get(), SIGNAL(debugStarted(std::string, std::string)), this, SLOT(onDebugStartedConnectReady(std::string, std::string)));
                 CONNASSERT(m_project.get(), SIGNAL(debugError(QString, QString)), this, SLOT(onDebugError(QString, QString)));
@@ -676,6 +691,99 @@ void DGLMainWindow::projectProperties() {
             }
         }
     }
+}
+
+void DGLMainWindow::openProject() {
+
+    QString filePath = QFileDialog::getOpenFileName(
+        this, tr("Open project..."), QString(), tr("Debugler project files (*.dglproj)"));
+
+    if (filePath.isEmpty()) {
+        return;
+    }
+
+    try {
+
+        std::ifstream inputStream;
+
+        inputStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+        inputStream.open(filePath.toStdString());
+
+        m_project = DGLProject::createFromStream(inputStream);
+
+        if (!m_project) {
+            throw std::runtime_error("File does not contain a Debugler project");
+        }
+
+        m_ProjectSaved = true;
+
+        m_SavedProjectPath = filePath;
+
+    } catch (const std::ifstream::failure& err) {
+
+        QMessageBox::critical(NULL, tr("Cannot read from file"),
+            QString::fromStdString(err.what()));
+
+    } catch (...) {
+        QMessageBox::critical(NULL, tr("Cannot read from file"),
+            tr("Unknown exception occurred while reading the file"));
+    }
+}
+
+
+bool DGLMainWindow::saveProject() {
+    
+    if (m_SavedProjectPath.size() == 0) {
+        return saveProjectAs();
+    }
+
+    return saveProjectToFile(m_SavedProjectPath);
+}
+
+bool DGLMainWindow::saveProjectAs() {
+
+    QString filePath = QFileDialog::getSaveFileName(
+        this, tr("Save project as..."), QString(), tr("Debugler project files (*.dglproj)"));
+
+    if (filePath.isEmpty()) {
+        return false;
+    }
+
+    return saveProjectToFile(filePath);
+}
+
+bool DGLMainWindow::saveProjectToFile(QString filePath) {
+    
+    if (!m_project) {
+        return true;
+    }
+
+    try {
+
+        std::ofstream outputStream;
+
+        outputStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+        outputStream.open(filePath.toStdString());
+        m_project->saveToStream(outputStream);
+
+        m_ProjectSaved = true;
+
+        m_SavedProjectPath = filePath;
+
+        return true;
+
+    } catch (const std::ifstream::failure& err) {
+
+        QMessageBox::critical(NULL, tr("Cannot write file"),
+            QString::fromStdString(err.what()));
+
+    } catch (...) {
+        QMessageBox::critical(NULL, tr("Cannot write file"),
+            tr("Unknown exception occurred while writing the file"));
+    }
+    return false;   
 }
 
 void DGLMainWindow::debugStart() {

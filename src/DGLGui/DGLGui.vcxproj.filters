@@ -335,6 +335,9 @@
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglproject_android.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="dglproject_base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">

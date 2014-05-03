@@ -27,8 +27,16 @@
 class DGLAttachProject : public DGLProject {
    public:
     DGLAttachProject(std::string address, std::string port);
+    DGLAttachProject();
     const std::string& getAddress() const;
     const std::string& getPort() const;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int /* version */) {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(DGLProject);
+        ar & BOOST_SERIALIZATION_NVP(m_address);
+        ar & BOOST_SERIALIZATION_NVP(m_port);
+    }
 
    private:
     virtual void startDebugging() override;

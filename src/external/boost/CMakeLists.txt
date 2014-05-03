@@ -29,6 +29,13 @@ set(boost_serialization_SOURCES
     libs/serialization/src/basic_serializer_map.cpp
     libs/serialization/src/basic_oserializer.cpp
     libs/serialization/src/basic_oarchive.cpp
+    libs/serialization/src/basic_text_oprimitive.cpp
+    libs/serialization/src/basic_text_iprimitive.cpp
+    libs/serialization/src/basic_xml_archive.cpp
+    libs/serialization/src/xml_archive_exception.cpp
+    libs/serialization/src/xml_grammar.cpp
+    libs/serialization/src/xml_oarchive.cpp
+    libs/serialization/src/xml_iarchive.cpp
 )
 add_library(boost_serialization
     ${boost_serialization_SOURCES}

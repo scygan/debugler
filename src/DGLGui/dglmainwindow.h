@@ -76,12 +76,27 @@ slots:
     /**
      * Slot for closing current project
      */
-    void closeProject();
+    bool closeProject();
 
      /**
      * Slot for displaying project properties dialog
      */
     void projectProperties();
+
+    /** 
+     * Slot for opening a project from file
+     */
+    void openProject();
+
+    /** 
+     * Slot for saving a project
+     */
+    bool saveProject();
+
+    /** 
+     * Slot for saving a project to concrete file
+     */
+    bool saveProjectAs();
 
     /**
      * Slot for starting debugging session
@@ -191,6 +206,13 @@ slots:
      */
     void showConfig();
 
+    /** 
+     * Save project routine
+     * 
+     * returns true on success
+     */
+    bool saveProjectToFile(QString filePath);
+
     /**
       * Method intercepring main window close event
       */
@@ -272,6 +294,18 @@ slots:
      * Process starting busy progress dialog
      */
     DGLbusyDialog m_BusyDialog;
+
+    /** 
+     * Last path of saved project
+     */
+    QString m_SavedProjectPath;
+
+    /** 
+     * Project saved flag. 
+     * 
+     * False if modified, but not saved.
+     */
+    bool m_ProjectSaved;
 };
 
 #endif    // DGLMAINWINDOW_H

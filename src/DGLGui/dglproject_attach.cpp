@@ -21,6 +21,8 @@
 DGLAttachProject::DGLAttachProject(std::string address, std::string port)
         : m_address(address), m_port(port) {}
 
+DGLAttachProject::DGLAttachProject() {}
+
 const std::string& DGLAttachProject::getAddress() const { return m_address; }
 
 const std::string& DGLAttachProject::getPort() const { return m_port; }

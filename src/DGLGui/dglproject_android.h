@@ -26,6 +26,7 @@ class DGLAndroidProject : public DGLProject {
    Q_OBJECT
    public:
     DGLAndroidProject(const std::string& deviceSerial, const std::string& processName, const std::string& pid = "");
+    DGLAndroidProject();
 
     ~DGLAndroidProject();
 
@@ -33,6 +34,13 @@ class DGLAndroidProject : public DGLProject {
     const std::string& getPid() const;
     const std::string& getProcessName() const;
 
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int /* version */) {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(DGLProject);
+        ar & BOOST_SERIALIZATION_NVP(m_deviceSerial);
+        ar & BOOST_SERIALIZATION_NVP(m_processName);
+        ar & BOOST_SERIALIZATION_NVP(m_pid);
+    }
 
    private slots:
     void portForwardSuccess(DGLADBDevice*);
@@ -40,6 +48,7 @@ class DGLAndroidProject : public DGLProject {
     void unsetProcessBreakPointSuccess(DGLADBDevice*);
     void deviceFailed(DGLADBDevice*, const std::string&);
     void gotProcesses(DGLADBDevice*, std::vector<DGLAdbDeviceProcess>);
+
    private:
     virtual void startDebugging() override;
     virtual void stopDebugging() override;

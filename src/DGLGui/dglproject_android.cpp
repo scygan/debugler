@@ -20,6 +20,8 @@
 DGLAndroidProject::DGLAndroidProject(const std::string& deviceSerial, const std::string& processName, const std::string& pid)
         : m_deviceSerial(deviceSerial), m_processName(processName), m_pid(pid), m_Device(nullptr), m_Deleting(false) {}
 
+DGLAndroidProject::DGLAndroidProject() : m_Device(nullptr), m_Deleting(false) {}
+
 DGLAndroidProject::~DGLAndroidProject() {
     if (m_Device) {
         m_Device->deleteLater();

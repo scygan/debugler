@@ -328,6 +328,7 @@
     <ClCompile Include="dglprojectdialog.cpp" />
     <ClCompile Include="dglproject_android.cpp" />
     <ClCompile Include="dglproject_attach.cpp" />
+    <ClCompile Include="dglproject_base.cpp" />
     <ClCompile Include="dglproject_runapp.cpp" />
     <ClCompile Include="dglshaderview.cpp" />
     <ClCompile Include="dglstateview.cpp" />
