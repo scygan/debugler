@@ -162,7 +162,7 @@ slots:
      * Called by dgl controller to give debugee process info. Used to populate
      * window caption
      */
-    void debugeeInfo(const std::string &);
+    void updateWindowCaption(const std::string &);
 
     /** 
      * slot bringing window up to front 

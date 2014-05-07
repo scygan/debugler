@@ -88,8 +88,6 @@ DGLMainWindow::DGLMainWindow(QWidget *_parent, Qt::WindowFlags flags)
     m_ui.setupUi(this);
     setDockNestingEnabled(true);
 
-    debugeeInfo("");
-
     // create all widgets, actions iteractions etc...
 
     createActions();
@@ -108,6 +106,8 @@ DGLMainWindow::DGLMainWindow(QWidget *_parent, Qt::WindowFlags flags)
     if (QCoreApplication::arguments().size() == 2) {
         openProjectFromFile(QCoreApplication::arguments()[1]);
     }
+
+    updateWindowCaption("");
 }
 
 DGLMainWindow::~DGLMainWindow() {}
@@ -510,7 +510,7 @@ void DGLMainWindow::createInteractions() {
                SIGNAL(connectionLost(const QString &, const QString &)), this,
                SLOT(connectionLost(const QString &, const QString &)));
     CONNASSERT(&m_controller, SIGNAL(debugeeInfo(const std::string &)), this,
-               SLOT(debugeeInfo(const std::string &)));
+               SLOT(updateWindowCaption(const std::string &)));
 
     CONNASSERT(&m_controller, SIGNAL(setConnected(bool)), this,
         SLOT(onConnect(bool)));
@@ -601,11 +601,22 @@ void DGLMainWindow::androidPrepare() {
     wizard.exec();
 }
 
-void DGLMainWindow::debugeeInfo(const std::string &processName) {
-    if (processName.length()) {
-        setWindowTitle(QString::fromStdString(DGL_PRODUCT" - " + processName));
+void DGLMainWindow::updateWindowCaption(const std::string &processName) {
+
+    if (!m_project) {
+        setWindowTitle("No project opened - " DGL_PRODUCT);
     } else {
-        setWindowTitle(DGL_PRODUCT" - disconnected");
+
+        QString projectName = "Untitled project";
+        if (m_SavedProjectPath.size()) {
+            projectName = m_SavedProjectPath;
+        }
+
+        if (processName.length()) {
+            setWindowTitle(projectName + " ( " + QString::fromStdString(processName) + " ) - " DGL_PRODUCT);
+        } else {
+            setWindowTitle(projectName + " ( disconnected ) - " DGL_PRODUCT);
+        }
     }
 }
 
@@ -630,6 +641,9 @@ void DGLMainWindow::newProject() {
 
         // if dialog is successfull, get project and start debug
         m_project = m_ProjectDialog.getProject();
+
+        updateWindowCaption("");
+
         if (m_project) {
 
             m_ProjectSaved = false;
@@ -656,6 +670,8 @@ bool DGLMainWindow::closeProject() {
         }
     }
 
+    updateWindowCaption("");
+
     if (m_project && !m_ProjectSaved) {
         
         if (QMessageBox::question(
@@ -672,6 +688,8 @@ bool DGLMainWindow::closeProject() {
     m_project.reset();
 
     m_ProjectSaved = false;
+
+    updateWindowCaption("");
 
     return true;
 }
@@ -750,6 +768,8 @@ bool DGLMainWindow::saveProjectToFile(QString filePath) {
 
         m_SavedProjectPath = filePath;
 
+        updateWindowCaption("");
+
         return true;
 
     } catch (const std::ifstream::failure& err) {
@@ -767,6 +787,12 @@ bool DGLMainWindow::saveProjectToFile(QString filePath) {
 void DGLMainWindow::openProjectFromFile(QString filePath) {
     try {
 
+        if (m_project) {
+            if (!closeProject()) {
+                return;
+            }
+        }
+
         std::ifstream inputStream;
 
         inputStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -782,6 +808,8 @@ void DGLMainWindow::openProjectFromFile(QString filePath) {
         m_ProjectSaved = true;
 
         m_SavedProjectPath = filePath;
+
+        updateWindowCaption("");
 
     } catch (const std::ifstream::failure& err) {
 
