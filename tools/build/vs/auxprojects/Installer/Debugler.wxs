@@ -59,6 +59,11 @@
               <File Id='DebuglerEXE' Name='Debugler.exe' DiskId='1' Source='Debugler.exe' KeyPath='yes'>
                 <Shortcut Id="startmenuDebugler01" Directory="ProgramMenuDir" Name="Debugler $(var.version)" WorkingDirectory='INSTALLDIR' Icon="Debugler01.exe" IconIndex="0" Advertise="yes" />
               </File>
+              <ProgId Id='Debugler.dglproj' Description='Debugler Project File' Icon='Debugler01.exe' IconIndex='1' Advertise="yes">
+                <Extension Id='dglproj' ContentType='Application/xml'>
+                  <Verb Id='open' Sequence='10' Command='Open' Argument='"%1"' />
+                </Extension>
+              </ProgId>
               <File Id='DGLLoaderEXE' Name='DGLLoader.exe' DiskId='1' Source='DGLLoader.exe'/>
             </Component>
 

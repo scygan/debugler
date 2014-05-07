@@ -213,6 +213,12 @@ slots:
      */
     bool saveProjectToFile(QString filePath);
 
+    /** 
+     * Open project routine
+     * 
+     */
+    void openProjectFromFile(QString filePath);
+
     /**
       * Method intercepring main window close event
       */

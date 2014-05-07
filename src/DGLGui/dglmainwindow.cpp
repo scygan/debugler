@@ -104,6 +104,10 @@ DGLMainWindow::DGLMainWindow(QWidget *_parent, Qt::WindowFlags flags)
     readSettings();
 
     showConfig();
+
+    if (QCoreApplication::arguments().size() == 2) {
+        openProjectFromFile(QCoreApplication::arguments()[1]);
+    }
 }
 
 DGLMainWindow::~DGLMainWindow() {}
@@ -702,33 +706,7 @@ void DGLMainWindow::openProject() {
         return;
     }
 
-    try {
-
-        std::ifstream inputStream;
-
-        inputStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-        inputStream.open(filePath.toStdString());
-
-        m_project = DGLProject::createFromStream(inputStream);
-
-        if (!m_project) {
-            throw std::runtime_error("File does not contain a Debugler project");
-        }
-
-        m_ProjectSaved = true;
-
-        m_SavedProjectPath = filePath;
-
-    } catch (const std::ifstream::failure& err) {
-
-        QMessageBox::critical(NULL, tr("Cannot read from file"),
-            QString::fromStdString(err.what()));
-
-    } catch (...) {
-        QMessageBox::critical(NULL, tr("Cannot read from file"),
-            tr("Unknown exception occurred while reading the file"));
-    }
+    openProjectFromFile(filePath);
 }
 
 
@@ -784,6 +762,36 @@ bool DGLMainWindow::saveProjectToFile(QString filePath) {
             tr("Unknown exception occurred while writing the file"));
     }
     return false;   
+}
+
+void DGLMainWindow::openProjectFromFile(QString filePath) {
+    try {
+
+        std::ifstream inputStream;
+
+        inputStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+        inputStream.open(filePath.toStdString());
+
+        m_project = DGLProject::createFromStream(inputStream);
+
+        if (!m_project) {
+            throw std::runtime_error("File does not contain a Debugler project");
+        }
+
+        m_ProjectSaved = true;
+
+        m_SavedProjectPath = filePath;
+
+    } catch (const std::ifstream::failure& err) {
+
+        QMessageBox::critical(NULL, tr("Cannot read from file"),
+            QString::fromStdString(err.what()));
+
+    } catch (...) {
+        QMessageBox::critical(NULL, tr("Cannot read from file"),
+            tr("Unknown exception occurred while reading the file"));
+    }
 }
 
 void DGLMainWindow::debugStart() {
