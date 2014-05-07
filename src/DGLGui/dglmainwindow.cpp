@@ -106,8 +106,6 @@ DGLMainWindow::DGLMainWindow(QWidget *_parent, Qt::WindowFlags flags)
     if (QCoreApplication::arguments().size() == 2) {
         openProjectFromFile(QCoreApplication::arguments()[1]);
     }
-
-    updateWindowCaption("");
 }
 
 DGLMainWindow::~DGLMainWindow() {}
@@ -640,17 +638,13 @@ void DGLMainWindow::newProject() {
     if (m_ProjectDialog.exec() == QDialog::Accepted) {
 
         // if dialog is successfull, get project and start debug
-        m_project = m_ProjectDialog.getProject();
+        std::shared_ptr<DGLProject> project = m_ProjectDialog.getProject();
+        
+        setCurrentProject(project);
 
-        updateWindowCaption("");
-
-        if (m_project) {
+        if (project) {
 
             m_ProjectSaved = false;
-
-            CONNASSERT(m_project.get(), SIGNAL(debugStarted(std::string, std::string)), this, SLOT(onDebugStartedConnectReady(std::string, std::string)));
-            CONNASSERT(m_project.get(), SIGNAL(debugError(QString, QString)), this, SLOT(onDebugError(QString, QString)));
-            CONNASSERT(m_project.get(), SIGNAL(debugExit(QString)), this, SLOT(onDebugExit(QString)));
 
             debugStart();
         }
@@ -685,11 +679,9 @@ bool DGLMainWindow::closeProject() {
         }
     }
 
-    m_project.reset();
+    setCurrentProject(std::shared_ptr<DGLProject>());
 
     m_ProjectSaved = false;
-
-    updateWindowCaption("");
 
     return true;
 }
@@ -703,14 +695,7 @@ void DGLMainWindow::projectProperties() {
 
             m_ProjectSaved = ( !newProject || *newProject == *m_project );
 
-            m_project = newProject;
-
-
-            if (m_project) {
-                CONNASSERT(m_project.get(), SIGNAL(debugStarted(std::string, std::string)), this, SLOT(onDebugStartedConnectReady(std::string, std::string)));
-                CONNASSERT(m_project.get(), SIGNAL(debugError(QString, QString)), this, SLOT(onDebugError(QString, QString)));
-                CONNASSERT(m_project.get(), SIGNAL(debugExit(QString)), this, SLOT(onDebugExit(QString)));
-            }
+            setCurrentProject(newProject);
         }
     }
 }
@@ -799,17 +784,17 @@ void DGLMainWindow::openProjectFromFile(QString filePath) {
 
         inputStream.open(filePath.toStdString());
 
-        m_project = DGLProject::createFromStream(inputStream);
+        std::shared_ptr<DGLProject> project = DGLProject::createFromStream(inputStream);
 
-        if (!m_project) {
+        if (!project) {
             throw std::runtime_error("File does not contain a Debugler project");
         }
+
+        setCurrentProject(project);
 
         m_ProjectSaved = true;
 
         m_SavedProjectPath = filePath;
-
-        updateWindowCaption("");
 
     } catch (const std::ifstream::failure& err) {
 
@@ -820,6 +805,17 @@ void DGLMainWindow::openProjectFromFile(QString filePath) {
         QMessageBox::critical(NULL, tr("Cannot read from file"),
             tr("Unknown exception occurred while reading the file"));
     }
+}
+
+void DGLMainWindow::setCurrentProject(std::shared_ptr<DGLProject> project) {
+
+    m_project = project;
+
+    CONNASSERT(m_project.get(), SIGNAL(debugStarted(std::string, std::string)), this, SLOT(onDebugStartedConnectReady(std::string, std::string)));
+    CONNASSERT(m_project.get(), SIGNAL(debugError(QString, QString)), this, SLOT(onDebugError(QString, QString)));
+    CONNASSERT(m_project.get(), SIGNAL(debugExit(QString)), this, SLOT(onDebugExit(QString)));
+
+    updateWindowCaption("");
 }
 
 void DGLMainWindow::debugStart() {

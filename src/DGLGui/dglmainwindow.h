@@ -219,6 +219,13 @@ slots:
      */
     void openProjectFromFile(QString filePath);
 
+    /** 
+     * Set current project from object
+     * 
+     */
+    void setCurrentProject(std::shared_ptr<DGLProject> project);
+
+
     /**
       * Method intercepring main window close event
       */
