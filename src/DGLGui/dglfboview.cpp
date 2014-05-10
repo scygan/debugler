@@ -51,7 +51,7 @@ void DGLFBOViewItem::update(const dglnet::DGLResource& res) {
     m_Attachments = resource->m_Attachments;
     for (size_t i = 0; i < resource->m_Attachments.size(); i++) {
         m_Ui.m_AttListWidget->addItem(QString::fromStdString(
-                GetGLEnumName(resource->m_Attachments[i].m_Id)));
+                GetGLEnumName(resource->m_Attachments[i].m_Id))); //no GLenumGroup for attachments yet..
     }
     showAttachment(0);
 }

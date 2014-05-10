@@ -1,5 +1,8 @@
 set(dglcommon_SOURCES 
-    gl-types.cpp os.cpp ipc.cpp version.cpp
+    gl-types.cpp
+	gl-entrypoints.cpp
+	os.cpp ipc.cpp
+	version.cpp
     )
 
 include_directories(

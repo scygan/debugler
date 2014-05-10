@@ -26,9 +26,9 @@
 // For entrypoints unsupported on given platform type is undefined.
 #define POINTER_TYPE(X) X##_Type
 
-#define FUNC_LIST_ELEM_SUPPORTED(name, type, library) \
+#define FUNC_LIST_ELEM_SUPPORTED(name, type, library, params) \
     typedef type POINTER_TYPE(name);
-#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library)
+#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, params)
 #include "codegen/functionList.inl"
 #undef FUNC_LIST_ELEM_SUPPORTED
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED

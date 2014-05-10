@@ -88,7 +88,7 @@ MSAADownSampler::MSAADownSampler(dglState::GLContext* context, GLenum attTarget,
         DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D_ARRAY, lastTexture);
     } else {
         throw std::runtime_error("Unsupported multisample texture target: " +
-                                 GetGLEnumName(attTarget));
+                                 GetGLEnumName(attTarget, GLEnumGroup::TextureTarget));
     }
 
     // create framebuffer used for downsampling, set it as draw

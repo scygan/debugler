@@ -123,7 +123,7 @@ void DGLProgramViewItem::update(const dglnet::DGLResource& res) {
         m_Ui.tableWidgetUniforms->setItem(static_cast<int>(i), kUniformTable_NameIdx, item);
 
         item = new QTableWidgetItem(
-                GetGLEnumName(resource->m_Uniforms[i].m_type).c_str());
+                GetGLEnumName(resource->m_Uniforms[i].m_type, GLEnumGroup::AttributeType).c_str());
         item->setFlags(Qt::ItemIsEnabled);
         m_Ui.tableWidgetUniforms->setItem(static_cast<int>(i), kUniformTable_TypeIdx, item);
 

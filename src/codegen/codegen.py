@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2013 Slawomir Cygan <slawomir.cygan@gmail.com>
+# Copyright (C) 2014 Slawomir Cygan <slawomir.cygan@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ functionListFile = open(outputDir + "functionList.inl", "w")
 entrypointEnumListFile = open(outputDir + "entrypointEnumList.inl", "w")
 defFile = open(outputDir + "OpenGL32.def", "w")
 enumFile = open(outputDir + "enum.inl", "w")
+enumGroupFile = open(outputDir + "enum-groups.inl", "w")
 
 gles2onlyPat = re.compile('2\.[0-9]')
 gles3onlyPat = re.compile('3\.0')
@@ -57,19 +58,30 @@ es1CoreList = [
 
 entrypoints = dict()
 enums = dict()
+enumGroups = []
 
 class Enum:
     def __init__(self, value):
         self.value = value
+        self.groups = []
 
+
+class FuncParameter:
+    def __init__(self, type, name):
+
+        if name == "near" or name == "far": 
+            #these are reserved keywords in C
+            name = "_" + name
+
+        self.type = type
+        self.name = name
 
 class Entrypoint:
-    def __init__(self, library, skipTrace, retType, paramList, paramDeclList):
+    def __init__(self, library, skipTrace, retType, paramList):
         self.libraries = library
         self.skipTrace = skipTrace
         self.retType = retType
         self.paramList = paramList
-        self.paramDeclList = paramDeclList
         self.forceEnumIndices = []
     
     def addLibrary(self, library):
@@ -182,8 +194,11 @@ def getCTypeFromXML(element):
 def parseXML(path, skipTrace = False): 
     root = etree.parse(path).getroot()
     
-    #gather all entrypoints
+    #get all entrypoints
     for enumsElement in root.iter("enums"):
+        groupName = enumsElement.get("group")
+        if groupName and not groupName in enumGroups:
+            enumGroups.append(groupName)
         for enumElement in enumsElement.iter("enum"):
             name = enumElement.get("name")
             value = enumElement.get("value")
@@ -192,7 +207,21 @@ def parseXML(path, skipTrace = False):
                 print etree.tostring(enumElement)
                 exit(1)
             enums[name] = Enum(value)
+            if groupName:
+                enums[name].groups.append(groupName)
        
+    #parse all groups, assign entrypoints to groups
+    for groupsElement in root.iter("groups"):
+        for groupElement in groupsElement.iter("group"):
+            groupName = groupElement.get("name")
+            if not groupName in enumGroups:
+                enumGroups.append(groupName)
+            for enumElement in groupElement.iter("enum"):
+                enumName = enumElement.get("name")
+                if enumName in enums != None:
+                    enums[enumName].groups.append(groupName)
+       
+    #get all entrypoints (commands)
     for commandsElement in root.iter("commands"):
         for commandElement in commandsElement.iter("command"):
             entryPointName = commandElement.find("proto").find("name").text
@@ -201,27 +230,21 @@ def parseXML(path, skipTrace = False):
             
             retType = getCTypeFromXML(prototype)
           
-            paramNames = []            
-            paramDeclList = []
+            funcParams = []            
             
             for paramElement in commandElement.iter("param"):
-                name = paramElement.find("name").text
-                if name == "near" or name == "far": 
-                    #these are reserved keywords in C
-                    name = "_" + name
-                paramNames.append(name)
-                type = getCTypeFromXML(paramElement)
-                paramDeclList.append(type + " " + name)
-                        
+                param = FuncParameter(getCTypeFromXML(paramElement), paramElement.find("name").text)
+                funcParams.append(param)
+                      
             if entryPointName in entrypoints:
                 print "Entrypoint already defined"
                 exit(1)
             else:
-                entrypoints[entryPointName] = Entrypoint([], skipTrace, retType, paramNames, paramDeclList)
+                entrypoints[entryPointName] = Entrypoint([], skipTrace, retType, funcParams)
 
     
 
-                
+    #parse features to add core entryps to proper library            
     for featureElement in root.iter("feature"):
         api = featureElement.get("api")
         version = featureElement.get("number")
@@ -233,6 +256,7 @@ def parseXML(path, skipTrace = False):
                 entrypoints[commandElement.get("name")].addLibrary(library)
         
     
+    #parse extensions to add extension entryps to proper library
     for extensionsElement in root.iter("extensions"):
         for extensionElement in extensionsElement.iter("extension"):
             apis = extensionElement.get("supported")
@@ -252,6 +276,7 @@ def parseXML(path, skipTrace = False):
                             entrypoints[commandElement.get("name")].addLibrary("LIBRARY_ES1")
                         else:
                             entrypoints[commandElement.get("name")].addLibrary(library)
+       
         
 print >> defFile, "EXPORTS"
 
@@ -326,10 +351,10 @@ for name, entrypoint in sorted(entrypoints.items()):
             internalFormatIdx = 2;        
         if name.startswith("glTextureImage"):
             internalFormatIdx += 1
-        if entrypoint.paramList[internalFormatIdx].lower() == "internalformat":
-            if "GLenum" in entrypoint.paramDeclList[internalFormatIdx]:
+        if entrypoint.paramList[internalFormatIdx].name.lower() == "internalformat":
+            if "GLenum" in entrypoint.paramList[internalFormatIdx].type:
                 pass#this is ok
-            elif "GLint" in entrypoint.paramDeclList[internalFormatIdx]:
+            elif "GLint" in entrypoint.paramList[internalFormatIdx].type:
                 #replace
                 entrypoints[name].forceEnumIndices.append(internalFormatIdx)
             else:
@@ -408,18 +433,28 @@ blacklist = ["glXAssociateDMPbufferSGIX", "glXCreateGLXVideoSourceSGIX", "glXDes
 
 for name, enum in sorted(enums.items()):
     if not "_LINE_BIT" in name:  #TODO: what about _LINE_BIT stuff?
-        print >> enumFile, "ENUM_LIST_ELEMENT(" + name + ","  + enum.value + ")"
+        if len(enum.groups) <= 0:
+            enum.groups.append("None")
+        print >> enumFile, "ENUM_LIST_ELEMENT(" + name + ","  + enum.value + ", ENUMGROUPS(" + str(len(enum.groups)) + ", " + listToString(["GLEnumGroup::" + g for g in enum.groups]) + "))"
 
+for name in enumGroups:
+    print >> enumGroupFile, "ENUMGROUP_LIST_ELEMENT(" + name + ")"
+        
 for name, entrypoint in sorted(entrypoints.items()):
     if name in blacklist:
         continue;
 
+    paramDeclList = [ param.type + " " + param.name for param in entrypoint.paramList]
+    paramCallList = [ param.name for param in entrypoint.paramList]
+
+    paramsStr = "FUNC_PARAMS(" + listToString([ "PARAM(" + param.name  + ")" for param in entrypoint.paramList]) + ")"
+
 #list of entrypoints
     entrypointPtrType = "DGL_PFN" + name.upper() + "PROC"
     print >> functionListFile, entrypoint.getLibraryIfdef()
-    print >> functionListFile, "    FUNC_LIST_ELEM_SUPPORTED(" + name + ", " + entrypointPtrType + ", " + entrypoint.getLibaryBitMask() + ")"
+    print >> functionListFile, "    FUNC_LIST_ELEM_SUPPORTED(" + name + ", " + entrypointPtrType + ", " + entrypoint.getLibaryBitMask() + ", " + paramsStr + ")"
     print >> functionListFile,"#else"
-    print >> functionListFile, "    FUNC_LIST_ELEM_NOT_SUPPORTED(" + name + ", " + entrypointPtrType + ", LIBRARY_NONE)"
+    print >> functionListFile, "    FUNC_LIST_ELEM_NOT_SUPPORTED(" + name + ", " + entrypointPtrType + ", LIBRARY_NONE, " + paramsStr +  ")"
     print >> functionListFile,"#endif"
     
     print >> entrypointEnumListFile, name + "_Call,"
@@ -433,14 +468,14 @@ for name, entrypoint in sorted(entrypoints.items()):
                 
     if coreLib:
         print >> exportersFile, entrypoint.getLibraryIfdef()
-        print >> exportersFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType + " APIENTRY " + name + "(" + listToString(entrypoint.paramDeclList) + ") {"
-        print >> exportersFile, "        return " + name + "_Wrapper(" + listToString(entrypoint.paramList) + ");"        
+        print >> exportersFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
+        print >> exportersFile, "        return " + name + "_Wrapper(" + listToString(paramCallList) + ");"        
         print >> exportersFile, "}"
         print >> exportersFile, "#endif"
     else:
         print >> exportersExtFile, entrypoint.getLibraryIfdef()
-        print >> exportersExtFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType + " APIENTRY " + name + "(" + listToString(entrypoint.paramDeclList) + ") {"
-        print >> exportersExtFile, "        return " + name + "_Wrapper(" + listToString(entrypoint.paramList) + ");"        
+        print >> exportersExtFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
+        print >> exportersExtFile, "        return " + name + "_Wrapper(" + listToString(paramCallList) + ");"        
         print >> exportersExtFile, "}"
         print >> exportersExtFile, "#endif"
         
@@ -451,25 +486,25 @@ for name, entrypoint in sorted(entrypoints.items()):
                 androidLib = True
     if androidLib:
         print >> exportersAndroidFile, entrypoint.getLibraryIfdef()
-        print >> exportersAndroidFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType + " APIENTRY " + name + "(" + listToString(entrypoint.paramDeclList) + ") {"
-        print >> exportersAndroidFile, "        return " + name + "_Wrapper(" + listToString(entrypoint.paramList) + ");"        
+        print >> exportersAndroidFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
+        print >> exportersAndroidFile, "        return " + name + "_Wrapper(" + listToString(paramCallList) + ");"        
         print >> exportersAndroidFile, "}"
         print >> exportersAndroidFile, "#endif"
         
 #entrypoint wrappers
 
     print >> wrappersFile, entrypoint.getLibraryIfdef()
-    print >> wrappersFile, "extern \"C\" " + entrypoint.retType + " APIENTRY " + name + "_Wrapper(" + listToString(entrypoint.paramDeclList) + ") {"
+    print >> wrappersFile, "extern \"C\" " + entrypoint.retType + " APIENTRY " + name + "_Wrapper(" + listToString(paramDeclList) + ") {"
     
     if not entrypoint.skipTrace:
         cookie = "    DGLWrapperCookie cookie( " + name + "_Call"
         i = 0
         while i < len(entrypoint.paramList):
             cookie = cookie + ", "
-            if ("GLenum" in entrypoint.paramDeclList[i] and not "*" in entrypoint.paramDeclList[i]) or i in entrypoint.forceEnumIndices:
-                cookie = cookie + "GLenumWrap(" + entrypoint.paramList[i] + ")"
+            if ("GLenum" in entrypoint.paramList[i].type and not "*" in entrypoint.paramList[i].type) or i in entrypoint.forceEnumIndices:
+                cookie = cookie + "GLenumWrap(" + entrypoint.paramList[i].name + ")"
             else:
-                cookie = cookie + entrypoint.paramList[i]
+                cookie = cookie + entrypoint.paramList[i].name
             i+=1
                 
         print >> wrappersFile, cookie + " );"
@@ -477,9 +512,9 @@ for name, entrypoint in sorted(entrypoints.items()):
         print >> wrappersFile, "    if (!cookie.retVal.isSet()) {"
         print >> wrappersFile, "        assert(POINTER(" + name + "));"
         if entrypoint.retType.lower() != "void":
-            print >> wrappersFile, "        cookie.retVal = DIRECT_CALL(" + name + ")(" + listToString(entrypoint.paramList) + ");"
+            print >> wrappersFile, "        cookie.retVal = DIRECT_CALL(" + name + ")(" + listToString(paramCallList) + ");"
         else:
-            print >> wrappersFile, "        DIRECT_CALL(" + name + ")(" + listToString(entrypoint.paramList) + ");"            
+            print >> wrappersFile, "        DIRECT_CALL(" + name + ")(" + listToString(paramCallList) + ");"            
         print >> wrappersFile, "    }"
         
         if entrypoint.retType.lower() != "void":
@@ -487,9 +522,9 @@ for name, entrypoint in sorted(entrypoints.items()):
     else:
         print >> wrappersFile, "    //this function is not traced"
         if entrypoint.retType.lower() != "void":
-            print >> wrappersFile, "    return DIRECT_CALL(" + name + ")(" + listToString(entrypoint.paramList) + ");"
+            print >> wrappersFile, "    return DIRECT_CALL(" + name + ")(" + listToString(paramCallList) + ");"
         else:
-            print >> wrappersFile, "    DIRECT_CALL(" + name + ")(" + listToString(entrypoint.paramList) + ");"
+            print >> wrappersFile, "    DIRECT_CALL(" + name + ")(" + listToString(paramCallList) + ");"
 
     print >> wrappersFile, "}"
     print >> wrappersFile, "#endif"
@@ -497,7 +532,7 @@ for name, entrypoint in sorted(entrypoints.items()):
     
 #additional PFN definitions
     print >> entrypTypedefs, entrypoint.getLibraryIfdef()
-    print >> entrypTypedefs, "typedef " + entrypoint.retType + " (APIENTRYP " + entrypointPtrType + ")(" + listToString(entrypoint.paramDeclList) + ");"
+    print >> entrypTypedefs, "typedef " + entrypoint.retType + " (APIENTRYP " + entrypointPtrType + ")(" + listToString(paramDeclList) + ");"
     print >> entrypTypedefs, "#else"
     print >> entrypTypedefs, "typedef void * " +  entrypointPtrType + ";"
     print >> entrypTypedefs, "#endif"

@@ -16,6 +16,7 @@
 #ifndef API_LOADER_H
 #define API_LOADER_H
 
+#include <DGLCommon/gl-entrypoints.h>
 #include <DGLCommon/gl-types.h>
 
 #include <map>

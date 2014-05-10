@@ -28,6 +28,7 @@
 #include <DGLNet/protocol/messagehandler.h>
 #include <boost/make_shared.hpp>
 
+#include <DGLCommon/gl-entrypoints.h>
 #include <DGLCommon/def.h>
 
 class DGLRequestManager;

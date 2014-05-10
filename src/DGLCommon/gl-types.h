@@ -1,4 +1,4 @@
-/* Copyright (C) 2013 Slawomir Cygan <slawomir.cygan@gmail.com>
+/* Copyright (C) 2014 Slawomir Cygan <slawomir.cygan@gmail.com>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,24 +27,15 @@ typedef int32_t value_t;         // any gl values (GLints)
 
 typedef int (*FUNC_PTR)();
 
-enum Entrypoints {
-#include <codegen/entrypointEnumList.inl>
-    Entrypoints_NUM
+#define ENUMGROUP_LIST_ELEMENT(name) name,
+enum class GLEnumGroup {
+#include <codegen/enum-groups.inl>
+    None
 };
+#undef ENUMGROUP_LIST_ELEMENT
 
-#define NUM_ENTRYPOINTS Entrypoints_NUM
-#define NO_ENTRYPOINT Entrypoints_NUM
-
-typedef int Entrypoint;
-
-const char* GetEntryPointName(Entrypoint entryp);
-Entrypoint GetEntryPointEnum(const char* name);
-std::string GetGLEnumName(gl_t glEnum);
+std::string GetGLEnumName(gl_t glEnum, GLEnumGroup group = GLEnumGroup::None);
 
 std::string GetShaderStageName(gl_t glEnum);
 std::string GetTextureTargetName(gl_t glEnum);
-
-bool IsDrawCall(Entrypoint);
-bool IsFrameDelimiter(Entrypoint);
-
 #endif

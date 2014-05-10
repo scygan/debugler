@@ -65,11 +65,11 @@
 // OpenGL32 implementation
 // use DIRECT_CALL(name) to call one of these pointers
 LoadedPointer g_DirectPointers[Entrypoints_NUM] = {
-#define FUNC_LIST_ELEM_SUPPORTED(name, type, library) \
+#define FUNC_LIST_ELEM_SUPPORTED(name, type, library, params) \
     { NULL, library }                                 \
     ,
-#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library) \
-    FUNC_LIST_ELEM_SUPPORTED(name, type, library)
+#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, params) \
+    FUNC_LIST_ELEM_SUPPORTED(name, type, library, params)
 #include "codegen/functionList.inl"
 #undef FUNC_LIST_ELEM_SUPPORTED
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED

@@ -20,7 +20,8 @@
 #include "gl-statesetters.h"
 #include "gl-texunit.h"
 
-#include <DGLCommon/gl-types.h> //should be gl-entrypoint, when done
+#include <DGLCommon/gl-types.h>
+#include <DGLCommon/gl-entrypoints.h>
 #include <DGLNet/protocol/msgutils.h>
 
 #include <vector>

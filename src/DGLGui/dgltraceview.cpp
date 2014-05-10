@@ -39,7 +39,7 @@ class DGLTraceViewDelegate : public QStyledItemDelegate {
         if (glErrorI != -1) {
             error = (glError == GL_NO_ERROR)
                             ? "GL_NO_ERROR"
-                            : QString::fromStdString(GetGLEnumName(glError));
+                            : QString::fromStdString(GetGLEnumName(glError, GLEnumGroup::ErrorCode));
         }
 
         QPen backup = painter->pen();
@@ -180,13 +180,7 @@ void DGLTraceView::gotCallTraceChunkChunk(
     for (uint i = offset; i < offset + trace.size(); i++) {
         int row = m_traceList.count() - i - 2;
         delete m_traceList.takeItem(row);
-        /*
-        if (m_glError != GL_NO_ERROR) {
-        ret << " -> " << GetGLEnumName(m_glError);
-        }
-        if (m_DebugOutput.size()) {
-        ret << " debug: " << m_DebugOutput;
-        }*/
+
         std::string func = trace[trace.size() - 1 - i + offset].toString();
         gl_t error = trace[trace.size() - 1 - i + offset].getError();
         std::string debugOutput =

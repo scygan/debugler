@@ -388,7 +388,7 @@ void GLContext::queryCheckError() {
     if ((error = DIRECT_CALL_CHK(glGetError)()) != GL_NO_ERROR) {
         throw std::runtime_error(
                 std::string("Query failed: got OpenGL error (") +
-                GetGLEnumName(error) + ")");
+                GetGLEnumName(error, GLEnumGroup::ErrorCode) + ")");
     }
 }
 
@@ -398,7 +398,7 @@ bool GLContext::endQuery(std::string& message) {
     if (!m_InImmediateMode &&
         (error = DIRECT_CALL_CHK(glGetError)()) != GL_NO_ERROR) {
         message = std::string("Query failed: got OpenGL error (") +
-                  GetGLEnumName(error) + ")";
+                  GetGLEnumName(error, GLEnumGroup::ErrorCode) + ")";
         ret = false;
     }
     while (!m_InImmediateMode && DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)

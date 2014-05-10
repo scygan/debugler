@@ -10,6 +10,8 @@ set(codegen_GENERATED
     ${codegen_out}/functionList.inl
     ${codegen_out}/entrypointEnumList.inl
     ${codegen_out}/enum.inl
+    ${codegen_out}/enum-groups.inl
+    ${codegen_in}/GL/glx.h
     ${codegen_out}/GL/glx.h
     ${codegen_out}/GL/glxext.h
     ${codegen_out}/GL/wgl.h
@@ -20,6 +22,8 @@ set(codegen_GENERATED
     ${codegen_out}/GLES2/gl2ext.h
     ${codegen_out}/GLES3/gl3.h 
     ${codegen_out}/GL/gl.h 
+
+
 )
 add_custom_command(
     OUTPUT ${codegen_GENERATED}

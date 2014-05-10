@@ -54,6 +54,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="def.h" />
+    <ClInclude Include="gl-entrypoints.h" />
     <ClInclude Include="gl-headers.h" />
     <ClInclude Include="gl-glue-headers.h" />
     <ClInclude Include="gl-types.h" />
@@ -63,6 +64,7 @@
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="gl-entrypoints.cpp" />
     <ClCompile Include="gl-types.cpp" />
     <ClCompile Include="ipc.cpp" />
     <ClCompile Include="os.cpp" />

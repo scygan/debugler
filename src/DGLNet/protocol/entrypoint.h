@@ -18,6 +18,8 @@
 
 #include <DGLNet/protocol/anyvalue.h>
 
+#include <DGLCommon/gl-entrypoints.h>
+
 #include <boost/serialization/base_object.hpp>
 
 #include <vector>
