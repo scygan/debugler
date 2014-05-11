@@ -811,9 +811,11 @@ void DGLMainWindow::setCurrentProject(std::shared_ptr<DGLProject> project) {
 
     m_project = project;
 
-    CONNASSERT(m_project.get(), SIGNAL(debugStarted(std::string, std::string)), this, SLOT(onDebugStartedConnectReady(std::string, std::string)));
-    CONNASSERT(m_project.get(), SIGNAL(debugError(QString, QString)), this, SLOT(onDebugError(QString, QString)));
-    CONNASSERT(m_project.get(), SIGNAL(debugExit(QString)), this, SLOT(onDebugExit(QString)));
+    if (project) {
+        CONNASSERT(m_project.get(), SIGNAL(debugStarted(std::string, std::string)), this, SLOT(onDebugStartedConnectReady(std::string, std::string)));
+        CONNASSERT(m_project.get(), SIGNAL(debugError(QString, QString)), this, SLOT(onDebugError(QString, QString)));
+        CONNASSERT(m_project.get(), SIGNAL(debugExit(QString)), this, SLOT(onDebugExit(QString)));
+    }
 
     updateWindowCaption("");
 }

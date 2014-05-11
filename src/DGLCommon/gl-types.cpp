@@ -42,8 +42,8 @@ public:
     }
 };
 
-struct MapCache {
-    MapCache() {
+struct EnumMapCache {
+    EnumMapCache() {
 
 #define ENUMGROUPS(count, ...) count, __VA_ARGS__
      
@@ -55,26 +55,26 @@ struct MapCache {
 #undef ENUM_LIST_ELEMENT
     }
 
-    static MapCache* get() {
+    static EnumMapCache* get() {
         if (!s_cache.get()) {
-            s_cache = std::make_shared<MapCache>();
+            s_cache = std::make_shared<EnumMapCache>();
         }
         return s_cache.get();
     }
 
-    static std::shared_ptr<MapCache> s_cache;
+    static std::shared_ptr<EnumMapCache> s_cache;
     std::map<gl_t, std::set<GLEnumName>> EnumGLToName;
 };
 
-std::shared_ptr<MapCache> MapCache::s_cache;
+std::shared_ptr<EnumMapCache> EnumMapCache::s_cache;
 } //namespace lists
 
 std::string GetGLEnumName(gl_t glEnum, GLEnumGroup group) {
 
     std::map<gl_t, std::set<lists::GLEnumName>>::iterator nameSetPtr =
-            lists::MapCache::get()->EnumGLToName.find(glEnum);
+            lists::EnumMapCache::get()->EnumGLToName.find(glEnum);
 
-    if (nameSetPtr == lists::MapCache::get()->EnumGLToName.end()) {
+    if (nameSetPtr == lists::EnumMapCache::get()->EnumGLToName.end()) {
 
         //unknown enum, return hex value string.
         std::ostringstream tmp;

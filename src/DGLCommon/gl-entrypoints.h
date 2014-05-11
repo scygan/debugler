@@ -16,6 +16,8 @@
 #ifndef _GL_ENTRYPOINTS_H
 #define _GL_ENTRYPOINTS_H
 
+#include <DGLCommon/gl-types.h>
+
 #define FUNC_LIST_ELEM_SUPPORTED(name, type, library, params) name##_Call,
 #define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, params) \
     FUNC_LIST_ELEM_SUPPORTED(name, type, library, params)
@@ -33,6 +35,8 @@ typedef int Entrypoint;
 
 const char* GetEntryPointName(Entrypoint entryp);
 Entrypoint GetEntryPointEnum(const char* name);
+
+GLEnumGroup GetEntryPointParamEnumGroup(Entrypoint entryp, int param);
 
 bool IsDrawCall(Entrypoint);
 bool IsFrameDelimiter(Entrypoint);

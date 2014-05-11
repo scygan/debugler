@@ -40,7 +40,7 @@ const std::vector<AnyValue>& CalledEntryPoint::getArgs() const {
 
 class AnyValueWriter : public boost::static_visitor<void> {
    public:
-    AnyValueWriter(std::ostringstream& stream) : m_Stream(&stream) {}
+    AnyValueWriter(GLEnumGroup enumGroup, std::ostringstream& stream) : m_Stream(&stream), m_EnumGroup(enumGroup) {}
 
     void operator()(signed long long i) const { (*m_Stream) << i; }
     void operator()(unsigned long long i) const { (*m_Stream) << i; }
@@ -60,15 +60,17 @@ class AnyValueWriter : public boost::static_visitor<void> {
     void operator()(PtrWrap<const void*> i) const {
         (*m_Stream) << std::hex << "0x" << i.getVal() << std::dec;
     }
-    void operator()(GLenumWrap i) const {
-        (*m_Stream) << GetGLEnumName(i.get());
+    void operator()(GLenumWrap i) const {    //TODO: Remobe GLenumWrap. Not needed.
+        (*m_Stream) << GetGLEnumName(i.get(), m_EnumGroup);
     }
 
     std::ostringstream* m_Stream;
+
+    GLEnumGroup m_EnumGroup; //TODO: a stupid stateful hack. Remove it, or sanitize.
 };
 
-void AnyValue::writeToSS(std::ostringstream& out) const {
-    boost::apply_visitor(AnyValueWriter(out), m_value);
+void AnyValue::writeToSS(std::ostringstream& out, GLEnumGroup enumGroup) const {
+    boost::apply_visitor(AnyValueWriter(enumGroup, out), m_value);
 }
 
 std::string CalledEntryPoint::toString() const {
@@ -76,7 +78,7 @@ std::string CalledEntryPoint::toString() const {
     ret << GetEntryPointName(m_entryp) << "(" << std::showpoint;
 
     for (size_t i = 0; i < m_args.size(); i++) {
-        m_args[i].writeToSS(ret);
+        m_args[i].writeToSS(ret, GetEntryPointParamEnumGroup(m_entryp, i));
         if (i != m_args.size() - 1) {
             ret << ", ";
         }
@@ -86,11 +88,10 @@ std::string CalledEntryPoint::toString() const {
 
     if (m_retVal.isSet()) {
         ret << " = ";
-        m_retVal.writeToSS(ret);
+        m_retVal.writeToSS(ret, GLEnumGroup::None); //TODO: None is just wrong here..
     }
 
     return ret.str();
-    ;
 }
 
 const RetValue& CalledEntryPoint::getRetVal() const { return m_retVal; }

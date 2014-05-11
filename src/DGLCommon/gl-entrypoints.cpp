@@ -26,8 +26,9 @@ namespace lists {
 
 class GLEntrypoitParam {
 public:
-    GLEntrypoitParam(const char* name):m_name(name) {}
+    GLEntrypoitParam(const char* name, GLEnumGroup enumGroup):m_name(name), m_EnumGroup(enumGroup) {}
     const char* m_name;
+    GLEnumGroup m_EnumGroup;
 };
 
 class GLEntrypoitParams {
@@ -47,8 +48,8 @@ public:
     std::vector<GLEntrypoitParam> m_params;
 };
 
-#define PARAM(name) "dupa"
-#define FUNC_PARAMS(...) GLEntrypoitParams(0, __VA_ARGS__)
+#define PARAM(name, type, enumGroup) GLEntrypoitParam(#name, GLEnumGroup::enumGroup)
+#define FUNC_PARAMS(paramCount, ...) GLEntrypoitParams(paramCount, __VA_ARGS__)
 
 
 #define FUNC_LIST_ELEM_SUPPORTED    (name, type, library, params) { #name, false, false, params }, 
@@ -69,24 +70,26 @@ struct GLEntrypoint {
 #undef FUNC_PARAMS
 #undef PARAM
 
-struct MapCache {
-    MapCache() {
+struct EntrypMapCache {
+    EntrypMapCache() {
 
         for (Entrypoint e = 0; e < Entrypoints_NUM; e++) {
             entryPointNameToEnum[GetEntryPointName(e)] = e;
         }
     }
 
-    static MapCache* get() {
+    static EntrypMapCache* get() {
         if (!s_cache.get()) {
-            s_cache = std::make_shared<MapCache>();
+            s_cache = std::make_shared<EntrypMapCache>();
         }
         return s_cache.get();
     }
 
-    static std::shared_ptr<MapCache> s_cache;
+    static std::shared_ptr<EntrypMapCache> s_cache;
     std::map<std::string, Entrypoint> entryPointNameToEnum;
 };
+
+std::shared_ptr<EntrypMapCache> EntrypMapCache::s_cache;
 
 } //namespace lists
 
@@ -147,13 +150,15 @@ const char* GetEntryPointName(Entrypoint entryp) {
 
 Entrypoint GetEntryPointEnum(const char* name) {
     std::map<std::string, Entrypoint>::iterator ret =
-        lists::MapCache::get()->entryPointNameToEnum.find(name);
-    if (ret == lists::MapCache::get()->entryPointNameToEnum.end())
+        lists::EntrypMapCache::get()->entryPointNameToEnum.find(name);
+    if (ret == lists::EntrypMapCache::get()->entryPointNameToEnum.end())
         return NO_ENTRYPOINT;
     return ret->second;
 }
 
-
+GLEnumGroup GetEntryPointParamEnumGroup(Entrypoint entryp, int param) {
+    return lists::g_Entrypoints[entryp].params.m_params[param].m_EnumGroup;
+}
 
 bool IsDrawCall(Entrypoint entryp) {
 

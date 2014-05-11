@@ -65,6 +65,12 @@ class Enum:
         self.value = value
         self.groups = []
 
+class Type:
+    def __init__(self, name, enumGroup):
+        self.name = name
+        self.enumGroup = enumGroup
+        if self.enumGroup == None:
+            self.enumGroup = 'None'
 
 class FuncParameter:
     def __init__(self, type, name):
@@ -188,7 +194,8 @@ def getCTypeFromXML(element):
     if element.find("ptype") != None:
         retType += element.find("ptype").text
         retType += element.find("ptype").tail
-    return retType.strip()
+
+    return Type(retType.strip(), element.get('group'))
 
     
 def parseXML(path, skipTrace = False): 
@@ -229,18 +236,25 @@ def parseXML(path, skipTrace = False):
             prototype = commandElement.find("proto")
             
             retType = getCTypeFromXML(prototype)
+
+            if retType.enumGroup != 'None' and retType.enumGroup not in enumGroups:
+                enumGroups.append(retType.enumGroup)
           
             funcParams = []            
             
             for paramElement in commandElement.iter("param"):
-                param = FuncParameter(getCTypeFromXML(paramElement), paramElement.find("name").text)
+                paramType = getCTypeFromXML(paramElement)
+                if paramType.enumGroup != 'None' and paramType.enumGroup not in enumGroups:
+                    enumGroups.append(paramType.enumGroup)
+
+                param = FuncParameter(paramType, paramElement.find("name").text)
                 funcParams.append(param)
                       
             if entryPointName in entrypoints:
                 print "Entrypoint already defined"
                 exit(1)
             else:
-                entrypoints[entryPointName] = Entrypoint([], skipTrace, retType, funcParams)
+                entrypoints[entryPointName] = Entrypoint([], skipTrace, retType.name, funcParams)
 
     
 
@@ -352,9 +366,9 @@ for name, entrypoint in sorted(entrypoints.items()):
         if name.startswith("glTextureImage"):
             internalFormatIdx += 1
         if entrypoint.paramList[internalFormatIdx].name.lower() == "internalformat":
-            if "GLenum" in entrypoint.paramList[internalFormatIdx].type:
+            if "GLenum" in entrypoint.paramList[internalFormatIdx].type.name:
                 pass#this is ok
-            elif "GLint" in entrypoint.paramList[internalFormatIdx].type:
+            elif "GLint" in entrypoint.paramList[internalFormatIdx].type.name:
                 #replace
                 entrypoints[name].forceEnumIndices.append(internalFormatIdx)
             else:
@@ -444,12 +458,12 @@ for name, entrypoint in sorted(entrypoints.items()):
     if name in blacklist:
         continue;
 
-    paramDeclList = [ param.type + " " + param.name for param in entrypoint.paramList]
+    paramDeclList = [ param.type.name + " " + param.name for param in entrypoint.paramList]
     paramCallList = [ param.name for param in entrypoint.paramList]
 
-    paramsStr = "FUNC_PARAMS(" + listToString([ "PARAM(" + param.name  + ")" for param in entrypoint.paramList]) + ")"
+    paramsStr = "FUNC_PARAMS(" + str(len(entrypoint.paramList)) + ", "+ listToString([ "PARAM(" + param.name  + "," + param.type.name + "," + param.type.enumGroup +")" for param in entrypoint.paramList]) + ")"
 
-#list of entrypoints
+#list of entrypointsg1
     entrypointPtrType = "DGL_PFN" + name.upper() + "PROC"
     print >> functionListFile, entrypoint.getLibraryIfdef()
     print >> functionListFile, "    FUNC_LIST_ELEM_SUPPORTED(" + name + ", " + entrypointPtrType + ", " + entrypoint.getLibaryBitMask() + ", " + paramsStr + ")"
@@ -501,7 +515,7 @@ for name, entrypoint in sorted(entrypoints.items()):
         i = 0
         while i < len(entrypoint.paramList):
             cookie = cookie + ", "
-            if ("GLenum" in entrypoint.paramList[i].type and not "*" in entrypoint.paramList[i].type) or i in entrypoint.forceEnumIndices:
+            if ("GLenum" in entrypoint.paramList[i].type.name and not "*" in entrypoint.paramList[i].type.name) or i in entrypoint.forceEnumIndices:
                 cookie = cookie + "GLenumWrap(" + entrypoint.paramList[i].name + ")"
             else:
                 cookie = cookie + entrypoint.paramList[i].name

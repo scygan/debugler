@@ -100,7 +100,7 @@ class AnyValue {
         v = (TBase*)boost::get<PtrWrap<void*> >(m_value).getVal();
     }
 
-    void writeToSS(std::ostringstream& out) const;
+    void writeToSS(std::ostringstream& out, GLEnumGroup enumGroup = GLEnumGroup::None) const;
 
    private:
     boost::variant<signed long long, unsigned long long, signed long,
