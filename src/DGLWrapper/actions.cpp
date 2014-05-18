@@ -211,7 +211,6 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 #endif
     EGLBoolean eglBool;
     EGLContext eglCtx;
-    GLenumWrap enumWrapped;
 
     Entrypoint entryp = call.getEntrypoint();
 
@@ -464,12 +463,13 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
         case eglBindAPI_Call:
             ret.get(eglBool);
             if (eglBool) {
-                call.getArgs()[0].get(enumWrapped);
+                EGLenum apiEnum;
+                call.getArgs()[0].get(apiEnum);
 
                 DGLThreadState::BoundEGLApi api = 
                     DGLThreadState::BoundEGLApi::UNKNOWN_API;
 
-                switch (enumWrapped) {
+                switch (apiEnum) {
                     case EGL_OPENGL_ES_API:
                         api = DGLThreadState::BoundEGLApi::OPENGL_ES_API;
                         break;
@@ -789,7 +789,7 @@ void TextureAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             }
         } else if (entrp == glBindTexture_Call ||
                    entrp == glBindTextureEXT_Call) {
-            GLenumWrap target;
+            GLenum target;
             call.getArgs()[0].get(target);
             GLuint name;
             call.getArgs()[1].get(name);
@@ -803,11 +803,18 @@ void TextureAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 void TextureFormatAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
     if (gc) {
-        GLenumWrap iFormat = 0; //codegen should convert all TexImage iFormats as GLenum.
-        GLenumWrap format = 0, type = 0;
+
+        //The type of this parameter is a complete disaster. Expect some 
+        //TexImage/TexStorage functions to provide int, some to provide enum. 
+        //At this moment codegen just passes type used in call - Enum info is stored
+        //in other place...
+        GLenum iFormat = 0;
+        GLint tmpiFormat_asInt = 0;
+
+        GLenum format = 0, type = 0;
         GLint level = 0;
         GLsizei width = 1, height = 1, depth = 1;
-        GLenumWrap target;
+        GLenum target;
         
         bool immutable = false;
 
@@ -815,29 +822,40 @@ void TextureFormatAction::Post(const CalledEntryPoint& call, const RetValue& ret
         switch (entrp) {
             case glTexImage1D_Call:
                 call.getArgs()[1].get(level);
-                call.getArgs()[2].get(iFormat); 
+                call.getArgs()[2].get(tmpiFormat_asInt);   //GLint
+                iFormat = tmpiFormat_asInt;
                 call.getArgs()[3].get(width);
                 call.getArgs()[call.getArgs().size() - 3].get(format);
                 call.getArgs()[call.getArgs().size() - 2].get(type);
                 break;
             case glTexImage2D_Call:
                 call.getArgs()[1].get(level);
-                call.getArgs()[2].get(iFormat); 
+                call.getArgs()[2].get(tmpiFormat_asInt);    //GLint
+                iFormat = tmpiFormat_asInt;
                 call.getArgs()[3].get(width);
                 call.getArgs()[4].get(height);
                 call.getArgs()[call.getArgs().size() - 3].get(format);
                 call.getArgs()[call.getArgs().size() - 2].get(type);
                 break;
             case glTexImage2DMultisample_Call:
-                call.getArgs()[2].get(iFormat); 
+                call.getArgs()[2].get(iFormat); //GLenum (genius!)
                 call.getArgs()[3].get(width);
                 call.getArgs()[4].get(height);
                 break;
-            case glTexImage3D_Call:
-            case glTexImage3DEXT_Call:
+            case glTexImage3D_Call:    
+                call.getArgs()[1].get(level);
+                call.getArgs()[2].get(tmpiFormat_asInt);    //GLint
+                iFormat = tmpiFormat_asInt;
+                call.getArgs()[3].get(width);
+                call.getArgs()[4].get(height);
+                call.getArgs()[5].get(depth);
+                call.getArgs()[call.getArgs().size() - 3].get(format);
+                call.getArgs()[call.getArgs().size() - 2].get(type);
+                break;
+            case glTexImage3DEXT_Call: //Glenum <iformat> (seriously, what-da-fak!)
             case glTexImage3DOES_Call:
                 call.getArgs()[1].get(level);
-                call.getArgs()[2].get(iFormat); 
+                call.getArgs()[2].get(iFormat);   //GLenum (and you are fired.)
                 call.getArgs()[3].get(width);
                 call.getArgs()[4].get(height);
                 call.getArgs()[5].get(depth);
@@ -845,34 +863,34 @@ void TextureFormatAction::Post(const CalledEntryPoint& call, const RetValue& ret
                 call.getArgs()[call.getArgs().size() - 2].get(type);
             break;
             case glTexImage3DMultisample_Call:
-                call.getArgs()[2].get(iFormat); 
+                call.getArgs()[2].get(iFormat);   //GLenum
                 call.getArgs()[3].get(width);
                 call.getArgs()[4].get(height);
                 call.getArgs()[5].get(depth);
                 break;
 
-            case glTexStorage3DEXT_Call:
-            case glTexStorage3D_Call:
+            case glTexStorage3DEXT_Call:  //GLenum <iformat>
+            case glTexStorage3D_Call:     //GLenum <iformat>
                 call.getArgs()[5].get(depth);
                 //fall through
-            case glTexStorage2DEXT_Call:
-            case glTexStorage2D_Call:
+            case glTexStorage2DEXT_Call:  //Glenum <iformat>  (so far, so glenum!)
+            case glTexStorage2D_Call:     //GLenum <iformat>
                 call.getArgs()[4].get(height);
                 //fall through
-            case glTexStorage1DEXT_Call:
+            case glTexStorage1DEXT_Call:  //GLenum
             case glTexStorage1D_Call:
                 call.getArgs()[1].get(level);
-                call.getArgs()[2].get(iFormat); 
+                call.getArgs()[2].get(iFormat);   //GLenum
                 call.getArgs()[3].get(width);
                 immutable = true;
                 break;
 
-            case glTexStorage3DMultisample_Call:
+            case glTexStorage3DMultisample_Call:  //GLenum
                 call.getArgs()[5].get(depth);
                 //fall through
             case glTexStorage2DMultisample_Call:
                 call.getArgs()[4].get(height);
-                call.getArgs()[2].get(iFormat); 
+                call.getArgs()[2].get(iFormat);  //GLenum
                 call.getArgs()[3].get(width);
                 immutable = true;
             break;
@@ -925,7 +943,7 @@ void BufferAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             }
         } else if (entrp == glBindBuffer_Call ||
                    entrp == glBindBufferARB_Call) {
-            GLenumWrap target;
+            GLenum target;
             call.getArgs()[0].get(target);
             GLuint name;
             call.getArgs()[1].get(name);
@@ -1029,7 +1047,7 @@ void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
             ret.get(name);
 
-            GLenumWrap target;
+            GLenum target;
             call.getArgs()[0].get(target);
 
             gc->ensureShader(name, entrp == glCreateShaderObjectARB_Call)
@@ -1133,7 +1151,7 @@ void FBOAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             }
         } else if (entrp == glBindFramebuffer_Call ||
                    entrp == glBindFramebufferEXT_Call) {
-            GLenumWrap target;
+            GLenum target;
             call.getArgs()[0].get(target);
             GLuint name;
             call.getArgs()[1].get(name);

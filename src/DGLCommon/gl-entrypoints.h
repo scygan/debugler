@@ -18,9 +18,9 @@
 
 #include <DGLCommon/gl-types.h>
 
-#define FUNC_LIST_ELEM_SUPPORTED(name, type, library, params) name##_Call,
-#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, params) \
-    FUNC_LIST_ELEM_SUPPORTED(name, type, library, params)
+#define FUNC_LIST_ELEM_SUPPORTED(name, type, library, retVal, params) name##_Call,
+#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, retVal, params) \
+    FUNC_LIST_ELEM_SUPPORTED(name, type, library, retVal, params)
 enum Entrypoints {
 #include <codegen/functionList.inl>
     Entrypoints_NUM
@@ -36,7 +36,21 @@ typedef int Entrypoint;
 const char* GetEntryPointName(Entrypoint entryp);
 Entrypoint GetEntryPointEnum(const char* name);
 
-GLEnumGroup GetEntryPointParamEnumGroup(Entrypoint entryp, int param);
+
+struct GLParamTypeMetadata {
+    enum class BaseType {
+        Enum, 
+        Bitfield, 
+        Value
+    } m_BaseType;
+    GLEnumGroup m_EnumGroup;    
+
+    GLParamTypeMetadata(BaseType baseType, GLEnumGroup enumGroup):m_BaseType(baseType), m_EnumGroup(enumGroup) {}
+    GLParamTypeMetadata():m_BaseType(BaseType::Value), m_EnumGroup(GLEnumGroup::None) {}
+};
+
+const GLParamTypeMetadata& GetEntryPointGLParamTypeMetadata(Entrypoint entryp, int param);
+const GLParamTypeMetadata& GetEntryPointRetvalMetadata(Entrypoint entryp);
 
 bool IsDrawCall(Entrypoint);
 bool IsFrameDelimiter(Entrypoint);

@@ -120,8 +120,8 @@ TEST_F(DGLCommonUT, codegen_entryps) {
 // OpenGL32 implementation
 // use DIRECT_CALL(name) to call one of these pointers
 int ut_PointerLibraries[Entrypoints_NUM] = {
-#define FUNC_LIST_ELEM_SUPPORTED(name, type, library, params) library,
-#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, params) \
+#define FUNC_LIST_ELEM_SUPPORTED(name, type, library, retVal, params) library,
+#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, retVal, params) \
     FUNC_LIST_ELEM_SUPPORTED(name, type, library, params)
 #include "codegen/functionList.inl"
 #undef FUNC_LIST_ELEM_SUPPORTED
@@ -194,6 +194,42 @@ TEST_F(DGLCommonUT, codegen_entryp_names) {
                  "glDrawArrays");
     EXPECT_EQ(GetEntryPointEnum(GetEntryPointName(glDrawArrays_Call)),
               glDrawArrays_Call);
+}
+
+TEST_F(DGLCommonUT, codegen_entryp_params) {
+    {
+        GLParamTypeMetadata descr = GetEntryPointGLParamTypeMetadata(glDrawArrays_Call, 0);
+        EXPECT_EQ(descr.m_BaseType, GLParamTypeMetadata::BaseType::Enum);
+        EXPECT_EQ(descr.m_EnumGroup, GLEnumGroup::PrimitiveType);
+    }
+    {
+        GLParamTypeMetadata descr = GetEntryPointGLParamTypeMetadata(glDrawArrays_Call, 1);
+        EXPECT_EQ(descr.m_BaseType, GLParamTypeMetadata::BaseType::Value);
+        EXPECT_EQ(descr.m_EnumGroup, GLEnumGroup::None);
+    }
+    {
+        GLParamTypeMetadata descr = GetEntryPointGLParamTypeMetadata(glTexImage2D_Call, 2);
+        EXPECT_EQ(descr.m_BaseType, GLParamTypeMetadata::BaseType::Enum);
+        EXPECT_EQ(descr.m_EnumGroup, GLEnumGroup::TextureComponentCount);
+    }
+    {
+        GLParamTypeMetadata descr = GetEntryPointGLParamTypeMetadata(glClear_Call, 0);
+        EXPECT_EQ(descr.m_BaseType, GLParamTypeMetadata::BaseType::Bitfield);
+        EXPECT_EQ(descr.m_EnumGroup, GLEnumGroup::ClearBufferMask);
+    }
+}
+
+TEST_F(DGLCommonUT, codegen_entryp_retval) {
+    {
+        GLParamTypeMetadata descr = GetEntryPointRetvalMetadata(glDrawArrays_Call);
+        EXPECT_EQ(descr.m_BaseType, GLParamTypeMetadata::BaseType::Value);
+        EXPECT_EQ(descr.m_EnumGroup, GLEnumGroup::None);
+    }
+    {
+        GLParamTypeMetadata descr = GetEntryPointRetvalMetadata(glGetError_Call);
+        EXPECT_EQ(descr.m_BaseType, GLParamTypeMetadata::BaseType::Enum);
+        EXPECT_EQ(descr.m_EnumGroup, GLEnumGroup::ErrorCode);
+    }
 }
 
 TEST_F(DGLCommonUT, os_env) {

@@ -148,7 +148,7 @@ void DGLProgramViewItem::update(const dglnet::DGLResource& res) {
                     valStream << std::endl;
                 else if (j)
                     valStream << ", ";
-                resource->m_Uniforms[i].m_value[j].writeToSS(valStream);
+                resource->m_Uniforms[i].m_value[j].writeToSS(valStream, GLParamTypeMetadata());
             }
             item = new QTableWidgetItem(valStream.str().c_str());
         } else {

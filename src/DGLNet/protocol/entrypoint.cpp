@@ -40,7 +40,7 @@ const std::vector<AnyValue>& CalledEntryPoint::getArgs() const {
 
 class AnyValueWriter : public boost::static_visitor<void> {
    public:
-    AnyValueWriter(GLEnumGroup enumGroup, std::ostringstream& stream) : m_Stream(&stream), m_EnumGroup(enumGroup) {}
+    AnyValueWriter(std::ostringstream& stream) : m_Stream(&stream) {}
 
     void operator()(signed long long i) const { (*m_Stream) << i; }
     void operator()(unsigned long long i) const { (*m_Stream) << i; }
@@ -60,17 +60,54 @@ class AnyValueWriter : public boost::static_visitor<void> {
     void operator()(PtrWrap<const void*> i) const {
         (*m_Stream) << std::hex << "0x" << i.getVal() << std::dec;
     }
-    void operator()(GLenumWrap i) const {    //TODO: Remobe GLenumWrap. Not needed.
-        (*m_Stream) << GetGLEnumName(i.get(), m_EnumGroup);
-    }
-
+   
     std::ostringstream* m_Stream;
-
-    GLEnumGroup m_EnumGroup; //TODO: a stupid stateful hack. Remove it, or sanitize.
 };
 
-void AnyValue::writeToSS(std::ostringstream& out, GLEnumGroup enumGroup) const {
-    boost::apply_visitor(AnyValueWriter(enumGroup, out), m_value);
+template<typename T>
+class AnyValueCaster : public boost::static_visitor<T> {
+public:
+    template<typename T2>
+    T operator()(T2 i) const { return static_cast<T>(i); }
+    T operator()(PtrWrap<void*> i) const {
+        return static_cast<T>(i.getVal());
+    }
+    T operator()(PtrWrap<const void*> i) const {
+        return static_cast<T>(i.getVal());
+    }
+};
+
+void AnyValue::writeToSS(std::ostringstream& out, const GLParamTypeMetadata& paramMetadata) const {
+    if (paramMetadata.m_BaseType == GLParamTypeMetadata::BaseType::Value) {
+        
+        boost::apply_visitor(AnyValueWriter(out), m_value);
+
+    } else if (paramMetadata.m_BaseType == GLParamTypeMetadata::BaseType::Enum) {
+        
+        out << GetGLEnumName(
+            boost::apply_visitor(AnyValueCaster<gl_t>(), m_value),
+            paramMetadata.m_EnumGroup);
+
+    } else if (paramMetadata.m_BaseType == GLParamTypeMetadata::BaseType::Bitfield) {
+        value_t bitfield = boost::apply_visitor(AnyValueCaster<value_t>(), m_value);
+
+        value_t j = 1;
+        bool first = true;
+        for (size_t i = 0; i < sizeof(bitfield) * 8; i++) {
+            if (j & bitfield) {
+                if (!first) {
+                    out << " || ";
+                } else {
+                    first = false;
+                }
+                out << GetGLEnumName(j & bitfield, paramMetadata.m_EnumGroup);
+            }
+            j *= 2;
+        }
+
+    } else {
+        assert(0);
+    }
 }
 
 std::string CalledEntryPoint::toString() const {
@@ -78,7 +115,7 @@ std::string CalledEntryPoint::toString() const {
     ret << GetEntryPointName(m_entryp) << "(" << std::showpoint;
 
     for (size_t i = 0; i < m_args.size(); i++) {
-        m_args[i].writeToSS(ret, GetEntryPointParamEnumGroup(m_entryp, i));
+        m_args[i].writeToSS(ret, GetEntryPointGLParamTypeMetadata(m_entryp, i));
         if (i != m_args.size() - 1) {
             ret << ", ";
         }
@@ -88,7 +125,7 @@ std::string CalledEntryPoint::toString() const {
 
     if (m_retVal.isSet()) {
         ret << " = ";
-        m_retVal.writeToSS(ret, GLEnumGroup::None); //TODO: None is just wrong here..
+        m_retVal.writeToSS(ret, GetEntryPointRetvalMetadata(m_entryp));
     }
 
     return ret.str();

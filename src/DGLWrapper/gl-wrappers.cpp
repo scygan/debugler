@@ -454,9 +454,9 @@ extern "C" {
 #include "codegen/wrappers.inl"
 }
 
-#define FUNC_LIST_ELEM_SUPPORTED(name, type, library, params) \
+#define FUNC_LIST_ELEM_SUPPORTED(name, type, library, retVal, params) \
     (FUNC_PTR) & name##_Wrapper,
-#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, params) NULL,
+#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, retVal, params) NULL,
 FUNC_PTR wrapperPtrs[] = {
 #include "codegen/functionList.inl"
         NULL};

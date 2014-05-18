@@ -26,9 +26,9 @@ namespace lists {
 
 class GLEntrypoitParam {
 public:
-    GLEntrypoitParam(const char* name, GLEnumGroup enumGroup):m_name(name), m_EnumGroup(enumGroup) {}
+    GLEntrypoitParam(const char* name, GLParamTypeMetadata::BaseType baseType, GLEnumGroup enumGroup):m_name(name), m_Metadata(baseType, enumGroup) {}
     const char* m_name;
-    GLEnumGroup m_EnumGroup;
+    GLParamTypeMetadata m_Metadata;
 };
 
 class GLEntrypoitParams {
@@ -48,27 +48,30 @@ public:
     std::vector<GLEntrypoitParam> m_params;
 };
 
-#define PARAM(name, type, enumGroup) GLEntrypoitParam(#name, GLEnumGroup::enumGroup)
+#define RETVAL(baseType, enumGroup) GLParamTypeMetadata(GLParamTypeMetadata::BaseType::baseType, GLEnumGroup::enumGroup)
+#define PARAM(name, baseType, enumGroup) GLEntrypoitParam(#name, GLParamTypeMetadata::BaseType::baseType, GLEnumGroup::enumGroup)
 #define FUNC_PARAMS(paramCount, ...) GLEntrypoitParams(paramCount, __VA_ARGS__)
 
 
-#define FUNC_LIST_ELEM_SUPPORTED    (name, type, library, params) { #name, false, false, params }, 
-#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, params) { #name, false, false, params },
+#define FUNC_LIST_ELEM_SUPPORTED    (name, type, library, retVal, params) { #name, false, false, retVal, params }, 
+#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, retVal, params) { #name, false, false, retVal, params },
 
 struct GLEntrypoint {
     const char* name;
     bool isFrameDelimiter;
     bool isDrawCall;
+    GLParamTypeMetadata m_RetValMetadata;
     GLEntrypoitParams params;
 } g_Entrypoints[] = {
 #include "codegen/functionList.inl"
-        { "<unknown>", false, false, GLEntrypoitParams(0) }
+        { "<unknown>", false, false, GLParamTypeMetadata(), GLEntrypoitParams(0) }
 };
 #undef FUNC_LIST_ELEM_SUPPORTED
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED
 
 #undef FUNC_PARAMS
 #undef PARAM
+#undef RETVAL
 
 struct EntrypMapCache {
     EntrypMapCache() {
@@ -156,8 +159,12 @@ Entrypoint GetEntryPointEnum(const char* name) {
     return ret->second;
 }
 
-GLEnumGroup GetEntryPointParamEnumGroup(Entrypoint entryp, int param) {
-    return lists::g_Entrypoints[entryp].params.m_params[param].m_EnumGroup;
+const GLParamTypeMetadata& GetEntryPointGLParamTypeMetadata(Entrypoint entryp, int param) {
+    return lists::g_Entrypoints[entryp].params.m_params[param].m_Metadata;
+}
+
+const GLParamTypeMetadata& GetEntryPointRetvalMetadata(Entrypoint entryp) {
+    return lists::g_Entrypoints[entryp].m_RetValMetadata;
 }
 
 bool IsDrawCall(Entrypoint entryp) {

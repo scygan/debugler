@@ -19,7 +19,7 @@
 #include <boost/variant/variant.hpp>
 #include <boost/variant/get.hpp>
 
-#include <DGLCommon/gl-types.h>
+#include <DGLCommon/gl-entrypoints.h>
 
 // Pointers that are serialized by value must be wrapped with this class
 template <typename T>
@@ -44,25 +44,6 @@ class PtrWrap {
 
    private:
     pointer_store_t m_value;
-};
-
-class GLenumWrap {
-   public:
-
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int) {
-        ar& m_value;
-    }
-
-    GLenumWrap() : m_value(0) {}
-
-    GLenumWrap(gl_t v) : m_value(v) {}
-
-    gl_t get() { return m_value; }
-    operator GLenum() const { return static_cast<GLenum>(m_value); }
-
-   private:
-    gl_t m_value;
 };
 
 class AnyValue {
@@ -100,13 +81,13 @@ class AnyValue {
         v = (TBase*)boost::get<PtrWrap<void*> >(m_value).getVal();
     }
 
-    void writeToSS(std::ostringstream& out, GLEnumGroup enumGroup = GLEnumGroup::None) const;
-
+   void writeToSS(std::ostringstream& out, const GLParamTypeMetadata& paramMetadata) const;
+   
    private:
     boost::variant<signed long long, unsigned long long, signed long,
                    unsigned long, unsigned int, signed int, unsigned short,
                    signed short, unsigned char, signed char, float, double,
-                   PtrWrap<void*>, PtrWrap<const void*>, GLenumWrap> m_value;
+                   PtrWrap<void*>, PtrWrap<const void*>> m_value;
 };
 
 #endif    // ANYVALUE_H

@@ -134,7 +134,7 @@ void DGLPixelRectangleView::onMouseOver(const QPoint& barePos) {
         std::ostringstream tmp;
         tmp << "(" << currentPos.x() << ", " << currentPos.y() << ") = [";
         for (size_t i = 0; i < currColor.second.size(); i++) {
-            currColor.second[i].writeToSS(tmp);
+            currColor.second[i].writeToSS(tmp, GLParamTypeMetadata());
             if (i != currColor.second.size() - 1) {
                 tmp << ", ";
             }

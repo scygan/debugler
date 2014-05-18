@@ -58,7 +58,7 @@ void DGLStateView::update(const dglnet::DGLResource& res) {
         valStream << std::showpoint;
         for (size_t j = 0; j < resource->m_Items[i].m_Values.size(); j++) {
             if (j) valStream << ", ";
-            resource->m_Items[i].m_Values[j].writeToSS(valStream);
+            resource->m_Items[i].m_Values[j].writeToSS(valStream, GLParamTypeMetadata());
             valStream << " ";
         }
         QTableWidgetItem* item = new QTableWidgetItem(valStream.str().c_str());

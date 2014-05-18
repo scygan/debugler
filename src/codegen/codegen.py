@@ -88,7 +88,7 @@ class Entrypoint:
         self.skipTrace = skipTrace
         self.retType = retType
         self.paramList = paramList
-        self.forceEnumIndices = []
+        self.forceEnumParamNames = []
     
     def addLibrary(self, library):
         if library not in self.libraries:
@@ -254,7 +254,7 @@ def parseXML(path, skipTrace = False):
                 print "Entrypoint already defined"
                 exit(1)
             else:
-                entrypoints[entryPointName] = Entrypoint([], skipTrace, retType.name, funcParams)
+                entrypoints[entryPointName] = Entrypoint([], skipTrace, retType, funcParams)
 
     
 
@@ -370,7 +370,7 @@ for name, entrypoint in sorted(entrypoints.items()):
                 pass#this is ok
             elif "GLint" in entrypoint.paramList[internalFormatIdx].type.name:
                 #replace
-                entrypoints[name].forceEnumIndices.append(internalFormatIdx)
+                entrypoints[name].forceEnumParamNames.append(entrypoint.paramList[internalFormatIdx].name)
             else:
                 raise Exception(name + '\'s 3rd parameter assumed GLuint or GLenum, got ' + entrypoint.paramDeclList[internalFormatIdx] + ', bailing out')
         else:
@@ -460,15 +460,30 @@ for name, entrypoint in sorted(entrypoints.items()):
 
     paramDeclList = [ param.type.name + " " + param.name for param in entrypoint.paramList]
     paramCallList = [ param.name for param in entrypoint.paramList]
-
-    paramsStr = "FUNC_PARAMS(" + str(len(entrypoint.paramList)) + ", "+ listToString([ "PARAM(" + param.name  + "," + param.type.name + "," + param.type.enumGroup +")" for param in entrypoint.paramList]) + ")"
+    
+    retValBaseType = "Value"
+    if ("GLenum" in entrypoint.retType.name and not "*" in entrypoint.retType.name):
+        retValBaseType = "Enum"
+    elif "GLbitfield" in entrypoint.retType.name:
+        paramBaseType = "Bitfield"
+    retValStr = "RETVAL(" + retValBaseType + ", " + entrypoint.retType.enumGroup +  ")"
+    
+    outParamList = []
+    for param in entrypoint.paramList:
+        paramBaseType = "Value"
+        if ("GLenum" in param.type.name and not "*" in param.type.name) or param.name in entrypoint.forceEnumParamNames:
+            paramBaseType = "Enum"
+        elif "GLbitfield" in param.type.name:
+            paramBaseType = "Bitfield"
+        outParamList.append( "PARAM(" + param.name  + "," + paramBaseType + "," + param.type.enumGroup +")")
+    paramsStr = "FUNC_PARAMS(" + str(len(entrypoint.paramList)) + ", "+ listToString(outParamList) + ")"
 
 #list of entrypointsg1
     entrypointPtrType = "DGL_PFN" + name.upper() + "PROC"
     print >> functionListFile, entrypoint.getLibraryIfdef()
-    print >> functionListFile, "    FUNC_LIST_ELEM_SUPPORTED(" + name + ", " + entrypointPtrType + ", " + entrypoint.getLibaryBitMask() + ", " + paramsStr + ")"
+    print >> functionListFile, "    FUNC_LIST_ELEM_SUPPORTED(" + name + ", " + entrypointPtrType + ", " + entrypoint.getLibaryBitMask() + ", " + retValStr + ", " + paramsStr + ")"
     print >> functionListFile,"#else"
-    print >> functionListFile, "    FUNC_LIST_ELEM_NOT_SUPPORTED(" + name + ", " + entrypointPtrType + ", LIBRARY_NONE, " + paramsStr +  ")"
+    print >> functionListFile, "    FUNC_LIST_ELEM_NOT_SUPPORTED(" + name + ", " + entrypointPtrType + ", LIBRARY_NONE, " + retValStr + ", " +  paramsStr +  ")"
     print >> functionListFile,"#endif"
     
     print >> entrypointEnumListFile, name + "_Call,"
@@ -482,13 +497,13 @@ for name, entrypoint in sorted(entrypoints.items()):
                 
     if coreLib:
         print >> exportersFile, entrypoint.getLibraryIfdef()
-        print >> exportersFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
+        print >> exportersFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType.name + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
         print >> exportersFile, "        return " + name + "_Wrapper(" + listToString(paramCallList) + ");"        
         print >> exportersFile, "}"
         print >> exportersFile, "#endif"
     else:
         print >> exportersExtFile, entrypoint.getLibraryIfdef()
-        print >> exportersExtFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
+        print >> exportersExtFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType.name + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
         print >> exportersExtFile, "        return " + name + "_Wrapper(" + listToString(paramCallList) + ");"        
         print >> exportersExtFile, "}"
         print >> exportersExtFile, "#endif"
@@ -500,7 +515,7 @@ for name, entrypoint in sorted(entrypoints.items()):
                 androidLib = True
     if androidLib:
         print >> exportersAndroidFile, entrypoint.getLibraryIfdef()
-        print >> exportersAndroidFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
+        print >> exportersAndroidFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType.name + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
         print >> exportersAndroidFile, "        return " + name + "_Wrapper(" + listToString(paramCallList) + ");"        
         print >> exportersAndroidFile, "}"
         print >> exportersAndroidFile, "#endif"
@@ -508,34 +523,31 @@ for name, entrypoint in sorted(entrypoints.items()):
 #entrypoint wrappers
 
     print >> wrappersFile, entrypoint.getLibraryIfdef()
-    print >> wrappersFile, "extern \"C\" " + entrypoint.retType + " APIENTRY " + name + "_Wrapper(" + listToString(paramDeclList) + ") {"
+    print >> wrappersFile, "extern \"C\" " + entrypoint.retType.name + " APIENTRY " + name + "_Wrapper(" + listToString(paramDeclList) + ") {"
     
     if not entrypoint.skipTrace:
         cookie = "    DGLWrapperCookie cookie( " + name + "_Call"
         i = 0
         while i < len(entrypoint.paramList):
             cookie = cookie + ", "
-            if ("GLenum" in entrypoint.paramList[i].type.name and not "*" in entrypoint.paramList[i].type.name) or i in entrypoint.forceEnumIndices:
-                cookie = cookie + "GLenumWrap(" + entrypoint.paramList[i].name + ")"
-            else:
-                cookie = cookie + entrypoint.paramList[i].name
+            cookie = cookie + entrypoint.paramList[i].name
             i+=1
                 
         print >> wrappersFile, cookie + " );"
     
         print >> wrappersFile, "    if (!cookie.retVal.isSet()) {"
         print >> wrappersFile, "        assert(POINTER(" + name + "));"
-        if entrypoint.retType.lower() != "void":
+        if entrypoint.retType.name.lower() != "void":
             print >> wrappersFile, "        cookie.retVal = DIRECT_CALL(" + name + ")(" + listToString(paramCallList) + ");"
         else:
             print >> wrappersFile, "        DIRECT_CALL(" + name + ")(" + listToString(paramCallList) + ");"            
         print >> wrappersFile, "    }"
         
-        if entrypoint.retType.lower() != "void":
-            print >> wrappersFile, "    " + entrypoint.retType + " tmp;  cookie.retVal.get(tmp); return tmp;"
+        if entrypoint.retType.name.lower() != "void":
+            print >> wrappersFile, "    " + entrypoint.retType.name + " tmp;  cookie.retVal.get(tmp); return tmp;"
     else:
         print >> wrappersFile, "    //this function is not traced"
-        if entrypoint.retType.lower() != "void":
+        if entrypoint.retType.name.lower() != "void":
             print >> wrappersFile, "    return DIRECT_CALL(" + name + ")(" + listToString(paramCallList) + ");"
         else:
             print >> wrappersFile, "    DIRECT_CALL(" + name + ")(" + listToString(paramCallList) + ");"
@@ -546,7 +558,7 @@ for name, entrypoint in sorted(entrypoints.items()):
     
 #additional PFN definitions
     print >> entrypTypedefs, entrypoint.getLibraryIfdef()
-    print >> entrypTypedefs, "typedef " + entrypoint.retType + " (APIENTRYP " + entrypointPtrType + ")(" + listToString(paramDeclList) + ");"
+    print >> entrypTypedefs, "typedef " + entrypoint.retType.name + " (APIENTRYP " + entrypointPtrType + ")(" + listToString(paramDeclList) + ");"
     print >> entrypTypedefs, "#else"
     print >> entrypTypedefs, "typedef void * " +  entrypointPtrType + ";"
     print >> entrypTypedefs, "#endif"
