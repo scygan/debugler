@@ -50,7 +50,7 @@ public:
 
 #define RETVAL(baseType, enumGroup) GLParamTypeMetadata(GLParamTypeMetadata::BaseType::baseType, GLEnumGroup::enumGroup)
 #define PARAM(name, baseType, enumGroup) GLEntrypoitParam(#name, GLParamTypeMetadata::BaseType::baseType, GLEnumGroup::enumGroup)
-#define FUNC_PARAMS(paramCount, ...) GLEntrypoitParams(paramCount, __VA_ARGS__)
+#define FUNC_PARAMS(...) GLEntrypoitParams(__VA_ARGS__)
 
 
 #define FUNC_LIST_ELEM_SUPPORTED    (name, type, library, retVal, params) { #name, false, false, retVal, params }, 

@@ -476,7 +476,10 @@ for name, entrypoint in sorted(entrypoints.items()):
         elif "GLbitfield" in param.type.name:
             paramBaseType = "Bitfield"
         outParamList.append( "PARAM(" + param.name  + "," + paramBaseType + "," + param.type.enumGroup +")")
-    paramsStr = "FUNC_PARAMS(" + str(len(entrypoint.paramList)) + ", "+ listToString(outParamList) + ")"
+    if len(entrypoint.paramList) > 0:
+        paramsStr = "FUNC_PARAMS(" + str(len(entrypoint.paramList)) + ", "+ listToString(outParamList) + ")"
+    else:
+        paramsStr = "FUNC_PARAMS(0)"
 
 #list of entrypointsg1
     entrypointPtrType = "DGL_PFN" + name.upper() + "PROC"
