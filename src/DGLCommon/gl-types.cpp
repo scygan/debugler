@@ -26,6 +26,7 @@ namespace lists {
 
 class GLEnumName {
 public:
+    GLEnumName() {}
     GLEnumName(const char* name, const int groupCount, ...): m_name(name) {
         va_list vl;
         va_start(vl, groupCount);
@@ -44,15 +45,9 @@ public:
 
 struct EnumMapCache {
     EnumMapCache() {
-
-#define ENUMGROUPS(count, ...) count, __VA_ARGS__
-     
-#define ENUM_LIST_ELEMENT(name, value, groups) \
-    EnumGLToName[(gl_t)value].insert(GLEnumName(#name, groups));
-
-#include "codegen/enum.inl"
-
-#undef ENUM_LIST_ELEMENT
+        for (size_t i = 0; s_CodegenEnumGLToName[i].name.m_name != nullptr; i++) {
+            EnumGLToName[s_CodegenEnumGLToName[i].value].insert(&s_CodegenEnumGLToName[i].name);
+        }
     }
 
     static EnumMapCache* get() {
@@ -63,15 +58,34 @@ struct EnumMapCache {
     }
 
     static std::shared_ptr<EnumMapCache> s_cache;
-    std::map<gl_t, std::set<GLEnumName>> EnumGLToName;
+    std::map<gl_t, std::set<GLEnumName*>> EnumGLToName;
+
+    static struct CodegenEnumGLToName {
+        //CodegenEnumGLToName(gl_t v, GLEnumName n):value(v), name(n) {}
+        gl_t value;
+        GLEnumName name;
+    } s_CodegenEnumGLToName[];
 };
 
+
+
+EnumMapCache::CodegenEnumGLToName EnumMapCache::s_CodegenEnumGLToName[] = {
+
+#define ENUM_LIST_ELEMENT(name, value, groupCount, ...) \
+    {(gl_t)value, GLEnumName(#name, groupCount, __VA_ARGS__)},
+#include "codegen/enum.inl"
+#undef ENUM_LIST_ELEMENT
+    {0, GLEnumName(nullptr, 0)},
+};
+
+
 std::shared_ptr<EnumMapCache> EnumMapCache::s_cache;
+
 } //namespace lists
 
 std::string GetGLEnumName(gl_t glEnum, GLEnumGroup group) {
 
-    std::map<gl_t, std::set<lists::GLEnumName>>::iterator nameSetPtr =
+    std::map<gl_t, std::set<lists::GLEnumName*>>::iterator nameSetPtr =
             lists::EnumMapCache::get()->EnumGLToName.find(glEnum);
 
     if (nameSetPtr == lists::EnumMapCache::get()->EnumGLToName.end()) {
@@ -82,20 +96,20 @@ std::string GetGLEnumName(gl_t glEnum, GLEnumGroup group) {
         return tmp.str();
     }
 
-    std::set<lists::GLEnumName>&  nameSet = nameSetPtr->second;
+    std::set<lists::GLEnumName*>& nameSet = nameSetPtr->second;
 
-    for (std::set<lists::GLEnumName>::iterator i = nameSet.begin(); 
+    for (std::set<lists::GLEnumName*>::iterator i = nameSet.begin(); 
         i != nameSet.end(); i++) {
 
-        if (i->m_groups.find(group) != i->m_groups.end()) {
+        if ((*i)->m_groups.find(group) != (*i)->m_groups.end()) {
             //found name matching requested enum group.
-            return i->m_name;
+            return (*i)->m_name;
         }
     }
 
     //requested group does not match any known name of this entrypoint. Return any name.
 
-    return nameSet.begin()->m_name;
+    return (*nameSet.begin())->m_name;
 }
 
 std::string GetShaderStageName(gl_t glEnum) {
