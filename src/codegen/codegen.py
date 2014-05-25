@@ -449,7 +449,7 @@ for name, enum in sorted(enums.items()):
     if not "_LINE_BIT" in name:  #TODO: what about _LINE_BIT stuff?
         if len(enum.groups) <= 0:
             enum.groups.append("None")
-        print >> enumFile, "ENUM_LIST_ELEMENT(" + name + ","  + enum.value + ", " + str(len(enum.groups)) + ", " + listToString(["GLEnumGroup::" + g for g in enum.groups]) + ")"
+        print >> enumFile, "ENUM_LIST_ELEMENT(" + name + ","  + enum.value + ", " + listToString(["GLEnumGroup::" + g for g in enum.groups]) + ")"
 
 for name in enumGroups:
     print >> enumGroupFile, "ENUMGROUP_LIST_ELEMENT(" + name + ")"

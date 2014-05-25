@@ -24,20 +24,10 @@
 
 namespace lists {
 
-class GLEnumName {
+struct GLEnumName {
 public:
-    GLEnumName() {}
-    GLEnumName(const char* name, const int groupCount, ...): m_name(name) {
-        va_list vl;
-        va_start(vl, groupCount);
-        for (int i = 0; i < groupCount; i++) {
-            m_groups.insert(va_arg(vl, GLEnumGroup));
-        }
-        va_end(vl);
-    }
     const char* m_name;
-    std::set<GLEnumGroup>  m_groups;
-
+    GLEnumGroup  m_groups[11];
     bool operator<(const GLEnumName& rhs) const {
         return m_name < rhs.m_name;
     }
@@ -71,11 +61,11 @@ struct EnumMapCache {
 
 EnumMapCache::CodegenEnumGLToName EnumMapCache::s_CodegenEnumGLToName[] = {
 
-#define ENUM_LIST_ELEMENT(name, value, groupCount, ...) \
-    {(gl_t)value, GLEnumName(#name, groupCount, __VA_ARGS__)},
+#define ENUM_LIST_ELEMENT(name, value, ...) \
+    {(gl_t)value,  { #name, {__VA_ARGS__, GLEnumGroup::None}}},
 #include "codegen/enum.inl"
 #undef ENUM_LIST_ELEMENT
-    {0, GLEnumName(nullptr, 0)},
+    {0,  {nullptr, {}}},
 };
 
 
@@ -101,9 +91,11 @@ std::string GetGLEnumName(gl_t glEnum, GLEnumGroup group) {
     for (std::set<lists::GLEnumName*>::iterator i = nameSet.begin(); 
         i != nameSet.end(); i++) {
 
-        if ((*i)->m_groups.find(group) != (*i)->m_groups.end()) {
-            //found name matching requested enum group.
-            return (*i)->m_name;
+        for (int j = 0; (*i)->m_groups[j] != GLEnumGroup::None; j++) {
+            if ((*i)->m_groups[j] == group) {
+                //found name matching requested enum group.
+                return (*i)->m_name;
+            }
         }
     }
 
