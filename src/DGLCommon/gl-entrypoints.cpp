@@ -26,31 +26,13 @@ namespace lists {
 
 class GLEntrypoitParam {
 public:
-    GLEntrypoitParam(const char* name, GLParamTypeMetadata::BaseType baseType, GLEnumGroup enumGroup):m_name(name), m_Metadata(baseType, enumGroup) {}
     const char* m_name;
     GLParamTypeMetadata m_Metadata;
 };
 
-class GLEntrypoitParams {
-public:
-    GLEntrypoitParams() {}
-    GLEntrypoitParams(const int paramCount, ...) {
-        va_list vl;
-        va_start(vl, paramCount);
-
-        m_params.reserve(paramCount);
-
-        for (int i = 0; i < paramCount; i++) {
-            m_params.push_back(va_arg(vl, GLEntrypoitParam));
-        }
-        va_end(vl);
-    }
-    std::vector<GLEntrypoitParam> m_params;
-};
-
-#define RETVAL(baseType, enumGroup) GLParamTypeMetadata(GLParamTypeMetadata::BaseType::baseType, GLEnumGroup::enumGroup)
-#define PARAM(name, baseType, enumGroup) GLEntrypoitParam(#name, GLParamTypeMetadata::BaseType::baseType, GLEnumGroup::enumGroup)
-#define FUNC_PARAMS(...) GLEntrypoitParams(__VA_ARGS__)
+#define RETVAL(baseType, enumGroup) { GLParamTypeMetadata::BaseType::baseType, GLEnumGroup::enumGroup }
+#define PARAM(name, baseType, enumGroup) {#name, {GLParamTypeMetadata::BaseType::baseType, GLEnumGroup::enumGroup}}
+#define FUNC_PARAMS(...) {__VA_ARGS__}
 
 
 #define FUNC_LIST_ELEM_SUPPORTED    (name, type, library, retVal, params) { #name, false, false, retVal, params }, 
@@ -61,10 +43,10 @@ struct GLEntrypoint {
     bool isFrameDelimiter;
     bool isDrawCall;
     GLParamTypeMetadata m_RetValMetadata;
-    GLEntrypoitParams params;
+    GLEntrypoitParam params[18];
 } g_Entrypoints[] = {
 #include "codegen/functionList.inl"
-        { "<unknown>", false, false, GLParamTypeMetadata(), GLEntrypoitParams(0) }
+    { "<unknown>", false, false, { GLParamTypeMetadata::BaseType::Value, GLEnumGroup::None}, {}}
 };
 #undef FUNC_LIST_ELEM_SUPPORTED
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED
@@ -160,7 +142,7 @@ Entrypoint GetEntryPointEnum(const char* name) {
 }
 
 const GLParamTypeMetadata& GetEntryPointGLParamTypeMetadata(Entrypoint entryp, int param) {
-    return lists::g_Entrypoints[entryp].params.m_params[param].m_Metadata;
+    return lists::g_Entrypoints[entryp].params[param].m_Metadata;
 }
 
 const GLParamTypeMetadata& GetEntryPointRetvalMetadata(Entrypoint entryp) {

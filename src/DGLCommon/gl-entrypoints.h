@@ -44,9 +44,6 @@ struct GLParamTypeMetadata {
         Value
     } m_BaseType;
     GLEnumGroup m_EnumGroup;    
-
-    GLParamTypeMetadata(BaseType baseType, GLEnumGroup enumGroup):m_BaseType(baseType), m_EnumGroup(enumGroup) {}
-    GLParamTypeMetadata():m_BaseType(BaseType::Value), m_EnumGroup(GLEnumGroup::None) {}
 };
 
 const GLParamTypeMetadata& GetEntryPointGLParamTypeMetadata(Entrypoint entryp, int param);
