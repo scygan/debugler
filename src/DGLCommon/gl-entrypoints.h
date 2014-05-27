@@ -37,17 +37,23 @@ const char* GetEntryPointName(Entrypoint entryp);
 Entrypoint GetEntryPointEnum(const char* name);
 
 
-struct GLParamTypeMetadata {
+class GLParamTypeMetadata {
+public:
     enum class BaseType {
         Enum, 
         Bitfield, 
         Value
-    } m_BaseType;
+    };
+
+    GLParamTypeMetadata():m_BaseType(BaseType::Value), m_EnumGroup(GLEnumGroup::None) {}
+    GLParamTypeMetadata(BaseType baseType, GLEnumGroup enumGroup):m_BaseType(baseType), m_EnumGroup(enumGroup) {}
+    
+    BaseType m_BaseType;
     GLEnumGroup m_EnumGroup;    
 };
 
-const GLParamTypeMetadata& GetEntryPointGLParamTypeMetadata(Entrypoint entryp, int param);
-const GLParamTypeMetadata& GetEntryPointRetvalMetadata(Entrypoint entryp);
+const GLParamTypeMetadata GetEntryPointGLParamTypeMetadata(Entrypoint entryp, int param);
+const GLParamTypeMetadata GetEntryPointRetvalMetadata(Entrypoint entryp);
 
 bool IsDrawCall(Entrypoint);
 bool IsFrameDelimiter(Entrypoint);

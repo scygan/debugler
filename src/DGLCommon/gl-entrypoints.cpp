@@ -23,17 +23,21 @@
 
 namespace lists {
 
+//similar to GLParamTypeMetadata, but non-aggregate
+struct ParamTypeMetadada {
+    GLParamTypeMetadata::BaseType m_BaseType;
+    GLEnumGroup m_EnumGroup;  
+};
 
 class GLEntrypoitParam {
 public:
     const char* m_name;
-    GLParamTypeMetadata m_Metadata;
+    ParamTypeMetadada m_Metadata;
 };
 
 #define RETVAL(baseType, enumGroup) { GLParamTypeMetadata::BaseType::baseType, GLEnumGroup::enumGroup }
 #define PARAM(name, baseType, enumGroup) {#name, {GLParamTypeMetadata::BaseType::baseType, GLEnumGroup::enumGroup}}
 #define FUNC_PARAMS(...) {__VA_ARGS__}
-
 
 #define FUNC_LIST_ELEM_SUPPORTED    (name, type, library, retVal, params) { #name, false, false, retVal, params }, 
 #define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, retVal, params) { #name, false, false, retVal, params },
@@ -42,7 +46,7 @@ struct GLEntrypoint {
     const char* name;
     bool isFrameDelimiter;
     bool isDrawCall;
-    GLParamTypeMetadata m_RetValMetadata;
+    ParamTypeMetadada m_RetValMetadata;
     GLEntrypoitParam params[18];
 } g_Entrypoints[] = {
 #include "codegen/functionList.inl"
@@ -141,12 +145,16 @@ Entrypoint GetEntryPointEnum(const char* name) {
     return ret->second;
 }
 
-const GLParamTypeMetadata& GetEntryPointGLParamTypeMetadata(Entrypoint entryp, int param) {
-    return lists::g_Entrypoints[entryp].params[param].m_Metadata;
+const GLParamTypeMetadata GetEntryPointGLParamTypeMetadata(Entrypoint entryp, int param) {
+    lists::ParamTypeMetadada& metadata = 
+        lists::g_Entrypoints[entryp].params[param].m_Metadata;
+    return GLParamTypeMetadata(metadata.m_BaseType, metadata.m_EnumGroup);
 }
 
-const GLParamTypeMetadata& GetEntryPointRetvalMetadata(Entrypoint entryp) {
-    return lists::g_Entrypoints[entryp].m_RetValMetadata;
+const GLParamTypeMetadata GetEntryPointRetvalMetadata(Entrypoint entryp) {
+    lists::ParamTypeMetadada& metadata = 
+        lists::g_Entrypoints[entryp].m_RetValMetadata;
+    return GLParamTypeMetadata(metadata.m_BaseType, metadata.m_EnumGroup);
 }
 
 bool IsDrawCall(Entrypoint entryp) {
