@@ -15,6 +15,7 @@ set(dglwrapper_SOURCES
     gl-statesetters.cpp
     gl-texunit.cpp
 	backtrace.cpp
+    globalstate.cpp
 #dllmain.cpp should be at the end, requires all static ctors to run before dllmain.
     dllmain.cpp
     )

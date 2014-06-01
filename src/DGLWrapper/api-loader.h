@@ -129,6 +129,4 @@ class APILoader {
     ApiLibrary m_GlueLibrary;
 };
 
-extern APILoader g_ApiLoader;
-
 #endif    // API_LOADER_H

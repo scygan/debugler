@@ -18,6 +18,7 @@
 #include "api-loader.h"
 #include "debugger.h"
 #include "ipc.h"
+#include "globalstate.h"
 #include "DGLWrapper.h"
 #include <boost/make_shared.hpp>
 #include <boost/interprocess/sync/named_semaphore.hpp>
@@ -46,27 +47,30 @@ DGLIPC* getIPC() {
  */
 void Initialize(void) {
 
+    APILoader& apiLoader = GlobalState::getApiLoader();
+
     // load system GL libraries (& initialize entrypoint tables)
 
     if (getIPC()->getDebuggerMode() == DGLIPC::DebuggerMode::EGL) {
-        g_ApiLoader.loadLibrary(LIBRARY_EGL);
+
+        apiLoader.loadLibrary(LIBRARY_EGL);
         // GL library loading is deferred - we don't know which library to load
         // now.
     } else {
 #ifdef _WIN32
-        g_ApiLoader.loadLibrary(LIBRARY_WGL);
-        g_ApiLoader.loadLibrary(LIBRARY_WINGDI);
+        apiLoader.loadLibrary(LIBRARY_WGL);
+        apiLoader.loadLibrary(LIBRARY_WINGDI);
 #else
-        g_ApiLoader.loadLibrary(LIBRARY_GLX);
+        apiLoader.loadLibrary(LIBRARY_GLX);
 #endif
-        g_ApiLoader.loadLibrary(LIBRARY_GL);
+        apiLoader.loadLibrary(LIBRARY_GL);
     }
 }
 
 /**
  * DGLwrapper routine called on library unload
  */
-void TearDown() { _g_Controller.reset(); }
+void TearDown() { GlobalState::reset(); }
 
 #ifndef _WIN32
 void __attribute__((constructor)) DGLWrapperLoad(void) { Initialize(); }

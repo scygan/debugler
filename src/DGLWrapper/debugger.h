@@ -406,18 +406,8 @@ class DGLDebugController : public dglnet::MessageHandler {
 };
 
 /**
- *  Global controller object instance
- */
-extern std::shared_ptr<DGLDebugController> _g_Controller;
-
-/**
- *  Global controller object instance getter
- */
-DGLDebugController* getController();
-
-/**
  *  Global config object instance
  */
-extern DGLConfiguration g_Config;
+
 
 #endif    // DEBUGGER_H

@@ -18,6 +18,7 @@
 #include "native-surface.h"
 #include "tls.h"
 #include "ipc.h"
+#include "globalstate.h"
 
 #include <DGLNet/server.h>
 #include <DGLNet/protocol/message.h>
@@ -28,16 +29,6 @@
 #include <boost/make_shared.hpp>
 #include <boost/interprocess/sync/named_semaphore.hpp>
 
-std::shared_ptr<DGLDebugController> _g_Controller;
-
-DGLDebugController* getController() {
-    if (!_g_Controller.get()) {
-        _g_Controller = std::make_shared<DGLDebugController>();
-    }
-    return _g_Controller.get();
-}
-
-DGLConfiguration g_Config;
 
 BreakState::BreakState()
         : m_break(true), //always give initial break
@@ -71,17 +62,17 @@ bool BreakState::mayBreakAt(const Entrypoint& e) {
 }
 
 void BreakState::setBreakAtGLError(GLenum glError) {
-    if (glError != GL_NO_ERROR && g_Config.m_BreakOnGLError) {
+    if (glError != GL_NO_ERROR && GlobalState::getConfiguration().m_BreakOnGLError) {
         setBreak();
     }
 }
 
 void BreakState::setBreakAtDebugOutput() {
-    if (g_Config.m_BreakOnDebugOutput) setBreak();
+    if (GlobalState::getConfiguration().m_BreakOnDebugOutput) setBreak();
 }
 
 void BreakState::setBreakAtCompilerError() {
-    if (g_Config.m_BreakOnCompilerError) setBreak();
+    if (GlobalState::getConfiguration().m_BreakOnCompilerError) setBreak();
 }
 
 bool BreakState::isBreaked() { return m_break && m_BreakingEnabled; }
@@ -344,7 +335,7 @@ CallHistory& DGLDebugController::getCallHistory() { return m_CallHistory; }
 
 void DGLDebugController::doHandleConfiguration(
         const dglnet::message::Configuration& msg) {
-    g_Config = msg.m_config;
+    GlobalState::getConfiguration() = msg.m_config;
 }
 void DGLDebugController::doHandleContinueBreak(
         const dglnet::message::ContinueBreak& msg) {

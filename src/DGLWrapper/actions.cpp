@@ -23,6 +23,7 @@
 #include "display.h"
 #include "native-surface.h"
 #include "gl-utils.h"
+#include "globalstate.h"
 
 #include <DGLCommon/gl-types.h>
 
@@ -56,31 +57,33 @@ RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
 
     bool newConnection;
 
+    DGLDebugController& controller =  GlobalState::getDebugController();
+
     do {
 
         newConnection = false;
 
         std::lock_guard<std::mutex> server_lock(
-            getController()->getServer().getMutex());
+            controller.getServer().getMutex());
 
         // do a fast non-blocking poll to get "interrupt" message, etc.."
-        getController()->poll();
+        controller.poll();
 
         // check if any break is pending
-        if (getController()->getBreakState().mayBreakAt(call.getEntrypoint())) {
+        if (controller.getBreakState().mayBreakAt(call.getEntrypoint())) {
             // we just hit a break;
             dglState::GLContext* ctx = gc;
             dglnet::message::BreakedCall callStateMessage(
-                call, (value_t)getController()->getCallHistory().size(),
+                call, (value_t)controller.getCallHistory().size(),
                 ctx ? ctx->getId() : 0, DGLDisplayState::describeAll());
-            getController()->getServer().getTransport()->sendMessage(
+           controller.getServer().getTransport()->sendMessage(
                 &callStateMessage);
         }
 
-        while (getController()->getBreakState().isBreaked()) {
+        while (controller.getBreakState().isBreaked()) {
             // iterate block & loop until someone unbreaks us
 
-            getController()->run_one(newConnection);
+            controller.run_one(newConnection);
 
             if (newConnection) {
                 //in the meantime reconnection happened.
@@ -96,17 +99,19 @@ RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
     // now there should be no breaks
 
     // add call to history ring
-    getController()->getCallHistory().add(call);
+    controller.getCallHistory().add(call);
 
     return ret;
 }
 
 void DefaultAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
-    std::lock_guard<std::mutex> server_lock(
-            getController()->getServer().getMutex());
+    DGLDebugController& controller =  GlobalState::getDebugController();
 
-    CallHistory& history = getController()->getCallHistory();
+    std::lock_guard<std::mutex> server_lock(
+            controller.getServer().getMutex());
+
+    CallHistory& history = controller.getCallHistory();
 
     GLenum error;
     if (dglState::GLContext* ctx = gc) {
@@ -114,12 +119,12 @@ void DefaultAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
         bool hasDebugOutput = ctx->hasDebugOutput();
         if (hasDebugOutput) {
             history.setDebugOutput(ctx->popDebugOutput());
-            getController()->getBreakState().setBreakAtDebugOutput();
+            controller.getBreakState().setBreakAtDebugOutput();
         }
 
         if ((error = gc->peekError()) != GL_NO_ERROR) {
             history.setError(error);
-            getController()->getBreakState().setBreakAtGLError(error);
+            controller.getBreakState().setBreakAtGLError(error);
         }
     }
 
@@ -180,7 +185,7 @@ RetValue GetProcAddressAction::Pre(const CalledEntryPoint& call) {
         return ret;
     }
     // Load and get address of entrypoint implementation
-    if (g_ApiLoader.loadExtPointer(entryp)) {
+    if (GlobalState::getApiLoader().loadExtPointer(entryp)) {
         // entrypoint supported by implementation, return address of wrapper to
         // application
         ret = reinterpret_cast<FUNC_PTR>(getWrapperPointer(entryp));
@@ -564,7 +569,7 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 }
                 dglState::GLContextVersion version(contextType, major, minor);
 
-                g_ApiLoader.loadLibraries(version.getNeededApiLibraries(displayState));
+                GlobalState::getApiLoader().loadLibraries(version.getNeededApiLibraries(displayState));
 
                 displayState->createContext(
                     dglState::GLContextVersion::Type::ES,
@@ -670,7 +675,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
 
     if (ret.isSet()) return ret;
 
-    if (!g_Config.m_ForceDebugContext) {
+    if (!GlobalState::getConfiguration().m_ForceDebugContext) {
         return ret;
     }
 
@@ -698,7 +703,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
         while (attribList[i]) {
             int attrib = attribList[i++], value = attribList[i++];
             if (attrib == WGL_CONTEXT_FLAGS_ARB) {
-                if (!g_Config.m_ForceDebugContextES &&
+                if (!GlobalState::getConfiguration().m_ForceDebugContextES &&
                     (value & WGL_CONTEXT_ES2_PROFILE_BIT_EXT)) {
                     return ret;
                 }
@@ -729,7 +734,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
     // call wglCreateContextAttribsARB only if supported by implementation.
     // Otherwise do nothing - ctx will be created in wrapper function
     if (POINTER(wglCreateContextAttribsARB) ||
-        g_ApiLoader.loadExtPointer(wglCreateContextAttribsARB_Call)) {
+        GlobalState::getApiLoader().loadExtPointer(wglCreateContextAttribsARB_Call)) {
         ret = DIRECT_CALL_CHK(wglCreateContextAttribsARB)(hdc, sharedCtx,
                                                           &newAttribList[0]);
     }
@@ -787,7 +792,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
         while (attribList[i]) {
             int attrib = attribList[i++], value = attribList[i++];
             if (attrib == GLX_CONTEXT_FLAGS_ARB) {
-                if (!g_Config.m_ForceDebugContextES &&
+                if (!GlobalState::getConfiguration().m_ForceDebugContextES &&
                     (value & GLX_CONTEXT_ES2_PROFILE_BIT_EXT)) {
                     return ret;
                 }
@@ -1134,7 +1139,7 @@ void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             DIRECT_CALL_CHK(glGetProgramiv)(name, GL_LINK_STATUS, &linkStatus);
 
             if (linkStatus != GL_TRUE) {
-                getController()->getBreakState().setBreakAtCompilerError();
+                GlobalState::getDebugController().getBreakState().setBreakAtCompilerError();
             }
 
         } else if (entrp == glLinkProgramARB_Call) {
@@ -1145,7 +1150,7 @@ void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                     name, GL_OBJECT_LINK_STATUS_ARB, &linkStatus);
 
             if (linkStatus != GL_TRUE) {
-                getController()->getBreakState().setBreakAtCompilerError();
+                GlobalState::getDebugController().getBreakState().setBreakAtCompilerError();
             }
         }
     }
@@ -1208,7 +1213,7 @@ void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
             GLint compileStatus = shader->queryCompilationStatus();
 
             if (compileStatus != GL_TRUE) {
-                getController()->getBreakState().setBreakAtCompilerError();
+                GlobalState::getDebugController().getBreakState().setBreakAtCompilerError();
             }
 
         } else if (entrp == glAttachShader_Call ||

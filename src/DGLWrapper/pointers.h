@@ -17,6 +17,7 @@
 #include <DGLCommon/gl-glue-headers.h>
 #include <DGLCommon/gl-types.h>
 
+#include "globalstate.h"
 #include "api-loader.h"
 
 #include "codegen/entrypTypedefs.inl"
@@ -43,7 +44,7 @@
 // will throw exception on NULL
 #define DIRECT_CALL_CHK(X) \
     (*reinterpret_cast<POINTER_TYPE(X)>(POINTER_CHECKED(X)))
-#define POINTER_CHECKED(X) g_ApiLoader.ensurePointer(X##_Call)
+#define POINTER_CHECKED(X) GlobalState::getApiLoader().ensurePointer(X##_Call)
 
 struct LoadedPointer {
     FUNC_PTR ptr;

@@ -313,5 +313,3 @@ FUNC_PTR APILoader::ensurePointer(Entrypoint entryp) {
         throw std::runtime_error(error);
     }
 }
-
-APILoader g_ApiLoader;

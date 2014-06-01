@@ -70,6 +70,3 @@ void ActionManager::RegisterAction(Entrypoint entryp, std::shared_ptr<actions::A
     //swap the new and old action
     std::swap(actions[entryp], action);
 }
-
-// Global action manager object
-ActionManager g_ActionManager;

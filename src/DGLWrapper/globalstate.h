@@ -13,23 +13,36 @@
 * limitations under the License.
 */
 
-#ifndef ACTION_MANAGER_H
-#define ACTION_MANAGER_H
+#ifndef GLOBALSTATE_H
+#define GLOBALSTATE_H
 
 #include <memory>
-#include "actions.h"
 
 
-class ActionManager {
+struct GlobalStateImpl;
+
+class ActionManager;
+class APILoader;
+class DGLDebugController;
+class DGLConfiguration;
+
+/* Singleton wrapping all global state in DGLWrapper
+*/
+class GlobalState {
 public:
-    ActionManager();
-    void ActionManager::RegisterAction(Entrypoint entryp, std::shared_ptr<actions::ActionBase> action);
+    GlobalState();
+    static ActionManager&      getActionManager();
+    static APILoader&          getApiLoader();
+    static DGLDebugController& getDebugController();
+    static DGLConfiguration&   getConfiguration();
 
-    inline actions::ActionBase& GetAction(Entrypoint entryp) {
-        return *actions[entryp];
-    }
+    static void reset();
 
 private:
-    std::shared_ptr<actions::ActionBase> actions[NUM_ENTRYPOINTS];
+    inline static GlobalStateImpl* GetImpl();
+
+    static std::unique_ptr<GlobalStateImpl> s_GlobImpl;
 };
+
 #endif
+
