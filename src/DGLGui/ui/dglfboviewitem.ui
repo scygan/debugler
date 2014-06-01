@@ -74,6 +74,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QLabel" name="m_framebufferStatusLabel">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>

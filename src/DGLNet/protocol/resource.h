@@ -130,6 +130,7 @@ class DGLResourceFBO : public DGLResource {
     void serialize(Archive& ar, const unsigned int) {
         ar& ::boost::serialization::base_object<DGLResource>(*this);
         ar& m_Attachments;
+        ar& m_CompletenessStatus;
     }
 
 
@@ -164,6 +165,7 @@ class DGLResourceFBO : public DGLResource {
     };
 
     std::vector<FBOAttachment> m_Attachments;
+    gl_t                       m_CompletenessStatus;
 };
 
 class DGLResourceShader : public DGLResource {

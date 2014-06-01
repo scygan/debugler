@@ -1156,6 +1156,9 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
     attachments.push_back(GL_DEPTH_ATTACHMENT);
     attachments.push_back(GL_STENCIL_ATTACHMENT);
 
+    resource->m_CompletenessStatus =
+        DIRECT_CALL_CHK(glCheckFramebufferStatus)(GL_FRAMEBUFFER);
+
     queryCheckError();
 
     for (size_t i = 0; i < attachments.size(); i++) {
@@ -1373,65 +1376,73 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
         // there should be no errors. Otherwise something nasty happened
         queryCheckError();
 
-        std::shared_ptr<glutils::MSAADownSampler> downSampler;
-        if (multisampled) {
+        if (resource->m_CompletenessStatus == GL_FRAMEBUFFER_COMPLETE) {
 
-            DGLPixelTransfer downsamplerTransfer;
-            if (getVersion().check(GLContextVersion::Type::ES)) {
-                GLint implReadFormat, implTypeType;
-                DIRECT_CALL_CHK(glGetIntegerv)(
+            //read framebuffer contents only if it is complete.
+            //Otherwise INVALID_OP may happen.
+            
+            std::shared_ptr<glutils::MSAADownSampler> downSampler;
+            if (multisampled) {
+
+                DGLPixelTransfer downsamplerTransfer;
+                if (getVersion().check(GLContextVersion::Type::ES)) {
+                    GLint implReadFormat, implTypeType;
+                    DIRECT_CALL_CHK(glGetIntegerv)(
                         GL_IMPLEMENTATION_COLOR_READ_FORMAT, &implReadFormat);
-                DIRECT_CALL_CHK(glGetIntegerv)(
+                    DIRECT_CALL_CHK(glGetIntegerv)(
                         GL_IMPLEMENTATION_COLOR_READ_TYPE, &implTypeType);
-                downsamplerTransfer.initializeOGLES(
+                    downsamplerTransfer.initializeOGLES(
                         internalFormat, implReadFormat, implTypeType);
-            } else {
-                downsamplerTransfer.initializeOGL(internalFormat, rgbaSizes,
-                                                  deptStencilSizes);
-            }
+                } else {
+                    downsamplerTransfer.initializeOGL(internalFormat, rgbaSizes,
+                        deptStencilSizes);
+                }
 
-            downSampler = std::shared_ptr<glutils::MSAADownSampler>(
-                new glutils::MSAADownSampler(
+                downSampler = std::shared_ptr<glutils::MSAADownSampler>(
+                    new glutils::MSAADownSampler(
                     this, attTarget, attachments[i], name, internalFormat,
                     &downsamplerTransfer, width, height));
-            DIRECT_CALL_CHK(glBindFramebuffer)(
+                DIRECT_CALL_CHK(glBindFramebuffer)(
                     GL_READ_FRAMEBUFFER, downSampler->getDownsampledFBO());
-        }
+            }
 
-        if (attachments[i] != GL_DEPTH_ATTACHMENT &&
-            attachments[i] != GL_STENCIL_ATTACHMENT &&
-            attachments[i] != GL_DEPTH_STENCIL_ATTACHMENT) {
-            // select color attachment
-            if (hasCapability(ContextCap::ReadBuffer)) {
-                DIRECT_CALL_CHK(glReadBuffer)(attachments[i]);
+            if (attachments[i] != GL_DEPTH_ATTACHMENT &&
+                attachments[i] != GL_STENCIL_ATTACHMENT &&
+                attachments[i] != GL_DEPTH_STENCIL_ATTACHMENT) {
+                    // select color attachment
+                    if (hasCapability(ContextCap::ReadBuffer)) {
+                        DIRECT_CALL_CHK(glReadBuffer)(attachments[i]);
+                    }
+            }
+
+            DGLPixelTransfer transfer;
+            if (getVersion().check(GLContextVersion::Type::ES)) {
+                GLint implReadFormat, implTypeType;
+                DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_FORMAT,
+                    &implReadFormat);
+                DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_TYPE,
+                    &implTypeType);
+                transfer.initializeOGLES(internalFormat, implReadFormat,
+                    implTypeType);
+            } else {
+                transfer.initializeOGL(internalFormat, rgbaSizes, deptStencilSizes);
+            }
+
+            resource->m_Attachments.back().m_PixelRectangle =
+                boost::make_shared<dglnet::resource::DGLPixelRectangle>(
+                width, height, defAlignment.getAligned(
+                width * transfer.getPixelSize()),
+                transfer.getFormat(), transfer.getType());
+
+            GLvoid* ptr = resource->m_Attachments.back().m_PixelRectangle->getPtr();
+            if (ptr) {
+                DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height,
+                    (GLenum)transfer.getFormat(),
+                    (GLenum)transfer.getType(), ptr);
             }
         }
 
-        DGLPixelTransfer transfer;
-        if (getVersion().check(GLContextVersion::Type::ES)) {
-            GLint implReadFormat, implTypeType;
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_FORMAT,
-                                           &implReadFormat);
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_TYPE,
-                                           &implTypeType);
-            transfer.initializeOGLES(internalFormat, implReadFormat,
-                                     implTypeType);
-        } else {
-            transfer.initializeOGL(internalFormat, rgbaSizes, deptStencilSizes);
-        }
-
-        resource->m_Attachments.back().m_PixelRectangle =
-                boost::make_shared<dglnet::resource::DGLPixelRectangle>(
-                        width, height, defAlignment.getAligned(
-                                               width * transfer.getPixelSize()),
-                        transfer.getFormat(), transfer.getType());
-
-        GLvoid* ptr = resource->m_Attachments.back().m_PixelRectangle->getPtr();
-        if (ptr) {
-            DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height,
-                                          (GLenum)transfer.getFormat(),
-                                          (GLenum)transfer.getType(), ptr);
-        }
+        
 
         // there should be no errors. Otherwise something nasty happened
         queryCheckError();

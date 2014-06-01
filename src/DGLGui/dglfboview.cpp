@@ -17,6 +17,8 @@
 
 #include "ui_dglfboviewitem.h"
 
+#include <sstream>
+
 DGLFBOViewItem::DGLFBOViewItem(dglnet::ContextObjectName name,
                                DGLResourceManager* resManager, QWidget* parrent)
         : DGLTabbedViewItem(name, parrent), m_Error(false) {
@@ -39,6 +41,7 @@ void DGLFBOViewItem::error(const std::string& message) {
     m_PixelRectangleScene->setText(message);
     m_Error = true;
     m_Ui.m_pixelRectangleView->updateFormatSizeInfo(NULL, 0, 0);
+    m_Ui.m_framebufferStatusLabel->setText("");
 }
 
 void DGLFBOViewItem::update(const dglnet::DGLResource& res) {
@@ -53,6 +56,12 @@ void DGLFBOViewItem::update(const dglnet::DGLResource& res) {
         m_Ui.m_AttListWidget->addItem(QString::fromStdString(
                 GetGLEnumName(resource->m_Attachments[i].m_Id))); //no GLenumGroup for attachments yet..
     }
+
+    std::ostringstream framebufferStatusStr; 
+    framebufferStatusStr << "Status: " << GetGLEnumName(resource->m_CompletenessStatus /*None enum group*/);
+
+    m_Ui.m_framebufferStatusLabel->setText(QString::fromStdString(framebufferStatusStr.str()));
+
     showAttachment(0);
 }
 
