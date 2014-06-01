@@ -74,10 +74,16 @@ void DGLFBOViewItem::showAttachment(int id) {
     if (!m_Attachments[id].isOk(errorMsg)) {
         m_PixelRectangleScene->setText(errorMsg);
     } else {
-        m_PixelRectangleScene->setPixelRectangle(
-                *m_Attachments[id].m_PixelRectangle.get());
+        dglnet::resource::DGLPixelRectangle* rectangle =
+            m_Attachments[id].m_PixelRectangle.get();
+
+        if (rectangle) {
+            m_PixelRectangleScene->setPixelRectangle(
+                *rectangle);
+        }
+       
         m_Ui.m_pixelRectangleView->updateFormatSizeInfo(
-                (m_Attachments[id].m_PixelRectangle.get()),
+                rectangle,
                 m_Attachments[id].m_Internalformat,
                 m_Attachments[id].m_Samples);
     }
