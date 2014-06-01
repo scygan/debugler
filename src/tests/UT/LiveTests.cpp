@@ -1138,4 +1138,137 @@ TEST_F(LiveTest, shader_handling) {
    terminate(client);
 }
 
+
+TEST_F(LiveTest, fbo) {
+    std::shared_ptr<dglnet::Client> client = getClientFor("fbo_msaa");
+
+    dglnet::message::BreakedCall* breaked =
+        utils::receiveUntilMessage<dglnet::message::BreakedCall>(
+        client.get(), getMessageHandler());
+    ASSERT_TRUE(breaked != NULL);
+
+    {
+        // disable breaking stuff
+        dglnet::message::Configuration config(getUsualConfig());
+        client->sendMessage(&config);
+    }
+
+    // run through 3-th clear
+    for (int i = 0; i < 4; i++) {
+        breaked = utils::runUntilEntryPoint(client, getMessageHandler(),
+            glClear_Call);
+
+        // advance one call
+        dglnet::message::ContinueBreak stepCall(
+            dglnet::message::StepMode::CALL);
+    }
+
+    // query fbo list
+    ASSERT_EQ(1, breaked->m_CtxReports.size());
+    ASSERT_EQ(1, breaked->m_CtxReports[0].m_FBOSpace.size());
+
+    EXPECT_EQ(0,
+        breaked->m_CtxReports[0].m_FBOSpace.begin()->m_Target);
+
+    {
+        // query fbo
+        dglnet::message::Request request(new dglnet::request::QueryResource(
+            dglnet::message::ObjectType::FBO,
+            dglnet::ContextObjectName(breaked->m_CurrentCtx,
+            breaked->m_CtxReports[0]
+        .m_TextureSpace.begin()
+            ->m_Name)));
+        client->sendMessage(&request);
+    }
+
+    dglnet::message::RequestReply* reply =
+        utils::receiveUntilMessage<dglnet::message::RequestReply>(
+        client.get(), getMessageHandler());
+    std::string nothing;
+    EXPECT_TRUE(reply->isOk(nothing));
+    dglnet::resource::DGLResourceFBO* fboResource =
+        dynamic_cast<dglnet::resource::DGLResourceFBO*>(
+        reply->m_Reply.get());
+    ASSERT_TRUE(fboResource != NULL);
+
+    ASSERT_EQ(3, fboResource->m_Attachments.size());
+
+
+    //glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_RGBA8, 256, 256);
+    std::string errorStr;
+    EXPECT_EQ(true, fboResource->m_Attachments[0].isOk(errorStr));
+    EXPECT_EQ(0, errorStr.size());
+    
+    ASSERT_EQ(GL_RGBA, fboResource->m_Attachments[0].m_PixelRectangle->m_GLFormat);
+    ASSERT_EQ(GL_UNSIGNED_BYTE,
+        fboResource->m_Attachments[0].m_PixelRectangle->m_GLType);
+
+    EXPECT_EQ(256, fboResource->m_Attachments[0].m_PixelRectangle->m_Width);
+    EXPECT_EQ(256, fboResource->m_Attachments[0].m_PixelRectangle->m_Height);
+
+    utils::checkColor(
+        (GLubyte*)fboResource->m_Attachments[0].m_PixelRectangle->getPtr(),
+        fboResource->m_Attachments[0].m_PixelRectangle->m_Width,
+        fboResource->m_Attachments[0].m_PixelRectangle->m_Height,
+        fboResource->m_Attachments[0].m_PixelRectangle->m_RowBytes, 102, 127,
+        204, 255);
+
+    EXPECT_EQ(GL_COLOR_ATTACHMENT0, fboResource->m_Attachments[0].m_Id);
+
+    EXPECT_EQ(GL_RGBA8, fboResource->m_Attachments[0].m_Internalformat);
+    EXPECT_EQ(4, fboResource->m_Attachments[0].m_Samples);
+
+    //glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA8, 256, 256, 0);
+
+    EXPECT_EQ(true, fboResource->m_Attachments[1].isOk(errorStr));
+    EXPECT_EQ(0, errorStr.size());
+
+    ASSERT_EQ(GL_RGBA, fboResource->m_Attachments[1].m_PixelRectangle->m_GLFormat);
+    ASSERT_EQ(GL_UNSIGNED_BYTE,
+        fboResource->m_Attachments[1].m_PixelRectangle->m_GLType);
+
+    EXPECT_EQ(256, fboResource->m_Attachments[1].m_PixelRectangle->m_Width);
+    EXPECT_EQ(256, fboResource->m_Attachments[1].m_PixelRectangle->m_Height);
+
+    utils::checkColor(
+        (GLubyte*)fboResource->m_Attachments[1].m_PixelRectangle->getPtr(),
+        fboResource->m_Attachments[1].m_PixelRectangle->m_Width,
+        fboResource->m_Attachments[1].m_PixelRectangle->m_Height,
+        fboResource->m_Attachments[1].m_PixelRectangle->m_RowBytes, 204, 127,
+        102, 255);
+
+    EXPECT_EQ(GL_COLOR_ATTACHMENT1, fboResource->m_Attachments[1].m_Id);
+
+    EXPECT_EQ(GL_RGBA8, fboResource->m_Attachments[1].m_Internalformat);
+    EXPECT_EQ(4, fboResource->m_Attachments[1].m_Samples);
+
+    //glTexImage3DMultisample(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, 4, GL_DEPTH24_STENCIL8, 256, 256, 256, 0);
+
+    EXPECT_EQ(true, fboResource->m_Attachments[2].isOk(errorStr));
+    EXPECT_EQ(0, errorStr.size());
+
+    ASSERT_EQ(GL_DEPTH_STENCIL, fboResource->m_Attachments[2].m_PixelRectangle->m_GLFormat);
+    ASSERT_EQ(GL_UNSIGNED_INT_24_8,
+        fboResource->m_Attachments[2].m_PixelRectangle->m_GLType);
+
+    EXPECT_EQ(256, fboResource->m_Attachments[2].m_PixelRectangle->m_Width);
+    EXPECT_EQ(256, fboResource->m_Attachments[2].m_PixelRectangle->m_Height);
+
+
+    for (int i = 0;
+        i < fboResource->m_Attachments[2].m_PixelRectangle->m_Width * fboResource->m_Attachments[2].m_PixelRectangle->m_Height;
+        i++) {
+
+         EXPECT_EQ(1717986816, ((GLuint*)fboResource->m_Attachments[2].m_PixelRectangle->getPtr())[i]);
+    }
+ 
+    EXPECT_EQ(GL_DEPTH_STENCIL_ATTACHMENT, fboResource->m_Attachments[2].m_Id);
+
+    EXPECT_EQ(GL_DEPTH24_STENCIL8, fboResource->m_Attachments[2].m_Internalformat);
+    EXPECT_EQ(4, fboResource->m_Attachments[2].m_Samples);
+
+    terminate(client);
+}
+
+
 }    // namespace

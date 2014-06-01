@@ -43,10 +43,24 @@ class SampleFboMSAA : public Sample {
                                GL_TEXTURE_2D_MULTISAMPLE, m_textures[0], 0);
         glFramebufferTexture3D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
                                GL_TEXTURE_2D_MULTISAMPLE_ARRAY, m_textures[1],
-                               0, 0);
+                               0, 2);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+        
+        glClearDepth(0.4);
     }
 
-    virtual void render() override {}
+    virtual void render() override {
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        glClearColor(0.4f, 0.5f, 0.8f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glDrawBuffer(GL_COLOR_ATTACHMENT1);
+        glClearColor(0.8f, 0.5f, 0.4f, 1.0f);
+                
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
 
     virtual void shutdown() override {
         glDeleteRenderbuffers(1, &m_rbo);
