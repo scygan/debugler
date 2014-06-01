@@ -1,9 +1,11 @@
 set(dglwrapper_SOURCES 
-    api-loader.cpp  debugger.cpp
+    api-loader.cpp
+    debugger.cpp
     gl-context.cpp
     gl-objects.cpp
     gl-wrappers.cpp
     actions.cpp
+    action-manager.cpp
     native-surface.cpp
 	dl-intercept.cpp
     display.cpp

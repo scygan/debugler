@@ -18,7 +18,7 @@
 
 #include <cassert>
 #include "pointers.h"
-#include "actions.h"
+#include "action-manager.h"
 #include "tls.h"
 #include "debugger.h"
 
@@ -410,7 +410,7 @@ class DGLWrapperCookie {
 #endif
         if (m_ProcessActions) {
             try {
-                g_Actions[m_Call.getEntrypoint()]->Post(m_Call, retVal);
+                g_ActionManager.GetAction(m_Call.getEntrypoint()).Post(m_Call, retVal);
             }
             catch (const DGLDebugController::TeardownException&) {
                 _g_Controller.reset();
@@ -430,7 +430,7 @@ class DGLWrapperCookie {
         Os::info("tracePre %s", GetEntryPointName(m_Call.getEntrypoint()));
 #endif
         try {
-            retVal = g_Actions[m_Call.getEntrypoint()]->Pre(m_Call);
+            retVal = g_ActionManager.GetAction(m_Call.getEntrypoint()).Pre(m_Call);
         }
         catch (const DGLDebugController::TeardownException&) {
             _g_Controller.reset();

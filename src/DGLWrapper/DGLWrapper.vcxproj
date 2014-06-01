@@ -70,6 +70,7 @@
     <ClInclude Include="..\external\mhook\disasm-lib\disasm.h" />
     <ClInclude Include="..\external\mhook\disasm-lib\disasm_x86.h" />
     <ClInclude Include="..\external\mhook\disasm-lib\disasm_x86_tables.h" />
+    <ClInclude Include="action-manager.h" />
     <ClInclude Include="api-loader.h" />
     <ClInclude Include="backtrace.h" />
     <ClInclude Include="debugger.h" />
@@ -95,6 +96,7 @@
     <ClCompile Include="..\external\mhook\disasm-lib\disasm.c" />
     <ClCompile Include="..\external\mhook\disasm-lib\disasm_x86.c" />
     <ClCompile Include="..\external\mhook\mhook-lib\mhook.cpp" />
+    <ClCompile Include="action-manager.cpp" />
     <ClCompile Include="backtrace.cpp" />
     <ClCompile Include="debugger.cpp" />
     <ClCompile Include="display.cpp" />

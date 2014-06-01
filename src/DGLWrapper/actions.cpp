@@ -1,4 +1,4 @@
-/* Copyright (C) 2013 Slawomir Cygan <slawomir.cygan@gmail.com>
+/* Copyright (C) 2014 Slawomir Cygan <slawomir.cygan@gmail.com>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,7 +28,9 @@
 
 #include <DGLNet/protocol/message.h>
 
-std::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];
+#include "action-manager.h"
+
+namespace actions {
 
 void ActionBase::SetPrev(const std::shared_ptr<ActionBase>& prev) {
     m_PrevAction = prev;
@@ -91,10 +93,6 @@ RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
 
     } while (newConnection);
 
-   
-
-    
-
     // now there should be no breaks
 
     // add call to history ring
@@ -132,6 +130,12 @@ void DefaultAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     PrevPost(call, ret);
 }
 
+void GLGetErrorAction::Register(ActionManager& manager) {
+    std::shared_ptr<GLGetErrorAction> obj
+        = std::make_shared<GLGetErrorAction>();
+    manager.RegisterAction(glGetError_Call, obj);
+}
+
 RetValue GLGetErrorAction::Pre(const CalledEntryPoint& call) {
     RetValue ret = PrevPre(call);
 
@@ -145,6 +149,15 @@ RetValue GLGetErrorAction::Pre(const CalledEntryPoint& call) {
     }
 
     return ret;
+}
+
+void GetProcAddressAction::Register(ActionManager& manager) {
+    std::shared_ptr<GetProcAddressAction> obj
+        = std::make_shared<GetProcAddressAction>();
+    manager.RegisterAction(wglGetProcAddress_Call, obj);
+    manager.RegisterAction(glXGetProcAddress_Call, obj);
+    manager.RegisterAction(glXGetProcAddressARB_Call, obj);
+    manager.RegisterAction(eglGetProcAddress_Call, obj);
 }
 
 RetValue GetProcAddressAction::Pre(const CalledEntryPoint& call) {
@@ -179,6 +192,15 @@ RetValue GetProcAddressAction::Pre(const CalledEntryPoint& call) {
 }
 
 #ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
+
+void SurfaceAction::Register(ActionManager& manager) {
+    std::shared_ptr<SurfaceAction> obj
+        = std::make_shared<SurfaceAction>();
+    manager.RegisterAction(eglCreateWindowSurface_Call, obj);
+    manager.RegisterAction(eglCreatePixmapSurface_Call, obj);
+    manager.RegisterAction(eglCreatePbufferSurface_Call, obj);
+}
+
 void SurfaceAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
     EGLSurface surface;
@@ -197,6 +219,27 @@ void SurfaceAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     }
 }
 #endif
+
+void ContextAction::Register(ActionManager& manager) {
+    std::shared_ptr<ContextAction> obj
+        = std::make_shared<ContextAction>();
+    manager.RegisterAction(wglCreateContext_Call, obj);
+    manager.RegisterAction(wglCreateLayerContext_Call, obj);
+    manager.RegisterAction(wglCreateContextAttribsARB_Call, obj);
+    manager.RegisterAction(wglMakeCurrent_Call, obj);
+    manager.RegisterAction(wglMakeContextCurrentARB_Call, obj);
+    manager.RegisterAction(wglDeleteContext_Call, obj);
+
+    manager.RegisterAction(glXCreateContext_Call, obj);
+    manager.RegisterAction(glXCreateNewContext_Call, obj);
+    manager.RegisterAction(glXCreateContextAttribsARB_Call, obj);
+
+    manager.RegisterAction(eglCreateContext_Call, obj);
+    manager.RegisterAction(eglMakeCurrent_Call, obj);
+    manager.RegisterAction(eglDestroyContext_Call, obj);
+    manager.RegisterAction(eglReleaseThread_Call, obj);
+    manager.RegisterAction(eglBindAPI_Call, obj);
+}
 
 void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 #ifdef HAVE_LIBRARY_WGL
@@ -604,6 +647,22 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     PrevPost(call, ret);
 }
 
+void DebugContextAction::Register(ActionManager& manager) {
+    std::shared_ptr<DebugContextAction> obj
+        = std::make_shared<DebugContextAction>();
+
+    manager.RegisterAction(wglCreateContext_Call, obj);
+    manager.RegisterAction(wglCreateLayerContext_Call, obj);
+    manager.RegisterAction(wglCreateContextAttribsARB_Call, obj);
+   
+    manager.RegisterAction(glXCreateContext_Call, obj);
+    manager.RegisterAction(glXCreateNewContext_Call, obj);
+    manager.RegisterAction(glXCreateContextAttribsARB_Call, obj);
+   
+    //TODO:
+    //manager.RegisterAction(eglCreateContext_Call, obj);
+}
+
 bool DebugContextAction::anyContextPresent = false;
 
 RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
@@ -761,6 +820,18 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
     return ret;
 }
 
+void TextureAction::Register(ActionManager& manager) {
+    std::shared_ptr<TextureAction> obj
+        = std::make_shared<TextureAction>();
+
+    manager.RegisterAction(glGenTextures_Call, obj);
+    manager.RegisterAction(glGenTexturesEXT_Call, obj);
+    manager.RegisterAction(glDeleteTextures_Call, obj);
+    manager.RegisterAction(glDeleteTexturesEXT_Call, obj);
+    manager.RegisterAction(glBindTexture_Call, obj);
+    manager.RegisterAction(glBindTextureEXT_Call, obj);
+}
+
 void TextureAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
     if (gc) {
@@ -798,6 +869,27 @@ void TextureAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
         }
     }
     PrevPost(call, ret);
+}
+
+void TextureFormatAction::Register(ActionManager& manager) {
+    std::shared_ptr<TextureFormatAction> obj
+        = std::make_shared<TextureFormatAction>();
+
+    manager.RegisterAction(glTexImage1D_Call, obj);
+    manager.RegisterAction(glTexImage2D_Call, obj);
+    manager.RegisterAction(glTexImage2DMultisample_Call, obj);
+    manager.RegisterAction(glTexImage3D_Call, obj);
+    manager.RegisterAction(glTexImage3DEXT_Call, obj);
+    manager.RegisterAction(glTexImage3DOES_Call, obj);
+    manager.RegisterAction(glTexImage3DMultisample_Call, obj);
+    manager.RegisterAction(glTexStorage1D_Call, obj);
+    manager.RegisterAction(glTexStorage2D_Call, obj);
+    manager.RegisterAction(glTexStorage2DMultisample_Call, obj);
+    manager.RegisterAction(glTexStorage3D_Call, obj);
+    manager.RegisterAction(glTexStorage3DMultisample_Call, obj);
+    manager.RegisterAction(glTexStorage1DEXT_Call, obj);
+    manager.RegisterAction(glTexStorage2DEXT_Call, obj);
+    manager.RegisterAction(glTexStorage3DEXT_Call, obj);
 }
 
 void TextureFormatAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
@@ -915,6 +1007,17 @@ void TextureFormatAction::Post(const CalledEntryPoint& call, const RetValue& ret
     PrevPost(call, ret);
 }
 
+void BufferAction::Register(ActionManager& manager) {
+    std::shared_ptr<BufferAction> obj
+        = std::make_shared<BufferAction>();
+
+    manager.RegisterAction(glGenBuffers_Call, obj);
+    manager.RegisterAction(glGenBuffersARB_Call, obj);
+    manager.RegisterAction(glDeleteBuffers_Call, obj);
+    manager.RegisterAction(glDeleteBuffersARB_Call, obj);
+    manager.RegisterAction(glBindBuffer_Call, obj);
+    manager.RegisterAction(glBindBufferARB_Call, obj);
+}
 
 void BufferAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
@@ -953,6 +1056,20 @@ void BufferAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
         }
     }
     PrevPost(call, ret);
+}
+
+void ProgramAction::Register(ActionManager& manager) {
+    std::shared_ptr<ProgramAction> obj
+        = std::make_shared<ProgramAction>();
+
+    manager.RegisterAction(glCreateProgram_Call, obj);
+    manager.RegisterAction(glCreateProgramObjectARB_Call, obj);
+    manager.RegisterAction(glDeleteProgram_Call, obj);
+    manager.RegisterAction(glDeleteObjectARB_Call, obj);
+    manager.RegisterAction(glUseProgram_Call, obj);
+    manager.RegisterAction(glUseProgramObjectARB_Call, obj);
+    manager.RegisterAction(glLinkProgram_Call, obj);
+    manager.RegisterAction(glLinkProgramARB_Call, obj);
 }
 
 void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
@@ -1035,6 +1152,24 @@ void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     PrevPost(call, ret);
 }
 
+void ShaderAction::Register(ActionManager& manager) {
+    std::shared_ptr<ShaderAction> obj
+        = std::make_shared<ShaderAction>();
+
+    manager.RegisterAction(glCreateShader_Call, obj);
+    manager.RegisterAction(glCreateShaderObjectARB_Call, obj);
+    manager.RegisterAction(glDeleteShader_Call, obj);
+    manager.RegisterAction(glDeleteObjectARB_Call, obj);
+    manager.RegisterAction(glCompileShader_Call, obj);
+    manager.RegisterAction(glCompileShaderARB_Call, obj);
+    manager.RegisterAction(glAttachObjectARB_Call, obj);
+    manager.RegisterAction(glAttachShader_Call, obj);
+    manager.RegisterAction(glDetachObjectARB_Call, obj);
+    manager.RegisterAction(glDetachShader_Call, obj);
+    manager.RegisterAction(glShaderSource_Call, obj);
+    manager.RegisterAction(glShaderSourceARB_Call, obj);
+}
+
 void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
 
@@ -1108,6 +1243,14 @@ void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     PrevPost(call, ret);
 }
 
+void ImmediateModeAction::Register(ActionManager& manager) {
+    std::shared_ptr<ImmediateModeAction> obj
+        = std::make_shared<ImmediateModeAction>();
+
+    manager.RegisterAction(glBegin_Call, obj);
+    manager.RegisterAction(glEnd_Call, obj);
+}
+
 void ImmediateModeAction::Post(const CalledEntryPoint& call,
                                const RetValue& ret) {
     if (gc) {
@@ -1121,6 +1264,18 @@ void ImmediateModeAction::Post(const CalledEntryPoint& call,
         }
     }
     PrevPost(call, ret);
+}
+
+void FBOAction::Register(ActionManager& manager) {
+    std::shared_ptr<FBOAction> obj
+        = std::make_shared<FBOAction>();
+
+    manager.RegisterAction(glGenFramebuffers_Call, obj);
+    manager.RegisterAction(glGenFramebuffersEXT_Call, obj);
+    manager.RegisterAction(glDeleteFramebuffers_Call, obj);
+    manager.RegisterAction(glDeleteFramebuffersEXT_Call, obj);
+    manager.RegisterAction(glBindFramebuffer_Call, obj);
+    manager.RegisterAction(glBindFramebufferEXT_Call, obj);
 }
 
 void FBOAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
@@ -1163,6 +1318,14 @@ void FBOAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
     PrevPost(call, ret);
 }
 
+void DebugOutputCallback::Register(ActionManager& manager) {
+    std::shared_ptr<DebugOutputCallback> obj
+        = std::make_shared<DebugOutputCallback>();
+
+    manager.RegisterAction(glDebugMessageCallback_Call, obj);
+    manager.RegisterAction(glDebugMessageCallbackARB_Call, obj);
+}
+
 RetValue DebugOutputCallback::Pre(const CalledEntryPoint& call) {
     RetValue ret = PrevPre(call);
 
@@ -1192,3 +1355,5 @@ RetValue DebugOutputCallback::Pre(const CalledEntryPoint& call) {
     }
     return ret;
 }
+
+} //namespace actions

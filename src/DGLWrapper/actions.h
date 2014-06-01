@@ -1,4 +1,4 @@
-/* Copyright (C) 2013 Slawomir Cygan <slawomir.cygan@gmail.com>
+/* Copyright (C) 2014 Slawomir Cygan <slawomir.cygan@gmail.com>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,7 +13,9 @@
 * limitations under the License.
 */
 
-//#include <DGLNet/gl-serialized.h>
+#ifndef ACTIONS_H
+#define ACTIONS_H
+
 #include <utility>
 
 #include <vector>
@@ -21,8 +23,9 @@
 #include <DGLCommon/def.h>
 #include <DGLNet/protocol/entrypoint.h>
 
-class ActionBase;
-extern std::shared_ptr<ActionBase> g_Actions[NUM_ENTRYPOINTS];
+class ActionManager;
+
+namespace actions {
 
 class ActionBase {
    public:
@@ -39,13 +42,7 @@ class ActionBase {
     virtual void Post(const CalledEntryPoint&,
                       const RetValue& ret = RetValue());
 
-    template <typename SpecificActionType>
-    static void SetNext(Entrypoint entryp) {
-        std::shared_ptr<ActionBase> prev = g_Actions[entryp];
-        g_Actions[entryp] =
-                std::shared_ptr<ActionBase>(new SpecificActionType());
-        g_Actions[entryp]->SetPrev(prev);
-    }
+    void SetPrev(const std::shared_ptr<ActionBase>& prev);
 
    protected:
     /**
@@ -59,73 +56,110 @@ class ActionBase {
     void PrevPost(const CalledEntryPoint&, const RetValue& ret);
 
    private:
-    void SetPrev(const std::shared_ptr<ActionBase>& prev);
     std::shared_ptr<ActionBase> m_PrevAction;
 };
 
 class DefaultAction : public ActionBase {
+    static void Register(ActionManager& mgr);
     virtual RetValue Pre(const CalledEntryPoint&);
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
 class GLGetErrorAction : public ActionBase {
+public:
+    static void Register(ActionManager& mgr);
+private:
     virtual RetValue Pre(const CalledEntryPoint&);
 };
 
 class GetProcAddressAction : public ActionBase {
+public:
+    static void Register(ActionManager& mgr);
+private:
     virtual RetValue Pre(const CalledEntryPoint&);
 };
 
 #ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
 class SurfaceAction : public ActionBase {
+public:
+    static void Register(ActionManager& mgr);
+private:
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 #endif
 
 class ContextAction : public ActionBase {
+public:
+    static void Register(ActionManager& mgr);
+private:
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
 class DebugContextAction : public ActionBase {
+public:
+    static void Register(ActionManager& mgr);
+private:
     virtual RetValue Pre(const CalledEntryPoint&);
     static bool anyContextPresent;
 };
 
 class TextureAction : public ActionBase {
+public:
+    static void Register(ActionManager& mgr);
+private:
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
 class TextureFormatAction : public ActionBase {
+public:
+    static void Register(ActionManager& mgr);
+private:
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
 class BufferAction : public ActionBase {
+public:
+    static void Register(ActionManager& mgr);
+private:
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
 class ProgramAction : public ActionBase {
+public:
+    static void Register(ActionManager& mgr);
+private:
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
 class ShaderAction : public ActionBase {
+public:
+    static void Register(ActionManager& mgr);
+private:
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
 class ImmediateModeAction : public ActionBase {
+public:
+    static void Register(ActionManager& mgr);
+private:
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
 class FBOAction : public ActionBase {
+public:
+    static void Register(ActionManager& mgr);
+private:
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
 class DebugOutputCallback : public ActionBase {
+public:
+    static void Register(ActionManager& mgr);
+private:
     virtual RetValue Pre(const CalledEntryPoint&);
 };
 
-template <typename Action>
-void SetAllActions() {
-    for (int i = 0; i < NUM_ENTRYPOINTS; i++) {
-        g_Actions[i] = std::shared_ptr<ActionBase>(new Action());
-    }
-}
+
+} // namespace actions
+
+#endif

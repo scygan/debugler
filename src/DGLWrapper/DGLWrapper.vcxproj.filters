@@ -83,6 +83,9 @@
     <ClInclude Include="gl-texunit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="action-manager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -140,6 +143,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gl-texunit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="action-manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
