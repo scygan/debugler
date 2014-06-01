@@ -141,6 +141,17 @@ void GLGetErrorAction::Register(ActionManager& manager) {
     manager.RegisterAction(glGetError_Call, obj);
 }
 
+
+void ErrorAwareGLAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
+
+    if (gc && gc->peekError() == GL_NO_ERROR) {
+        NoGLErrorPost(call, ret);
+    } else {
+        PrevPost(call, ret);
+    }
+}
+
+
 RetValue GLGetErrorAction::Pre(const CalledEntryPoint& call) {
     RetValue ret = PrevPre(call);
 
@@ -222,6 +233,7 @@ void SurfaceAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                           reinterpret_cast<opaque_id_t>(surface),
                           reinterpret_cast<opaque_id_t>(config));
     }
+    PrevPost(call, ret);
 }
 #endif
 
@@ -837,7 +849,7 @@ void TextureAction::Register(ActionManager& manager) {
     manager.RegisterAction(glBindTextureEXT_Call, obj);
 }
 
-void TextureAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
+void TextureAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
     if (gc) {
 
@@ -897,7 +909,7 @@ void TextureFormatAction::Register(ActionManager& manager) {
     manager.RegisterAction(glTexStorage3DEXT_Call, obj);
 }
 
-void TextureFormatAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
+void TextureFormatAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
     if (gc) {
 
@@ -1024,7 +1036,7 @@ void BufferAction::Register(ActionManager& manager) {
     manager.RegisterAction(glBindBufferARB_Call, obj);
 }
 
-void BufferAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
+void BufferAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
     if (gc) {
 
@@ -1077,7 +1089,7 @@ void ProgramAction::Register(ActionManager& manager) {
     manager.RegisterAction(glLinkProgramARB_Call, obj);
 }
 
-void ProgramAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
+void ProgramAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
 
     if (gc) {
@@ -1175,7 +1187,7 @@ void ShaderAction::Register(ActionManager& manager) {
     manager.RegisterAction(glShaderSourceARB_Call, obj);
 }
 
-void ShaderAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
+void ShaderAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
 
     if (gc) {
@@ -1256,7 +1268,7 @@ void ImmediateModeAction::Register(ActionManager& manager) {
     manager.RegisterAction(glEnd_Call, obj);
 }
 
-void ImmediateModeAction::Post(const CalledEntryPoint& call,
+void ImmediateModeAction::NoGLErrorPost(const CalledEntryPoint& call,
                                const RetValue& ret) {
     if (gc) {
         switch (call.getEntrypoint()) {
@@ -1283,7 +1295,7 @@ void FBOAction::Register(ActionManager& manager) {
     manager.RegisterAction(glBindFramebufferEXT_Call, obj);
 }
 
-void FBOAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
+void FBOAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& ret) {
     Entrypoint entrp = call.getEntrypoint();
     if (gc) {
 

@@ -65,6 +65,12 @@ class DefaultAction : public ActionBase {
     virtual void Post(const CalledEntryPoint&, const RetValue& ret);
 };
 
+class ErrorAwareGLAction: public ActionBase {
+    virtual void Post(const CalledEntryPoint&, const RetValue& ret) final;
+
+    virtual void NoGLErrorPost(const CalledEntryPoint&, const RetValue& ret) = 0;
+};
+
 class GLGetErrorAction : public ActionBase {
 public:
     static void Register(ActionManager& mgr);
@@ -103,53 +109,53 @@ private:
     static bool anyContextPresent;
 };
 
-class TextureAction : public ActionBase {
+class TextureAction : public ErrorAwareGLAction {
 public:
     static void Register(ActionManager& mgr);
 private:
-    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+    virtual void NoGLErrorPost(const CalledEntryPoint&, const RetValue& ret);
 };
 
-class TextureFormatAction : public ActionBase {
+class TextureFormatAction : public ErrorAwareGLAction {
 public:
     static void Register(ActionManager& mgr);
 private:
-    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+    virtual void NoGLErrorPost(const CalledEntryPoint&, const RetValue& ret);
 };
 
-class BufferAction : public ActionBase {
+class BufferAction : public ErrorAwareGLAction {
 public:
     static void Register(ActionManager& mgr);
 private:
-    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+    virtual void NoGLErrorPost(const CalledEntryPoint&, const RetValue& ret);
 };
 
-class ProgramAction : public ActionBase {
+class ProgramAction : public ErrorAwareGLAction {
 public:
     static void Register(ActionManager& mgr);
 private:
-    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+    virtual void NoGLErrorPost(const CalledEntryPoint&, const RetValue& ret);
 };
 
-class ShaderAction : public ActionBase {
+class ShaderAction : public ErrorAwareGLAction {
 public:
     static void Register(ActionManager& mgr);
 private:
-    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+    virtual void NoGLErrorPost(const CalledEntryPoint&, const RetValue& ret);
 };
 
-class ImmediateModeAction : public ActionBase {
+class ImmediateModeAction : public ErrorAwareGLAction {
 public:
     static void Register(ActionManager& mgr);
 private:
-    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+    virtual void NoGLErrorPost(const CalledEntryPoint&, const RetValue& ret);
 };
 
-class FBOAction : public ActionBase {
+class FBOAction : public ErrorAwareGLAction {
 public:
     static void Register(ActionManager& mgr);
 private:
-    virtual void Post(const CalledEntryPoint&, const RetValue& ret);
+    virtual void NoGLErrorPost(const CalledEntryPoint&, const RetValue& ret);
 };
 
 class DebugOutputCallback : public ActionBase {

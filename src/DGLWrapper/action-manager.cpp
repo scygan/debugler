@@ -31,7 +31,7 @@ ActionManager::ActionManager() {
 
     //other actions are self-registrable (so they can choose only a subset of entrypoints)
 
-    //GL error tracing
+    //GL error override
     actions::GLGetErrorAction::Register(*this);
 
     //GL get proc address tracing and handling
