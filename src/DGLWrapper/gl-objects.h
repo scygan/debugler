@@ -32,9 +32,13 @@ class GLObj {
     GLObj();
     GLObj(GLuint name);
     GLuint getName() const;
+    
+    void setTarget(GLenum);
+    GLenum getTarget() const;
 
    private:
     GLuint m_Name;
+    GLenum m_Target;
 };
 
 class GLTextureObj : public GLObj {
@@ -46,11 +50,6 @@ class GLTextureObj : public GLObj {
 
     GLTextureObj() {}
 
-    /**
-     * Set texture target (it is detected usually on glBindTexture())
-     */
-    void setTarget(GLenum);
-
     /** 
      * Set texture level image params (called on glTexImage)
      */
@@ -60,11 +59,6 @@ class GLTextureObj : public GLObj {
      * Set texture params (called on glTexStorage)
      */
     void setTexStorage(GLuint levels, GLsizei width, GLsizei height, GLsizei depth, GLenum internalFormat, GLenum format, GLenum type);
-
-    /**
-     * Get texture target
-     */
-    GLenum getTarget() const;
 
     /**
      * Get texture format and sample count
@@ -96,12 +90,6 @@ class GLTextureObj : public GLObj {
      */
     const GLTextureLevel* getRequestedLevel(GLint level) const;
    
-   private:
-    /**
-     * Texture target. Must be cached here - not retrievable by GL API
-     */
-    GLenum m_Target;
-
     /** 
      * Level parameters
      */
@@ -111,24 +99,27 @@ class GLTextureObj : public GLObj {
 class GLBufferObj : public GLObj {
    public:
     GLBufferObj(GLuint name);
-    void setTarget(GLenum);
-    GLenum getTarget();
     GLBufferObj() {}
-
-   private:
-    GLenum m_Target;
 };
+
+class GLObjectNameSpaces;
 
 class GLShaderObj : public GLObj {
    public:
-    GLShaderObj(GLContext* parrent, GLuint name, bool arbApi);
+     
+    struct GLShaderObjCreateData {
+        inline GLShaderObjCreateData(GLObjectNameSpaces* parrent, bool arbApi): m_Parrent(parrent), m_ArbApi(arbApi) {}
+        GLObjectNameSpaces* m_Parrent;
+        bool m_ArbApi;
+    };
+
+    GLShaderObj(GLuint name, GLShaderObjCreateData createData);
     void deleteCalled();
     void incRefCount();
     void decRefCount();
     int getRefCount();
 
     void createCalled(GLenum target);
-    GLenum getTarget() const;
 
     GLint queryCompilationStatus() const;
     std::string queryCompilationInfoLog() const;
@@ -145,11 +136,10 @@ class GLShaderObj : public GLObj {
 
     bool m_DeleteCalled;
     std::string m_OrigSource;
-    GLenum m_Target;
     bool m_arbApi;
     int m_RefCount;
 
-    GLContext* m_Parrent;
+    GLObjectNameSpaces* m_Parrent;
 };
 
 class GLProgramObj : public GLObj {

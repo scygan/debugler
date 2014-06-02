@@ -185,46 +185,19 @@ GLContext::GLContext(const DGLDisplayState* display, GLContextVersion version,
 
 
 GLContext::~GLContext() {
-    m_Textures.clear();
-    m_Buffers.clear();
-    m_Programs.clear();
-    m_Shaders.clear();
-    m_FBOs.clear();
+    m_NS.clear();
 }
 
 
 dglnet::message::utils::ContextReport GLContext::describe() {
     dglnet::message::utils::ContextReport ret(m_Id);
-    for (std::map<GLuint, GLTextureObj>::iterator i = m_Textures.begin();
-         i != m_Textures.end(); i++) {
-        ret.m_TextureSpace.insert(dglnet::ContextObjectName(
-                m_Id, i->second.getName(), i->second.getTarget()));
-    }
-    for (std::map<GLuint, GLBufferObj>::iterator i = m_Buffers.begin();
-         i != m_Buffers.end(); i++) {
-        ret.m_BufferSpace.insert(
-                dglnet::ContextObjectName(m_Id, i->second.getName()));
-    }
-    for (std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.begin();
-         i != m_Shaders.end(); i++) {
-        ret.m_ShaderSpace.insert(dglnet::ContextObjectName(
-                m_Id, i->second.getName(), i->second.getTarget()));
-    }
-    for (std::map<GLuint, GLProgramObj>::iterator i = m_Programs.begin();
-         i != m_Programs.end(); i++) {
-        ret.m_ProgramSpace.insert(
-                dglnet::ContextObjectName(m_Id, i->second.getName()));
-    }
-    for (std::map<GLuint, GLFBObj>::iterator i = m_FBOs.begin();
-         i != m_FBOs.end(); i++) {
-        ret.m_FBOSpace.insert(
-                dglnet::ContextObjectName(m_Id, i->second.getName()));
-    }
-    for (std::map<GLuint, GLRenderbufferObj>::iterator i = m_Renderbuffers.begin();
-        i != m_Renderbuffers.end(); i++) {
-            ret.m_RenderbufferSpace.insert(
-                dglnet::ContextObjectName(m_Id, i->second.getName()));
-    }
+    ret.m_TextureSpace      = m_NS.getShared().get().m_Textures.getReport(m_Id);
+    ret.m_BufferSpace       = m_NS.getShared().get().m_Buffers.getReport(m_Id);
+    ret.m_ShaderSpace       = m_NS.m_Shaders.getReport(m_Id);
+    ret.m_ProgramSpace      = m_NS.m_Programs.getReport(m_Id);
+    ret.m_FBOSpace          = m_NS.m_FBOs.getReport(m_Id);
+    ret.m_RenderbufferSpace = m_NS.m_Renderbuffers.getReport(m_Id);
+
     if (m_NativeReadSurface) {
         if (m_NativeReadSurface->isStereo()) {
             if (m_NativeReadSurface->isDoubleBuffered()) {
@@ -266,70 +239,6 @@ void GLContext::setNativeSurfaces(NativeSurfaceBase* read,
                                   NativeSurfaceBase* draw) {
     m_NativeReadSurface = read;
     m_NativeDrawSurface = draw;
-}
-
-GLTextureObj* GLContext::ensureTexture(GLuint name) {
-    std::map<GLuint, GLTextureObj>::iterator i = m_Textures.find(name);
-    if (i == m_Textures.end()) {
-        i = m_Textures.insert(std::pair<GLuint, GLTextureObj>(
-                                      name, GLTextureObj(name))).first;
-    }
-    return &(*i).second;
-}
-
-void GLContext::deleteTexture(GLuint name) {
-    std::map<GLuint, GLTextureObj>::iterator i = m_Textures.find(name);
-    if (i != m_Textures.end()) {
-        m_Textures.erase(i);
-    }
-}
-
-GLBufferObj* GLContext::ensureBuffer(GLuint name) {
-    std::map<GLuint, GLBufferObj>::iterator i = m_Buffers.find(name);
-    if (i == m_Buffers.end()) {
-        i = m_Buffers.insert(std::pair<GLuint, GLBufferObj>(
-                                     name, GLBufferObj(name))).first;
-    }
-    return &(*i).second;
-}
-
-void GLContext::deleteBuffer(GLuint name) {
-    std::map<GLuint, GLBufferObj>::iterator i = m_Buffers.find(name);
-    if (i != m_Buffers.end()) {
-        m_Buffers.erase(i);
-    }
-}
-
-GLFBObj* GLContext::ensureFBO(GLuint name) {
-    std::map<GLuint, GLFBObj>::iterator i = m_FBOs.find(name);
-    if (i == m_FBOs.end()) {
-        i = m_FBOs.insert(std::pair<GLuint, GLFBObj>(name, GLFBObj(name)))
-                    .first;
-    }
-    return &(*i).second;
-}
-
-void GLContext::deleteFBO(GLuint name) {
-    std::map<GLuint, GLFBObj>::iterator i = m_FBOs.find(name);
-    if (i != m_FBOs.end()) {
-        m_FBOs.erase(i);
-    }
-}
-
-GLRenderbufferObj* GLContext::ensureRenderbuffer(GLuint name) {
-    std::map<GLuint, GLRenderbufferObj>::iterator i = m_Renderbuffers.find(name);
-    if (i == m_Renderbuffers.end()) {
-        i = m_Renderbuffers.insert(std::pair<GLuint, GLRenderbufferObj>(name, GLRenderbufferObj(name)))
-            .first;
-    }
-    return &(*i).second;
-}
-
-void GLContext::deleteRenderbuffer(GLuint name) {
-    std::map<GLuint, GLRenderbufferObj>::iterator i = m_Renderbuffers.find(name);
-    if (i != m_Renderbuffers.end()) {
-        m_Renderbuffers.erase(i);
-    }
 }
 
 std::pair<bool, GLenum> GLContext::getPokedError() {
@@ -467,7 +376,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
     }
 
     // check if we know about a texture target
-    GLTextureObj* tex = ensureTexture(name);
+    GLTextureObj* tex = m_NS.getShared().get().m_Textures.getObject(name);
     if (tex->getTarget() == 0) {
         throw std::runtime_error("Texture target is unknown");
     } else if (tex->getTarget() != GL_TEXTURE_1D &&
@@ -1055,7 +964,8 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryBuffer(gl_t _name) {
     }
 
     // check if we know about a texture target
-    GLBufferObj* buff = ensureBuffer(name);
+    GLShareableObjectsAccessor accessor  = m_NS.getShared();
+    GLBufferObj* buff = accessor.get().m_Buffers.getOrCreateObject<void>(name);
     if (buff->getTarget() == 0) {
         throw std::runtime_error("Buffer target is unknown");
     }
@@ -1230,7 +1140,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
                 continue;
             }
 
-            GLTextureObj* tex = ensureTexture(attmntName);
+            GLTextureObj* tex = m_NS.getShared().get().m_Textures.getObject(attmntName);
             attTarget = tex->getTarget();
 
             GLenum bindableTarget =
@@ -1660,7 +1570,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryShader(gl_t _name) {
     std::shared_ptr<dglnet::DGLResource> ret(
             resource = new dglnet::resource::DGLResourceShader);
 
-    GLShaderObj* shader = findShader(name);
+    GLShaderObj* shader = m_NS.m_Shaders.getObject(name);
     if (!shader) {
         throw std::runtime_error("Shader does not exist");
     }
@@ -1684,11 +1594,10 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
     std::shared_ptr<dglnet::DGLResource> ret(
             resource = new dglnet::resource::DGLResourceProgram);
 
-    std::map<GLuint, GLProgramObj>::iterator i = m_Programs.find(name);
-    if (i == m_Programs.end()) {
+    GLProgramObj* program = m_NS.m_Programs.getObject(name);
+    if (!program) {
         throw std::runtime_error("Shader Program does not exist");
     }
-    GLProgramObj* program = &i->second;
 
     std::set<GLShaderObj*> attachedShaders = program->getAttachedShaders();
     for (std::set<GLShaderObj*>::iterator it = attachedShaders.begin();
@@ -3186,55 +3095,6 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
 
     }
     return ret;
-}
-
-GLProgramObj* GLContext::ensureProgram(GLuint name, bool arbApi) {
-    std::map<GLuint, GLProgramObj>::iterator i = m_Programs.find(name);
-    if (i == m_Programs.end()) {
-        i = m_Programs.insert(std::pair<GLuint, GLProgramObj>(
-                                      name, GLProgramObj(name, arbApi))).first;
-    }
-    return &(*i).second;
-}
-
-GLProgramObj* GLContext::findProgram(GLuint name) {
-    std::map<GLuint, GLProgramObj>::iterator i = m_Programs.find(name);
-    if (i == m_Programs.end()) {
-        return NULL;
-    }
-    return &(*i).second;
-}
-
-void GLContext::deleteProgram(GLuint name) {
-    std::map<GLuint, GLProgramObj>::iterator i = m_Programs.find(name);
-    if (i != m_Programs.end()) {
-        m_Programs.erase(i);
-    }
-}
-
-GLShaderObj* GLContext::ensureShader(GLuint name, bool fromArbAPI) {
-    std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.find(name);
-    if (i == m_Shaders.end()) {
-        i = m_Shaders.insert(std::pair<GLuint, GLShaderObj>(
-                                     name, GLShaderObj(this, name, fromArbAPI)))
-                    .first;
-    }
-    return &(*i).second;
-}
-
-GLShaderObj* GLContext::findShader(GLuint name) {
-    std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.find(name);
-    if (i == m_Shaders.end()) {
-        return NULL;
-    }
-    return &(*i).second;
-}
-
-void GLContext::deleteShader(GLuint name) {
-    std::map<GLuint, GLShaderObj>::iterator i = m_Shaders.find(name);
-    if (i != m_Shaders.end()) {
-        m_Shaders.erase(i);
-    }
 }
 
 opaque_id_t GLContext::getId() const { return m_Id; }

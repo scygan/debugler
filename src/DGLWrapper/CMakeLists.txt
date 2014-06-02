@@ -3,6 +3,7 @@ set(dglwrapper_SOURCES
     debugger.cpp
     gl-context.cpp
     gl-objects.cpp
+	gl-object-namespace.cpp
     gl-wrappers.cpp
     actions.cpp
     action-manager.cpp

@@ -24,17 +24,19 @@
 
 namespace dglState {
 
-GLObj::GLObj() : m_Name(0) {}
+GLObj::GLObj() : m_Name(0), m_Target(0) {}
 
-GLObj::GLObj(GLuint name) : m_Name(name) {}
+GLObj::GLObj(GLuint name) : m_Name(name), m_Target(0) {}
 
 GLuint GLObj::getName() const { return m_Name; }
 
-GLTextureObj::GLTextureObj(GLuint name) : GLObj(name), m_Target(0) {}
-
-void GLTextureObj::setTarget(GLenum target) {
+void GLObj::setTarget(GLenum target) {
     if (!m_Target) m_Target = target;
 }
+
+GLenum GLObj::getTarget() const { return m_Target; }
+
+GLTextureObj::GLTextureObj(GLuint name) : GLObj(name) {}
 
 void GLTextureObj::setTexImage(GLuint level, GLsizei width, GLsizei height,
                                GLsizei depth, GLenum internalFormat, GLenum,
@@ -64,8 +66,6 @@ void GLTextureObj::setTexStorage(GLuint levels, GLsizei width, GLsizei height,
         levelDepth = std::max(1, (levelDepth / 2));
     }
 }
-
-GLenum GLTextureObj::getTarget() const { return m_Target; }
 
 void GLTextureObj::getFormat(GLContext* ctx, int level, GLenum levelTarget, GLint& retInternalFormat, GLint& retSamples) const {
 
@@ -98,7 +98,7 @@ const GLTextureObj::GLTextureLevel* GLTextureObj::getRequestedLevel(GLint level)
 }
 
 GLenum GLTextureObj::getTextureLevelTarget(int face) const {
-    if (m_Target == GL_TEXTURE_CUBE_MAP) {
+    if (getTarget() == GL_TEXTURE_CUBE_MAP) {
         GLenum cubeMapFaces[] = {
                 GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
                 GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
@@ -127,13 +127,7 @@ GLTextureObj::GLTextureLevel::GLTextureLevel(GLenum requestedInternalFormat,
           m_Height(height),
           m_Depth(depth) {}
 
-GLBufferObj::GLBufferObj(GLuint name) : GLObj(name), m_Target(0) {}
-
-void GLBufferObj::setTarget(GLenum target) {
-    if (!m_Target) m_Target = target;
-}
-
-GLenum GLBufferObj::getTarget() { return m_Target; }
+GLBufferObj::GLBufferObj(GLuint name) : GLObj(name) {}
 
 GLProgramObj::GLProgramObj(GLuint name, bool arbApi)
         : GLObj(name), m_InUse(false), m_arbApi(arbApi) {}
@@ -180,13 +174,12 @@ void GLProgramObj::forceLink() {
     }
 }
 
-GLShaderObj::GLShaderObj(GLContext* parrent, GLuint name, bool arbApi)
+GLShaderObj::GLShaderObj(GLuint name, GLShaderObjCreateData createData)
         : GLObj(name),
           m_DeleteCalled(false),
-          m_Target(0),
-          m_arbApi(arbApi),
+          m_arbApi(createData.m_ArbApi),
           m_RefCount(0), 
-          m_Parrent(parrent) {}
+          m_Parrent(createData.m_Parrent) {}
 
 void GLShaderObj::deleteCalled() {
     m_DeleteCalled = true;
@@ -292,14 +285,12 @@ void GLShaderObj::resetSourceToOrig() { editSource(m_OrigSource); }
 
 void GLShaderObj::deleteSelfIfNeeded() {
     if (m_RefCount == 0 && m_DeleteCalled) {
-        m_Parrent->deleteShader(getName());
+        m_Parrent->m_Shaders.deleteObject(getName());
     }
 }
 
-GLenum GLShaderObj::getTarget() const { return m_Target; }
-
 void GLShaderObj::createCalled(GLenum target) {
-    m_Target = target;
+    setTarget(target);
     m_DeleteCalled = false;
     m_RefCount = 0;
 }

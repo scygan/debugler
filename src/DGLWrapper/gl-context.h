@@ -17,6 +17,7 @@
 #define GL_CONTEXT_H
 
 #include "gl-objects.h"
+#include "gl-object-namespace.h"
 #include "gl-statesetters.h"
 #include "gl-texunit.h"
 
@@ -81,33 +82,14 @@ class GLContext {
     GLContext(const DGLDisplayState* dpy, GLContextVersion version,
               opaque_id_t id, const GLContextCreationData& creationData);
     ~GLContext();
-    std::map<GLuint, GLTextureObj> m_Textures;
-    std::map<GLuint, GLBufferObj> m_Buffers;
-    std::map<GLuint, GLProgramObj> m_Programs;
-    std::map<GLuint, GLShaderObj> m_Shaders;
-    std::map<GLuint, GLFBObj> m_FBOs;
-    std::map<GLuint, GLRenderbufferObj> m_Renderbuffers;
+
+    GLObjectNameSpaces m_NS;
 
     dglnet::message::utils::ContextReport describe();
 
     NativeSurfaceBase* getNativeReadSurface() const;
     NativeSurfaceBase* getNativeDrawSurface() const;
     void setNativeSurfaces(NativeSurfaceBase* read, NativeSurfaceBase* draw);
-
-    GLTextureObj* ensureTexture(GLuint name);
-    void deleteTexture(GLuint name);
-    GLBufferObj* ensureBuffer(GLuint name);
-    void deleteBuffer(GLuint name);
-    GLFBObj* ensureFBO(GLuint name);
-    void deleteFBO(GLuint name);
-    GLRenderbufferObj* ensureRenderbuffer(GLuint name);
-    void deleteRenderbuffer(GLuint name);
-    GLProgramObj* ensureProgram(GLuint name, bool arbApi);
-    GLProgramObj* findProgram(GLuint name);
-    void deleteProgram(GLuint name);
-    GLShaderObj* ensureShader(GLuint name, bool fromArbAPI);
-    GLShaderObj* findShader(GLuint name);
-    void deleteShader(GLuint name);
 
     std::shared_ptr<dglnet::DGLResource> queryTexture(gl_t name);
     std::shared_ptr<dglnet::DGLResource> queryBuffer(gl_t name);
