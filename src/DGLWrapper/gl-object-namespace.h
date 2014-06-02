@@ -39,7 +39,7 @@ public:
             return m_ObjectsFastLookup[name];
         }
 
-        std::map<GLuint, ObjType>::iterator i  = m_Objects.find(name);
+        typename std::map<GLuint, ObjType>::iterator i  = m_Objects.find(name);
 
         if (i != m_Objects.end()) {
             return &(*i).second;
@@ -54,7 +54,7 @@ public:
         ObjType* ret = getObject(name);
 
         if (!ret) {
-            std::map<GLuint, ObjType>::iterator i = 
+            typename std::map<GLuint, ObjType>::iterator i = 
                 m_Objects.insert(std::pair<GLuint, ObjType>(
                     name, ObjType(name, createParams))
                 ).first;
@@ -75,7 +75,7 @@ public:
             ObjType* ret = getObject(name);
 
             if (!ret) {
-                std::map<GLuint, ObjType>::iterator i = 
+                typename std::map<GLuint, ObjType>::iterator i = 
                     m_Objects.insert(std::pair<GLuint, ObjType>(
                     name, ObjType(name))
                     ).first;
@@ -95,7 +95,7 @@ public:
             m_ObjectsFastLookup[name] = nullptr;
         }
 
-        std::map<GLuint, ObjType>::iterator i = m_Objects.find(name);
+        typename std::map<GLuint, ObjType>::iterator i = m_Objects.find(name);
         if (i != m_Objects.end()) {
             m_Objects.erase(i);
         }
@@ -104,7 +104,7 @@ public:
     std::set<dglnet::ContextObjectName> getReport(opaque_id_t ctxName) {
         std::set<dglnet::ContextObjectName> ret;
 
-        for (std::map<GLuint, ObjType>::iterator i = m_Objects.begin();
+        for (typename std::map<GLuint, ObjType>::iterator i = m_Objects.begin();
             i != m_Objects.end(); i++) {
                 ret.insert(
                     dglnet::ContextObjectName(ctxName, i->second.getName(), i->second.getTarget()));
