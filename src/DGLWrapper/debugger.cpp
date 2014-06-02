@@ -422,6 +422,9 @@ std::shared_ptr<dglnet::DGLResource> DGLDebugController::doHandleRequest(
         case dglnet::message::ObjectType::FBO:
             resource = ctx->queryFBO(request.m_ObjectName.m_Name);
             break;
+        case dglnet::message::ObjectType::Renderbuffer:
+            resource = ctx->queryRenderbuffer(request.m_ObjectName.m_Name);
+            break;
         case dglnet::message::ObjectType::Texture:
             resource = ctx->queryTexture(request.m_ObjectName.m_Name);
             break;

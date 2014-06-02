@@ -138,6 +138,9 @@ void DGLViewRouter::show(const dglnet::ContextObjectName& name,
         case dglnet::message::ObjectType::FBO:
             emit showFBO(name.m_Context, name.m_Name);
             break;
+        case dglnet::message::ObjectType::Renderbuffer:
+            emit showRenderbuffer(name.m_Context, name.m_Name);
+            break;
         case dglnet::message::ObjectType::Texture:
             emit showTexture(name.m_Context, name.m_Name);
             break;

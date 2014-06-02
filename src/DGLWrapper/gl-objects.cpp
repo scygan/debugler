@@ -304,12 +304,8 @@ void GLShaderObj::createCalled(GLenum target) {
     m_RefCount = 0;
 }
 
-GLFBObj::GLFBObj(GLuint name) : GLObj(name), m_Target(0) {}
+GLFBObj::GLFBObj(GLuint name) : GLObj(name) {}
 
-void GLFBObj::setTarget(GLenum target) {
-    if (!m_Target) m_Target = target;
-}
-
-GLenum GLFBObj::getTarget() { return m_Target; }
+GLRenderbufferObj::GLRenderbufferObj(GLuint name) : GLObj(name) {}
 
 }    // namespace dglState

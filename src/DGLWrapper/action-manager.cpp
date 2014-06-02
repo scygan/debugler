@@ -55,6 +55,7 @@ ActionManager::ActionManager() {
     actions::TextureFormatAction::Register(*this);
     actions::BufferAction::Register(*this);
     actions::FBOAction::Register(*this);
+    actions::RenderbufferAction::Register(*this);
     actions::ProgramAction::Register(*this);
     actions::ShaderAction::Register(*this);
 

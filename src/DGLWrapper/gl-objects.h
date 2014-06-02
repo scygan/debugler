@@ -177,11 +177,12 @@ class GLFBObj : public GLObj {
    public:
     GLFBObj(GLuint name);
     GLFBObj() {}
-    void setTarget(GLenum);
-    GLenum getTarget();
+};
 
-   private:
-    GLenum m_Target;
+class GLRenderbufferObj : public GLObj {
+   public:
+    GLRenderbufferObj(GLuint name);
+    GLRenderbufferObj() {}
 };
 
 }    // namespace

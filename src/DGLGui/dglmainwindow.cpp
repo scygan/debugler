@@ -31,6 +31,7 @@
 #include "dglbufferview.h"
 #include "dglframebufferview.h"
 #include "dglfboview.h"
+#include "dglrenderbufferview.h"
 #include "dglshaderview.h"
 #include "dglprogramview.h"
 #include "dglgpuview.h"
@@ -191,6 +192,14 @@ void DGLMainWindow::createDockWindows() {
     }
     {
         QDockWidget *dock = new DGLFBOView(this, &m_controller);
+        dock->setMinimumSize(QSize(600, 0));
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        addDockWidget(Qt::RightDockWidgetArea, dock);
+        viewMenu->addAction(dock->toggleViewAction());
+        tabifyDockWidget(tabifyMaster, dock);
+    }
+    {
+        QDockWidget *dock = new DGLRenderbufferView(this, &m_controller);
         dock->setMinimumSize(QSize(600, 0));
         dock->setAllowedAreas(Qt::AllDockWidgetAreas);
         addDockWidget(Qt::RightDockWidgetArea, dock);

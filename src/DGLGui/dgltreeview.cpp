@@ -122,6 +122,23 @@ class DGLFBOWidget : public QClickableTreeWidgetItem {
     dglnet::ContextObjectName m_name;
 };
 
+class DGLRenderbufferWidget : public QClickableTreeWidgetItem {
+public:
+    DGLRenderbufferWidget() {}
+    DGLRenderbufferWidget(dglnet::ContextObjectName name, QString iconPath)
+        : m_name(name) {
+            setText(0, QString("Renderbuffer ") + QString::number(name.m_Name));
+            setIcon(0, QIcon(iconPath));
+    }
+    void handleDoubleClick(DglController* controller) {
+        controller->getViewRouter()->show(m_name,
+            dglnet::message::ObjectType::Renderbuffer);
+    }
+
+private:
+    dglnet::ContextObjectName m_name;
+};
+
 class DGLShaderWidget : public QClickableTreeWidgetItem {
    public:
     DGLShaderWidget() {}
@@ -282,6 +299,7 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
               m_TextureNode(ctxId, "Textures", ":/icons/textures.png"),
               m_BufferNode(ctxId, "Vertex Buffers", ":/icons/buffer.png"),
               m_FBONode(ctxId, "Framebuffer objects", ":/icons/fbo.png"),
+              m_RenderbufferNode(ctxId, "Renderbuffer objects", ":/icons/renderbuffer.png"),
               m_ShaderNode(ctxId, "Shaders", ":/icons/shader.png"),
               m_ProgramNode(ctxId, "Shader Programs", ":/icons/program.png"),
               m_FramebufferNode(ctxId, "Frame Buffers",
@@ -290,6 +308,7 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
         addChild(&m_TextureNode);
         addChild(&m_BufferNode);
         addChild(&m_FBONode);
+        addChild(&m_RenderbufferNode);
         addChild(&m_ShaderNode);
         addChild(&m_ProgramNode);
         addChild(&m_TextureUnitNode);
@@ -309,6 +328,7 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
         m_TextureNode.update(report.m_TextureSpace);
         m_BufferNode.update(report.m_BufferSpace);
         m_FBONode.update(report.m_FBOSpace);
+        m_RenderbufferNode.update(report.m_RenderbufferSpace);
         m_ShaderNode.update(report.m_ShaderSpace);
         m_ProgramNode.update(report.m_ProgramSpace);
         m_BufferNode.update(report.m_BufferSpace);
@@ -321,6 +341,7 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
     DGLObjectNodeWidget<DGLTextureWidget> m_TextureNode;
     DGLObjectNodeWidget<DGLBufferWidget> m_BufferNode;
     DGLObjectNodeWidget<DGLFBOWidget> m_FBONode;
+    DGLObjectNodeWidget<DGLRenderbufferWidget> m_RenderbufferNode;
     DGLObjectNodeWidget<DGLShaderWidget> m_ShaderNode;
     DGLObjectNodeWidget<DGLProgramWidget> m_ProgramNode;
     DGLObjectNodeWidget<DGLFramebufferWidget> m_FramebufferNode;

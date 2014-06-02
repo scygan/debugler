@@ -86,6 +86,7 @@ class GLContext {
     std::map<GLuint, GLProgramObj> m_Programs;
     std::map<GLuint, GLShaderObj> m_Shaders;
     std::map<GLuint, GLFBObj> m_FBOs;
+    std::map<GLuint, GLRenderbufferObj> m_Renderbuffers;
 
     dglnet::message::utils::ContextReport describe();
 
@@ -99,6 +100,8 @@ class GLContext {
     void deleteBuffer(GLuint name);
     GLFBObj* ensureFBO(GLuint name);
     void deleteFBO(GLuint name);
+    GLRenderbufferObj* ensureRenderbuffer(GLuint name);
+    void deleteRenderbuffer(GLuint name);
     GLProgramObj* ensureProgram(GLuint name, bool arbApi);
     GLProgramObj* findProgram(GLuint name);
     void deleteProgram(GLuint name);
@@ -110,6 +113,7 @@ class GLContext {
     std::shared_ptr<dglnet::DGLResource> queryBuffer(gl_t name);
     std::shared_ptr<dglnet::DGLResource> queryFramebuffer(gl_t bufferEnum);
     std::shared_ptr<dglnet::DGLResource> queryFBO(gl_t name);
+    std::shared_ptr<dglnet::DGLResource> queryRenderbuffer(gl_t name);
     std::shared_ptr<dglnet::DGLResource> queryShader(gl_t name);
     std::shared_ptr<dglnet::DGLResource> queryProgram(gl_t name);
     std::shared_ptr<dglnet::DGLResource> queryGPU();

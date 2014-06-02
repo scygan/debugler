@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DGLRenderbufferViewItem</class>
+ <widget class="QWidget" name="DGLRenderbufferViewItem">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>873</width>
+    <height>618</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="DGLPixelRectangleView" name="m_pixelRectangleView" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>400</width>
+         <height>320</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DGLPixelRectangleView</class>
+   <extends>QWidget</extends>
+   <header>dglpixelrectangle.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+ <slots>
+  <slot>showAttachment(int)</slot>
+ </slots>
+</ui>

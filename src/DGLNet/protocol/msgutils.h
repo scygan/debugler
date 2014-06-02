@@ -36,6 +36,7 @@ namespace dglnet {
                     ar& m_ShaderSpace;
                     ar& m_ProgramSpace;
                     ar& m_FBOSpace;
+                    ar& m_RenderbufferSpace;
                     ar& m_FramebufferSpace;
                     ar& m_TextureUnitSpace;
                 }
@@ -48,6 +49,7 @@ namespace dglnet {
                 std::set<ContextObjectName> m_ShaderSpace;
                 std::set<ContextObjectName> m_ProgramSpace;
                 std::set<ContextObjectName> m_FBOSpace;
+                std::set<ContextObjectName> m_RenderbufferSpace;
                 std::set<ContextObjectName> m_FramebufferSpace;
                 std::vector<std::set<ContextObjectName> > m_TextureUnitSpace;
             };
@@ -68,6 +70,7 @@ namespace dglnet {
             Texture,
             FBO,
             Framebuffer,
+            Renderbuffer,
             Shader,
             Program,
             Buffer,

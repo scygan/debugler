@@ -1139,7 +1139,7 @@ TEST_F(LiveTest, shader_handling) {
 }
 
 
-TEST_F(LiveTest, fbo) {
+TEST_F(LiveTest, fbo_msaa) {
     std::shared_ptr<dglnet::Client> client = getClientFor("fbo_msaa");
 
     dglnet::message::BreakedCall* breaked =
@@ -1176,7 +1176,7 @@ TEST_F(LiveTest, fbo) {
             dglnet::message::ObjectType::FBO,
             dglnet::ContextObjectName(breaked->m_CurrentCtx,
             breaked->m_CtxReports[0]
-        .m_TextureSpace.begin()
+        .m_FBOSpace.begin()
             ->m_Name)));
         client->sendMessage(&request);
     }
@@ -1266,6 +1266,81 @@ TEST_F(LiveTest, fbo) {
 
     EXPECT_EQ(GL_DEPTH24_STENCIL8, fboResource->m_Attachments[2].m_Internalformat);
     EXPECT_EQ(4, fboResource->m_Attachments[2].m_Samples);
+
+    terminate(client);
+}
+
+TEST_F(LiveTest, renderbuffer_msaa) {
+    std::shared_ptr<dglnet::Client> client = getClientFor("fbo_msaa");
+
+    dglnet::message::BreakedCall* breaked =
+        utils::receiveUntilMessage<dglnet::message::BreakedCall>(
+        client.get(), getMessageHandler());
+    ASSERT_TRUE(breaked != NULL);
+
+    {
+        // disable breaking stuff
+        dglnet::message::Configuration config(getUsualConfig());
+        client->sendMessage(&config);
+    }
+
+    // run through 3-th clear
+    for (int i = 0; i < 4; i++) {
+        breaked = utils::runUntilEntryPoint(client, getMessageHandler(),
+            glClear_Call);
+
+        // advance one call
+        dglnet::message::ContinueBreak stepCall(
+            dglnet::message::StepMode::CALL);
+    }
+
+    // query rbo list
+    ASSERT_EQ(1, breaked->m_CtxReports.size());
+    ASSERT_EQ(1, breaked->m_CtxReports[0].m_RenderbufferSpace.size());
+
+    EXPECT_EQ(0,
+        breaked->m_CtxReports[0].m_RenderbufferSpace.begin()->m_Target);
+
+    {
+        // query rbo
+        dglnet::message::Request request(new dglnet::request::QueryResource(
+            dglnet::message::ObjectType::Renderbuffer,
+            dglnet::ContextObjectName(breaked->m_CurrentCtx,
+            breaked->m_CtxReports[0]
+        .m_RenderbufferSpace.begin()
+            ->m_Name)));
+        client->sendMessage(&request);
+    }
+
+    dglnet::message::RequestReply* reply =
+        utils::receiveUntilMessage<dglnet::message::RequestReply>(
+        client.get(), getMessageHandler());
+    std::string nothing;
+    EXPECT_TRUE(reply->isOk(nothing));
+    dglnet::resource::DGLResourceRenderbuffer* rboResource =
+        dynamic_cast<dglnet::resource::DGLResourceRenderbuffer*>(
+        reply->m_Reply.get());
+    ASSERT_TRUE(rboResource != NULL);
+
+
+    //glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_RGBA8, 256, 256);
+    
+    ASSERT_EQ(GL_RGBA, rboResource->m_PixelRectangle->m_GLFormat);
+    ASSERT_EQ(GL_UNSIGNED_BYTE,
+        rboResource->m_PixelRectangle->m_GLType);
+
+    EXPECT_EQ(256, rboResource->m_PixelRectangle->m_Width);
+    EXPECT_EQ(256, rboResource->m_PixelRectangle->m_Height);
+
+    utils::checkColor(
+        (GLubyte*)rboResource->m_PixelRectangle->getPtr(),
+        rboResource->m_PixelRectangle->m_Width,
+        rboResource->m_PixelRectangle->m_Height,
+        rboResource->m_PixelRectangle->m_RowBytes, 102, 127,
+        204, 255);
+
+    EXPECT_EQ(GL_RGBA8, rboResource->m_Internalformat);
+    EXPECT_EQ(4, rboResource->m_Samples);
 
     terminate(client);
 }

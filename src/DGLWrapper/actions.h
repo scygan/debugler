@@ -158,6 +158,13 @@ private:
     virtual void NoGLErrorPost(const CalledEntryPoint&, const RetValue& ret);
 };
 
+class RenderbufferAction : public ErrorAwareGLAction {
+public:
+    static void Register(ActionManager& mgr);
+private:
+    virtual void NoGLErrorPost(const CalledEntryPoint&, const RetValue& ret);
+};
+
 class DebugOutputCallback : public ActionBase {
 public:
     static void Register(ActionManager& mgr);

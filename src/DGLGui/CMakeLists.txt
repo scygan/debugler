@@ -7,6 +7,7 @@ set(dglgui_SOURCES
     dglbufferview.cpp
     dglcontroller.cpp
     dglfboview.cpp
+    dglfrenderbufferview.cpp
     dglframebufferview.cpp
     dglgpuview.cpp
     dglmainwindow.cpp
@@ -40,6 +41,7 @@ set(dglgui_HEADERS
     dglbufferview.h
     dglcontroller.h
     dglfboview.h
+    dglrenderbufferview.h
     dglframebufferview.h
     dglgpuview.h
     dglmainwindow.h
@@ -77,6 +79,7 @@ set(dglgui_FORMS
     ui/dglbreakpointdialog.ui
     ui/dglprojproperties_runapp.ui
     ui/dglfboviewitem.ui
+    ui/dglrenderbufferviewitem.ui
     ui/dglconfigdialog.ui
     ui/dglframebufferviewitem.ui
     ui/dglmainwindow.ui

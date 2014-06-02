@@ -187,6 +187,7 @@ signals:
     void showBuffer(opaque_id_t ctx, gl_t name);
     void showFramebuffer(opaque_id_t ctx, gl_t bufferEnum);
     void showFBO(opaque_id_t ctx, gl_t name);
+    void showRenderbuffer(opaque_id_t, gl_t);
     void showShader(opaque_id_t ctx, gl_t name, gl_t target);
     void showProgram(opaque_id_t ctx, gl_t name);
 };

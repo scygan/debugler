@@ -1328,8 +1328,60 @@ void FBOAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& ret)
             GLuint name;
             call.getArgs()[1].get(name);
             if (name) {
-                gc->ensureFBO(name)->setTarget(target);
+                gc->ensureFBO(name);
             }
+        }
+    }
+    PrevPost(call, ret);
+}
+
+void RenderbufferAction::Register(ActionManager& manager) {
+    std::shared_ptr<RenderbufferAction> obj
+        = std::make_shared<RenderbufferAction>();
+
+    manager.RegisterAction(glGenRenderbuffers_Call, obj);
+    manager.RegisterAction(glGenRenderbuffersEXT_Call, obj);
+    manager.RegisterAction(glDeleteRenderbuffers_Call, obj);
+    manager.RegisterAction(glDeleteRenderbuffersEXT_Call, obj);
+    manager.RegisterAction(glBindRenderbuffer_Call, obj);
+    manager.RegisterAction(glBindRenderbufferEXT_Call, obj);
+}
+
+void RenderbufferAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& ret) {
+    Entrypoint entrp = call.getEntrypoint();
+    if (gc) {
+
+        if (entrp == glGenRenderbuffers_Call ||
+            entrp == glGenRenderbuffersEXT_Call) {
+                GLsizei n = 0;
+                call.getArgs()[0].get(n);
+
+                GLuint* names;
+                call.getArgs()[1].get(names);
+
+                for (GLsizei i = 0; i < n; i++) {
+                    gc->ensureRenderbuffer(names[i]);
+                }
+        } else if (entrp == glDeleteRenderbuffers_Call ||
+                   entrp == glDeleteRenderbuffersEXT_Call) {
+                GLsizei n = 0;
+                call.getArgs()[0].get(n);
+
+                const GLuint* names;
+                call.getArgs()[1].get(names);
+
+                for (GLsizei i = 0; i < n; i++) {
+                    gc->deleteRenderbuffer(names[i]);
+                }
+        } else if (entrp == glBindRenderbuffer_Call ||
+                   entrp == glBindRenderbufferEXT_Call) {
+                GLenum target;
+                call.getArgs()[0].get(target);
+                GLuint name;
+                call.getArgs()[1].get(name);
+                if (name) {
+                    gc->ensureRenderbuffer(name);
+                }
         }
     }
     PrevPost(call, ret);

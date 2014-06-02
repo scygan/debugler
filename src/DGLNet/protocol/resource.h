@@ -168,6 +168,24 @@ class DGLResourceFBO : public DGLResource {
     gl_t                       m_CompletenessStatus;
 };
 
+class DGLResourceRenderbuffer : public DGLResource {
+public:
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& ::boost::serialization::base_object<DGLResource>(*this);
+        ar& m_PixelRectangle;
+        ar& m_Internalformat;
+        ar& m_Samples;
+    }
+
+    ::boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
+        m_PixelRectangle;
+
+    gl_t m_Internalformat;
+    value_t m_Samples;
+
+};
+
 class DGLResourceShader : public DGLResource {
    public:
     template <class Archive>
@@ -312,15 +330,16 @@ inline void load_construct_data(Archive& ar,
 }
 
 #ifdef REGISTER_CLASS
-REGISTER_CLASS(dglnet::DGLResource,                      dR)
-REGISTER_CLASS(dglnet::resource::DGLResourceTexture,     dsRT)
-REGISTER_CLASS(dglnet::resource::DGLResourceBuffer,      dsRB)
-REGISTER_CLASS(dglnet::resource::DGLResourceFramebuffer, dsRFB)
-REGISTER_CLASS(dglnet::resource::DGLResourceFBO,         dsFBO)
-REGISTER_CLASS(dglnet::resource::DGLResourceShader,      dsRSH)
-REGISTER_CLASS(dglnet::resource::DGLResourceProgram,     dsRP)
-REGISTER_CLASS(dglnet::resource::DGLResourceGPU,         dsRGPU)
-REGISTER_CLASS(dglnet::resource::DGLResourceState,       dsRS)
+REGISTER_CLASS(dglnet::DGLResource,                       dR)
+REGISTER_CLASS(dglnet::resource::DGLResourceTexture,      dsRT)
+REGISTER_CLASS(dglnet::resource::DGLResourceBuffer,       dsRB)
+REGISTER_CLASS(dglnet::resource::DGLResourceFramebuffer,  dsRFB)
+REGISTER_CLASS(dglnet::resource::DGLResourceFBO,          dsFBO)
+REGISTER_CLASS(dglnet::resource::DGLResourceRenderbuffer, dsRBO)
+REGISTER_CLASS(dglnet::resource::DGLResourceShader,       dsRSH)
+REGISTER_CLASS(dglnet::resource::DGLResourceProgram,      dsRP)
+REGISTER_CLASS(dglnet::resource::DGLResourceGPU,          dsRGPU)
+REGISTER_CLASS(dglnet::resource::DGLResourceState,        dsRS)
 #endif
 
 #endif    // RESOURCE_H
