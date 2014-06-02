@@ -43,6 +43,7 @@
 #include "api-loader.h"
 #include "gl-wrappers.h"
 #include "tls.h"
+#include "globalstate.h"
 #include "wa-soctors.h"
 
 //#define DL_INTERCEPT_DEBUG
@@ -201,11 +202,11 @@ boost::recursive_mutex::scoped_lock lock(mutex);
         entryp != NO_ENTRYPOINT &&                      //entrypoint is supported by debugger
         !DGLThreadState::get()->inActionProcessing() && //dlsym was not emited by GL implementation
         i != mSupportedLibraries.end() &&               //library from handle is supported by debugger
-        (i->second & g_ApiLoader.getEntryPointLibrary(entryp)) //library from handle match entrypoint library mask
+        (i->second & GlobalState::getApiLoader().getEntryPointLibrary(entryp)) //library from handle match entrypoint library mask
        ) {
 
         //set debugger to use new entrypoint
-        g_ApiLoader.setPointer(entryp,
+        GlobalState::getApiLoader().setPointer(entryp,
                                reinterpret_cast<FUNC_PTR>((ptrdiff_t)ptr));
 
 
@@ -232,7 +233,7 @@ void *DLIntercept::dlopen(const char *filename, int flag) {
     void *ret = real_dlopen(filename, flag);
 
     if (ret && filename) {
-        int libraries = g_ApiLoader.whichLibrary(filename);
+        int libraries = GlobalState::getApiLoader().whichLibrary(filename);
 #ifdef __ANDROID__
         if (libraries & (LIBRARY_ES1 | LIBRARY_ES2)) {
             //unity3d apps on Android open libGLESvX  using dlopen,
