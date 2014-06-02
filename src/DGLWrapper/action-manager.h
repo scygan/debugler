@@ -23,7 +23,7 @@
 class ActionManager {
 public:
     ActionManager();
-    void ActionManager::RegisterAction(Entrypoint entryp, std::shared_ptr<actions::ActionBase> action);
+    void RegisterAction(Entrypoint entryp, std::shared_ptr<actions::ActionBase> action);
 
     inline actions::ActionBase& GetAction(Entrypoint entryp) {
         return *actions[entryp];
