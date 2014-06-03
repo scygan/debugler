@@ -1087,6 +1087,8 @@ void ProgramAction::Register(ActionManager& manager) {
     manager.RegisterAction(glUseProgramObjectARB_Call, obj);
     manager.RegisterAction(glLinkProgram_Call, obj);
     manager.RegisterAction(glLinkProgramARB_Call, obj);
+
+    manager.RegisterAction(glCreateShaderProgramv_Call, obj); //TODO: add suffixed version
 }
 
 void ProgramAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& ret) {
@@ -1161,6 +1163,20 @@ void ProgramAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& 
             if (linkStatus != GL_TRUE) {
                 GlobalState::getDebugController().getBreakState().setBreakAtCompilerError();
             }
+        } else if (entrp == glCreateShaderProgramv_Call) {
+
+                ret.get(name);
+
+                GLsizei count; 
+                const void* strings;
+
+                call.getArgs()[1].get(count);
+                call.getArgs()[2].get(strings);
+
+                dglState::GLProgramObj* program = 
+                    gc->ns().m_Programs.getOrCreateObject(name, false /* TODO: ??? */);
+
+                program->setEmbeddedSSOSource(count, static_cast<const char* const*>(strings));
         }
     }
     PrevPost(call, ret);

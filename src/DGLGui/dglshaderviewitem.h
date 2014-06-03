@@ -93,7 +93,7 @@ slots:
     Ui::DGLShaderViewItem m_Ui;
     QLabel* m_Label;
     DGLGLSLEditor* m_GLSLEditor;
-    boost::shared_ptr<DGLSyntaxHighlighterGLSL> m_Highlighter;
+    std::shared_ptr<DGLSyntaxHighlighterGLSL> m_Highlighter;
     DGLResourceListener* m_Listener;
     DGLRequestManager* m_RequestManager;
     dglnet::ContextObjectName m_Name;

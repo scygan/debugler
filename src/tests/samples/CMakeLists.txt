@@ -14,6 +14,7 @@ set(samples_SOURCES
     samples/texture3d.cpp
     samples/fbo_msaa.cpp
     samples/resize.cpp
+	samples/sso.cpp
     )
 
 include_directories(../../external/glfw-3.0.2/include)

@@ -1624,6 +1624,11 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
 
     resource->mLinkStatus = std::pair<std::string, gl_t>(infoLog, linkStatus);
 
+    resource->m_EmbeddedSSOSource = program->getEmbeddedSSOSource();
+
+    resource->m_EmbeddedSSOSourceIsESSL = getVersion().check(GLContextVersion::Type::ES);
+
+
     if (resource->mLinkStatus.second) {
 
         // if the program is linked, acquire it's uniform values

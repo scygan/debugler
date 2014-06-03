@@ -16,6 +16,7 @@
 #include "dglprogramview.h"
 
 #include "dglshaderviewitem.h"
+#include "dglglsleditor.h"
 
 #include <DGLNet/protocol/request.h>
 #include <DGLNet/protocol/resource.h>
@@ -32,6 +33,10 @@ DGLProgramViewItem::DGLProgramViewItem(dglnet::ContextObjectName name,
           m_ResourceManager(resManager),
           m_Name(name) {
     m_Ui.setupUi(this);
+
+    m_EmbeddedSSOSourceView = new DGLGLSLEditor(this);
+    m_EmbeddedSSOSourceView->setReadOnly(true);
+    m_Ui.verticalLayout_3->insertWidget(0, m_EmbeddedSSOSourceView);
 
     m_Label = new QLabel(this);
     m_Ui.verticalLayout_2->addWidget(m_Label);
@@ -63,6 +68,7 @@ DGLProgramViewItem::DGLProgramViewItem(dglnet::ContextObjectName name,
 }
 
 void DGLProgramViewItem::error(const std::string& message) {
+    m_EmbeddedSSOSourceView->hide();
     m_Ui.tabWidget->hide();
     m_Ui.groupBoxLinkStatus->hide();
     m_Ui.groupBoxUniforms->hide();
@@ -81,6 +87,26 @@ void DGLProgramViewItem::update(const dglnet::DGLResource& res) {
 
     m_Ui.textEditLinker->setText(
             QString::fromStdString(resource->mLinkStatus.first));
+
+    if (resource->m_EmbeddedSSOSource.size()) {
+        m_EmbeddedSSOSourceView->show();
+
+        if (!m_EmbeddedSSOSourceHightlighter) {
+            m_EmbeddedSSOSourceHightlighter = std::make_shared<DGLSyntaxHighlighterGLSL>(
+                resource->m_EmbeddedSSOSourceIsESSL, true /* m_Ui.checkBox_Highlight->isChecked() */
+                ? m_EmbeddedSSOSourceView->document()
+                : NULL);
+        }
+
+        m_EmbeddedSSOSourceView->clear();
+        m_EmbeddedSSOSourceView->appendPlainText(QString::fromStdString(resource->m_EmbeddedSSOSource));
+
+        m_Ui.pushButtonLink->setEnabled(false);
+    } else {
+        m_EmbeddedSSOSourceView->hide();
+
+        m_Ui.pushButtonLink->setEnabled(true);
+    }
 
     for (size_t i = 0; i < resource->m_AttachedShaders.size(); i++) {
         bool found = false;

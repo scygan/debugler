@@ -35,6 +35,9 @@ slots:
     virtual QString getTabName(gl_t id, gl_t target) override;
 };
 
+class DGLGLSLEditor;
+class DGLSyntaxHighlighterGLSL;
+
 class DGLProgramViewItem : public DGLTabbedViewItem, public DGLRequestHandler {
     Q_OBJECT
    public:
@@ -63,6 +66,12 @@ slots:
     DGLRequestManager* m_RequestManager;
     DGLResourceManager* m_ResourceManager;
     dglnet::ContextObjectName m_Name;
+
+    /** 
+     * Viewer for embedded SSO (glCreateShaderProgram) GLSL source
+     */
+    DGLGLSLEditor* m_EmbeddedSSOSourceView;
+    std::shared_ptr<DGLSyntaxHighlighterGLSL> m_EmbeddedSSOSourceHightlighter;
 };
 
 #endif    // DGLPROGRAMVIEW_H

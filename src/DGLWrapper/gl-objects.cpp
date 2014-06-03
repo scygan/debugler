@@ -20,6 +20,7 @@
 
 #include <DGLCommon/def.h> 
 
+#include <sstream>
 #include <cassert>
 
 namespace dglState {
@@ -172,6 +173,20 @@ void GLProgramObj::forceLink() {
         // reinstall program
         DIRECT_CALL_CHK(glUseProgram)(getName());
     }
+}
+
+void GLProgramObj::setEmbeddedSSOSource(GLsizei count, const char* const* strings) {
+    
+    assert(m_AttachedShaders.size() == 0);
+
+    std::ostringstream sourceStr; 
+
+    for (GLsizei i = 0; i < count; i++)  {
+        sourceStr << strings[i]; 
+    }
+
+    m_EmbeddedSSOSource = sourceStr.str();
+
 }
 
 GLShaderObj::GLShaderObj(GLuint name, GLShaderObjCreateData createData)

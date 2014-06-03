@@ -156,11 +156,19 @@ class GLProgramObj : public GLObj {
 
     void forceLink();
 
+    void setEmbeddedSSOSource(GLsizei count, const char* const* strings);
+    inline const std::string& getEmbeddedSSOSource() { return m_EmbeddedSSOSource; }
+
    private:
     bool m_InUse;
     bool m_Deleted;
     bool m_arbApi;
     std::set<GLShaderObj*> m_AttachedShaders;
+
+    /** 
+     * GLSL source for embedded SSO (glCreateShaderProgram)
+     */
+    std::string m_EmbeddedSSOSource;
 };
 
 class GLFBObj : public GLObj {

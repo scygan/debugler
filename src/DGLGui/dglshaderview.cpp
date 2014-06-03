@@ -208,7 +208,7 @@ void DGLShaderViewItem::update(const dglnet::DGLResource& res) {
             dynamic_cast<const dglnet::resource::DGLResourceShader*>(&res);
 
     if (!m_Highlighter) {
-        m_Highlighter = boost::make_shared<DGLSyntaxHighlighterGLSL>(
+        m_Highlighter = std::make_shared<DGLSyntaxHighlighterGLSL>(
                 resource->m_IsESSLDefault, m_Ui.checkBox_Highlight->isChecked()
                                                    ? m_GLSLEditor->document()
                                                    : NULL);

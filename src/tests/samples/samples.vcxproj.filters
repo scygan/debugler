@@ -51,6 +51,9 @@
     <ClCompile Include="samples\program_handling.cpp">
       <Filter>Samples</Filter>
     </ClCompile>
+    <ClCompile Include="samples\sso.cpp">
+      <Filter>Samples</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sample.h">

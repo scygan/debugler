@@ -209,6 +209,8 @@ class DGLResourceProgram : public DGLResource {
         ar& mLinkStatus;
         ar& m_AttachedShaders;
         ar& m_Uniforms;
+        ar& m_EmbeddedSSOSource;
+        ar& m_EmbeddedSSOSourceIsESSL;
     }
 
     struct Uniform {
@@ -232,6 +234,12 @@ class DGLResourceProgram : public DGLResource {
     std::pair<std::string, gl_t> mLinkStatus;
     std::vector<std::pair<gl_t, gl_t> > m_AttachedShaders;
     std::vector<Uniform> m_Uniforms;
+
+    /** 
+     * GLSL source for embedded SSO (glCreateShaderProgram)
+     */
+    std::string m_EmbeddedSSOSource;
+    bool m_EmbeddedSSOSourceIsESSL;
 };
 
 class DGLResourceGPU : public DGLResource {
