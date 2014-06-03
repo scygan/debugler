@@ -63,7 +63,7 @@ ShaderPtr CreateShader(GLenum stage, const std::string source, bool compile) {
 }
 
 Program::Program() { m_name = glCreateProgram(); }
-Program::~Program() { glDeleteShader(m_name); }
+Program::~Program() { glDeleteProgram(m_name); }
 
 void Program::Attach(ShaderPtr shader) {
     glAttachShader(m_name, shader->Name());

@@ -1134,7 +1134,7 @@ TEST_F(LiveTest, shader_handling) {
     // glFlush(); #flush is only to mark case end
    terminate(client);
 }
-/*
+
 TEST_F(LiveTest, program_handling) {
     dglnet::message::RequestReply* reply;
     std::string nothing;
@@ -1181,16 +1181,16 @@ TEST_F(LiveTest, program_handling) {
     EXPECT_EQ(0, programResource->m_Uniforms.size());
     ASSERT_EQ(2, programResource->m_AttachedShaders.size());
     
-    if (programResource->m_AttachedShaders[0].first == GL_VERTEX_SHADER) {
-        EXPECT_TRUE(programResource->m_AttachedShaders[1].first == GL_FRAGMENT_SHADER_BIT);
-    } else if (programResource->m_AttachedShaders[0].first == GL_FRAGMENT_SHADER_BIT) {
-        EXPECT_TRUE(programResource->m_AttachedShaders[1].first == GL_VERTEX_SHADER);
+    if (programResource->m_AttachedShaders[0].second == GL_VERTEX_SHADER) {
+        EXPECT_TRUE(programResource->m_AttachedShaders[1].second == GL_FRAGMENT_SHADER);
+    } else if (programResource->m_AttachedShaders[0].second == GL_FRAGMENT_SHADER) {
+        EXPECT_TRUE(programResource->m_AttachedShaders[1].second == GL_VERTEX_SHADER);
     } else {
         EXPECT_TRUE(0);
     }
-    EXPECT_TRUE(programResource->m_AttachedShaders[0].second != programResource->m_AttachedShaders[1].second);
-    dglnet::ContextObjectName nameShader1(breaked->m_CtxReports[0].m_Id, programResource->m_AttachedShaders[0].second);
-    dglnet::ContextObjectName nameShader2(breaked->m_CtxReports[0].m_Id, programResource->m_AttachedShaders[1].second);
+    EXPECT_TRUE(programResource->m_AttachedShaders[0].first != programResource->m_AttachedShaders[1].first);
+    dglnet::ContextObjectName nameShader1(breaked->m_CtxReports[0].m_Id, programResource->m_AttachedShaders[0].first);
+    dglnet::ContextObjectName nameShader2(breaked->m_CtxReports[0].m_Id, programResource->m_AttachedShaders[1].first);
 
     EXPECT_TRUE(breaked->m_CtxReports[0].m_ShaderSpace.find(nameShader1) !=  breaked->m_CtxReports[0].m_ShaderSpace.end());
     EXPECT_TRUE(breaked->m_CtxReports[0].m_ShaderSpace.find(nameShader2) !=  breaked->m_CtxReports[0].m_ShaderSpace.end());
@@ -1275,16 +1275,13 @@ TEST_F(LiveTest, program_handling) {
     }
     reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(
         client.get(), getMessageHandler());
+    
+    std::string tmp;
 
-    programResource =
-        dynamic_cast<dglnet::resource::DGLResourceProgram*>(
-        reply->m_Reply.get());
-
-    EXPECT_TRUE(programResource == NULL);
-
+    EXPECT_FALSE(reply->isOk(tmp));
     terminate(client);
 }
-*/
+
 
 TEST_F(LiveTest, fbo_msaa) {
     std::shared_ptr<dglnet::Client> client = getClientFor("fbo_msaa");
