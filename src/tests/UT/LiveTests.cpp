@@ -633,9 +633,6 @@ TEST_F(LiveTest, framebuffer_resize) {
                 framebufferResource->m_PixelRectangle->m_Height,
                 framebufferResource->m_PixelRectangle->m_RowBytes, 102, 127,
                 204, 255);
-
-        dglnet::message::ContinueBreak stepFrame(
-                dglnet::message::StepMode::FRAME);
     }
     terminate(client);
 }
@@ -1137,7 +1134,157 @@ TEST_F(LiveTest, shader_handling) {
     // glFlush(); #flush is only to mark case end
    terminate(client);
 }
+/*
+TEST_F(LiveTest, program_handling) {
+    dglnet::message::RequestReply* reply;
+    std::string nothing;
 
+    std::shared_ptr<dglnet::Client> client = getClientFor("program_handling");
+
+    dglnet::message::BreakedCall* breaked =
+        utils::receiveUntilMessage<dglnet::message::BreakedCall>(
+        client.get(), getMessageHandler());
+    ASSERT_TRUE(breaked != NULL);
+
+    {
+        // disable other breaking stuff
+        dglnet::message::Configuration config(getUsualConfig());
+        client->sendMessage(&config);
+    }
+
+    breaked = utils::runUntilEntryPoint(client, getMessageHandler(),
+        glLinkProgram_Call);
+
+
+    ASSERT_EQ(2, breaked->m_CtxReports[0].m_ShaderSpace.size());
+    ASSERT_EQ(1, breaked->m_CtxReports[0].m_ProgramSpace.size());
+
+    GLuint programId = breaked->m_CtxReports[0].m_ProgramSpace.begin()->m_Name;
+
+    {
+        dglnet::message::Request requestMessage(
+            new dglnet::request::QueryResource(
+            dglnet::message::ObjectType::Program,
+            dglnet::ContextObjectName(breaked->m_CurrentCtx,
+            programId)));
+        client->sendMessage(&requestMessage);
+    }
+    reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(
+        client.get(), getMessageHandler());
+
+    dglnet::resource::DGLResourceProgram* programResource =
+        dynamic_cast<dglnet::resource::DGLResourceProgram*>(
+        reply->m_Reply.get());
+    ASSERT_TRUE(programResource != NULL);
+
+    EXPECT_FALSE(programResource->mLinkStatus.second);
+    EXPECT_EQ(0, programResource->m_Uniforms.size());
+    ASSERT_EQ(2, programResource->m_AttachedShaders.size());
+    
+    if (programResource->m_AttachedShaders[0].first == GL_VERTEX_SHADER) {
+        EXPECT_TRUE(programResource->m_AttachedShaders[1].first == GL_FRAGMENT_SHADER_BIT);
+    } else if (programResource->m_AttachedShaders[0].first == GL_FRAGMENT_SHADER_BIT) {
+        EXPECT_TRUE(programResource->m_AttachedShaders[1].first == GL_VERTEX_SHADER);
+    } else {
+        EXPECT_TRUE(0);
+    }
+    EXPECT_TRUE(programResource->m_AttachedShaders[0].second != programResource->m_AttachedShaders[1].second);
+    dglnet::ContextObjectName nameShader1(breaked->m_CtxReports[0].m_Id, programResource->m_AttachedShaders[0].second);
+    dglnet::ContextObjectName nameShader2(breaked->m_CtxReports[0].m_Id, programResource->m_AttachedShaders[1].second);
+
+    EXPECT_TRUE(breaked->m_CtxReports[0].m_ShaderSpace.find(nameShader1) !=  breaked->m_CtxReports[0].m_ShaderSpace.end());
+    EXPECT_TRUE(breaked->m_CtxReports[0].m_ShaderSpace.find(nameShader2) !=  breaked->m_CtxReports[0].m_ShaderSpace.end());
+
+    // advance one call
+    dglnet::message::ContinueBreak stepCall(
+        dglnet::message::StepMode::CALL);
+    client->sendMessage(&stepCall);
+
+    ASSERT_EQ(2, breaked->m_CtxReports[0].m_ShaderSpace.size());
+    ASSERT_EQ(1, breaked->m_CtxReports[0].m_ProgramSpace.size());
+
+    //check if linked
+
+    {
+        dglnet::message::Request requestMessage(
+            new dglnet::request::QueryResource(
+            dglnet::message::ObjectType::Program,
+            dglnet::ContextObjectName(breaked->m_CurrentCtx,
+            programId)));
+        client->sendMessage(&requestMessage);
+    }
+    reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(
+        client.get(), getMessageHandler());
+
+    programResource =
+        dynamic_cast<dglnet::resource::DGLResourceProgram*>(
+        reply->m_Reply.get());
+    ASSERT_TRUE(programResource != NULL);
+
+    EXPECT_TRUE(programResource->mLinkStatus.second);
+    EXPECT_EQ(0, programResource->m_Uniforms.size());
+    EXPECT_EQ(2, programResource->m_AttachedShaders.size());
+
+    breaked = utils::runUntilEntryPoint(client, getMessageHandler(),
+        glDeleteProgram_Call);
+
+    ASSERT_EQ(2, breaked->m_CtxReports[0].m_ShaderSpace.size());
+    ASSERT_EQ(1, breaked->m_CtxReports[0].m_ProgramSpace.size());
+
+    //check if linked and still present
+    {
+        dglnet::message::Request requestMessage(
+            new dglnet::request::QueryResource(
+            dglnet::message::ObjectType::Program,
+            dglnet::ContextObjectName(breaked->m_CurrentCtx,
+            programId)));
+        client->sendMessage(&requestMessage);
+    }
+    reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(
+        client.get(), getMessageHandler());
+
+    programResource =
+        dynamic_cast<dglnet::resource::DGLResourceProgram*>(
+        reply->m_Reply.get());
+    ASSERT_TRUE(programResource != NULL);
+
+    EXPECT_TRUE(programResource->mLinkStatus.second);
+    EXPECT_EQ(0, programResource->m_Uniforms.size());
+    EXPECT_EQ(2, programResource->m_AttachedShaders.size());
+
+    breaked = utils::runUntilEntryPoint(client, getMessageHandler(),
+        glUseProgram_Call);
+    
+    {
+        // advance one call
+        dglnet::message::ContinueBreak stepCall(
+            dglnet::message::StepMode::CALL);
+        client->sendMessage(&stepCall);
+    }
+
+    EXPECT_EQ(0, breaked->m_CtxReports[0].m_ShaderSpace.size());
+    EXPECT_EQ(0, breaked->m_CtxReports[0].m_ProgramSpace.size());
+
+    {
+        dglnet::message::Request requestMessage(
+            new dglnet::request::QueryResource(
+            dglnet::message::ObjectType::Program,
+            dglnet::ContextObjectName(breaked->m_CurrentCtx,
+            programId)));
+        client->sendMessage(&requestMessage);
+    }
+    reply = utils::receiveUntilMessage<dglnet::message::RequestReply>(
+        client.get(), getMessageHandler());
+
+    programResource =
+        dynamic_cast<dglnet::resource::DGLResourceProgram*>(
+        reply->m_Reply.get());
+
+    EXPECT_TRUE(programResource == NULL);
+
+    terminate(client);
+}
+*/
 
 TEST_F(LiveTest, fbo_msaa) {
     std::shared_ptr<dglnet::Client> client = getClientFor("fbo_msaa");
@@ -1161,6 +1308,8 @@ TEST_F(LiveTest, fbo_msaa) {
         // advance one call
         dglnet::message::ContinueBreak stepCall(
             dglnet::message::StepMode::CALL);
+
+        client->sendMessage(&stepCall);
     }
 
     // query fbo list
@@ -1292,6 +1441,7 @@ TEST_F(LiveTest, renderbuffer_msaa) {
         // advance one call
         dglnet::message::ContinueBreak stepCall(
             dglnet::message::StepMode::CALL);
+        client->sendMessage(&stepCall);
     }
 
     // query rbo list
