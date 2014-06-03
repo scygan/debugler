@@ -20,7 +20,6 @@
 #include "gl-objects.h"
 #include "gl-object-namespace.h"
 #include "gl-statesetters.h"
-#include "gl-texunit.h"
 
 #include <DGLCommon/gl-types.h>
 #include <DGLCommon/gl-entrypoints.h>
@@ -83,8 +82,6 @@ class GLContext {
     GLContext(const DGLDisplayState* dpy, GLContextVersion version,
               opaque_id_t id, const GLContextCreationData& creationData);
     ~GLContext();
-
-    GLObjectNameSpaces m_NS;
 
     dglnet::message::utils::ContextReport describe();
 
@@ -184,13 +181,6 @@ class GLContext {
     bool endQuery(std::string& message);
 
     /**
-     * Imemdiate mode setter - must be set, when betweek glBegin()/glEnd(),
-     * otherwise spurious GL errors will happen
-     * No query will be emitted when in immediate mode
-     */
-    void setImmediateMode(bool);
-
-    /**
      * Called to tell ctx when if is bound to current thread
      */
     void bound();
@@ -250,16 +240,15 @@ class GLContext {
      */
     const DGLDisplayState* getDisplay() const;
 
-    /* 
-     * Getter for texture units container
-     */
-    AllTextureUnits& texUnits();
-
-    
     /** 
      * Getter for shadow state;
      */
-    inline GLContextShadowState& GetShadow() { return m_ShadowState; }
+    inline GLContextShadowState& shadow() { return m_ShadowState; }
+
+    /** 
+     * Getter for objects shadow namespace
+     */
+    inline GLObjectNameSpaces& ns() { return m_ObjectNamespace; }
 
    private:
     void queryCheckError();
@@ -311,11 +300,6 @@ class GLContext {
      * Custom debug message callback registered by application
      */
     GLDEBUGPROC m_DebugOutputCallback;
-
-    /**
-     * Set to true if betweek glBegin() and glEnd()
-     */
-    bool m_InImmediateMode;
 
     /**
      * Get state element (using glGetIntegerv)
@@ -395,19 +379,17 @@ class GLContext {
      */
     const DGLDisplayState* m_Display;
 
-    /**
-     * Shadow of all bound textures
-     */
-    AllTextureUnits m_TextureUnits;
-
-
     /** 
      * Shadowed state containter
      * 
      * All non-query-able state goes in here
      */
-
     GLContextShadowState m_ShadowState;
+
+    /** 
+     * Namespace of shadows for specific GL objects
+     */
+    GLObjectNameSpaces m_ObjectNamespace;
 
 };
 

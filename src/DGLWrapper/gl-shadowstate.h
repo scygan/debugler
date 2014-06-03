@@ -16,12 +16,8 @@
 #ifndef GL_SHADOWSTATE_H
 #define GL_SHADOWSTATE_H
 
-
-
-#include <DGLCommon/gl-types.h>
-#include <DGLCommon/gl-entrypoints.h>
-#include <DGLNet/protocol/msgutils.h>
-
+#include "gl-utils.h"
+#include "gl-texunit.h"
 
 namespace dglState {
     
@@ -30,7 +26,33 @@ namespace dglState {
 
             GLContextShadowState();
 
+            /**
+             * Getter for texture units container
+             */
+            inline AllTextureUnits& getTexUnits() { return m_TextureUnits; }
+
+
+            /**
+             * Imemdiate mode setter - must be set, when betweek glBegin()/glEnd(),
+             * otherwise spurious GL errors will happen
+             * No query will be emitted when in immediate mode
+             */
+            inline void setImmediateMode(bool immediate) { m_InImmediateMode = immediate; }
+
+            inline bool inImmediateMode() { return m_InImmediateMode; }
+
+            
             GLuint m_CurrentProgram;
+        private:
+            /**
+             * Set to true if betweek glBegin() and glEnd()
+             */
+            bool m_InImmediateMode;
+
+            /**
+             * Shadow of all bound textures
+             */
+            AllTextureUnits m_TextureUnits;
     };
 }
 

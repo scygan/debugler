@@ -175,7 +175,6 @@ GLContext::GLContext(const DGLDisplayState* display, GLContextVersion version,
           m_HasNVXMemoryInfo(false),
           m_HasDebugOutput(false),
           m_DebugOutputCallback(NULL),
-          m_InImmediateMode(false),
           m_EverBound(false),
           m_RefCount(0),
           m_ToBeDeleted(false),
@@ -185,18 +184,18 @@ GLContext::GLContext(const DGLDisplayState* display, GLContextVersion version,
 
 
 GLContext::~GLContext() {
-    m_NS.clear();
+    ns().clear();
 }
 
 
 dglnet::message::utils::ContextReport GLContext::describe() {
     dglnet::message::utils::ContextReport ret(m_Id);
-    ret.m_TextureSpace      = m_NS.getShared()->get().m_Textures.getReport(m_Id);
-    ret.m_BufferSpace       = m_NS.getShared()->get().m_Buffers.getReport(m_Id);
-    ret.m_ShaderSpace       = m_NS.m_Shaders.getReport(m_Id);
-    ret.m_ProgramSpace      = m_NS.m_Programs.getReport(m_Id);
-    ret.m_FBOSpace          = m_NS.m_FBOs.getReport(m_Id);
-    ret.m_RenderbufferSpace = m_NS.m_Renderbuffers.getReport(m_Id);
+    ret.m_TextureSpace      = ns().getShared()->get().m_Textures.getReport(m_Id);
+    ret.m_BufferSpace       = ns().getShared()->get().m_Buffers.getReport(m_Id);
+    ret.m_ShaderSpace       = ns().m_Shaders.getReport(m_Id);
+    ret.m_ProgramSpace      = ns().m_Programs.getReport(m_Id);
+    ret.m_FBOSpace          = ns().m_FBOs.getReport(m_Id);
+    ret.m_RenderbufferSpace = ns().m_Renderbuffers.getReport(m_Id);
 
     if (m_NativeReadSurface) {
         if (m_NativeReadSurface->isStereo()) {
@@ -221,7 +220,7 @@ dglnet::message::utils::ContextReport GLContext::describe() {
         }
     }
 
-    ret.m_TextureUnitSpace = m_TextureUnits.report(m_Id);
+    ret.m_TextureUnitSpace = shadow().getTexUnits().report(m_Id);
 
 
     return ret;
@@ -255,7 +254,7 @@ std::pair<bool, GLenum> GLContext::getPokedError() {
 
 GLenum GLContext::peekError() {
 
-    if (m_InImmediateMode)
+    if (shadow().inImmediateMode())
         return GL_NO_ERROR;    // we cannot get erros after glBegin()
 
     GLenum ret = DIRECT_CALL_CHK(glGetError)();
@@ -306,7 +305,7 @@ void GLContext::startQuery() {
     }
 
     peekError();
-    if (m_InImmediateMode) {
+    if (shadow().inImmediateMode()) {
         throw std::runtime_error(
                 "OpenGL is currently in immediate mode (after glBegin,  before "
                 "glEnd) - cannot issue query");
@@ -325,21 +324,19 @@ void GLContext::queryCheckError() {
 bool GLContext::endQuery(std::string& message) {
     bool ret = true;
     GLenum error;
-    if (!m_InImmediateMode &&
+    if (shadow().inImmediateMode() &&
         (error = DIRECT_CALL_CHK(glGetError)()) != GL_NO_ERROR) {
         message = std::string("Query failed: got OpenGL error (") +
                   GetGLEnumName(error, GLEnumGroup::ErrorCode) + ")";
         ret = false;
     }
-    while (!m_InImmediateMode && DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
+    while (!shadow().inImmediateMode() && DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
         ;
 
     m_InQuery = false;
 
     return ret;
 }
-
-void GLContext::setImmediateMode(bool immed) { m_InImmediateMode = immed; }
 
 void GLContext::bound() {
     if (!m_EverBound) {
@@ -376,7 +373,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
     }
 
     // check if we know about a texture target
-    GLTextureObj* tex = m_NS.getShared()->get().m_Textures.getObject(name);
+    GLTextureObj* tex = ns().getShared()->get().m_Textures.getObject(name);
     if (tex->getTarget() == 0) {
         throw std::runtime_error("Texture target is unknown");
     } else if (tex->getTarget() != GL_TEXTURE_1D &&
@@ -964,7 +961,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryBuffer(gl_t _name) {
     }
 
     // check if we know about a texture target
-    std::unique_ptr<GLShareableObjectsAccessor> accessor  = m_NS.getShared();
+    std::unique_ptr<GLShareableObjectsAccessor> accessor  = ns().getShared();
     GLBufferObj* buff = accessor->get().m_Buffers.getOrCreateObject<void>(name);
     if (buff->getTarget() == 0) {
         throw std::runtime_error("Buffer target is unknown");
@@ -1140,7 +1137,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
                 continue;
             }
 
-            GLTextureObj* tex = m_NS.getShared()->get().m_Textures.getObject(attmntName);
+            GLTextureObj* tex = ns().getShared()->get().m_Textures.getObject(attmntName);
             attTarget = tex->getTarget();
 
             GLenum bindableTarget =
@@ -1570,7 +1567,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryShader(gl_t _name) {
     std::shared_ptr<dglnet::DGLResource> ret(
             resource = new dglnet::resource::DGLResourceShader);
 
-    GLShaderObj* shader = m_NS.m_Shaders.getObject(name);
+    GLShaderObj* shader = ns().m_Shaders.getObject(name);
     if (!shader) {
         throw std::runtime_error("Shader does not exist");
     }
@@ -1594,7 +1591,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
     std::shared_ptr<dglnet::DGLResource> ret(
             resource = new dglnet::resource::DGLResourceProgram);
 
-    GLProgramObj* program = m_NS.m_Programs.getObject(name);
+    GLProgramObj* program = ns().m_Programs.getObject(name);
     if (!program) {
         throw std::runtime_error("Shader Program does not exist");
     }
@@ -3157,7 +3154,7 @@ void GLContext::firstUse() {
         DIRECT_CALL_CHK(glDebugMessageCallbackARB)(debugOutputCallback, NULL);
     }
 
-    m_TextureUnits.init();
+    shadow().getTexUnits().init();
 }
 
 bool GLContext::hasCapability(ContextCap cap) {
@@ -3239,9 +3236,5 @@ GLAuxContext* GLContext::getAuxContext() {
 }
 
 const DGLDisplayState* GLContext::getDisplay() const { return m_Display; }
-
-AllTextureUnits& GLContext::texUnits() {
-    return m_TextureUnits;
-}
 
 }    // namespace dglState

@@ -467,7 +467,7 @@ void DGLDebugController::doHandleRequest(
     ctx->startQuery();
 
     dglState::GLShaderObj* obj =
-            ctx->m_NS.m_Shaders.getObject(static_cast<GLuint>(request.m_ShaderId));
+            ctx->ns().m_Shaders.getObject(static_cast<GLuint>(request.m_ShaderId));
     if (!obj) {
         throw std::runtime_error("Shader does not exist");
     }
@@ -498,7 +498,7 @@ void DGLDebugController::doHandleRequest(
     ctx->startQuery();
 
     dglState::GLProgramObj* obj =
-            ctx->m_NS.m_Programs.getObject(static_cast<GLuint>(request.m_ProgramId));
+            ctx->ns().m_Programs.getObject(static_cast<GLuint>(request.m_ProgramId));
     if (!obj) {
         throw std::runtime_error("Program does not exist");
     }

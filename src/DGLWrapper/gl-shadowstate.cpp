@@ -17,6 +17,9 @@
 
 namespace dglState  {
 
-GLContextShadowState::GLContextShadowState() : m_CurrentProgram(0) {}
+GLContextShadowState::GLContextShadowState() : 
+    m_CurrentProgram(0),
+    m_InImmediateMode(false)
+    {}
 
 }

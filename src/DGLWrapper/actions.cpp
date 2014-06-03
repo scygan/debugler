@@ -861,7 +861,7 @@ void TextureAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& 
             call.getArgs()[1].get(names);
 
             for (GLsizei i = 0; i < n; i++) {
-                gc->m_NS.getShared()->get().m_Textures.getOrCreateObject<void>(names[i]);
+                gc->ns().getShared()->get().m_Textures.getOrCreateObject<void>(names[i]);
             }
         } else if (entrp == glDeleteTextures_Call ||
                    entrp == glDeleteTexturesEXT_Call) {
@@ -872,8 +872,8 @@ void TextureAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& 
             call.getArgs()[1].get(names);
 
             for (GLsizei i = 0; i < n; i++) {
-                gc->texUnits().unbindTexture(names[i]);
-                gc->m_NS.getShared()->get().m_Textures.deleteObject(names[i]);
+                gc->shadow().getTexUnits().unbindTexture(names[i]);
+                gc->ns().getShared()->get().m_Textures.deleteObject(names[i]);
             }
         } else if (entrp == glBindTexture_Call ||
                    entrp == glBindTextureEXT_Call) {
@@ -881,8 +881,8 @@ void TextureAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& 
             call.getArgs()[0].get(target);
             GLuint name;
             call.getArgs()[1].get(name);
-            gc->m_NS.getShared()->get().m_Textures.getOrCreateObject<void>(name)->setTarget(target);
-            gc->texUnits().bindTexture(target, name);
+            gc->ns().getShared()->get().m_Textures.getOrCreateObject<void>(name)->setTarget(target);
+            gc->shadow().getTexUnits().bindTexture(target, name);
         }
     }
     PrevPost(call, ret);
@@ -1008,7 +1008,7 @@ void TextureFormatAction::NoGLErrorPost(const CalledEntryPoint& call, const RetV
         GLuint textureName;
         if (glutils::getBoundTexture(glutils::textTargetToBindableTarget(target), textureName)) {
 
-            dglState::GLTextureObj* tex = gc->m_NS.getShared()->get().m_Textures.getOrCreateObject<void>(textureName);
+            dglState::GLTextureObj* tex = gc->ns().getShared()->get().m_Textures.getOrCreateObject<void>(textureName);
 
             tex->setTarget(target);
 
@@ -1048,7 +1048,7 @@ void BufferAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& r
             call.getArgs()[1].get(names);
 
             for (GLsizei i = 0; i < n; i++) {
-                gc->m_NS.getShared()->get().m_Buffers.getOrCreateObject<void>(names[i]);
+                gc->ns().getShared()->get().m_Buffers.getOrCreateObject<void>(names[i]);
             }
         } else if (entrp == glDeleteBuffers_Call ||
                    entrp == glDeleteBuffersARB_Call) {
@@ -1059,7 +1059,7 @@ void BufferAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& r
             call.getArgs()[1].get(names);
 
             for (GLsizei i = 0; i < n; i++) {
-                gc->m_NS.getShared()->get().m_Buffers.deleteObject(names[i]);
+                gc->ns().getShared()->get().m_Buffers.deleteObject(names[i]);
             }
         } else if (entrp == glBindBuffer_Call ||
                    entrp == glBindBufferARB_Call) {
@@ -1068,7 +1068,7 @@ void BufferAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& r
             GLuint name;
             call.getArgs()[1].get(name);
             if (name) {
-                gc->m_NS.getShared()->get().m_Buffers.getOrCreateObject<void>(name);
+                gc->ns().getShared()->get().m_Buffers.getOrCreateObject<void>(name);
             }
         }
     }
@@ -1099,7 +1099,7 @@ void ProgramAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& 
 
             ret.get(name);
 
-            gc->m_NS.m_Programs.getOrCreateObject(name, entrp == glCreateProgramObjectARB_Call);
+            gc->ns().m_Programs.getOrCreateObject(name, entrp == glCreateProgramObjectARB_Call);
 
         } else if (entrp == glDeleteProgram_Call ||
                    entrp == glDeleteObjectARB_Call) {
@@ -1107,10 +1107,10 @@ void ProgramAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& 
             call.getArgs()[0].get(name);
 
             dglState::GLProgramObj* program =
-                    gc->m_NS.m_Programs.getOrCreateObject(name, entrp == glDeleteObjectARB_Call);
+                    gc->ns().m_Programs.getOrCreateObject(name, entrp == glDeleteObjectARB_Call);
             program->markDeleted();
             if (program->mayDelete()) {
-                gc->m_NS.m_Programs.deleteObject(name);
+                gc->ns().m_Programs.deleteObject(name);
             }
 
         } else if (entrp == glUseProgram_Call ||
@@ -1118,26 +1118,26 @@ void ProgramAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& 
 
             call.getArgs()[0].get(name);
 
-            GLuint lastProgram = gc->GetShadow().m_CurrentProgram;
+            GLuint lastProgram = gc->shadow().m_CurrentProgram;
 
             if (lastProgram != 0 && lastProgram != name) {
 
                 // we may delete last program, if marked for deletion
 
                 dglState::GLProgramObj* currentProgram =
-                        gc->m_NS.m_Programs.getOrCreateObject(lastProgram,
+                        gc->ns().m_Programs.getOrCreateObject(lastProgram,
                                           entrp == glUseProgramObjectARB_Call);
 
                 currentProgram->setInUse(false);
                 if (currentProgram->mayDelete()) {
-                    gc->m_NS.m_Programs.deleteObject(lastProgram);
+                    gc->ns().m_Programs.deleteObject(lastProgram);
                 }
             }
 
-            gc->GetShadow().m_CurrentProgram = name;
+            gc->shadow().m_CurrentProgram = name;
 
             if (name != 0) {
-                gc->m_NS.m_Programs.getOrCreateObject(name, entrp == glUseProgramObjectARB_Call)
+                gc->ns().m_Programs.getOrCreateObject(name, entrp == glUseProgramObjectARB_Call)
                         ->setInUse(true);
             }
         } else if (entrp == glLinkProgram_Call) {
@@ -1199,7 +1199,7 @@ void ShaderAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& r
             GLenum target;
             call.getArgs()[0].get(target);
 
-            gc->m_NS.m_Shaders.getOrCreateObject(name, dglState::GLShaderObj::GLShaderObjCreateData(&gc->m_NS, entrp == glCreateShaderObjectARB_Call))
+            gc->ns().m_Shaders.getOrCreateObject(name, dglState::GLShaderObj::GLShaderObjCreateData(&gc->ns(), entrp == glCreateShaderObjectARB_Call))
                     ->createCalled(target);
 
         } else if (entrp == glDeleteShader_Call ||
@@ -1208,7 +1208,7 @@ void ShaderAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& r
             call.getArgs()[0].get(name);
 
             dglState::GLShaderObj* shader =
-                    gc->m_NS.m_Shaders.getOrCreateObject(name, dglState::GLShaderObj::GLShaderObjCreateData(&gc->m_NS, entrp == glDeleteObjectARB_Call));
+                    gc->ns().m_Shaders.getOrCreateObject(name, dglState::GLShaderObj::GLShaderObjCreateData(&gc->ns(), entrp == glDeleteObjectARB_Call));
 
             shader->deleteCalled();
 
@@ -1218,7 +1218,7 @@ void ShaderAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& r
             call.getArgs()[0].get(name);
 
             dglState::GLShaderObj* shader =
-                    gc->m_NS.m_Shaders.getOrCreateObject(name, dglState::GLShaderObj::GLShaderObjCreateData(&gc->m_NS, entrp == glCompileShaderARB_Call));
+                    gc->ns().m_Shaders.getOrCreateObject(name, dglState::GLShaderObj::GLShaderObjCreateData(&gc->ns(), entrp == glCompileShaderARB_Call));
             GLint compileStatus = shader->queryCompilationStatus();
 
             if (compileStatus != GL_TRUE) {
@@ -1231,9 +1231,9 @@ void ShaderAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& r
             GLuint prog, shad;
             call.getArgs()[0].get(prog);
             call.getArgs()[1].get(shad);
-            gc->m_NS.m_Programs.getOrCreateObject(prog, entrp == glAttachObjectARB_Call)
-                    ->attachShader(gc->m_NS.m_Shaders.getOrCreateObject(
-                              shad, dglState::GLShaderObj::GLShaderObjCreateData(&gc->m_NS, entrp == glAttachObjectARB_Call)));
+            gc->ns().m_Programs.getOrCreateObject(prog, entrp == glAttachObjectARB_Call)
+                    ->attachShader(gc->ns().m_Shaders.getOrCreateObject(
+                              shad, dglState::GLShaderObj::GLShaderObjCreateData(&gc->ns(), entrp == glAttachObjectARB_Call)));
 
         } else if (entrp == glDetachShader_Call ||
                    entrp == glDetachObjectARB_Call) {
@@ -1241,16 +1241,16 @@ void ShaderAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& r
             GLuint prog, shad;
             call.getArgs()[0].get(prog);
             call.getArgs()[1].get(shad);
-            gc->m_NS.m_Programs.getOrCreateObject(prog, entrp == glDetachObjectARB_Call)
-                    ->detachShader(gc->m_NS.m_Shaders.getOrCreateObject(
-                              shad, dglState::GLShaderObj::GLShaderObjCreateData(&gc->m_NS, entrp == glAttachObjectARB_Call)));
+            gc->ns().m_Programs.getOrCreateObject(prog, entrp == glDetachObjectARB_Call)
+                    ->detachShader(gc->ns().m_Shaders.getOrCreateObject(
+                              shad, dglState::GLShaderObj::GLShaderObjCreateData(&gc->ns(), entrp == glAttachObjectARB_Call)));
 
         } else if (entrp == glShaderSourceARB_Call ||
                    entrp == glShaderSource_Call) {
 
             GLuint shad;
             call.getArgs()[0].get(shad);
-            gc->m_NS.m_Shaders.getOrCreateObject(shad, dglState::GLShaderObj::GLShaderObjCreateData(&gc->m_NS, entrp == glShaderSourceARB_Call))
+            gc->ns().m_Shaders.getOrCreateObject(shad, dglState::GLShaderObj::GLShaderObjCreateData(&gc->ns(), entrp == glShaderSourceARB_Call))
                     ->shaderSourceCalled();
         }
     }
@@ -1270,10 +1270,10 @@ void ImmediateModeAction::NoGLErrorPost(const CalledEntryPoint& call,
     if (gc) {
         switch (call.getEntrypoint()) {
             case glBegin_Call:
-                gc->setImmediateMode(true);
+                gc->shadow().setImmediateMode(true);
                 break;
             case glEnd_Call:
-                gc->setImmediateMode(false);
+                gc->shadow().setImmediateMode(false);
                 break;
         }
     }
@@ -1305,7 +1305,7 @@ void FBOAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& ret)
             call.getArgs()[1].get(names);
 
             for (GLsizei i = 0; i < n; i++) {
-                gc->m_NS.m_FBOs.getOrCreateObject<void>(names[i]);
+                gc->ns().m_FBOs.getOrCreateObject<void>(names[i]);
             }
         } else if (entrp == glDeleteFramebuffers_Call ||
                    entrp == glDeleteFramebuffersEXT_Call) {
@@ -1316,7 +1316,7 @@ void FBOAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& ret)
             call.getArgs()[1].get(names);
 
             for (GLsizei i = 0; i < n; i++) {
-                gc->m_NS.m_FBOs.deleteObject(names[i]);
+                gc->ns().m_FBOs.deleteObject(names[i]);
             }
         } else if (entrp == glBindFramebuffer_Call ||
                    entrp == glBindFramebufferEXT_Call) {
@@ -1325,7 +1325,7 @@ void FBOAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& ret)
             GLuint name;
             call.getArgs()[1].get(name);
             if (name) {
-                gc->m_NS.m_FBOs.getOrCreateObject<void>(name);
+                gc->ns().m_FBOs.getOrCreateObject<void>(name);
             }
         }
     }
@@ -1357,7 +1357,7 @@ void RenderbufferAction::NoGLErrorPost(const CalledEntryPoint& call, const RetVa
                 call.getArgs()[1].get(names);
 
                 for (GLsizei i = 0; i < n; i++) {
-                    gc->m_NS.m_Renderbuffers.getOrCreateObject<void>(names[i]);
+                    gc->ns().m_Renderbuffers.getOrCreateObject<void>(names[i]);
                 }
         } else if (entrp == glDeleteRenderbuffers_Call ||
                    entrp == glDeleteRenderbuffersEXT_Call) {
@@ -1368,7 +1368,7 @@ void RenderbufferAction::NoGLErrorPost(const CalledEntryPoint& call, const RetVa
                 call.getArgs()[1].get(names);
 
                 for (GLsizei i = 0; i < n; i++) {
-                    gc->m_NS.m_Renderbuffers.deleteObject(names[i]);
+                    gc->ns().m_Renderbuffers.deleteObject(names[i]);
                 }
         } else if (entrp == glBindRenderbuffer_Call ||
                    entrp == glBindRenderbufferEXT_Call) {
@@ -1377,7 +1377,7 @@ void RenderbufferAction::NoGLErrorPost(const CalledEntryPoint& call, const RetVa
                 GLuint name;
                 call.getArgs()[1].get(name);
                 if (name) {
-                    gc->m_NS.m_Renderbuffers.getOrCreateObject<void>(name);
+                    gc->ns().m_Renderbuffers.getOrCreateObject<void>(name);
                 }
         }
     }
