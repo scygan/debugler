@@ -154,10 +154,11 @@ public:
 
     void clear();
 
-    GLObjectNS<GLProgramObj>      m_Programs;
-    GLObjectNS<GLShaderObj>       m_Shaders;
-    GLObjectNS<GLFBObj>           m_FBOs;
-    GLObjectNS<GLRenderbufferObj> m_Renderbuffers;
+    GLObjectNS<GLProgramObj>         m_Programs;
+    GLObjectNS<GLProgramPipelineObj> m_ProgramPipelines;
+    GLObjectNS<GLShaderObj>          m_Shaders;
+    GLObjectNS<GLFBObj>              m_FBOs;
+    GLObjectNS<GLRenderbufferObj>    m_Renderbuffers;
 private:
     
     std::shared_ptr<GLShareableObjectNS> m_Shared;

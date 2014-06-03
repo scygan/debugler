@@ -171,6 +171,11 @@ class GLProgramObj : public GLObj {
     std::string m_EmbeddedSSOSource;
 };
 
+class GLProgramPipelineObj : public GLObj {
+public:
+    GLProgramPipelineObj(GLuint name): GLObj(name) {}
+};
+
 class GLFBObj : public GLObj {
    public:
     GLFBObj(GLuint name);

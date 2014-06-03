@@ -1182,6 +1182,54 @@ void ProgramAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& 
     PrevPost(call, ret);
 }
 
+void ProgramPipelineAction::Register(ActionManager& manager) {
+    std::shared_ptr<ProgramPipelineAction> obj
+        = std::make_shared<ProgramPipelineAction>();
+
+    //TODO: add suffixes, enable
+
+    //manager.RegisterAction(glGenProgramPipelines_Call, obj);
+
+    //manager.RegisterAction(glBindProgramPipeline_Call, obj);
+    //manager.RegisterAction(glDeleteProgramPipelines_Call, obj);
+}
+
+void ProgramPipelineAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& ret) {
+    Entrypoint entrp = call.getEntrypoint();
+
+    if (gc) {
+       
+        if (entrp == glGenProgramPipelines_Call) {
+            GLuint name;
+
+            GLsizei n = 0;
+            call.getArgs()[0].get(n);
+
+            GLuint* names;
+            call.getArgs()[1].get(names);
+
+            for (GLsizei i = 0; i < n; i++) {
+                gc->ns().m_ProgramPipelines.getOrCreateObject<void>(names[i]);
+            }
+        } else if (entrp == glDeleteProgramPipelines_Call) {
+            GLsizei n = 0;
+            call.getArgs()[0].get(n);
+
+            const GLuint* names;
+            call.getArgs()[1].get(names);
+
+            for (GLsizei i = 0; i < n; i++) {
+                gc->ns().m_ProgramPipelines.deleteObject(names[i]);
+            }
+        } else if (entrp == glBindProgramPipeline_Call) {
+            GLuint name;
+            call.getArgs()[0].get(name);
+            gc->ns().m_ProgramPipelines.getOrCreateObject<void>(name);
+        }
+    }
+    PrevPost(call, ret);
+}
+
 void ShaderAction::Register(ActionManager& manager) {
     std::shared_ptr<ShaderAction> obj
         = std::make_shared<ShaderAction>();

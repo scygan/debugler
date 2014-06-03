@@ -137,6 +137,13 @@ private:
     virtual void NoGLErrorPost(const CalledEntryPoint&, const RetValue& ret);
 };
 
+class ProgramPipelineAction : public ErrorAwareGLAction {
+public:
+    static void Register(ActionManager& mgr);
+private:
+    virtual void NoGLErrorPost(const CalledEntryPoint&, const RetValue& ret);
+};
+
 class ShaderAction : public ErrorAwareGLAction {
 public:
     static void Register(ActionManager& mgr);

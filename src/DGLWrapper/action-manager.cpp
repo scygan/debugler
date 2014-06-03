@@ -57,6 +57,7 @@ ActionManager::ActionManager() {
     actions::FBOAction::Register(*this);
     actions::RenderbufferAction::Register(*this);
     actions::ProgramAction::Register(*this);
+    actions::ProgramPipelineAction::Register(*this);
     actions::ShaderAction::Register(*this);
 
     //debug output functionality tracing
