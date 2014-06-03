@@ -147,7 +147,7 @@ class GLProgramObj : public GLObj {
     GLProgramObj(GLuint name, bool arbApi);
     GLProgramObj() {}
     ~GLProgramObj();
-    void use(bool inUse);
+    void setInUse(bool inUse);
     bool mayDelete();
     void markDeleted();
     void attachShader(GLShaderObj*);

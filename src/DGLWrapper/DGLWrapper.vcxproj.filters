@@ -92,6 +92,9 @@
     <ClInclude Include="gl-object-namespace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gl-shadowstate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -158,6 +161,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gl-object-namespace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gl-shadowstate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

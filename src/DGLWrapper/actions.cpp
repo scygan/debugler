@@ -1118,30 +1118,27 @@ void ProgramAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& 
 
             call.getArgs()[0].get(name);
 
-            GLuint currentProgramName;
-            {
-                GLint i;
-                DIRECT_CALL(glGetIntegerv)(GL_CURRENT_PROGRAM, &i);
-                currentProgramName = static_cast<GLuint>(i);
-            }
+            GLuint lastProgram = gc->GetShadow().m_CurrentProgram;
 
-            if (currentProgramName != name) {
+            if (lastProgram != 0 && lastProgram != name) {
 
                 // we may delete last program, if marked for deletion
 
                 dglState::GLProgramObj* currentProgram =
-                        gc->m_NS.m_Programs.getOrCreateObject(currentProgramName,
+                        gc->m_NS.m_Programs.getOrCreateObject(lastProgram,
                                           entrp == glUseProgramObjectARB_Call);
 
-                currentProgram->use(false);
+                currentProgram->setInUse(false);
                 if (currentProgram->mayDelete()) {
-                    gc->m_NS.m_Programs.deleteObject(currentProgramName);
+                    gc->m_NS.m_Programs.deleteObject(lastProgram);
                 }
             }
 
+            gc->GetShadow().m_CurrentProgram = name;
+
             if (name != 0) {
                 gc->m_NS.m_Programs.getOrCreateObject(name, entrp == glUseProgramObjectARB_Call)
-                        ->use(true);
+                        ->setInUse(true);
             }
         } else if (entrp == glLinkProgram_Call) {
 

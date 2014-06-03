@@ -16,6 +16,7 @@
 #ifndef GL_CONTEXT_H
 #define GL_CONTEXT_H
 
+#include "gl-shadowstate.h"
 #include "gl-objects.h"
 #include "gl-object-namespace.h"
 #include "gl-statesetters.h"
@@ -254,6 +255,12 @@ class GLContext {
      */
     AllTextureUnits& texUnits();
 
+    
+    /** 
+     * Getter for shadow state;
+     */
+    inline GLContextShadowState& GetShadow() { return m_ShadowState; }
+
    private:
     void queryCheckError();
 
@@ -392,6 +399,16 @@ class GLContext {
      * Shadow of all bound textures
      */
     AllTextureUnits m_TextureUnits;
+
+
+    /** 
+     * Shadowed state containter
+     * 
+     * All non-query-able state goes in here
+     */
+
+    GLContextShadowState m_ShadowState;
+
 };
 
 }    // namespace

@@ -139,7 +139,7 @@ GLProgramObj::~GLProgramObj() {
     }
 }
 
-void GLProgramObj::use(bool) { m_InUse = true; }
+void GLProgramObj::setInUse(bool inUse) { m_InUse = inUse; }
 
 bool GLProgramObj::mayDelete() { return !m_InUse && m_Deleted; }
 

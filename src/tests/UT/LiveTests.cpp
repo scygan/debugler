@@ -1199,6 +1199,11 @@ TEST_F(LiveTest, program_handling) {
     dglnet::message::ContinueBreak stepCall(
         dglnet::message::StepMode::CALL);
     client->sendMessage(&stepCall);
+    
+    breaked = utils::receiveUntilMessage<dglnet::message::BreakedCall>(
+        client.get(), getMessageHandler());
+
+    ASSERT_TRUE(breaked != NULL);
 
     ASSERT_EQ(2, breaked->m_CtxReports[0].m_ShaderSpace.size());
     ASSERT_EQ(1, breaked->m_CtxReports[0].m_ProgramSpace.size());
@@ -1260,6 +1265,9 @@ TEST_F(LiveTest, program_handling) {
         dglnet::message::ContinueBreak stepCall(
             dglnet::message::StepMode::CALL);
         client->sendMessage(&stepCall);
+        breaked =
+            utils::receiveUntilMessage<dglnet::message::BreakedCall>(
+            client.get(), getMessageHandler());
     }
 
     EXPECT_EQ(0, breaked->m_CtxReports[0].m_ShaderSpace.size());

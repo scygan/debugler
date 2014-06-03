@@ -2,6 +2,7 @@ set(dglwrapper_SOURCES
     api-loader.cpp
     debugger.cpp
     gl-context.cpp
+	gl-shadowstate.cpp
     gl-objects.cpp
 	gl-object-namespace.cpp
     gl-wrappers.cpp
