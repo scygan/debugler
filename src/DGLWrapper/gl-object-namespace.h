@@ -121,7 +121,7 @@ public:
     }
 
 private:
-    static const int kFastLookupSize = 100;
+    static const GLuint kFastLookupSize = 100;
 
     std::map<GLuint, ObjType> m_Objects;
     ObjType* m_ObjectsFastLookup[kFastLookupSize]; 
@@ -141,8 +141,8 @@ public:
 inline GLShareableObjectNS& get() { return *m_Namespaces; }
 
 private:
-    std::shared_ptr<GLShareableObjectNS> m_Namespaces;
     std::lock_guard<std::recursive_mutex> m_lock;
+    std::shared_ptr<GLShareableObjectNS> m_Namespaces;
 };
 
 class GLObjectNameSpaces {
@@ -150,7 +150,7 @@ public:
 
     GLObjectNameSpaces(); 
 
-    GLShareableObjectsAccessor getShared();
+    std::unique_ptr<GLShareableObjectsAccessor> getShared();
 
     void clear();
 

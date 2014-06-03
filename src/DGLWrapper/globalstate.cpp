@@ -46,18 +46,17 @@ void GlobalState::reset() {
 
 ActionManager& GlobalState::getActionManager() {
     return GetImpl()->m_ActionManager;
-};
+}
 
 APILoader& GlobalState::getApiLoader() {
     return GetImpl()->m_ApiLoader;
-};
+}
 
 DGLDebugController& GlobalState::getDebugController() {
     return GetImpl()->m_DebugController;
-};
+}
 
 DGLConfiguration& GlobalState::getConfiguration() {
     return GetImpl()->m_Configuration;
-};
-
+}
  

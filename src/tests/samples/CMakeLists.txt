@@ -8,6 +8,7 @@ set(samples_SOURCES
     platform_glfw.cpp sample.cpp
     glutil.cpp
     samples/shader_handling.cpp
+	samples/program_handling.cpp
     samples/simple.cpp
     samples/texture2d.cpp
     samples/texture3d.cpp

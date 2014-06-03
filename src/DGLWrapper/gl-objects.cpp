@@ -236,7 +236,7 @@ std::string GLShaderObj::queryCompilationInfoLog() const {
 
 std::string GLShaderObj::querySource() {
     std::vector<GLchar> sources;
-    GLint length;
+    GLint length = 0;
     if (m_arbApi) {
         DIRECT_CALL_CHK(glGetObjectParameterivARB)(
                 getName(), GL_OBJECT_SHADER_SOURCE_LENGTH_ARB, &length);

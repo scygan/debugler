@@ -191,8 +191,8 @@ GLContext::~GLContext() {
 
 dglnet::message::utils::ContextReport GLContext::describe() {
     dglnet::message::utils::ContextReport ret(m_Id);
-    ret.m_TextureSpace      = m_NS.getShared().get().m_Textures.getReport(m_Id);
-    ret.m_BufferSpace       = m_NS.getShared().get().m_Buffers.getReport(m_Id);
+    ret.m_TextureSpace      = m_NS.getShared()->get().m_Textures.getReport(m_Id);
+    ret.m_BufferSpace       = m_NS.getShared()->get().m_Buffers.getReport(m_Id);
     ret.m_ShaderSpace       = m_NS.m_Shaders.getReport(m_Id);
     ret.m_ProgramSpace      = m_NS.m_Programs.getReport(m_Id);
     ret.m_FBOSpace          = m_NS.m_FBOs.getReport(m_Id);
@@ -376,7 +376,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
     }
 
     // check if we know about a texture target
-    GLTextureObj* tex = m_NS.getShared().get().m_Textures.getObject(name);
+    GLTextureObj* tex = m_NS.getShared()->get().m_Textures.getObject(name);
     if (tex->getTarget() == 0) {
         throw std::runtime_error("Texture target is unknown");
     } else if (tex->getTarget() != GL_TEXTURE_1D &&
@@ -964,8 +964,8 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryBuffer(gl_t _name) {
     }
 
     // check if we know about a texture target
-    GLShareableObjectsAccessor accessor  = m_NS.getShared();
-    GLBufferObj* buff = accessor.get().m_Buffers.getOrCreateObject<void>(name);
+    std::unique_ptr<GLShareableObjectsAccessor> accessor  = m_NS.getShared();
+    GLBufferObj* buff = accessor->get().m_Buffers.getOrCreateObject<void>(name);
     if (buff->getTarget() == 0) {
         throw std::runtime_error("Buffer target is unknown");
     }
@@ -1140,7 +1140,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
                 continue;
             }
 
-            GLTextureObj* tex = m_NS.getShared().get().m_Textures.getObject(attmntName);
+            GLTextureObj* tex = m_NS.getShared()->get().m_Textures.getObject(attmntName);
             attTarget = tex->getTarget();
 
             GLenum bindableTarget =

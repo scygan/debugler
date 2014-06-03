@@ -861,7 +861,7 @@ void TextureAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& 
             call.getArgs()[1].get(names);
 
             for (GLsizei i = 0; i < n; i++) {
-                gc->m_NS.getShared().get().m_Textures.getOrCreateObject<void>(names[i]);
+                gc->m_NS.getShared()->get().m_Textures.getOrCreateObject<void>(names[i]);
             }
         } else if (entrp == glDeleteTextures_Call ||
                    entrp == glDeleteTexturesEXT_Call) {
@@ -873,7 +873,7 @@ void TextureAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& 
 
             for (GLsizei i = 0; i < n; i++) {
                 gc->texUnits().unbindTexture(names[i]);
-                gc->m_NS.getShared().get().m_Textures.deleteObject(names[i]);
+                gc->m_NS.getShared()->get().m_Textures.deleteObject(names[i]);
             }
         } else if (entrp == glBindTexture_Call ||
                    entrp == glBindTextureEXT_Call) {
@@ -881,7 +881,7 @@ void TextureAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& 
             call.getArgs()[0].get(target);
             GLuint name;
             call.getArgs()[1].get(name);
-            gc->m_NS.getShared().get().m_Textures.getOrCreateObject<void>(name)->setTarget(target);
+            gc->m_NS.getShared()->get().m_Textures.getOrCreateObject<void>(name)->setTarget(target);
             gc->texUnits().bindTexture(target, name);
         }
     }
@@ -1008,7 +1008,7 @@ void TextureFormatAction::NoGLErrorPost(const CalledEntryPoint& call, const RetV
         GLuint textureName;
         if (glutils::getBoundTexture(glutils::textTargetToBindableTarget(target), textureName)) {
 
-            dglState::GLTextureObj* tex = gc->m_NS.getShared().get().m_Textures.getOrCreateObject<void>(textureName);
+            dglState::GLTextureObj* tex = gc->m_NS.getShared()->get().m_Textures.getOrCreateObject<void>(textureName);
 
             tex->setTarget(target);
 
@@ -1048,7 +1048,7 @@ void BufferAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& r
             call.getArgs()[1].get(names);
 
             for (GLsizei i = 0; i < n; i++) {
-                gc->m_NS.getShared().get().m_Buffers.getOrCreateObject<void>(names[i]);
+                gc->m_NS.getShared()->get().m_Buffers.getOrCreateObject<void>(names[i]);
             }
         } else if (entrp == glDeleteBuffers_Call ||
                    entrp == glDeleteBuffersARB_Call) {
@@ -1059,7 +1059,7 @@ void BufferAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& r
             call.getArgs()[1].get(names);
 
             for (GLsizei i = 0; i < n; i++) {
-                gc->m_NS.getShared().get().m_Buffers.deleteObject(names[i]);
+                gc->m_NS.getShared()->get().m_Buffers.deleteObject(names[i]);
             }
         } else if (entrp == glBindBuffer_Call ||
                    entrp == glBindBufferARB_Call) {
@@ -1068,7 +1068,7 @@ void BufferAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& r
             GLuint name;
             call.getArgs()[1].get(name);
             if (name) {
-                gc->m_NS.getShared().get().m_Buffers.getOrCreateObject<void>(name);
+                gc->m_NS.getShared()->get().m_Buffers.getOrCreateObject<void>(name);
             }
         }
     }

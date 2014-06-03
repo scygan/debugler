@@ -22,8 +22,8 @@ GLShareableObjectsAccessor::GLShareableObjectsAccessor(GLObjectNameSpaces& ns):m
 
 GLObjectNameSpaces::GLObjectNameSpaces():m_Shared(std::make_shared<GLShareableObjectNS>()) {}
 
-GLShareableObjectsAccessor GLObjectNameSpaces::getShared() {
-    return GLShareableObjectsAccessor(*this);
+std::unique_ptr<GLShareableObjectsAccessor> GLObjectNameSpaces::getShared() {
+    return std::unique_ptr<GLShareableObjectsAccessor>(new GLShareableObjectsAccessor(*this));
 }
 
 void GLObjectNameSpaces::clear() {
