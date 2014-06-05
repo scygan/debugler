@@ -448,9 +448,6 @@
     <CustomBuild Include="dglblitterbase.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="resource.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="dglgui.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
@@ -615,5 +612,13 @@
     <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglrenderbufferviewitem.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icons\renderbuffer.png">
+      <Filter>Resource Files\qrc-sources\icons</Filter>
+    </Image>
+    <Image Include="icons\textureunit.png">
+      <Filter>Resource Files\qrc-sources\icons</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -90,7 +90,6 @@
     <ClInclude Include="ipc.h" />
     <ClInclude Include="native-surface.h" />
     <ClInclude Include="pointers.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="actions.h" />
     <ClInclude Include="tls.h" />
   </ItemGroup>
