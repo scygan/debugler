@@ -218,6 +218,7 @@ class GLContext {
         HasGetStringI,
         TextureGetters,
         GetBufferSubData,
+        GLSLShaders,
     };
 
     /**

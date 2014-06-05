@@ -1979,10 +1979,17 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryGPU() {
         NULL) {
         resource->m_Version = value;
     }
-    if ((value = (const char*)DIRECT_CALL_CHK(glGetString)(
-                 GL_SHADING_LANGUAGE_VERSION)) != NULL) {
-        resource->m_GLSL = value;
+
+    if (hasCapability(ContextCap::GLSLShaders)) {
+        if ((value = (const char*)DIRECT_CALL_CHK(glGetString)(
+            GL_SHADING_LANGUAGE_VERSION)) != NULL) {
+                resource->m_GLSL = value;
+        }
+    } else {
+        resource->m_GLSL = "<unavaliable>";
     }
+
+    
 
     if ((resource->m_hasNVXGPUMemoryInfo = m_HasNVXMemoryInfo) != false) {
         GLint val;
@@ -3222,6 +3229,10 @@ bool GLContext::hasCapability(ContextCap cap) {
         case ContextCap::GetBufferSubData:
             return version.check(GLContextVersion::Type::DT) ||
                    version.check(GLContextVersion::Type::ES, 3);
+
+        case ContextCap::GLSLShaders:
+            return version.check(GLContextVersion::Type::DT, 2) ||
+                version.check(GLContextVersion::Type::ES, 2);
 
         default:
             assert(0);
