@@ -13,7 +13,7 @@
       <AdditionalLibraryDirectories>$(AdditionalLibraryDirectories);$(SolutionDir)\build\$(Platform)\$(Configuration)\DGLNet;$(SolutionDir)\dump\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\build\$(Platform)\$(Configuration)\DGLCommon;$(SolutionDir)\build\$(Platform)\$(Configuration)\gtest;$(SolutionDir)\build\$(Platform)\$(Configuration)\DGLGUI;$(SolutionDir)\build\$(Platform)\$(Configuration)\libboost_program_options;$(SolutionDir)\build\$(Platform)\$(Configuration)\libboost_serialization;$(SolutionDir)\build\$(Platform)\$(Configuration)\libboost_system;$(SolutionDir)\build\$(Platform)\$(Configuration)\libboost_thread;$(SolutionDir)\build\$(Platform)\$(Configuration)\libboost_regexp;$(SolutionDir)\tools\build\vs\auxlibs\$(Platform);</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)\src\;$(SolutionDir)\src\\external\boost\;$(SolutionDir)\boost;$(SolutionDir)\src\external\;$(SolutionDir)\src\\external\gtest\include;$(SolutionDir)\dump\;$(SolutionDir)\dump\codegen\;$(SolutionDir)\src\glheaders;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\src\;$(SolutionDir)\src\\external\boost\;$(SolutionDir)\boost;$(SolutionDir)\src\external\;$(SolutionDir)\src\\external\gtest\include;$(SolutionDir)\dump\codegen\;$(SolutionDir)\src\glheaders;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>USE_MSVC;WIN32;BOOST_ALL_NO_LIB;_WIN32_WINNT=0x0501;QT_NO_OPENGL;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>

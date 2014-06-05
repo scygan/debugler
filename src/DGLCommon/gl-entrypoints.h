@@ -22,7 +22,7 @@
 #define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, retVal, params) \
     FUNC_LIST_ELEM_SUPPORTED(name, type, library, retVal, params)
 enum Entrypoints {
-#include <codegen/functionList.inl>
+#include <functionList.inl>
     Entrypoints_NUM
 };
 #undef FUNC_LIST_ELEM_SUPPORTED

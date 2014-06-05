@@ -29,7 +29,7 @@ typedef int (*FUNC_PTR)();
 
 #define ENUMGROUP_LIST_ELEMENT(name) name,
 enum class GLEnumGroup {
-#include <codegen/enum-groups.inl>
+#include <enum-groups.inl>
     None
 };
 #undef ENUMGROUP_LIST_ELEMENT

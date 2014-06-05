@@ -49,7 +49,7 @@ struct GLEntrypoint {
     ParamTypeMetadada m_RetValMetadata;
     GLEntrypoitParam params[18];
 } g_Entrypoints[] = {
-#include "codegen/functionList.inl"
+#include "functionList.inl"
     { "<unknown>", false, false, { GLParamTypeMetadata::BaseType::Value, GLEnumGroup::None}, {}}
 };
 #undef FUNC_LIST_ELEM_SUPPORTED

@@ -20,7 +20,7 @@
 #include "globalstate.h"
 #include "api-loader.h"
 
-#include "codegen/entrypTypedefs.inl"
+#include "entrypTypedefs.inl"
 
 // POINTER_TYPE(X) returns type of function pointer for entrypoint X. The actual
 // definitions are generated from codegen output
@@ -30,7 +30,7 @@
 #define FUNC_LIST_ELEM_SUPPORTED(name, type, library, retVal, params) \
     typedef type POINTER_TYPE(name);
 #define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, retVal, params)
-#include "codegen/functionList.inl"
+#include "functionList.inl"
 #undef FUNC_LIST_ELEM_SUPPORTED
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED
 
