@@ -1068,7 +1068,7 @@ void BufferAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& r
             GLuint name;
             call.getArgs()[1].get(name);
             if (name) {
-                gc->ns().getShared()->get().m_Buffers.getOrCreateObject<void>(name);
+                gc->ns().getShared()->get().m_Buffers.getOrCreateObject<void>(name)->setTarget(target);
             }
         }
     }
