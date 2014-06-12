@@ -2133,20 +2133,20 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
         //this points to location in returned resource.
         int loc = 0;
 
-#define STATE_BASE(SETTER, NAME, LENGTH)                                \
+#define STATE_BASE(SETTER, NAME, VALUE, LENGTH)                         \
         if (store) {                                                    \
-            SETTER(#NAME, NAME, LENGTH, &resource->m_Items[loc]);       \
+            SETTER(NAME, VALUE, LENGTH, &resource->m_Items[loc]);       \
         }                                                               \
         loc++;                                                          \
 
 
-#define STATE_INTEGERV(NAME, LENGTH)     STATE_BASE(getStateIntegerv,   NAME, LENGTH)
-#define STATE_INTEGER64V(NAME, LENGTH)   STATE_BASE(getStateInteger64v, NAME, LENGTH)
-#define STATE_INTEGERENUMV(NAME, LENGTH) STATE_BASE(getStateIntegerv,   NAME, LENGTH)
-#define STATE_FLOATV(NAME, LENGTH)       STATE_BASE(getStateFloatv,     NAME, LENGTH)
-#define STATE_DOUBLEV(NAME, LENGTH)      STATE_BASE(getStateDoublev,    NAME, LENGTH)
-#define STATE_BOOLEANV(NAME, LENGTH)     STATE_BASE(getStateBooleanv,   NAME, LENGTH)
-#define STATE_ISENABLED(NAME)            STATE_BASE(getStateIsEnabled,  NAME, 1)
+#define STATE_INTEGERV(NAME, LENGTH)     STATE_BASE(getStateIntegerv,   #NAME, NAME, LENGTH)
+#define STATE_INTEGER64V(NAME, LENGTH)   STATE_BASE(getStateInteger64v, #NAME, NAME, LENGTH)
+#define STATE_INTEGERENUMV(NAME, LENGTH) STATE_BASE(getStateIntegerv,   #NAME, NAME, LENGTH)
+#define STATE_FLOATV(NAME, LENGTH)       STATE_BASE(getStateFloatv,     #NAME, NAME, LENGTH)
+#define STATE_DOUBLEV(NAME, LENGTH)      STATE_BASE(getStateDoublev,    #NAME, NAME, LENGTH)
+#define STATE_BOOLEANV(NAME, LENGTH)     STATE_BASE(getStateBooleanv,   #NAME, NAME, LENGTH)
+#define STATE_ISENABLED(NAME)            STATE_BASE(getStateIsEnabled,  #NAME, NAME, 1)
 
 
     // Current Values and Associated Data                //Compat!
