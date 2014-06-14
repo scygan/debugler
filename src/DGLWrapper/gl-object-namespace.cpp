@@ -28,6 +28,7 @@ std::unique_ptr<GLShareableObjectsAccessor> GLObjectNameSpaces::getShared() {
 
 void GLObjectNameSpaces::clear() {
     m_Programs.clear();
+    m_ProgramPipelines.clear();
     m_Shaders.clear();
     m_FBOs.clear();
     m_Renderbuffers.clear();
