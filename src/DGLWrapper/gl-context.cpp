@@ -3188,7 +3188,7 @@ void GLContext::firstUse() {
     shadow().getTexUnits().init();
 }
 
-bool GLContext::hasCapability(ContextCap cap) {
+bool GLContext::hasCapability(ContextCap cap) const {
     GLContextVersion version = getVersion();
     switch (cap) {
         case ContextCap::PixelBufferObjects:
@@ -3216,13 +3216,16 @@ bool GLContext::hasCapability(ContextCap cap) {
                    version.check(GLContextVersion::Type::DT, 2);
 
         case ContextCap::TextureMultisample:
-            return version.check(GLContextVersion::Type::DT, 3, 2);
+            return version.check(GLContextVersion::Type::ES, 3, 1) || 
+                   version.check(GLContextVersion::Type::DT, 3, 2);
 
         case ContextCap::RenderBufferMultisample:
-            return version.check(GLContextVersion::Type::DT, 3);
+            return version.check(GLContextVersion::Type::ES, 3) ||
+                   version.check(GLContextVersion::Type::DT, 3);
 
         case ContextCap::TextureQueryStencilBits:
-            return version.check(GLContextVersion::Type::DT, 3);
+            return version.check(GLContextVersion::Type::ES, 3, 1) || 
+                   version.check(GLContextVersion::Type::DT, 3);
 
         case ContextCap::MultipleFramebufferAttachments:
             hasCapability(ContextCap::FramebufferObjects) &&
@@ -3246,10 +3249,10 @@ bool GLContext::hasCapability(ContextCap cap) {
             return version.check(GLContextVersion::Type::DT);
 
         case ContextCap::GetBufferSubData:
-            return version.check(GLContextVersion::Type::DT) ||
-                   version.check(GLContextVersion::Type::ES, 3);
+            return version.check(GLContextVersion::Type::DT);
 
         case ContextCap::GLSLShaders:
+        case ContextCap::GenericVertexAttribs:
             return version.check(GLContextVersion::Type::DT, 2) ||
                 version.check(GLContextVersion::Type::ES, 2);
 

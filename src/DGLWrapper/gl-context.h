@@ -219,12 +219,13 @@ class GLContext {
         TextureGetters,
         GetBufferSubData,
         GLSLShaders,
+        GenericVertexAttribs,
     };
 
     /**
      * Context capability check
      */
-    bool hasCapability(ContextCap);
+    bool hasCapability(ContextCap) const;
 
     /**
      * Getter for context creation data
