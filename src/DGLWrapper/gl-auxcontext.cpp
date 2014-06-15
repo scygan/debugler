@@ -390,22 +390,27 @@ const int GLAuxContext::GLQueries::BufferGetterChunkSize = 256;
 void GLAuxContext::GLQueries::setupInitialState() {
 
     if (m_InitialState) return;
-    DIRECT_CALL_CHK(glGenFramebuffers)(1, &fbo);
-    DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, fbo);
 
-    DIRECT_CALL_CHK(glGenTextures)(1, &rtt);
-    DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D, rtt);
-    DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-                                     GL_CLAMP_TO_EDGE);
-    DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-                                     GL_CLAMP_TO_EDGE);
-    DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                                     GL_NEAREST);
-    DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                                     GL_NEAREST);
-    DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D, 0);
-    DIRECT_CALL_CHK(glFramebufferTexture2D)(
+    if (m_AuxCtx->m_Parrent->hasCapability(GLContext::ContextCap::FramebufferObjects)) {
+
+        DIRECT_CALL_CHK(glGenFramebuffers)(1, &fbo);
+        DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, fbo);
+
+        DIRECT_CALL_CHK(glGenTextures)(1, &rtt);
+        DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D, rtt);
+        DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+            GL_CLAMP_TO_EDGE);
+        DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+            GL_CLAMP_TO_EDGE);
+        DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+            GL_NEAREST);
+        DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+            GL_NEAREST);
+        DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D, 0);
+        DIRECT_CALL_CHK(glFramebufferTexture2D)(
             GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, rtt, 0);
+
+    }
 
     if (m_AuxCtx->m_Parrent->getVersion().check(GLContextVersion::Type::ES,
                                                 3) ||
@@ -437,39 +442,44 @@ void GLAuxContext::GLQueries::setupInitialState() {
     DIRECT_CALL_CHK(glBufferSubData)(GL_ARRAY_BUFFER, sizeof(triangleStrip),
                                      sizeof(vertexPos), vertexPos);
 
-    DIRECT_CALL_CHK(glVertexAttribPointer)(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
-    DIRECT_CALL_CHK(glEnableVertexAttribArray)(0);
-    DIRECT_CALL_CHK(glVertexAttribPointer)(
+    if (m_AuxCtx->m_Parrent->hasCapability(GLContext::ContextCap::GenericVertexAttribs)) {
+
+        DIRECT_CALL_CHK(glVertexAttribPointer)(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
+        DIRECT_CALL_CHK(glEnableVertexAttribArray)(0);
+        DIRECT_CALL_CHK(glVertexAttribPointer)(
             1, 1, GL_FLOAT, GL_FALSE, 0,
             reinterpret_cast<GLvoid*>(sizeof(triangleStrip)));
-    DIRECT_CALL_CHK(glEnableVertexAttribArray)(1);
+        DIRECT_CALL_CHK(glEnableVertexAttribArray)(1);
 
-    {
-        std::string vshTex;
+    }
 
-        if (m_AuxCtx->m_Parrent->getVersion().check(GLContextVersion::Type::ES,
-                                                    3)) {
-            vshTex +=
-                    "#version 300 es\n"
-                    "in vec4 in_Position;\n"
-                    "out vec2 texPos;\n";
-        } else {
-            vshTex +=
+    if (m_AuxCtx->m_Parrent->hasCapability(GLContext::ContextCap::GLSLShaders)) {
+        {
+            std::string vshTex;
+
+            if (m_AuxCtx->m_Parrent->getVersion().check(GLContextVersion::Type::ES,
+                3)) {
+                    vshTex +=
+                        "#version 300 es\n"
+                        "in vec4 in_Position;\n"
+                        "out vec2 texPos;\n";
+            } else {
+                vshTex +=
                     "attribute vec4 in_Position;\n"
                     "varying vec2 texPos;\n";
-        }
-        vshTex +=
+            }
+            vshTex +=
                 "void main() {\n"
                 "   gl_Position = in_Position;\n"
                 "   texPos = in_Position.xy * 0.5 + 0.5;\n"
                 "}\n";
 
-        vshobjTexture = compileShader(GL_VERTEX_SHADER, vshTex.c_str());
-    }
+            vshobjTexture = compileShader(GL_VERTEX_SHADER, vshTex.c_str());
+        }
 
-    programGetBuffer = DIRECT_CALL_CHK(glCreateProgram)();
-    {
-        const char* vsh =
+        programGetBuffer = DIRECT_CALL_CHK(glCreateProgram)();
+        {
+            const char* vsh =
                 "attribute float in_VertexId;\n"
                 "attribute vec4 in_BufferData;\n"
                 "varying vec4 out_Color;\n"
@@ -479,7 +489,7 @@ void GLAuxContext::GLQueries::setupInitialState() {
                 "   out_Color = in_BufferData;\n"
                 "}\n";
 
-        const char* fsh =
+            const char* fsh =
                 "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
                 "precision highp float;           \n"
                 "#else                            \n"
@@ -490,23 +500,24 @@ void GLAuxContext::GLQueries::setupInitialState() {
                 " gl_FragColor = out_Color;\n"
                 "}\n";
 
-        GLuint vshObj = compileShader(GL_VERTEX_SHADER, vsh);
-        DIRECT_CALL_CHK(glAttachShader)(programGetBuffer, vshObj);
-        DIRECT_CALL_CHK(glDeleteShader)(vshObj);
-        GLuint fshObj = compileShader(GL_FRAGMENT_SHADER, fsh);
-        DIRECT_CALL_CHK(glAttachShader)(programGetBuffer, fshObj);
-        DIRECT_CALL_CHK(glDeleteShader)(fshObj);
+            GLuint vshObj = compileShader(GL_VERTEX_SHADER, vsh);
+            DIRECT_CALL_CHK(glAttachShader)(programGetBuffer, vshObj);
+            DIRECT_CALL_CHK(glDeleteShader)(vshObj);
+            GLuint fshObj = compileShader(GL_FRAGMENT_SHADER, fsh);
+            DIRECT_CALL_CHK(glAttachShader)(programGetBuffer, fshObj);
+            DIRECT_CALL_CHK(glDeleteShader)(fshObj);
 
-        DIRECT_CALL_CHK(glBindAttribLocation)(programGetBuffer, 1,
-                                              "in_VertexId");
-        DIRECT_CALL_CHK(glBindAttribLocation)(programGetBuffer, 2,
-                                              "in_BufferData");
+            DIRECT_CALL_CHK(glBindAttribLocation)(programGetBuffer, 1,
+                "in_VertexId");
+            DIRECT_CALL_CHK(glBindAttribLocation)(programGetBuffer, 2,
+                "in_BufferData");
 
-        linkProgram(programGetBuffer);
-    }
+            linkProgram(programGetBuffer);
+        }
 
-    if (DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR) {
-        throw std::runtime_error("Got GL error on auxiliary context");
+        if (DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR) {
+            throw std::runtime_error("Got GL error on auxiliary context");
+        }
     }
 
     m_InitialState = true;
