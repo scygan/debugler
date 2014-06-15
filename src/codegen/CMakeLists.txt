@@ -11,7 +11,6 @@ set(codegen_GENERATED
     ${codegen_out}/entrypointEnumList.inl
     ${codegen_out}/enum.inl
     ${codegen_out}/enum-groups.inl
-    ${codegen_in}/GL/glx.h
     ${codegen_out}/GL/glx.h
     ${codegen_out}/GL/glxext.h
     ${codegen_out}/GL/wgl.h
