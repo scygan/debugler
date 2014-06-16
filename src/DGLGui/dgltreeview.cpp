@@ -88,6 +88,26 @@ class DGLTextureWidget : public QClickableTreeWidgetItem {
     dglnet::ContextObjectName m_name;
 };
 
+class DGLProgramPipelineWidget : public QClickableTreeWidgetItem {
+public:
+    DGLProgramPipelineWidget() {}
+
+    DGLProgramPipelineWidget(dglnet::ContextObjectName name, QString iconPath)
+        : m_name(name) {
+            setText(0, QString("Program ") + QString::number(name.m_Name));
+            setIcon(0, QIcon(iconPath));
+    }
+
+    virtual void handleDoubleClick(DglController* controller) {
+        controller->getViewRouter()->show(
+            m_name, dglnet::message::ObjectType::Texture);
+    }
+
+private:
+    dglnet::ContextObjectName m_name;
+};
+
+
 class DGLBufferWidget : public QClickableTreeWidgetItem {
    public:
     DGLBufferWidget() {}
@@ -211,8 +231,12 @@ class DGLObjectNodeWidgetBase : public QClickableTreeWidgetItem {
    public:
     DGLObjectNodeWidgetBase(opaque_id_t ctxId, QString header, QString iconPath)
             : m_CtxId(ctxId), m_IconPath(iconPath) {
-        setText(0, header);
+        setHeader(header);
         setIcon(0, QIcon(iconPath));
+    }
+
+    void setHeader(QString header) {
+        setText(0, header);
     }
     
    protected:
@@ -292,6 +316,58 @@ public:
     QString m_ChildHeader;
 };
 
+
+template <typename ObjType>
+class DGLAggregateObjectNodeWidget : public DGLObjectNodeWidgetBase<ObjType> {
+public:
+    DGLAggregateObjectNodeWidget(opaque_id_t ctxId, QString header, QString childHeader, QString iconPath)
+        : DGLObjectNodeWidgetBase<ObjType>(ctxId, header, iconPath), m_ChildHeader(childHeader) {}
+
+    template<typename T1, typename T2>
+    void update(const std::set<std::pair<T1, std::set<T2> > >& elements) {
+
+        if (elements.size() != m_Childs.size()) {
+            //resising a vector rellloc all pointers, 
+            //so delete & create all object once again
+
+            //this happend no more than once per ctx.
+
+            for (size_t i = 0; i < m_Childs.size(); i++) {
+                this->removeChild(&m_Childs[i]);
+            }
+
+            m_Childs.resize(elements.size(), DGLObjectNodeWidget<ObjType>(DGLObjectNodeWidgetBase<ObjType>::m_CtxId, "", DGLObjectNodeWidgetBase<ObjType>::m_IconPath));
+
+            for (size_t i = 0; i < m_Childs.size(); i++) {
+                this->addChild(&m_Childs[i]);
+            }
+
+        }
+
+        assert(elements.size() == m_Childs.size());
+
+
+        int idx = 0;
+        for (std::set<std::pair<T1, std::set<T2> > >::iterator it = elements.begin(); it != elements.end(); it++) {
+
+            //it: pointer to (object name, set<objects>) pairs;
+
+            m_Childs[idx].setHeader(m_ChildHeader + QString::number(it->first.m_Name));
+
+            m_Childs[idx].update(it->second);
+
+            idx++;
+        }
+
+        for (size_t i = 0; i < elements.size(); i++) {
+            
+        }
+    }
+private:
+    std::vector<DGLObjectNodeWidget<ObjType> > m_Childs;
+    QString m_ChildHeader;
+};
+
 class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
    public:
     DGLCtxTreeWidget(opaque_id_t ctxId)
@@ -304,7 +380,8 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
               m_ProgramNode(ctxId, "Shader Programs", ":/icons/program.png"),
               m_FramebufferNode(ctxId, "Frame Buffers",
                                 ":/icons/framebuffer.png"),
-              m_TextureUnitNode(ctxId, "Texture units", "Unit ", ":/icons/textureunit.png")  {
+              m_TextureUnitNode(ctxId, "Texture units", "Unit ", ":/icons/textureunit.png"),
+              m_ProgramPipelineNode(ctxId, "Pipeline objects", "Program Pipeline ", ":/icons/program_pipeline.png")  {
         addChild(&m_TextureNode);
         addChild(&m_BufferNode);
         addChild(&m_FBONode);
@@ -313,6 +390,7 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
         addChild(&m_ProgramNode);
         addChild(&m_TextureUnitNode);
         addChild(&m_FramebufferNode);
+        //addChild(&m_ProgramPipelineNode);
         setIcon(0, QIcon(":/icons/context.png"));
     }
     opaque_id_t getId() { return m_Id; }
@@ -334,6 +412,7 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
         m_BufferNode.update(report.m_BufferSpace);
         m_FramebufferNode.update(report.m_FramebufferSpace);
         m_TextureUnitNode.update(report.m_TextureUnitSpace);
+        m_ProgramPipelineNode.update(report.m_ProgramPipelineSpace);
     }
 
    private:
@@ -346,6 +425,7 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
     DGLObjectNodeWidget<DGLProgramWidget> m_ProgramNode;
     DGLObjectNodeWidget<DGLFramebufferWidget> m_FramebufferNode;
     DGLIndexedObjectNodeWidget<DGLTextureWidget> m_TextureUnitNode;
+    DGLAggregateObjectNodeWidget<DGLProgramWidget> m_ProgramPipelineNode;
 };
 
 void DGLTreeView::breakedWithStateReports(

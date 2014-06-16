@@ -222,7 +222,26 @@ dglnet::message::utils::ContextReport GLContext::describe() {
 
     ret.m_TextureUnitSpace = shadow().getTexUnits().report(m_Id);
 
+    {
+        //first get report of all PPO names
+        std::set<dglnet::ContextObjectName> barePPOs = ns().m_ProgramPipelines.getReport(m_Id);
 
+        //for each reported name get PPO contents report
+        for (std::set<dglnet::ContextObjectName>::iterator it = barePPOs.begin();
+            it != barePPOs.end(); it++) {
+
+            GLProgramPipelineObj* ppo = ns().m_ProgramPipelines.getObject(static_cast<GLuint>(it->m_Name));
+
+            ret.m_ProgramPipelineSpace.insert(
+                std::pair<dglnet::ContextObjectName, std::set<dglnet::ContextObjectName> >(
+                    // PPO name:
+                    *it, 
+                    // PPO contents:
+                    ppo->getReport(m_Id)));
+        }
+
+    }
+    
     return ret;
 }
 

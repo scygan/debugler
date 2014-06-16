@@ -39,6 +39,7 @@ namespace dglnet {
                     ar& m_RenderbufferSpace;
                     ar& m_FramebufferSpace;
                     ar& m_TextureUnitSpace;
+                    ar& m_ProgramPipelineSpace;
                 }
 
                 ContextReport() : m_Id(0) {}
@@ -52,6 +53,7 @@ namespace dglnet {
                 std::set<ContextObjectName> m_RenderbufferSpace;
                 std::set<ContextObjectName> m_FramebufferSpace;
                 std::vector<std::set<ContextObjectName> > m_TextureUnitSpace;
+                std::set<std::pair<dglnet::ContextObjectName, std::set<dglnet::ContextObjectName> > > m_ProgramPipelineSpace;
             };
 
 

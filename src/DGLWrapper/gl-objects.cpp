@@ -310,6 +310,52 @@ void GLShaderObj::createCalled(GLenum target) {
     m_RefCount = 0;
 }
 
+
+std::set<dglnet::ContextObjectName> GLProgramPipelineObj::getReport(opaque_id_t ctxId) {
+    std::set<dglnet::ContextObjectName> ret; 
+
+    for (std::map<GLbitfield, GLuint>::iterator it = m_Programs.begin(); 
+        it != m_Programs.end(); 
+        it++) {
+
+
+        ret.insert(dglnet::ContextObjectName(ctxId, it->second, it->first));
+
+    }
+
+    return ret;
+}
+
+void GLProgramPipelineObj::useProgramStages(GLbitfield /*stages*/, GLuint /*program*/) {
+   
+    //TODO: need to rethink this part..
+    
+    /*
+    GLuint usedStages = stages;
+
+    GLProgramObj* programObj = nullptr; 
+
+
+    if (program != 0) {
+        programObj = m_Parrent.m_Programs.getOrCreateObject(program);
+        usedStages &= programObj->getLinkedInShadersMask();
+    }
+
+    for (GLbitfield i = 1; i < (1 << (sizeof(GLbitfield) * 8 - 1)); i << 1) {
+        GLuint stage = (usedStages & i);
+
+        if (programObj) {
+
+            //if it's new refcount it
+
+        } else {
+
+            //if it's not longer used unrefcount it.
+        }
+    }
+    */
+}
+
 GLFBObj::GLFBObj(GLuint name) : GLObj(name) {}
 
 GLRenderbufferObj::GLRenderbufferObj(GLuint name) : GLObj(name) {}

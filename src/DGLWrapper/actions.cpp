@@ -1186,11 +1186,12 @@ void ProgramPipelineAction::Register(ActionManager& manager) {
     std::shared_ptr<ProgramPipelineAction> obj
         = std::make_shared<ProgramPipelineAction>();
 
-    //TODO: add suffixes, enable
+    //TODO: add suffixes & enable
 
     //manager.RegisterAction(glGenProgramPipelines_Call, obj);
-
+    //
     //manager.RegisterAction(glBindProgramPipeline_Call, obj);
+    //manager.RegisterAction(glUseProgramStages_Call, obj);
     //manager.RegisterAction(glDeleteProgramPipelines_Call, obj);
 }
 
@@ -1223,6 +1224,17 @@ void ProgramPipelineAction::NoGLErrorPost(const CalledEntryPoint& call, const Re
             GLuint name;
             call.getArgs()[0].get(name);
             gc->ns().m_ProgramPipelines.getOrCreateObject<void>(name);
+        } else if (entrp == glUseProgramStages_Call) {
+            GLuint pipelineName;
+            GLbitfield stages;
+            GLuint program;
+
+            call.getArgs()[0].get(pipelineName);
+            call.getArgs()[1].get(stages);
+            call.getArgs()[2].get(program);
+
+            gc->ns().m_ProgramPipelines.getOrCreateObject<void>(pipelineName)->useProgramStages(stages, program);
+
         }
     }
     PrevPost(call, ret);

@@ -17,6 +17,7 @@
 #define GL_STATE_H
 
 #include <DGLCommon/gl-headers.h>
+#include <DGLNet/protocol/ctxobjname.h>
 
 #include <set>
 #include <map>
@@ -174,6 +175,13 @@ class GLProgramObj : public GLObj {
 class GLProgramPipelineObj : public GLObj {
 public:
     GLProgramPipelineObj(GLuint name): GLObj(name) {}
+
+    std::set<dglnet::ContextObjectName> getReport(opaque_id_t m_CtxId);
+
+    void useProgramStages(GLbitfield stages, GLuint program);
+
+private: 
+    std::map<GLbitfield, GLuint> m_Programs;
 };
 
 class GLFBObj : public GLObj {
