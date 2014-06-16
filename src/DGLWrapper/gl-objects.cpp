@@ -131,7 +131,7 @@ GLTextureObj::GLTextureLevel::GLTextureLevel(GLenum requestedInternalFormat,
 GLBufferObj::GLBufferObj(GLuint name) : GLObj(name) {}
 
 GLProgramObj::GLProgramObj(GLuint name, bool arbApi)
-        : GLObj(name), m_InUse(false), m_arbApi(arbApi) {}
+        : GLObj(name), m_InUse(false), m_Deleted(false), m_arbApi(arbApi) {}
 
 GLProgramObj::~GLProgramObj() {
     auto i = m_AttachedShaders.begin();
