@@ -1200,8 +1200,6 @@ void ProgramPipelineAction::NoGLErrorPost(const CalledEntryPoint& call, const Re
     if (gc) {
        
         if (entrp == glGenProgramPipelines_Call) {
-            GLuint name;
-
             GLsizei n = 0;
             call.getArgs()[0].get(n);
 
