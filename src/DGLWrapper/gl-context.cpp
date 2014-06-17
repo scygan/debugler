@@ -110,6 +110,12 @@ void GLContextVersion::initialize(const char* cVersion) {
         m_Type = Type::UNSUPPORTED;
     }
 
+    OS_DEBUG("Context version: %d.%d (SUPPORTED == %d, ES == %d)",
+        m_MajorVersion,
+        m_MinorVersion,
+        (int)(m_Type != Type::UNSUPPORTED), 
+        (int)(m_Type == Type::ES));
+
     m_Initialized = true;
 }
 
