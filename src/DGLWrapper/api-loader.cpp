@@ -21,7 +21,6 @@
 #include <vector>
 #include <stdexcept>
 #include <cstdlib>
-#include <cassert>
 
 #ifdef USE_DETOURS
 #include "detours/detours.h"
@@ -119,7 +118,7 @@ bool APILoader::loadExtPointer(Entrypoint entryp) {
                         GetEntryPointName(entryp)));
                 break;
             default:
-                assert(!"unknown glue library");
+                DGL_ASSERT(!"unknown glue library");
         }
         g_DirectPointers[entryp].ptr = ptr;
     }
@@ -144,7 +143,7 @@ std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
         case LIBRARY_WINGDI:            
             return "gdi32.dll";
         default:
-            assert(!"unknown library");
+            DGL_ASSERT(!"unknown library");
             throw std::runtime_error("Unknown GL library name");
     }
 }

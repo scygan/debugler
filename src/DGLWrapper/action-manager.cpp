@@ -37,7 +37,7 @@ ActionManager::ActionManager() {
     //GL get proc address tracing and handling
     actions::GetProcAddressAction::Register(*this);
 
-#ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
+#if DGL_HAVE_WA(ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID)
     // tracing of surfaces.
     //
     // Needed due to EGL_CONFIG_ID queried broken on one implementation.

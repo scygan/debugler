@@ -107,7 +107,7 @@ void DGLBlitterBase::doBlit() {
             outputFormat = _GL_RGBX32;
             break;
         default:
-            assert(0);
+            DGL_ASSERT(0);
     }
 
     int srcPixelSize = 0;

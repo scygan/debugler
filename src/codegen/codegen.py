@@ -536,7 +536,7 @@ for name, entrypoint in sorted(entrypoints.items()):
         print >> wrappersFile, cookie + " );"
     
         print >> wrappersFile, "    if (!cookie.retVal.isSet()) {"
-        print >> wrappersFile, "        assert(POINTER(" + name + "));"
+        print >> wrappersFile, "        DGL_ASSERT(POINTER(" + name + "));"
         if entrypoint.retType.name.lower() != "void":
             print >> wrappersFile, "        cookie.retVal = DIRECT_CALL(" + name + ")(" + listToString(paramCallList) + ");"
         else:

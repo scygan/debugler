@@ -28,8 +28,6 @@
 #include "api-loader.h"
 #include "display.h"
 
-#include <cassert>
-
 namespace dglState {
 
 NativeSurfaceBase::NativeSurfaceBase(opaque_id_t id) : m_Id(id) {}
@@ -77,14 +75,50 @@ int NativeSurfaceWGL::getHeight() {
     return rc.bottom - rc.top;
 }
 #endif
+
+
+#if DGL_HAVE_WA(ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID)
 NativeSurfaceEGL::NativeSurfaceEGL(const DGLDisplayState* dpy,
                                    opaque_id_t pixfmt, opaque_id_t id)
+#else
+NativeSurfaceEGL::NativeSurfaceEGL(const DGLDisplayState* dpy,
+                                   opaque_id_t id)
+#endif
         : NativeSurfaceBase(id), m_Dpy(dpy) {
     EGLBoolean ret = EGL_TRUE;
 
     EGLDisplay eglDpy = reinterpret_cast<EGLDisplay>(m_Dpy->getId());
-    EGLConfig config = reinterpret_cast<EGLConfig>(pixfmt);
 
+#if DGL_HAVE_WA(ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID)
+    EGLConfig config = reinterpret_cast<EGLConfig>(pixfmt);
+#else
+    EGLint configId; 
+    ret &= DIRECT_CALL_CHK(eglQuerySurface)(
+        eglDpy,                             // display  
+        reinterpret_cast<EGLSurface>(id),   // surface
+        EGL_CONFIG_ID,                      // parameter
+        &configId);
+
+    EGLint configIDAttribList[] = {
+        EGL_CONFIG_ID, configId,
+        EGL_NONE, EGL_NONE
+    };
+
+    EGLConfig config;
+    EGLint numConfigs;
+
+    ret &= DIRECT_CALL_CHK(eglChooseConfig)( 
+        eglDpy,                // display
+        configIDAttribList,    // queried attribute list (CONFIG_ID)
+        &config,               // retval
+        1,                     // size of retval array
+        &numConfigs);          // num returned configs
+
+    // This fails on some drivers, so
+    //ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID WA was introduced
+    ret &= (numConfigs == 1);
+
+#endif
     ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(eglDpy, config, EGL_RED_SIZE,
                                                &m_RGBASizes[0]);
     ret &= DIRECT_CALL_CHK(eglGetConfigAttrib)(eglDpy, config, EGL_GREEN_SIZE,
@@ -168,7 +202,7 @@ class XErrorHandler {
             if (s_oldErrorHandler) {
                 return s_oldErrorHandler(display, error);
             } else {
-                assert(0);
+                DGL_ASSERT(0);
             }
             return 0;
         }

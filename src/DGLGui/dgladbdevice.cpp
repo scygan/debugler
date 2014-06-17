@@ -315,7 +315,7 @@ void DGLADBDevice::reloadProcessesGotPortString(
                     m_PNameInSocketRegex = currentRegexGroup;
                     break;
                 default:
-                    assert(0);
+                    DGL_ASSERT(0);
             }
 
             i += 2;
@@ -440,7 +440,7 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
                     reloadProcessesGotUnixSockets(data);
                     break;
                 default:
-                    assert(0);
+                    DGL_ASSERT(0);
             }
             break;
         case RequestStatus::RELOAD_PACKAGES:
@@ -461,7 +461,7 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
                 emit gotPackages(this, data);
                 break;
             default:
-                assert(0);
+                DGL_ASSERT(0);
             }
             break;
         case RequestStatus::PORT_FORWARD:
@@ -611,7 +611,7 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
                     emit installerDone(this);
                     break;
                 default:
-                    assert(0);
+                    DGL_ASSERT(0);
             }
         }
     }

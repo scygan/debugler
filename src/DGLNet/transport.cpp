@@ -53,6 +53,8 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/local/stream_protocol.hpp>
 
+#include <DGLCommon/def.h>
+
 #include <sstream>
 
 namespace dglnet {
@@ -160,7 +162,7 @@ void Transport<proto>::onReadArchive(boost::asio::streambuf* stream,
         notifyDisconnect(ec);
     } else {
         std::istream iArchiveStream(stream);
-        assert(iArchiveStream.good());
+        DGL_ASSERT(iArchiveStream.good());
 
         Message* msg;
         {

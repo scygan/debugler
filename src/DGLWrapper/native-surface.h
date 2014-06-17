@@ -102,8 +102,12 @@ class NativeSurfaceEGL : public NativeSurfaceBase {
     /**
      * Ctor
      */
+#if DGL_HAVE_WA(ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID)
     NativeSurfaceEGL(const DGLDisplayState* dpy, opaque_id_t pixfmt,
                      opaque_id_t id);
+#else
+    NativeSurfaceEGL(const DGLDisplayState* dpy, opaque_id_t id);
+#endif
 
     virtual bool isDoubleBuffered();
     virtual bool isStereo();

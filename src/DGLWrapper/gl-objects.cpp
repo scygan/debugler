@@ -21,7 +21,6 @@
 #include <DGLCommon/def.h> 
 
 #include <sstream>
-#include <cassert>
 
 namespace dglState {
 
@@ -104,7 +103,7 @@ GLenum GLTextureObj::getTextureLevelTarget(int face) const {
                 GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
                 GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
                 GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z};
-        assert((size_t)face < sizeof(cubeMapFaces) / sizeof(cubeMapFaces[0]));
+        DGL_ASSERT((size_t)face < sizeof(cubeMapFaces) / sizeof(cubeMapFaces[0]));
         return cubeMapFaces[face];
     } else {
         return getTarget();
@@ -177,7 +176,7 @@ void GLProgramObj::forceLink() {
 
 void GLProgramObj::setEmbeddedSSOSource(GLsizei count, const char* const* strings) {
     
-    assert(m_AttachedShaders.size() == 0);
+    DGL_ASSERT(m_AttachedShaders.size() == 0);
 
     std::ostringstream sourceStr; 
 

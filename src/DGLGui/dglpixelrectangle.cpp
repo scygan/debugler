@@ -77,7 +77,7 @@ class DGLPixelRectangleBlitter : public DGLBlitterBase {
                 break;
             case _LAST:
             default:
-                assert(0);
+                DGL_ASSERT(0);
                 return;
         }
         m_Image = QImage(static_cast<uchar*>(data), width, height, qtFormat);

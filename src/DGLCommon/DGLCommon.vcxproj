@@ -62,6 +62,7 @@
     <ClInclude Include="os.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="version.h" />
+    <ClInclude Include="wa.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gl-entrypoints.cpp" />

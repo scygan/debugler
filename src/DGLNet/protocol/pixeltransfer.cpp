@@ -16,8 +16,8 @@
 #include "pixeltransfer.h"
 
 #include <stdexcept>
-#include <cassert>
 #include <stdint.h>
+#include <DGLCommon/def.h>
 #include <DGLCommon/os.h>
 
 
@@ -492,7 +492,7 @@ gl_t GLFormats::getBestColorRenderableFormatES(gl_t internalFormat, gl_t type, i
         renderableMask |=  RENDERABLE_ES3;
     }
 
-    assert(ret->colorRenderable & renderableMask);
+    DGL_ASSERT(ret->colorRenderable & renderableMask);
 
     const GLInternalFormat* inputInternalFormat = NULL; 
 
@@ -610,7 +610,7 @@ gl_t GLFormats::getBestColorRenderableFormatES(gl_t internalFormat, gl_t type, i
             }
         }
 
-        assert(ret->colorRenderable & renderableMask);
+        DGL_ASSERT(ret->colorRenderable & renderableMask);
 
     } else {
         OS_DEBUG("GLFormats::getBestRenderableFormat: cannot recognize input internalFormat %d", internalFormat);    

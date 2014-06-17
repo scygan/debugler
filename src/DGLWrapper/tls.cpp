@@ -26,9 +26,9 @@ void DGLThreadState::releaseAPI() { get()->resetAPI(); }
 
 DGLThreadState* DGLThreadState::get() {
 
-    static THREAD_LOCAL DGLThreadState ret;
+    static DGL_THREAD_LOCAL DGLThreadState ret;
 
-    static THREAD_LOCAL bool s_Initialized = false;
+    static DGL_THREAD_LOCAL bool s_Initialized = false;
     if (!s_Initialized) {
         ret.resetAPI();
         ret.privDebugger.m_ActionProcessing = false;

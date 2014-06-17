@@ -148,11 +148,11 @@ class DGLHLRuleBase {
     virtual void tryMatch(const QString& str, uint& pos, int& matchSize) = 0;
 
     const DGLHLTextCharFormat* getFormat() {
-        assert(m_format);
+        DGL_ASSERT(m_format);
         return m_format;
     }
     const DGLHLActionBase* getAction() {
-        assert(m_action.get());
+        DGL_ASSERT(m_action.get());
         return m_action.get();
     }
 
@@ -293,7 +293,7 @@ class DGLHLRuleDecimal : public DGLHLRuleBase {
    private:
     virtual void tryMatch(const QString& /*str*/, uint& /*pos*/,
                           int& /*matchSize*/) {
-        assert(!"not implemented");
+        DGL_ASSERT(!"not implemented");
     }
 };
 
@@ -491,7 +491,7 @@ void DGLHLActionStay::doAction(DGLSyntaxHighlighterGLSL::HLState& state) const {
 void DGLHLActionPop::doAction(DGLSyntaxHighlighterGLSL::HLState& state) const {
     for (int i = 0; i < m_counter; i++) {
         if (state.size() == 1) {
-            assert(!"DGLHLActionPop::doAction - stack underflow");
+            DGL_ASSERT(!"DGLHLActionPop::doAction - stack underflow");
             break;
         }
         state.pop();
@@ -612,7 +612,7 @@ class DGLHLData {
             if (!keywordsElement.isNull()) {
                 m_case_sensitive =
                         (generalElement.attribute("casesensitive", "1") == "1");
-                assert(m_case_sensitive);    // only case sensitive currently
+                DGL_ASSERT(m_case_sensitive);    // only case sensitive currently
                                              // implemented
             }
         }
@@ -623,7 +623,7 @@ class DGLHLData {
             if (m_defContextESSL) {
                 return m_defContextESSL;
             } else {
-                assert(0);
+                DGL_ASSERT(0);
             }
         }
         return m_defContextGLSL;
@@ -790,8 +790,8 @@ void DGLSyntaxHighlighterGLSL::highlightBlock(const QString& text) {
         }
 
         if (res.size) {
-            assert(res.action);
-            assert(res.format);
+            DGL_ASSERT(res.action);
+            DGL_ASSERT(res.format);
             // format all matched text with rule-dependent fotmat
             setFormat(pos + res.pos, res.size, res.format->getFormat());
         }
@@ -818,7 +818,7 @@ void DGLSyntaxHighlighterGLSL::highlightBlock(const QString& text) {
         m_hlStateByIdx.push_back(&i.first->first);
 
         // new state should have always last idx
-        assert(m_hlStateByIdx.size() - 1 ==
+        DGL_ASSERT(m_hlStateByIdx.size() - 1 ==
                static_cast<size_t>(i.first->second));
     }
 

@@ -207,7 +207,7 @@ RetValue GetProcAddressAction::Pre(const CalledEntryPoint& call) {
     return ret;
 }
 
-#ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
+#if DGL_HAVE_WA(ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID)
 
 void SurfaceAction::Register(ActionManager& manager) {
     std::shared_ptr<SurfaceAction> obj
@@ -604,7 +604,7 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
                 dglState::NativeSurfaceBase* readSurface = NULL;
                 if (eglReadSurface) {
-#ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
+#if DGL_HAVE_WA(ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID)
                     readSurface =
                             DGLDisplayState::get((opaque_id_t)eglDpy,
                                                  DGLDisplayState::Type::EGL)
@@ -614,13 +614,13 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                     readSurface =
                             DGLDisplayState::get((opaque_id_t)eglDpy,
                                                  DGLDisplayState::Type::EGL)
-                                    ->ensureSurface((opaque_id_t)eglReadSurface)
+                                    ->ensureSurface<dglState::NativeSurfaceEGL>((opaque_id_t)eglReadSurface)
                                     ->second.get();
 #endif
                 }
                 dglState::NativeSurfaceBase* drawSurface = NULL;
                 if (eglDrawSurface) {
-#ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
+#if DGL_HAVE_WA(ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID)
                     drawSurface =
                             DGLDisplayState::get((opaque_id_t)eglDpy,
                                                  DGLDisplayState::Type::EGL)
@@ -630,7 +630,7 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                     drawSurface =
                             DGLDisplayState::get((opaque_id_t)eglDpy,
                                                  DGLDisplayState::Type::EGL)
-                                    ->ensureSurface((opaque_id_t)eglDrawSurface)
+                                    ->ensureSurface<dglState::NativeSurfaceEGL>((opaque_id_t)eglDrawSurface)
                                     ->second.get();
 #endif
                 }
@@ -705,7 +705,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
             call.getArgs()[2].get(attribList);
             break;
         default:
-            assert(0);
+            DGL_ASSERT(0);
     }
 
     std::vector<int> newAttribList;
@@ -777,7 +777,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
             call.getArgs()[3].get(direct);
             config = *dglState::NativeSurfaceGLX::getFbConfigForVisual(
                               dpy, vis->visualid, &memToFree);
-            assert(config);
+            DGL_ASSERT(config);
             break;
         case glXCreateNewContext_Call:
             call.getArgs()[0].get(dpy);
@@ -794,7 +794,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
             call.getArgs()[4].get(attribList);
             break;
         default:
-            assert(0);
+            DGL_ASSERT(0);
     }
 
     std::vector<int> newAttribList;
@@ -1488,7 +1488,7 @@ RetValue DebugOutputCallback::Pre(const CalledEntryPoint& call) {
             DIRECT_CALL_CHK(glDebugMessageCallbackARB)(
                     dglState::GLContext::debugOutputCallback, userParam);
         } else {
-            assert(0);
+            DGL_ASSERT(0);
         }
 
         return RetValue::getVoidAlreadySet();

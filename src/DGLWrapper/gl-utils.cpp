@@ -19,8 +19,7 @@
 #include "api-loader.h"
 
 #include <DGLNet/protocol/pixeltransfer.h>
-
-#include <cassert>
+#include <DGLCommon/def.h>
 
 #include <stdexcept>
 
@@ -56,7 +55,7 @@ MSAADownSampler::MSAADownSampler(dglState::GLContext* context, GLenum attTarget,
         GLuint lastTexture;
         if (!getBoundTexture(GL_TEXTURE_2D, lastTexture)) {
             //should not happen for 2D textures
-            assert(0);
+            DGL_ASSERT(0);
         }
 
         DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D, m_DownsampledResource);
@@ -74,7 +73,7 @@ MSAADownSampler::MSAADownSampler(dglState::GLContext* context, GLenum attTarget,
         GLuint lastTexture;
         if (!getBoundTexture(GL_TEXTURE_2D_ARRAY, lastTexture)) {
             //should not happen for 2D_ARRAY texture
-            assert(0);
+            DGL_ASSERT(0);
         }
 
         DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D_ARRAY,
@@ -107,7 +106,7 @@ MSAADownSampler::MSAADownSampler(dglState::GLContext* context, GLenum attTarget,
         DIRECT_CALL_CHK(glFramebufferTextureLayer)(GL_DRAW_FRAMEBUFFER, att,
                                                    m_DownsampledResource, 0, 0);
     } else {
-        assert(0);
+        DGL_ASSERT(0);
     }
 
     GLint blitMask = 0;
@@ -173,7 +172,7 @@ GLenum textTargetToBindableTarget(GLenum target) {
 }
 
 bool getBoundTexture(GLenum target, GLuint& name) {
-#ifdef WA_ARM_MALI_EMU_GETTERS_OVERFLOW
+#if DGL_HAVE_WA(ARM_MALI_EMU_GETTERS_OVERFLOW)
     // WA for buggy ARM Mali OpenGL ES 3.0 emulator, where to really much data
     // is returned from glGetIntegerv
     // It was measured that bug is causing to overwrite 192*4 bytes of memory.
@@ -224,7 +223,7 @@ bool getBoundTexture(GLenum target, GLuint& name) {
             DIRECT_CALL_CHK(glGetIntegerv)(GL_TEXTURE_BINDING_EXTERNAL_OES,
                                            lastTexture);
         default:
-            assert(0);
+            DGL_ASSERT(0);
             return false;
     }
 

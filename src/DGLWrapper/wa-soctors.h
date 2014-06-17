@@ -15,8 +15,9 @@
 * limitations under the License.
 */
 
-#ifdef WA_ANDROID_SO_CONSTRUCTORS
+#include <DGLCommon/wa.h>
 
+#if DGL_HAVE_WA(ANDROID_SO_CONSTRUCTORS)
 class DGLWASoCtors {
    public:
     DGLWASoCtors();

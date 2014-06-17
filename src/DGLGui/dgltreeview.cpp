@@ -305,7 +305,7 @@ public:
             }
         }
 
-        assert(elements.size() == m_Childs.size());
+        DGL_ASSERT(elements.size() == m_Childs.size());
         
         for (size_t i = 0; i < elements.size(); i++) {
             m_Childs[i].update(elements[i]);
@@ -344,8 +344,7 @@ public:
 
         }
 
-        assert(elements.size() == m_Childs.size());
-
+        DGL_ASSERT(elements.size() == m_Childs.size());
 
         int idx = 0;
         for (std::set<std::pair<T1, std::set<T2> > >::iterator it = elements.begin(); it != elements.end(); it++) {
@@ -400,7 +399,7 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
         QFont fnt = font(0);
         fnt.setBold(current);
         setFont(0, fnt);
-        assert(m_Id == report.m_Id);
+        DGL_ASSERT(m_Id == report.m_Id);
         setText(0, QString("Context 0x") + QString::number(report.m_Id, 16) +
                            (current ? QString(" (current)") : QString("")));
         m_TextureNode.update(report.m_TextureSpace);

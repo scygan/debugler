@@ -16,6 +16,7 @@
 //#include <boost/make_shared.hpp>
 
 #include <DGLNet/protocol/msgutils.h>
+#include <DGLCommon/wa.h>
 
 #include "display.h"
 #include "native-surface.h"
@@ -109,7 +110,7 @@ template DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface<
 template DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface<
         dglState::NativeSurfaceGLX>(opaque_id_t id, bool lock);
 #endif
-#ifndef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
+#if !DGL_HAVE_WA(ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID)
 template DGLDisplayState::SurfaceListIter DGLDisplayState::ensureSurface<
         dglState::NativeSurfaceEGL>(opaque_id_t id, bool lock);
 #endif
@@ -124,7 +125,7 @@ void DGLDisplayState::addSurface(opaque_id_t id, opaque_id_t pixfmt) {
     std::lock_guard<std::mutex> guard(m_SurfaceListMutex);
     m_SurfaceList[id] = std::make_shared<NativeSurfaceType>(this, pixfmt, id);
 }
-#ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
+#if DGL_HAVE_WA(ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID)
 // only EGL (needs pixfmt as query fails on some implementations)
 template void DGLDisplayState::addSurface<dglState::NativeSurfaceEGL>(
         opaque_id_t id, opaque_id_t pixfmt);

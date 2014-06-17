@@ -14,6 +14,7 @@
 */
 
 #include "entrypoint.h"
+#include <DGLCommon/def.h>
 
 #include <sstream>
 #include <iomanip>
@@ -106,7 +107,7 @@ void AnyValue::writeToSS(std::ostringstream& out, const GLParamTypeMetadata& par
         }
 
     } else {
-        assert(0);
+        DGL_ASSERT(0);
     }
 }
 

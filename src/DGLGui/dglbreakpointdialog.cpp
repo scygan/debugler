@@ -52,7 +52,7 @@ std::set<Entrypoint> DGLBreakPointDialog::getBreakPoints() {
         DGLBreakPointDialogItem* widget =
                 dynamic_cast<DGLBreakPointDialogItem*>(
                         m_Ui.rightListWidget->item(i));
-        assert(widget);
+        DGL_ASSERT(widget);
         ret.insert(widget->get());
     }
     return ret;
@@ -64,13 +64,13 @@ void DGLBreakPointDialog::addBreakPoint() {
     for (int i = 0; i < list.count(); i++) {
         DGLBreakPointDialogItem* widget1 =
                 dynamic_cast<DGLBreakPointDialogItem*>(list.at(i));
-        assert(widget1);
+        DGL_ASSERT(widget1);
         bool found = false;
         for (int j = 0; j < m_Ui.rightListWidget->count(); j++) {
             DGLBreakPointDialogItem* widget2 =
                     dynamic_cast<DGLBreakPointDialogItem*>(
                             m_Ui.rightListWidget->item(j));
-            assert(widget2);
+            DGL_ASSERT(widget2);
             if (widget1->get() == widget2->get()) {
                 found = true;
             }

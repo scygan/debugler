@@ -73,13 +73,16 @@ void Initialize(void) {
 void TearDown() { GlobalState::reset(); }
 
 #ifndef _WIN32
+
 void __attribute__((constructor)) DGLWrapperLoad(void) { Initialize(); }
 
 void __attribute__((destructor)) DGLWrapperUnload(void) { TearDown(); }
 #else
 
-#ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
 #include <windows.h>
+
+#if DGL_HAVE_WA(ARM_MALI_EMU_LOADERTHREAD_KEEP)
+
 class ThreadWatcher {
    public:
     ThreadWatcher() : m_ThreadCount() {
@@ -132,7 +135,7 @@ extern "C" DGLWRAPPER_API void LoaderThread() {
 
     Initialize();
 
-#ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
+#if DGL_HAVE_WA(ARM_MALI_EMU_LOADERTHREAD_KEEP)
     // this is called from remotely created thread started right after dll
     // injection
 
@@ -154,6 +157,7 @@ extern "C" DGLWRAPPER_API void LoaderThread() {
     g_ThreadWatcher.lockLoaderThread();
 #endif
 }
+
 /**
  * Main entrypoint of DGLwrapper library
  */
@@ -170,12 +174,12 @@ DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID /*lpReserved*/
             Os::setCurrentModuleHandle(hModule);
             break;
         case DLL_THREAD_ATTACH:
-#ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
+#if DGL_HAVE_WA(ARM_MALI_EMU_LOADERTHREAD_KEEP)
             g_ThreadWatcher.onAttachThread();
 #endif
             break;
         case DLL_THREAD_DETACH:
-#ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
+#if DGL_HAVE_WA(ARM_MALI_EMU_LOADERTHREAD_KEEP)
             g_ThreadWatcher.onDettachThread();
 #endif
             break;
@@ -185,4 +189,6 @@ DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID /*lpReserved*/
     }
     return TRUE;
 }
+
+
 #endif

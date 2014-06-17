@@ -156,7 +156,7 @@ void DGLShaderViewItem::setState(EditState editState) {
             m_Ui.pushButtonResetEdits->setEnabled(true);
             break;
         default:
-            assert(0);
+            DGL_ASSERT(0);
     }
     m_EditState = editState;
 }

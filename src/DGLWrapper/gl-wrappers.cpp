@@ -16,14 +16,13 @@
 #define DGL_WRAPPERS_INSIDE
 #include "gl-wrappers.h"
 
-#include <cassert>
 #include "globalstate.h"
 #include "pointers.h"
 #include "action-manager.h"
 #include "tls.h"
 #include "debugger.h"
 
-#ifdef WA_ANDROID_SO_CONSTRUCTORS
+#if DGL_HAVE_WA(ANDROID_SO_CONSTRUCTORS)
 #include "wa-soctors.h"
 #endif
 
@@ -441,7 +440,7 @@ class DGLWrapperCookie {
             Os::fatal(e.what());
         }
     }
-#ifdef WA_ANDROID_SO_CONSTRUCTORS
+#if DGL_HAVE_WA(ANDROID_SO_CONSTRUCTORS)
     DGLWASoCtors m_SoCtorsWa;
 #endif
 

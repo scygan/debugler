@@ -151,16 +151,16 @@ std::vector<std::string> DGLRunAppProject::getCommandLineArgVector() {
                     "of |, "
                     "&, ;, <, >, (, ), {, }.");
         case WRDE_BADVAL:
-            assert(!"no  WRDE_UNDEF was set, but got WRDE_BADVAL");
+            DGL_ASSERT(!"no  WRDE_UNDEF was set, but got WRDE_BADVAL");
             throw std::runtime_error(
                     "Program arguments: An undefined shell variable was "
                     "referenced");
         case WRDE_CMDSUB:
-            assert(!" WRDE_NOCMD flag not set, but got WRDE_CMDSUB");
+            DGL_ASSERT(!" WRDE_NOCMD flag not set, but got WRDE_CMDSUB");
             throw std::runtime_error(
                     "Program arguments: Command substitution occurred");
         case WRDE_NOSPACE:
-            wordfree(&wordExp);
+            DGL_ASSERT(&wordExp);
             throw std::runtime_error("Program arguments: Out of memory.");
         case WRDE_SYNTAX:
             throw std::runtime_error("Program arguments: syntax error");

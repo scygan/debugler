@@ -287,7 +287,7 @@ DGLDebugServer& DGLDebugController::getServer() {
 #endif
                 break;
             default:
-                assert(0);
+                DGL_ASSERT(0);
         }
     }
     return m_Server;

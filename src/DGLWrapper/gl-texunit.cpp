@@ -16,8 +16,6 @@
 #include "gl-texunit.h"
 #include "pointers.h"
 
-//#include <cassert>
-
 namespace dglState {
 
 

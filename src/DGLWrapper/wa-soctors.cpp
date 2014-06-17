@@ -13,7 +13,9 @@
 * limitations under the License.
 */
 
-#ifdef WA_ANDROID_SO_CONSTRUCTORS
+#include <DGLCommon/wa.h>
+
+#if DGL_HAVE_WA(ANDROID_SO_CONSTRUCTORS)
 #include <DGLCommon/os.h>
 #include "wa-soctors.h"
 #include "dl-intercept.h" //redef dlopen

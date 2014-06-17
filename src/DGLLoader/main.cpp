@@ -272,7 +272,7 @@ int main(int argc, char** argv) {
         if (process.getHandle() == 0) {
 // we are in forked out process
 #ifdef _WIN32
-            assert(!"forked out on windows");
+            DGL_ASSERT(!"forked out on windows");
 #else
             Os::setEnv("LD_PRELOAD", wrapperPath.c_str());
 
@@ -332,7 +332,7 @@ int main(int argc, char** argv) {
 // inject thread with wrapper library loading code, run through DLLMain and
 // InitializeThread() function
 
-#ifdef WA_ARM_MALI_EMU_LOADERTHREAD_KEEP
+#if DGL_HAVE_WA(ARM_MALI_EMU_LOADERTHREAD_KEEP)
         Inject(process.getHandle(), wrapperPath.c_str(), "LoaderThread");
         dglIPC->waitForRemoteThreadSemaphore();
 #else
@@ -397,7 +397,7 @@ int main(int argc, char** argv) {
     }
 
     if (!ipcMessage->m_ok) {
-        assert(!childHandle);
+        DGL_ASSERT(!childHandle);
 
         // failure - we were not able to setup properly exit code.
         // The failure reason is passed via IPC. Parrent process should check

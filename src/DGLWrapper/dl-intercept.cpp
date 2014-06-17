@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+#ifndef _WIN32
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -321,7 +323,7 @@ extern "C" {
  * Called directly by debugee
  */
 void *dlopen(const char *filename, int flag) NO_THROW {
-#ifdef __ANDROID__
+#if DGL_HAVE_WA(ANDROID_SO_CONSTRUCTORS)
     DGLWASoCtors wasoCtors;
 #endif
 #ifdef DL_INTERCEPT_DEBUG
@@ -342,7 +344,7 @@ void *dlopen(const char *filename, int flag) NO_THROW {
  * Called directly by debugee
  */
 void *dlsym(void *handle, const char *name) NO_THROW {
-#ifdef __ANDROID__
+#if DGL_HAVE_WA(ANDROID_SO_CONSTRUCTORS)
     DGLWASoCtors wasoCtors;
 #endif
 #ifdef DL_INTERCEPT_DEBUG
@@ -363,7 +365,7 @@ void *dlsym(void *handle, const char *name) NO_THROW {
  * Called directly by debugee
  */
 void *dlvsym(void *handle, const char *name, const char *version) NO_THROW {
-#ifdef __ANDROID__
+#if DGL_HAVE_WA(ANDROID_SO_CONSTRUCTORS)
     DGLWASoCtors wasoCtors;
 #endif
 #ifdef DL_INTERCEPT_DEBUG
@@ -378,3 +380,5 @@ void *dlvsym(void *handle, const char *name, const char *version) NO_THROW {
     }
 }
 }
+
+#endif

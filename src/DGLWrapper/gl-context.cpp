@@ -28,7 +28,6 @@
 #include "gl-auxcontext.h"
 #include "tls.h"
 
-#include <cassert>
 #include <cstring>
 #include <sstream>
 
@@ -67,7 +66,7 @@ void GLContextVersion::initialize(const char* cVersion) {
     // parsing fails.
     m_MajorVersion = m_MinorVersion = 1;
 
-    assert(cVersion);
+    DGL_ASSERT(cVersion);
 
     if (cVersion == NULL) {
         return;
@@ -94,7 +93,7 @@ void GLContextVersion::initialize(const char* cVersion) {
         parsedType = Type::ES;
     }
 
-    assert (parsedType == m_Type);
+    DGL_ASSERT (parsedType == m_Type);
 
     m_Type = parsedType;
 
@@ -105,7 +104,7 @@ void GLContextVersion::initialize(const char* cVersion) {
         m_MajorVersion = version[vOffset] - '0';
         m_MinorVersion = version[vOffset + 2] - '0';
     } else {
-        assert(!"cannot reliably detect OpenGL version");
+        DGL_ASSERT(!"cannot reliably detect OpenGL version");
         //this is rather serious, so mark ctx as not supported.
         m_Type = Type::UNSUPPORTED;
     }
@@ -148,7 +147,7 @@ int GLContextVersion::getNeededApiLibraries(const DGLDisplayState* display) {
                 return es1Libs;
         }
     }
-    assert(0);
+    DGL_ASSERT(0);
     return LIBRARY_NONE;
 }
 
@@ -378,7 +377,7 @@ bool GLContext::markForDeletionMayDelete() {
 
 bool GLContext::unboundMayDelete() {
     m_RefCount--;
-    assert(m_RefCount >= 0);
+    DGL_ASSERT(m_RefCount >= 0);
     return m_ToBeDeleted && m_RefCount <= 0;
 }
 
@@ -746,7 +745,7 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
 
             ret = std::shared_ptr<dglnet::resource::DGLPixelRectangle>(
                 new dglnet::resource::DGLPixelRectangle(
-                    width, height, ALIGNED(width * transfer.getPixelSize(), 4),
+                    width, height, DGL_ALIGNED(width * transfer.getPixelSize(), 4),
                     transfer.getFormat(), transfer.getType()));
 
             DIRECT_CALL_CHK(glReadPixels)(
@@ -1191,7 +1190,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
 
                 // if internalFormat is returned as 0 (happens if not traced on ES), query will
                 // probably fail (no way to discover format, or bit sizes).
-                assert(internalFormat);
+                DGL_ASSERT(internalFormat);
             }
             
             DIRECT_CALL_CHK(glBindTexture)(bindableTarget, lastTexture);
@@ -1272,7 +1271,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
             DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER,
                                                 lastRenderBuffer);
         } else {
-            assert(0);
+            DGL_ASSERT(0);
         }
 
         // there should be no errors. Otherwise something nasty happened
@@ -1922,7 +1921,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
                             uniform.m_rowSize = 3;
                             break;
                         default:
-                            assert(0);
+                            DGL_ASSERT(0);
                     }
 
                     // size is 1 for scalars and > 1 for arrays of uniform
@@ -1971,7 +1970,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
                         std::copy(value.begin(), value.end(),
                                   uniform.m_value.begin());
                     } else {
-                        assert(0);
+                        DGL_ASSERT(0);
                     }
                 }
             }
@@ -2147,7 +2146,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     std::shared_ptr<dglnet::DGLResource> ret(
             resource = new dglnet::resource::DGLResourceState);
 
-#ifdef WA_ES_QUERY_STATE
+#if DGL_HAVE_WA(ES_QUERY_STATE)
     if (!getVersion().check(GLContextVersion::Type::DT))
         return ret;    // not really supported on non-DT
 #endif
@@ -3263,7 +3262,7 @@ bool GLContext::hasCapability(ContextCap cap) const {
                 version.check(GLContextVersion::Type::ES, 2);
 
         default:
-            assert(0);
+            DGL_ASSERT(0);
             return false;
     }
 }

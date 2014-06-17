@@ -151,7 +151,7 @@ void DGLViewRouter::show(const dglnet::ContextObjectName& name,
             emit showProgram(name.m_Context, name.m_Name);
             break;
         default:
-            assert(0);
+            DGL_ASSERT(0);
             break;
     }
 }
@@ -246,13 +246,13 @@ void DglController::poll() {
 void DglController::debugContinue() {
     setBreaked(false);
     setRunning(true);
-    assert(isConnected());
+    DGL_ASSERT(isConnected());
     dglnet::message::ContinueBreak message(false);
     m_DglClient->sendMessage(&message);
 }
 
 void DglController::debugInterrupt() {
-    assert(isConnected());
+    DGL_ASSERT(isConnected());
     dglnet::message::ContinueBreak message(true);
     m_DglClient->sendMessage(&message);
     newStatus("Interrupting...");
@@ -261,7 +261,7 @@ void DglController::debugInterrupt() {
 void DglController::debugStep() {
     setBreaked(false);
     setRunning(true);
-    assert(isConnected());
+    DGL_ASSERT(isConnected());
     dglnet::message::ContinueBreak message(
             dglnet::message::StepMode::CALL);
     m_DglClient->sendMessage(&message);
@@ -271,7 +271,7 @@ void DglController::debugStep() {
 void DglController::debugStepDrawCall() {
     setBreaked(false);
     setRunning(true);
-    assert(isConnected());
+    DGL_ASSERT(isConnected());
     dglnet::message::ContinueBreak message(
             dglnet::message::StepMode::DRAW_CALL);
     m_DglClient->sendMessage(&message);
@@ -281,7 +281,7 @@ void DglController::debugStepDrawCall() {
 void DglController::debugStepFrame() {
     setBreaked(false);
     setRunning(true);
-    assert(isConnected());
+    DGL_ASSERT(isConnected());
     dglnet::message::ContinueBreak message(
             dglnet::message::StepMode::FRAME);
     m_DglClient->sendMessage(&message);
@@ -289,7 +289,7 @@ void DglController::debugStepFrame() {
 }
 
 void DglController::debugTerminate() {
-    assert(isConnected());
+    DGL_ASSERT(isConnected());
     dglnet::message::Terminate message;
     m_DglClient->sendMessage(&message);
     newStatus("Terminating...");
@@ -354,7 +354,7 @@ void DglController::doHandleDisconnect(const std::string& msg) {
 }
 
 void DglController::sendMessage(dglnet::Message* msg) {
-    assert(isConnected());
+    DGL_ASSERT(isConnected());
     m_DglClient->sendMessage(msg);
 }
 

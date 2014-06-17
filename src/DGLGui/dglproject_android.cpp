@@ -369,7 +369,7 @@ void DGLAndroidProjectFactory::selectDevice(DGLADBDevice* device) {
 }
 
 void DGLAndroidProjectFactory::radioStartupChanged(bool) {
-    assert(m_ui.radioButtonAttach->isChecked() != m_ui.radioButtonNew->isChecked());
+    DGL_ASSERT(m_ui.radioButtonAttach->isChecked() != m_ui.radioButtonNew->isChecked());
 
     m_Attach = m_ui.radioButtonAttach->isChecked();
 

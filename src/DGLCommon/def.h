@@ -16,6 +16,8 @@
 #ifndef DEF_H
 #define DEF_H
 
+#include <cassert>
+
 #ifdef _WIN32
 #define NO_RETURN __declspec(noreturn)
 #else
@@ -27,20 +29,20 @@
 #undef max
 #endif
 
-// C++11 N2659 "Thread-Local Storage" walkarounds
+// C++11 N2659 "Thread-Local Storage" workarounds
 #ifdef _WIN32
-#define THREAD_LOCAL __declspec(thread)
+#define DGL_THREAD_LOCAL __declspec(thread)
 #elif defined(__GNUC__)
 #if __GNUC__ > 4 || (__GNUC__ == 4 && (__GNUC_MINOR__ >= 8))
-#define THREAD_LOCAL thread_local
+#define DGL_THREAD_LOCAL thread_local
 #else
-#define THREAD_LOCAL __thread
+#define DGL_THREAD_LOCAL __thread
 #endif
 #else
-#define THREAD_LOCAL thread_local
+#define DGL_THREAD_LOCAL thread_local
 #endif
 
-#define ALIGNED(X, A) ((X + A - 1) & (-A))
+#define DGL_ALIGNED(X, A) ((X + A - 1) & (-A))
 
 #ifdef _WIN32
 #define strncpy(dest, source, count) strncpy_s(dest, count, source, _TRUNCATE)
@@ -49,4 +51,7 @@
 #define DGL_MANUFACTURER  "Slawomir Cygan"
 #define DGL_PRODUCT       "Debugler"
 #define DGL_PRODUCT_LOWER "debugler"
+
+
+#define DGL_ASSERT(X) assert(X)
 #endif

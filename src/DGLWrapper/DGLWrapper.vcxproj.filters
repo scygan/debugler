@@ -92,6 +92,12 @@
     <ClInclude Include="gl-shadowstate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="wa-soctors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dl-intercept.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -161,6 +167,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gl-shadowstate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wa-soctors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dl-intercept.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

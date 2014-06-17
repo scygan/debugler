@@ -45,6 +45,9 @@
     <ClInclude Include="gl-entrypoints.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="wa.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gl-types.cpp">

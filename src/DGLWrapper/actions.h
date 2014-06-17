@@ -21,6 +21,7 @@
 #include <vector>
 #include <memory>
 #include <DGLCommon/def.h>
+#include <DGLCommon/wa.h>
 #include <DGLNet/protocol/entrypoint.h>
 
 class ActionManager;
@@ -85,7 +86,7 @@ private:
     virtual RetValue Pre(const CalledEntryPoint&);
 };
 
-#ifdef WA_ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID
+#if DGL_HAVE_WA(ARM_MALI_EMU_EGL_QUERY_SURFACE_CONFIG_ID)
 class SurfaceAction : public ActionBase {
 public:
     static void Register(ActionManager& mgr);
