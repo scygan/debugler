@@ -433,7 +433,7 @@ struct GLInternalFormat g_InternalFormats[] = {
 
 const GLInternalFormat* GLFormats::getInternalFormat(gl_t internalFormat) {
     for (size_t i = 0;
-         i < sizeof(g_InternalFormats) / sizeof(g_InternalFormats[0]); i++) {
+         i < DGL_ARRAY_LENGTH(g_InternalFormats); i++) {
         if (g_InternalFormats[i].internalFormat == internalFormat) {
             return &g_InternalFormats[i];
         }
@@ -442,7 +442,7 @@ const GLInternalFormat* GLFormats::getInternalFormat(gl_t internalFormat) {
 }
 
 const GLDataFormat* GLFormats::getDataFormat(gl_t dataFormat) {
-    for (size_t i = 0; i < sizeof(g_DataFormats) / sizeof(g_DataFormats[0]);
+    for (size_t i = 0; i < DGL_ARRAY_LENGTH(g_DataFormats);
          i++) {
         if (g_DataFormats[i].format == dataFormat) {
             return &g_DataFormats[i];
@@ -452,7 +452,7 @@ const GLDataFormat* GLFormats::getDataFormat(gl_t dataFormat) {
 }
 
 const GLDataType* GLFormats::getDataType(gl_t dataType) {
-    for (size_t i = 0; i < sizeof(g_DataTypes) / sizeof(g_DataTypes[0]); i++) {
+    for (size_t i = 0; i < DGL_ARRAY_LENGTH(g_DataTypes); i++) {
         if (g_DataTypes[i].type == dataType) {
             return &g_DataTypes[i];
         }
@@ -463,7 +463,7 @@ const GLDataType* GLFormats::getDataType(gl_t dataType) {
 const GLInternalFormat* GLFormats::adjustInternalFormatFromTypeES(gl_t internalFormat, gl_t type) {
     //treat internalFormat as dataFormat, and find some matching internalFormat
     for (size_t i = 0;
-        i < sizeof(g_InternalFormats) / sizeof(g_InternalFormats[0]); i++) {
+        i < DGL_ARRAY_LENGTH(g_InternalFormats); i++) {
             if (g_InternalFormats[i].dataFormat == internalFormat && 
                 g_InternalFormats[i].dataType == type) {
                 return &g_InternalFormats[i];

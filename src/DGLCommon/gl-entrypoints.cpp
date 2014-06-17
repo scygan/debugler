@@ -14,6 +14,7 @@
 */
 
 #include "gl-entrypoints.h"
+#include "def.h"
 
 #include <memory>
 #include <string>
@@ -162,7 +163,7 @@ bool IsDrawCall(Entrypoint entryp) {
     //check if structure is initialized
     if (!lists::g_Entrypoints[call_sets::drawCalls[0]].isDrawCall) {
         //initialize
-        for (size_t i = 0; i < sizeof(call_sets::drawCalls)/sizeof(call_sets::drawCalls[0]); i++) {
+        for (size_t i = 0; i < DGL_ARRAY_LENGTH(call_sets::drawCalls); i++) {
             lists::g_Entrypoints[call_sets::drawCalls[i]].isDrawCall = true;
         }
     }
@@ -175,7 +176,7 @@ bool IsFrameDelimiter(Entrypoint entryp) {
     //check if structure is initialized
     if (!lists::g_Entrypoints[call_sets::frameDelims[0]].isFrameDelimiter) {
         //initialize
-        for (size_t i = 0; i < sizeof(call_sets::frameDelims)/sizeof(call_sets::frameDelims[0]); i++) {
+        for (size_t i = 0; i < DGL_ARRAY_LENGTH(call_sets::frameDelims); i++) {
             lists::g_Entrypoints[call_sets::frameDelims[i]].isFrameDelimiter = true;
         }
     }

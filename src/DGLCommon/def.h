@@ -52,6 +52,12 @@
 #define DGL_PRODUCT       "Debugler"
 #define DGL_PRODUCT_LOWER "debugler"
 
-
 #define DGL_ASSERT(X) assert(X)
+
+//This macro has a runtime check for accepting arrays only (not pointers).
+//http://blogs.msdn.com/b/the1/archive/2004/05/07/128242.aspx
+template<typename Type, size_t Size>
+char ( &ArraySizeHelper(Type( &Array )[Size]) )[Size];
+#define DGL_ARRAY_LENGTH(Array) sizeof(ArraySizeHelper(Array))
+
 #endif

@@ -320,7 +320,7 @@ int GLWGLAuxContext::choosePixelFormat(opaque_id_t hdc,
                                                int preferred) {
 
     const int attributes[] = {WGL_DRAW_TO_PBUFFER_ARB, WGL_SUPPORT_OPENGL_ARB, 0};
-    int attributeValues[sizeof(attributes)/sizeof(attributes[0])];
+    int attributeValues[DGL_ARRAY_LENGTH(attributes)];
 
     BOOL status = DIRECT_CALL_CHK(wglGetPixelFormatAttribivARB)(
             (HDC)hdc, preferred, 0, 2, attributes,

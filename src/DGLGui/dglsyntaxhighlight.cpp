@@ -516,7 +516,7 @@ class DGLHLData {
     DGLHLData() : m_case_sensitive(true) {
         const QString paths[] = {"glsl.xml", ":/res/glsl.xml"};
         std::shared_ptr<QFile> file;
-        for (size_t i = 0; i < sizeof(paths) / sizeof(paths[0]) && !file; i++) {
+        for (size_t i = 0; i < DGL_ARRAY_LENGTH(paths) && !file; i++) {
             file = std::make_shared<QFile>(paths[i]);
             if (!file->open(QFile::ReadOnly)) {
                 file.reset();    // not file->reset() !!

@@ -21,7 +21,7 @@
 
 DGLBlitterBase::DGLBlitterBase() {
     for (size_t i = 0;
-         i < sizeof(m_ChannelScaleBiases) / sizeof(m_ChannelScaleBiases[0]);
+         i < DGL_ARRAY_LENGTH(m_ChannelScaleBiases);
          i++) {
         m_ChannelScaleBiases[i] = std::pair<float, float>(1.0f, 0.0f);
     }

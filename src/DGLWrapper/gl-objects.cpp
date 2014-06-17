@@ -103,7 +103,7 @@ GLenum GLTextureObj::getTextureLevelTarget(int face) const {
                 GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
                 GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
                 GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z};
-        DGL_ASSERT((size_t)face < sizeof(cubeMapFaces) / sizeof(cubeMapFaces[0]));
+        DGL_ASSERT((size_t)face < DGL_ARRAY_LENGTH(cubeMapFaces));
         return cubeMapFaces[face];
     } else {
         return getTarget();
