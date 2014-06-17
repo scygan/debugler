@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
 <!-- the version of this file shows the largest supported OpenGL version, second digit is the minor patch level (Y.XP = supports GLSL X.Y0 with patchlevel P -->
-<language name="GLSL" section="Sources" extensions="*.glsl;*.vsh;*.vert;*.tcsh;*.tcs;*.tesh;*.tes;*.gsh;*.geo;*.geom;*.fsh;*.frag;*.csh;*.cs" mimetype="text/x-glslsrc" version="4.31" kateversion="2.4" author="Robert Menzel (mail@renderingpipeline.com)" license="LGPL"> 
+<language name="GLSL" section="Sources" extensions="*.glsl;*.vsh;*.vert;*.tcsh;*.tcs;*.tesh;*.tes;*.gsh;*.geo;*.geom;*.fsh;*.frag;*.csh;*.cs" mimetype="text/x-glslsrc" version="5.00" kateversion="2.4" author="Robert Menzel (mail@renderingpipeline.com)" license="LGPL"> 
 	<highlighting>
 	
 		<!-- ####################################################################################################### keywords -->
@@ -59,6 +59,7 @@
 
 		<list name="keywords400">
 			<!-- also all of 140 -->
+			<!-- not in 310 es -->
 			<item>patch</item>
 			<item>sample</item>
 			<item>subroutine</item>
@@ -66,6 +67,7 @@
 
 		<list name="keywords420">
 			<!-- also all of 400 -->
+			<!-- in 310 es -->
 			<item>coherent</item>
 			<item>volatile</item>
 			<item>restrict</item>
@@ -75,12 +77,13 @@
 		
 		<list name="keywords430">
 			<!-- also all of 420 -->
+			<!-- in 310 es -->
 			<item>buffer</item>
 			<item>shared</item>
 		</list>
 		
 		<list name="keywordsPrecision">
-			<!-- 100ES 420 -->
+			<!-- 100ES 300ES 310ES 420 -->
 			<item>lowp</item>
 			<item>mediump</item>
 			<item>highp</item>
@@ -178,7 +181,7 @@
 			<item>usampler2DMSArray</item>
 		</list>
 		
-		<list name="keywordsRemovedInES3">
+		<list name="keywordsRemovedInES300">
 			<!-- what is in 330 but not in 300 es -->
 			<item>noperspective</item>
 			<item>samplerBuffer</item>
@@ -197,9 +200,27 @@
 			<item>isampler2DMSArray</item>
 			<item>usampler2DMSArray</item>
 		</list>
+
+		<list name="keywordsRemovedInES310">
+			<!-- what is in 330 but not in 300 es -->
+			<item>noperspective</item>
+			<item>samplerBuffer</item>
+			<item>isamplerBuffer</item>
+			<item>usamplerBuffer</item>
+			<item>sampler1D</item>
+			<item>sampler1DShadow</item>
+			<item>sampler1DArray</item>
+			<item>sampler1DArrayShadow</item>
+			<item>isampler1D</item>
+			<item>usampler1D</item>
+			<item>sampler2DMSArray</item>
+			<item>isampler2DMSArray</item>
+			<item>usampler2DMSArray</item>
+		</list>
 		
 		<list name="keywordstypes400">
 			<!-- also all of keywordstypes150 -->
+			<!-- not in 310 es -->
 			<item>double</item>
 			<item>dvec2</item>
 			<item>dvec3</item>
@@ -222,8 +243,9 @@
 			<item>usamplerCubeArray</item>
 		</list>
 		
-		<list name="keywordstypes420">
+		<list name="keywordstypes420_es310">
 			<!-- also all of keywordstypes400 -->
+			<!-- in 310 es -->
 			<item>atomic_uint</item>
 			<item>image1D</item>
 			<item>iimage1D</item>
@@ -249,17 +271,20 @@
 			<item>image2DArray</item>
 			<item>iimage2DArray</item>
 			<item>uimage2DArray</item>
-			<item>imageCubeArray</item>
-			<item>iimageCubeArray</item>
-			<item>uimageCubeArray</item>
 			<item>image2DMS</item>
 			<item>iimage2DMS</item>
 			<item>uimage2DMS</item>
+		</list>
+		<list name="keywordstypes420_only">
+			<!-- not in 310 es, but in 420 -->
+			<item>imageCubeArray</item>
+			<item>iimageCubeArray</item>
+			<item>uimageCubeArray</item>
 			<item>image2DMSArray</item>
 			<item>iimage2DMSArray</item>
 			<item>uimage2DMSArray</item>
 		</list>
-		
+
 		<list name="reservedkeywords">
 			<!-- reserved keywords in the GLSL spec for GLSL 430, also marked as reserved in older version! -->
 			<item>common</item>
@@ -313,6 +338,32 @@
 			<item>column_major</item>
 			<!-- output layout qualifier -->
 			<item>location</item>
+		</list>
+		<list name="layoutqualifier310ES">
+		   <!-- atomics -->
+		   <item>offset</item>
+		   <!-- shader binding -->
+		   <item>binding</item>
+		   <!-- shader image load tore -->
+		   <item>rgba32f</item>
+		   <item>rgba16f</item>
+		   <item>r32f</item>
+		   <item>rgba8</item>
+		   <item>rgba8_snorm</item>
+		   <item>rgba32i</item>
+		   <item>rgba16i</item>
+		   <item>rgba8i</item>
+		   <item>r32i</item>
+		   <item>rgba32ui</item>
+		   <item>rgba16ui</item>
+		   <item>rgba8ui</item>
+		   <item>r32ui</item>
+		   <!-- ssbo -->
+		   <item>local_size_x</item>
+		   <item>local_size_y</item>
+		   <item>local_size_z</item>
+			<!-- compute -->
+			<item>std430</item>
 		</list>
 		<list name="layoutqualifier150">
 			<!-- geometry shader inputs -->
@@ -430,6 +481,9 @@
 			<item>gl_FragData</item>
 			<item>gl_DepthRangeParameters</item>
 			<item>gl_DepthRange</item>
+		</list>
+		<list name="buildinvariables310ES">
+			<item>gl_HelperInvocation</item>
 		</list>
 		<list name="buildinvariablesDeprecated">
 			<item>gl_FragColor</item>
@@ -553,6 +607,7 @@
 		</list>
 		<list name="buildinvariables430">
 			<!-- compute shader -->
+			<!-- in 310 es -->
 			<item>gl_NumWorkGroups</item>
 			<item>gl_WorkGroupSize</item>
 			<item>gl_WorkGroupID</item>
@@ -623,7 +678,42 @@
 			<item>gl_MaxProgramTexelOffset</item>
 			<item>gl_DepthRangeParameters</item>
 			<item>gl_DepthRange</item>
-			<item>gl_NumSamples</item>
+		</list>
+		<list name="buildinconstants310ES">
+			<item>gl_MaxVertexAttribs</item>
+			<item>gl_MaxVertexUniformVectors</item>
+			<item>gl_MaxVertexOutputVectors</item>
+			<item>gl_MaxFragmentInputVectors</item>
+			<item>gl_MaxVertexTextureImageUnits</item>
+			<item>gl_MaxCombinedTextureImageUnits</item>
+			<item>gl_MaxTextureImageUnits</item>
+			<item>gl_MaxFragmentUniformVectors</item>
+			<item>gl_MaxDrawBuffers</item>
+			<item>gl_MinProgramTexelOffset</item>
+			<item>gl_MaxProgramTexelOffset</item>
+			<item>gl_MaxImageUnits</item>
+			<item>gl_MaxVertexImageUniforms</item>
+			<item>gl_MaxFragmentImageUniforms</item>
+			<item>gl_MaxComputeImageUniforms</item>
+			<item>gl_MaxCombinedImageUniforms</item>
+			<item>gl_MaxCombinedShaderOutputResources</item>
+			<item>gl_MaxComputeWorkGroupCount</item>
+			<item>gl_MaxComputeWorkGroupSize</item>
+			<item>gl_MaxComputeUniformComponents</item>
+			<item>gl_MaxComputeTextureImageUnits</item>
+			<item>gl_MaxComputeAtomicCounters</item>
+			<item>gl_MaxComputeAtomicCounterBuffers</item>
+			<item>gl_MaxVertexAtomicCounters</item>
+			<item>gl_MaxFragmentAtomicCounters</item>
+			<item>gl_MaxCombinedAtomicCounters</item>
+			<item>gl_MaxAtomicCounterBindings</item>
+			<item>gl_MaxVertexAtomicCounterBuffers</item>
+			<item>gl_MaxFragmentAtomicCounterBuffers</item>
+			<item>gl_MaxVertexAtomicCounterBuffers</item>
+			<item>gl_MaxCombinedAtomicCounterBuffers</item>
+			<item>gl_MaxAtomicCounterBufferSize</item>
+			<item>gl_DepthRangeParameters</item>
+			<item>gl_DepthRange</item>
 		</list>
 		<list name="buildinconstants400">
 			<!-- also 150 -->
@@ -835,23 +925,16 @@
 			<item>intBitsToFloat</item>
 			<item>uintBitsToFloat</item>
 		</list>
-		<list name="buildinfunctions400">
-			<item>fma</item>
+		<list name="buildinfunctions400_es310">
 			<item>barrier</item>
-			<item>interpolateAtCentroid</item>
-			<item>interpolateAtSample</item>
-			<item>interpolateAtOffset</item>
 			<item>frexp</item>
 			<item>ldexp</item>
 			<item>packUnorm2x16</item>
 			<item>packUnorm4x8</item>
 			<item>packSnorm4x8</item>
 			<item>unpackUnorm2x16</item>
-			<item>unpackSnorm2x16</item>
 			<item>unpackUnorm4x8</item>
 			<item>unpackSnorm4x8</item>
-			<item>packDouble2x32</item>
-			<item>unpackDouble2x32</item>
 			<item>uaddCarry</item>
 			<item>usubBorrow</item>
 			<item>umulExtended</item>
@@ -862,14 +945,22 @@
 			<item>bitCount</item>
 			<item>findLSB</item>
 			<item>findMSB</item>
-			<item>textureQueryLod</item>
 			<item>textureGather</item>
 			<item>textureGatherOffset</item>
+		</list>
+	<list name="buildinfunctions400_only">
+			<item>fma</item>
+			<item>interpolateAtCentroid</item>
+			<item>interpolateAtSample</item>
+			<item>interpolateAtOffset</item>
+			<item>packDouble2x32</item>
+			<item>unpackDouble2x32</item>
+			<item>textureQueryLod</item>
 			<item>textureGatherOffsets</item>
 			<item>EmitStreamVertex</item>
 			<item>EndStreamPrimitive</item>
 		</list>
-		<list name="buildinfunctions420">
+		<list name="buildinfunctions420_es310">
 			<item>packSnorm2x16</item>
 			<item>unpackSnorm2x16</item>
 			<item>packHalf2x16</item>
@@ -880,6 +971,8 @@
 			<item>memoryBarrier</item>
 			<item>imageLoad</item>
 			<item>imageStore</item>
+		</list>
+		<list name="buildinfunctions420_only">
 			<item>imageAtomicAdd</item>
 			<item>imageAtomicMin</item>
 			<item>imageAtomicMax</item>
@@ -889,8 +982,7 @@
 			<item>imageAtomicExchange</item>
 			<item>imageAtomicCompSwap</item>
 		</list>
-		<list name="buildinfunctions430">
-			<item>textureQueryLevels</item>
+		<list name="buildinfunctions430_es310">
 			<item>atomicAdd</item>
 			<item>atomicMin</item>
 			<item>atomicMax</item>
@@ -906,10 +998,13 @@
 			<item>memoryBarrierImage</item>
 			<item>groupMemoryBarrier</item>
 		</list>
+		<list name="buildinfunctions430_only">
+			<item>textureQueryLevels</item>
+		</list>
 		
 		<!-- ################################################################################################################ 
-		     ####################################################################################################### contexts 
-		     ################################################################################################################ -->
+			 ####################################################################################################### contexts 
+			 ################################################################################################################ -->
 		<contexts>
 			<!-- default -->
 			<!-- ################################################################################################# GLSL version 110 -->
@@ -939,7 +1034,8 @@
 				<keyword attribute="Reserved" String="keywordstypes140" context="#stay"/>
 				<keyword attribute="Reserved" String="keywordstypes150" context="#stay"/>
 				<keyword attribute="Reserved" String="keywordstypes400" context="#stay"/>
-				<keyword attribute="Reserved" String="keywordstypes420" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_only" context="#stay"/>
 				<keyword attribute="Reserved" String="reservedkeywords" context="#stay"/>
 				
 				<keyword attribute="Buildinvariables" String="buildinvariablesDeprecated" context="#stay"/>
@@ -947,6 +1043,7 @@
 				<keyword attribute="Reserved" String="buildinvariables120" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables140" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables150" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinvariables310ES" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables400" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables410" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables430" context="#stay"/>
@@ -969,9 +1066,12 @@
 				<keyword attribute="Reserved" String="buildinfunctions140" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinfunctions150" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinfunctions330" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions400" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions420" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions430" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions400_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions400_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_only" context="#stay"/>
 				
 				<!-- numbers -->
 				<Float attribute="Float" context="#stay"/>
@@ -995,6 +1095,7 @@
 				<StringDetect attribute="Preprocessor" String="140" context="v140"/>
 				<StringDetect attribute="Preprocessor" String="150" context="v150"/>
 				<StringDetect attribute="Preprocessor" String="300 es" context="v300ES"/> <!-- ES -->
+				<StringDetect attribute="Preprocessor" String="310 es" context="v310ES"/> <!-- ES -->
 				<StringDetect attribute="Preprocessor" String="330" context="v330"/>
 				<StringDetect attribute="Preprocessor" String="400" context="v400"/>
 				<StringDetect attribute="Preprocessor" String="410" context="v410"/>
@@ -1025,7 +1126,8 @@
 				<keyword attribute="Reserved" String="keywordstypes140" context="#stay"/>
 				<keyword attribute="Reserved" String="keywordstypes150" context="#stay"/>
 				<keyword attribute="Reserved" String="keywordstypes400" context="#stay"/>
-				<keyword attribute="Reserved" String="keywordstypes420" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_only" context="#stay"/>
 				<keyword attribute="Reserved" String="reservedkeywords" context="#stay"/>
 				
 				<keyword attribute="Buildinvariables" String="buildinvariables100ES" context="#stay"/>
@@ -1034,6 +1136,7 @@
 				<keyword attribute="Reserved" String="buildinvariables120" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables140" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables150" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinvariables310ES" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables400" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables410" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables430" context="#stay"/>
@@ -1058,9 +1161,12 @@
 				<keyword attribute="Reserved" String="buildinfunctions140" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinfunctions150" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinfunctions330" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions400" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions420" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions430" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions400_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions400_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_only" context="#stay"/>
 				
 				<!-- numbers -->
 				<Float attribute="Float" context="#stay"/>
@@ -1098,7 +1204,8 @@
 				<keyword attribute="Reserved" String="keywordstypes140" context="#stay"/>
 				<keyword attribute="Reserved" String="keywordstypes150" context="#stay"/>
 				<keyword attribute="Reserved" String="keywordstypes400" context="#stay"/>
-				<keyword attribute="Reserved" String="keywordstypes420" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_only" context="#stay"/>
 				
 				<keyword attribute="Reserved" String="reservedkeywords" context="#stay"/>
 				
@@ -1107,6 +1214,7 @@
 				<keyword attribute="Buildinvariables" String="buildinvariables120" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables140" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables150" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinvariables310ES" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables400" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables410" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables430" context="#stay"/>
@@ -1129,9 +1237,12 @@
 				<keyword attribute="Reserved" String="buildinfunctions140" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinfunctions150" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinfunctions330" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions400" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions420" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions430" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions400_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions400_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_only" context="#stay"/>
 				
 				<!-- numbers -->
 				<Float attribute="Float" context="#stay"/>
@@ -1168,7 +1279,8 @@
 				<keyword attribute="Reserved" String="keywordstypes140" context="#stay"/>
 				<keyword attribute="Reserved" String="keywordstypes150" context="#stay"/>
 				<keyword attribute="Reserved" String="keywordstypes400" context="#stay"/>
-				<keyword attribute="Reserved" String="keywordstypes420" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_only" context="#stay"/>
 				
 				<keyword attribute="Reserved" String="reservedkeywords" context="#stay"/>
 				
@@ -1176,6 +1288,7 @@
 				<keyword attribute="Buildinvariables" String="buildinvariables120" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables140" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables150" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinvariables310ES" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables400" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables410" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables430" context="#stay"/>
@@ -1199,9 +1312,12 @@
 				<keyword attribute="Reserved" String="buildinfunctions140" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinfunctions150" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinfunctions330" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions400" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions420" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions430" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions400_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions400_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_only" context="#stay"/>
 				
 				<!-- numbers -->
 				<Float attribute="Float" context="#stay"/>
@@ -1238,7 +1354,8 @@
 				<keyword attribute="Keywordstypes" String="keywordstypes140" context="#stay"/>
 				<keyword attribute="Reserved" String="keywordstypes150" context="#stay"/>
 				<keyword attribute="Reserved" String="keywordstypes400" context="#stay"/>
-				<keyword attribute="Reserved" String="keywordstypes420" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_only" context="#stay"/>
 				
 				<keyword attribute="Reserved" String="reservedkeywords" context="#stay"/>
 				
@@ -1246,6 +1363,7 @@
 				<keyword attribute="Buildinvariables" String="buildinvariables120" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables140" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables150" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinvariables310ES" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables400" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables410" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables430" context="#stay"/>
@@ -1269,9 +1387,12 @@
 				<keyword attribute="Buildinfunctions" String="buildinfunctions140" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinfunctions150" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinfunctions330" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions400" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions420" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions430" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions400_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions400_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_only" context="#stay"/>
 				
 				<!-- numbers -->
 				<Float attribute="Float" context="#stay"/>
@@ -1308,7 +1429,8 @@
 				<keyword attribute="Keywordstypes" String="keywordstypes140" context="#stay"/>
 				<keyword attribute="Keywordstypes" String="keywordstypes150" context="#stay"/>
 				<keyword attribute="Reserved" String="keywordstypes400" context="#stay"/>
-				<keyword attribute="Reserved" String="keywordstypes420" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_only" context="#stay"/>
 				
 				<keyword attribute="Reserved" String="reservedkeywords" context="#stay"/>
 				
@@ -1316,6 +1438,7 @@
 				<keyword attribute="Buildinvariables" String="buildinvariables120" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables140" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables150" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinvariables310ES" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables400" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables410" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables430" context="#stay"/>
@@ -1339,9 +1462,12 @@
 				<keyword attribute="Buildinfunctions" String="buildinfunctions140" context="#stay"/>
 				<keyword attribute="Buildinfunctions" String="buildinfunctions150" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinfunctions330" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions400" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions420" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions430" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions400_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions400_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_only" context="#stay"/>
 				
 				<!-- numbers -->
 				<Float attribute="Float" context="#stay"/>
@@ -1361,7 +1487,7 @@
 				<StringDetect attribute="Keyword" String="layout" context="Layout300ES"/>
 				
 				<!-- override these keywords, it's not available in ES 3 -->
-				<keyword attribute="Reserved" String="keywordsRemovedInES3" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordsRemovedInES300" context="#stay"/>
 				
 				<!-- language features -->
 				<keyword attribute="Reserved" String="keywordsCompatibility" context="#stay"/>
@@ -1381,7 +1507,8 @@
 				<keyword attribute="Keywordstypes" String="keywordstypes140" context="#stay"/>
 				<keyword attribute="Keywordstypes" String="keywordstypes150" context="#stay"/>
 				<keyword attribute="Reserved" String="keywordstypes400" context="#stay"/>
-				<keyword attribute="Reserved" String="keywordstypes420" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_only" context="#stay"/>
 				
 				<keyword attribute="Reserved" String="reservedkeywords" context="#stay"/>
 				
@@ -1390,6 +1517,7 @@
 				<keyword attribute="Buildinvariables" String="buildinvariables120" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables140" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables150" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinvariables310ES" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables400" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables410" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables430" context="#stay"/>
@@ -1415,10 +1543,94 @@
 				<keyword attribute="Buildinfunctions" String="buildinfunctions140" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinfunctions150" context="#stay"/>
 				<keyword attribute="Buildinfunctions" String="buildinfunctions330" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions400" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions420" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions430" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions400_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions400_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_only" context="#stay"/>
 				
+				<!-- numbers -->
+				<Float attribute="Float" context="#stay"/>
+				<HlCOct attribute="Octal" context="#stay"/>
+				<HlCHex attribute="Hex" context="#stay"/>
+				<Int attribute="Decimal" context="#stay"/>
+				<!-- comments -->
+				<Detect2Chars attribute="Comment" context="CommentSingleLine" char="/" char1="/"/>
+				<Detect2Chars attribute="Comment" context="CommentMultiLine" char="/" char1="*" beginRegion="Comment"/>
+				<!-- preprocessor -->
+				<DetectChar attribute="Preprocessor" context="Preprocessor" char="#" firstNonSpace="true"/>
+			</context>
+
+	  <!-- ################################################################################################# GLSL version GLES 3 -->
+			<context name="v310ES" attribute="Normaltext" lineEndContext="#stay">
+			<!-- special rules for layouts -->
+				<StringDetect attribute="Keyword" String="layout" context="Layout310ES"/>
+				 
+				<!-- override these keywords, it's not available in ES 310 -->
+				<keyword attribute="Reserved" String="keywordsRemovedInES310" context="#stay"/>
+				 
+				<!-- language features -->
+				<keyword attribute="Reserved" String="keywordsCompatibility" context="#stay"/>
+				<keyword attribute="Keyword" String="keywordsPrecision" context="#stay"/>
+				<keyword attribute="Keyword" String="keywords100ES" context="#stay"/>
+				<keyword attribute="Keyword" String="keywords110" context="#stay"/>
+				<keyword attribute="Keyword" String="keywords120" context="#stay"/>
+				<keyword attribute="Keyword" String="keywords130" context="#stay"/>
+				<keyword attribute="Keyword" String="keywords140" context="#stay"/>
+				<keyword attribute="Reserved" String="keywords400" context="#stay"/>
+				<keyword attribute="Keyword"  String="keywords420" context="#stay"/>
+				<keyword attribute="Keyword"  String="keywords430" context="#stay"/>
+				<keyword attribute="Keywordstypes" String="keywordstypes100es" context="#stay"/>
+				<keyword attribute="Keywordstypes" String="keywordstypes110" context="#stay"/>
+				<keyword attribute="Keywordstypes" String="keywordstypes120" context="#stay"/>
+				<keyword attribute="Keywordstypes" String="keywordstypes130" context="#stay"/>
+				<keyword attribute="Keywordstypes" String="keywordstypes140" context="#stay"/>
+				<keyword attribute="Keywordstypes" String="keywordstypes150" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes400" context="#stay"/>
+				<keyword attribute="Keywordstypes" String="keywordstypes420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_only" context="#stay"/>
+				 
+				<keyword attribute="Reserved" String="reservedkeywords" context="#stay"/>
+				 
+				<StringDetect attribute="Reserved" String="gl_ClipDistance" context="#stay"/>
+				<keyword attribute="Buildinvariables" String="buildinvariables110" context="#stay"/>
+				<keyword attribute="Buildinvariables" String="buildinvariables120" context="#stay"/>
+				<keyword attribute="Buildinvariables" String="buildinvariables140" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinvariables150" context="#stay"/>
+				<keyword attribute="Buildinvariables" String="buildinvariables310ES" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinvariables400" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinvariables410" context="#stay"/>
+				<keyword attribute="Buildinvariables" String="buildinvariables430" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinvariablesDeprecated" context="#stay"/>
+				
+				<keyword attribute="Buildconstants" String="buildinconstants310ES" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinconstants110" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinconstants130" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinconstants150" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinconstants400" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinconstants410" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinconstants420" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinconstants430" context="#stay"/>
+				 
+				<keyword attribute="Reserved" String="buildinfunctionsDeprecated" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctionsDeprecatedES" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions300ES" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions100ES" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions110" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions110Noise" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions120" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions130" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions140" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions150" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions330" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions400_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions400_only" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_only" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions430_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_only" context="#stay"/>
+				 
 				<!-- numbers -->
 				<Float attribute="Float" context="#stay"/>
 				<HlCOct attribute="Octal" context="#stay"/>
@@ -1454,7 +1666,8 @@
 				<keyword attribute="Keywordstypes" String="keywordstypes140" context="#stay"/>
 				<keyword attribute="Keywordstypes" String="keywordstypes150" context="#stay"/>
 				<keyword attribute="Reserved" String="keywordstypes400" context="#stay"/>
-				<keyword attribute="Reserved" String="keywordstypes420" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_only" context="#stay"/>
 				
 				<keyword attribute="Reserved" String="reservedkeywords" context="#stay"/>
 				
@@ -1462,6 +1675,7 @@
 				<keyword attribute="Buildinvariables" String="buildinvariables120" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables140" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables150" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinvariables310ES" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables400" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables410" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables430" context="#stay"/>
@@ -1485,9 +1699,12 @@
 				<keyword attribute="Buildinfunctions" String="buildinfunctions140" context="#stay"/>
 				<keyword attribute="Buildinfunctions" String="buildinfunctions150" context="#stay"/>
 				<keyword attribute="Buildinfunctions" String="buildinfunctions330" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions400" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions420" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions430" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions400_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions400_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_only" context="#stay"/>
 				
 				<!-- numbers -->
 				<Float attribute="Float" context="#stay"/>
@@ -1524,7 +1741,8 @@
 				<keyword attribute="Keywordstypes" String="keywordstypes140" context="#stay"/>
 				<keyword attribute="Keywordstypes" String="keywordstypes150" context="#stay"/>
 				<keyword attribute="Keywordstypes" String="keywordstypes400" context="#stay"/>
-				<keyword attribute="Reserved" String="keywordstypes420" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_only" context="#stay"/>
 				
 				<keyword attribute="Reserved" String="reservedkeywords" context="#stay"/>
 				
@@ -1532,6 +1750,7 @@
 				<keyword attribute="Buildinvariables" String="buildinvariables120" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables140" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables150" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinvariables310ES" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables400" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables410" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables430" context="#stay"/>
@@ -1555,9 +1774,12 @@
 				<keyword attribute="Buildinfunctions" String="buildinfunctions140" context="#stay"/>
 				<keyword attribute="Buildinfunctions" String="buildinfunctions150" context="#stay"/>
 				<keyword attribute="Buildinfunctions" String="buildinfunctions330" context="#stay"/>
-				<keyword attribute="Buildinfunctions" String="buildinfunctions400" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions420" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions430" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions400_es310" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions400_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_only" context="#stay"/>
 				
 				<!-- numbers -->
 				<Float attribute="Float" context="#stay"/>
@@ -1594,7 +1816,8 @@
 				<keyword attribute="Keywordstypes" String="keywordstypes140" context="#stay"/>
 				<keyword attribute="Keywordstypes" String="keywordstypes150" context="#stay"/>
 				<keyword attribute="Keywordstypes" String="keywordstypes400" context="#stay"/>
-				<keyword attribute="Reserved" String="keywordstypes420" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="keywordstypes420_only" context="#stay"/>
 				
 				<keyword attribute="Reserved" String="reservedkeywords" context="#stay"/>
 				
@@ -1602,6 +1825,7 @@
 				<keyword attribute="Buildinvariables" String="buildinvariables120" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables140" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables150" context="#stay"/>
+				<keyword attribute="Reserved"		 String="buildinvariables310ES" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables400" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables410" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables430" context="#stay"/>
@@ -1625,9 +1849,12 @@
 				<keyword attribute="Buildinfunctions" String="buildinfunctions140" context="#stay"/>
 				<keyword attribute="Buildinfunctions" String="buildinfunctions150" context="#stay"/>
 				<keyword attribute="Buildinfunctions" String="buildinfunctions330" context="#stay"/>
-				<keyword attribute="Buildinfunctions" String="buildinfunctions400" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions420" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions430" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions400_es310" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions400_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions420_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_only" context="#stay"/>
 				
 				<!-- numbers -->
 				<Float attribute="Float" context="#stay"/>
@@ -1664,7 +1891,8 @@
 				<keyword attribute="Keywordstypes" String="keywordstypes140" context="#stay"/>
 				<keyword attribute="Keywordstypes" String="keywordstypes150" context="#stay"/>
 				<keyword attribute="Keywordstypes" String="keywordstypes400" context="#stay"/>
-				<keyword attribute="Keywordstypes" String="keywordstypes420" context="#stay"/>
+				<keyword attribute="Keywordstypes" String="keywordstypes420_es310" context="#stay"/>
+				<keyword attribute="Keywordstypes" String="keywordstypes420_only" context="#stay"/>
 				
 				<keyword attribute="Reserved" String="reservedkeywords" context="#stay"/>
 				
@@ -1672,6 +1900,7 @@
 				<keyword attribute="Buildinvariables" String="buildinvariables120" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables140" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables150" context="#stay"/>
+				<keyword attribute="Reserved"		 String="buildinvariables310ES" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables400" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables410" context="#stay"/>
 				<keyword attribute="Reserved" String="buildinvariables430" context="#stay"/>
@@ -1695,9 +1924,12 @@
 				<keyword attribute="Buildinfunctions" String="buildinfunctions140" context="#stay"/>
 				<keyword attribute="Buildinfunctions" String="buildinfunctions150" context="#stay"/>
 				<keyword attribute="Buildinfunctions" String="buildinfunctions330" context="#stay"/>
-				<keyword attribute="Buildinfunctions" String="buildinfunctions400" context="#stay"/>
-				<keyword attribute="Buildinfunctions" String="buildinfunctions420" context="#stay"/>
-				<keyword attribute="Reserved" String="buildinfunctions430" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions400_es310" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions400_only" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions420_es310" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions420_only" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_es310" context="#stay"/>
+				<keyword attribute="Reserved" String="buildinfunctions430_only" context="#stay"/>
 				
 				<!-- numbers -->
 				<Float attribute="Float" context="#stay"/>
@@ -1734,7 +1966,8 @@
 				<keyword attribute="Keywordstypes" String="keywordstypes140" context="#stay"/>
 				<keyword attribute="Keywordstypes" String="keywordstypes150" context="#stay"/>
 				<keyword attribute="Keywordstypes" String="keywordstypes400" context="#stay"/>
-				<keyword attribute="Keywordstypes" String="keywordstypes420" context="#stay"/>
+				<keyword attribute="Keywordstypes" String="keywordstypes420_es310" context="#stay"/>
+				<keyword attribute="Keywordstypes" String="keywordstypes420_only" context="#stay"/>
 				
 				<keyword attribute="Reserved" String="reservedkeywords" context="#stay"/>
 				
@@ -1742,6 +1975,7 @@
 				<keyword attribute="Buildinvariables" String="buildinvariables120" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables140" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables150" context="#stay"/>
+				<keyword attribute="Reserved"		 String="buildinvariables310ES" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables400" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables410" context="#stay"/>
 				<keyword attribute="Buildinvariables" String="buildinvariables430" context="#stay"/>
@@ -1765,9 +1999,12 @@
 				<keyword attribute="Buildinfunctions" String="buildinfunctions140" context="#stay"/>
 				<keyword attribute="Buildinfunctions" String="buildinfunctions150" context="#stay"/>
 				<keyword attribute="Buildinfunctions" String="buildinfunctions330" context="#stay"/>
-				<keyword attribute="Buildinfunctions" String="buildinfunctions400" context="#stay"/>
-				<keyword attribute="Buildinfunctions" String="buildinfunctions420" context="#stay"/>
-				<keyword attribute="Buildinfunctions" String="buildinfunctions430" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions400_es310" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions400_only" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions420_es310" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions420_only" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions430_es310" context="#stay"/>
+				<keyword attribute="Buildinfunctions" String="buildinfunctions430_only" context="#stay"/>
 				
 				<!-- numbers -->
 				<Float attribute="Float" context="#stay"/>
@@ -1869,6 +2106,20 @@
 				<keyword attribute="Reserved" String="layoutqualifier430" context="#stay"/>
 				<Int attribute="Decimal" context="#stay"/>
 			</context>
+			<context name="Layout310ES" attribute="Normaltext" lineEndContext="#stay">
+				<DetectChar attribute="Normaltext" context="LayoutOpen310ES" char="("/>
+			</context>
+			<context name="LayoutOpen310ES" attribute="Normaltext" lineEndContext="#stay">
+				<DetectChar attribute="Normaltext" context="#pop#pop" char=")"/>
+				<keyword attribute="Keyword" String="layoutqualifier300ES" context="#stay"/>
+				<keyword attribute="Keyword" String="layoutqualifier310ES" context="#stay"/>
+				<keyword attribute="Reserved" String="layoutqualifier150" context="#stay"/>
+				<keyword attribute="Reserved" String="layoutqualifier330" context="#stay"/>
+				<keyword attribute="Reserved" String="layoutqualifier400" context="#stay"/>
+				<keyword attribute="Reserved" String="layoutqualifier420" context="#stay"/>
+				<keyword attribute="Keyword" String="layoutqualifier430" context="#stay"/>
+				<Int attribute="Decimal" context="#stay"/>
+			</context>
 			
 			<!-- end of comments -->
 			<context name="CommentSingleLine" attribute="Comment" lineEndContext="#pop">
@@ -1886,8 +2137,8 @@
 		
 		
 		<!-- ################################################################################################################ 
-		     ####################################################################################################### coloring 
-		     ################################################################################################################ -->
+			 ####################################################################################################### coloring 
+			 ################################################################################################################ -->
 		<itemDatas>
 			<!-- coloring definition -->
 			<itemData name="Normaltext" defStyleNum="dsNormal"/>

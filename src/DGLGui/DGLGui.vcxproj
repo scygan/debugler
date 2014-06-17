@@ -2176,6 +2176,9 @@
     <Image Include="icons\renderbuffer.png" />
     <Image Include="icons\textureunit.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="res\glsl.xml" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
