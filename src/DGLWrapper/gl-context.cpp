@@ -3257,7 +3257,6 @@ bool GLContext::hasCapability(ContextCap cap) const {
             return version.check(GLContextVersion::Type::DT);
 
         case ContextCap::GLSLShaders:
-        case ContextCap::GenericVertexAttribs:
             return version.check(GLContextVersion::Type::DT, 2) ||
                 version.check(GLContextVersion::Type::ES, 2);
 

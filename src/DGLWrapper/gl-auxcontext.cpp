@@ -54,10 +54,10 @@ GLAuxContextSurfaceBase::GLAuxContextSurfaceBase(const DGLDisplayState* display)
 opaque_id_t GLAuxContextSurfaceBase::getId() const { return m_Id; }
 
 GLAuxEGLContextSurface::GLAuxEGLContextSurface(const DGLDisplayState* display,
-                                               opaque_id_t pixfmt)
+                                               opaque_id_t pixfmt, GLint width, GLint height)
         : GLAuxContextSurfaceBase(display) {
 
-    EGLint attributes[] = {EGL_HEIGHT, 1, EGL_WIDTH, 1, EGL_NONE};
+    EGLint attributes[] = {EGL_HEIGHT, height, EGL_WIDTH, width, EGL_NONE};
 
     m_Id = (opaque_id_t)DIRECT_CALL_CHK(eglCreatePbufferSurface)(
             (EGLDisplay)m_DisplayId, (EGLConfig)pixfmt, attributes);
@@ -76,14 +76,14 @@ GLAuxEGLContextSurface::~GLAuxEGLContextSurface() {
 #ifdef _WIN32 
 
 GLAuxWGLContextSurface::GLAuxWGLContextSurface(const DGLDisplayState* display,
-                                               opaque_id_t pixfmt)
+                                               opaque_id_t pixfmt, GLint width, GLint height)
         : GLAuxContextSurfaceBase(display), m_pBuffer(0) {
 
     const int attributes[] = { 0, 0 };
 
     HDC hdc = DIRECT_CALL_CHK(wglGetCurrentDC)();
     m_pBuffer = (opaque_id_t)DIRECT_CALL_CHK(wglCreatePbufferARB)(
-            hdc, static_cast<int>(pixfmt), 1, 1, attributes);
+            hdc, static_cast<int>(pixfmt), width, height, attributes);
     
     if (!m_pBuffer) {
         throw std::runtime_error("Cannot allocate axualiary pbuffer surface");
@@ -134,6 +134,34 @@ std::shared_ptr<GLAuxContext> GLAuxContext::Create(const GLContext* parrent) {
 
 GLAuxContextSession GLAuxContext::createAuxCtxSession() {
     return GLAuxContextSession(this);
+}
+
+void GLAuxContext::resizeAuxSurface(GLint width, GLint height) {
+    
+    std::shared_ptr<GLAuxContextSurfaceBase> oldSurface = m_AuxSurface;
+
+    try {
+
+        //ubnind the surface
+        unmakeCurrent();
+
+        //allocate new surface of proper size
+        m_AuxSurface = createNewSurface(width, height);
+
+        //bind the surface again.
+        makeCurrent();
+
+    } catch (std::runtime_error& e) {
+        //make the surface current (using old, working surface)
+        //for the sake of GL context destructors;
+
+        m_AuxSurface = oldSurface;
+
+        makeCurrent();
+
+        throw e;
+    }
+
 }
 
 void GLAuxContext::doRefCurrent() {
@@ -188,8 +216,7 @@ GLEGLAuxContext::GLEGLAuxContext(const GLContext* parrent)
         throw std::runtime_error("Cannot allocate auxiliary context");
     }
 
-    m_AuxSurface = std::make_shared<GLAuxEGLContextSurface>(
-            m_Parrent->getDisplay(), m_PixelFormat);
+    m_AuxSurface = createNewSurface();
 }
 
 GLEGLAuxContext::~GLEGLAuxContext() {
@@ -249,6 +276,11 @@ opaque_id_t GLEGLAuxContext::choosePixelFormat(opaque_id_t preferred,
     return (opaque_id_t)ret;
 }
 
+std::shared_ptr<GLAuxContextSurfaceBase> GLEGLAuxContext::createNewSurface(GLint width, GLint height) {
+    return std::make_shared<GLAuxEGLContextSurface>(
+            m_Parrent->getDisplay(), m_PixelFormat, width, height);
+}
+
 bool GLEGLAuxContext::makeCurrent() {
     EGLBoolean status = DIRECT_CALL_CHK(eglMakeCurrent)(
             (EGLDisplay)m_Parrent->getDisplay()->getId(),
@@ -288,8 +320,7 @@ GLWGLAuxContext::GLWGLAuxContext(const GLContext* parrent)
 
     m_PixelFormat = choosePixelFormat((opaque_id_t)currentDC, GetPixelFormat(currentDC));
 
-    m_AuxSurface = std::make_shared<GLAuxWGLContextSurface>(
-            m_Parrent->getDisplay(), m_PixelFormat);
+    m_AuxSurface = createNewSurface();
 
     switch (m_Parrent->getContextCreationData().getEntryPoint()) {
         case wglCreateContext_Call:
@@ -355,6 +386,13 @@ int GLWGLAuxContext::choosePixelFormat(opaque_id_t hdc,
     }
     return ret;
 }
+
+std::shared_ptr<GLAuxContextSurfaceBase> GLWGLAuxContext::createNewSurface(GLint width, GLint height) {
+    return std::make_shared<GLAuxWGLContextSurface>(
+        m_Parrent->getDisplay(), m_PixelFormat, width, height);
+}
+
+
 
 bool GLWGLAuxContext::makeCurrent() {
     BOOL status = DIRECT_CALL_CHK(wglMakeCurrent)((HDC)m_AuxSurface->getId(),
@@ -422,35 +460,47 @@ void GLAuxContext::GLQueries::setupInitialState() {
 
     DIRECT_CALL_CHK(glGenBuffers)(1, &vbo);
     DIRECT_CALL_CHK(glBindBuffer)(GL_ARRAY_BUFFER, vbo);
-    GLfloat triangleStrip[] = {-1.0f, 1.0f,  0.0f, 1.0f, -1.0f, -1.0f,
-                               0.0f,  1.0f,  1.0f, 1.0f, 0.0f,  1.0f,
-                               1.0f,  -1.0f, 0.0f, 1.0f};
+    GLfloat triangleStrip[] = {
+        -1.0f,  1.0f, 0.0f, 1.0f,
+        -1.0f, -1.0f, 0.0f, 1.0f,
+         1.0f,  1.0f, 0.0f, 1.0f,
+         1.0f, -1.0f, 0.0f, 1.0f
+    };
+
+    GLfloat textureCoords[] = {
+        0.0f, 1.0f, 
+        0.0f, 0.0f, 
+        1.0f, 1.0f, 
+        1.0f, 0.0f, 
+    };
 
     GLfloat vertexPos[BufferGetterChunkSize];
     for (int i = 0; i < BufferGetterChunkSize; i++)
         vertexPos[i] = static_cast<GLfloat>(i) /
-                               static_cast<GLfloat>(BufferGetterChunkSize) *
-                               2.0f -
-                       1.0f;
+                               static_cast<GLfloat>(BufferGetterChunkSize) * 2.0f - 1.0f;
+
+    const size_t triangleStripOffset = 0;
+    const size_t vertexPosOffset     = triangleStripOffset + sizeof(triangleStrip);
+    const size_t textureCoordsOffset = triangleStripOffset + vertexPosOffset + sizeof(vertexPos);
 
     DIRECT_CALL_CHK(glBufferData)(GL_ARRAY_BUFFER,
-                                  sizeof(triangleStrip) + sizeof(vertexPos),
+                                  sizeof(triangleStrip) + sizeof(vertexPos) + sizeof(textureCoords),
                                   NULL, GL_STATIC_DRAW);
 
-    DIRECT_CALL_CHK(glBufferSubData)(GL_ARRAY_BUFFER, 0, sizeof(triangleStrip),
+    DIRECT_CALL_CHK(glBufferSubData)(GL_ARRAY_BUFFER, triangleStripOffset, sizeof(triangleStrip),
                                      triangleStrip);
-    DIRECT_CALL_CHK(glBufferSubData)(GL_ARRAY_BUFFER, sizeof(triangleStrip),
+    DIRECT_CALL_CHK(glBufferSubData)(GL_ARRAY_BUFFER, vertexPosOffset,
                                      sizeof(vertexPos), vertexPos);
+    DIRECT_CALL_CHK(glBufferSubData)(GL_ARRAY_BUFFER, textureCoordsOffset,
+                                     sizeof(textureCoords), textureCoords);
 
-    if (m_AuxCtx->m_Parrent->hasCapability(GLContext::ContextCap::GenericVertexAttribs)) {
+    if (m_AuxCtx->m_Parrent->hasCapability(GLContext::ContextCap::GLSLShaders)) {
 
-        DIRECT_CALL_CHK(glVertexAttribPointer)(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
-        DIRECT_CALL_CHK(glEnableVertexAttribArray)(0);
-        DIRECT_CALL_CHK(glVertexAttribPointer)(
-            1, 1, GL_FLOAT, GL_FALSE, 0,
-            reinterpret_cast<GLvoid*>(sizeof(triangleStrip)));
-        DIRECT_CALL_CHK(glEnableVertexAttribArray)(1);
-
+        DIRECT_CALL_CHK(glVertexAttribPointer)(0, 4, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(triangleStripOffset));
+        DIRECT_CALL_CHK(glVertexAttribPointer)(1, 1, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(vertexPosOffset));
+    } else {
+        DIRECT_CALL_CHK(glVertexPointer)(4, GL_FLOAT, 0, reinterpret_cast<GLvoid*>(triangleStripOffset));
+        DIRECT_CALL_CHK(glTexCoordPointer)(2, GL_FLOAT, 0, reinterpret_cast<GLvoid*>(textureCoordsOffset));
     }
 
     if (m_AuxCtx->m_Parrent->hasCapability(GLContext::ContextCap::GLSLShaders)) {
@@ -514,10 +564,10 @@ void GLAuxContext::GLQueries::setupInitialState() {
 
             linkProgram(programGetBuffer);
         }
+    }
 
-        if (DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR) {
-            throw std::runtime_error("Got GL error on auxiliary context");
-        }
+    if (DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR) {
+        throw std::runtime_error("Got GL error on auxiliary context");
     }
 
     m_InitialState = true;
@@ -530,54 +580,71 @@ void GLAuxContext::GLQueries::auxDrawTexture(GLuint name, GLenum target,
                                              GLenum renderableFormat, int width,
                                              int height) {
 
-    if (!m_AuxCtx->m_Parrent->getVersion().check(GLContextVersion::Type::ES,
-                                                 2)) {
-        throw std::runtime_error(
-                "GLAuxContext::GLQueries::auxGetTexImage not implemented for "
-                "this "
-                "context version");
-    }
-
     if (!DIRECT_CALL_CHK(glIsTexture)(name)) {
         throw std::runtime_error(
                 "Texture object not found in auxaliary context");
     }
 
-    DIRECT_CALL_CHK(glBindTexture)(target, rtt);
+    if (m_AuxCtx->m_Parrent->hasCapability(GLContext::ContextCap::FramebufferObjects)) {
+        //use FBO as render target for drawing the texture
 
-    const GLInternalFormat* internalFormatDesc =
+        DIRECT_CALL_CHK(glBindTexture)(target, rtt);
+
+        const GLInternalFormat* internalFormatDesc =
             GLFormats::getInternalFormat(renderableFormat);
 
-    if (!m_AuxCtx->m_Parrent->getVersion().check(GLContextVersion::Type::ES,
-                                                 3)) {
-        // On ES2.0 only unsized formats are supported.
-        renderableFormat = (GLenum)internalFormatDesc->dataFormat;
-    }
+        if (!m_AuxCtx->m_Parrent->getVersion().check(GLContextVersion::Type::ES,
+            3)) {
+                // On ES2.0 only unsized formats are supported.
+                renderableFormat = (GLenum)internalFormatDesc->dataFormat;
+        }
 
-    DIRECT_CALL_CHK(glTexImage2D)(GL_TEXTURE_2D, 0, renderableFormat, width,
-                                  height, 0,
-                                  (GLenum)internalFormatDesc->dataFormat,
-                                  (GLenum)internalFormatDesc->dataType, NULL);
+        DIRECT_CALL_CHK(glTexImage2D)(GL_TEXTURE_2D, 0, renderableFormat, width,
+            height, 0,
+            (GLenum)internalFormatDesc->dataFormat,
+            (GLenum)internalFormatDesc->dataType, NULL);
+
+        DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, fbo);
+
+    } else {
+        //use default framebuffer for drawing the texture.
+        //Must resize it to proper size.
+        m_AuxCtx->resizeAuxSurface(width, height);
+    }
+    
 
     DIRECT_CALL_CHK(glBindTexture)(target, name);
 
-    GLuint program = getTextureShaderProgram(target, textureBaseFormat);
-    DIRECT_CALL_CHK(glUseProgram)(program);
-    DIRECT_CALL_CHK(glUniform1f)(
+    if (m_AuxCtx->m_Parrent->hasCapability(GLContext::ContextCap::GLSLShaders)) {
+        GLuint program = getTextureShaderProgram(target, textureBaseFormat);
+        DIRECT_CALL_CHK(glUseProgram)(program);
+        DIRECT_CALL_CHK(glUniform1f)(
             DIRECT_CALL_CHK(glGetUniformLocation)(program, "level"),
             static_cast<GLfloat>(level));
 
-    DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, fbo);
+        DIRECT_CALL_CHK(glEnableVertexAttribArray)(0);
+        DIRECT_CALL_CHK(glDisableVertexAttribArray)(1);
+        DIRECT_CALL_CHK(glDisableVertexAttribArray)(2);
+    } else {
+        //Use fixed function processing
+        DIRECT_CALL_CHK(glEnableClientState)(GL_VERTEX_ARRAY);
+        DIRECT_CALL_CHK(glEnableClientState)(GL_TEXTURE_COORD_ARRAY);
+        DIRECT_CALL_CHK(glEnable)(GL_TEXTURE_2D);
+    }
+
+    
     DIRECT_CALL_CHK(glClear)(GL_COLOR_BUFFER_BIT);
     DIRECT_CALL_CHK(glViewport)(0, 0, width, height);
-
-    DIRECT_CALL_CHK(glEnableVertexAttribArray)(0);
-    DIRECT_CALL_CHK(glDisableVertexAttribArray)(1);
-    DIRECT_CALL_CHK(glDisableVertexAttribArray)(2);
-
+    
     DIRECT_CALL_CHK(glDrawArrays)(GL_TRIANGLE_STRIP, 0, 4);
 
-    DIRECT_CALL_CHK(glDisableVertexAttribArray)(0);
+    if (m_AuxCtx->m_Parrent->hasCapability(GLContext::ContextCap::GLSLShaders)) {
+        DIRECT_CALL_CHK(glDisableVertexAttribArray)(0);
+    } else {
+        DIRECT_CALL_CHK(glDisableClientState)(GL_VERTEX_ARRAY);
+        DIRECT_CALL_CHK(glDisableClientState)(GL_TEXTURE_COORD_ARRAY);
+        DIRECT_CALL_CHK(glDisable)(GL_TEXTURE_2D);
+    }
 
     (void)layer;    // no program for 3D textures, yet
     (void)face;    // no program for CM textures, yet

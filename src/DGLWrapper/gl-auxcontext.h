@@ -54,7 +54,7 @@ class GLAuxContextSurfaceBase {
 
 class GLAuxEGLContextSurface: public GLAuxContextSurfaceBase  {
 public:
-    GLAuxEGLContextSurface(const DGLDisplayState* display, opaque_id_t pixfmt);
+    GLAuxEGLContextSurface(const DGLDisplayState* display, opaque_id_t pixfmt, GLint width, GLint height);
     ~GLAuxEGLContextSurface();
 };
 
@@ -62,7 +62,7 @@ public:
 #ifdef _WIN32
 class GLAuxWGLContextSurface: public GLAuxContextSurfaceBase  {
 public:
-    GLAuxWGLContextSurface(const DGLDisplayState* display, opaque_id_t pixfmt);
+    GLAuxWGLContextSurface(const DGLDisplayState* display, opaque_id_t pixfmt, GLint width, GLint height);
     ~GLAuxWGLContextSurface();
 private:
     opaque_id_t m_pBuffer;
@@ -85,6 +85,8 @@ class GLAuxContext {
     static std::shared_ptr<GLAuxContext> Create(const GLContext* parrent);
 
     GLAuxContextSession createAuxCtxSession();
+
+    void resizeAuxSurface(GLint width, GLint height);
 
     class GLQueries {
        public:
@@ -122,6 +124,8 @@ class GLAuxContext {
     void doRefCurrent();
     bool doUnrefCurrent();
 
+    virtual std::shared_ptr<GLAuxContextSurfaceBase> createNewSurface(GLint width = 1, GLint height = 1) = 0;
+
     virtual bool makeCurrent() = 0;
     virtual bool unmakeCurrent() = 0;
    
@@ -142,6 +146,7 @@ public:
 
 private:
     opaque_id_t choosePixelFormat(opaque_id_t preferred, opaque_id_t displayId);
+    virtual std::shared_ptr<GLAuxContextSurfaceBase> createNewSurface(GLint width = 1, GLint height = 1) override;
     virtual bool makeCurrent();
     virtual bool unmakeCurrent();
 };
@@ -154,6 +159,7 @@ public:
 
 private:
     int choosePixelFormat(opaque_id_t preferred, int displayId);
+    virtual std::shared_ptr<GLAuxContextSurfaceBase> createNewSurface(GLint width = 1, GLint height = 1) override;
     virtual bool makeCurrent();
     virtual bool unmakeCurrent();
 };
