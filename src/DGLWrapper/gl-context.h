@@ -129,8 +129,8 @@ class GLContext {
     void queryTextureLevelSize(const GLTextureObj* tex, GLuint level,
                                GLint* width, GLint* height, GLint* depth);
 
-    bool textureProbeSizeES(GLenum levelTarget, int level, const int sizes[3]);
-    int textureBisectSizeES(GLenum levelTarget, int level, int coord, int maxSize);
+    bool textureProbeSizeES(GLenum levelTarget, int level, GLenum formatToRequest, GLenum typeToRequest, const int sizes[3]);
+    int textureBisectSizeES(GLenum levelTarget, int level, int coord, int maxSize, GLenum formatToRequest, GLenum typeToRequest);
 
 
     /**

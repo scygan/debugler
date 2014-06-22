@@ -523,7 +523,7 @@ void GLContext::queryTextureLevelSize(const GLTextureObj* tex, GLuint level,
             }
         }
     } else {
-
+        
         // We cannot easily get texture size without level getters.
         // At first try to bisect the texture size using TexSubImage. If it
         // fails (bisection fails,
@@ -533,8 +533,21 @@ void GLContext::queryTextureLevelSize(const GLTextureObj* tex, GLuint level,
         GLint maxSize = 16384;
         DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_TEXTURE_SIZE, &maxSize);
 
+        GLenum formatToRequest = GL_RGBA;
+        GLenum typeToRequest = GL_UNSIGNED_BYTE;
+
         const GLTextureObj::GLTextureLevel* requestedLevel =
                 tex->getRequestedLevel(level);
+
+        if (requestedLevel) {
+            const GLInternalFormat* internalFormatDesc =
+                GLFormats::getInternalFormat(
+                requestedLevel->m_RequestedInternalFormat);
+            if (internalFormatDesc) {
+                formatToRequest = static_cast<GLenum>(internalFormatDesc->dataFormat);
+                typeToRequest =   static_cast<GLenum>(internalFormatDesc->dataType);
+            }
+        }
 
         const GLTextureObj::GLTextureLevel* requestedLevelMinusOne = nullptr;
 
@@ -543,7 +556,7 @@ void GLContext::queryTextureLevelSize(const GLTextureObj* tex, GLuint level,
         }
 
         if (width) {
-            *width = textureBisectSizeES(levelTarget, level, 0, maxSize);
+            *width = textureBisectSizeES(levelTarget, level, 0, maxSize, formatToRequest, typeToRequest);
             if (*width == maxSize || *width == 0) {
                 OS_DEBUG("Texture width bisection failed: got width %d\n.",
                           *width);
@@ -561,7 +574,7 @@ void GLContext::queryTextureLevelSize(const GLTextureObj* tex, GLuint level,
             }
         }
         if (height) {
-            *height = textureBisectSizeES(levelTarget, level, 1, maxSize);
+            *height = textureBisectSizeES(levelTarget, level, 1, maxSize, formatToRequest, typeToRequest);
             if (*height == maxSize || *height == 0) {
                 OS_DEBUG("Texture height bisection failed: got height %d\n.",
                           *height);
@@ -580,7 +593,7 @@ void GLContext::queryTextureLevelSize(const GLTextureObj* tex, GLuint level,
         }
 
         if (depth) {
-            *depth = textureBisectSizeES(levelTarget, level, 2, maxSize);
+            *depth = textureBisectSizeES(levelTarget, level, 2, maxSize, formatToRequest, typeToRequest);
             if (*depth == maxSize || *depth == 0) {
                 OS_DEBUG("Texture depth bisection failed: got depth %d\n.",
                           *depth);
@@ -610,7 +623,7 @@ GLContext::queryTextureLevel(const GLTextureObj* tex, int level, int layer, int 
     }
 }
 
-bool GLContext::textureProbeSizeES(GLenum levelTarget, int level,
+bool GLContext::textureProbeSizeES(GLenum levelTarget, int level, GLenum formatToRequest, GLenum typeToRequest,
                                    const int sizes[3]) {
 
     int nothing = 0;
@@ -618,19 +631,19 @@ bool GLContext::textureProbeSizeES(GLenum levelTarget, int level,
     if (isTexture1Dim(levelTarget)) {
 
         DIRECT_CALL_CHK(glTexSubImage1D)(levelTarget, level, sizes[0], 0,
-                                         GL_RGBA, GL_UNSIGNED_BYTE, &nothing);
+                                         formatToRequest, typeToRequest, &nothing);
 
     } else if (isTexture2Dim(levelTarget)) {
 
         DIRECT_CALL_CHK(glTexSubImage2D)(levelTarget, level, sizes[0], sizes[1],
-                                         0, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                                         0, 0, formatToRequest, typeToRequest,
                                          &nothing);
 
     } else {
 
         DIRECT_CALL_CHK(glTexSubImage3D)(levelTarget, level, sizes[0], sizes[1],
-                                         sizes[2], 0, 0, 0, GL_RGBA,
-                                         GL_UNSIGNED_BYTE, &nothing);
+                                         sizes[2], 0, 0, 0, formatToRequest,
+                                         typeToRequest, &nothing);
     }
 
     GLenum error = DIRECT_CALL_CHK(glGetError)();
@@ -644,7 +657,7 @@ bool GLContext::textureProbeSizeES(GLenum levelTarget, int level,
 }
 
 int GLContext::textureBisectSizeES(GLenum levelTarget, int level, int coord,
-                                   int maxSize) {
+                                   int maxSize, GLenum formatToRequest, GLenum typeToRequest) {
     int sizes[3] = {0, 0, 0};
 
     int minSize = 0;
@@ -653,13 +666,13 @@ int GLContext::textureBisectSizeES(GLenum levelTarget, int level, int coord,
         int middle = (minSize + maxSize) / 2;
         if (maxSize - minSize <= 1) {
             sizes[coord] = maxSize;
-            if (textureProbeSizeES(levelTarget, level, sizes))
+            if (textureProbeSizeES(levelTarget, level, formatToRequest, typeToRequest, sizes))
                 return maxSize;
             else
                 return minSize;
         }
         sizes[coord] = middle;
-        if (textureProbeSizeES(levelTarget, level, sizes)) {
+        if (textureProbeSizeES(levelTarget, level, formatToRequest, typeToRequest, sizes)) {
             minSize = middle;
         } else {
             maxSize = middle;
@@ -674,13 +687,6 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
     std::shared_ptr<dglnet::resource::DGLPixelRectangle> ret;
 
     queryCheckError();
-
-    GLenum levelTarget = tex->getTextureLevelTarget(face);
-
-    GLint probeSizes[3] = {1, 1, 1};
-    if (!textureProbeSizeES(levelTarget, level, probeSizes)) {
-        return ret;
-    }
 
     GLint width, height, depth;
     queryTextureLevelSize(tex, level, &width, &height, &depth);
