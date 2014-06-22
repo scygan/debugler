@@ -398,19 +398,21 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
 
     // check if we know about a texture target
     GLTextureObj* tex = ns().getShared()->get().m_Textures.getObject(name);
-    if (tex->getTarget() == 0) {
-        throw std::runtime_error("Texture target is unknown");
-    } else if (tex->getTarget() != GL_TEXTURE_1D &&
-               tex->getTarget() != GL_TEXTURE_2D &&
-               tex->getTarget() != GL_TEXTURE_3D &&
-               tex->getTarget() != GL_TEXTURE_2D_ARRAY &&
-               tex->getTarget() != GL_TEXTURE_RECTANGLE &&
-               tex->getTarget() != GL_TEXTURE_1D_ARRAY &&
-               tex->getTarget() != GL_TEXTURE_CUBE_MAP) {
-        throw std::runtime_error("Texture target is unsupported");
-    }
 
     resource->m_Target = tex->getTarget();
+
+    if (resource->m_Target == 0) {
+        throw std::runtime_error("Texture target is unknown");
+    } else if (resource->m_Target != GL_TEXTURE_1D &&
+               resource->m_Target != GL_TEXTURE_2D &&
+               resource->m_Target != GL_TEXTURE_2D_MULTISAMPLE &&
+               resource->m_Target != GL_TEXTURE_3D &&
+               resource->m_Target != GL_TEXTURE_2D_ARRAY &&
+               resource->m_Target != GL_TEXTURE_RECTANGLE &&
+               resource->m_Target != GL_TEXTURE_1D_ARRAY &&
+               resource->m_Target != GL_TEXTURE_CUBE_MAP) {
+        throw std::runtime_error("Texture target is unsupported");
+    }
 
     // disconnect PBO if it exists
     state_setters::DefaultPBO defPBO(this);
@@ -473,9 +475,9 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
     return ret;
 }
 
-bool isTexture1Dim(GLenum target) { return target == GL_TEXTURE_1D; }
+bool GLContext::isTexture1Dim(GLenum target) { return target == GL_TEXTURE_1D; }
 
-bool isTexture2Dim(GLenum target) {
+bool GLContext::isTexture2Dim(GLenum target) {
     return (target == GL_TEXTURE_1D_ARRAY || target == GL_TEXTURE_2D ||
             target == GL_TEXTURE_2D_MULTISAMPLE ||
             target == GL_TEXTURE_RECTANGLE || target == GL_TEXTURE_CUBE_MAP ||
@@ -809,49 +811,118 @@ GLContext::queryTextureLevelGetters(
     GLint internalFormat, samples;
     tex->getFormat(this, level, levelTarget, internalFormat, samples);
 
-    DGLPixelTransfer transfer;
-    if (getVersion().check(GLContextVersion::Type::ES)) {
-        GLint implReadFormat, implTypeType;
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_FORMAT,
-                                       &implReadFormat);
-        DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_TYPE,
-                                       &implTypeType);
-        transfer.initializeOGLES(internalFormat, implReadFormat, implTypeType);
-    } else {
-        transfer.initializeOGL(internalFormat, rgbaSizes, deptStencilSizes);
-    }
+    
 
-    ret = std::shared_ptr<dglnet::resource::DGLPixelRectangle>(
-        new dglnet::resource::DGLPixelRectangle(
+    bool multisampled = (levelTarget == GL_TEXTURE_2D_MULTISAMPLE || GL_TEXTURE_2D_MULTISAMPLE_ARRAY);
+
+    if (!multisampled) {
+
+        //glGetTexImage path
+        DGLPixelTransfer transfer;
+        if (getVersion().check(GLContextVersion::Type::ES)) {
+            GLint implReadFormat, implTypeType;
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_FORMAT,
+                &implReadFormat);
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_TYPE,
+                &implTypeType);
+            transfer.initializeOGLES(internalFormat, implReadFormat, implTypeType);
+        } else {
+            transfer.initializeOGL(internalFormat, rgbaSizes, deptStencilSizes);
+        }
+
+        ret = std::shared_ptr<dglnet::resource::DGLPixelRectangle>(
+            new dglnet::resource::DGLPixelRectangle(
             width, height,
             defAlignment.getAligned(width * transfer.getPixelSize()),
             transfer.getFormat(), transfer.getType()));
 
-    GLvoid* ptr;
-    if ((ptr = ret->getPtr()) != NULL) {
-       
-        std::vector<uint8_t> tmpBuffer;
-        uint8_t* readPtr; 
+        GLvoid* ptr;
+        if ((ptr = ret->getPtr()) != NULL) {
 
-        const size_t layerSize = ret->getSize();
+            std::vector<uint8_t> tmpBuffer;
+            uint8_t* readPtr; 
 
-        if (depth == 1) {
-            //only one 2D layer, read it in place
-            readPtr = reinterpret_cast<uint8_t*>(ptr); 
-        } else {
-            //more 2D layers present, prepare a tmp buffer for them
-            tmpBuffer.resize(layerSize * depth);
-            readPtr = &tmpBuffer[0];
+            const size_t layerSize = ret->getSize();
+
+            if (depth == 1) {
+                //only one 2D layer, read it in place
+                readPtr = reinterpret_cast<uint8_t*>(ptr); 
+            } else {
+                //more 2D layers present, prepare a tmp buffer for them
+                tmpBuffer.resize(layerSize * depth);
+                readPtr = &tmpBuffer[0];
+            }
+
+            DIRECT_CALL_CHK(glGetTexImage)(levelTarget, level,
+                (GLenum)transfer.getFormat(),
+                (GLenum)transfer.getType(), readPtr);
+
+            if (readPtr != ptr) {
+                memcpy(ptr, &readPtr[layer * layerSize], layerSize);
+            }
+
         }
+    } else {
+        //downsample MSAA && glReadPixels path.
 
-        DIRECT_CALL_CHK(glGetTexImage)(levelTarget, level,
-                                       (GLenum)transfer.getFormat(),
-                                       (GLenum)transfer.getType(), readPtr);
+        //save fbo bindings
+        state_setters::ReadBuffer readBuffer(this);
+        state_setters::DrawBuffers drawBuffers(this);
+        
 
-        if (readPtr != ptr) {
-            memcpy(ptr, &readPtr[layer * layerSize], layerSize);
+        GLuint fbo;
+        DIRECT_CALL_CHK(glGenFramebuffers)(1, &fbo);
+        try {
+            state_setters::CurrentFramebuffer currentFBO(this, fbo);
+
+            DIRECT_CALL_CHK(glBindFramebuffer)(GL_DRAW_FRAMEBUFFER, fbo);
+            if (levelTarget == GL_TEXTURE_2D_MULTISAMPLE) {
+                DIRECT_CALL_CHK(glFramebufferTexture2D)(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, levelTarget, tex->getName(), level);
+            } else if (levelTarget == GL_TEXTURE_2D_MULTISAMPLE_ARRAY) {
+                DIRECT_CALL_CHK(glFramebufferTextureLayer)(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex->getName(), level, layer);
+            } else {
+                DGL_ASSERT(0);
+            }
+
+            DGLPixelTransfer downsamplerTransfer;
+            downsamplerTransfer.initializeOGL(internalFormat, rgbaSizes,
+                deptStencilSizes);
+            glutils::MSAADownSampler downSampler(this, levelTarget, GL_COLOR_ATTACHMENT0, fbo, internalFormat,
+                &downsamplerTransfer, width, height);
+
+            DIRECT_CALL_CHK(glBindFramebuffer)(
+                GL_READ_FRAMEBUFFER, downSampler.getDownsampledFBO());
+
+            DGLPixelTransfer transfer;
+            if (getVersion().check(GLContextVersion::Type::ES)) {
+                GLint implReadFormat, implTypeType;
+                DIRECT_CALL_CHK(glGetIntegerv)(
+                    GL_IMPLEMENTATION_COLOR_READ_FORMAT, &implReadFormat);
+                DIRECT_CALL_CHK(glGetIntegerv)(
+                    GL_IMPLEMENTATION_COLOR_READ_TYPE, &implTypeType);
+                transfer.initializeOGLES(
+                    internalFormat, implReadFormat, implTypeType);
+            } else {
+                transfer.initializeOGL(internalFormat, rgbaSizes,
+                    deptStencilSizes);
+            }
+
+            ret = std::make_shared<dglnet::resource::DGLPixelRectangle>(
+                width, height, defAlignment.getAligned(
+                width * transfer.getPixelSize()),
+                transfer.getFormat(), transfer.getType());
+
+            GLvoid* ptr = ret->getPtr();
+            if (ptr) {
+                DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height,
+                    (GLenum)transfer.getFormat(),
+                    (GLenum)transfer.getType(), ptr);
+            }
+        } catch (const std::runtime_error& e) {
+            DIRECT_CALL_CHK(glDeleteFramebuffers)(1, &fbo);
+            throw e;
         }
-
+        DIRECT_CALL_CHK(glDeleteFramebuffers)(1, &fbo);
     }
     return ret;
 }

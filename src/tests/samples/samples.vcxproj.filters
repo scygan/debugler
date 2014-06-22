@@ -54,6 +54,9 @@
     <ClCompile Include="samples\sso.cpp">
       <Filter>Samples</Filter>
     </ClCompile>
+    <ClCompile Include="samples\texture2d_msaa.cpp">
+      <Filter>Samples</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sample.h">

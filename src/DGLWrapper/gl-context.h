@@ -100,7 +100,7 @@ class GLContext {
     std::shared_ptr<dglnet::DGLResource> queryState(gl_t name);
 
     /**
-     * texture level query (dispatches to proper query)
+     * texture level query (dispatches to API-specific query implementation)
      */
     std::shared_ptr<dglnet::resource::DGLPixelRectangle> queryTextureLevel(
             const GLTextureObj* tex, int level, int layer, int face,
@@ -115,11 +115,13 @@ class GLContext {
                     state_setters::PixelStoreAlignment& defAlignment);
 
     /**
-     * texture level query (OpenGL ES, using auxiliary ctx)
+     * texture level query (OpenGL ES, using auxiliary context)
      */
     std::shared_ptr<dglnet::resource::DGLPixelRectangle>
             queryTextureLevelAuxCtx(const GLTextureObj* tex, int level, int layer, int face);
 
+    bool isTexture1Dim(GLenum target);
+    bool isTexture2Dim(GLenum target);
 
     /**
      * texture level size query (using getters, or bisection)
