@@ -41,9 +41,8 @@ class SampleFboMSAA : public Sample {
                                   GL_RENDERBUFFER, m_rbo);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1,
                                GL_TEXTURE_2D_MULTISAMPLE, m_textures[0], 0);
-        glFramebufferTexture3D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                               GL_TEXTURE_2D_MULTISAMPLE_ARRAY, m_textures[1],
-                               0, 2);
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                               m_textures[1], 0, 2);
 
         glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
         
