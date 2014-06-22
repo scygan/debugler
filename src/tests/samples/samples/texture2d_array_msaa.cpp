@@ -20,7 +20,7 @@
 
 #ifndef OPENGL_ES2
 
-class SampleTexture2DMSAA : public Sample {
+class SampleTexture2DArrayMSAA : public Sample {
 
     virtual void startup() override {
         glGenBuffers(1, &m_vbo);
@@ -48,37 +48,60 @@ class SampleTexture2DMSAA : public Sample {
 
         const char* fshSrc =
             "#version 150\n"
-            "uniform sampler2DMS sampler0;\n"
+            "uniform sampler2DMSArray sampler0;\n"
+            "uniform int layer;\n"
             "in vec2 texPos;\n"
             "out vec4 oColor;\n"
             "void main()\n"
             "{\n"
-            "    oColor  = texelFetch(sampler0, ivec2(texPos * 16 + vec2(0.5)), 0);\n"
+            "    oColor  = texelFetch(sampler0, ivec3(ivec2(texPos * 16 + vec2(0.5)), layer),  0);\n"
             "}\n";
 
 
         m_program = gl::CreateProgram(vshSrc, fshSrc);
+
+        m_layer_uniform_loc = glGetUniformLocation(m_program->Name(), "layer");
+
         glUseProgram(m_program->Name());
 
         glGenTextures(1, &m_tex);
-        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_tex);
-        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA8, 16, 32, 0);
+        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, m_tex);
+        glTexImage3DMultisample(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, 4, GL_RGBA8, 16, 32, 5, 0);
 
         glGenFramebuffers(1, &m_fbo);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, m_tex, 0);
+        
     }
 
     virtual void render() override {
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
-        glClearColor(float(102)/255.f, float(127)/255.f, float(204)/255.f, float(255)/255.f);
-        glClear(GL_COLOR_BUFFER_BIT);
 
+        GLubyte colors[5][4] = {
+            {102, 127, 204, 255},
+            { 140, 32, 48, 223}, 
+            { 74, 189, 232, 239}, 
+            { 214, 72, 239, 87},
+            { 144, 223, 142, 223 },
+        };
+
+        for (int i = 0; i < 5; i++) {
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
+            glFramebufferTextureLayer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_tex, 0, i);
+            glClearColor(
+                float(colors[i][0])/255.f,
+                float(colors[i][1])/255.f,
+                float(colors[i][2])/255.f,
+                float(colors[i][3])/255.f);
+            glClear(GL_COLOR_BUFFER_BIT);
+        }
 
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         glClearColor(0, 0, 0, 0);
-        glClear(GL_COLOR_BUFFER_BIT);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+        for (int i = 0; i < 5; i++) {
+            glUniform1i(m_layer_uniform_loc, i);
+            glClear(GL_COLOR_BUFFER_BIT);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        }        
         glGetError();
     }
 
@@ -93,8 +116,9 @@ private:
     GLuint m_tex;
     GLuint m_fbo;
     gl::ProgramPtr m_program;
+    GLint m_layer_uniform_loc;
 };
 
-REGISTER_SAMPLE(SampleTexture2DMSAA, "texture2d_msaa");
+REGISTER_SAMPLE(SampleTexture2DArrayMSAA, "texture2d_array_msaa");
 
 #endif

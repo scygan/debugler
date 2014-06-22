@@ -12,6 +12,7 @@ set(samples_SOURCES
     samples/simple.cpp
     samples/texture2d.cpp
     samples/texture2d_msaa.cpp
+    samples/texture2d_array_msaa.cpp
     samples/texture3d.cpp
     samples/fbo_msaa.cpp
     samples/resize.cpp

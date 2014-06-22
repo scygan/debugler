@@ -879,11 +879,91 @@ TEST_F(LiveTest, texture_query_2d_msaa) {
 
     ASSERT_EQ(GL_RGBA, rect->m_GLFormat);
     ASSERT_EQ(GL_UNSIGNED_BYTE, rect->m_GLType);
-    EXPECT_EQ(16,  rect->m_Width);
+    EXPECT_EQ(16, rect->m_Width);
     EXPECT_EQ(32, rect->m_Height);
 
     utils::checkColor((GLubyte*)rect->getPtr(), rect->m_Width, rect->m_Height,
         rect->m_RowBytes, color[0], color[1], color[2], color[3]);
+
+    terminate(client);
+}
+
+TEST_F(LiveTest, texture_query_2d_array_msaa) {
+    std::shared_ptr<dglnet::Client> client = getClientFor("texture2d_array_msaa");
+
+    dglnet::message::BreakedCall* breaked =
+        utils::receiveUntilMessage<dglnet::message::BreakedCall>(
+        client.get(), getMessageHandler());
+    ASSERT_TRUE(breaked != NULL);
+
+    {
+        // disable breaking stuff
+        dglnet::message::Configuration config(getUsualConfig());
+        client->sendMessage(&config);
+    }
+
+    breaked = utils::runUntilEntryPoint(client, getMessageHandler(),
+        glDrawArrays_Call);
+
+    ASSERT_EQ(1, breaked->m_CtxReports.size());
+    ASSERT_EQ(1, breaked->m_CtxReports[0].m_TextureSpace.size());
+
+    EXPECT_EQ(GL_TEXTURE_2D_MULTISAMPLE_ARRAY,
+        breaked->m_CtxReports[0].m_TextureSpace.begin()->m_Target);
+
+    {
+        // query texture
+        dglnet::message::Request request(new dglnet::request::QueryResource(
+            dglnet::message::ObjectType::Texture,
+            dglnet::ContextObjectName(breaked->m_CurrentCtx,
+            breaked->m_CtxReports[0]
+        .m_TextureSpace.begin()
+            ->m_Name)));
+        client->sendMessage(&request);
+    }
+
+    dglnet::message::RequestReply* reply =
+        utils::receiveUntilMessage<dglnet::message::RequestReply>(
+        client.get(), getMessageHandler());
+    std::string nothing;
+    ASSERT_TRUE(reply->isOk(nothing));
+    dglnet::resource::DGLResourceTexture* textureResource =
+        dynamic_cast<dglnet::resource::DGLResourceTexture*>(
+        reply->m_Reply.get());
+    ASSERT_TRUE(textureResource != NULL);
+
+    ASSERT_EQ(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, textureResource->m_Target);
+
+    ASSERT_EQ(1, textureResource->m_FacesLevelsLayers.size());
+    ASSERT_EQ(1, textureResource->m_FacesLevelsLayers[0].size());
+    ASSERT_EQ(5, textureResource->m_FacesLevelsLayers[0][0].size());
+
+    GLubyte colors[5][4] = {
+        {102, 127, 204, 255},
+        { 140, 32, 48, 223}, 
+        { 74, 189, 232, 239}, 
+        { 214, 72, 239, 87},
+        { 144, 223, 142, 223 },
+    };
+
+    for (size_t i =0; i < textureResource->m_FacesLevelsLayers[0][0].size(); i++) {
+        dglnet::resource::DGLResourceTexture::TextureLayer& layer = 
+            textureResource->m_FacesLevelsLayers[0][0][i];
+
+        dglnet::resource::DGLPixelRectangle* rect =
+            layer.m_PixelRectangle.get();
+
+        EXPECT_EQ(4, layer.m_Samples);
+        EXPECT_EQ(GL_RGBA8, layer.m_InternalFormat);
+
+        ASSERT_EQ(GL_RGBA, rect->m_GLFormat);
+        ASSERT_EQ(GL_UNSIGNED_BYTE, rect->m_GLType);
+        EXPECT_EQ(16, rect->m_Width);
+        EXPECT_EQ(32, rect->m_Height);
+
+        utils::checkColor((GLubyte*)rect->getPtr(), rect->m_Width, rect->m_Height,
+            rect->m_RowBytes, colors[i][0], colors[i][1], colors[i][2], colors[i][3]);
+    }
 
     terminate(client);
 }

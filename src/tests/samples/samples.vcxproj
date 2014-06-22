@@ -25,6 +25,7 @@
     <ClCompile Include="samples\simple.cpp" />
     <ClCompile Include="samples\sso.cpp" />
     <ClCompile Include="samples\texture2d.cpp" />
+    <ClCompile Include="samples\texture2d_array_msaa.cpp" />
     <ClCompile Include="samples\texture2d_msaa.cpp" />
     <ClCompile Include="samples\texture3d.cpp" />
   </ItemGroup>

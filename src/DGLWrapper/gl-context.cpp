@@ -408,6 +408,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
                resource->m_Target != GL_TEXTURE_2D_MULTISAMPLE &&
                resource->m_Target != GL_TEXTURE_3D &&
                resource->m_Target != GL_TEXTURE_2D_ARRAY &&
+               resource->m_Target != GL_TEXTURE_2D_MULTISAMPLE_ARRAY &&
                resource->m_Target != GL_TEXTURE_RECTANGLE &&
                resource->m_Target != GL_TEXTURE_1D_ARRAY &&
                resource->m_Target != GL_TEXTURE_CUBE_MAP) {

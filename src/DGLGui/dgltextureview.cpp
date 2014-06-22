@@ -97,7 +97,10 @@ void DGLTextureViewItem::update(const dglnet::DGLResource& res) {
         m_Ui.horizontalSlider_LOD->setEnabled(true);
 
 
-        if (resource->m_Target == GL_TEXTURE_3D || resource->m_Target == GL_TEXTURE_2D_ARRAY) {
+        if (resource->m_Target == GL_TEXTURE_3D ||
+            resource->m_Target == GL_TEXTURE_2D_ARRAY ||
+            resource->m_Target == GL_TEXTURE_2D_MULTISAMPLE_ARRAY ||
+            resource->m_Target == GL_TEXTURE_CUBE_MAP_ARRAY) {
             
             m_Ui.label_TextureLayer->show();
             m_Ui.horizontalSlider_Layer->show();
