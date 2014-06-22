@@ -654,20 +654,27 @@ void GLAuxContext::GLQueries::auxGetBufferData(GLuint name,
                                                std::vector<char>& ret) {
     GLint size;
 
-    DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D, rtt);
-    DIRECT_CALL_CHK(glTexImage2D)(GL_TEXTURE_2D, 0, GL_RGBA,
-                                  BufferGetterChunkSize, 1, 0, GL_RGBA,
-                                  GL_UNSIGNED_BYTE, NULL);
-    DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-                                     GL_CLAMP_TO_EDGE);
-    DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-                                     GL_CLAMP_TO_EDGE);
-    DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                                     GL_NEAREST);
-    DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                                     GL_NEAREST);
+    if (m_AuxCtx->m_Parrent->hasCapability(GLContext::ContextCap::FramebufferObjects)) {
 
-    DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, fbo);
+        DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D, rtt);
+        DIRECT_CALL_CHK(glTexImage2D)(GL_TEXTURE_2D, 0, GL_RGBA,
+            BufferGetterChunkSize, 1, 0, GL_RGBA,
+            GL_UNSIGNED_BYTE, NULL);
+        DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+            GL_CLAMP_TO_EDGE);
+        DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+            GL_CLAMP_TO_EDGE);
+        DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+            GL_NEAREST);
+        DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+            GL_NEAREST);
+
+        DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, fbo);
+
+    } else {
+        m_AuxCtx->resizeAuxSurface(BufferGetterChunkSize, 1);
+    }
+
     DIRECT_CALL_CHK(glViewport)(0, 0, BufferGetterChunkSize, 1);
 
     DIRECT_CALL_CHK(glBindBuffer)(GL_ARRAY_BUFFER, name);
@@ -677,11 +684,17 @@ void GLAuxContext::GLQueries::auxGetBufferData(GLuint name,
 
     ret.resize(size);
 
-    DIRECT_CALL_CHK(glUseProgram)(programGetBuffer);
+    if (m_AuxCtx->m_Parrent->hasCapability(GLContext::ContextCap::GLSLShaders)) {
+        DIRECT_CALL_CHK(glUseProgram)(programGetBuffer);
 
-    DIRECT_CALL_CHK(glEnableVertexAttribArray)(1);
-    DIRECT_CALL_CHK(glEnableVertexAttribArray)(2);
-    DIRECT_CALL_CHK(glDisableVertexAttribArray)(0);
+        DIRECT_CALL_CHK(glEnableVertexAttribArray)(1);
+        DIRECT_CALL_CHK(glEnableVertexAttribArray)(2);
+        DIRECT_CALL_CHK(glDisableVertexAttribArray)(0);
+    } else {
+
+    }
+
+   
 
     std::vector<char> chunk;
 
