@@ -820,7 +820,7 @@ GLContext::queryTextureLevelGetters(
 
     
 
-    bool multisampled = (levelTarget == GL_TEXTURE_2D_MULTISAMPLE || GL_TEXTURE_2D_MULTISAMPLE_ARRAY);
+    bool multisampled = (levelTarget == GL_TEXTURE_2D_MULTISAMPLE || levelTarget == GL_TEXTURE_2D_MULTISAMPLE_ARRAY);
 
     if (!multisampled) {
 
