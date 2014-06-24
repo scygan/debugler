@@ -11,7 +11,7 @@
         <file>icons/framebuffer.png</file>
         <file>icons/renderbuffer.png</file>
         <file>icons/shader.png</file>
-        <file>icons/textures.png</file>
+        <file>icons/texture.png</file>
         <file>icons/textureunit.png</file>
         <file>icons/program.png</file>
         <file>res/glsl.xml</file>

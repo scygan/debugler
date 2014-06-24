@@ -621,4 +621,9 @@
       <Filter>Resource Files\qrc-sources\icons</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="res\glsl.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
+  </ItemGroup>
 </Project>

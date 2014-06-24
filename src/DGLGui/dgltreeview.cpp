@@ -371,7 +371,7 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
    public:
     DGLCtxTreeWidget(opaque_id_t ctxId)
             : m_Id(ctxId),
-              m_TextureNode(ctxId, "Textures", ":/icons/textures.png"),
+              m_TextureNode(ctxId, "Textures", ":/icons/texture.png"),
               m_BufferNode(ctxId, "Vertex Buffers", ":/icons/buffer.png"),
               m_FBONode(ctxId, "Framebuffer objects", ":/icons/fbo.png"),
               m_RenderbufferNode(ctxId, "Renderbuffer objects", ":/icons/renderbuffer.png"),
