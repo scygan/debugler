@@ -59,6 +59,10 @@ class GLFormats {
                                           int ctxMajor);
     static const GLInternalFormat* adjustInternalFormatFromTypeES(
             gl_t internalFormat, gl_t type);
+
+
+    static GLenum getDepthInternalformatFromDepthStencil(const GLInternalFormat* internalFormat);
+    static GLenum getStencilInternalformatFromDepthStencil(const GLInternalFormat* internalFormat);
 };
 
 class DGLPixelTransfer {

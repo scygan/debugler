@@ -1403,6 +1403,21 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
         resource->m_Attachments.back().m_Samples = samples;
         resource->m_Attachments.back().m_Internalformat = internalFormat;
 
+
+        //Internal format should be adjusted to cover only buffers attached to fbo.
+        GLenum transferInternalFormat = internalFormat;
+        if (attachments[i] == GL_DEPTH_ATTACHMENT) {
+            const GLInternalFormat* internalFormatDescr = GLFormats::getInternalFormat(internalFormat);
+            if (internalFormatDescr && internalFormatDescr->dataFormat == GL_DEPTH_STENCIL) {
+                transferInternalFormat = GLFormats::getDepthInternalformatFromDepthStencil(internalFormatDescr);
+            }
+        } else if (attachments[i] == GL_STENCIL_ATTACHMENT) {
+            const GLInternalFormat* internalFormatDescr = GLFormats::getInternalFormat(internalFormat);
+            if (internalFormatDescr && internalFormatDescr->dataFormat == GL_DEPTH_STENCIL) {
+                transferInternalFormat = GLFormats::getStencilInternalformatFromDepthStencil(internalFormatDescr);
+            }
+        }
+        
         // there should be no errors. Otherwise something nasty happened
         queryCheckError();
 
@@ -1422,15 +1437,15 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
                     DIRECT_CALL_CHK(glGetIntegerv)(
                         GL_IMPLEMENTATION_COLOR_READ_TYPE, &implTypeType);
                     downsamplerTransfer.initializeOGLES(
-                        internalFormat, implReadFormat, implTypeType);
+                        transferInternalFormat, implReadFormat, implTypeType);
                 } else {
-                    downsamplerTransfer.initializeOGL(internalFormat, rgbaSizes,
+                    downsamplerTransfer.initializeOGL(transferInternalFormat, rgbaSizes,
                         deptStencilSizes);
                 }
 
                 downSampler = std::shared_ptr<glutils::MSAADownSampler>(
                     new glutils::MSAADownSampler(
-                    this, attTarget, attachments[i], name, internalFormat,
+                    this, attTarget, attachments[i], name, transferInternalFormat,
                     &downsamplerTransfer, width, height));
                 DIRECT_CALL_CHK(glBindFramebuffer)(
                     GL_READ_FRAMEBUFFER, downSampler->getDownsampledFBO());
@@ -1452,10 +1467,10 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
                     &implReadFormat);
                 DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_TYPE,
                     &implTypeType);
-                transfer.initializeOGLES(internalFormat, implReadFormat,
+                transfer.initializeOGLES(transferInternalFormat, implReadFormat,
                     implTypeType);
             } else {
-                transfer.initializeOGL(internalFormat, rgbaSizes, deptStencilSizes);
+                transfer.initializeOGL(transferInternalFormat, rgbaSizes, deptStencilSizes);
             }
 
             resource->m_Attachments.back().m_PixelRectangle =
@@ -1480,7 +1495,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
         if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
             // we have succesfully read GL_DEPTH_STENCIL_ATTACHMENT attachment.
             // WA for buggy drivers: do not try to read DEPTH and STENCIL
-            // attachments if DEPTH_STENCIL is used
+            // attachments if DEPTH_STENCIL read succeded;
             break;
         }
     }

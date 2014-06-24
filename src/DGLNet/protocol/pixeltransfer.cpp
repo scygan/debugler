@@ -474,6 +474,39 @@ const GLInternalFormat* GLFormats::adjustInternalFormatFromTypeES(gl_t internalF
 }
 
 
+GLenum GLFormats::getDepthInternalformatFromDepthStencil(const GLInternalFormat* internalFormat) {
+    if (internalFormat->dataFormat != GL_DEPTH_STENCIL) {
+        DGL_ASSERT(0);
+        return static_cast<GLenum>(internalFormat->internalFormat);
+    }
+    switch (internalFormat->internalFormat) {
+        case GL_DEPTH24_STENCIL8:  
+            return GL_DEPTH_COMPONENT24;
+        case GL_DEPTH32F_STENCIL8:   
+            return GL_DEPTH_COMPONENT32F;
+        case GL_DEPTH_STENCIL:   
+            return GL_DEPTH_COMPONENT;
+    }
+    DGL_ASSERT(0);
+    return GL_DEPTH_COMPONENT;
+}
+
+ GLenum GLFormats::getStencilInternalformatFromDepthStencil(const GLInternalFormat* internalFormat) {
+     if (internalFormat->dataFormat != GL_DEPTH_STENCIL) {
+         DGL_ASSERT(0);
+         return static_cast<GLenum>(internalFormat->internalFormat);
+     }
+     switch (internalFormat->internalFormat) {
+         case GL_DEPTH24_STENCIL8:  
+         case GL_DEPTH32F_STENCIL8:   
+             return GL_STENCIL_INDEX8;
+         case GL_DEPTH_STENCIL:   
+             return GL_STENCIL_INDEX;
+     }
+     DGL_ASSERT(0);
+     return GL_STENCIL_INDEX;
+}
+
 gl_t GLFormats::getBestColorRenderableFormatES(gl_t internalFormat, gl_t type, int ctxMajor) {
     const GLInternalFormat* ret;
 
