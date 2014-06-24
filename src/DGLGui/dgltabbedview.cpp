@@ -71,7 +71,7 @@ void DGLTabbedView::ensureTabDisplayed(opaque_id_t ctxId, gl_t objName,
     }
     if (!found) {
         m_TabWidget.addTab(
-                createTab(dglnet::ContextObjectName(ctxId, objName, target)),
+                createTab(dglnet::ContextObjectName(ctxId, objName, target)), QIcon(getTabIcon()),
                 getTabName(objName, target));
         m_TabWidget.setCurrentIndex(m_TabWidget.count() - 1);
     }

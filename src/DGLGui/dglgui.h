@@ -39,4 +39,15 @@
 
 #endif
 
+#define DGL_RES_ICON_TEXTURE_PATH      ":/icons/texture.png"
+#define DGL_RES_ICON_BUFFER_PATH       ":/icons/buffer.png"
+#define DGL_RES_ICON_FBO_PATH          ":/icons/fbo.png"
+#define DGL_RES_ICON_RENDERBUFFER_PATH ":/icons/renderbuffer.png"
+#define DGL_RES_ICON_SHADER_PATH       ":/icons/shader.png"
+#define DGL_RES_ICON_PROGRAM_PATH      ":/icons/program.png"
+#define DGL_RES_ICON_FRAMEBUFFER_PATH  ":/icons/framebuffer.png"
+#define DGL_RES_ICON_TEXTUREUNIT_PATH  ":/icons/textureunit.png"
+#define DGL_RES_ICON_PPO_PATH          ":/icons/program_pipeline.png"
+
+
 #endif

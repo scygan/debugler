@@ -225,3 +225,7 @@ DGLTabbedViewItem* DGLProgramView::createTab(
 QString DGLProgramView::getTabName(gl_t id, gl_t /*target*/) {
     return QString("Program Shader ") + QString::number(id);
 }
+
+QString DGLProgramView::getTabIcon() {
+    return DGL_RES_ICON_PROGRAM_PATH;
+}

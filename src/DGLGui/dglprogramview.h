@@ -33,6 +33,7 @@ slots:
    private:
     virtual DGLTabbedViewItem* createTab(const dglnet::ContextObjectName& id);
     virtual QString getTabName(gl_t id, gl_t target) override;
+    virtual QString getTabIcon() override;
 };
 
 class DGLGLSLEditor;

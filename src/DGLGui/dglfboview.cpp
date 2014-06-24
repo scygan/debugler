@@ -109,3 +109,8 @@ DGLTabbedViewItem* DGLFBOView::createTab(const dglnet::ContextObjectName& id) {
 QString DGLFBOView::getTabName(gl_t id, gl_t /*target*/) {
     return QString("FBO ") + QString::number(id);
 }
+
+QString DGLFBOView::getTabIcon() {
+    return DGL_RES_ICON_FBO_PATH;
+}
+

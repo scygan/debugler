@@ -371,16 +371,15 @@ class DGLCtxTreeWidget : public QClickableTreeWidgetItem {
    public:
     DGLCtxTreeWidget(opaque_id_t ctxId)
             : m_Id(ctxId),
-              m_TextureNode(ctxId, "Textures", ":/icons/texture.png"),
-              m_BufferNode(ctxId, "Vertex Buffers", ":/icons/buffer.png"),
-              m_FBONode(ctxId, "Framebuffer objects", ":/icons/fbo.png"),
-              m_RenderbufferNode(ctxId, "Renderbuffer objects", ":/icons/renderbuffer.png"),
-              m_ShaderNode(ctxId, "Shaders", ":/icons/shader.png"),
-              m_ProgramNode(ctxId, "Shader Programs", ":/icons/program.png"),
-              m_FramebufferNode(ctxId, "Frame Buffers",
-                                ":/icons/framebuffer.png"),
-              m_TextureUnitNode(ctxId, "Texture units", "Unit ", ":/icons/textureunit.png"),
-              m_ProgramPipelineNode(ctxId, "Pipeline objects", "Program Pipeline ", ":/icons/program_pipeline.png")  {
+              m_TextureNode(ctxId,         "Textures",             DGL_RES_ICON_TEXTURE_PATH),
+              m_BufferNode(ctxId,          "Vertex Buffers",       DGL_RES_ICON_BUFFER_PATH),
+              m_FBONode(ctxId,             "Framebuffer objects",  DGL_RES_ICON_FBO_PATH),
+              m_RenderbufferNode(ctxId,    "Renderbuffer objects", DGL_RES_ICON_RENDERBUFFER_PATH),
+              m_ShaderNode(ctxId,          "Shaders",              DGL_RES_ICON_SHADER_PATH),
+              m_ProgramNode(ctxId,         "Shader Programs",      DGL_RES_ICON_PROGRAM_PATH),
+              m_FramebufferNode(ctxId,     "Frame Buffers",        DGL_RES_ICON_FRAMEBUFFER_PATH),
+              m_TextureUnitNode(ctxId,     "Texture units",    "Unit ",             DGL_RES_ICON_TEXTUREUNIT_PATH),
+              m_ProgramPipelineNode(ctxId, "Pipeline objects", "Program Pipeline ", DGL_RES_ICON_PPO_PATH)  {
         addChild(&m_TextureNode);
         addChild(&m_BufferNode);
         addChild(&m_FBONode);

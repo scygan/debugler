@@ -78,3 +78,7 @@ DGLTabbedViewItem* DGLRenderbufferView::createTab(const dglnet::ContextObjectNam
 QString DGLRenderbufferView::getTabName(gl_t id, gl_t /*target*/) {
     return QString("Renderbuffer ") + QString::number(id);
 }
+
+QString DGLRenderbufferView::getTabIcon() {
+    return DGL_RES_ICON_RENDERBUFFER_PATH;
+}

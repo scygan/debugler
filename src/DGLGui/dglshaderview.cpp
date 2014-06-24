@@ -303,3 +303,7 @@ QString DGLShaderView::getTabName(gl_t id, gl_t target) {
     return QString::fromStdString(GetShaderStageName(target)) +
            QString(" Shader ") + QString::number(id);
 }
+
+QString DGLShaderView::getTabIcon() {
+    return DGL_RES_ICON_SHADER_PATH;
+}

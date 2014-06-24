@@ -80,3 +80,8 @@ QString DGLFramebufferView::getTabName(gl_t id, gl_t /*target*/) {
     }
     return QString("Frame Buffer ") + QString::number(id);
 }
+
+QString DGLFramebufferView::getTabIcon() {
+    return DGL_RES_ICON_FRAMEBUFFER_PATH;
+}
+

@@ -205,3 +205,7 @@ DGLTabbedViewItem* DGLTextureView::createTab(
 QString DGLTextureView::getTabName(gl_t id, gl_t /*target*/) {
     return QString("Texture ") + QString::number(id);
 }
+
+QString DGLTextureView::getTabIcon() {
+    return DGL_RES_ICON_TEXTURE_PATH;
+}

@@ -74,3 +74,7 @@ DGLTabbedViewItem* DGLBufferView::createTab(
 QString DGLBufferView::getTabName(gl_t id, gl_t /*target*/) {
     return QString("Vertex Buffer ") + QString::number(id);
 }
+
+QString DGLBufferView::getTabIcon() {
+    return DGL_RES_ICON_BUFFER_PATH;
+}
