@@ -1,3 +1,3 @@
-add_subdirectory(UT)
+add_subdirectory(UTests)
 add_subdirectory(samples)
 
