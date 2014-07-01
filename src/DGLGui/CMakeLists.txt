@@ -7,7 +7,7 @@ set(dglgui_SOURCES
     dglbufferview.cpp
     dglcontroller.cpp
     dglfboview.cpp
-    dglfrenderbufferview.cpp
+    dglrenderbufferview.cpp
     dglframebufferview.cpp
     dglgpuview.cpp
     dglmainwindow.cpp
