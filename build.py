@@ -78,7 +78,7 @@ class CMakeTarget(BaseTarget):
     def build(self, target = 'all'):
         logging.debug('Running make for ' + self.path + '...')
         if not sys.platform.startswith('win'):
-            return subprocess.call(['make', '-j', '-C', self.path, target])
+            return subprocess.call(['make', '-j', '4', '-C', self.path, target])
         else:
             return subprocess.call([getLocalPath() + "/tools/ninja.exe", '-C', self.path, target], env={"PATH":'c:\\python27'})
 

@@ -36,7 +36,7 @@ Needed:
 ### Linux (Ubuntu) prerequisites
 
 Needed: 
-  * Ubuntu packages: g++ x11proto-gl-dev libelf-dev cmake lxml libqt4-dev
+  * Ubuntu packages: g++ x11proto-gl-dev libelf-dev cmake libxml2-dev libqt4-dev
    
   * Android NDK r8e, set <b>ANDROID_NDK</b> environment variable to NDK directory
  
