@@ -753,8 +753,10 @@ GLuint GLAuxContext::GLQueries::getTextureShaderProgram(
 
     std::string suffix, pos;
 
-    if (textureBaseFormat != GL_RGBA && textureBaseFormat != GL_RGB &&
-        textureBaseFormat != GL_RG && textureBaseFormat != GL_RED) {
+    if (textureBaseFormat != GL_RGBA  && textureBaseFormat != GL_RGB       &&
+        textureBaseFormat != GL_RG    && textureBaseFormat != GL_RED       &&
+        textureBaseFormat != GL_ALPHA && textureBaseFormat != GL_LUMINANCE &&
+        textureBaseFormat != GL_LUMINANCE_ALPHA) {
         throw std::runtime_error(
                 "GLAuxContext::GLQueries::getTextureShaderProgram: format "
                 "unsupported");
