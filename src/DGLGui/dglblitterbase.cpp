@@ -19,7 +19,13 @@
 
 #include <DGLNet/protocol/pixeltransfer.h>
 
-DGLBlitterBase::DGLBlitterBase() {
+DGLBlitterBase::DGLBlitterBase()
+        : m_SrcData(nullptr),
+          m_DataFormat(nullptr), 
+          m_DataType(nullptr), 
+          m_Width(0),
+          m_Height(0) {
+
     for (size_t i = 0;
          i < DGL_ARRAY_LENGTH(m_ChannelScaleBiases);
          i++) {
