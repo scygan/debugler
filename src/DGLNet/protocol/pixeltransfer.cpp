@@ -554,9 +554,6 @@ gl_t GLFormats::getBestColorRenderableFormatES(gl_t internalFormat, gl_t type, i
         //As we now know the dataFormat, we may select the renderable format by dataFormat:
         if (ctxMajor == 2) {
             switch (inputInternalFormat->dataFormat) {
-                case GL_ALPHA:
-                case GL_LUMINANCE:
-                case GL_LUMINANCE_ALPHA:
                 case GL_RED:
                 case GL_RG:
                 case GL_RGB:
@@ -570,6 +567,9 @@ gl_t GLFormats::getBestColorRenderableFormatES(gl_t internalFormat, gl_t type, i
                 case GL_STENCIL_INDEX:
                     ret = getInternalFormat(GL_RGB565);
                     break;
+                case GL_ALPHA:
+                case GL_LUMINANCE:
+                case GL_LUMINANCE_ALPHA:
                 case GL_RGBA:
                     ret = getInternalFormat(GL_RGBA4);
                     break;
