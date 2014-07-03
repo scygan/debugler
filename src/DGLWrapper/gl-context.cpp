@@ -662,6 +662,15 @@ int GLContext::textureBisectSizeES(GLenum levelTarget, int level, int coord,
 
     int minSize = 0;
 
+    // must check for texture dimensionality here, because
+    // bisecting for not existent coord will always return max.
+    if (isTexture1Dim(levelTarget) && coord > 0) {
+        return 1;
+    }
+    if (isTexture2Dim(levelTarget) && coord > 1) {
+        return 1;
+    }
+
     while (true) {
         int middle = (minSize + maxSize) / 2;
         if (maxSize - minSize <= 1) {
