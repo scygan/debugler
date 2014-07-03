@@ -270,31 +270,31 @@ public:
     void update(const std::set<T>& names) {
         typedef typename std::set<T>::iterator set_iter;
 
-        if (m_Childs.size() != names.size()) {
+        if (childCount() != (int)names.size()) {
 
-            int oldSize = m_Childs.size();
-
-            for (int i = (int)names.size(); i < oldSize; i++) {
-                removeChild(&m_Childs[i]);
+            //remove excessive childs
+            while (childCount() > (int)names.size()) {
+                removeChild(child(childCount() - 1));
             }
-            
-            m_Childs.resize(names.size(), ObjType(DGLObjectNodeWidgetBase<ObjType>::m_IconPath));
 
-            for (int i = oldSize; i < (int)names.size(); i++) {
-                addChild(&m_Childs[i]);
+            //add missing children
+            while ((int)names.size() > childCount()) {
+                addChild(new ObjType(DGLObjectNodeWidgetBase<ObjType>::m_IconPath));
             }
         }
 
         int childIdx = 0;
         for (set_iter i = names.begin(); i != names.end(); i++) {
-            if (!i->exactlySameAs(m_Childs[childIdx].getObjName())) {
-                m_Childs[childIdx].setObjName(*i);
+            ObjType* typedChild = dynamic_cast<ObjType*>(child(childIdx));
+            DGL_ASSERT(typedChild);
+            if (typedChild) {
+                if (!i->exactlySameAs(typedChild->getObjName())) {
+                    typedChild->setObjName(*i);
+                }
             }
             childIdx++;
         }
     }
-   private:
-    std::vector<ObjType> m_Childs;
 };
 
 template <typename ObjType>
