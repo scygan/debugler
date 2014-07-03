@@ -189,8 +189,12 @@ void DGLPixelRectangleView::updateFormatSizeInfo(
         const dglnet::resource::DGLPixelRectangle* pixelRectangle, gl_t format, value_t samples) {
     if (pixelRectangle) {
         std::ostringstream formatSize;
-            formatSize << GetGLEnumName(format, GLEnumGroup::InternalFormat)
-                       << " ";
+        if (!format) {
+            formatSize << "<unknown format>";
+        } else {
+            formatSize << GetGLEnumName(format, GLEnumGroup::InternalFormat);
+        }
+        formatSize << " ";
         formatSize << "(" << pixelRectangle->m_Width << "x"
                    << pixelRectangle->m_Height << ") ";
         if (samples) {
