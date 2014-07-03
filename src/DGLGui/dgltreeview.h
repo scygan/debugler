@@ -26,8 +26,13 @@
 class DGLTreeView;
 
 class QClickableTreeWidgetItem : public QTreeWidgetItem {
-   public:
+public:
+    const dglnet::ContextObjectName& getObjName();
+    virtual void setObjName(const dglnet::ContextObjectName& name);
     virtual void handleDoubleClick(DglController*);
+
+protected:
+    dglnet::ContextObjectName m_name;
 };
 
 class DGLTreeView : public QDockWidget {

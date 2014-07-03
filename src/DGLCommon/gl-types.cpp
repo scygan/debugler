@@ -147,6 +147,8 @@ std::string GetTextureTargetName(gl_t glEnum) {
             return "2D MS";
         case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
             return "2D MS Array";
+        case 0:
+            return "no target";
         default:
             return GetGLEnumName(glEnum, GLEnumGroup::TextureTarget);
     }

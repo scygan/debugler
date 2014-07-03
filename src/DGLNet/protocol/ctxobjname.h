@@ -32,9 +32,11 @@ class ContextObjectName {
         ar& m_Target;
     }
 
-    virtual bool operator==(const ContextObjectName& rhs) const;
+    bool exactlySameAs(const ContextObjectName& rhs) const;
 
-    virtual bool operator<(const ContextObjectName& rhs) const;
+    bool operator==(const ContextObjectName& rhs) const;
+
+    bool operator<(const ContextObjectName& rhs) const;
 
     gl_t m_Name;
     opaque_id_t m_Context;

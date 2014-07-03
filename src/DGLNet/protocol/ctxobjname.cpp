@@ -23,6 +23,11 @@ ContextObjectName::ContextObjectName(opaque_id_t context, gl_t name,
         : m_Name(name), m_Context(context), m_Target(target) {}
 ContextObjectName::~ContextObjectName() {}
 
+
+bool ContextObjectName::exactlySameAs(const ContextObjectName& rhs) const {
+    return m_Context == rhs.m_Context && m_Name == rhs.m_Name && m_Target == rhs.m_Target;
+}
+
 bool ContextObjectName::operator==(const ContextObjectName& rhs) const {
 
     // it is crucial that m_Target is not get into account here (ID + ctxID is
