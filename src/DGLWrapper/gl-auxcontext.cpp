@@ -588,7 +588,7 @@ void GLAuxContext::GLQueries::auxDrawTexture(GLuint name, GLenum target,
     if (m_AuxCtx->m_Parrent->hasCapability(GLContext::ContextCap::FramebufferObjects)) {
         //use FBO as render target for drawing the texture
 
-        DIRECT_CALL_CHK(glBindTexture)(target, rtt);
+        DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D, rtt);
 
         const GLInternalFormat* internalFormatDesc =
             GLFormats::getInternalFormat(renderableFormat);
@@ -622,6 +622,11 @@ void GLAuxContext::GLQueries::auxDrawTexture(GLuint name, GLenum target,
             DIRECT_CALL_CHK(glGetUniformLocation)(program, "level"),
             static_cast<GLfloat>(level));
 
+        GLint faceLoc = DIRECT_CALL_CHK(glGetUniformLocation)(program, "face");
+        if (faceLoc > 0) {
+            DIRECT_CALL_CHK(glUniform1i)(faceLoc, face);
+        }
+
         DIRECT_CALL_CHK(glEnableVertexAttribArray)(0);
         DIRECT_CALL_CHK(glDisableVertexAttribArray)(1);
         DIRECT_CALL_CHK(glDisableVertexAttribArray)(2);
@@ -647,7 +652,6 @@ void GLAuxContext::GLQueries::auxDrawTexture(GLuint name, GLenum target,
     }
 
     (void)layer;    // no program for 3D textures, yet
-    (void)face;    // no program for CM textures, yet
 }
 
 void GLAuxContext::GLQueries::auxGetBufferData(GLuint name,
@@ -779,10 +783,10 @@ GLuint GLAuxContext::GLQueries::getTextureShaderProgram(
             suffix = "1DArray";
             pos = "vec2(texPos.xy)";
             break;
-        // case GL_TEXTURE_CUBE_MAP:
-        //  suffix = "Cube";
-        //  pos =
-        //  break;
+        case GL_TEXTURE_CUBE_MAP:
+            suffix = "Cube";
+            pos = "cubePos";
+            break;
         default:
             throw std::runtime_error(
                     "cannot generate program for this texture target");
@@ -803,7 +807,9 @@ GLuint GLAuxContext::GLQueries::getTextureShaderProgram(
            "precision mediump float;         \n"
            "#endif                           \n"
            "uniform sampler" << suffix << " s;\n"
-                                          "uniform float level;\n";
+           "uniform float level;\n"
+           "uniform int   face;\n";
+
     if (glsl300) {
         fsh << "in vec2 texPos;\n";
     } else {
@@ -811,6 +817,23 @@ GLuint GLAuxContext::GLQueries::getTextureShaderProgram(
     }
 
     fsh << "void main() {\n";
+
+    if (target == GL_TEXTURE_CUBE_MAP) {
+        fsh << "vec3 cubePos;                               \n"
+            "if (face == 0) {                               \n"
+            "    cubePos = vec3(1.0, -texPos.t, -texPos.s); \n"
+            "} else if (face == 1) {                        \n"
+            "    cubePos =vec3(-1.0, texPos.s, -texPos.s);  \n"
+            "} else if (face == 2) {                        \n"
+            "    cubePos =vec3(texPos.s, 1.0, texPos.t);    \n"
+            "} else if (face == 3) {                        \n"
+            "    cubePos =vec3(-texPos.s, -1.0, texPos.t);  \n"
+            "} else if (face == 4) {                        \n"
+            "    cubePos =vec3(texPos.s, -texPos.t, 1.0);   \n"
+            "} else if (face == 5) {                        \n"
+            "    cubePos =vec3(texPos.s,  texPos.t, -1.0);  \n"
+            "}                                              \n";
+    }
 
     if (glsl300) {
         fsh << "    oColor = textureLod(s, ";
