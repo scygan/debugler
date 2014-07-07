@@ -1409,6 +1409,17 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
             }
         }
 
+        if (attachments[i] == GL_DEPTH_ATTACHMENT ||
+            attachments[i] == GL_STENCIL_ATTACHMENT ||
+            attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
+            
+            if (getVersion().check(GLContextVersion::Type::ES)) {
+                resource->m_Attachments.back().error(
+                    "Cannot query contents of depth or stencil buffers on OpenGL ES");
+                continue;
+            }
+        }        
+
         resource->m_Attachments.back().m_Samples = samples;
         resource->m_Attachments.back().m_Internalformat = internalFormat;
 
