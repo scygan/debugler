@@ -1195,12 +1195,21 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
     attachments.push_back(GL_DEPTH_ATTACHMENT);
     attachments.push_back(GL_STENCIL_ATTACHMENT);
 
+    bool hasDepthStencilAttachment = false;
+
     resource->m_CompletenessStatus =
         DIRECT_CALL_CHK(glCheckFramebufferStatus)(GL_FRAMEBUFFER);
 
     queryCheckError();
 
     for (size_t i = 0; i < attachments.size(); i++) {
+
+        if ((attachments[i] == GL_DEPTH_ATTACHMENT || 
+             attachments[i] == GL_STENCIL_ATTACHMENT ) && hasDepthStencilAttachment) {
+
+            //skip filling in DEPTH & SENCIL attachments, if DEPTH_STENCIL was already read.
+            continue;
+        }
 
         // check attached object type
         GLint type;
@@ -1409,10 +1418,19 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
             }
         }
 
-
         resource->m_Attachments.back().m_Samples = samples;
         resource->m_Attachments.back().m_Internalformat = internalFormat;
 
+
+        if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
+            
+            //will prevent DEPTH & STENCIL processing.
+            hasDepthStencilAttachment = true; 
+        }
+
+        //from this line actual contents of buffer follow
+        //no more attachment - state specific errors should be emitted.
+        
         if (attachments[i] == GL_DEPTH_ATTACHMENT ||
             attachments[i] == GL_STENCIL_ATTACHMENT ||
             attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
@@ -1511,13 +1529,6 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
 
         // there should be no errors. Otherwise something nasty happened
         queryCheckError();
-
-        if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
-            // we have succesfully read GL_DEPTH_STENCIL_ATTACHMENT attachment.
-            // WA for buggy drivers: do not try to read DEPTH and STENCIL
-            // attachments if DEPTH_STENCIL read succeded;
-            break;
-        }
     }
 
     return ret;
