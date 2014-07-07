@@ -1409,6 +1409,10 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
             }
         }
 
+
+        resource->m_Attachments.back().m_Samples = samples;
+        resource->m_Attachments.back().m_Internalformat = internalFormat;
+
         if (attachments[i] == GL_DEPTH_ATTACHMENT ||
             attachments[i] == GL_STENCIL_ATTACHMENT ||
             attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
@@ -1418,11 +1422,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
                     "Cannot query contents of depth or stencil buffers on OpenGL ES");
                 continue;
             }
-        }        
-
-        resource->m_Attachments.back().m_Samples = samples;
-        resource->m_Attachments.back().m_Internalformat = internalFormat;
-
+        }
 
         //Internal format should be adjusted to cover only buffers attached to fbo.
         GLenum transferInternalFormat = internalFormat;
