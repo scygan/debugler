@@ -237,7 +237,9 @@ void *DLIntercept::dlopen(const char *filename, int flag) {
     if (ret && filename) {
         int libraries = GlobalState::getApiLoader().whichLibrary(filename);
 #ifdef __ANDROID__
-        if (libraries & (LIBRARY_ES1 | LIBRARY_ES2)) {
+        if (libraries & (LIBRARY_ES1 | LIBRARY_ES2) &&   //library is affected coer library
+            !DGLThreadState::get()->inActionProcessing() //call is emmitted by app, not by GL or DGL. 
+            ) {
             //unity3d apps on Android open libGLESvX  using dlopen,
             //but mysteriously dlsym is not visible. So on Android
             //just return libdglwrapper's base adrress to override both libs..
