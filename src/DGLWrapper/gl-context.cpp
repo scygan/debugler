@@ -1161,13 +1161,9 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
     std::shared_ptr<dglnet::DGLResource> ret(
             resource = new dglnet::resource::DGLResourceFBO());
 
-    state_setters::ReadBuffer readBuffer(this);
-    state_setters::DrawBuffers drawBuffers(
-            this);    // we may touch draw buffer when downsampling MSAA buffers
-    state_setters::RenderBuffer renderBuffer;
-    state_setters::DefaultPBO defPBO(this);
+
+    // switch to queried FBO
     state_setters::CurrentFramebuffer currentFBO(this, name);
-    state_setters::PixelStoreAlignment defAlignment(this);
 
     // get maximum number of color attachments
     GLint maxColorAttachments;
@@ -1234,305 +1230,354 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
                 dglnet::resource::DGLResourceFBO::FBOAttachment(
                         attachments[i]));
 
-        // query attached object name
-        GLint attmntName;
-        DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
-                GL_FRAMEBUFFER, attachments[i],
-                GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &attmntName);
-
-        // now look for the attached object and query internal format and
-        // dimensions
-        GLint width = 0, height = 0, internalFormat = 0, samples = 0;
-        GLenum attTarget = 0;
-        bool multisampled = false;
-
-        std::vector<GLint> rgbaSizes(4, 0);
-        std::vector<GLint> deptStencilSizes(2, 0);
-
-        if (type == GL_TEXTURE) {
-
-            if (!DIRECT_CALL_CHK(glIsTexture)(attmntName)) {
-                resource->m_Attachments.back().error(
-                        "Attached texture object does not exist");
-                continue;
-            }
-
-            GLTextureObj* tex = ns().getShared()->get().m_Textures.getObject(attmntName);
-            attTarget = tex->getTarget();
-
-            GLenum bindableTarget =
-                    glutils::textTargetToBindableTarget(attTarget);
-
-            if (attTarget == GL_TEXTURE_2D_MULTISAMPLE ||
-                attTarget == GL_TEXTURE_2D_MULTISAMPLE_ARRAY)
-                multisampled = true;
-
-            GLint level;
-            DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
-                    GL_FRAMEBUFFER, attachments[i],
-                    GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, &level);
-
-            GLuint lastTexture;
-            if (!glutils::getBoundTexture(bindableTarget, lastTexture)) {
-                throw std::runtime_error(
-                        "Cannot get actually bound texture name");
-            }
-            DIRECT_CALL_CHK(glBindTexture)(bindableTarget, tex->getName());
-
-            queryTextureLevelSize(tex, level, &width, &height, NULL);
-
-            {
-                tex->getFormat(this, level, attTarget, internalFormat, samples);
-
-                // if internalFormat is returned as 0 (happens if not traced on ES), query will
-                // probably fail (no way to discover format, or bit sizes).
-                DGL_ASSERT(internalFormat);
-            }
-            
-            DIRECT_CALL_CHK(glBindTexture)(bindableTarget, lastTexture);
-
-        } else if (type == GL_RENDERBUFFER) {
-
-            attTarget = GL_RENDERBUFFER;
-
-            if (!DIRECT_CALL_CHK(glIsRenderbuffer)(attmntName)) {
-                resource->m_Attachments.back().error(
-                        "Attached renderbuffer object does not exist");
-                continue;
-            }
-            GLint lastRenderBuffer;
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_RENDERBUFFER_BINDING,
-                                           &lastRenderBuffer);
-            DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, attmntName);
-
-            DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-                    GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &width);
-            DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-                    GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
-            DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-                    GL_RENDERBUFFER, GL_RENDERBUFFER_INTERNAL_FORMAT,
-                    &internalFormat);
-
-            if (hasCapability(ContextCap::RenderBufferMultisample)) {
-                DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-                        GL_RENDERBUFFER, GL_RENDERBUFFER_SAMPLES, &samples);
-            }
-
-            if (samples) {
-                multisampled = true;
-            }
-
-            if (!hasCapability(
-                         ContextCap::CanQueryFramebufferAttachmentBitSize)) {
-                if (attachments[i] >= GL_COLOR_ATTACHMENT0 &&
-                    attachments[i] < GL_COLOR_ATTACHMENT0 +
-                                             (GLenum)maxColorAttachments) {
-
-                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-                            GL_RENDERBUFFER, GL_RENDERBUFFER_RED_SIZE,
-                            &rgbaSizes[0]);
-                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-                            GL_RENDERBUFFER, GL_RENDERBUFFER_GREEN_SIZE,
-                            &rgbaSizes[1]);
-                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-                            GL_RENDERBUFFER, GL_RENDERBUFFER_BLUE_SIZE,
-                            &rgbaSizes[2]);
-                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-                            GL_RENDERBUFFER, GL_RENDERBUFFER_ALPHA_SIZE,
-                            &rgbaSizes[3]);
-
-                } else if (attachments[i] == GL_DEPTH_ATTACHMENT) {
-
-                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-                            GL_RENDERBUFFER, GL_RENDERBUFFER_DEPTH_SIZE,
-                            &deptStencilSizes[0]);
-
-                } else if (attachments[i] == GL_STENCIL_ATTACHMENT) {
-
-                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-                            GL_RENDERBUFFER, GL_RENDERBUFFER_STENCIL_SIZE,
-                            &deptStencilSizes[1]);
-
-                } else if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
-
-                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-                            GL_RENDERBUFFER, GL_RENDERBUFFER_DEPTH_SIZE,
-                            &deptStencilSizes[0]);
-                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-                            GL_RENDERBUFFER, GL_RENDERBUFFER_STENCIL_SIZE,
-                            &deptStencilSizes[1]);
-                }
-            }
-
-            DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER,
-                                                lastRenderBuffer);
-        } else {
-            DGL_ASSERT(0);
-        }
-
-        // there should be no errors. Otherwise something nasty happened
-        queryCheckError();
-
-        if (hasCapability(ContextCap::CanQueryFramebufferAttachmentBitSize)) {
-            if (attachments[i] >= GL_COLOR_ATTACHMENT0 &&
-                attachments[i] <
-                        GL_COLOR_ATTACHMENT0 + (GLenum)maxColorAttachments) {
-
-                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
-                        GL_FRAMEBUFFER, attachments[i],
-                        GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &rgbaSizes[0]);
-                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
-                        GL_FRAMEBUFFER, attachments[i],
-                        GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, &rgbaSizes[1]);
-                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
-                        GL_FRAMEBUFFER, attachments[i],
-                        GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, &rgbaSizes[2]);
-                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
-                        GL_FRAMEBUFFER, attachments[i],
-                        GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &rgbaSizes[3]);
-
-            } else if (attachments[i] == GL_DEPTH_ATTACHMENT) {
-
-                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
-                        GL_FRAMEBUFFER, attachments[i],
-                        GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE,
-                        &deptStencilSizes[0]);
-
-            } else if (attachments[i] == GL_STENCIL_ATTACHMENT) {
-
-                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
-                        GL_FRAMEBUFFER, attachments[i],
-                        GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE,
-                        &deptStencilSizes[1]);
-
-            } else if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
-
-                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
-                        GL_FRAMEBUFFER, attachments[i],
-                        GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE,
-                        &deptStencilSizes[0]);
-                DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
-                        GL_FRAMEBUFFER, attachments[i],
-                        GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE,
-                        &deptStencilSizes[1]);
-            }
-        }
-
-        resource->m_Attachments.back().m_Samples = samples;
-        resource->m_Attachments.back().m_Internalformat = internalFormat;
+        bool isDSQueryOnES = getVersion().check(GLContextVersion::Type::ES) &&
+            ( attachments[i] == GL_DEPTH_ATTACHMENT      ||
+              attachments[i] == GL_STENCIL_ATTACHMENT    ||
+              attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT);
 
 
-        if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
-            
-            //will prevent DEPTH & STENCIL processing.
-            hasDepthStencilAttachment = true; 
-        }
-
-        //from this line actual contents of buffer follow
-        //no more attachment - state specific errors should be emitted.
-        
-        if (attachments[i] == GL_DEPTH_ATTACHMENT ||
-            attachments[i] == GL_STENCIL_ATTACHMENT ||
-            attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
-            
-            if (getVersion().check(GLContextVersion::Type::ES)) {
-                resource->m_Attachments.back().error(
-                    "Cannot query contents of depth or stencil buffers on OpenGL ES");
-                continue;
-            }
-        }
-
-        //Internal format should be adjusted to cover only buffers attached to fbo.
-        GLenum transferInternalFormat = internalFormat;
-        if (attachments[i] == GL_DEPTH_ATTACHMENT) {
-            const GLInternalFormat* internalFormatDescr = GLFormats::getInternalFormat(internalFormat);
-            if (internalFormatDescr && internalFormatDescr->dataFormat == GL_DEPTH_STENCIL) {
-                transferInternalFormat = GLFormats::getDepthInternalformatFromDepthStencil(internalFormatDescr);
-            }
-        } else if (attachments[i] == GL_STENCIL_ATTACHMENT) {
-            const GLInternalFormat* internalFormatDescr = GLFormats::getInternalFormat(internalFormat);
-            if (internalFormatDescr && internalFormatDescr->dataFormat == GL_DEPTH_STENCIL) {
-                transferInternalFormat = GLFormats::getStencilInternalformatFromDepthStencil(internalFormatDescr);
-            }
-        }
-        
-        // there should be no errors. Otherwise something nasty happened
-        queryCheckError();
-
-        if (resource->m_CompletenessStatus == GL_FRAMEBUFFER_COMPLETE) {
+        try {
 
             //read framebuffer contents only if it is complete.
             //Otherwise INVALID_OP may happen.
-            
-            std::shared_ptr<glutils::MSAADownSampler> downSampler;
-            if (multisampled) {
+            bool complete = (resource->m_CompletenessStatus == GL_FRAMEBUFFER_COMPLETE);
 
-                DGLPixelTransfer downsamplerTransfer;
-                if (getVersion().check(GLContextVersion::Type::ES)) {
-                    GLint implReadFormat, implTypeType;
-                    DIRECT_CALL_CHK(glGetIntegerv)(
-                        GL_IMPLEMENTATION_COLOR_READ_FORMAT, &implReadFormat);
-                    DIRECT_CALL_CHK(glGetIntegerv)(
-                        GL_IMPLEMENTATION_COLOR_READ_TYPE, &implTypeType);
-                    downsamplerTransfer.initializeOGLES(
-                        transferInternalFormat, implReadFormat, implTypeType);
-                } else {
-                    downsamplerTransfer.initializeOGL(transferInternalFormat, rgbaSizes,
-                        deptStencilSizes);
-                }
+            bool queryPixels = (complete && !isDSQueryOnES);
 
-                downSampler = std::shared_ptr<glutils::MSAADownSampler>(
-                    new glutils::MSAADownSampler(
-                    this, attTarget, attachments[i], name, transferInternalFormat,
-                    &downsamplerTransfer, width, height));
-                DIRECT_CALL_CHK(glBindFramebuffer)(
-                    GL_READ_FRAMEBUFFER, downSampler->getDownsampledFBO());
+            GLint samples = 0;
+            GLint internalFormat = 0;
+
+            std::shared_ptr<dglnet::resource::DGLPixelRectangle> pixelRectangle = 
+                    queryFramebufferAttachment(
+                    name,                      // FBO name
+                    attachments[i],            // attachment point
+                    type,                      // attachment type (texture or renderbuffer)
+                    queryPixels,               // true if pixels should/can be queried
+                    &samples,                  // sample count is returned here
+                    &internalFormat            // internalFormat is returned here
+                );
+
+            resource->m_Attachments.back().m_PixelRectangle = convert_shared_ptr(pixelRectangle);
+               
+
+            DGL_ASSERT(queryPixels == (resource->m_Attachments.back().m_PixelRectangle != nullptr));
+
+            resource->m_Attachments.back().m_Samples = samples;
+            resource->m_Attachments.back().m_Internalformat = internalFormat;
+
+            if (!complete) {
+                resource->m_Attachments.back().error(
+                    "Cannot query pixels of incomplete FBO");
             }
 
-            if (attachments[i] != GL_DEPTH_ATTACHMENT &&
-                attachments[i] != GL_STENCIL_ATTACHMENT &&
-                attachments[i] != GL_DEPTH_STENCIL_ATTACHMENT) {
-                    // select color attachment
-                    if (hasCapability(ContextCap::ReadBuffer)) {
-                        DIRECT_CALL_CHK(glReadBuffer)(attachments[i]);
-                    }
+            if (isDSQueryOnES) {
+                resource->m_Attachments.back().error(
+                    "Cannot query pixels of depth or stencil buffers on OpenGL ES");
             }
 
-            DGLPixelTransfer transfer;
-            if (getVersion().check(GLContextVersion::Type::ES)) {
-                GLint implReadFormat, implTypeType;
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_FORMAT,
-                    &implReadFormat);
-                DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_TYPE,
-                    &implTypeType);
-                transfer.initializeOGLES(transferInternalFormat, implReadFormat,
-                    implTypeType);
-            } else {
-                transfer.initializeOGL(transferInternalFormat, rgbaSizes, deptStencilSizes);
-            }
+            if (attachments[i] == GL_DEPTH_STENCIL_ATTACHMENT) {
 
-            resource->m_Attachments.back().m_PixelRectangle =
-                boost::make_shared<dglnet::resource::DGLPixelRectangle>(
-                width, height, defAlignment.getAligned(
-                width * transfer.getPixelSize()),
-                transfer.getFormat(), transfer.getType());
-
-            GLvoid* ptr = resource->m_Attachments.back().m_PixelRectangle->getPtr();
-            if (ptr) {
-                DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height,
-                    (GLenum)transfer.getFormat(),
-                    (GLenum)transfer.getType(), ptr);
+                //will prevent further DEPTH & STENCIL attachments processing.
+                hasDepthStencilAttachment = true; 
             }
+        } catch (const std::runtime_error& e) {
+            resource->m_Attachments.back().error(e.what());
         }
-
         
-
-        // there should be no errors. Otherwise something nasty happened
-        queryCheckError();
     }
 
     return ret;
 }
+
+std::shared_ptr<dglnet::resource::DGLPixelRectangle> GLContext::queryFramebufferAttachment(
+        GLuint fboObject,
+        GLenum attachment,
+        GLenum attachmentType,
+        bool queryPixels,
+        GLint* outSamples,
+        GLint* outInternalFormat) {
+
+     DGL_ASSERT(outSamples);
+     DGL_ASSERT(outInternalFormat);
+
+     //switch to queried FBO
+     state_setters::CurrentFramebuffer currentFBO(this, fboObject);
+          
+     GLint attachmentObject;
+
+     DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
+         GL_FRAMEBUFFER, attachment,
+         GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &attachmentObject);
+
+     // now look for the attached object and query internal format and
+     // dimensions
+     GLint width = 0, height = 0;
+     GLenum attTarget = 0;
+     bool multisampled = false;
+
+     std::vector<GLint> rgbaSizes(4, 0);
+     std::vector<GLint> deptStencilSizes(2, 0);
+
+     if (attachmentType == GL_TEXTURE) {
+
+         if (!DIRECT_CALL_CHK(glIsTexture)(attachmentObject)) {
+             throw std::runtime_error("Attached texture object does not exist");
+         }
+
+         GLTextureObj* tex = ns().getShared()->get().m_Textures.getObject(attachmentObject);
+         attTarget = tex->getTarget();
+
+         GLenum bindableTarget =
+             glutils::textTargetToBindableTarget(attTarget);
+
+         if (attTarget == GL_TEXTURE_2D_MULTISAMPLE ||
+             attTarget == GL_TEXTURE_2D_MULTISAMPLE_ARRAY)
+             multisampled = true;
+
+         GLint level;
+         DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
+             GL_FRAMEBUFFER, attachment,
+             GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, &level);
+
+         GLuint lastTexture;
+         if (!glutils::getBoundTexture(bindableTarget, lastTexture)) {
+             throw std::runtime_error(
+                 "Cannot get actually bound texture name");
+         }
+         DIRECT_CALL_CHK(glBindTexture)(bindableTarget, tex->getName());
+
+         queryTextureLevelSize(tex, level, &width, &height, NULL);
+
+         {
+             tex->getFormat(this, level, attTarget, *outInternalFormat, *outSamples);
+
+             // if internalFormat is returned as 0 (happens if not traced on ES), query will
+             // probably fail (no way to discover format, or bit sizes).
+             DGL_ASSERT(*outInternalFormat);
+         }
+
+         DIRECT_CALL_CHK(glBindTexture)(bindableTarget, lastTexture);
+
+     } else if (attachmentType == GL_RENDERBUFFER) {
+
+         attTarget = GL_RENDERBUFFER;
+
+
+
+         if (!DIRECT_CALL_CHK(glIsRenderbuffer)(attachmentObject)) {
+             throw std::runtime_error(
+                 "Cannot get actually bound texture name");
+         }
+
+         state_setters::RenderBuffer renderBuffer;
+
+
+         DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, attachmentObject);
+
+         DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
+             GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &width);
+         DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
+             GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
+         DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
+             GL_RENDERBUFFER, GL_RENDERBUFFER_INTERNAL_FORMAT,
+             outInternalFormat);
+
+         if (hasCapability(ContextCap::RenderBufferMultisample)) {
+             DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
+                 GL_RENDERBUFFER, GL_RENDERBUFFER_SAMPLES, outSamples);
+         }
+
+         if (outSamples) {
+             multisampled = true;
+         }
+
+         if (!hasCapability(
+             ContextCap::CanQueryFramebufferAttachmentBitSize)) {
+                 if (attachment == GL_DEPTH_ATTACHMENT) {
+
+                     DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
+                         GL_RENDERBUFFER, GL_RENDERBUFFER_DEPTH_SIZE,
+                         &deptStencilSizes[0]);
+
+                 } else if (attachment == GL_STENCIL_ATTACHMENT) {
+
+                     DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
+                         GL_RENDERBUFFER, GL_RENDERBUFFER_STENCIL_SIZE,
+                         &deptStencilSizes[1]);
+
+                 } else if (attachment == GL_DEPTH_STENCIL_ATTACHMENT) {
+
+                     DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
+                         GL_RENDERBUFFER, GL_RENDERBUFFER_DEPTH_SIZE,
+                         &deptStencilSizes[0]);
+                     DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
+                         GL_RENDERBUFFER, GL_RENDERBUFFER_STENCIL_SIZE,
+                         &deptStencilSizes[1]);
+                 } else {
+                     //color attachment
+
+                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
+                        GL_RENDERBUFFER, GL_RENDERBUFFER_RED_SIZE,
+                        &rgbaSizes[0]);
+                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
+                        GL_RENDERBUFFER, GL_RENDERBUFFER_GREEN_SIZE,
+                        &rgbaSizes[1]);
+                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
+                        GL_RENDERBUFFER, GL_RENDERBUFFER_BLUE_SIZE,
+                        &rgbaSizes[2]);
+                    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
+                        GL_RENDERBUFFER, GL_RENDERBUFFER_ALPHA_SIZE,
+                        &rgbaSizes[3]);
+                 } 
+         }
+     } else {
+         DGL_ASSERT(0);
+     }
+
+     // there should be no errors. Otherwise something nasty happened
+     queryCheckError();
+
+     if (hasCapability(ContextCap::CanQueryFramebufferAttachmentBitSize)) {
+         if (attachment == GL_DEPTH_ATTACHMENT) {
+
+             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
+                 GL_FRAMEBUFFER, attachment,
+                 GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE,
+                 &deptStencilSizes[0]);
+
+         } else if (attachment == GL_STENCIL_ATTACHMENT) {
+
+             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
+                 GL_FRAMEBUFFER, attachment,
+                 GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE,
+                 &deptStencilSizes[1]);
+
+         } else if (attachment == GL_DEPTH_STENCIL_ATTACHMENT) {
+
+             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
+                 GL_FRAMEBUFFER, attachment,
+                 GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE,
+                 &deptStencilSizes[0]);
+             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
+                 GL_FRAMEBUFFER, attachment,
+                 GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE,
+                 &deptStencilSizes[1]);
+         } else {
+
+             //color attachment
+             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
+                 GL_FRAMEBUFFER, attachment,
+                 GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &rgbaSizes[0]);
+             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
+                 GL_FRAMEBUFFER, attachment,
+                 GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, &rgbaSizes[1]);
+             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
+                 GL_FRAMEBUFFER, attachment,
+                 GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, &rgbaSizes[2]);
+             DIRECT_CALL_CHK(glGetFramebufferAttachmentParameteriv)(
+                 GL_FRAMEBUFFER, attachment,
+                 GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &rgbaSizes[3]);
+         }
+     }
+
+
+
+     //Internal format should be adjusted to cover only buffers attached to fbo.
+     GLenum transferInternalFormat = *outInternalFormat;
+     if (attachment == GL_DEPTH_ATTACHMENT) {
+         const GLInternalFormat* internalFormatDescr = GLFormats::getInternalFormat(*outInternalFormat);
+         if (internalFormatDescr && internalFormatDescr->dataFormat == GL_DEPTH_STENCIL) {
+             transferInternalFormat = GLFormats::getDepthInternalformatFromDepthStencil(internalFormatDescr);
+         }
+     } else if (attachment == GL_STENCIL_ATTACHMENT) {
+         const GLInternalFormat* internalFormatDescr = GLFormats::getInternalFormat(*outInternalFormat);
+         if (internalFormatDescr && internalFormatDescr->dataFormat == GL_DEPTH_STENCIL) {
+             transferInternalFormat = GLFormats::getStencilInternalformatFromDepthStencil(internalFormatDescr);
+         }
+     }
+
+
+     if (queryPixels) {
+
+         state_setters::DefaultPBO defPBO(this);
+
+         // we may touch draw buffer when downsampling MSAA buffers
+         state_setters::DrawBuffers drawBuffers(this);
+         
+         // we need to pixeltransfer alignmnet to default
+         state_setters::PixelStoreAlignment defAlignment(this);
+
+
+         std::shared_ptr<glutils::MSAADownSampler> downSampler;
+         if (multisampled) {
+
+             DGLPixelTransfer downsamplerTransfer;
+             if (getVersion().check(GLContextVersion::Type::ES)) {
+                 GLint implReadFormat, implTypeType;
+                 DIRECT_CALL_CHK(glGetIntegerv)(
+                     GL_IMPLEMENTATION_COLOR_READ_FORMAT, &implReadFormat);
+                 DIRECT_CALL_CHK(glGetIntegerv)(
+                     GL_IMPLEMENTATION_COLOR_READ_TYPE, &implTypeType);
+                 downsamplerTransfer.initializeOGLES(
+                     transferInternalFormat, implReadFormat, implTypeType);
+             } else {
+                 downsamplerTransfer.initializeOGL(transferInternalFormat, rgbaSizes,
+                     deptStencilSizes);
+             }
+
+             downSampler = std::shared_ptr<glutils::MSAADownSampler>(
+                 new glutils::MSAADownSampler(
+                 this, attTarget, attachment, fboObject, transferInternalFormat,
+                 &downsamplerTransfer, width, height));
+             DIRECT_CALL_CHK(glBindFramebuffer)(
+                 GL_READ_FRAMEBUFFER, downSampler->getDownsampledFBO());
+         }
+
+         if (attachment != GL_DEPTH_ATTACHMENT &&
+             attachment != GL_STENCIL_ATTACHMENT &&
+             attachment != GL_DEPTH_STENCIL_ATTACHMENT) {
+                 // select color attachment
+                 if (hasCapability(ContextCap::ReadBuffer)) {
+                     DIRECT_CALL_CHK(glReadBuffer)(attachment);
+                 }
+         }
+
+         DGLPixelTransfer transfer;
+         if (getVersion().check(GLContextVersion::Type::ES)) {
+             GLint implReadFormat, implTypeType;
+             DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_FORMAT,
+                 &implReadFormat);
+             DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_TYPE,
+                 &implTypeType);
+             transfer.initializeOGLES(transferInternalFormat, implReadFormat,
+                 implTypeType);
+         } else {
+             transfer.initializeOGL(transferInternalFormat, rgbaSizes, deptStencilSizes);
+         }
+
+         std::shared_ptr<dglnet::resource::DGLPixelRectangle> ret = 
+             std::make_shared<dglnet::resource::DGLPixelRectangle>(
+             width, height, defAlignment.getAligned(
+             width * transfer.getPixelSize()),
+             transfer.getFormat(), transfer.getType());
+
+         GLvoid* ptr = ret->getPtr();
+         if (ptr) {
+             DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height,
+                 (GLenum)transfer.getFormat(),
+                 (GLenum)transfer.getType(), ptr);
+         }
+
+         // there should be no errors. Otherwise something nasty happened
+         queryCheckError();
+
+         return ret;
+
+     } else { //!queryPixels
+         return std::shared_ptr<dglnet::resource::DGLPixelRectangle>();
+     }
+}
+
 
 std::shared_ptr<dglnet::DGLResource> GLContext::queryRenderbuffer(gl_t name) {
 
@@ -1540,11 +1585,8 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryRenderbuffer(gl_t name) {
     std::shared_ptr<dglnet::DGLResource> ret(
         resource = new dglnet::resource::DGLResourceRenderbuffer);
 
+    //we are going to change renderbuffer binding
     state_setters::RenderBuffer renderBuffer;
-    state_setters::ReadBuffer readBuffer(this);
-    state_setters::DefaultPBO defPBO(this);
-    state_setters::CurrentFramebuffer currentFramebuffer(this, 0);
-    state_setters::PixelStoreAlignment defAlignment(this);
 
     if (!DIRECT_CALL_CHK(glIsRenderbuffer)(static_cast<GLuint>(name))) {
         throw std::runtime_error("Renderbuffer does not exist");
@@ -1553,7 +1595,6 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryRenderbuffer(gl_t name) {
     DIRECT_CALL_CHK(glBindRenderbuffer)(GL_RENDERBUFFER, static_cast<GLuint>(name));
 
     GLint width, height, internalFormat;
-    GLint samples = 0;
 
     DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
         GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &width);
@@ -1563,35 +1604,14 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryRenderbuffer(gl_t name) {
         GL_RENDERBUFFER, GL_RENDERBUFFER_INTERNAL_FORMAT,
         &internalFormat);
 
-    if (hasCapability(ContextCap::RenderBufferMultisample)) {
-        DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-            GL_RENDERBUFFER, GL_RENDERBUFFER_SAMPLES, &samples);
-    }
-
-    resource->m_Internalformat = internalFormat;
-    resource->m_Samples = samples;
-
     // there should be no errors. Otherwise something nasty happened
     queryCheckError();
 
-    std::vector<GLint> rgbaSizes(4, 0);
-    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-        GL_RENDERBUFFER, GL_RENDERBUFFER_RED_SIZE,   &rgbaSizes[0]);
-    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-        GL_RENDERBUFFER, GL_RENDERBUFFER_GREEN_SIZE, &rgbaSizes[1]);
-    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-        GL_RENDERBUFFER, GL_RENDERBUFFER_BLUE_SIZE,  &rgbaSizes[2]);
-    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-        GL_RENDERBUFFER, GL_RENDERBUFFER_ALPHA_SIZE, &rgbaSizes[3]);
-    std::vector<GLint> deptStencilSizes(2, 0);
-    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-        GL_RENDERBUFFER, GL_RENDERBUFFER_DEPTH_SIZE, &deptStencilSizes[0]);
-    DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
-        GL_RENDERBUFFER, GL_RENDERBUFFER_STENCIL_SIZE, &deptStencilSizes[1]);
+    GLenum attachment = GL_COLOR_ATTACHMENT0;
     
     const GLInternalFormat* iFormat  = GLFormats::getInternalFormat(internalFormat);
 
-    GLenum attachment = GL_COLOR_ATTACHMENT0;
+    bool isDSQuery = true;
 
     if (iFormat) {
 
@@ -1603,20 +1623,35 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryRenderbuffer(gl_t name) {
             attachment = GL_STENCIL_ATTACHMENT;
         } else if (iFormat->dataType == GL_DEPTH_STENCIL) {
             attachment = GL_DEPTH_STENCIL_ATTACHMENT;
+        } else {
+            isDSQuery = false;
         }
     } else {
 
         //Internalformat not recognized
+
         //Set attachment basing on bit sizes
+        std::vector<GLint> deptStencilSizes(2, 0);
+        DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
+            GL_RENDERBUFFER, GL_RENDERBUFFER_DEPTH_SIZE, &deptStencilSizes[0]);
+        DIRECT_CALL_CHK(glGetRenderbufferParameteriv)(
+            GL_RENDERBUFFER, GL_RENDERBUFFER_STENCIL_SIZE, &deptStencilSizes[1]);
+
         if (deptStencilSizes[0] > 0 && deptStencilSizes[1] > 0) {
             attachment = GL_DEPTH_STENCIL_ATTACHMENT;
         } else if (deptStencilSizes[1] > 0)  {
             attachment = GL_STENCIL_ATTACHMENT;
         } else if (deptStencilSizes[0] > 0) {
             attachment = GL_DEPTH_ATTACHMENT;
+        } else {
+            isDSQuery = false;
         }
     }   
     
+
+    if (isDSQuery && getVersion().check(GLContextVersion::Type::ES)) {
+        throw std::runtime_error("Cannot query pixels of depth or stencil buffers on OpenGL ES");
+    }
 
     GLuint dummyFBO;
 
@@ -1624,78 +1659,32 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryRenderbuffer(gl_t name) {
 
         //Setup the dummy FBO
         DIRECT_CALL_CHK(glGenFramebuffers)(1, &dummyFBO);
-        DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, dummyFBO);
+        state_setters::CurrentFramebuffer currentFramebuffer(this, dummyFBO);
         DIRECT_CALL_CHK(glFramebufferRenderbuffer)(GL_FRAMEBUFFER,
                                                    attachment,
                                                    GL_RENDERBUFFER,
                                                    static_cast<GLuint>(name));
+        GLint samples;
 
-        std::shared_ptr<glutils::MSAADownSampler> downSampler;
-        if (samples > 1) {
+        // there should be no errors. Otherwise something nasty happened
+        queryCheckError();
 
-            DGLPixelTransfer downsamplerTransfer;
-            if (getVersion().check(GLContextVersion::Type::ES)) {
-                GLint implReadFormat, implTypeType;
-                DIRECT_CALL_CHK(glGetIntegerv)(
-                    GL_IMPLEMENTATION_COLOR_READ_FORMAT, &implReadFormat);
-                DIRECT_CALL_CHK(glGetIntegerv)(
-                    GL_IMPLEMENTATION_COLOR_READ_TYPE, &implTypeType);
-                downsamplerTransfer.initializeOGLES(
-                    internalFormat, implReadFormat, implTypeType);
-            } else {
-                downsamplerTransfer.initializeOGL(internalFormat, rgbaSizes,
-                    deptStencilSizes);
-            }
+        std::shared_ptr<dglnet::resource::DGLPixelRectangle> pixelRectangle = 
+                queryFramebufferAttachment(
+                dummyFBO,             // id of fbo containing queried RB
+                attachment,           // attachment point, as above
+                GL_RENDERBUFFER,      // it is a renderbuffer attachment
+                true,                 // true (always query pixels)
+                &samples,             // sample count is returned here
+                &internalFormat       // internalFormat is returned here
+            );
 
-            downSampler = std::shared_ptr<glutils::MSAADownSampler>(
-                new glutils::MSAADownSampler(
-                    this,                      // parrent ctx
-                    GL_RENDERBUFFER,           // attachment target
-                    attachment,                // attachment slot
-                    static_cast<GLuint>(name), // object name
-                    internalFormat,            
-                    &downsamplerTransfer,      // transfer (used to allocate downsampled object)
-                    width,
-                    height
-                ));
-            DIRECT_CALL_CHK(glBindFramebuffer)(
-                GL_READ_FRAMEBUFFER, downSampler->getDownsampledFBO());
-        }
+        resource->m_PixelRectangle = convert_shared_ptr(pixelRectangle);
+            
 
-        if (attachment != GL_DEPTH_ATTACHMENT &&
-            attachment != GL_STENCIL_ATTACHMENT &&
-            attachment != GL_DEPTH_STENCIL_ATTACHMENT) {
-                // select color attachment
-                if (hasCapability(ContextCap::ReadBuffer)) {
-                    DIRECT_CALL_CHK(glReadBuffer)(attachment);
-                }
-        }
+        resource->m_Internalformat = internalFormat;
+        resource->m_Samples = samples;
 
-        DGLPixelTransfer transfer;
-        if (getVersion().check(GLContextVersion::Type::ES)) {
-            GLint implReadFormat, implTypeType;
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_FORMAT,
-                &implReadFormat);
-            DIRECT_CALL_CHK(glGetIntegerv)(GL_IMPLEMENTATION_COLOR_READ_TYPE,
-                &implTypeType);
-            transfer.initializeOGLES(internalFormat, implReadFormat,
-                implTypeType);
-        } else {
-            transfer.initializeOGL(internalFormat, rgbaSizes, deptStencilSizes);
-        }
-
-        resource->m_PixelRectangle =
-            boost::make_shared<dglnet::resource::DGLPixelRectangle>(
-            width, height, defAlignment.getAligned(
-            width * transfer.getPixelSize()),
-            transfer.getFormat(), transfer.getType());
-
-        GLvoid* ptr = resource->m_PixelRectangle->getPtr();
-        if (ptr) {
-            DIRECT_CALL_CHK(glReadPixels)(0, 0, width, height,
-                (GLenum)transfer.getFormat(),
-                (GLenum)transfer.getType(), ptr);
-        }
         
     } catch (const std::runtime_error& e) {
 

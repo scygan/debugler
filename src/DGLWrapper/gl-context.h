@@ -99,6 +99,28 @@ class GLContext {
     std::shared_ptr<dglnet::DGLResource> queryGPU();
     std::shared_ptr<dglnet::DGLResource> queryState(gl_t name);
 
+
+    /** 
+     * FBO attachment query
+     * used for FBO and renderbuffer queries. FBO does not need to be bound
+     * 
+     *
+     * @param      fboObject             // FBO object being queried 
+     * @param      attachment            // Queried attachment point of FBO  (like COLOT_ATTACHMENT0) 
+     * @param      attachmentType        // texture or renderbuffer
+     * @param      queryPixels             // reading pixels will be skipped & null returned if false
+     * @param[out] outSamples           // out: returned sample count
+     * @param[out] outInternalFormat)   // out: returned internalFormat of attachment
+     */
+    std::shared_ptr<dglnet::resource::DGLPixelRectangle> queryFramebufferAttachment(
+        GLuint fboObject,
+        GLenum attachment,
+        GLenum attachmentType,
+        bool queryPixels,
+        GLint* outSamples,
+        GLint* outInternalFormat);
+
+
     /**
      * texture level query (dispatches to API-specific query implementation)
      */
