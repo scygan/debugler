@@ -1182,7 +1182,7 @@ void ProgramAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& 
     PrevPost(call, ret);
 }
 
-void ProgramPipelineAction::Register(ActionManager& manager) {
+void ProgramPipelineAction::Register(ActionManager& /*manager*/) {
     std::shared_ptr<ProgramPipelineAction> obj
         = std::make_shared<ProgramPipelineAction>();
 
