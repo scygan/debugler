@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-#include "dglRenderbufferview.h"
+#include "dglrenderbufferview.h"
 
 #include "ui_dglRenderbufferviewitem.h"
 
