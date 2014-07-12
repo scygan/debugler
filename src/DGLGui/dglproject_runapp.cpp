@@ -169,7 +169,6 @@ std::vector<std::string> DGLRunAppProject::getCommandLineArgVector() {
             throw std::runtime_error(
                     "Program arguments: Command substitution occurred");
         case WRDE_NOSPACE:
-            DGL_ASSERT(&wordExp);
             throw std::runtime_error("Program arguments: Out of memory.");
         case WRDE_SYNTAX:
             throw std::runtime_error("Program arguments: syntax error");
