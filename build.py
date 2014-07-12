@@ -95,7 +95,7 @@ class AndroidBuildTarget(CMakeTarget):
 
 
 class LinuxBuildTarget(CMakeTarget):
-    def __init__(self, arch, cmakeFlags = ''):
+    def __init__(self, arch, cmakeFlags = []):
         super(LinuxBuildTarget, self).__init__()
         self.arch = arch
         self.cmakeFlags = cmakeFlags
