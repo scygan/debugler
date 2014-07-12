@@ -1,3 +1,13 @@
+
+cmake_minimum_required(VERSION 2.8)
+
+project(debugler)
+
+file(STRINGS version.inl DGL_VERSION )
+
+add_subdirectory(../tools/build/cmake ${CMAKE_BINARY_DIR}/tools/build/cmake)
+
+
 if (ARCH EQUAL 32 OR ARCH EQUAL 64)
     set (CMAKE_C_FLAGS "-m${ARCH} ${CMAKE_C_FLAGS}")
     set (CMAKE_CXX_FLAGS "-m${ARCH} ${CMAKE_CXX_FLAGS}")

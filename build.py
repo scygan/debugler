@@ -69,7 +69,7 @@ class CMakeTarget(BaseTarget):
             cmdLine += ['-G', 'Eclipse CDT4 - Ninja']
             cmdLine += ['-DCMAKE_MAKE_PROGRAM=' + getLocalPath() + "/tools/ninja.exe"]
 
-        cmdLine += [getLocalPath()]
+        cmdLine += [getLocalPath() + os.sep + "src"]
 
         logging.debug('Running CMAKE in ' + self.path + ' with args: ' + str(cmdLine) + '...')
         return subprocess.call(['cmake'] + cmdLine, cwd=self.path)
