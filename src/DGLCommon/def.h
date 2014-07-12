@@ -17,6 +17,7 @@
 #define DEF_H
 
 #include <cassert>
+#include <cstddef>
 
 #ifdef _WIN32
 #define NO_RETURN __declspec(noreturn)
