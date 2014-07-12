@@ -408,10 +408,10 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                     while (attribList[i] != None) {
                         attributes.push_back(attribList[i++]);
                         attributes.push_back(attribList[i++]);
-                    }
-                    if (attributes[i - 2] == GLX_CONTEXT_PROFILE_MASK_ARB && 
-                        attributes[i - 1] == GLX_CONTEXT_ES_PROFILE_BIT_EXT) {
-                            contextType = dglState::GLContextVersion::Type::ES;
+                        if (attributes[i - 2] == GLX_CONTEXT_PROFILE_MASK_ARB && 
+                            attributes[i - 1] == GLX_CONTEXT_ES_PROFILE_BIT_EXT) {
+                                contextType = dglState::GLContextVersion::Type::ES;
+                        }
                     }
                 }
 
