@@ -1412,9 +1412,9 @@ TEST_F(LiveTest, program_handling) {
     
     {
         // advance one call
-        dglnet::message::ContinueBreak stepCall(
+        dglnet::message::ContinueBreak stepCall2(
             dglnet::message::StepMode::CALL);
-        client->sendMessage(&stepCall);
+        client->sendMessage(&stepCall2);
         breaked =
             utils::receiveUntilMessage<dglnet::message::BreakedCall>(
             client.get(), getMessageHandler());
