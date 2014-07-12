@@ -250,6 +250,9 @@ void ContextAction::Register(ActionManager& manager) {
     manager.RegisterAction(glXCreateContext_Call, obj);
     manager.RegisterAction(glXCreateNewContext_Call, obj);
     manager.RegisterAction(glXCreateContextAttribsARB_Call, obj);
+    manager.RegisterAction(glXMakeCurrent_Call, obj);
+    manager.RegisterAction(glXMakeContextCurrent_Call, obj);
+    manager.RegisterAction(glXDestroyContext_Call, obj);
 
     manager.RegisterAction(eglCreateContext_Call, obj);
     manager.RegisterAction(eglMakeCurrent_Call, obj);
