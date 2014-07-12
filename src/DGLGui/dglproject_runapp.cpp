@@ -214,9 +214,18 @@ void DGLRunAppProjectFactory::updatePath() {
 
 void DGLRunAppProjectFactory::browseExecutable() {
     QFileInfo info(m_ui.lineEdit_Executable->text());
+
+
+#ifdef _WIN32    
+    const char* filter = "Executables (*.exe)";
+#else
+    //executables on non-Windows does not have a suffix
+    const char* filter = "Executables (*)";
+#endif
     QString res = QFileDialog::getOpenFileName(
             &m_gui, tr("Choose a executable to run"), info.absoluteFilePath(),
-            tr("Executables (*.exe)"));
+            tr(filter));
+
     if (!res.isNull()) {
         m_ui.lineEdit_Executable->setText(QDir::toNativeSeparators(res));
     }
