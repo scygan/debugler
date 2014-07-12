@@ -32,6 +32,12 @@ class BaseTarget(object):
     def depend(self, target):
         self.deps.append(target)
 
+    def getBuildTypeStr(self, debug):
+        if debug:
+            return 'Debug'
+        else:
+            return 'Release'
+
     def prepare(self, targetName, debug = False):
         return 0
 
@@ -42,11 +48,6 @@ class CMakeTarget(BaseTarget):
     def __init__(self):
         super(CMakeTarget, self).__init__()
 
-    def getBuildTypeStr(self, debug):
-        if debug:
-            return 'Debug'
-        else:
-            return 'RelWithDebInfo'
 
     def prepare(self, targetName, debug, cmakeOpts, toolchain = ''):
 
@@ -111,12 +112,6 @@ class WindowsBuildTarget(BaseTarget):
         super(WindowsBuildTarget, self).__init__()
         self.platform = platform
         self.configSuffix = configSuffix
-        
-    def getBuildTypeStr(self, debug):
-        if debug:
-            return 'Debug'
-        else:
-            return 'Release'
 
     def prepare(self, targetName, debug = False):
         self.config = self.getBuildTypeStr(debug) + self.configSuffix
