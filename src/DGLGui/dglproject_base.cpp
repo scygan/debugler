@@ -23,10 +23,10 @@
 #include "dglproject_attach.h"
 #include "dglproject_android.h"
 
-BOOST_CLASS_EXPORT(DGLRunAppProject);
-BOOST_CLASS_EXPORT(DGLAttachProject);
-BOOST_CLASS_EXPORT(DGLAndroidProject);
-BOOST_CLASS_EXPORT(DGLProject);
+BOOST_CLASS_EXPORT(DGLRunAppProject)
+BOOST_CLASS_EXPORT(DGLAttachProject)
+BOOST_CLASS_EXPORT(DGLAndroidProject)
+BOOST_CLASS_EXPORT(DGLProject)
 
 void DGLProject::saveToStream(std::ostream& oStream) const {
     

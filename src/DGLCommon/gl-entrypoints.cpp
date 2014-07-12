@@ -51,7 +51,7 @@ struct GLEntrypoint {
     GLEntrypoitParam params[18];
 } g_Entrypoints[] = {
 #include "functionList.inl"
-    { "<unknown>", false, false, { GLParamTypeMetadata::BaseType::Value, GLEnumGroup::None}, {}}
+    { "<unknown>", false, false, { GLParamTypeMetadata::BaseType::Value, GLEnumGroup::NoneGroup}, {}}
 };
 #undef FUNC_LIST_ELEM_SUPPORTED
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED

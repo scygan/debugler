@@ -62,7 +62,7 @@ struct EnumMapCache {
 EnumMapCache::CodegenEnumGLToName EnumMapCache::s_CodegenEnumGLToName[] = {
 
 #define ENUM_LIST_ELEMENT(name, value, ...) \
-    {(gl_t)value,  { #name, {__VA_ARGS__, GLEnumGroup::None}}},
+    {(gl_t)value,  { #name, {__VA_ARGS__, GLEnumGroup::NoneGroup}}},
 #include "enum.inl"
 #undef ENUM_LIST_ELEMENT
     {0,  {nullptr, {}}},
@@ -91,7 +91,7 @@ std::string GetGLEnumName(gl_t glEnum, GLEnumGroup group) {
     for (std::set<lists::GLEnumName*>::iterator i = nameSet.begin(); 
         i != nameSet.end(); i++) {
 
-        for (int j = 0; (*i)->m_groups[j] != GLEnumGroup::None; j++) {
+        for (int j = 0; (*i)->m_groups[j] != GLEnumGroup::NoneGroup; j++) {
             if ((*i)->m_groups[j] == group) {
                 //found name matching requested enum group.
                 return (*i)->m_name;

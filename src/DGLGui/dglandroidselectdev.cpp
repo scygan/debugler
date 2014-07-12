@@ -16,7 +16,7 @@
 #include "dglandroidselectdev.h"
 
 DGLAndroidSelectDevWidget::DGLAndroidSelectDevWidget(QWidget* _parent)
-        : m_KillOrConnectHandler(this), QWidget(_parent) {
+        : QWidget(_parent), m_KillOrConnectHandler(this) {
     m_ui.setupUi(this);
 
     CONNASSERT(&m_ReloadTimer, SIGNAL(timeout()), this, SLOT(reloadDevices()));
@@ -115,17 +115,17 @@ void DGLAndroidSelectDevWidget::gotDevices(std::vector<std::string> devices) {
     }
 }
 
-void DGLAndroidSelectDevWidget::showEvent(QShowEvent* event) {
+void DGLAndroidSelectDevWidget::showEvent(QShowEvent* ev) {
     if (!m_ReloadTimer.isActive()) {
         m_ReloadTimer.setInterval(1);
         m_ReloadTimer.start();
     }
-    QWidget::showEvent(event);
+    QWidget::showEvent(ev);
 }
 
-void DGLAndroidSelectDevWidget::hideEvent(QHideEvent* event) {
+void DGLAndroidSelectDevWidget::hideEvent(QHideEvent* ev) {
     m_ReloadTimer.stop();
-    QWidget::hideEvent(event);
+    QWidget::hideEvent(ev);
 }
 
 void DGLAndroidSelectDevWidget::KillOrConnectHandler::done(const std::vector<std::string>&) {
@@ -136,8 +136,8 @@ void DGLAndroidSelectDevWidget::KillOrConnectHandler::failed(const std::string& 
     emit m_Parent->adbFailed(reason);
 }
 
-void DGLAndroidSelectDevWidget::done(const std::vector<std::string>& data) {
-    gotDevices(data);
+void DGLAndroidSelectDevWidget::done(const std::vector<std::string>& strings) {
+    gotDevices(strings);
 }
 
 void DGLAndroidSelectDevWidget::failed(const std::string& reason) {

@@ -45,7 +45,7 @@ public:
         Value
     };
 
-    GLParamTypeMetadata():m_BaseType(BaseType::Value), m_EnumGroup(GLEnumGroup::None) {}
+    GLParamTypeMetadata():m_BaseType(BaseType::Value), m_EnumGroup(GLEnumGroup::NoneGroup) {}
     GLParamTypeMetadata(BaseType baseType, GLEnumGroup enumGroup):m_BaseType(baseType), m_EnumGroup(enumGroup) {}
     
     BaseType m_BaseType;

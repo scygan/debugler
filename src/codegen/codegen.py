@@ -70,7 +70,7 @@ class Type:
         self.name = name
         self.enumGroup = enumGroup
         if self.enumGroup == None:
-            self.enumGroup = 'None'
+            self.enumGroup = 'NoneGroup'
 
 class FuncParameter:
     def __init__(self, type, name):
@@ -237,14 +237,14 @@ def parseXML(path, skipTrace = False):
             
             retType = getCTypeFromXML(prototype)
 
-            if retType.enumGroup != 'None' and retType.enumGroup not in enumGroups:
+            if retType.enumGroup != 'NoneGroup' and retType.enumGroup not in enumGroups:
                 enumGroups.append(retType.enumGroup)
           
             funcParams = []            
             
             for paramElement in commandElement.iter("param"):
                 paramType = getCTypeFromXML(paramElement)
-                if paramType.enumGroup != 'None' and paramType.enumGroup not in enumGroups:
+                if paramType.enumGroup != 'NoneGroup' and paramType.enumGroup not in enumGroups:
                     enumGroups.append(paramType.enumGroup)
 
                 param = FuncParameter(paramType, paramElement.find("name").text)
@@ -448,7 +448,7 @@ blacklist = ["glXAssociateDMPbufferSGIX", "glXCreateGLXVideoSourceSGIX", "glXDes
 for name, enum in sorted(enums.items()):
     if not "_LINE_BIT" in name:  #TODO: what about _LINE_BIT stuff?
         if len(enum.groups) <= 0:
-            enum.groups.append("None")
+            enum.groups.append('NoneGroup')
         print >> enumFile, "ENUM_LIST_ELEMENT(" + name + ","  + enum.value + ", " + listToString(["GLEnumGroup::" + g for g in enum.groups]) + ")"
 
 for name in enumGroups:

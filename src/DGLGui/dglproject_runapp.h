@@ -23,6 +23,9 @@
 #include "dglproject_base.h"
 #include "dglprocess.h"
 
+#include <boost/serialization/nvp.hpp>
+
+
 class DGLRunAppProject: public DGLProject {
     Q_OBJECT
 public:

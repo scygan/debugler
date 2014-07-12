@@ -24,6 +24,8 @@
 
 #include "ui_dglprojproperties_attach.h"
 
+#include <boost/serialization/nvp.hpp>
+
 class DGLAttachProject : public DGLProject {
    public:
     DGLAttachProject(std::string address, std::string port);

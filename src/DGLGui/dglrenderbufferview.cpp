@@ -15,9 +15,9 @@
 
 #include "dglrenderbufferview.h"
 
-#include "ui_dglRenderbufferviewitem.h"
+#include "ui_dglrenderbufferviewitem.h"
 
-#include "DGLnet/protocol/shared_ptr_converter.h"
+#include "DGLNet/protocol/shared_ptr_converter.h"
 
 DGLRenderbufferViewItem::DGLRenderbufferViewItem(dglnet::ContextObjectName name,
                                DGLResourceManager* resManager, QWidget* parrent)

@@ -825,7 +825,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
     // call glXCreateContextAttribsARB only if supported by implementation.
     // Otherwise do nothing - ctx will be created in wrapper function
     if (POINTER(glXCreateContextAttribsARB) ||
-        g_ApiLoader.loadExtPointer(glXCreateContextAttribsARB_Call)) {
+        GlobalState::getApiLoader().loadExtPointer(glXCreateContextAttribsARB_Call)) {
         ret = DIRECT_CALL_CHK(glXCreateContextAttribsARB)(
                 dpy, config, sharedContext, direct, &newAttribList[0]);
     }

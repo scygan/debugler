@@ -700,11 +700,11 @@ void DGLMainWindow::projectProperties() {
         m_ProjectDialog.loadPropertiesFromProject(m_project.get());
         if (m_ProjectDialog.exec() == QDialog::Accepted) {
 
-            std::shared_ptr<DGLProject> newProject =  m_ProjectDialog.getProject();
+            std::shared_ptr<DGLProject> newCurrentProject =  m_ProjectDialog.getProject();
 
-            m_ProjectSaved = ( !newProject || *newProject == *m_project );
+            m_ProjectSaved = ( !newCurrentProject || *newCurrentProject == *m_project );
 
-            setCurrentProject(newProject);
+            setCurrentProject(newCurrentProject);
         }
     }
 }

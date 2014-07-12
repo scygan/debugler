@@ -22,6 +22,8 @@
 #include "dgladbdevice.h"
 #include "dglproject_base.h"
 
+#include <boost/serialization/nvp.hpp>
+
 class DGLAndroidProject : public DGLProject {
    Q_OBJECT
    public:

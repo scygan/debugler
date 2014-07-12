@@ -143,7 +143,16 @@ std::vector<std::string> DGLRunAppProject::getCommandLineArgVector() {
 #else
     wordexp_t wordExp;
 
-    int status = wordexp(m_args.toUtf8(), &wordExp, 0);
+
+    std::string argsUtf8 = "";
+
+    if (m_args.size()) {
+        std::vector<char> charBuffer(MB_CUR_MAX * m_args.size(), 0);
+        wcstombs(&charBuffer[0], &m_args[0], charBuffer.size());
+        argsUtf8 = &charBuffer[0];
+    }
+
+    int status = wordexp(argsUtf8.c_str(), &wordExp, 0);
     switch (status) {
         case WRDE_BADCHAR:
             throw std::runtime_error(

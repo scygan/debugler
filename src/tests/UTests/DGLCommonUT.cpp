@@ -205,7 +205,7 @@ TEST_F(DGLCommonUT, codegen_entryp_params) {
     {
         GLParamTypeMetadata descr = GetEntryPointGLParamTypeMetadata(glDrawArrays_Call, 1);
         EXPECT_EQ(descr.m_BaseType, GLParamTypeMetadata::BaseType::Value);
-        EXPECT_EQ(descr.m_EnumGroup, GLEnumGroup::None);
+        EXPECT_EQ(descr.m_EnumGroup, GLEnumGroup::NoneGroup);
     }
     {
         GLParamTypeMetadata descr = GetEntryPointGLParamTypeMetadata(glTexImage2D_Call, 2);
@@ -223,7 +223,7 @@ TEST_F(DGLCommonUT, codegen_entryp_retval) {
     {
         GLParamTypeMetadata descr = GetEntryPointRetvalMetadata(glDrawArrays_Call);
         EXPECT_EQ(descr.m_BaseType, GLParamTypeMetadata::BaseType::Value);
-        EXPECT_EQ(descr.m_EnumGroup, GLEnumGroup::None);
+        EXPECT_EQ(descr.m_EnumGroup, GLEnumGroup::NoneGroup);
     }
     {
         GLParamTypeMetadata descr = GetEntryPointRetvalMetadata(glGetError_Call);

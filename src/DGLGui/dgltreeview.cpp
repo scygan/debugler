@@ -246,7 +246,7 @@ template <typename ObjType>
 class DGLObjectNodeWidgetBase : public QTreeWidgetItem {
    public:
     DGLObjectNodeWidgetBase(opaque_id_t ctxId, QString header, QString iconPath)
-            : m_CtxId(ctxId), m_IconPath(iconPath) {
+            : m_IconPath(iconPath), m_CtxId(ctxId) {
         setHeader(header);
         setIcon(0, QIcon(iconPath));
     }
@@ -270,22 +270,22 @@ public:
     void update(const std::set<T>& names) {
         typedef typename std::set<T>::iterator set_iter;
 
-        if (childCount() != (int)names.size()) {
+        if (this->childCount() != (int)names.size()) {
 
             //remove excessive childs
-            while (childCount() > (int)names.size()) {
-                removeChild(child(childCount() - 1));
+            while (this->childCount() > (int)names.size()) {
+                this->removeChild(this->child(this->childCount() - 1));
             }
 
             //add missing children
-            while ((int)names.size() > childCount()) {
-                addChild(new ObjType(DGLObjectNodeWidgetBase<ObjType>::m_IconPath));
+            while ((int)names.size() > this->childCount()) {
+                this->addChild(new ObjType(this->m_IconPath));
             }
         }
 
         int childIdx = 0;
         for (set_iter i = names.begin(); i != names.end(); i++) {
-            ObjType* typedChild = dynamic_cast<ObjType*>(child(childIdx));
+            ObjType* typedChild = dynamic_cast<ObjType*>(this->child(childIdx));
             DGL_ASSERT(typedChild);
             if (typedChild) {
                 if (!i->exactlySameAs(typedChild->getObjName())) {
@@ -320,8 +320,8 @@ public:
 
             for (size_t i = 0; i < m_Childs.size(); i++) {
                 m_Childs[i] = 
-                    DGLObjectNodeWidget<ObjType>(DGLObjectNodeWidgetBase<ObjType>::m_CtxId, m_ChildHeader + QString::number(i),
-                            DGLObjectNodeWidgetBase<ObjType>::m_IconPath);
+                    DGLObjectNodeWidget<ObjType>(this->m_CtxId, m_ChildHeader + QString::number(i),
+                            this->m_IconPath);
                 this->addChild(&m_Childs[i]);
             }
         }
@@ -357,7 +357,7 @@ public:
                 this->removeChild(&m_Childs[i]);
             }
 
-            m_Childs.resize(elements.size(), DGLObjectNodeWidget<ObjType>(DGLObjectNodeWidgetBase<ObjType>::m_CtxId, "", DGLObjectNodeWidgetBase<ObjType>::m_IconPath));
+            m_Childs.resize(elements.size(), DGLObjectNodeWidget<ObjType>(this->m_CtxId, "", this->m_IconPath));
 
             for (size_t i = 0; i < m_Childs.size(); i++) {
                 this->addChild(&m_Childs[i]);
@@ -368,7 +368,7 @@ public:
         DGL_ASSERT(elements.size() == m_Childs.size());
 
         int idx = 0;
-        for (std::set<std::pair<T1, std::set<T2> > >::iterator it = elements.begin(); it != elements.end(); it++) {
+        for (typename std::set<std::pair<T1, std::set<T2> > >::iterator it = elements.begin(); it != elements.end(); it++) {
 
             //it: pointer to (object name, set<objects>) pairs;
 

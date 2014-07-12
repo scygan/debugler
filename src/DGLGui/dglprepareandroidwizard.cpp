@@ -25,7 +25,7 @@
 namespace dglPrepareAndroidWizard {
 
 namespace pages {
-Intro::Intro(QWidget *parent) : QWizardPage(parent) {
+Intro::Intro(QWidget *_parent) : QWizardPage(_parent) {
     setTitle(tr("Introduction"));
     setPixmap(QWizard::WatermarkPixmap, QPixmap(":/res/android.png"));
 
@@ -53,11 +53,11 @@ Intro::Intro(QWidget *parent) : QWizardPage(parent) {
     fakeAcceptBox = new QCheckBox("I agree.");
     acceptBox = new QCheckBox("I have understood and I agree to above.");
 
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget(label);
-    layout->addWidget(fakeAcceptBox);
-    layout->addWidget(acceptBox);
-    setLayout(layout);
+    QVBoxLayout *vlayout = new QVBoxLayout;
+    vlayout->addWidget(label);
+    vlayout->addWidget(fakeAcceptBox);
+    vlayout->addWidget(acceptBox);
+    setLayout(vlayout);
 }
 
 int Intro::nextId(void) const {
@@ -67,8 +67,8 @@ int Intro::nextId(void) const {
     return Wizard::Page_DeviceChoice;
 }
 
-DeviceChoice::DeviceChoice(QWidget *parent) : QWizardPage(parent) {
-    QVBoxLayout *layout = new QVBoxLayout;
+DeviceChoice::DeviceChoice(QWidget *_parent) : QWizardPage(_parent) {
+    QVBoxLayout *vlayout = new QVBoxLayout;
 
     setCommitPage(true);
 
@@ -83,12 +83,12 @@ DeviceChoice::DeviceChoice(QWidget *parent) : QWizardPage(parent) {
     CONNASSERT(m_SelectWidget, SIGNAL(adbFailed(std::string)), this,
                SLOT(adbFailed(std::string)));
 
-    layout->addWidget(m_SelectWidget);
+    vlayout->addWidget(m_SelectWidget);
     m_DeviceStatusLabel = new QLabel();
-    layout->addWidget(m_DeviceStatusLabel);
+    vlayout->addWidget(m_DeviceStatusLabel);
 
     m_DeviceABILabel = new QLabel();
-    layout->addWidget(m_DeviceABILabel);
+    vlayout->addWidget(m_DeviceABILabel);
 
     m_RadioButtonClean =
             new QRadioButton("Uninstall " DGL_PRODUCT " from device.");
@@ -104,9 +104,9 @@ DeviceChoice::DeviceChoice(QWidget *parent) : QWizardPage(parent) {
     bg->addButton(m_RadioButtonUpdate);
     bg->addButton(m_RadioButtonInstall);
 
-    layout->addWidget(m_RadioButtonClean);
-    layout->addWidget(m_RadioButtonUpdate);
-    layout->addWidget(m_RadioButtonInstall);
+    vlayout->addWidget(m_RadioButtonClean);
+    vlayout->addWidget(m_RadioButtonUpdate);
+    vlayout->addWidget(m_RadioButtonInstall);
 
     registerField("clean-button", m_RadioButtonClean);
     registerField("update-button", m_RadioButtonUpdate);
@@ -121,7 +121,7 @@ DeviceChoice::DeviceChoice(QWidget *parent) : QWizardPage(parent) {
     setDeviceStatus(DGLADBDevice::InstallStatus::UNKNOWN,
                     DGLADBDevice::ABI::UNKNOWN, true);
 
-    setLayout(layout);
+    setLayout(vlayout);
 
     emit completeChanged();
 }
@@ -187,14 +187,14 @@ void DeviceChoice::setDeviceStatus(DGLADBDevice::InstallStatus status,
 
 }
 
-void DeviceChoice::hideEvent(QHideEvent *event) {
+void DeviceChoice::hideEvent(QHideEvent *ev) {
     m_ReloadTimer.stop();
-    QWidget::hideEvent(event);
+    QWidget::hideEvent(ev);
 }
 
-void DeviceChoice::showEvent(QShowEvent *event) {
+void DeviceChoice::showEvent(QShowEvent *ev) {
     m_ReloadTimer.start();
-    QWidget::showEvent(event);
+    QWidget::showEvent(ev);
 }
 
 void DeviceChoice::adbFailed(std::string reason) {
@@ -205,13 +205,13 @@ void DeviceChoice::adbFailed(std::string reason) {
                     DGLADBDevice::ABI::UNKNOWN);
 }
 
-void DeviceChoice::selectDevice(DGLADBDevice *device) {
-    if (device) {
+void DeviceChoice::selectDevice(DGLADBDevice *dev) {
+    if (dev) {
 
-        if (device == m_SelectWidget->getCurrentDevice()) {
+        if (dev == m_SelectWidget->getCurrentDevice()) {
             setDeviceStatus(DGLADBDevice::InstallStatus::UNKNOWN,
                             DGLADBDevice::ABI::UNKNOWN);
-            CONNASSERT(device, SIGNAL(queryStatusSuccess(DGLADBDevice *)), this,
+            CONNASSERT(dev, SIGNAL(queryStatusSuccess(DGLADBDevice *)), this,
                        SLOT(queryDeviceStatusSuccess(DGLADBDevice *)));
 
             reloadStatus();
@@ -233,8 +233,8 @@ void DeviceChoice::reloadStatus() {
     }
 }
 
-void DeviceChoice::queryDeviceStatusSuccess(DGLADBDevice *device) {
-    if (device == m_SelectWidget->getCurrentDevice()) {
+void DeviceChoice::queryDeviceStatusSuccess(DGLADBDevice *dev) {
+    if (dev == m_SelectWidget->getCurrentDevice()) {
         setDeviceStatus(m_SelectWidget->getCurrentDevice()->getInstallStatus(),
                         m_SelectWidget->getCurrentDevice()->getABI());
     }
@@ -258,15 +258,15 @@ bool DeviceChoice::isComplete() const {
     return false;
 }
 
-Run::Run(QWidget *parent)
-        : QWizardPage(parent),
+Run::Run(QWidget *_parent)
+        : QWizardPage(_parent),
           m_Device(nullptr),
           m_Complete(false),
           m_Final(false) {
-    QVBoxLayout *layout = new QVBoxLayout;
+    QVBoxLayout *vlayout = new QVBoxLayout;
     m_LogWidget = new QListWidget;
-    layout->addWidget(m_LogWidget);
-    setLayout(layout);
+    vlayout->addWidget(m_LogWidget);
+    setLayout(vlayout);
 }
 
 void Run::initializePage() {
@@ -348,8 +348,8 @@ void Run::installerDone(DGLADBDevice *) {
     wizard()->next();
 }
 
-void Run::log(DGLADBDevice *, const std::string &log) {
-    m_LogWidget->insertItem(m_LogWidget->count(), QString::fromStdString(log));
+void Run::log(DGLADBDevice *, const std::string &logStr) {
+    m_LogWidget->insertItem(m_LogWidget->count(), QString::fromStdString(logStr));
     m_LogWidget->scrollToBottom();
 }
 
@@ -360,14 +360,14 @@ int Run::nextId() const {
     return Wizard::Page_Conclusion;
 }
 
-Conclusion::Conclusion(QWidget *parent) : QWizardPage(parent) {
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget(new QLabel("Installer finished successfully."));
-    setLayout(layout);
+Conclusion::Conclusion(QWidget *_parent) : QWizardPage(_parent) {
+    QVBoxLayout *vlayout = new QVBoxLayout;
+    vlayout->addWidget(new QLabel("Installer finished successfully."));
+    setLayout(vlayout);
 }
 }
 
-Wizard::Wizard(QWidget *parent) : QWizard(parent) {
+Wizard::Wizard(QWidget *_parent) : QWizard(_parent) {
 
     setPage(Page_Intro, new pages::Intro);
     setPage(Page_DeviceChoice, new pages::DeviceChoice);

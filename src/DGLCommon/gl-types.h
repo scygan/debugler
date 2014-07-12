@@ -30,11 +30,11 @@ typedef int (*FUNC_PTR)();
 #define ENUMGROUP_LIST_ELEMENT(name) name,
 enum class GLEnumGroup {
 #include <enum-groups.inl>
-    None
+    NoneGroup
 };
 #undef ENUMGROUP_LIST_ELEMENT
 
-std::string GetGLEnumName(gl_t glEnum, GLEnumGroup group = GLEnumGroup::None);
+std::string GetGLEnumName(gl_t glEnum, GLEnumGroup group = GLEnumGroup::NoneGroup);
 
 std::string GetShaderStageName(gl_t glEnum);
 std::string GetTextureTargetName(gl_t glEnum);

@@ -588,6 +588,8 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
                             case RequestStatus::PREP_UNINSTALL:
                                 params.push_back("uninstall");
                                 break;
+                            default:
+                                DGL_ASSERT(0);
                         }
                         invokeAsRoot(params,
                                      std::make_shared<DGLInstallerFilter>())
