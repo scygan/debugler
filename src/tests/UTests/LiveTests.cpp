@@ -97,13 +97,21 @@ class LiveTest : public ::testing::Test {
 
         m_ProcessWrapper = std::make_shared<LiveProcessWrapper>(sampleName);
         
-        return getAnotherConnection();
-        
+        std::shared_ptr<dglnet::Client> client =
+            dglnet::Client::Create(&m_Controller, &m_MessageHandler);
+
+        client->connectServer("127.0.0.1", "8888");
+
+        return client;
     }
 
     std::shared_ptr<dglnet::Client> getAnotherConnection() {
+
+        m_ProcessWrapper->waitForSocket();
+
         std::shared_ptr<dglnet::Client> client =
             dglnet::Client::Create(&m_Controller, &m_MessageHandler);
+
         client->connectServer("127.0.0.1", "8888");
         return client;
     }

@@ -60,6 +60,10 @@ class LiveProcessWrapper : public QObject {
         delete m_process;
     }
 
+    void waitForSocket() {
+        m_process->waitForSocket();
+    }
+
 signals:
     void done();
 

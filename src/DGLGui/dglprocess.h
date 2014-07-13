@@ -76,6 +76,8 @@ class DGLDebugeeQTProcess : public DGLBaseQTProcess {
 
     static DGLDebugeeQTProcess* Create();
 
+    bool waitForSocket(bool nowait = false);
+
 signals:
     void processReady();
     void processError(std::string errorMsg);

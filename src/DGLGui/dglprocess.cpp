@@ -243,11 +243,21 @@ void DGLDebugeeQTProcess::run(std::string cmd, std::string path,
     }
 }
 
+bool DGLDebugeeQTProcess::waitForSocket(bool nowait) {
+    if (nowait) {
+        return m_SemOpenGL.try_wait();
+    } else {
+        m_SemOpenGL.wait();
+        return true;
+    }
+}
+
+
 void DGLDebugeeQTProcess::startPolling() { m_PollTimer->start(10); }
 
 void DGLDebugeeQTProcess::pollReady() {
     if (m_Loaded) {
-        if (m_SemOpenGL.try_wait()) {
+        if (waitForSocket(true)) {
             m_PollTimer->stop();
             emit processReady();
         }
