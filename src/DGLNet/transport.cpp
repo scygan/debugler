@@ -245,7 +245,7 @@ void Transport<proto>::sendMessage(const Message* msg) {
         archive << msg;
     }
 
-    bool compressed = (stream->size() > 65535);
+    bool compressed = (stream->size() > 100000);
 
     if (compressed) {
 

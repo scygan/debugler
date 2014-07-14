@@ -86,6 +86,20 @@ class ForceLinkProgram : public DGLRequest {
     gl_t m_ProgramId;
 };
 
+class RequestBenchmarkBuffer : public DGLRequest {
+public:
+
+    RequestBenchmarkBuffer() : m_Size(0) {}
+    RequestBenchmarkBuffer(value_t size) : m_Size(size) {}
+
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& boost::serialization::base_object<DGLRequest>(*this);
+        ar& m_Size;
+    }
+    value_t m_Size;
+};
+
 }    // namespace request
 }    // namespace dglnet
 
@@ -93,6 +107,7 @@ class ForceLinkProgram : public DGLRequest {
 REGISTER_CLASS(dglnet::request::QueryResource,     drQR)
 REGISTER_CLASS(dglnet::request::EditShaderSource,  drESS)
 REGISTER_CLASS(dglnet::request::ForceLinkProgram,  drFLP)
+REGISTER_CLASS(dglnet::request::RequestBenchmarkBuffer,  drBB)
 #endif
 
 #endif    // REQUEST_H

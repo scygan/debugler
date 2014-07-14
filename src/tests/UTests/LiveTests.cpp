@@ -1658,5 +1658,77 @@ TEST_F(LiveTest, renderbuffer_msaa) {
     terminate(client);
 }
 
+TEST_F(LiveTest, benchmark) {
+
+#if 1
+    std::shared_ptr<dglnet::Client> client = getClientFor("simple");
+#else
+    std::shared_ptr<dglnet::Client> client =
+        dglnet::Client::Create(&m_Controller, &getMessageHandler());
+
+    client->connectServer("127.0.0.1", "8888");
+#endif
+
+    dglnet::message::BreakedCall* breaked =
+        utils::receiveUntilMessage<dglnet::message::BreakedCall>(
+        client.get(), getMessageHandler());
+    ASSERT_TRUE(breaked != NULL);
+
+
+#ifdef _WIN32
+    double frequency;
+    {
+        LARGE_INTEGER f;
+        QueryPerformanceFrequency(&f);
+        frequency = double(f.QuadPart) / 1000000.0;
+    }
+
+#endif
+
+    value_t sizes[] = {
+        1, 
+        10, 
+        100, 
+        1000, 
+        10000, 
+        100000, 
+        1000000, 
+        10000000,
+        100000000,
+    };
+
+    for (size_t i =0; i < DGL_ARRAY_LENGTH(sizes); i++) {
+
+        LARGE_INTEGER start, stop;
+
+        QueryPerformanceCounter(&start);
+
+        dglnet::message::Request request(new dglnet::request::RequestBenchmarkBuffer(sizes[i]));
+        client->sendMessage(&request);
+
+        dglnet::message::RequestReply* reply =
+            utils::receiveUntilMessage<dglnet::message::RequestReply>(
+            client.get(), getMessageHandler());
+
+        std::string nothing;
+        EXPECT_TRUE(reply->isOk(nothing));
+        dglnet::DGLBenchmarkBuffer* bBuffer =
+            dynamic_cast<dglnet::DGLBenchmarkBuffer*>(reply->m_Reply.get());
+
+        ASSERT_TRUE(bBuffer != NULL);
+        ASSERT_EQ(bBuffer->m_Size, sizes[i]);
+
+        QueryPerformanceCounter(&stop);
+
+
+        std::stringstream propertyNameStr;
+        propertyNameStr << "PerSize" << sizes[i];
+        std::string perfName = propertyNameStr.str();
+
+        RecordProperty(perfName.c_str(), (int)(double(stop.QuadPart - start.QuadPart) / frequency));
+    }    
+
+    terminate(client);
+}
 
 }    // namespace

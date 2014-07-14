@@ -37,6 +37,49 @@ class DGLResource : public message::utils::ReplyBase {
     virtual ~DGLResource() {}
 };
 
+class DGLBenchmarkBuffer : public message::utils::ReplyBase {
+public:
+    template <class Archive>
+    void save(Archive& ar, const unsigned int) const {
+        ar& boost::serialization::base_object<message::utils::ReplyBase>(*this);
+        ar& m_Size;
+        boost::serialization::binary_object bo(m_Buffer, m_Size);
+        ar& bo;
+    }
+
+    template <class Archive>
+    void load(Archive& ar, const unsigned int) {
+        ar& boost::serialization::base_object<message::utils::ReplyBase>(*this);
+        ar& m_Size;
+        m_Buffer = static_cast<char*>(malloc(m_Size));
+        boost::serialization::binary_object bo(m_Buffer, m_Size);
+        ar& bo;
+    }
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version){
+        boost::serialization::split_member(ar, *this, version);
+    }
+
+    DGLBenchmarkBuffer() : m_Size(0) {}
+    DGLBenchmarkBuffer(value_t size) {
+        m_Size = size;
+
+        m_Buffer = static_cast<char*>(malloc(size));
+
+        for (size_t i = 0; i < 0; i++) {
+            m_Buffer[i] = static_cast<char>(rand());
+        }
+    }
+
+    virtual ~DGLBenchmarkBuffer() {
+        free(m_Buffer);
+    }
+
+    char* m_Buffer;
+    value_t m_Size;
+};
+
 namespace resource {
 
 class DGLPixelRectangle {
@@ -349,6 +392,7 @@ inline void load_construct_data(Archive& ar,
 
 #ifdef REGISTER_CLASS
 REGISTER_CLASS(dglnet::DGLResource,                       dR)
+REGISTER_CLASS(dglnet::DGLBenchmarkBuffer,                dBBR)
 REGISTER_CLASS(dglnet::resource::DGLResourceTexture,      dsRT)
 REGISTER_CLASS(dglnet::resource::DGLResourceBuffer,       dsRB)
 REGISTER_CLASS(dglnet::resource::DGLResourceFramebuffer,  dsRFB)

@@ -383,6 +383,13 @@ void DGLDebugController::doHandleRequest(const dglnet::message::Request& msg) {
             doHandleRequest(
                     *dynamic_cast<const dglnet::request::ForceLinkProgram*>(
                              msg.m_Request.get()));
+        } else if (dynamic_cast<const dglnet::request::RequestBenchmarkBuffer*>(
+            msg.m_Request.get())) {
+
+            reply.m_Reply = boost::make_shared<dglnet::DGLBenchmarkBuffer>(
+                dynamic_cast<const dglnet::request::RequestBenchmarkBuffer*>(
+                msg.m_Request.get())->m_Size);
+
         } else {
             reply.error("Cannot handle: unsupported request");
         }
