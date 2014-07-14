@@ -16,6 +16,7 @@
 #include "gl-statesetters.h"
 #include "gl-context.h"
 #include "pointers.h"
+#include <DGLCommon/def.h>
 
 namespace dglState {
 
@@ -93,9 +94,44 @@ DrawBuffers::DrawBuffers(GLContext* ctx) : m_Ctx(ctx) {
 }
 DrawBuffers::~DrawBuffers() {
     if (m_Ctx->hasCapability(GLContext::ContextCap::DrawBuffersMRT)) {
-        DIRECT_CALL_CHK(glDrawBuffers)(
+
+        //check if more than one slot is set. If yes, we are in MRT mode
+        //and should use glDrawBuffer>s<, instead of glDrawBuffer
+        bool multipleBuffers = false; 
+        for (size_t i = 1; i < m_DrawBuffers.size(); i++) {
+            if (m_DrawBuffers[i] != GL_NONE) {
+                multipleBuffers = true;
+            }
+        }
+        if (multipleBuffers) {
+            for (size_t i = 0; i < m_DrawBuffers.size(); i++) {
+                //correct modes invalid in multiple buffers mode
+                switch (m_DrawBuffers[i]) {
+                    case GL_FRONT:
+                        m_DrawBuffers[i] = GL_FRONT_LEFT;
+                        DGL_ASSERT(0);
+                        break;
+                    case GL_BACK:
+                    case GL_LEFT:
+                        m_DrawBuffers[i] = GL_BACK_LEFT;
+                        DGL_ASSERT(0);
+                        break;
+                    case GL_RIGHT:
+                        m_DrawBuffers[i] = GL_BACK_RIGHT;
+                        DGL_ASSERT(0);
+                        break;
+                    case GL_FRONT_AND_BACK:
+                        m_DrawBuffers[i] = GL_BACK_LEFT;
+                        DGL_ASSERT(0);
+                        break;
+                }
+            }
+            DIRECT_CALL_CHK(glDrawBuffers)(
                 static_cast<GLsizei>(m_DrawBuffers.size()),
                 reinterpret_cast<GLenum*>(&m_DrawBuffers[0]));
+        } else {
+            DIRECT_CALL_CHK(glDrawBuffer)(static_cast<GLenum>(m_DrawBuffers[0]));
+        }
     }
 }
 
