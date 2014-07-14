@@ -58,7 +58,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Xmld.lib;Qt5Widgetsd.lib;Winmm.lib;Imm32.lib;DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Xmld.lib;Qt5Widgetsd.lib;Winmm.lib;Imm32.lib;DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_iostreams.lib;libboost_regexp.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
@@ -68,7 +68,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Xml.lib;Qt5Widgets.lib;Winmm.lib;Imm32.lib;DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Xml.lib;Qt5Widgets.lib;Winmm.lib;Imm32.lib;DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_iostreams.lib;libboost_regexp.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -41,8 +41,8 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">Qt5Cored.lib;Qt5Guid.lib;;Qt5Widgetsd.lib;Qt5Xmld.lib;Winmm.lib;Imm32.lib;DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib;gtest.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)'=='Release'">Qt5Core.lib;Qt5Gui.lib;;Qt5Widgets.lib;Qt5Xml.lib;Winmm.lib;Imm32.lib;DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib;gtest.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">Qt5Cored.lib;Qt5Guid.lib;;Qt5Widgetsd.lib;Qt5Xmld.lib;Winmm.lib;Imm32.lib;DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib;libboost_iostreams.lib;zlib.lib;gtest.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)'=='Release'">Qt5Core.lib;Qt5Gui.lib;;Qt5Widgets.lib;Qt5Xml.lib;Winmm.lib;Imm32.lib;DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib;libboost_iostreams.lib;zlib.lib;gtest.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>

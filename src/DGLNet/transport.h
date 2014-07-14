@@ -80,6 +80,10 @@ class Transport : public ITransport {
                       const boost::system::error_code& ec);
     void onReadArchive(boost::asio::streambuf* stream,
                        const boost::system::error_code& ec);
+
+    void onReadCompressedArchive(boost::asio::streambuf* stream,
+        const boost::system::error_code& ec);
+
     void onWrite(
             std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> >,
             const boost::system::error_code& ec);

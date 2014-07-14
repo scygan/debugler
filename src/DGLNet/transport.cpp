@@ -53,6 +53,11 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/local/stream_protocol.hpp>
 
+//These are for zlib compression filters
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/copy.hpp>
+
 #include <DGLCommon/def.h>
 
 #include <sstream>
@@ -62,13 +67,18 @@ namespace dglnet {
 class TransportHeader {
    public:
     TransportHeader() {}
-    TransportHeader(value_t size) : m_size(size) {}
+    TransportHeader(value_t size, bool compressed = false) : m_size(size), m_compressed(compressed) {}
     int getSize() {
         return m_size;
     };
 
+    int isCompressed() {
+        return m_compressed;
+    }
+
    private:
     value_t m_size;
+    value_t m_compressed;
 };
 
 template <class proto>
@@ -146,11 +156,20 @@ void Transport<proto>::onReadHeader(TransportHeader* header,
     } else {
         boost::asio::streambuf* stream = new boost::asio::streambuf;
         stream->prepare(header->getSize());
-        boost::asio::async_read(
+
+        if (header->isCompressed()) {
+            boost::asio::async_read(
+                m_detail->m_socket, *stream,
+                boost::asio::transfer_exactly(header->getSize()),
+                std::bind(&Transport<proto>::onReadCompressedArchive, shared_from_this(),
+                stream, std::placeholders::_1));
+        } else {
+            boost::asio::async_read(
                 m_detail->m_socket, *stream,
                 boost::asio::transfer_exactly(header->getSize()),
                 std::bind(&Transport<proto>::onReadArchive, shared_from_this(),
-                          stream, std::placeholders::_1));
+                stream, std::placeholders::_1));
+        }
     }
     delete header;
 }
@@ -180,6 +199,37 @@ void Transport<proto>::onReadArchive(boost::asio::streambuf* stream,
 }
 
 template <class proto>
+void Transport<proto>::onReadCompressedArchive(boost::asio::streambuf* stream,
+                                     const boost::system::error_code& ec) {
+    if (ec) {
+        notifyDisconnect(ec);
+    } else {
+
+        std::istream iArchiveStreamCompressed(stream);
+
+        DGL_ASSERT(iArchiveStreamCompressed.good());
+
+        boost::iostreams::filtering_istreambuf iArchiveStreamDecompresFilter;
+        iArchiveStreamDecompresFilter.push(boost::iostreams::zlib_decompressor());  
+        iArchiveStreamDecompresFilter.push(iArchiveStreamCompressed);  
+                
+        Message* msg;
+        {
+            eos::portable_iarchive archive(iArchiveStreamDecompresFilter);
+            archive >> msg;
+        }
+
+        onMessage(*msg);
+
+        delete msg;
+
+        read();
+    }
+    delete stream;
+}
+
+
+template <class proto>
 void Transport<proto>::sendMessage(const Message* msg) {
     // create and push new stream to queue
     boost::asio::streambuf* stream = new boost::asio::streambuf;
@@ -189,11 +239,26 @@ void Transport<proto>::sendMessage(const Message* msg) {
         archive << msg;
     }
 
+    bool compressed = (stream->size() > 65535);
+
+    if (compressed) {
+
+        boost::asio::streambuf* compressedStream = new boost::asio::streambuf;
+
+        boost::iostreams::filtering_ostreambuf compressorFilter;
+        compressorFilter.push(boost::iostreams::zlib_compressor());
+        compressorFilter.push(*compressedStream);
+        boost::iostreams::copy(*stream, compressorFilter);
+
+        delete stream;
+        stream = compressedStream;
+
+    }
     TransportHeader* header =
-            new TransportHeader(static_cast<value_t>(stream->size()));
+        new TransportHeader(static_cast<value_t>(stream->size()), compressed);
 
     m_WriteQueue.push_back(std::pair<TransportHeader*, boost::asio::streambuf*>(
-            header, stream));
+        header, stream));
 
     if (m_WriteReady) {
         notifyStartSend();
