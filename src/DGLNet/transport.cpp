@@ -1,4 +1,4 @@
-/* Copyright (C) 2013 Slawomir Cygan <slawomir.cygan@gmail.com>
+/* Copyright (C) 2014 Slawomir Cygan <slawomir.cygan@gmail.com>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -12,6 +12,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
+//#pragma warning(disable : 4913)
 
 #include <boost/serialization/export.hpp>
 #define REGISTER_CLASS(class, key) BOOST_CLASS_EXPORT_GUID(class, #key)
@@ -47,16 +49,20 @@
 
 #include <boost/asio/read.hpp>
 #include <boost/asio/write.hpp>
-#include <boost/asio/placeholders.hpp>
 #include <boost/asio/streambuf.hpp>
-
+#include <boost/asio/placeholders.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/local/stream_protocol.hpp>
 
 //These are for zlib compression filters
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
+#pragma warning(push)
+// argument' : conversion from 'std::streamsize' to 'size_t', possible loss of
+// data basic_binary_iprimitive.hpp
+#pragma warning(disable : 4244)
 #include <boost/iostreams/copy.hpp>
+#pragma warning(pop)
 
 #include <DGLCommon/def.h>
 
@@ -281,6 +287,7 @@ void Transport<proto>::writeQueue() {
 
     std::vector<std::pair<TransportHeader*, boost::asio::streambuf*> > sentData;
     std::swap(m_WriteQueue, sentData);
+
     boost::asio::async_write(
             m_detail->m_socket, buffers,
             std::bind(&Transport<proto>::onWrite, shared_from_this(), sentData,

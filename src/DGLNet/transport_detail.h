@@ -1,4 +1,4 @@
-/* Copyright (C) 2013 Slawomir Cygan <slawomir.cygan@gmail.com>
+/* Copyright (C) 2014 Slawomir Cygan <slawomir.cygan@gmail.com>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,7 +16,13 @@
 #include "transport.h"
 
 #include <boost/asio/io_service.hpp>
+
+#pragma warning(push)
+//user defined binary operator ',' exists but no overload could convert all operands, default built-in binary operator ',' used
+#pragma warning(disable : 4913)
 #include <boost/asio/basic_stream_socket.hpp>
+#pragma warning(pop)
+
 
 namespace dglnet {
 
