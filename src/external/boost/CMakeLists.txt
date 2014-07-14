@@ -49,3 +49,11 @@ add_library(boost_system
     ${boost_system_SOURCES}
 )
 set_target_properties(boost_system PROPERTIES COMPILE_FLAGS -fPIC)
+
+set(boost_iostreams_SOURCES
+	libs/iostreams/src/zlib.cpp
+)
+add_library(boost_iostreams
+    ${boost_iostreams_SOURCES}
+)
+set_target_properties(boost_iostreams PROPERTIES COMPILE_FLAGS -fPIC)
