@@ -365,6 +365,16 @@ class DGLDebugController : public dglnet::MessageHandler {
     void doHandleRequest(const dglnet::request::ForceLinkProgram&);
 
     /**
+     * part of backtrace resource handler - get current backtrace
+     */
+    std::shared_ptr<dglnet::DGLResource> getCurrentBacktrace();
+
+    /**
+     * invalidate buffered backtrace
+     */
+    void invalidateBacktrace();
+
+    /**
      *  Abnormal termination exception class
      *
      *  thrown by poll() and run_one
@@ -403,6 +413,12 @@ class DGLDebugController : public dglnet::MessageHandler {
      * Used for fork() detection and restaring Transport on process change
      */
     int m_LastPid;
+
+
+    /**
+     * Backtrace valid for current debugger state;
+     */
+    std::shared_ptr<dglnet::DGLResource> m_BufferedBacktrace;
 };
 
 /**

@@ -19,6 +19,7 @@
 #include "tls.h"
 #include "ipc.h"
 #include "globalstate.h"
+#include "backtrace.h"
 
 #include <DGLNet/server.h>
 #include <DGLNet/protocol/message.h>
@@ -397,6 +398,10 @@ void DGLDebugController::doHandleRequest(const dglnet::message::Request& msg) {
 std::shared_ptr<dglnet::DGLResource> DGLDebugController::doHandleRequest(
         const dglnet::request::QueryResource& request) {
 
+    if (request.m_Type == dglnet::message::ObjectType::BackTrace) {
+        return getCurrentBacktrace();
+    }
+
     std::shared_ptr<dglnet::DGLResource> resource;
 
     dglState::GLContext* ctx = gc;
@@ -509,4 +514,19 @@ void DGLDebugController::doHandleRequest(
     if (ctx && !ctx->endQuery(message)) {
         throw std::runtime_error(message);
     }
+}
+
+
+std::shared_ptr<dglnet::DGLResource> DGLDebugController::getCurrentBacktrace() {
+    if (!m_BufferedBacktrace) {
+        std::shared_ptr<dglnet::resource::DGLResourceBacktrace> resource = 
+            std::make_shared<dglnet::resource::DGLResourceBacktrace>();
+        BackTrace::Get()->streamTo(resource->m_trace);
+        m_BufferedBacktrace = resource;
+    }
+    return m_BufferedBacktrace;
+}
+
+void DGLDebugController::invalidateBacktrace() {
+    m_BufferedBacktrace.reset();
 }

@@ -63,6 +63,7 @@ class Os {
     static OsIcon* createIcon();
 
     static void setCurrentModuleHandle(void* handle);
+    static void* getCurrentModuleHandle();
 
     static int getLastosError();
 

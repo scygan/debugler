@@ -1,5 +1,3 @@
-#ifndef BACKTRACE_H
-#define BACKTRACE_H
 /* Copyright (C) 2014 Slawomir Cygan <slawomir.cygan@gmail.com>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,19 +13,30 @@
 * limitations under the License.
 */
 
-#include<memory>
-#include<string>
-#include<vector>
+#ifndef DGLBACKTRACEVIEW_H
+#define DGLBACKTRACEVIEW_H
 
-class BackTrace {
-public:
-    static std::shared_ptr<BackTrace> Get();
-    virtual ~BackTrace() {}
+#include "dglqtgui.h"
+#include <QDockWidget>
+#include "dglcontroller.h"
+#include "ui_dglbacktraceview.h"
 
-    virtual void streamTo(std::vector<std::string>&) = 0;
+class DGLBackTraceView : public QDockWidget {
+    Q_OBJECT
 
-protected:
-    BackTrace() {}
+   public:
+    DGLBackTraceView(QWidget* parrent, DglController* controller);
+
+   public
+slots:
+    void setConnected(bool);
+    void update(const dglnet::DGLResource&);
+    void error(const std::string&);
+
+   private:
+    DGLResourceListener* m_Listener;
+    DglController* m_Controller;
+    Ui::DGLBacktraceView* m_Ui;
 };
 
-#endif
+#endif    // DGLTREEVIEW_H

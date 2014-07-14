@@ -78,6 +78,7 @@ namespace dglnet {
             Buffer,
             GPU,
             State,
+            BackTrace,
             Invalid
         };
 

@@ -71,13 +71,18 @@ RetValue DefaultAction::Pre(const CalledEntryPoint& call) {
 
         // check if any break is pending
         if (controller.getBreakState().mayBreakAt(call.getEntrypoint())) {
+            
             // we just hit a break;
+
             dglState::GLContext* ctx = gc;
             dglnet::message::BreakedCall callStateMessage(
                 call, (value_t)controller.getCallHistory().size(),
                 ctx ? ctx->getId() : 0, DGLDisplayState::describeAll());
            controller.getServer().getTransport()->sendMessage(
                 &callStateMessage);
+
+           //remove old backtrace
+           controller.invalidateBacktrace();
         }
 
         while (controller.getBreakState().isBreaked()) {

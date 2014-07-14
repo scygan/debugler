@@ -347,6 +347,15 @@
     <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglrenderbufferview.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="dglbacktraceview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Debug\GeneratedFiles\moc_dglbacktraceview.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dump\Release\GeneratedFiles\moc_dglbacktraceview.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dglmainwindow.h">
@@ -586,6 +595,12 @@
     <CustomBuild Include="ui\dglrenderbufferviewitem.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="dglbacktraceview.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\dglbacktraceview.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dglqtgui.h">
@@ -610,6 +625,9 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglrenderbufferviewitem.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dump\GeneratedFiles\ui_dglbacktraceview.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>

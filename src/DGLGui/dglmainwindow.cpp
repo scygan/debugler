@@ -35,6 +35,7 @@
 #include "dglshaderview.h"
 #include "dglprogramview.h"
 #include "dglgpuview.h"
+#include "dglbacktraceview.h"
 #include "dglstateview.h"
 #include "dgladbinterface.h"
 #include "dglprepareandroidwizard.h"
@@ -221,6 +222,15 @@ void DGLMainWindow::createDockWindows() {
         addDockWidget(Qt::RightDockWidgetArea, dock);
         viewMenu->addAction(dock->toggleViewAction());
         tabifyDockWidget(tabifyMaster, dock);
+    }
+    {
+        QDockWidget *dock = new DGLBackTraceView(this, &m_controller);
+        dock->setMinimumSize(QSize(0, 0));
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        addDockWidget(Qt::RightDockWidgetArea, dock);
+        viewMenu->addAction(dock->toggleViewAction());
+        tabifyDockWidget(tabifyMaster, dock);
+        dock->hide();
     }
 }
 

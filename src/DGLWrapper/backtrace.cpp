@@ -19,6 +19,8 @@
 #include "dl-intercept.h"
 #endif
 
+#include <DGLCommon/os.h>
+
 #ifdef __ANDROID__
 class BackTraceImpl: public BackTrace {
 public:
@@ -27,18 +29,16 @@ public:
         if (!s_CorkscrewDSO) {
             s_CorkscrewDSO = dlopen("libcorkscrew.so", RTLD_NOW);
         }
-        if (s_CorkscrewDSO && (!p_unwind_backtrace || !p_get_backtrace_symbols || !p_format_backtrace_line || !p_free_backtrace_symbols)) {
+        if (s_CorkscrewDSO && (!p_unwind_backtrace || !p_get_backtrace_symbols || !p_free_backtrace_symbols)) {
             p_unwind_backtrace = reinterpret_cast<t_unwind_backtrace>(
                 reinterpret_cast<ptrdiff_t>(dlsym(s_CorkscrewDSO, "unwind_backtrace")));
             p_get_backtrace_symbols = reinterpret_cast<t_get_backtrace_symbols>(
                 reinterpret_cast<ptrdiff_t>(dlsym(s_CorkscrewDSO, "get_backtrace_symbols")));
-            p_format_backtrace_line = reinterpret_cast<t_format_backtrace_line>(
-                reinterpret_cast<ptrdiff_t>(dlsym(s_CorkscrewDSO, "format_backtrace_line")));
             p_free_backtrace_symbols = reinterpret_cast<t_free_backtrace_symbols>(
                 reinterpret_cast<ptrdiff_t>(dlsym(s_CorkscrewDSO, "free_backtrace_symbols")));
         };
 
-        m_Supported =  (p_unwind_backtrace && p_get_backtrace_symbols && p_format_backtrace_line && p_free_backtrace_symbols);
+        m_Supported =  (p_unwind_backtrace && p_get_backtrace_symbols && p_free_backtrace_symbols);
     }  
 
    /*
@@ -79,56 +79,180 @@ private:
         MAX_BACKTRACE_LINE_LENGTH = 800
     };
 
-    virtual std::string str() override {
+    virtual void streamTo(std::vector<std::string>& str) override {
 
         if (!m_Supported) {
-            return "Backtrace support not implemented on this platform.";
+            throw std::runtime_error("Backtrace support not implemented on this platform.");
         }
 
-        backtrace_frame_t stack[MAX_DEPTH];
+        backtrace_frame_t frames[MAX_DEPTH];
 
         const int ignoreDepth = 1;
 
-        ssize_t count = p_unwind_backtrace(stack, ignoreDepth + 1, MAX_DEPTH);
+        Dl_info dglLibraryInfo;
+        dladdr(&s_dummySymbol, &dglLibraryInfo);
 
-        std::ostringstream backTraceStream;
+        ssize_t count = p_unwind_backtrace(frames, ignoreDepth + 1, MAX_DEPTH);
 
         if (count > 0) {
             std::vector<backtrace_symbol_t> symbols(count);
-            p_get_backtrace_symbols(stack, count, &symbols[0]);
+            p_get_backtrace_symbols(frames, count, &symbols[0]);
             for (ssize_t i = 0; i < count; i++) {
-                char line[MAX_BACKTRACE_LINE_LENGTH];
-                p_format_backtrace_line(i, &stack[i], &symbols[i],
-                    line, MAX_BACKTRACE_LINE_LENGTH);
-                backTraceStream << line << std::endl;
+
+                Dl_info symbolInfo; 
+                dladdr(reinterpret_cast<void*>(frames[i].absolute_pc), &symbolInfo);
+                Os::info("XXX %x == %x\n", symbolInfo.dli_fbase,  dglLibraryInfo.dli_fbase);
+                if (symbolInfo.dli_fbase == dglLibraryInfo.dli_fbase) {
+                    //we assume, that removing current library symbols from backtrace
+                    //is enough, to filter out DGL from backtrace. This implies no 3rd party
+                    //libraries should be called from exporter to get here.
+                    continue;
+                }
+
+
+                std::stringstream line;
+
+                if (!symbols[i].map_name) {
+                    line << "<unknown module>";
+                } else {
+                    line << symbols[i].map_name;
+                }
+                line << '!';
+                line << "0x" << std::hex << (int) frames[i].absolute_pc << std::dec << ' ';
+
+                if (symbols[i].demangled_name) {
+                    line << symbols[i].demangled_name;
+                } else if (symbols[i].symbol_name) {
+                    line << symbols[i].symbol_name;
+                } else {
+                    line << "<unknown function>";
+                }
+
+                uint32_t pc_offset = symbols[i].relative_pc - symbols[i].relative_symbol_addr;
+
+                if (pc_offset) {
+                    line << " +" << pc_offset;
+                }
+
+                str.push_back(line.str());
             }
             p_free_backtrace_symbols(&symbols[0], count);
         }
-
-        return backTraceStream.str();
-    }
+     }
 
     bool m_Supported;
 
+    static int s_dummySymbol;
     static void* s_CorkscrewDSO;
     static t_unwind_backtrace p_unwind_backtrace;
     static t_get_backtrace_symbols p_get_backtrace_symbols;
-    static t_format_backtrace_line p_format_backtrace_line;
     static t_free_backtrace_symbols p_free_backtrace_symbols;
 
 };
+int BackTraceImpl::s_dummySymbol;
 void* BackTraceImpl::s_CorkscrewDSO = nullptr;
 BackTraceImpl::t_unwind_backtrace BackTraceImpl::p_unwind_backtrace = nullptr;
 BackTraceImpl::t_get_backtrace_symbols BackTraceImpl::p_get_backtrace_symbols = nullptr;
-BackTraceImpl::t_format_backtrace_line BackTraceImpl::p_format_backtrace_line = nullptr;
 BackTraceImpl::t_free_backtrace_symbols BackTraceImpl::p_free_backtrace_symbols = nullptr;
 
 #else
+#ifdef _WIN32
+
+#include "external/StackWalker/StackWalker.h"
+#include "Psapi.h"
+#include <sstream>
+#include <boost/noncopyable.hpp>
+
 class BackTraceImpl: public BackTrace {
-    virtual std::string str() override {
-        return "Backtrace support not implemented on this platform.";
+
+    class DGLStackWalker: public StackWalker, boost::noncopyable {
+    public:
+        DGLStackWalker(std::vector<std::string>& buffer): m_buffer(buffer) {
+            MODULEINFO modInfo;
+            if (GetModuleInformation(GetCurrentProcess(), (HMODULE)Os::getCurrentModuleHandle(), &modInfo, sizeof(modInfo))) {
+                m_BoundsOfDGLLibrary[0] = reinterpret_cast<intptr_t>(modInfo.lpBaseOfDll);
+                m_BoundsOfDGLLibrary[1] = reinterpret_cast<intptr_t>(reinterpret_cast<char*>(modInfo.lpBaseOfDll) + modInfo.SizeOfImage);
+            }
+        }
+
+        virtual void OnCallstackEntry(CallstackEntryType eType, CallstackEntry &entry) {
+
+            //we assume, that removing current library symbols from backtrace
+            //is enough, to filter out DGL from backtrace. This implies no 3rd party
+            //libraries should be called from exporter to get here.
+            bool outSideOfCurrentLibrary = ((intptr_t)entry.offset <  m_BoundsOfDGLLibrary[0] ||
+                                            (intptr_t)entry.offset >= m_BoundsOfDGLLibrary[1]);
+
+            if ( (eType != lastEntry) && (entry.offset != 0) && outSideOfCurrentLibrary)
+            {
+                std::stringstream line;
+
+                if (entry.moduleName[0] == 0 && entry.loadedImageName == 0) {
+                    line << "<unknown module>";
+                } else {
+                    const char* moduleName;
+                    if (!entry.moduleName) {
+                        //use full filepath
+                        moduleName = entry.loadedImageName;
+                    } else {
+                        //use module name
+                        moduleName = entry.moduleName;
+
+                        if (entry.loadedImageName) {
+                            //if we have both, use full file path to obtain file ext.
+                            const char* offset = strstr(entry.loadedImageName, entry.moduleName);
+                            while (offset) {
+                                moduleName = offset;
+                                offset = strstr(offset + 1, entry.moduleName);
+                            }
+                        }
+                    }
+                    line << moduleName;
+                }
+                line << '!';
+                line << "0x" << std::hex << (int) entry.offset << std::dec << ' ';
+
+                if (entry.undFullName[0] != 0) {
+                    line << entry.undFullName;
+                } else if (entry.undName[0] != 0) {
+                    line << entry.undName;
+                } else  if (entry.name[0] != 0) {
+                    line << entry.name;
+                } else {
+                    line << "<unknown function>";
+                }
+                line << ' ';
+
+                if (entry.lineFileName[0] == 0) {
+                    line << "<unknown source file>";
+                } else {
+                    line << entry.lineFileName;
+                    if (entry.lineNumber) {
+                        line << " Line " << entry.lineNumber;
+                    }
+                }
+                m_buffer.push_back(line.str());
+            }
+            StackWalker::OnCallstackEntry(eType, entry);
+        }
+        std::vector<std::string>& m_buffer;
+        intptr_t m_BoundsOfDGLLibrary[2];
+    };
+
+    virtual void streamTo(std::vector<std::string>& str) override {
+        DGLStackWalker sw(str);
+        sw.ShowCallstack(); 
     }
 };
+
+#else
+
+class BackTraceImpl: public BackTrace {
+    virtual void streamTo(std::vector<std::string>&) override {
+        throw std::runtime_error("Backtrace support not implemented on this platform.");
+    }
+};
+#endif
 #endif
 
 std::shared_ptr<BackTrace> BackTrace::Get() {

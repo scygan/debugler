@@ -67,7 +67,9 @@ DGLResourceListener::DGLResourceListener(dglnet::ContextObjectName obName,
         : DGLRequestHandler(manager->getRequestManager()),
           m_ObjectType(type),
           m_ObjectName(obName),
-          m_Manager(manager) {}
+          m_Manager(manager), 
+          m_Enabled(true),
+          m_Outdated(false) {}
 
 DGLResourceListener::~DGLResourceListener() {
     m_Manager->unregisterListener(this);
@@ -84,9 +86,32 @@ void DGLResourceListener::onRequestFailed(
 }
 
 void DGLResourceListener::fire() {
-    m_Manager->getRequestManager()->request(
+    if (isEnabledMarkOutDatedIfNot()) {
+        m_Manager->getRequestManager()->request(
             new dglnet::request::QueryResource(m_ObjectType, m_ObjectName),
             this);
+    }
+}
+
+bool DGLResourceListener::isEnabledMarkOutDatedIfNot() {
+    if (!m_Enabled) {
+        m_Outdated = true;
+    }
+    return m_Enabled;
+}
+
+void DGLResourceListener::setEnabled(bool enabled) {
+
+    m_Enabled = enabled;
+    if (m_Enabled && m_Outdated) {
+
+        //someone enabled this listener, but it already missed some queries.
+        //the view may be now outdated: immediate emit empty error & request update
+        error("");
+        fire();
+
+        m_Outdated = false;
+    }
 }
 
 DGLResourceManager::DGLResourceManager(DGLRequestManager* manager)
@@ -95,10 +120,12 @@ DGLResourceManager::DGLResourceManager(DGLRequestManager* manager)
 void DGLResourceManager::emitQueries() {
     for (std::list<DGLResourceListener*>::iterator i = m_Listeners.begin();
          i != m_Listeners.end(); i++) {
-        m_RequestManager->request(
+         if ((*i)->isEnabledMarkOutDatedIfNot()) {
+            m_RequestManager->request(
                 new dglnet::request::QueryResource((*i)->m_ObjectType,
-                                                   (*i)->m_ObjectName),
+                (*i)->m_ObjectName),
                 *i);
+        }
     }
 }
 
@@ -107,7 +134,9 @@ DGLResourceListener* DGLResourceManager::createListener(
     DGLResourceListener* listener = new DGLResourceListener(name, type, this);
 
     m_Listeners.insert(m_Listeners.end(), listener);
-    listener->fire();
+    if (listener->isEnabledMarkOutDatedIfNot()) {
+        listener->fire();
+    }
 
     return listener;
 }

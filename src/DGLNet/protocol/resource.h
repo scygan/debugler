@@ -278,6 +278,16 @@ class DGLResourceGPU : public DGLResource {
     NVXGPUMemoryInfo m_nvidiaMemory;
 };
 
+class DGLResourceBacktrace : public DGLResource {
+public:
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& ::boost::serialization::base_object<DGLResource>(*this);
+        ar& m_trace;
+    }
+    std::vector<std::string> m_trace;
+};
+
 namespace utils {
     class StateItem {
        public:
@@ -348,6 +358,7 @@ REGISTER_CLASS(dglnet::resource::DGLResourceShader,       dsRSH)
 REGISTER_CLASS(dglnet::resource::DGLResourceProgram,      dsRP)
 REGISTER_CLASS(dglnet::resource::DGLResourceGPU,          dsRGPU)
 REGISTER_CLASS(dglnet::resource::DGLResourceState,        dsRS)
+REGISTER_CLASS(dglnet::resource::DGLResourceBacktrace,    dsRBT)
 #endif
 
 #endif    // RESOURCE_H

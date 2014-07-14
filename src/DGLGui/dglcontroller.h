@@ -101,15 +101,20 @@ class DGLResourceListener : public QObject, public DGLRequestHandler {
 
    public:
     void fire();
+    bool isEnabledMarkOutDatedIfNot();
 
 signals:
     void update(const dglnet::DGLResource&);
     void error(const std::string&);
+public slots:
+    void setEnabled(bool enabled);
 
    private:
     dglnet::message::ObjectType m_ObjectType;
     dglnet::ContextObjectName m_ObjectName;
     DGLResourceManager* m_Manager;
+    bool m_Enabled;
+    bool m_Outdated;
 };
 
 /**

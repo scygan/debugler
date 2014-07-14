@@ -62,7 +62,7 @@
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>$(SolutionDir)\dump\codegen\OpenGL32.def</ModuleDefinitionFile>
-      <AdditionalDependencies>%(AdditionalDependencies);DGLNet.lib;DGLCommon.lib;libboost_serialization.lib;libboost_system.lib;dglcommon.res</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);DGLNet.lib;DGLCommon.lib;libboost_serialization.lib;libboost_system.lib;dglcommon.res;StackWalker.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

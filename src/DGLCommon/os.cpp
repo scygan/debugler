@@ -135,6 +135,8 @@ OsIcon* Os::createIcon() {
 
 void Os::setCurrentModuleHandle(void* handle) { m_CurrentHandle = handle; }
 
+void* Os::getCurrentModuleHandle() { return m_CurrentHandle; }
+
 void* Os::m_CurrentHandle = NULL;
 
 int Os::getLastosError() { return (int)GetLastError(); }

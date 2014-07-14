@@ -34,6 +34,7 @@ set(dglgui_SOURCES
     dglproject_attach.cpp
     dglproject_android.cpp
     dglbusydialog.cpp
+    dglbacktraceview.cpp
     )
 
 set(dglgui_HEADERS
@@ -69,6 +70,7 @@ set(dglgui_HEADERS
     dglproject_attach.h
     dglproject_android.h
     dglbusydialog.h
+    dglbacktraceview.h
     )
 
 set(dglgui_FORMS
@@ -90,6 +92,7 @@ set(dglgui_FORMS
     ui/dglprojproperties_android.ui
     ui/dglpixelrectangleview.ui
     ui/dglprojproperties_attach.ui
+    ui/dglbacktraceview.h
     )
 
 SET(dglgui_RESOURCES dglmainwindow.qrc)

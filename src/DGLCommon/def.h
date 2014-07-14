@@ -16,6 +16,7 @@
 #ifndef DEF_H
 #define DEF_H
 
+#include <cstddef>
 #include <cassert>
 #include <cstddef>
 
