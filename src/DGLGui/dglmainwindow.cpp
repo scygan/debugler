@@ -809,11 +809,11 @@ void DGLMainWindow::openProjectFromFile(QString filePath) {
             throw std::runtime_error("File does not contain a Debugler project");
         }
 
+        m_SavedProjectPath = filePath;
+
         setCurrentProject(project);
 
         m_ProjectSaved = true;
-
-        m_SavedProjectPath = filePath;
 
     } catch (const std::ifstream::failure& err) {
 
