@@ -35,7 +35,7 @@ DGLTextureViewItem::DGLTextureViewItem(dglnet::ContextObjectName name,
 
     m_Ui.horizontalSlider_LOD->setDisabled(true);
 
-    CONNASSERT(m_Ui.horizontalSlider_Layer, SIGNAL(sliderMoved(int)), this,
+    CONNASSERT(m_Ui.verticalSlider_Layer, SIGNAL(sliderMoved(int)), this,
         SLOT(layerSliderMoved(int)));
 
     CONNASSERT(m_Ui.horizontalSlider_LOD, SIGNAL(sliderMoved(int)), this,
@@ -56,13 +56,13 @@ DGLTextureViewItem::DGLTextureViewItem(dglnet::ContextObjectName name,
     m_Ui.comboBoxCM->hide();
 
     m_Ui.label_TextureLayer->hide();
-    m_Ui.horizontalSlider_Layer->hide();
+    m_Ui.verticalSlider_Layer->hide();
 }
 
 void DGLTextureViewItem::error(const std::string& message) {
     m_PixelRectangleScene->setText(message);
     m_Ui.horizontalSlider_LOD->setDisabled(true);
-    m_Ui.horizontalSlider_Layer->setDisabled(true);
+    m_Ui.verticalSlider_Layer->setDisabled(true);
     m_Ui.m_PixelRectangleView->updateFormatSizeInfo(NULL, 0, 0);
 }
 
@@ -107,13 +107,14 @@ void DGLTextureViewItem::update(const dglnet::DGLResource& res) {
             resource->m_Target == GL_TEXTURE_CUBE_MAP_ARRAY) {
             
             m_Ui.label_TextureLayer->show();
-            m_Ui.horizontalSlider_Layer->show();
+            m_Ui.verticalSlider_Layer->show();
         } else {
             m_Ui.label_TextureLayer->hide();
-            m_Ui.horizontalSlider_Layer->hide();
+            m_Ui.verticalSlider_Layer->hide();
         }
 
-        m_Ui.horizontalSlider_Layer->setRange(
+        m_Ui.verticalSlider_Layer->setEnabled(true);
+        m_Ui.verticalSlider_Layer->setRange(
             0, static_cast<int>(m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel].size() - 1));
 
         internalUpdate();
@@ -147,7 +148,7 @@ void DGLTextureViewItem::levelSliderMoved(int value) {
 
         m_CurrentLevel = uvalue;
 
-        m_Ui.horizontalSlider_Layer->setRange(
+        m_Ui.verticalSlider_Layer->setRange(
             0, static_cast<int>(m_FacesLevelsLayers[m_CurrentFace][m_CurrentLevel].size() - 1));
 
         m_CurrentLayer = std::min(

@@ -36,7 +36,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QSlider" name="horizontalSlider_Layer">
+        <widget class="QSlider" name="verticalSlider_Layer">
          <property name="maximum">
           <number>16</number>
          </property>
