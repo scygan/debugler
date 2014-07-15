@@ -66,7 +66,7 @@ DGLProgramViewItem::DGLProgramViewItem(dglnet::ContextObjectName name,
     CONNASSERT(m_Listener, SIGNAL(error(const std::string&)), this,
                SLOT(error(const std::string&)));
 
-    m_Listener->setEnabled(isVisible());
+    m_Listener->setEnabled(parrent->isVisible());
     CONNASSERT(parrent, SIGNAL(visibilityChanged(bool)), m_Listener,
         SLOT(setEnabled(bool)));
 }
