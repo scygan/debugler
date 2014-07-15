@@ -815,6 +815,8 @@ void DGLMainWindow::openProjectFromFile(QString filePath) {
 
         m_ProjectSaved = true;
 
+        debugStart();
+
     } catch (const std::ifstream::failure& err) {
 
         QMessageBox::critical(NULL, tr("Cannot read from file"),
