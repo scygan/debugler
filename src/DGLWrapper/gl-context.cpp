@@ -1366,7 +1366,7 @@ std::shared_ptr<dglnet::resource::DGLPixelRectangle> GLContext::queryFramebuffer
 
          if (!DIRECT_CALL_CHK(glIsRenderbuffer)(attachmentObject)) {
              throw std::runtime_error(
-                 "Cannot get actually bound texture name");
+                 "Attached renderbuffer object does not exist");
          }
 
          state_setters::RenderBuffer renderBuffer;
@@ -1481,23 +1481,7 @@ std::shared_ptr<dglnet::resource::DGLPixelRectangle> GLContext::queryFramebuffer
      }
 
 
-
-     //Internal format should be adjusted to cover only buffers attached to fbo.
-     GLenum transferInternalFormat = *outInternalFormat;
-     if (attachment == GL_DEPTH_ATTACHMENT) {
-         const GLInternalFormat* internalFormatDescr = GLFormats::getInternalFormat(*outInternalFormat);
-         if (internalFormatDescr && internalFormatDescr->dataFormat == GL_DEPTH_STENCIL) {
-             transferInternalFormat = GLFormats::getDepthInternalformatFromDepthStencil(internalFormatDescr);
-         }
-     } else if (attachment == GL_STENCIL_ATTACHMENT) {
-         const GLInternalFormat* internalFormatDescr = GLFormats::getInternalFormat(*outInternalFormat);
-         if (internalFormatDescr && internalFormatDescr->dataFormat == GL_DEPTH_STENCIL) {
-             transferInternalFormat = GLFormats::getStencilInternalformatFromDepthStencil(internalFormatDescr);
-         }
-     }
-
-
-     if (queryPixels) {
+     if (queryPixels && width && height) {
 
          state_setters::DefaultPBO defPBO(this);
 
@@ -1507,6 +1491,19 @@ std::shared_ptr<dglnet::resource::DGLPixelRectangle> GLContext::queryFramebuffer
          // we need to pixeltransfer alignmnet to default
          state_setters::PixelStoreAlignment defAlignment(this);
 
+         //Internal format should be adjusted to cover only buffers attached to fbo.
+         GLenum transferInternalFormat = *outInternalFormat;
+         if (attachment == GL_DEPTH_ATTACHMENT) {
+             const GLInternalFormat* internalFormatDescr = GLFormats::getInternalFormat(*outInternalFormat);
+             if (internalFormatDescr && internalFormatDescr->dataFormat == GL_DEPTH_STENCIL) {
+                 transferInternalFormat = GLFormats::getDepthInternalformatFromDepthStencil(internalFormatDescr);
+             }
+         } else if (attachment == GL_STENCIL_ATTACHMENT) {
+             const GLInternalFormat* internalFormatDescr = GLFormats::getInternalFormat(*outInternalFormat);
+             if (internalFormatDescr && internalFormatDescr->dataFormat == GL_DEPTH_STENCIL) {
+                 transferInternalFormat = GLFormats::getStencilInternalformatFromDepthStencil(internalFormatDescr);
+             }
+         }
 
          std::shared_ptr<glutils::MSAADownSampler> downSampler;
          if (multisampled) {
@@ -1573,7 +1570,7 @@ std::shared_ptr<dglnet::resource::DGLPixelRectangle> GLContext::queryFramebuffer
 
          return ret;
 
-     } else { //!queryPixels
+     } else { //!queryPixels && width && height
          return std::shared_ptr<dglnet::resource::DGLPixelRectangle>();
      }
 }
@@ -1617,11 +1614,11 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryRenderbuffer(gl_t name) {
 
         //Internal format recognized. Set attachment point basing on it.
 
-        if (iFormat->dataType == GL_DEPTH) {
+        if (iFormat->dataFormat == GL_DEPTH) {
             attachment = GL_DEPTH_ATTACHMENT;
-        } else if (iFormat->dataType == GL_STENCIL)  {
+        } else if (iFormat->dataFormat == GL_STENCIL)  {
             attachment = GL_STENCIL_ATTACHMENT;
-        } else if (iFormat->dataType == GL_DEPTH_STENCIL) {
+        } else if (iFormat->dataFormat == GL_DEPTH_STENCIL) {
             attachment = GL_DEPTH_STENCIL_ATTACHMENT;
         } else {
             isDSQuery = false;
