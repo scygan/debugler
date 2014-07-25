@@ -41,7 +41,7 @@ class BaseTarget(object):
     def prepare(self, targetName, debug = False):
         return 0
 
-    def build(self):
+    def build(self, opts):
         return 0
 
 class CMakeTarget(BaseTarget):
@@ -75,7 +75,7 @@ class CMakeTarget(BaseTarget):
         return subprocess.call(['cmake'] + cmdLine, cwd=self.path)
 
 
-    def build(self, target = 'all'):
+    def build(self, opts, target = 'all'):
         logging.debug('Running make for ' + self.path + '...')
         if not sys.platform.startswith('win'):
             return subprocess.call(['make', '-j', '4', '-C', self.path, target])
@@ -90,8 +90,8 @@ class AndroidBuildTarget(CMakeTarget):
     def prepare(self, targetName, debug = False):
         return super(AndroidBuildTarget, self).prepare(targetName, debug, ['-DANDROID_ABI=' + self.arch],  getLocalPath() + '/tools/build/cmake/toolchains/android.toolchain.cmake')
 
-    def build(self):
-        return super(AndroidBuildTarget, self).build()
+    def build(self, opts):
+        return super(AndroidBuildTarget, self).build(opts)
 
 
 class LinuxBuildTarget(CMakeTarget):
@@ -103,8 +103,8 @@ class LinuxBuildTarget(CMakeTarget):
     def prepare(self, targetName, debug = False):
         return super(LinuxBuildTarget, self).prepare(targetName, debug, ['-DARCH=' + self.arch] + self.cmakeFlags)
 
-    def build(self):
-        return super(LinuxBuildTarget, self).build('package')
+    def build(self, opts):
+        return super(LinuxBuildTarget, self).build(opts, 'package')
 
 
 class WindowsBuildTarget(BaseTarget):
@@ -117,10 +117,15 @@ class WindowsBuildTarget(BaseTarget):
         self.config = self.getBuildTypeStr(debug) + self.configSuffix
         return 0
 
-    def build(self):
-        args = ['debugler.sln', '/p:VisualStudioVersion=11.0', '/m', '/nologo', '/t:Build',  '/p:Configuration=' + self.config + ';platform=' + self.platform]
-        logging.debug('Running MSBUILD with args ' + str(args) + '...')
-        return subprocess.call([os.getenv('WINDIR') + os.sep + 'Microsoft.NET' + os.sep + 'Framework' + os.sep + 'v4.0.30319' + os.sep + 'MSBuild.exe'] + args, cwd = getLocalPath())
+    def build(self, opts):
+		if opts.incredibuild:
+			args = ['debugler.sln', '/build', '/cfg=' + self.config + '|' + self.platform]
+			logging.debug('Running BuildConsole with args ' + str(args) + '...')
+			return subprocess.call(['BuildConsole.exe'] + args, cwd = getLocalPath())
+		else:
+			args = ['debugler.sln', '/p:VisualStudioVersion=11.0', '/m', '/nologo', '/t:Build',  '/p:Configuration=' + self.config + ';platform=' + self.platform]
+			logging.debug('Running MSBUILD with args ' + str(args) + '...')
+			return subprocess.call([os.getenv('WINDIR') + os.sep + 'Microsoft.NET' + os.sep + 'Framework' + os.sep + 'v4.0.30319' + os.sep + 'MSBuild.exe'] + args, cwd = getLocalPath())
 
 
 
@@ -165,6 +170,7 @@ parser.set_defaults(build_debug=False)
 parser.add_option('-l', '--listTargets', dest='list_targets', action='store_true', help='List avaliable targets')
 parser.add_option('-d', '--debug', dest='build_debug', action='store_true', help='Debug build')
 parser.add_option('-r', '--release', dest='build_debug', action='store_false', help='Release build')
+parser.add_option('-i', '--incredibuild', dest='incredibuild', action='store_true', help='Use Incredibuild')
 
 
 (options, args) = parser.parse_args()
@@ -195,7 +201,7 @@ def Build(targetName):
         logging.critical('Build prepare failed for target ' + targetName + '. Error code = ' + str(ret) + '.')
         return ret
 
-    ret = target.build()
+    ret = target.build(options)
     if ret != 0:
         logging.critical('Build failed for target ' + targetName + '. Error code = ' + str(ret) + '.')
 
