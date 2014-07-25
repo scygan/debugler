@@ -423,41 +423,49 @@ std::shared_ptr<dglnet::DGLResource> DGLDebugController::doHandleRequest(
                 "Object's parent context is not current now, cannot issue "
                 "query");
     }
-    ctx->startQuery();
-    switch (request.m_Type) {
-        case dglnet::message::ObjectType::Buffer:
-            resource = ctx->queryBuffer(request.m_ObjectName.m_Name);
-            break;
-        case dglnet::message::ObjectType::Framebuffer:
-            resource = ctx->queryFramebuffer(request.m_ObjectName.m_Name);
-            break;
-        case dglnet::message::ObjectType::FBO:
-            resource = ctx->queryFBO(request.m_ObjectName.m_Name);
-            break;
-        case dglnet::message::ObjectType::Renderbuffer:
-            resource = ctx->queryRenderbuffer(request.m_ObjectName.m_Name);
-            break;
-        case dglnet::message::ObjectType::Texture:
-            resource = ctx->queryTexture(request.m_ObjectName.m_Name);
-            break;
-        case dglnet::message::ObjectType::Shader:
-            resource = ctx->queryShader(request.m_ObjectName.m_Name);
-            break;
-        case dglnet::message::ObjectType::Program:
-            resource = ctx->queryProgram(request.m_ObjectName.m_Name);
-            break;
-        case dglnet::message::ObjectType::GPU:
-            resource = ctx->queryGPU();
-            break;
-        case dglnet::message::ObjectType::State:
-            resource = ctx->queryState(request.m_ObjectName.m_Name);
-            break;
-        default:
-            throw std::runtime_error("Unsupported query type");
-    }
+    try {
+        ctx->startQuery();
+        switch (request.m_Type) {
+            case dglnet::message::ObjectType::Buffer:
+                resource = ctx->queryBuffer(request.m_ObjectName.m_Name);
+                break;
+            case dglnet::message::ObjectType::Framebuffer:
+                resource = ctx->queryFramebuffer(request.m_ObjectName.m_Name);
+                break;
+            case dglnet::message::ObjectType::FBO:
+                resource = ctx->queryFBO(request.m_ObjectName.m_Name);
+                break;
+            case dglnet::message::ObjectType::Renderbuffer:
+                resource = ctx->queryRenderbuffer(request.m_ObjectName.m_Name);
+                break;
+            case dglnet::message::ObjectType::Texture:
+                resource = ctx->queryTexture(request.m_ObjectName.m_Name);
+                break;
+            case dglnet::message::ObjectType::Shader:
+                resource = ctx->queryShader(request.m_ObjectName.m_Name);
+                break;
+            case dglnet::message::ObjectType::Program:
+                resource = ctx->queryProgram(request.m_ObjectName.m_Name);
+                break;
+            case dglnet::message::ObjectType::GPU:
+                resource = ctx->queryGPU();
+                break;
+            case dglnet::message::ObjectType::State:
+                resource = ctx->queryState(request.m_ObjectName.m_Name);
+                break;
+            default:
+                throw std::runtime_error("Unsupported query type");
+        }
+
+    } catch (const std::runtime_error& e) {
+        //clear error that may be left my query, than rethrow.
+        std::string sink;
+        ctx->endQuery(sink);
+        throw e;
+    }    
 
     std::string message;
-    if (ctx && !ctx->endQuery(message)) {
+    if (!ctx->endQuery(message)) {
         throw std::runtime_error(message);
     }
 
