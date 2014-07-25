@@ -1614,9 +1614,9 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryRenderbuffer(gl_t name) {
 
         //Internal format recognized. Set attachment point basing on it.
 
-        if (iFormat->dataFormat == GL_DEPTH) {
+        if (iFormat->dataFormat == GL_DEPTH_COMPONENT) {
             attachment = GL_DEPTH_ATTACHMENT;
-        } else if (iFormat->dataFormat == GL_STENCIL)  {
+        } else if (iFormat->dataFormat == GL_STENCIL_INDEX)  {
             attachment = GL_STENCIL_ATTACHMENT;
         } else if (iFormat->dataFormat == GL_DEPTH_STENCIL) {
             attachment = GL_DEPTH_STENCIL_ATTACHMENT;
