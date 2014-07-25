@@ -53,13 +53,17 @@ void DGLRenderbufferViewItem::update(const dglnet::DGLResource& res) {
 
     m_PixelRectangle = resource->m_PixelRectangle;
 
-    m_PixelRectangleScene->setPixelRectangle(
-        *m_PixelRectangle.get());
+    if (m_PixelRectangle) {
+        m_PixelRectangleScene->setPixelRectangle(
+            *m_PixelRectangle.get());
 
-    m_Ui.m_pixelRectangleView->updateFormatSizeInfo(
-        m_PixelRectangle.get(),
-        resource->m_Internalformat,
-        resource->m_Samples);
+        m_Ui.m_pixelRectangleView->updateFormatSizeInfo(
+            m_PixelRectangle.get(),
+            resource->m_Internalformat,
+            resource->m_Samples);
+    } else {
+        error("Renderbuffer is empty");
+    }    
 }
 
 DGLRenderbufferView::DGLRenderbufferView(QWidget* parrent, DglController* controller)
