@@ -67,7 +67,7 @@ public:
 
         m_Buffer = static_cast<char*>(malloc(size));
 
-        for (size_t i = 0; i < 0; i++) {
+        for (value_t i = 0; i < m_Size; i++) {
             m_Buffer[i] = static_cast<char>(rand());
         }
     }
