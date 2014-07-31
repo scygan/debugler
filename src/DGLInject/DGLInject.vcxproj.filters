@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="inject.cpp" />
+    <ClCompile Include="..\external\CompleteInject\CompleteInject.cpp">
+      <Filter>CompleteInject</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CompleteInject">
+      <UniqueIdentifier>{831ac39b-086b-4c28-84ac-1cb4e5a01a2e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\external\CompleteInject\CompleteInject.h">
+      <Filter>CompleteInject</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

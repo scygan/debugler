@@ -33,11 +33,13 @@
 
 #include <DGLCommon/def.h>
 
+#include <atomic>
+
 #pragma warning(disable : 4503)
 
 class DGLIPCImpl : public DGLIPC {
    public:
-    DGLIPCImpl() : m_region(NULL), m_regionowner(true) {
+    DGLIPCImpl() : m_region(NULL), m_regionowner(true), m_processSkipped(false) {
         std::ostringstream uuidStream;
         uuidStream << boost::uuids::random_generator()();
         m_uuid = uuidStream.str();
@@ -75,6 +77,8 @@ class DGLIPCImpl : public DGLIPC {
                 *m_shmem, boost::interprocess::read_write);
         m_region =
                 reinterpret_cast<MemoryRegion*>(m_shmemregion->get_address());
+
+        m_processSkipped = (m_region->m_processSkipCounter != 0);
     }
 
     ~DGLIPCImpl() {
@@ -91,12 +95,19 @@ class DGLIPCImpl : public DGLIPC {
         m_region->m_remoteThreadSemaphore.post();
     }
 
-    virtual void setWaitForConnection(bool wait) override {
-        m_region->m_WaitForConnection = wait;
+    virtual void setListenMode(DebuggerListenMode mode) override {
+        DGL_ASSERT(mode != DebuggerListenMode::NO_LISTEN);
+        m_region->m_debuggerListenMode = mode;
     }
 
-    virtual bool getWaitForConnection() override {
-        return m_region->m_WaitForConnection;
+    virtual DebuggerListenMode getCurrentProcessListenMode() override {
+
+        if (m_processSkipped) {
+            //not listening in when current processes should be skipped
+            return DebuggerListenMode::NO_LISTEN;
+        }
+
+        return m_region->m_debuggerListenMode;
     }
 
     virtual void setDebuggerMode(DebuggerMode mode) override {
@@ -116,6 +127,9 @@ class DGLIPCImpl : public DGLIPC {
     }
 
     virtual DebuggerPortType getDebuggerPort(std::string& port) override {
+        
+        DGL_ASSERT(getCurrentProcessListenMode() != DebuggerListenMode::NO_LISTEN);
+
         m_region->m_debuggerPortName[c_debuggerPortNameLen - 1] = '\0';
         port = m_region->m_debuggerPortName;
         return m_region->m_debuggerPortType;
@@ -131,6 +145,10 @@ class DGLIPCImpl : public DGLIPC {
         m_region->m_DLInterceptDlSymAddr = dlSymAddr;
     }
 
+    void setNumberOfSkippedProcesses(int processes) override {
+        m_region->m_processSkipCounter = processes;
+    }
+
    private:
     static const int c_debuggerPortNameLen = 1000;
 
@@ -139,23 +157,28 @@ class DGLIPCImpl : public DGLIPC {
                 : m_debuggerPortType(DebuggerPortType::TCP),
                   m_debuggerMode(DebuggerMode::DEFAULT),
                   m_remoteThreadSemaphore(0),
-                  m_WaitForConnection(true),
+                  m_debuggerListenMode(DebuggerListenMode::LISTEN_AND_WAIT),
                   m_DLInterceptDlOpenAddr(0),
-                  m_DLInterceptDlSymAddr(0) {
+                  m_DLInterceptDlSymAddr(0)
+        {
+            m_processSkipCounter = 0;
             strncpy(m_debuggerPortName, "5555", c_debuggerPortNameLen);
         }
         char m_debuggerPortName[c_debuggerPortNameLen];
         DebuggerPortType m_debuggerPortType;
         DebuggerMode m_debuggerMode;
         boost::interprocess::interprocess_semaphore m_remoteThreadSemaphore;
-        bool m_WaitForConnection;
+        DebuggerListenMode m_debuggerListenMode;
         int m_DLInterceptDlOpenAddr;
         int m_DLInterceptDlSymAddr;
+        std::atomic_int m_processSkipCounter;
     };
 
     std::string m_uuid;
 
     MemoryRegion* m_region;
+
+    bool m_processSkipped;
 
 #ifdef _WIN32
     boost::shared_ptr<boost::interprocess::windows_shared_memory> m_shmem;

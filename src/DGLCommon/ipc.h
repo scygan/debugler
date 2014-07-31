@@ -36,8 +36,14 @@ class DGLIPC {
         UNIX
     };
 
-    virtual void setWaitForConnection(bool) = 0;
-    virtual bool getWaitForConnection() = 0;
+    enum class DebuggerListenMode {
+        LISTEN_AND_WAIT,
+        LISTEN_NO_WAIT,
+        NO_LISTEN,
+    };
+
+    virtual void setListenMode(DebuggerListenMode) = 0;
+    virtual DebuggerListenMode getCurrentProcessListenMode() = 0;
 
     virtual void setDebuggerMode(DebuggerMode) = 0;
     virtual DebuggerMode getDebuggerMode() = 0;
@@ -47,6 +53,8 @@ class DGLIPC {
 
     virtual void getDLInternceptPointers(int& dlOpenAddr, int& dlSymAddr) = 0;
     virtual void setDLInternceptPointers(int dlOpenAddr, int dlSymAddr) = 0;
+
+    virtual void setNumberOfSkippedProcesses(int processes) = 0;
 
     static std::shared_ptr<DGLIPC> Create();
     static std::shared_ptr<DGLIPC> CreateFromUUID(std::string uuid);

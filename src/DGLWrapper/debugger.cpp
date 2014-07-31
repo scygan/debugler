@@ -224,7 +224,7 @@ DGLDebugServer& DGLDebugController::getServer() {
     int pid;
 
     if (m_LastPid != (pid = Os::getProcessPid())) {
-        //fork occured. Reset connection.
+        //fork occurred. Reset connection.
         m_Server.abort();
         m_LastPid = pid;
     }
@@ -249,12 +249,14 @@ DGLDebugServer& DGLDebugController::getServer() {
 
         Os::info("port = %s", port.c_str());
 
+        DGLIPC::DebuggerListenMode listenMode = getIPC()->getCurrentProcessListenMode();
+
         //We should wait for actual connection when: 
         // - no -nowait was specified in dglloader (so application runs freely)
         // - execution is breaked. (It requires connection if breaked).
         // - on Android, when explicitely requested by property variable.
         //Otherwise we set socket in listening state and continue.
-        bool wait = getIPC()->getWaitForConnection() || getBreakState().isBreaked();
+        bool wait = (listenMode == DGLIPC::DebuggerListenMode::LISTEN_AND_WAIT) || getBreakState().isBreaked();
 
 #ifdef __ANDROID__
         {
@@ -272,23 +274,25 @@ DGLDebugServer& DGLDebugController::getServer() {
         }
 #endif
 
-        switch (portType) {
-            case DGLIPC::DebuggerPortType::TCP:
-                m_Server.listen<dglnet::ServerTcp>(port, wait);
-                break;
+        if (listenMode != DGLIPC::DebuggerListenMode::NO_LISTEN) {
+            switch (portType) {
+                case DGLIPC::DebuggerPortType::TCP:
+                    m_Server.listen<dglnet::ServerTcp>(port, wait);
+                    break;
 
-            case DGLIPC::DebuggerPortType::UNIX:
+                case DGLIPC::DebuggerPortType::UNIX:
 
-#ifndef _WIN32
-                unlink(port.c_str());
-                m_Server.listen<dglnet::ServerUnixDomain>(port, wait);
-#else
-                throw std::runtime_error(
+    #ifndef _WIN32
+                    unlink(port.c_str());
+                    m_Server.listen<dglnet::ServerUnixDomain>(port, wait);
+    #else
+                    throw std::runtime_error(
                         "Unix sockets are not supported on Windows.");
-#endif
-                break;
-            default:
-                DGL_ASSERT(0);
+    #endif
+                    break;
+                default:
+                    DGL_ASSERT(0);
+            }
         }
     }
     return m_Server;

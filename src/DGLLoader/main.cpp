@@ -155,6 +155,9 @@ int main(int argc, char** argv) {
         desc.add_options()("port", po::value<vector<string> >(),
                            "Debugger TCP port number.");
 
+        desc.add_options()("skip", po::value<vector<int> >(),
+            "Number of processes to skip.");
+
         po::options_description mandatory("Mandatory options");
         mandatory.add_options()(
                 "execute", po::value<vector<string> >()->composing(),
@@ -231,7 +234,7 @@ int main(int argc, char** argv) {
         }
 
         if (vm.count("nowait")) {
-            dglIPC->setWaitForConnection(false);
+            dglIPC->setListenMode(DGLIPC::DebuggerListenMode::LISTEN_NO_WAIT);
         }
 
         if (vm.count("port")) {
@@ -265,6 +268,11 @@ int main(int argc, char** argv) {
             } else {
                 dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::TCP, portStr);
             }
+        }
+
+        if (vm.count("skip")) {
+            int skipProcesses = vm["skip"].as<vector<int> >()[0];
+            dglIPC->setNumberOfSkippedProcesses(skipProcesses);
         }
 
         DGLProcess process(executable, arguments);
