@@ -39,7 +39,10 @@
 
 class DGLIPCImpl : public DGLIPC {
    public:
-    DGLIPCImpl() : m_region(NULL), m_regionowner(true), m_processSkipped(false) {
+    DGLIPCImpl(DebuggerMode debuggerMode, DebuggerListenMode listenMode, DebuggerPortType portType, const char* portName, int processSkipCount) : m_region(NULL), m_regionowner(true), m_processSkipped(false) {
+        
+        DGL_ASSERT(listenMode != DebuggerListenMode::NO_LISTEN);
+        
         std::ostringstream uuidStream;
         uuidStream << boost::uuids::random_generator()();
         m_uuid = uuidStream.str();
@@ -58,7 +61,7 @@ class DGLIPCImpl : public DGLIPC {
                 *m_shmem, boost::interprocess::read_write);
 
         // inplace
-        m_region = new (m_shmemregion->get_address()) MemoryRegion;
+        m_region = new (m_shmemregion->get_address()) MemoryRegion(debuggerMode, listenMode, portType, portName, processSkipCount);
     }
 
     DGLIPCImpl(std::string uuid)
@@ -95,11 +98,6 @@ class DGLIPCImpl : public DGLIPC {
         m_region->m_remoteThreadSemaphore.post();
     }
 
-    virtual void setListenMode(DebuggerListenMode mode) override {
-        DGL_ASSERT(mode != DebuggerListenMode::NO_LISTEN);
-        m_region->m_debuggerListenMode = mode;
-    }
-
     virtual DebuggerListenMode getCurrentProcessListenMode() override {
 
         if (m_processSkipped) {
@@ -110,20 +108,8 @@ class DGLIPCImpl : public DGLIPC {
         return m_region->m_debuggerListenMode;
     }
 
-    virtual void setDebuggerMode(DebuggerMode mode) override {
-        m_region->m_debuggerMode = mode;
-    }
-
     virtual DebuggerMode getDebuggerMode() override {
         return m_region->m_debuggerMode;
-    }
-
-    virtual void setDebuggerPort(DebuggerPortType type,
-                                 const std::string& port) override {
-        m_region->m_debuggerPortType = type;
-        strncpy(m_region->m_debuggerPortName, port.c_str(),
-                c_debuggerPortNameLen);
-        m_region->m_debuggerPortName[c_debuggerPortNameLen - 1] = '\0';
     }
 
     virtual DebuggerPortType getDebuggerPort(std::string& port) override {
@@ -145,24 +131,21 @@ class DGLIPCImpl : public DGLIPC {
         m_region->m_DLInterceptDlSymAddr = dlSymAddr;
     }
 
-    void setNumberOfSkippedProcesses(int processes) override {
-        m_region->m_processSkipCounter = processes;
-    }
-
    private:
     static const int c_debuggerPortNameLen = 1000;
 
     struct MemoryRegion {
-        MemoryRegion()
-                : m_debuggerPortType(DebuggerPortType::TCP),
-                  m_debuggerMode(DebuggerMode::DEFAULT),
+        MemoryRegion(DebuggerMode debuggerMode, DebuggerListenMode listenMode, DebuggerPortType portType, const char* portName, int processSkipCount)
+                : m_debuggerPortType(portType),
+                  m_debuggerMode(debuggerMode),
                   m_remoteThreadSemaphore(0),
-                  m_debuggerListenMode(DebuggerListenMode::LISTEN_AND_WAIT),
+                  m_debuggerListenMode(listenMode),
                   m_DLInterceptDlOpenAddr(0),
                   m_DLInterceptDlSymAddr(0)
         {
-            m_processSkipCounter = 0;
-            strncpy(m_debuggerPortName, "5555", c_debuggerPortNameLen);
+            m_processSkipCounter = processSkipCount;
+            strncpy(m_debuggerPortName, portName, c_debuggerPortNameLen);
+            m_debuggerPortName[c_debuggerPortNameLen - 1] = '\0';
         }
         char m_debuggerPortName[c_debuggerPortNameLen];
         DebuggerPortType m_debuggerPortType;
@@ -189,8 +172,8 @@ class DGLIPCImpl : public DGLIPC {
     bool m_regionowner;
 };
 
-std::shared_ptr<DGLIPC> DGLIPC::Create() {
-    return std::shared_ptr<DGLIPC>(new DGLIPCImpl());
+std::shared_ptr<DGLIPC> DGLIPC::Create(DebuggerMode debuggerMode, DebuggerListenMode listenMode, DebuggerPortType portType, const char* portName, int processSkipCount) {
+    return std::shared_ptr<DGLIPC>(new DGLIPCImpl(debuggerMode, listenMode, portType, portName, processSkipCount));
 }
 
 std::shared_ptr<DGLIPC> DGLIPC::CreateFromUUID(std::string uuid) {

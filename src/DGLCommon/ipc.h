@@ -42,21 +42,16 @@ class DGLIPC {
         NO_LISTEN,
     };
 
-    virtual void setListenMode(DebuggerListenMode) = 0;
     virtual DebuggerListenMode getCurrentProcessListenMode() = 0;
 
-    virtual void setDebuggerMode(DebuggerMode) = 0;
     virtual DebuggerMode getDebuggerMode() = 0;
 
-    virtual void setDebuggerPort(DebuggerPortType, const std::string&) = 0;
     virtual DebuggerPortType getDebuggerPort(std::string&) = 0;
 
     virtual void getDLInternceptPointers(int& dlOpenAddr, int& dlSymAddr) = 0;
     virtual void setDLInternceptPointers(int dlOpenAddr, int dlSymAddr) = 0;
 
-    virtual void setNumberOfSkippedProcesses(int processes) = 0;
-
-    static std::shared_ptr<DGLIPC> Create();
+    static std::shared_ptr<DGLIPC> Create(DebuggerMode debuggerMode = DebuggerMode::DEFAULT, DebuggerListenMode listenMode = DebuggerListenMode::LISTEN_AND_WAIT, DebuggerPortType portType = DebuggerPortType::TCP, const char* portName = "5555", int processSkipCount = 0);
     static std::shared_ptr<DGLIPC> CreateFromUUID(std::string uuid);
 
    protected:

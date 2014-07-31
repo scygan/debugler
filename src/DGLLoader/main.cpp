@@ -217,24 +217,17 @@ int main(int argc, char** argv) {
         }
 #endif
 
-        std::shared_ptr<DGLIPC> dglIPC = DGLIPC::Create();
-
-#ifdef __ANDROID__
-        // If we are running in processtree spawned by another  dglloader
-        // instance
-        // this variable will be non-zero length.
-        // On Android we have to catch that, to setup proper dl-interception
-        std::string oldUUID = Os::getEnv("dgl_uuid");
-#endif
-
-        Os::setEnv("dgl_uuid", dglIPC->getUUID().c_str());
+        DGLIPC::DebuggerMode debuggerMode = DGLIPC::DebuggerMode::DEFAULT;
+        DGLIPC::DebuggerListenMode debuggerListenMode = DGLIPC::DebuggerListenMode::LISTEN_AND_WAIT;
+        DGLIPC::DebuggerPortType debuggerPortType = DGLIPC::DebuggerPortType::TCP;
+        std::string debuggerPortName = "5555";
 
         if (vm.count("egl")) {
-            dglIPC->setDebuggerMode(DGLIPC::DebuggerMode::EGL);
+            debuggerMode = (DGLIPC::DebuggerMode::EGL);
         }
-
+        
         if (vm.count("nowait")) {
-            dglIPC->setListenMode(DGLIPC::DebuggerListenMode::LISTEN_NO_WAIT);
+            debuggerListenMode = DGLIPC::DebuggerListenMode::LISTEN_NO_WAIT;
         }
 
         if (vm.count("port")) {
@@ -260,20 +253,33 @@ int main(int argc, char** argv) {
                 // GUI knows where to look for sockets.
                 Os::setProp(DGL_SOCKET_PROP, portPath.c_str());
 #endif
-                dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::UNIX,
-                                        portPath);
+                debuggerPortType =  DGLIPC::DebuggerPortType::UNIX;
+                debuggerPortName =  portPath;
             } else if (portStr.find("tcp:") == 0) {
-                dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::TCP,
-                                        portStr.substr(strlen("tcp:")));
+                debuggerPortName =  portStr.substr(strlen("tcp:"));
             } else {
-                dglIPC->setDebuggerPort(DGLIPC::DebuggerPortType::TCP, portStr);
+                debuggerPortName =  portStr;
             }
         }
 
+        int numberOfSkippedProcesses = 0;
+
         if (vm.count("skip")) {
-            int skipProcesses = vm["skip"].as<vector<int> >()[0];
-            dglIPC->setNumberOfSkippedProcesses(skipProcesses);
+            numberOfSkippedProcesses = vm["skip"].as<vector<int> >()[0];
         }
+
+        std::shared_ptr<DGLIPC> dglIPC = DGLIPC::Create(debuggerMode,
+            debuggerListenMode, debuggerPortType, debuggerPortName.c_str(), numberOfSkippedProcesses);
+
+#ifdef __ANDROID__
+        // If we are running in processtree spawned by another  dglloader
+        // instance
+        // this variable will be non-zero length.
+        // On Android we have to catch that, to setup proper dl-interception
+        std::string oldUUID = Os::getEnv("dgl_uuid");
+#endif
+
+        Os::setEnv("dgl_uuid", dglIPC->getUUID().c_str());
 
         DGLProcess process(executable, arguments);
 
