@@ -45,6 +45,10 @@ class DGLProgramViewItem : public DGLTabbedViewItem, public DGLRequestHandler {
     DGLProgramViewItem(dglnet::ContextObjectName name,
                        DGLResourceManager* resManager, QWidget* parrent);
 
+signals:
+   //repeats signal from parrent
+   void visibilityChanged(bool visible);
+
    private
 slots:
     void error(const std::string& message);

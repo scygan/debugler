@@ -67,8 +67,13 @@ DGLProgramViewItem::DGLProgramViewItem(dglnet::ContextObjectName name,
                SLOT(error(const std::string&)));
 
     m_Listener->setEnabled(parrent->isVisible());
+
     CONNASSERT(parrent, SIGNAL(visibilityChanged(bool)), m_Listener,
         SLOT(setEnabled(bool)));
+
+    //replicate signals from parrent (so shader child views can get notified*.
+    CONNASSERT(parrent, SIGNAL(visibilityChanged(bool)), this,
+        SIGNAL(visibilityChanged(bool)));
 }
 
 void DGLProgramViewItem::error(const std::string& message) {
@@ -110,6 +115,10 @@ void DGLProgramViewItem::update(const dglnet::DGLResource& res) {
         m_EmbeddedSSOSourceView->hide();
 
         m_Ui.pushButtonLink->setEnabled(true);
+    }
+
+    while (static_cast<size_t>(m_Ui.tabWidget->count()) > resource->m_AttachedShaders.size()) {
+        m_Ui.tabWidget->removeTab(m_Ui.tabWidget->count() - 1);
     }
 
     for (size_t i = 0; i < resource->m_AttachedShaders.size(); i++) {
