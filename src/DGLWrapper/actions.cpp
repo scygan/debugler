@@ -201,7 +201,7 @@ RetValue GetProcAddressAction::Pre(const CalledEntryPoint& call) {
         return ret;
     }
     // Load and get address of entrypoint implementation
-    if (GlobalState::getApiLoader().loadExtPointer(entryp)) {
+    if (EarlyGlobalState::getApiLoader().loadExtPointer(entryp)) {
         // entrypoint supported by implementation, return address of wrapper to
         // application
         ret = reinterpret_cast<FUNC_PTR>(getWrapperPointer(entryp));
@@ -589,7 +589,7 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 }
                 dglState::GLContextVersion version(contextType, major, minor);
 
-                GlobalState::getApiLoader().loadLibraries(version.getNeededApiLibraries(displayState));
+                EarlyGlobalState::getApiLoader().loadLibraries(version.getNeededApiLibraries(displayState));
 
                 displayState->createContext(
                     dglState::GLContextVersion::Type::ES,
@@ -754,7 +754,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
     // call wglCreateContextAttribsARB only if supported by implementation.
     // Otherwise do nothing - ctx will be created in wrapper function
     if (POINTER(wglCreateContextAttribsARB) ||
-        GlobalState::getApiLoader().loadExtPointer(wglCreateContextAttribsARB_Call)) {
+        EarlyGlobalState::getApiLoader().loadExtPointer(wglCreateContextAttribsARB_Call)) {
         ret = DIRECT_CALL_CHK(wglCreateContextAttribsARB)(hdc, sharedCtx,
                                                           &newAttribList[0]);
     }
@@ -833,7 +833,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
     // call glXCreateContextAttribsARB only if supported by implementation.
     // Otherwise do nothing - ctx will be created in wrapper function
     if (POINTER(glXCreateContextAttribsARB) ||
-        GlobalState::getApiLoader().loadExtPointer(glXCreateContextAttribsARB_Call)) {
+        EarlyGlobalState::getApiLoader().loadExtPointer(glXCreateContextAttribsARB_Call)) {
         ret = DIRECT_CALL_CHK(glXCreateContextAttribsARB)(
                 dpy, config, sharedContext, direct, &newAttribList[0]);
     }

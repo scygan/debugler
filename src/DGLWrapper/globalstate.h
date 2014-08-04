@@ -20,6 +20,7 @@
 
 
 struct GlobalStateImpl;
+struct EarlyGlobalStateImpl;
 
 class ActionManager;
 class APILoader;
@@ -32,7 +33,6 @@ class GlobalState {
 public:
     GlobalState();
     static ActionManager&      getActionManager();
-    static APILoader&          getApiLoader();
     static DGLDebugController& getDebugController();
     static DGLConfiguration&   getConfiguration();
 
@@ -43,6 +43,24 @@ private:
 
     static std::unique_ptr<GlobalStateImpl> s_GlobImpl;
 };
+
+/* Singleton wrapping all global state used from Loader Thread
+ * 
+ * This is separate from GlobalState, as LoaderThread runs with limited functionality.
+ *
+*/
+class EarlyGlobalState {
+public:
+    EarlyGlobalState();
+    static APILoader&          getApiLoader();
+    static void reset();
+
+private:
+    inline static EarlyGlobalStateImpl* GetImpl();
+
+    static std::unique_ptr<EarlyGlobalStateImpl> s_GlobImpl;
+};
+
 
 #endif
 

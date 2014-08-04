@@ -53,7 +53,7 @@ void Initialize(void) {
     //Notify process skipper (for newly executed processes).
     getIPC()->newProcessNotify();
 
-    APILoader& apiLoader = GlobalState::getApiLoader();
+    APILoader& apiLoader = EarlyGlobalState::getApiLoader();
 
     // load system GL libraries (& initialize entrypoint tables)
 

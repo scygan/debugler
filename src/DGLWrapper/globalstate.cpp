@@ -48,10 +48,6 @@ ActionManager& GlobalState::getActionManager() {
     return GetImpl()->m_ActionManager;
 }
 
-APILoader& GlobalState::getApiLoader() {
-    return GetImpl()->m_ApiLoader;
-}
-
 DGLDebugController& GlobalState::getDebugController() {
     return GetImpl()->m_DebugController;
 }
@@ -60,3 +56,29 @@ DGLConfiguration& GlobalState::getConfiguration() {
     return GetImpl()->m_Configuration;
 }
  
+
+
+struct EarlyGlobalStateImpl {
+    APILoader m_ApiLoader;
+};
+
+std::unique_ptr<EarlyGlobalStateImpl> EarlyGlobalState::s_GlobImpl;
+
+
+EarlyGlobalStateImpl* EarlyGlobalState::GetImpl() {
+    if (!s_GlobImpl) {
+        s_GlobImpl = std::unique_ptr<EarlyGlobalStateImpl>(new EarlyGlobalStateImpl());
+    }
+    return s_GlobImpl.get();
+}
+
+void EarlyGlobalState::reset() {
+    if (s_GlobImpl) {
+        s_GlobImpl.reset();
+    }
+}
+
+
+APILoader& EarlyGlobalState::getApiLoader() {
+    return GetImpl()->m_ApiLoader;
+}

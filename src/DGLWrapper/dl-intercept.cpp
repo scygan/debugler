@@ -204,11 +204,11 @@ boost::recursive_mutex::scoped_lock lock(mutex);
         entryp != NO_ENTRYPOINT &&                      //entrypoint is supported by debugger
         !DGLThreadState::get()->inActionProcessing() && //dlsym was not emited by GL implementation
         i != mSupportedLibraries.end() &&               //library from handle is supported by debugger
-        (i->second & GlobalState::getApiLoader().getEntryPointLibrary(entryp)) //library from handle match entrypoint library mask
+        (i->second & EarlyGlobalState::getApiLoader().getEntryPointLibrary(entryp)) //library from handle match entrypoint library mask
        ) {
 
         //set debugger to use new entrypoint
-        GlobalState::getApiLoader().setPointer(entryp,
+        EarlyGlobalState::getApiLoader().setPointer(entryp,
                                reinterpret_cast<FUNC_PTR>((ptrdiff_t)ptr));
 
 
@@ -235,7 +235,7 @@ void *DLIntercept::dlopen(const char *filename, int flag) {
     void *ret = real_dlopen(filename, flag);
 
     if (ret && filename) {
-        int libraries = GlobalState::getApiLoader().whichLibrary(filename);
+        int libraries = EarlyGlobalState::getApiLoader().whichLibrary(filename);
 #ifdef __ANDROID__
         if (libraries & (LIBRARY_ES1 | LIBRARY_ES2) &&   //library is affected coer library
             !DGLThreadState::get()->inActionProcessing() //call is emmitted by app, not by GL or DGL. 

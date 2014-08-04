@@ -3269,7 +3269,7 @@ void GLContext::firstUse() {
     //needed library according to GL strings and load more entrypoints.
     //For example LIBRARY_ES2 is usually promoted to LIBRARY_ES3 on EGL, if ES3.0 is supported.
     //On WGL/GLX nothing happens below.
-    GlobalState::getApiLoader().loadLibraries(m_Version.getNeededApiLibraries(getDisplay()));
+    EarlyGlobalState::getApiLoader().loadLibraries(m_Version.getNeededApiLibraries(getDisplay()));
     
 
     if (hasCapability(ContextCap::HasGetStringI)) {

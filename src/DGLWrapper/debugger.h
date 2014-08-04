@@ -383,6 +383,13 @@ class DGLDebugController : public dglnet::MessageHandler {
     class TeardownException {};
 
    private:
+    
+    /**
+     *  Private getter and on-demand ctor of status presenter.
+     *
+     */
+    OsStatusPresenter* statusPresenter();
+
     /**
      * Call history object
      */

@@ -44,7 +44,7 @@
 // will throw exception on NULL
 #define DIRECT_CALL_CHK(X) \
     (*reinterpret_cast<POINTER_TYPE(X)>(POINTER_CHECKED(X)))
-#define POINTER_CHECKED(X) GlobalState::getApiLoader().ensurePointer(X##_Call)
+#define POINTER_CHECKED(X) EarlyGlobalState::getApiLoader().ensurePointer(X##_Call)
 
 struct LoadedPointer {
     FUNC_PTR ptr;

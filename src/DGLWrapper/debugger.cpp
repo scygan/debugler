@@ -180,11 +180,7 @@ DGLDebugController::DGLDebugController()
           m_Disconnected(false),
           m_Server(this), 
           m_LastPid(0), 
-          m_ListenMode(DGLIPC::DebuggerListenMode::NO_LISTEN) {
-
-    m_presenter =
-        std::shared_ptr<OsStatusPresenter>(Os::createStatusPresenter());
-}
+          m_ListenMode(DGLIPC::DebuggerListenMode::NO_LISTEN) {}
 
 DGLDebugController::~DGLDebugController() { m_Server.abort(); }
 
@@ -203,7 +199,7 @@ void DGLDebugController::doHandleListen(const std::string& port) {
         std::ostringstream msg;
         msg << Os::getProcessName() << ": waiting for debugger on port " << port
             << ".";
-        m_presenter->setStatus(msg.str());
+        statusPresenter()->setStatus(msg.str());
     }
 }
 
@@ -215,7 +211,7 @@ void DGLDebugController::doHandleConnect() {
 
     getServer().getTransport()->sendMessage(&hello);
 
-    m_presenter->setStatus(Os::getProcessName() + ": debugger connected.");
+    statusPresenter()->setStatus(Os::getProcessName() + ": debugger connected.");
 }
 
 void DGLDebugController::doHandleDisconnect(const std::string&) {
@@ -242,7 +238,7 @@ DGLDebugServer& DGLDebugController::getServer() {
         m_ListenMode = getIPC()->getCurrentProcessListenMode();
         
         if (m_ListenMode == DGLIPC::DebuggerListenMode::NO_LISTEN) {
-            m_presenter->setStatus(Os::getProcessName() + ": process skipped.");
+            statusPresenter()->setStatus(Os::getProcessName() + ": process skipped.");
         }
 
     }
@@ -341,7 +337,7 @@ void DGLDebugController::onConnectionLost() {
 
     m_Disconnected = false;
 
-    m_presenter->setStatus(Os::getProcessName() + ": connection lost");
+    statusPresenter()->setStatus(Os::getProcessName() + ": connection lost");
     
     m_Server.abort();
 
@@ -567,4 +563,12 @@ std::shared_ptr<dglnet::DGLResource> DGLDebugController::getCurrentBacktrace() {
 
 void DGLDebugController::invalidateBacktrace() {
     m_BufferedBacktrace.reset();
+}
+
+OsStatusPresenter* DGLDebugController::statusPresenter() {
+    if (!m_presenter) {
+        m_presenter =
+            std::shared_ptr<OsStatusPresenter>(Os::createStatusPresenter());
+    }
+    return m_presenter.get();    
 }
