@@ -134,9 +134,6 @@ class ThreadWatcher {
  */
 extern "C" DGLWRAPPER_API void LoaderThread() {
 
-    int i = 1;
-    while (i) {}
-
     Initialize();
 
 #if DGL_HAVE_WA(ARM_MALI_EMU_LOADERTHREAD_KEEP)
