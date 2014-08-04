@@ -441,7 +441,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
             std::vector<dglnet::resource::DGLResourceTexture::TextureLayer> currentLevel;
 
             GLint samples, internalFormat;
-            tex->getFormat(this, level, tex->getTextureLevelTarget(face), internalFormat, samples);
+            tex->getFormat(this, level, tex->getTextureLevelTarget(static_cast<int>(face)), internalFormat, samples);
 
             for (int layer = 0;; layer++) {
 
