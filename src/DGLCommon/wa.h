@@ -41,7 +41,7 @@
 // Unfortunately this causes CreateWindowEx() to fail later in eglInitialize(),
 //  probably because RegisterClass was called in this thread (sic!) from  DLLMain.
 // Fix: lock this thread until application finishes
-#define __wa_ARM_MALI_EMU_LOADERTHREAD_KEEP defined(_WIN32)
+#define __wa_ARM_MALI_EMU_LOADERTHREAD_KEEP _WIN32
 
 
 // Querying GL state is not implemented propely on ES. May be related to

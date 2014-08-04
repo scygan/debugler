@@ -7,13 +7,13 @@ add_executable(dglloader
     ${dglloader_SOURCES}
 )
 
-add_dependencies(dglloader Boost)
+add_dependencies(dglloader dglinject Boost)
 
 if (ANDROID)
 	set(libs log)
 else()
 	set(libs rt pthread)
 endif()
-target_link_libraries(dglloader boost_program_options dglcommon ${libs})
+target_link_libraries(dglloader dglinject boost_program_options dglcommon ${libs})
 
 install (TARGETS dglloader DESTINATION bin)

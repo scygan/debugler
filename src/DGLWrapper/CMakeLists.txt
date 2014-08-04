@@ -18,6 +18,7 @@ set(dglwrapper_SOURCES
     gl-texunit.cpp
 	backtrace.cpp
     globalstate.cpp
+	exechook.cpp
 #dllmain.cpp should be at the end, requires all static ctors to run before dllmain.
     dllmain.cpp
     )
@@ -40,6 +41,6 @@ else()
 	set(libs pthread elf rt)
 endif()
 
-target_link_libraries(dglwrapper dglnet dglcommon boost_serialization boost_system boost_iostreams dl z ${libs})
+target_link_libraries(dglwrapper dglnet dglcommon dglinject boost_serialization boost_system boost_iostreams dl z ${libs})
 
 install (TARGETS dglwrapper DESTINATION lib)

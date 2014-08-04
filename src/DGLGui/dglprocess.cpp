@@ -20,12 +20,6 @@
 #include <boost/thread/thread_time.hpp>
 #include <DGLCommon/os.h>
 
-#ifdef _WIN32
-#include <windows.h>
-#else
-#define MAX_PATH PATH_MAX
-#endif
-
 DGLBaseQTProcess::DGLBaseQTProcess() {}
 
 void DGLBaseQTProcess::run(std::string exec, std::string path,
@@ -37,9 +31,9 @@ void DGLBaseQTProcess::run(std::string exec, std::string path,
     }
 
     if (path.length()) {
-        char absolutePath[MAX_PATH];
+        char absolutePath[DGL_MAX_PATH];
 #ifdef _WIN32
-        if (!_fullpath(absolutePath, path.c_str(), MAX_PATH)) {
+        if (!_fullpath(absolutePath, path.c_str(), DGL_MAX_PATH)) {
 #else
         if (!realpath(path.c_str(), absolutePath)) {
 #endif
@@ -100,7 +94,7 @@ DGLDebugeeQTProcess::DGLDebugeeQTProcess(int port, bool modeEGL)
 DGLDebugeeQTProcess::~DGLDebugeeQTProcess() { getProcess()->kill(); }
 
 void DGLDebugeeQTProcess::run(std::string cmd, std::string path,
-                              std::vector<std::string> args, bool takeOutput) {
+                              std::vector<std::string> args, int skipProcessCount, bool takeOutput) {
 
     try {
 #ifdef _WIN32
@@ -219,6 +213,13 @@ void DGLDebugeeQTProcess::run(std::string cmd, std::string path,
         }
         arguments.push_back("--port");
         arguments.push_back("tcp:" + m_PortStr);
+
+        arguments.push_back("--skip");
+        {
+            std::ostringstream skipCountStr;
+            skipCountStr << skipProcessCount;
+            arguments.push_back(skipCountStr.str());
+        }
 
         arguments.push_back(cmd);
 

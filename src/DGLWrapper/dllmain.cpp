@@ -19,6 +19,7 @@
 #include "debugger.h"
 #include "ipc.h"
 #include "globalstate.h"
+#include "exechook.h"
 #include "DGLWrapper.h"
 #include <boost/make_shared.hpp>
 #include <boost/interprocess/sync/named_semaphore.hpp>
@@ -46,6 +47,11 @@ DGLIPC* getIPC() {
  * DGLwrapper routine called on library load
  */
 void Initialize(void) {
+
+    ExecHookInitialize();
+
+    //Notify process skipper (for newly executed processes).
+    getIPC()->newProcessNotify();
 
     APILoader& apiLoader = GlobalState::getApiLoader();
 

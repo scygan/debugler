@@ -178,7 +178,13 @@ void DGLDebugServer::abort() {
 DGLDebugController::DGLDebugController()
         : m_BreakState(),
           m_Disconnected(false),
-          m_Server(this) {}
+          m_Server(this), 
+          m_LastPid(0), 
+          m_ListenMode(DGLIPC::DebuggerListenMode::NO_LISTEN) {
+
+    m_presenter =
+        std::shared_ptr<OsStatusPresenter>(Os::createStatusPresenter());
+}
 
 DGLDebugController::~DGLDebugController() { m_Server.abort(); }
 
@@ -193,8 +199,6 @@ void DGLDebugController::doHandleListen(const std::string& port) {
                                                  semaphore.c_str());
         sem.post();
     }
-    m_presenter =
-            std::shared_ptr<OsStatusPresenter>(Os::createStatusPresenter());
     {
         std::ostringstream msg;
         msg << Os::getProcessName() << ": waiting for debugger on port " << port
@@ -222,41 +226,35 @@ void DGLDebugController::doHandleDisconnect(const std::string&) {
 
 DGLDebugServer& DGLDebugController::getServer() {
     int pid;
+    bool newProcess = false;
 
     if (m_LastPid != (pid = Os::getProcessPid())) {
         //fork occurred. Reset connection.
         m_Server.abort();
         m_LastPid = pid;
+
+        newProcess = true;
     }
-    if (!m_Server.getTransport()) {
-        std::string port;
-        DGLIPC::DebuggerPortType portType = getIPC()->getDebuggerPort(port);
 
-        {
-            size_t pos = 0;
-            while ((pos = port.find("%n")) != std::string::npos) {
-                port.replace(pos, 2, Os::getProcessName());
-            }
-        }
-        {
-            size_t pos = 0;
-            while ((pos = port.find("%p")) != std::string::npos) {
-                std::ostringstream pidStr;
-                pidStr << pid;
-                port.replace(pos, 2, pidStr.str());
-            }
+    if (newProcess) {
+        //Notify process skipper (for posix, exec-less forks of process).
+        getIPC()->newProcessNotify();
+        m_ListenMode = getIPC()->getCurrentProcessListenMode();
+        
+        if (m_ListenMode == DGLIPC::DebuggerListenMode::NO_LISTEN) {
+            m_presenter->setStatus(Os::getProcessName() + ": process skipped.");
         }
 
-        Os::info("port = %s", port.c_str());
-
-        DGLIPC::DebuggerListenMode listenMode = getIPC()->getCurrentProcessListenMode();
+    }
+  
+    if (m_ListenMode != DGLIPC::DebuggerListenMode::NO_LISTEN && !m_Server.getTransport()) {
 
         //We should wait for actual connection when: 
         // - no -nowait was specified in dglloader (so application runs freely)
         // - execution is breaked. (It requires connection if breaked).
         // - on Android, when explicitely requested by property variable.
         //Otherwise we set socket in listening state and continue.
-        bool wait = (listenMode == DGLIPC::DebuggerListenMode::LISTEN_AND_WAIT) || getBreakState().isBreaked();
+        bool wait = (m_ListenMode == DGLIPC::DebuggerListenMode::LISTEN_AND_WAIT) || getBreakState().isBreaked();
 
 #ifdef __ANDROID__
         {
@@ -274,25 +272,43 @@ DGLDebugServer& DGLDebugController::getServer() {
         }
 #endif
 
-        if (listenMode != DGLIPC::DebuggerListenMode::NO_LISTEN) {
-            switch (portType) {
-                case DGLIPC::DebuggerPortType::TCP:
-                    m_Server.listen<dglnet::ServerTcp>(port, wait);
-                    break;
+        std::string port;
+        DGLIPC::DebuggerPortType portType = getIPC()->getDebuggerPort(port);
 
-                case DGLIPC::DebuggerPortType::UNIX:
-
-    #ifndef _WIN32
-                    unlink(port.c_str());
-                    m_Server.listen<dglnet::ServerUnixDomain>(port, wait);
-    #else
-                    throw std::runtime_error(
-                        "Unix sockets are not supported on Windows.");
-    #endif
-                    break;
-                default:
-                    DGL_ASSERT(0);
+        { 
+            size_t pos = 0;
+            while ((pos = port.find("%n")) != std::string::npos) {
+                port.replace(pos, 2, Os::getProcessName());
             }
+        }
+        {
+            size_t pos = 0;
+            while ((pos = port.find("%p")) != std::string::npos) {
+                std::ostringstream pidStr;
+                pidStr << pid;
+                port.replace(pos, 2, pidStr.str());
+            }
+        }
+
+        Os::info("port = %s", port.c_str());
+
+        switch (portType) {
+            case DGLIPC::DebuggerPortType::TCP:
+                m_Server.listen<dglnet::ServerTcp>(port, wait);
+                break;
+
+            case DGLIPC::DebuggerPortType::UNIX:
+
+#ifndef _WIN32
+                unlink(port.c_str());
+                m_Server.listen<dglnet::ServerUnixDomain>(port, wait);
+#else
+                throw std::runtime_error(
+                    "Unix sockets are not supported on Windows.");
+#endif
+                break;
+            default:
+                DGL_ASSERT(0);
         }
     }
     return m_Server;
@@ -309,7 +325,10 @@ void DGLDebugController::run_one(bool& newConnection) {
 }
 
 void DGLDebugController::poll() {
-    getServer().getTransport()->poll();
+    dglnet::ITransport* transport = getServer().getTransport().get();
+    if (transport) {
+        transport->poll();
+    }
 
     if (m_Disconnected) {
         onConnectionLost();

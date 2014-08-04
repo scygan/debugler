@@ -22,6 +22,8 @@
 #include <unistd.h>
 #endif
 
+#include <DGLCommon/def.h>
+
 DGLProcess::DGLProcess(std::string executable, std::vector<std::string> args,
                        bool forceFork)
         : m_executable(executable), m_args(args) {
@@ -38,8 +40,8 @@ DGLProcess::DGLProcess(std::string executable, std::vector<std::string> args,
         argumentString += (i > 0 ? " " : "") + m_args[i];
     }
 
-    char path[MAX_PATH];
-    if (!GetCurrentDirectory(MAX_PATH, path)) {
+    char path[DGL_MAX_PATH];
+    if (!GetCurrentDirectory(DGL_MAX_PATH, path)) {
         throw std::runtime_error("GetCurrentDirectory failed");
     }
 
@@ -83,6 +85,11 @@ DGLProcess::native_process_handle_t DGLProcess::getHandle() {
 #ifdef _WIN32
 DGLProcess::native_process_handle_t DGLProcess::getMainThread() {
     return m_processInfo.hThread;
+}
+#else
+DGLProcess::native_process_handle_t DGLProcess::getMainThread() {
+    //unsupported & unused on non-Windows
+    return 0;
 }
 #endif
 

@@ -35,13 +35,19 @@
 
 #include <atomic>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #pragma warning(disable : 4503)
 
 class DGLIPCImpl : public DGLIPC {
    public:
-    DGLIPCImpl(DebuggerMode debuggerMode, DebuggerListenMode listenMode, DebuggerPortType portType, const char* portName, int processSkipCount) : m_region(NULL), m_regionowner(true), m_processSkipped(false) {
+    DGLIPCImpl(const std::string& wrapperPath, DebuggerMode debuggerMode, DebuggerListenMode listenMode, DebuggerPortType portType, const char* portName, int processSkipCount) : m_region(NULL), m_processSkipped(false), m_regionowner(true) {
         
         DGL_ASSERT(listenMode != DebuggerListenMode::NO_LISTEN);
+
+        DGL_ASSERT(wrapperPath.size());
         
         std::ostringstream uuidStream;
         uuidStream << boost::uuids::random_generator()();
@@ -61,11 +67,11 @@ class DGLIPCImpl : public DGLIPC {
                 *m_shmem, boost::interprocess::read_write);
 
         // inplace
-        m_region = new (m_shmemregion->get_address()) MemoryRegion(debuggerMode, listenMode, portType, portName, processSkipCount);
+        m_region = new (m_shmemregion->get_address()) MemoryRegion(wrapperPath, debuggerMode, listenMode, portType, portName, processSkipCount);
     }
 
     DGLIPCImpl(std::string uuid)
-            : m_uuid(uuid), m_region(NULL), m_regionowner(false) {
+            : m_uuid(uuid), m_region(NULL), m_regionowner(false), m_processSkipped(false) {
 #ifdef _WIN32
         m_shmem =
                 boost::make_shared<boost::interprocess::windows_shared_memory>(
@@ -80,8 +86,6 @@ class DGLIPCImpl : public DGLIPC {
                 *m_shmem, boost::interprocess::read_write);
         m_region =
                 reinterpret_cast<MemoryRegion*>(m_shmemregion->get_address());
-
-        m_processSkipped = (m_region->m_processSkipCounter != 0);
     }
 
     ~DGLIPCImpl() {
@@ -96,6 +100,10 @@ class DGLIPCImpl : public DGLIPC {
     }
     virtual void postRemoteThreadSemaphore() override {
         m_region->m_remoteThreadSemaphore.post();
+    }
+
+    virtual void newProcessNotify() override {
+        m_processSkipped = (std::atomic_fetch_add(&m_region->m_processSkipCounter, -1) >= 0);
     }
 
     virtual DebuggerListenMode getCurrentProcessListenMode() override {
@@ -131,11 +139,15 @@ class DGLIPCImpl : public DGLIPC {
         m_region->m_DLInterceptDlSymAddr = dlSymAddr;
     }
 
+    virtual const char* getWrapperPath() override {
+        return m_region->m_wrapperPath;
+    }
+
    private:
     static const int c_debuggerPortNameLen = 1000;
 
     struct MemoryRegion {
-        MemoryRegion(DebuggerMode debuggerMode, DebuggerListenMode listenMode, DebuggerPortType portType, const char* portName, int processSkipCount)
+        MemoryRegion(const std::string& wrapperPath, DebuggerMode debuggerMode, DebuggerListenMode listenMode, DebuggerPortType portType, const char* portName, int processSkipCount)
                 : m_debuggerPortType(portType),
                   m_debuggerMode(debuggerMode),
                   m_remoteThreadSemaphore(0),
@@ -146,6 +158,7 @@ class DGLIPCImpl : public DGLIPC {
             m_processSkipCounter = processSkipCount;
             strncpy(m_debuggerPortName, portName, c_debuggerPortNameLen);
             m_debuggerPortName[c_debuggerPortNameLen - 1] = '\0';
+            strncpy(m_wrapperPath, wrapperPath.c_str(), DGL_ARRAY_LENGTH(m_wrapperPath));
         }
         char m_debuggerPortName[c_debuggerPortNameLen];
         DebuggerPortType m_debuggerPortType;
@@ -155,6 +168,7 @@ class DGLIPCImpl : public DGLIPC {
         int m_DLInterceptDlOpenAddr;
         int m_DLInterceptDlSymAddr;
         std::atomic_int m_processSkipCounter;
+        char m_wrapperPath[DGL_MAX_PATH];
     };
 
     std::string m_uuid;
@@ -172,8 +186,8 @@ class DGLIPCImpl : public DGLIPC {
     bool m_regionowner;
 };
 
-std::shared_ptr<DGLIPC> DGLIPC::Create(DebuggerMode debuggerMode, DebuggerListenMode listenMode, DebuggerPortType portType, const char* portName, int processSkipCount) {
-    return std::shared_ptr<DGLIPC>(new DGLIPCImpl(debuggerMode, listenMode, portType, portName, processSkipCount));
+std::shared_ptr<DGLIPC> DGLIPC::Create(const std::string& wrapperPath, DebuggerMode debuggerMode, DebuggerListenMode listenMode, DebuggerPortType portType, const char* portName, int processSkipCount) {
+    return std::shared_ptr<DGLIPC>(new DGLIPCImpl(wrapperPath, debuggerMode, listenMode, portType, portName, processSkipCount));
 }
 
 std::shared_ptr<DGLIPC> DGLIPC::CreateFromUUID(std::string uuid) {

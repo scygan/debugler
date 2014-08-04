@@ -33,15 +33,16 @@
 #include <DGLCommon/os.h>
 
 DGLRunAppProject::DGLRunAppProject(const std::string& executable,
-                                   const std::string& path, const std::wstring& args,
+                                   const std::string& path, const std::wstring& args, int skipProcesses,
                                    bool eglMode)
         : m_process(nullptr),
           m_executable(executable),
           m_path(path),
           m_args(args),
+          m_skipProcesses(skipProcesses),
           m_EglMode(eglMode) {}
 
-DGLRunAppProject::DGLRunAppProject() : m_process(nullptr) {}
+DGLRunAppProject::DGLRunAppProject() : m_process(nullptr), m_skipProcesses(0) {}
 
 DGLRunAppProject::~DGLRunAppProject() { stopDebugging(); }
 
@@ -55,8 +56,12 @@ const std::wstring& DGLRunAppProject::getCommandLineArgs() const {
     return m_args;
 }
 
-bool DGLRunAppProject::isEglMode() {
+bool DGLRunAppProject::isEglMode() const {
     return m_EglMode;
+}
+
+int DGLRunAppProject::getSkipProcessesCount() const {
+    return m_skipProcesses;
 }
 
 void DGLRunAppProject::startDebugging() {
@@ -76,7 +81,7 @@ void DGLRunAppProject::startDebugging() {
     CONNASSERT(m_process, SIGNAL(processCrashed()), this,
                SLOT(processCrashHandler()));
 
-    m_process->run(getExecutable(), getPath(), getCommandLineArgVector());
+    m_process->run(getExecutable(), getPath(), getCommandLineArgVector(), getSkipProcessesCount());
 }
 
 void DGLRunAppProject::stopDebugging() {
@@ -248,6 +253,7 @@ std::shared_ptr<DGLProject> DGLRunAppProjectFactory::createProject() {
                 m_ui.lineEdit_Executable->text().toStdString(),
                 m_ui.lineEdit_Path->text().toStdString(),
                 m_ui.lineEdit_CommandLineArgs->text().toStdWString(),
+                m_ui.spinBox_processSkip->value(),
                 m_ui.radioButton_ModeEGL->isChecked() &&
                         !m_ui.radioButton_ModeWGLGLX->isChecked());
     }
@@ -274,6 +280,16 @@ bool DGLRunAppProjectFactory::loadPropertiesFromProject(
                 QString::fromStdWString(runProject->getCommandLineArgs()));
         m_ui.lineEdit_Path->setText(
                 QString::fromStdString(runProject->getPath()));
+
+        if (runProject->isEglMode()) {
+            m_ui.radioButton_ModeWGLGLX->setChecked(false);
+            m_ui.radioButton_ModeEGL->setChecked(true);
+        } else {
+            m_ui.radioButton_ModeWGLGLX->setChecked(true);
+            m_ui.radioButton_ModeEGL->setChecked(false);
+        }
+
+        m_ui.spinBox_processSkip->setValue(runProject->getSkipProcessesCount());
     }
     return true;
 }

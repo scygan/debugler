@@ -20,12 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inject.cpp" />
-	<ClCompile Include="..\external\CompleteInject\CompleteInject.cpp">
+    <ClCompile Include="..\external\CompleteInject\CompleteInject.cpp">
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-	<ClInclude Include="..\external\CompleteInject\CompleteInject.h" />
+    <ClInclude Include="..\external\CompleteInject\CompleteInject.h" />
+    <ClInclude Include="inject.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{915A2D7A-7E0A-424F-ACDD-FB726F1F26E4}</ProjectGuid>

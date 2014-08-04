@@ -98,6 +98,9 @@
     <ClInclude Include="dl-intercept.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="exechook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -173,6 +176,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dl-intercept.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="exechook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

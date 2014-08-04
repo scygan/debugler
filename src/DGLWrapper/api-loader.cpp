@@ -250,7 +250,7 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary) {
 
     LoadedLib library = m_LoadedLibraries[libraryName];
 
-// we use MS Detours only on win32, on x64 mHook is used
+// currently only mHook is used (both 32 & 64bit windows apps).
 #ifdef USE_DETOURS
     DetourRestoreAfterWith();
     DetourTransactionBegin();

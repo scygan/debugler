@@ -72,7 +72,7 @@ class DGLDebugeeQTProcess : public DGLBaseQTProcess {
     int getPort();
 
     virtual void run(std::string cmd, std::string path,
-                     std::vector<std::string> args, bool takeOutput = false);
+                     std::vector<std::string> args, int skipProcessCount, bool takeOutput = false);
 
     static DGLDebugeeQTProcess* Create();
 

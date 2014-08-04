@@ -77,6 +77,7 @@
     <ClInclude Include="DGLWrapper.h" />
     <ClInclude Include="display.h" />
     <ClInclude Include="dl-intercept.h" />
+    <ClInclude Include="exechook.h" />
     <ClInclude Include="gl-auxcontext.h" />
     <ClInclude Include="gl-context.h" />
     <ClInclude Include="gl-headers-inside.h" />
@@ -107,6 +108,7 @@
     <ClCompile Include="dl-intercept.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="api-loader.cpp" />
+    <ClCompile Include="exechook.cpp" />
     <ClCompile Include="gl-auxcontext.cpp" />
     <ClCompile Include="gl-context.cpp" />
     <ClCompile Include="gl-object-namespace.cpp" />

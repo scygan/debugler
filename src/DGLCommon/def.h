@@ -54,6 +54,12 @@
 #define DGL_PRODUCT       "Debugler"
 #define DGL_PRODUCT_LOWER "debugler"
 
+#ifdef _WIN32
+#define DGL_MAX_PATH MAX_PATH
+#else
+#define DGL_MAX_PATH PATH_MAX
+#endif
+
 #define DGL_ASSERT(X) assert(X)
 
 //This macro has a runtime check for accepting arrays only (not pointers).
@@ -61,5 +67,7 @@
 template<typename Type, size_t Size>
 char ( &ArraySizeHelper(Type( &Array )[Size]) )[Size];
 #define DGL_ARRAY_LENGTH(Array) sizeof(ArraySizeHelper(Array))
+
+#define DGL_UNUSED(x) (void)x;
 
 #endif

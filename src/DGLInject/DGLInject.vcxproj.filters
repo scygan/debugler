@@ -15,5 +15,6 @@
     <ClInclude Include="..\external\CompleteInject\CompleteInject.h">
       <Filter>CompleteInject</Filter>
     </ClInclude>
+    <ClInclude Include="inject.h" />
   </ItemGroup>
 </Project>

@@ -45,7 +45,7 @@ class LiveProcessWrapper : public QObject {
         QEventLoop loop;
         CONNASSERT(this, SIGNAL(done()), &loop, SLOT(quit()));
 
-        m_process->run(exec, "", args);
+        m_process->run(exec, "", args, 0);
 
         if (!m_Done) loop.exec();
 

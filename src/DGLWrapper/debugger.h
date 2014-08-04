@@ -25,6 +25,7 @@
 #include <DGLNet/protocol/dglconfiguration.h>
 #include <DGLNet/protocol/request.h>
 #include <DGLCommon/os.h>
+#include <DGLCommon/ipc.h>
 
 #include "gl-context.h"
 
@@ -413,6 +414,11 @@ class DGLDebugController : public dglnet::MessageHandler {
      * Used for fork() detection and restaring Transport on process change
      */
     int m_LastPid;
+
+    /**
+     * Current listen mode of debugger.
+     */
+    DGLIPC::DebuggerListenMode m_ListenMode;
 
 
     /**

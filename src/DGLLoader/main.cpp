@@ -15,16 +15,14 @@
 
 #pragma warning(disable : 4996)
 
+#include "process.h"
+
 #ifdef _WIN32
-#include <windows.h>
-#include "CompleteInject/CompleteInject.h"
 #define snprintf _snprintf
 #else
 #include <sys/types.h>
 #include <sys/wait.h>
 #endif
-
-#include "process.h"
 
 #include <cstdlib>
 #include <stdexcept>
@@ -51,6 +49,8 @@
 #include <DGLCommon/ipc.h>
 #include <DGLCommon/version.h>
 
+#include <DGLInject/inject.h>
+
 #ifdef __ANDROID__
 #include <libgen.h>
 #include <dlfcn.h>
@@ -63,41 +63,6 @@
 #endif
 
 #pragma warning(disable : 4503)
-
-#ifdef _WIN32
-bool isProcess64Bit(HANDLE hProcess) {
-    // get IsWow64Process function
-    typedef BOOL(WINAPI * LPFN_ISWOW64PROCESS)(HANDLE, PBOOL);
-    LPFN_ISWOW64PROCESS fnIsWow64Process = fnIsWow64Process =
-            (LPFN_ISWOW64PROCESS)GetProcAddress(
-                    GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
-    BOOL isWow;
-
-    // check if windows is 64-bit
-    bool isWindows64bit = false;
-
-#ifdef _WIN64
-    // if we are a 64 bit app, windows is definitely 64 bit
-    isWindows64bit = true;
-#else
-    // we are 32-bit application. Check if we are in Wow64 mode
-    if (fnIsWow64Process && fnIsWow64Process(GetCurrentProcess(), &isWow) &&
-        isWow) {
-        // if we are in Wow64 mode, windows is 64 bit
-        isWindows64bit = true;
-    }
-#endif
-
-    // check if process is 64 bit
-    if (isWindows64bit && fnIsWow64Process &&
-        fnIsWow64Process(hProcess, &isWow) && !isWow) {
-        // windows is 64 bit, process is not in Wow64 mode, so process is 64
-        // bit. This implies usage of 64 bit wrapper
-        return true;
-    }
-    return false;
-}
-#endif
 
 struct IPCMessage {
     IPCMessage() : m_ok(true) {
@@ -115,8 +80,8 @@ std::string getWrapperPath() {
     std::string ret = "DGLWrapper\\DGLWrapper.dll";
 #endif
 
-    char fileName[MAX_PATH];
-    if (!GetModuleFileName(NULL, fileName, MAX_PATH)) {
+    char fileName[DGL_MAX_PATH];
+    if (!GetModuleFileName(NULL, fileName, DGL_MAX_PATH)) {
         return ret;
     }
     std::string tmp = fileName;
@@ -268,7 +233,7 @@ int main(int argc, char** argv) {
             numberOfSkippedProcesses = vm["skip"].as<vector<int> >()[0];
         }
 
-        std::shared_ptr<DGLIPC> dglIPC = DGLIPC::Create(debuggerMode,
+        std::shared_ptr<DGLIPC> dglIPC = DGLIPC::Create(wrapperPath, debuggerMode,
             debuggerListenMode, debuggerPortType, debuggerPortName.c_str(), numberOfSkippedProcesses);
 
 #ifdef __ANDROID__
@@ -281,14 +246,17 @@ int main(int argc, char** argv) {
 
         Os::setEnv("dgl_uuid", dglIPC->getUUID().c_str());
 
+        DGLInject inject(wrapperPath);
+
         DGLProcess process(executable, arguments);
 
         if (process.getHandle() == 0) {
+
+            inject.injectPostFork();
 // we are in forked out process
 #ifdef _WIN32
             DGL_ASSERT(!"forked out on windows");
 #else
-            Os::setEnv("LD_PRELOAD", wrapperPath.c_str());
 
 #ifdef __ANDROID__
             {
@@ -317,52 +285,17 @@ int main(int argc, char** argv) {
             }
 #endif
             process.do_execvp();
-
 #endif
         } else {
             childHandle = process.getHandle();
         }
 
-#ifdef _WIN32
-#ifdef _WIN64
-        if (!isProcess64Bit(process.getHandle())) {
-            throw std::runtime_error(
-                    "Incompatible loader version: used 64bit, but process is "
-                    "not "
-                    "64bit");
-        }
-#else
-        if (isProcess64Bit(process.getHandle())) {
-            throw std::runtime_error(
-                    "Incompatible loader version: used 32bit, but process is "
-                    "not "
-                    "32bit");
-        }
-#endif
 
-// process is running, but is suspended (user thread not started, some DLLMain-s
-// may be run by now)
+        // process is running, but is suspended (user thread not started, some DLLMain-s
+        // may be run by now)
 
-// inject thread with wrapper library loading code, run through DLLMain and
-// InitializeThread() function
-
-#if DGL_HAVE_WA(ARM_MALI_EMU_LOADERTHREAD_KEEP)
-        Inject(process.getHandle(), wrapperPath.c_str(), "LoaderThread");
-        dglIPC->waitForRemoteThreadSemaphore();
-#else
-        HANDLE thread = Inject(process.getHandle(), wrapperPath.c_str(),
-                               "LoaderThread");
-        // wait for loader thread to finish dll inject
-        WaitForSingleObject(thread, INFINITE);
-#endif
-
-        // resume process - now user thread is running
-        // whole OpenGL should be wrapped by now
-
-        if (ResumeThread(process.getMainThread()) == -1) {
-            throw std::runtime_error("Cannot resume process");
-        }
-#endif
+        //Inject DGLWrapper to our process & run
+        inject.injectPostExec(*dglIPC, process.getHandle(), process.getMainThread());
     }
     catch (const std::exception& e) {
 

@@ -30,14 +30,15 @@ class DGLRunAppProject: public DGLProject {
     Q_OBJECT
 public:
     DGLRunAppProject(const std::string& executable,
-        const std::string& path, const std::wstring& args, bool eglMode);
+        const std::string& path, const std::wstring& args, int skipProcesses, bool eglMode);
     DGLRunAppProject();
     ~DGLRunAppProject();
 
     const std::string& getExecutable() const;
     const std::string& getPath() const;
     const std::wstring& getCommandLineArgs() const;
-    bool isEglMode();
+    bool isEglMode() const;
+    int getSkipProcessesCount() const;
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int /* version */) {
@@ -45,6 +46,7 @@ public:
         ar & BOOST_SERIALIZATION_NVP(m_executable);
         ar & BOOST_SERIALIZATION_NVP(m_path);
         ar & BOOST_SERIALIZATION_NVP(m_args);
+        ar & BOOST_SERIALIZATION_NVP(m_skipProcesses);
         ar & BOOST_SERIALIZATION_NVP(m_EglMode);
     }
 
@@ -86,6 +88,8 @@ private:
 
     std::string m_executable, m_path;
     std::wstring m_args;
+
+    int m_skipProcesses;
 
     bool m_EglMode;
 };
