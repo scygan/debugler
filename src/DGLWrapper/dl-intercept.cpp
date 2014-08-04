@@ -13,6 +13,12 @@
 * limitations under the License.
 */
 
+#define NO_DL_REDEFINES
+#include "dl-intercept.h"
+#include "globalstate.h"
+#include "api-loader.h"
+#include <DGLCommon/os.h>
+
 #ifndef _WIN32
 
 #include <sys/types.h>
@@ -35,17 +41,10 @@
 #include "ipc.h"
 #endif
 
-#include <DGLCommon/os.h>
-
-#define NO_DL_REDEFINES
-#include "dl-intercept.h"
-
 #define E std::string("ELFAnalyzer Error: ")
 
-#include "api-loader.h"
 #include "gl-wrappers.h"
 #include "tls.h"
-#include "globalstate.h"
 #include "wa-soctors.h"
 
 //#define DL_INTERCEPT_DEBUG
@@ -152,7 +151,7 @@ DLIntercept::DLIntercept() : m_initialized(false) {}
 
 void *DLIntercept::real_dlsym(void *handle, const char *name) {
     if (!m_initialized) {
-        initialize();
+        initializeInternal();
     }
     return m_real_dlsym(handle, name);
 }
@@ -160,7 +159,7 @@ void *DLIntercept::real_dlsym(void *handle, const char *name) {
 void *DLIntercept::real_dlvsym(void *handle, const char *name,
                                const char *version) {
     if (!m_initialized) {
-        initialize();
+        initializeInternal();
     }
     if (m_real_dlvsym) {
         return m_real_dlvsym(handle, name, version);
@@ -171,7 +170,7 @@ void *DLIntercept::real_dlvsym(void *handle, const char *name,
 
 void *DLIntercept::real_dlopen(const char *filename, int flag) {
     if (!m_initialized) {
-        initialize();
+        initializeInternal();
     }
 
     return m_real_dlopen(filename, flag);
@@ -261,7 +260,7 @@ void *DLIntercept::dlopen(const char *filename, int flag) {
     return ret;
 }
 
-void DLIntercept::initialize() {
+void DLIntercept::initializeInternal() {
     m_initialized = true;
 #ifndef __ANDROID__
     ELFAnalyzer an("libdl");
@@ -381,6 +380,100 @@ void *dlvsym(void *handle, const char *name, const char *version) NO_THROW {
         return NULL;
     }
 }
+} //extern "C"
+
+#else //Windows implementation follows.
+
+#include <vector>
+#include "ipc.h"
+
+#ifdef USE_DETOURS
+#include "detours/detours.h"
+#endif
+#ifdef USE_MHOOK
+#include "mhook/mhook-lib/mhook.h"
+#endif
+
+HMODULE DLIntercept::LoadLibraryExW( _In_ LPCWSTR lpwFileName, _Reserved_  HANDLE hFile, _In_ DWORD dwFlags) {
+    boost::recursive_mutex::scoped_lock lock(s_mutex);
+
+    HMODULE ret = real_LoadLibraryExW(lpwFileName, hFile, dwFlags);
+
+    if (ret && lpwFileName) {
+
+        std::vector<char> fileName;
+        {
+            int size_needed = WideCharToMultiByte(CP_UTF8, 0, lpwFileName, -1, NULL, 0, NULL, NULL);
+            fileName.resize(size_needed, 0);
+            WideCharToMultiByte(CP_UTF8, 0, lpwFileName, -1, &fileName[0], size_needed, NULL, NULL);
+        }
+
+        int libraries = EarlyGlobalState::getApiLoader().whichLibrary(&fileName[0]);
+        EarlyGlobalState::getApiLoader().loadDefaultLibraries(getIPC()->getDebuggerMode() == DGLIPC::DebuggerMode::EGL, libraries, APILoader::LoadMode::IMMEDIATE);
+    }
+    return ret;
 }
+
+
+
+HMODULE  WINAPI LoadLibraryExW_Call( _In_ LPCWSTR lpwFileName, _Reserved_  HANDLE hFile, _In_ DWORD dwFlags) {
+    try {
+        return DLIntercept::LoadLibraryExW(lpwFileName, hFile, dwFlags);
+    }
+    catch (const std::exception &e) {
+        Os::fatal(e.what());
+    }
+}
+
+
+HMODULE DLIntercept::real_LoadLibraryExW(LPCWSTR lpwFileName, HANDLE hFile, DWORD dwFlags) {
+    return s_real_LoadLibraryExW(lpwFileName, hFile, dwFlags);
+}
+
+HMODULE DLIntercept::real_LoadLibrary(LPCSTR lpFileName) {
+
+
+    std::vector<char> wfileName;
+    {
+        int size_needed = MultiByteToWideChar(CP_UTF8, 0, lpFileName, -1, NULL, 0);
+        wfileName.resize(size_needed * 2, 0);
+        MultiByteToWideChar(CP_UTF8, 0, lpFileName, -1, reinterpret_cast<LPWSTR>(&wfileName[0]), size_needed);
+    }
+    return real_LoadLibraryExW(reinterpret_cast<LPWSTR>(&wfileName[0]), nullptr, 0);
+}
+
+
+void DLIntercept::initialize() {
+#ifdef USE_DETOURS
+    DetourRestoreAfterWith();
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+#endif
+
+    HMODULE kernel32Module = LoadLibrary("kernel32.dll");
+
+    s_real_LoadLibraryExW = reinterpret_cast<LoadLibraryExW_Type>(GetProcAddress(kernel32Module, "LoadLibraryExW"));
+
+    if (s_real_LoadLibraryExW) {
+#if defined(USE_DETOURS) || defined(USE_MHOOK)
+        void* hookPtr = &LoadLibraryExW_Call;
+#endif
+#ifdef USE_DETOURS
+        DetourAttach(&(PVOID&)s_real_LoadLibraryExW, hookPtr);
+#endif
+#ifdef USE_MHOOK
+        if (!Mhook_SetHook(&(PVOID&)s_real_LoadLibraryExW, hookPtr)) {
+            Os::fatal("Cannot hook LoadLibraryExW function.");
+        }
+#endif
+    }
+#ifdef USE_DETOURS
+    DetourTransactionCommit();
+#endif
+}
+
+DLIntercept::LoadLibraryExW_Type DLIntercept::s_real_LoadLibraryExW;
+
+boost::recursive_mutex DLIntercept::s_mutex;
 
 #endif

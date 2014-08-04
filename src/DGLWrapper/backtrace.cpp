@@ -14,10 +14,7 @@
 */
 
 #include "backtrace.h"
-
-#ifndef _WIN32
 #include "dl-intercept.h"
-#endif
 
 #include <DGLCommon/os.h>
 

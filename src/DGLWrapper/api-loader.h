@@ -48,6 +48,11 @@ class APILoader {
    public:
     APILoader();
 
+    enum class LoadMode {
+        LAZY,
+        IMMEDIATE
+    };
+
     /**
      * Load given libraries
      *
@@ -57,12 +62,18 @@ class APILoader {
     void loadLibraries(int apiLibraries);
 
     /**
+     * Load Default API libraries or given OS
+     */
+    void loadDefaultLibraries(bool useEGL, int librariesMask, LoadMode mode = LoadMode::IMMEDIATE);
+
+
+    /**
      * Load whole API library
      *
      * Called on initialization (for loading WGL/GLX/EGL)
      * Called on context creation (for loading specific api, like GL or ES2)
      */
-    void loadLibrary(ApiLibrary apiLibrary);
+    void loadLibrary(ApiLibrary apiLibrary, LoadMode mode = LoadMode::IMMEDIATE);
 
     /**
      * Load one extension pointer

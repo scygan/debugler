@@ -34,9 +34,7 @@
 
 #include <DGLCommon/os.h>
 
-#ifndef _WIN32
 #include "dl-intercept.h"
-#endif
 
 #ifdef _WIN32
 #define LIBGL_NAME "opengl32.dll"
@@ -187,12 +185,26 @@ void APILoader::loadLibraries(int apiLibraries) {
     int j = 1;
     for (size_t i = 1; i < sizeof(apiLibraries) * 8; i++) {
         if (apiLibraries & j)
-            loadLibrary(static_cast<ApiLibrary>(j));
+            loadLibrary(ApiLibrary(j));
         j *= 2;
     }
 }
 
-void APILoader::loadLibrary(ApiLibrary apiLibrary) {
+void APILoader::loadDefaultLibraries(bool useEGL, int librariesMask, LoadMode mode) {
+    if (useEGL) {
+        loadLibrary(ApiLibrary(LIBRARY_EGL & librariesMask), mode);
+    } else {
+#ifdef _WIN32
+        loadLibrary(ApiLibrary(LIBRARY_WGL & librariesMask), mode);
+        loadLibrary(ApiLibrary(LIBRARY_WINGDI & librariesMask), mode);
+#else
+        loadLibrary(ApiLibrary(LIBRARY_GLX & librariesMask), mode);
+#endif
+        loadLibrary(ApiLibrary(LIBRARY_GL & librariesMask), mode);
+    }
+}
+
+void APILoader::loadLibrary(ApiLibrary apiLibrary, LoadMode mode) {
 
     if (apiLibrary == LIBRARY_NONE) {
         return;
@@ -201,6 +213,13 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary) {
     std::string libraryName = getLibraryName(apiLibrary);
 
     if (m_LoadedLibraries.find(libraryName) == m_LoadedLibraries.end()) {
+
+#ifdef _WIN32
+        if (mode == LoadMode::LAZY && !GetModuleHandle(libraryName.c_str())) {
+            //Will load this later. This is used to avoid calling LoadLibrary() too early in Win.
+            return;
+        }
+#endif
 
         std::vector<std::string> libSearchPath;
 

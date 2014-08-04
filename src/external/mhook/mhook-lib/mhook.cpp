@@ -43,7 +43,9 @@
 //=========================================================================
 #ifndef ODPRINTF
 
-#ifdef _DEBUG
+
+//Do not blindly enable on Debug builds: crashes on Win64, beacuse of loader locks.
+#ifdef _DEBUG_MHOOK
 #define ODPRINTF(a) odprintf a
 #else
 #define ODPRINTF(a)

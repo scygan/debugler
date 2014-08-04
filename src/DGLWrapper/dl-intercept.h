@@ -14,9 +14,10 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#ifndef _WIN32
 
 #include <boost/thread/recursive_mutex.hpp>
+
+#ifndef _WIN32
 #include <map>
 
 #include <dlfcn.h>
@@ -24,6 +25,8 @@
 class DLIntercept {
    public:
     DLIntercept();
+
+    static void initialize() {}
 
     void* dlsym(void* handle, const char* name);
     void* dlvsym(void* handle, const char* name, const char* version);
@@ -35,7 +38,7 @@ class DLIntercept {
 
    private:
     void* dlsymImpl(void* handle, const char* name, void* ptr);
-    void initialize();
+    void initializeInternal();
 
     void* (*m_real_dlsym)(void* handle, const char* name);
     void* (*m_real_dlvsym)(void* handle, const char* name, const char* version);
@@ -54,6 +57,39 @@ extern DLIntercept g_DLIntercept;
 #define dlsym g_DLIntercept.real_dlsym
 #define dlvsym g_DLIntercept.real_dlvsym
 #endif
+
+#else //Windows implementation
+
+#include<windows.h>
+
+class DLIntercept {
+public:
+
+    static HMODULE  LoadLibraryExW(LPCWSTR lpFileName, HANDLE hFile, DWORD dwFlags);
+
+    static HMODULE  real_LoadLibraryExW(LPCWSTR lpFileName, HANDLE hFile, DWORD dwFlags);
+    
+    static HMODULE  real_LoadLibrary(LPCSTR lpFileName);
+
+    static void initialize();
+
+private:
+    //On windows functionality of this object is fully static
+    DLIntercept();
+    
+    typedef HMODULE (WINAPI *LoadLibraryExW_Type)( _In_ LPCWSTR lpFileName, _Reserved_  HANDLE hFile, _In_ DWORD dwFlags);
+
+    static LoadLibraryExW_Type s_real_LoadLibraryExW;
+
+    static boost::recursive_mutex s_mutex;
+};
+
+#ifndef NO_DL_REDEFINES
+#define LoadLibraryExW DLIntercept::real_LoadLibraryExW
+#undef LoadLibrary
+#define LoadLibrary    DLIntercept::real_LoadLibrary
+#endif
+
 
 #endif
 

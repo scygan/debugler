@@ -77,7 +77,6 @@ BOOL WINAPI CreateProcessInternalW_CALL(
 
 void ExecHookInitialize() {
 #ifdef _WIN32
-    // we use MS Detours only on win32, on x64 mHook is used
 #ifdef USE_DETOURS
     DetourRestoreAfterWith();
     DetourTransactionBegin();

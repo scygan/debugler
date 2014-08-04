@@ -20,6 +20,7 @@
 #include "ipc.h"
 #include "globalstate.h"
 #include "exechook.h"
+#include "dl-intercept.h"
 #include "DGLWrapper.h"
 #include <boost/make_shared.hpp>
 #include <boost/interprocess/sync/named_semaphore.hpp>
@@ -48,7 +49,11 @@ DGLIPC* getIPC() {
  */
 void Initialize(void) {
 
+    // catch all CreateProcess calls on Windows
     ExecHookInitialize();
+
+    //Catch all LoadLibrary calls on Windows
+    DLIntercept::initialize();
 
     //Notify process skipper (for newly executed processes).
     getIPC()->newProcessNotify();
@@ -57,20 +62,10 @@ void Initialize(void) {
 
     // load system GL libraries (& initialize entrypoint tables)
 
-    if (getIPC()->getDebuggerMode() == DGLIPC::DebuggerMode::EGL) {
-
-        apiLoader.loadLibrary(LIBRARY_EGL);
-        // GL library loading is deferred - we don't know which library to load
-        // now.
-    } else {
-#ifdef _WIN32
-        apiLoader.loadLibrary(LIBRARY_WGL);
-        apiLoader.loadLibrary(LIBRARY_WINGDI);
-#else
-        apiLoader.loadLibrary(LIBRARY_GLX);
-#endif
-        apiLoader.loadLibrary(LIBRARY_GL);
-    }
+    // loads are lazy - may be defferred until application loads them.
+    //This to avoid loader deadlocks/crashes.
+    bool useEGL = (getIPC()->getDebuggerMode() == DGLIPC::DebuggerMode::EGL);
+    apiLoader.loadDefaultLibraries(useEGL, -1, APILoader::LoadMode::LAZY);
 }
 
 /**
@@ -138,6 +133,9 @@ class ThreadWatcher {
  * DGLwrapper routine called just after DLLinjection
  */
 extern "C" DGLWRAPPER_API void LoaderThread() {
+
+    int i = 1;
+    while (i) {}
 
     Initialize();
 
