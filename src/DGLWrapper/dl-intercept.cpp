@@ -55,8 +55,22 @@
 
 #ifndef __ANDROID__
 
+/**
+ * Utility class for discovering symbol offsets from SO files
+ * Used on Linux to get dynamic linker entrypoints, which are normally
+ *  unavailable because of LD_PRELOAD override.
+ *
+ * libelf is used under the hood.
+ * Not used on Android, because dlsym/dlopen are hidden symbols on this system,
+ * added manually to process symbol list by /system/bin/linker.
+ */
 class ELFAnalyzer {
    public:
+    /**
+     * Countructor
+     *
+     * Opens the library and parses it's DYNSYM
+     */
     ELFAnalyzer(const char *name) : m_fd(-1) {
         std::string path;
         {
@@ -125,12 +139,24 @@ class ELFAnalyzer {
             }
         }
     }
+
+    /**
+     * Destructor
+     *
+     * Closes the library
+     */
     ~ELFAnalyzer() {
         if (m_fd > 0) {
             close(m_fd);
         }
     }
 
+    /**
+     * Get offset of symbol from library
+     *
+     * @param name name of the symbol
+     * @returns offset, in bytes of given symbol
+     */
     int64_t symValue(const char *name) {
         std::map<std::string, int64_t>::iterator i = m_SymbolValues.find(name);
         if (i == m_SymbolValues.end()) {
@@ -140,11 +166,21 @@ class ELFAnalyzer {
     }
 
    private:
+    /**
+     * The file handle of opened library
+     */
     int m_fd;
+    /**
+     * Map of all offsets of DYNSYM symbols
+     */
     std::map<std::string, int64_t> m_SymbolValues;
 };
 #endif
-
+/**
+ * Global instance of DLIntercept object
+ *
+ * TODO: change to static class?
+ */
 DLIntercept g_DLIntercept;
 
 DLIntercept::DLIntercept() : m_initialized(false) {}
@@ -190,39 +226,48 @@ void *DLIntercept::dlvsym(void *handle, const char *name, const char *version) {
     return dlsymImpl(handle, name, ptr);
 }
 
-void* DLIntercept::dlsymImpl(void* handle, const char* name, void* ptr) {
-boost::recursive_mutex::scoped_lock lock(mutex);
+void *DLIntercept::dlsymImpl(void *handle, const char *name, void *ptr) {
+    boost::recursive_mutex::scoped_lock lock(mutex);
 
     std::map<uint64_t, int>::iterator i =
             mSupportedLibraries.find(reinterpret_cast<uint64_t>(handle));
 
     Entrypoint entryp = GetEntryPointEnum(name);
 
-    if (
-        ptr &&                                          //entrypoint pointer is not NULL
-        entryp != NO_ENTRYPOINT &&                      //entrypoint is supported by debugger
-        !DGLThreadState::get()->inActionProcessing() && //dlsym was not emited by GL implementation
-        i != mSupportedLibraries.end() &&               //library from handle is supported by debugger
-        (i->second & EarlyGlobalState::getApiLoader().getEntryPointLibrary(entryp)) //library from handle match entrypoint library mask
-       ) {
+    if (ptr &&                        // entrypoint pointer is not NULL
+        entryp != NO_ENTRYPOINT &&    // entrypoint is supported by debugger
+        !DGLThreadState::get()->inActionProcessing() &&    // dlsym was not
+                                                           // emited by GL
+                                                           // implementation
+        i != mSupportedLibraries.end() &&    // library from handle is supported
+                                             // by debugger
+        (i->second &
+         EarlyGlobalState::getApiLoader().getEntryPointLibrary(
+                 entryp))    // library from handle match entrypoint library
+                             // mask
+        ) {
 
-        //set debugger to use new entrypoint
-        EarlyGlobalState::getApiLoader().setPointer(entryp,
-                               reinterpret_cast<FUNC_PTR>((ptrdiff_t)ptr));
+        // set debugger to use new entrypoint
+        EarlyGlobalState::getApiLoader().setPointer(
+                entryp, reinterpret_cast<FUNC_PTR>((ptrdiff_t)ptr));
 
-
-        void* ret = reinterpret_cast<void *>((ptrdiff_t)getWrapperPointer(entryp));
+        void *ret =
+                reinterpret_cast<void *>((ptrdiff_t)getWrapperPointer(entryp));
 
 #ifdef DL_INTERCEPT_DEBUG
-        Os::info("dlintercept: intercepted dlsym(0x%x, %s): orig 0x%x, returning 0x%x", handle, name, ptr, ret);
+        Os::info(
+                "dlintercept: intercepted dlsym(0x%x, %s): orig 0x%x, "
+                "returning 0x%x",
+                handle, name, ptr, ret);
 #endif
 
-        //return address of a wrapper to application
+        // return address of a wrapper to application
         return ret;
 
     } else {
 #ifdef DL_INTERCEPT_DEBUG
-        Os::info("dlintercept: not intercepting dlsym(0x%x, %s) =  0x%x", handle, name, ptr);
+        Os::info("dlintercept: not intercepting dlsym(0x%x, %s) =  0x%x",
+                 handle, name, ptr);
 #endif
         return ptr;
     }
@@ -236,15 +281,23 @@ void *DLIntercept::dlopen(const char *filename, int flag) {
     if (ret && filename) {
         int libraries = EarlyGlobalState::getApiLoader().whichLibrary(filename);
 #ifdef __ANDROID__
-        if (libraries & (LIBRARY_ES1 | LIBRARY_ES2) &&   //library is affected coer library
-            !DGLThreadState::get()->inActionProcessing() //call is emmitted by app, not by GL or DGL. 
+        if (libraries & (LIBRARY_ES1 |
+                         LIBRARY_ES2) &&    // library is affected coer library
+            !DGLThreadState::get()->inActionProcessing()    // call is emmitted
+                                                            // by app, not by GL
+                                                            // or DGL.
             ) {
-            //unity3d apps on Android open libGLESvX  using dlopen,
-            //but mysteriously dlsym is not visible. So on Android
-            //just return libdglwrapper's base adrress to override both libs..
-            Os::info("dlintercept: dlopen(%s, %d): returning dglwrapper's address.", filename, flag);
+
+            /* Unity3d apps on Android open libGLESvX  using dlopen,
+            but mysteriously dlsym is not visible. So on Android
+            just return libdglwrapper's base adrress to override both libs.. */
+
+            Os::info(
+                    "dlintercept: dlopen(%s, %d): returning dglwrapper's "
+                    "address.",
+                    filename, flag);
             ret = dlopen("libdglwrapper.so", RTLD_NOW);
-            //we unset libraries - libdglwrapper.so cannot be marked supported.
+            // we unset libraries - libdglwrapper.so cannot be marked supported.
             libraries = LIBRARY_NONE;
         }
 #endif
@@ -265,20 +318,18 @@ void DLIntercept::initializeInternal() {
 #ifndef __ANDROID__
     ELFAnalyzer an("libdl");
 
-    char *baseAddr = reinterpret_cast<char *>((intptr_t) & dlclose) -
+    char *baseAddr = reinterpret_cast<char *>((intptr_t)&dlclose) -
                      an.symValue("dlclose");
 
-    m_real_dlopen =
-            reinterpret_cast<void *(*)(const char * filename, int flag)>(
-                    (intptr_t)(baseAddr + an.symValue("dlopen")));
+    m_real_dlopen = reinterpret_cast<void *(*)(const char *filename, int flag)>(
+            (intptr_t)(baseAddr + an.symValue("dlopen")));
     m_real_dlsym = reinterpret_cast<void *(*)(void *, const char *)>(
             (intptr_t)(baseAddr + an.symValue("dlsym")));
     try {
         m_real_dlvsym =
                 reinterpret_cast<void *(*)(void *, const char *, const char *)>(
                         (intptr_t)(baseAddr + an.symValue("dlvsym")));
-    }
-    catch (const std::runtime_error &err) {
+    } catch (const std::runtime_error &err) {
         Os::nonFatal("dlvsym is not available in dynamic linker.\n");
         m_real_dlvsym = NULL;
     }
@@ -296,9 +347,8 @@ void DLIntercept::initializeInternal() {
     int dlOpenAddr, dlSymAddr;
     getIPC()->getDLInternceptPointers(dlOpenAddr, dlSymAddr);
 
-    m_real_dlopen =
-            reinterpret_cast<void *(*)(const char * filename, int flag)>(
-                    reinterpret_cast<intptr_t>(baseAddr + dlOpenAddr));
+    m_real_dlopen = reinterpret_cast<void *(*)(const char *filename, int flag)>(
+            reinterpret_cast<intptr_t>(baseAddr + dlOpenAddr));
 
     m_real_dlsym = reinterpret_cast<void *(*)(void *, const char *)>(
             reinterpret_cast<intptr_t>(baseAddr + dlSymAddr));
@@ -319,7 +369,7 @@ extern "C" {
 // these are preloaded entrypoints called by implementation
 
 /**
- * dlopen() preloaded override.
+ * dlopen() entrypoint, preloaded override.
  *
  * Called directly by debugee
  */
@@ -332,15 +382,14 @@ void *dlopen(const char *filename, int flag) NO_THROW {
 #endif
     try {
         return g_DLIntercept.dlopen(filename, flag);
-    }
-    catch (const std::exception &e) {
+    } catch (const std::exception &e) {
         Os::fatal(e.what());
         return NULL;
     }
 }
 
 /**
- * dlsym() preloaded override.
+ * dlsym() entrypoint, preloaded override.
  *
  * Called directly by debugee
  */
@@ -353,15 +402,14 @@ void *dlsym(void *handle, const char *name) NO_THROW {
 #endif
     try {
         return g_DLIntercept.dlsym(handle, name);
-    }
-    catch (const std::exception &e) {
+    } catch (const std::exception &e) {
         Os::fatal(e.what());
         return NULL;
     }
 }
 
 /**
- * dlvsym() preloaded override.
+ * dlvsym() entrypoint, preloaded override.
  *
  * Called directly by debugee
  */
@@ -374,27 +422,22 @@ void *dlvsym(void *handle, const char *name, const char *version) NO_THROW {
 #endif
     try {
         return g_DLIntercept.dlvsym(handle, name, version);
-    }
-    catch (const std::exception &e) {
+    } catch (const std::exception &e) {
         Os::fatal(e.what());
         return NULL;
     }
 }
-} //extern "C"
+}    // extern "C"
 
-#else //Windows implementation follows.
+#else    // Windows implementation follows.
 
 #include <vector>
 #include "ipc.h"
+#include "hook.h"
 
-#ifdef USE_DETOURS
-#include "detours/detours.h"
-#endif
-#ifdef USE_MHOOK
-#include "mhook/mhook-lib/mhook.h"
-#endif
-
-HMODULE DLIntercept::LoadLibraryExW( _In_ LPCWSTR lpwFileName, _Reserved_  HANDLE hFile, _In_ DWORD dwFlags) {
+HMODULE DLIntercept::LoadLibraryExW(_In_ LPCWSTR lpwFileName,
+                                    _Reserved_ HANDLE hFile,
+                                    _In_ DWORD dwFlags) {
     boost::recursive_mutex::scoped_lock lock(s_mutex);
 
     HMODULE ret = real_LoadLibraryExW(lpwFileName, hFile, dwFlags);
@@ -403,73 +446,67 @@ HMODULE DLIntercept::LoadLibraryExW( _In_ LPCWSTR lpwFileName, _Reserved_  HANDL
 
         std::vector<char> fileName;
         {
-            int size_needed = WideCharToMultiByte(CP_UTF8, 0, lpwFileName, -1, NULL, 0, NULL, NULL);
+            int size_needed = WideCharToMultiByte(CP_UTF8, 0, lpwFileName, -1,
+                                                  NULL, 0, NULL, NULL);
             fileName.resize(size_needed, 0);
-            WideCharToMultiByte(CP_UTF8, 0, lpwFileName, -1, &fileName[0], size_needed, NULL, NULL);
+            WideCharToMultiByte(CP_UTF8, 0, lpwFileName, -1, &fileName[0],
+                                size_needed, NULL, NULL);
         }
 
-        int libraries = EarlyGlobalState::getApiLoader().whichLibrary(&fileName[0]);
-        EarlyGlobalState::getApiLoader().loadDefaultLibraries(getIPC()->getDebuggerMode() == DGLIPC::DebuggerMode::EGL, libraries, APILoader::LoadMode::IMMEDIATE);
+        int libraries =
+                EarlyGlobalState::getApiLoader().whichLibrary(&fileName[0]);
+        EarlyGlobalState::getApiLoader().loadDefaultLibraries(
+                getIPC()->getDebuggerMode() == DGLIPC::DebuggerMode::EGL,
+                libraries, APILoader::LoadMode::IMMEDIATE);
     }
     return ret;
 }
 
-
-
-HMODULE  WINAPI LoadLibraryExW_Call( _In_ LPCWSTR lpwFileName, _Reserved_  HANDLE hFile, _In_ DWORD dwFlags) {
+HMODULE WINAPI LoadLibraryExW_Call(_In_ LPCWSTR lpwFileName,
+                                   _Reserved_ HANDLE hFile,
+                                   _In_ DWORD dwFlags) {
     try {
         return DLIntercept::LoadLibraryExW(lpwFileName, hFile, dwFlags);
-    }
-    catch (const std::exception &e) {
+    } catch (const std::exception &e) {
         Os::fatal(e.what());
     }
 }
 
-
-HMODULE DLIntercept::real_LoadLibraryExW(LPCWSTR lpwFileName, HANDLE hFile, DWORD dwFlags) {
+HMODULE DLIntercept::real_LoadLibraryExW(LPCWSTR lpwFileName, HANDLE hFile,
+                                         DWORD dwFlags) {
     return s_real_LoadLibraryExW(lpwFileName, hFile, dwFlags);
 }
 
 HMODULE DLIntercept::real_LoadLibrary(LPCSTR lpFileName) {
 
-
     std::vector<char> wfileName;
     {
-        int size_needed = MultiByteToWideChar(CP_UTF8, 0, lpFileName, -1, NULL, 0);
+        int size_needed =
+                MultiByteToWideChar(CP_UTF8, 0, lpFileName, -1, NULL, 0);
         wfileName.resize(size_needed * 2, 0);
-        MultiByteToWideChar(CP_UTF8, 0, lpFileName, -1, reinterpret_cast<LPWSTR>(&wfileName[0]), size_needed);
+        MultiByteToWideChar(CP_UTF8, 0, lpFileName, -1,
+                            reinterpret_cast<LPWSTR>(&wfileName[0]),
+                            size_needed);
     }
-    return real_LoadLibraryExW(reinterpret_cast<LPWSTR>(&wfileName[0]), nullptr, 0);
+    return real_LoadLibraryExW(reinterpret_cast<LPWSTR>(&wfileName[0]), nullptr,
+                               0);
 }
 
-
 void DLIntercept::initialize() {
-#ifdef USE_DETOURS
-    DetourRestoreAfterWith();
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-#endif
 
     HMODULE kernel32Module = LoadLibrary("kernel32.dll");
 
-    s_real_LoadLibraryExW = reinterpret_cast<LoadLibraryExW_Type>(GetProcAddress(kernel32Module, "LoadLibraryExW"));
+    s_real_LoadLibraryExW = reinterpret_cast<LoadLibraryExW_Type>(
+            GetProcAddress(kernel32Module, "LoadLibraryExW"));
 
     if (s_real_LoadLibraryExW) {
-#if defined(USE_DETOURS) || defined(USE_MHOOK)
-        void* hookPtr = &LoadLibraryExW_Call;
-#endif
-#ifdef USE_DETOURS
-        DetourAttach(&(PVOID&)s_real_LoadLibraryExW, hookPtr);
-#endif
-#ifdef USE_MHOOK
-        if (!Mhook_SetHook(&(PVOID&)s_real_LoadLibraryExW, hookPtr)) {
-            Os::fatal("Cannot hook LoadLibraryExW function.");
-        }
-#endif
+
+        HookSession hookSession;
+
+        HookSession::func_ptr hookPtr = reinterpret_cast<HookSession::func_ptr>(&LoadLibraryExW_Call);
+        hookSession.hook((HookSession::func_ptr *)&s_real_LoadLibraryExW,
+                         hookPtr);
     }
-#ifdef USE_DETOURS
-    DetourTransactionCommit();
-#endif
 }
 
 DLIntercept::LoadLibraryExW_Type DLIntercept::s_real_LoadLibraryExW;

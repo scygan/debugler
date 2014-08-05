@@ -49,8 +49,10 @@ DGLIPC* getIPC() {
  */
 void Initialize(void) {
 
+#ifdef _WIN32
     // catch all CreateProcess calls on Windows
-    ExecHookInitialize();
+    ExecHook::initialize();
+#endif
 
     //Catch all LoadLibrary calls on Windows
     DLIntercept::initialize();

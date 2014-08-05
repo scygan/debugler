@@ -22,19 +22,12 @@
 #include <stdexcept>
 #include <cstdlib>
 
-#ifdef USE_DETOURS
-#include "detours/detours.h"
-#endif
-
-#ifdef USE_MHOOK
-#include "mhook/mhook-lib/mhook.h"
-#endif
-
 #include "gl-wrappers.h"
 
 #include <DGLCommon/os.h>
 
 #include "dl-intercept.h"
+#include "hook.h"
 
 #ifdef _WIN32
 #define LIBGL_NAME "opengl32.dll"
@@ -269,12 +262,10 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary, LoadMode mode) {
 
     LoadedLib library = m_LoadedLibraries[libraryName];
 
-// currently only mHook is used (both 32 & 64bit windows apps).
-#ifdef USE_DETOURS
-    DetourRestoreAfterWith();
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
+#ifdef _WIN32
+    HookSession hookSession;
 #endif
+
     // g_DirectPointers is now filled with opengl32.dll pointers
     // we will now detour (hook) them all, so g_DirectPointers will still lead
     // to original opengl32.dll, but
@@ -295,22 +286,14 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary, LoadMode mode) {
 
         if (g_DirectPointers[i].ptr) {
 // this entrypoint was loaded from OpenGL32.dll, detour it!
-#if defined(USE_DETOURS) || defined(USE_MHOOK)
+#ifdef _WIN32
             FUNC_PTR hookPtr = getWrapperPointer(i);
-#endif
-#ifdef USE_DETOURS
-            DetourAttach(&(PVOID&)g_DirectPointers[i].ptr, hookPtr);
-#endif
-#ifdef USE_MHOOK
-            if (!Mhook_SetHook(&(PVOID&)g_DirectPointers[i].ptr, hookPtr)) {
+            if (!hookSession.hook(&g_DirectPointers[i].ptr, hookPtr)) {
                 Os::fatal("Cannot hook %s() function.", GetEntryPointName(i));
             }
 #endif
         }
     }
-#ifdef USE_DETOURS
-    DetourTransactionCommit();
-#endif
     if (apiLibrary == LIBRARY_EGL || apiLibrary == LIBRARY_WGL ||
         apiLibrary == LIBRARY_GLX)
         m_GlueLibrary = apiLibrary;

@@ -89,6 +89,7 @@
     <ClInclude Include="gl-utils.h" />
     <ClInclude Include="gl-wrappers.h" />
     <ClInclude Include="globalstate.h" />
+    <ClInclude Include="hook.h" />
     <ClInclude Include="ipc.h" />
     <ClInclude Include="native-surface.h" />
     <ClInclude Include="pointers.h" />
@@ -120,6 +121,7 @@
     <ClCompile Include="gl-wrappers.cpp" />
     <ClCompile Include="actions.cpp" />
     <ClCompile Include="globalstate.cpp" />
+    <ClCompile Include="hook.cpp" />
     <ClCompile Include="native-surface.cpp" />
     <ClCompile Include="tls.cpp" />
     <ClCompile Include="wa-soctors.cpp" />

@@ -71,7 +71,7 @@ class DGLIPCImpl : public DGLIPC {
     }
 
     DGLIPCImpl(std::string uuid)
-            : m_uuid(uuid), m_region(NULL), m_regionowner(false), m_processSkipped(false) {
+            : m_uuid(uuid), m_region(NULL), m_processSkipped(false), m_regionowner(false) {
 #ifdef _WIN32
         m_shmem =
                 boost::make_shared<boost::interprocess::windows_shared_memory>(

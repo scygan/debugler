@@ -13,58 +13,28 @@
 * limitations under the License.
 */
 
+#ifdef _WIN32
+
 #include "exechook.h"
+#include "hook.h"
 #include "ipc.h"
 
+#include <DGLInject/inject.h>
 #include <DGLCommon/os.h>
 
-#ifdef _WIN32
-#include <windows.h>
-#ifdef USE_MHOOK
-#include "mhook/mhook-lib/mhook.h"
-#endif
-#endif
-
-#include <DGLInject/inject.h>
-
-#ifdef _WIN32
-typedef BOOL  (WINAPI* CreateProcessInternalW_Type)(
-    HANDLE hToken,
-    LPCWSTR AppName,
-    LPWSTR CmdLine,
-    LPSECURITY_ATTRIBUTES ProcessAttr,
-    LPSECURITY_ATTRIBUTES ThreadAttr,
-    BOOL bIH,
-    DWORD flags,
-    LPVOID env,
-    LPCWSTR CurrDir,
-    LPSTARTUPINFOW si,
-    LPPROCESS_INFORMATION pi,
-    PHANDLE NewToken);
-
-CreateProcessInternalW_Type origCreateProcessInternalW = nullptr;
-
-
-
-BOOL WINAPI CreateProcessInternalW_CALL(
-    HANDLE hToken,
-    LPCWSTR AppName,
-    LPWSTR CmdLine,
-    LPSECURITY_ATTRIBUTES ProcessAttr,
-    LPSECURITY_ATTRIBUTES ThreadAttr,
-    BOOL bIH,
-    DWORD flags,
-    LPVOID env,
-    LPCWSTR CurrDir,
-    LPSTARTUPINFOW si,
-    LPPROCESS_INFORMATION pi,
-    PHANDLE NewToken) {
+BOOL ExecHook::CreateProcessInternalW(
+        HANDLE hToken, LPCWSTR AppName, LPWSTR CmdLine,
+        LPSECURITY_ATTRIBUTES ProcessAttr, LPSECURITY_ATTRIBUTES ThreadAttr,
+        BOOL bIH, DWORD flags, LPVOID env, LPCWSTR CurrDir, LPSTARTUPINFOW si,
+        LPPROCESS_INFORMATION pi, PHANDLE NewToken) {
 
     DGLIPC* ipc = getIPC();
 
     DGLInject inject(ipc->getWrapperPath());
 
-    BOOL ret = origCreateProcessInternalW(hToken, AppName, CmdLine, ProcessAttr, ThreadAttr, bIH, flags | CREATE_SUSPENDED, env, CurrDir, si, pi, NewToken);
+    BOOL ret = real_CreateProcessInternalW(
+            hToken, AppName, CmdLine, ProcessAttr, ThreadAttr, bIH,
+            flags | CREATE_SUSPENDED, env, CurrDir, si, pi, NewToken);
 
     if (ret) {
         inject.injectPostExec(*ipc, pi->hProcess, pi->hThread);
@@ -72,36 +42,54 @@ BOOL WINAPI CreateProcessInternalW_CALL(
 
     return ret;
 }
-#endif
 
+BOOL WINAPI CreateProcessInternalW_CALL(
+        HANDLE hToken, LPCWSTR AppName, LPWSTR CmdLine,
+        LPSECURITY_ATTRIBUTES ProcessAttr, LPSECURITY_ATTRIBUTES ThreadAttr,
+        BOOL bIH, DWORD flags, LPVOID env, LPCWSTR CurrDir, LPSTARTUPINFOW si,
+        LPPROCESS_INFORMATION pi, PHANDLE NewToken) {
 
-void ExecHookInitialize() {
-#ifdef _WIN32
-#ifdef USE_DETOURS
-    DetourRestoreAfterWith();
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-#endif
+    try {
+        return ExecHook::CreateProcessInternalW(
+                hToken, AppName, CmdLine, ProcessAttr, ThreadAttr, bIH, flags,
+                env, CurrDir, si, pi, NewToken);
+    } catch (const std::exception& e) {
+        Os::fatal(e.what());
+    }
+}
 
+BOOL ExecHook::real_CreateProcessInternalW(
+        HANDLE hToken, LPCWSTR AppName, LPWSTR CmdLine,
+        LPSECURITY_ATTRIBUTES ProcessAttr, LPSECURITY_ATTRIBUTES ThreadAttr,
+        BOOL bIH, DWORD flags, LPVOID env, LPCWSTR CurrDir, LPSTARTUPINFOW si,
+        LPPROCESS_INFORMATION pi, PHANDLE NewToken) {
+    return s_real_CreateProcessInternalW(hToken, AppName, CmdLine, ProcessAttr,
+                                         ThreadAttr, bIH, flags, env, CurrDir,
+                                         si, pi, NewToken);
+}
+
+void ExecHook::initialize() {
     HMODULE kernel32Module = LoadLibrary("kernel32.dll");
 
-    origCreateProcessInternalW = reinterpret_cast<CreateProcessInternalW_Type>(GetProcAddress(kernel32Module, "CreateProcessInternalW"));
-        
-    if (origCreateProcessInternalW) {
-#if defined(USE_DETOURS) || defined(USE_MHOOK)
-        void* hookPtr = &CreateProcessInternalW_CALL;
-#endif
-#ifdef USE_DETOURS
-        DetourAttach(&(PVOID&)origAddress, hookPtr);
-#endif
-#ifdef USE_MHOOK
-        if (!Mhook_SetHook(&(PVOID&)origCreateProcessInternalW, hookPtr)) {
+    s_real_CreateProcessInternalW =
+            reinterpret_cast<CreateProcessInternalW_Type>(
+                    GetProcAddress(kernel32Module, "CreateProcessInternalW"));
+
+    if (s_real_CreateProcessInternalW) {
+
+        HookSession hookSession;
+        HookSession::func_ptr hookPtr =
+                HookSession::func_ptr(&CreateProcessInternalW_CALL);
+        if (!hookSession.hook(
+                    (HookSession::func_ptr*)&s_real_CreateProcessInternalW,
+                    hookPtr)) {
             Os::fatal("Cannot hook CreateProcessInternalW function.");
         }
-#endif
     }
-#ifdef USE_DETOURS
-    DetourTransactionCommit();
-#endif
-#endif
 }
+
+ExecHook::CreateProcessInternalW_Type ExecHook::s_real_CreateProcessInternalW;
+
+boost::recursive_mutex ExecHook::s_mutex;
+
+#endif
