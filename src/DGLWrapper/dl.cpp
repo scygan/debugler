@@ -59,7 +59,7 @@ public:
             throw std::runtime_error(error.str());
         }
     }
-    virtual ~DynamicLibrary() {
+    virtual ~DynamicLibraryImpl() {
         if (m_Handle) {
             dlclose(m_Handle);
         }
@@ -67,7 +67,7 @@ public:
     virtual dgl_func_ptr getFunction(const char* symbolName) const override {
         //(ptrdiff_t) -> see http://www.trilithium.com/johan/2004/12/problem-with-dlsym/
         return reinterpret_cast<dgl_func_ptr>(
-            (ptrdiff_t)dlsym(m_Handle, symbolName);
+            (ptrdiff_t)dlsym(m_Handle, symbolName));
     }
 private:
     void* m_Handle;
@@ -84,3 +84,19 @@ DynamicLibrary* DynamicLoader::getLibrary(const char* name) {
         return ret.get();
     }
 }
+
+#ifndef _WIN32
+std::string DynamicLoader::getCurrentLibraryName() {
+    Dl_info currentLibraryInfo;
+    dladdr(&s_DummySymbol, &currentLibraryInfo);
+    return currentLibraryInfo.dli_fname;
+}
+
+void* DynamicLoader::getCurrentLibraryBaseAddress() {
+    Dl_info currentLibraryInfo;
+    dladdr(&s_DummySymbol, &currentLibraryInfo);
+    return currentLibraryInfo.dli_fbase;
+}
+#endif
+
+int DynamicLoader::s_DummySymbol;

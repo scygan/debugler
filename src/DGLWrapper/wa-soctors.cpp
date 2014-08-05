@@ -19,6 +19,7 @@
 #include <DGLCommon/os.h>
 #include "wa-soctors.h"
 #include "dl-intercept.h" //redef dlopen
+#include "dl.h"
 #include <mutex>
 #include <vector>
 #include <elf.h>
@@ -97,11 +98,13 @@ DGLWASoCtors::DGLWASoCtors() {
             "4.2-r1");
         Os::info("Will try to run constructors manually now.");
 
+        std::string currentLibraryName = DynamicLoader::getCurrentLibraryName();
+
         soinfo *info =
-            reinterpret_cast<soinfo *>(dlopen("libdglwrapper.so", RTLD_NOW));
+            reinterpret_cast<soinfo *>(dlopen(currentLibraryName.c_str(), RTLD_NOW));
 
         if (!info) {
-            Os::fatal("Cannot dlopen libdglwrapper.so library");
+            Os::fatal("Cannot dlopen %d library", currentLibraryName.c_str());
         }
 
         unsigned *dynamic = nullptr;
@@ -110,9 +113,9 @@ DGLWASoCtors::DGLWASoCtors() {
         int phnum = info->phnum;
 
         Os::info(
-            "Trying to get .dynamic of libdglwrapper.so: base = 0x%x, phnum = "
+            "Trying to get .dynamic of %s: base = 0x%x, phnum = "
             "%d",
-            info->base, info->phnum);
+            currentLibraryName.c_str(), info->base, info->phnum);
 
         for (; phnum > 0; --phnum, ++phdr) {
             if (phdr->p_type == PT_DYNAMIC) {
@@ -121,7 +124,7 @@ DGLWASoCtors::DGLWASoCtors() {
         }
 
         if (!dynamic || dynamic == (unsigned *)-1) {
-            Os::fatal("Cannot get .dynamic section of libdglwrapper.so.");
+            Os::fatal("Cannot get .dynamic section of %s.", currentLibraryName.c_str());
         } else {
             Os::info("Found .dynamic at 0x%x", dynamic);
         }

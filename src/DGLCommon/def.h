@@ -49,7 +49,7 @@
 #ifdef _WIN32
 #define dgl_strncpy(dest, source, count) strncpy_s(dest, count, source, _TRUNCATE)
 #else
-#define dgl_strncpy(dest, source, count) strncpy(dest, count, source, _TRUNCATE)
+#define dgl_strncpy(dest, source, count) strncpy(dest, source, count)
 #endif
 
 #define DGL_MANUFACTURER  "Slawomir Cygan"

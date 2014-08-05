@@ -205,6 +205,8 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary, LoadMode mode) {
             //Will load this later. This is used to avoid calling LoadLibrary() too early in Win.
             return;
         }
+#else
+        DGL_UNUSED(mode);
 #endif
 
         std::vector<std::string> libSearchPath;

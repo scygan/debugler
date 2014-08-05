@@ -27,8 +27,8 @@ public:
         
         if (!s_CorkscrewDSO) {
             try {
-                s_CorkscrewDSO = GlobalState::getDynLoader().getLibrary("libcorkscrew.so");
-            } catch (const std:runtime_error& e) {
+                s_CorkscrewDSO = EarlyGlobalState::getDynLoader().getLibrary("libcorkscrew.so");
+            } catch (const std::runtime_error& e) {
                 Os::info(e.what());
             }
         }
@@ -89,10 +89,9 @@ private:
 
         const int ignoreDepth = 1;
 
-        Dl_info dglLibraryInfo;
-        dladdr(&s_dummySymbol, &dglLibraryInfo);
-
         ssize_t count = p_unwind_backtrace(frames, ignoreDepth + 1, MAX_DEPTH);
+
+        void* currentLibraryAddress = DynamicLoader::getCurrentLibraryBaseAddress();
 
         if (count > 0) {
             std::vector<backtrace_symbol_t> symbols(count);
@@ -101,8 +100,8 @@ private:
 
                 Dl_info symbolInfo; 
                 dladdr(reinterpret_cast<void*>(frames[i].absolute_pc), &symbolInfo);
-                Os::info("XXX %x == %x\n", symbolInfo.dli_fbase,  dglLibraryInfo.dli_fbase);
-                if (symbolInfo.dli_fbase == dglLibraryInfo.dli_fbase) {
+                Os::info("XXX %x == %x\n", symbolInfo.dli_fbase,  currentLibraryAddress);
+                if (symbolInfo.dli_fbase == currentLibraryAddress) {
                     //we assume, that removing current library symbols from backtrace
                     //is enough, to filter out DGL from backtrace. This implies no 3rd party
                     //libraries should be called from exporter to get here.
@@ -142,15 +141,13 @@ private:
 
     bool m_Supported;
 
-    static int s_dummySymbol;
     static DynamicLibrary* s_CorkscrewDSO;
     static t_unwind_backtrace p_unwind_backtrace;
     static t_get_backtrace_symbols p_get_backtrace_symbols;
     static t_free_backtrace_symbols p_free_backtrace_symbols;
 
 };
-int BackTraceImpl::s_dummySymbol;
-void* BackTraceImpl::s_CorkscrewDSO = nullptr;
+DynamicLibrary* BackTraceImpl::s_CorkscrewDSO = nullptr;
 BackTraceImpl::t_unwind_backtrace BackTraceImpl::p_unwind_backtrace = nullptr;
 BackTraceImpl::t_get_backtrace_symbols BackTraceImpl::p_get_backtrace_symbols = nullptr;
 BackTraceImpl::t_free_backtrace_symbols BackTraceImpl::p_free_backtrace_symbols = nullptr;

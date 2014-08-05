@@ -61,6 +61,8 @@ private:
     inline static EarlyGlobalStateImpl* GetImpl();
 
     static std::unique_ptr<EarlyGlobalStateImpl> s_GlobImpl;
+
+    static int s_DummySymbol;
 };
 
 

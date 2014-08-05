@@ -49,11 +49,27 @@ public:
      * if library is opened. New DynamicLibrary object otherwise.
      */
     DynamicLibrary* getLibrary(const char* name);
+
+    /** 
+     * Getter for name of DGLWrapper library
+     */
+    static std::string getCurrentLibraryName();
+
+    /** 
+     * Getter for base address of DGLWrapper library
+     */
+    static void* getCurrentLibraryBaseAddress();
+
 private:
 
     /** 
      * Map of all opened dynamic libraries
      */
     std::map<std::string, std::shared_ptr<DynamicLibrary> > m_OpenLibraries;
+
+    /** 
+     * Dummy symbol for getting info about current library
+     */
+    static int s_DummySymbol;
 };
 #endif

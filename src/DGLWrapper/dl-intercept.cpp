@@ -296,7 +296,7 @@ void *DLIntercept::dlopen(const char *filename, int flag) {
                     "dlintercept: dlopen(%s, %d): returning dglwrapper's "
                     "address.",
                     filename, flag);
-            ret = dlopen("libdglwrapper.so", RTLD_NOW);
+            ret = dlopen(DynamicLoader::getCurrentLibraryName().c_str(), RTLD_NOW);
             // we unset libraries - libdglwrapper.so cannot be marked supported.
             libraries = LIBRARY_NONE;
         }
