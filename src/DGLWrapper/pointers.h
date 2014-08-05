@@ -47,7 +47,7 @@
 #define POINTER_CHECKED(X) EarlyGlobalState::getApiLoader().ensurePointer(X##_Call)
 
 struct LoadedPointer {
-    FUNC_PTR ptr;
+    dgl_func_ptr ptr;
     int libraryMask;
 };
 

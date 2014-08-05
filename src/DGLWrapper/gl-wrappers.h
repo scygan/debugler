@@ -21,5 +21,6 @@
 
 #include <DGLCommon/gl-types.h>
 #include <DGLCommon/gl-entrypoints.h>
+#include <DGLCommon/def.h>
 
-FUNC_PTR getWrapperPointer(Entrypoint entryp);
+dgl_func_ptr getWrapperPointer(Entrypoint entryp);

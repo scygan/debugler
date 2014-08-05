@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+#include <DGLCommon/def.h>
+
 /**
  * Class implementing detour-based hooking mechanism
  *
@@ -35,8 +37,6 @@ public:
      */
     ~HookSession();
 
-    typedef int (*func_ptr)();
-
     /** 
      * Hook a function pointer
      * 
@@ -44,5 +44,5 @@ public:
      * @param to hook to install into 'from' function code
      * @return true if success
      */
-    bool hook(func_ptr* from, func_ptr to);
+    bool hook(dgl_func_ptr* from, dgl_func_ptr to);
 };

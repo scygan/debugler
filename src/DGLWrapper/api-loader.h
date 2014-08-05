@@ -18,6 +18,9 @@
 
 #include <DGLCommon/gl-entrypoints.h>
 #include <DGLCommon/gl-types.h>
+#include <DGLCommon/def.h>
+
+#include "dl.h"
 
 #include <map>
 
@@ -87,8 +90,6 @@ class APILoader {
      */
     bool loadExtPointer(Entrypoint entryp);
 
-    typedef void* LoadedLib;
-
     /**
      * Ensure pointer is loaded
      *
@@ -100,7 +101,7 @@ class APILoader {
      * Usable with all entrypoints, but all non-EXT entrypoints
      * should be loaded earlier with loadLibrary()
      */
-    FUNC_PTR ensurePointer(Entrypoint entryp);
+    dgl_func_ptr ensurePointer(Entrypoint entryp);
 
     /**
      * Small util deciding if given library name is interesting to debugger
@@ -128,13 +129,13 @@ class APILoader {
      * this is called on dlsym call from application. This saves loader time, as
      * it does not need to call dlsym itself again.
      */
-    void setPointer(Entrypoint entryp, FUNC_PTR impl);
+    void setPointer(Entrypoint entryp, dgl_func_ptr impl);
 
    private:
     std::string getLibraryName(ApiLibrary apiLibrary);
-    FUNC_PTR loadGLPointer(LoadedLib library, Entrypoint entryp);
+    dgl_func_ptr loadGLPointer(const DynamicLibrary& library, Entrypoint entryp);
 
-    std::map<std::string, LoadedLib> m_LoadedLibraries;
+    std::map<std::string, DynamicLibrary*> m_LoadedLibraries;
     int m_LoadedApiLibraries;
 
     ApiLibrary m_GlueLibrary;

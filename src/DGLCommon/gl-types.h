@@ -25,8 +25,6 @@ typedef uint64_t opaque_id_t;    // void*, contexts, configs..
 typedef uint64_t gl_t;           // gl enums (including 64bit)
 typedef int32_t value_t;         // any gl values (GLints)
 
-typedef int (*FUNC_PTR)();
-
 #define ENUMGROUP_LIST_ELEMENT(name) name,
 enum class GLEnumGroup {
 #include <enum-groups.inl>

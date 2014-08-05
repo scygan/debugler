@@ -156,9 +156,9 @@ class DGLIPCImpl : public DGLIPC {
                   m_DLInterceptDlSymAddr(0)
         {
             m_processSkipCounter = processSkipCount;
-            strncpy(m_debuggerPortName, portName, c_debuggerPortNameLen);
+            dgl_strncpy(m_debuggerPortName, portName, c_debuggerPortNameLen);
             m_debuggerPortName[c_debuggerPortNameLen - 1] = '\0';
-            strncpy(m_wrapperPath, wrapperPath.c_str(), DGL_ARRAY_LENGTH(m_wrapperPath));
+            dgl_strncpy(m_wrapperPath, wrapperPath.c_str(), DGL_ARRAY_LENGTH(m_wrapperPath));
         }
         char m_debuggerPortName[c_debuggerPortNameLen];
         DebuggerPortType m_debuggerPortType;

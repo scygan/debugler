@@ -455,15 +455,15 @@ extern "C" {
 }
 
 #define FUNC_LIST_ELEM_SUPPORTED(name, type, library, retVal, params) \
-    (FUNC_PTR) & name##_Wrapper,
+    (dgl_func_ptr) & name##_Wrapper,
 #define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, retVal, params) NULL,
-FUNC_PTR wrapperPtrs[] = {
+dgl_func_ptr wrapperPtrs[] = {
 #include "functionList.inl"
         NULL};
 #undef FUNC_LIST_ELEM_SUPPORTED
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED
 
-FUNC_PTR getWrapperPointer(Entrypoint entryp) { return wrapperPtrs[entryp]; }
+dgl_func_ptr getWrapperPointer(Entrypoint entryp) { return wrapperPtrs[entryp]; }
 
 extern "C" {
 

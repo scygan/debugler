@@ -77,6 +77,7 @@
     <ClInclude Include="DGLWrapper.h" />
     <ClInclude Include="display.h" />
     <ClInclude Include="dl-intercept.h" />
+    <ClInclude Include="dl.h" />
     <ClInclude Include="exechook.h" />
     <ClInclude Include="gl-auxcontext.h" />
     <ClInclude Include="gl-context.h" />
@@ -107,6 +108,7 @@
     <ClCompile Include="debugger.cpp" />
     <ClCompile Include="display.cpp" />
     <ClCompile Include="dl-intercept.cpp" />
+    <ClCompile Include="dl.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="api-loader.cpp" />
     <ClCompile Include="exechook.cpp" />

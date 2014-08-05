@@ -26,6 +26,7 @@ class ActionManager;
 class APILoader;
 class DGLDebugController;
 class DGLConfiguration;
+class DynamicLoader;
 
 /* Singleton wrapping all global state in DGLWrapper
 */
@@ -53,6 +54,7 @@ class EarlyGlobalState {
 public:
     EarlyGlobalState();
     static APILoader&          getApiLoader();
+    static DynamicLoader&      getDynLoader();
     static void reset();
 
 private:

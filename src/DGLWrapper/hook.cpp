@@ -39,7 +39,7 @@ HookSession::~HookSession() {
 #endif
 }
 
-bool HookSession::hook(func_ptr* from, func_ptr to) {
+bool HookSession::hook(dgl_func_ptr* from, dgl_func_ptr to) {
 #ifdef USE_DETOURS
     if (DetourAttach(from, to)) {
         return false;

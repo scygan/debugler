@@ -204,10 +204,10 @@ RetValue GetProcAddressAction::Pre(const CalledEntryPoint& call) {
     if (EarlyGlobalState::getApiLoader().loadExtPointer(entryp)) {
         // entrypoint supported by implementation, return address of wrapper to
         // application
-        ret = reinterpret_cast<FUNC_PTR>(getWrapperPointer(entryp));
+        ret = reinterpret_cast<dgl_func_ptr>(getWrapperPointer(entryp));
     } else {
         // entrypoint unsupported by implementation, return NULL to application
-        ret = (FUNC_PTR)NULL;
+        ret = (dgl_func_ptr)NULL;
     }
     return ret;
 }
@@ -1480,7 +1480,7 @@ RetValue DebugOutputCallback::Pre(const CalledEntryPoint& call) {
     Entrypoint entrp = call.getEntrypoint();
     if (gc && (entrp == glDebugMessageCallback_Call ||
                entrp == glDebugMessageCallbackARB_Call)) {
-        FUNC_PTR callback;
+        dgl_func_ptr callback;
         const GLvoid* userParam;
         call.getArgs()[0].get(callback);
         call.getArgs()[1].get(userParam);

@@ -15,6 +15,8 @@
 
 #include "backtrace.h"
 #include "dl-intercept.h"
+#include "dl.h"
+#include "globalstate.h"
 
 #include <DGLCommon/os.h>
 
@@ -24,15 +26,16 @@ public:
     BackTraceImpl():m_Supported(false) {
         
         if (!s_CorkscrewDSO) {
-            s_CorkscrewDSO = dlopen("libcorkscrew.so", RTLD_NOW);
+            try {
+                s_CorkscrewDSO = GlobalState::getDynLoader().getLibrary("libcorkscrew.so");
+            } catch (const std:runtime_error& e) {
+                Os::info(e.what());
+            }
         }
         if (s_CorkscrewDSO && (!p_unwind_backtrace || !p_get_backtrace_symbols || !p_free_backtrace_symbols)) {
-            p_unwind_backtrace = reinterpret_cast<t_unwind_backtrace>(
-                reinterpret_cast<ptrdiff_t>(dlsym(s_CorkscrewDSO, "unwind_backtrace")));
-            p_get_backtrace_symbols = reinterpret_cast<t_get_backtrace_symbols>(
-                reinterpret_cast<ptrdiff_t>(dlsym(s_CorkscrewDSO, "get_backtrace_symbols")));
-            p_free_backtrace_symbols = reinterpret_cast<t_free_backtrace_symbols>(
-                reinterpret_cast<ptrdiff_t>(dlsym(s_CorkscrewDSO, "free_backtrace_symbols")));
+            p_unwind_backtrace = reinterpret_cast<t_unwind_backtrace>(s_CorkscrewDSO->getFunction("unwind_backtrace"));
+            p_get_backtrace_symbols = reinterpret_cast<t_get_backtrace_symbols>(s_CorkscrewDSO->getFunction("get_backtrace_symbols"));
+            p_free_backtrace_symbols = reinterpret_cast<t_free_backtrace_symbols>(s_CorkscrewDSO->getFunction("free_backtrace_symbols"));
         };
 
         m_Supported =  (p_unwind_backtrace && p_get_backtrace_symbols && p_free_backtrace_symbols);
@@ -140,7 +143,7 @@ private:
     bool m_Supported;
 
     static int s_dummySymbol;
-    static void* s_CorkscrewDSO;
+    static DynamicLibrary* s_CorkscrewDSO;
     static t_unwind_backtrace p_unwind_backtrace;
     static t_get_backtrace_symbols p_get_backtrace_symbols;
     static t_free_backtrace_symbols p_free_backtrace_symbols;

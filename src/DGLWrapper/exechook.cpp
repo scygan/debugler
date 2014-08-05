@@ -18,6 +18,8 @@
 #include "exechook.h"
 #include "hook.h"
 #include "ipc.h"
+#include "dl.h"
+#include "globalstate.h"
 
 #include <DGLInject/inject.h>
 #include <DGLCommon/os.h>
@@ -69,19 +71,18 @@ BOOL ExecHook::real_CreateProcessInternalW(
 }
 
 void ExecHook::initialize() {
-    HMODULE kernel32Module = LoadLibrary("kernel32.dll");
+    DynamicLibrary* kernel32Library = EarlyGlobalState::getDynLoader().getLibrary("kernel32.dll");
 
     s_real_CreateProcessInternalW =
-            reinterpret_cast<CreateProcessInternalW_Type>(
-                    GetProcAddress(kernel32Module, "CreateProcessInternalW"));
+            reinterpret_cast<CreateProcessInternalW_Type>(kernel32Library->getFunction("CreateProcessInternalW"));
 
     if (s_real_CreateProcessInternalW) {
 
         HookSession hookSession;
-        HookSession::func_ptr hookPtr =
-                HookSession::func_ptr(&CreateProcessInternalW_CALL);
+        dgl_func_ptr hookPtr =
+                dgl_func_ptr(&CreateProcessInternalW_CALL);
         if (!hookSession.hook(
-                    (HookSession::func_ptr*)&s_real_CreateProcessInternalW,
+                    (dgl_func_ptr*)&s_real_CreateProcessInternalW,
                     hookPtr)) {
             Os::fatal("Cannot hook CreateProcessInternalW function.");
         }

@@ -47,7 +47,9 @@
 #define DGL_ALIGNED(X, A) ((X + A - 1) & (-A))
 
 #ifdef _WIN32
-#define strncpy(dest, source, count) strncpy_s(dest, count, source, _TRUNCATE)
+#define dgl_strncpy(dest, source, count) strncpy_s(dest, count, source, _TRUNCATE)
+#else
+#define dgl_strncpy(dest, source, count) strncpy(dest, count, source, _TRUNCATE)
 #endif
 
 #define DGL_MANUFACTURER  "Slawomir Cygan"
@@ -69,5 +71,7 @@ char ( &ArraySizeHelper(Type( &Array )[Size]) )[Size];
 #define DGL_ARRAY_LENGTH(Array) sizeof(ArraySizeHelper(Array))
 
 #define DGL_UNUSED(x) (void)x;
+
+typedef int (*dgl_func_ptr)();
 
 #endif

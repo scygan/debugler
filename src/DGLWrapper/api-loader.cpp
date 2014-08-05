@@ -68,15 +68,8 @@ LoadedPointer g_DirectPointers[Entrypoints_NUM] = {
 APILoader::APILoader()
         : m_LoadedApiLibraries(LIBRARY_NONE), m_GlueLibrary(LIBRARY_NONE) {}
 
-FUNC_PTR APILoader::loadGLPointer(LoadedLib library, Entrypoint entryp) {
-#ifdef _WIN32
-    return reinterpret_cast<FUNC_PTR>(
-            GetProcAddress((HINSTANCE)library, GetEntryPointName(entryp)));
-#else
-    //(ptrdiff_t) -> see http://www.trilithium.com/johan/2004/12/problem-with-dlsym/
-    return reinterpret_cast<FUNC_PTR>(
-            (ptrdiff_t)dlsym(library, GetEntryPointName(entryp)));
-#endif
+dgl_func_ptr APILoader::loadGLPointer(const DynamicLibrary& library, Entrypoint entryp) {
+    return library.getFunction(GetEntryPointName(entryp));
 }
 
 bool APILoader::loadExtPointer(Entrypoint entryp) {
@@ -88,24 +81,24 @@ bool APILoader::loadExtPointer(Entrypoint entryp) {
                     "loaded");
         }
 
-        FUNC_PTR ptr = NULL;
+        dgl_func_ptr ptr = NULL;
 
         switch (m_GlueLibrary) {
 #ifdef HAVE_LIBRARY_WGL
             case LIBRARY_WGL:
-                ptr = reinterpret_cast<FUNC_PTR>(DIRECT_CALL(wglGetProcAddress)(
+                ptr = reinterpret_cast<dgl_func_ptr>(DIRECT_CALL(wglGetProcAddress)(
                         GetEntryPointName(entryp)));
                 break;
 #endif
 #ifdef HAVE_LIBRARY_GLX
             case LIBRARY_GLX:
-                ptr = reinterpret_cast<FUNC_PTR>(DIRECT_CALL(glXGetProcAddress)(
+                ptr = reinterpret_cast<dgl_func_ptr>(DIRECT_CALL(glXGetProcAddress)(
                         reinterpret_cast<const GLubyte*>(
                                 GetEntryPointName(entryp))));
                 break;
 #endif
             case LIBRARY_EGL:
-                ptr = reinterpret_cast<FUNC_PTR>(DIRECT_CALL(eglGetProcAddress)(
+                ptr = reinterpret_cast<dgl_func_ptr>(DIRECT_CALL(eglGetProcAddress)(
                         GetEntryPointName(entryp)));
                 break;
             default:
@@ -168,7 +161,7 @@ int APILoader::getEntryPointLibrary(Entrypoint entryp) {
     return g_DirectPointers[entryp].libraryMask;
 }
 
-void APILoader::setPointer(Entrypoint entryp, FUNC_PTR direct) {
+void APILoader::setPointer(Entrypoint entryp, dgl_func_ptr direct) {
     if (entryp < NO_ENTRYPOINT && direct != nullptr) {
         g_DirectPointers[entryp].ptr = direct;
     }
@@ -216,7 +209,7 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary, LoadMode mode) {
 
         std::vector<std::string> libSearchPath;
 
-        LoadedLib openGLLibraryHandle = NULL;
+        DynamicLibrary* openGLLibraryHandle = nullptr;
 
         libSearchPath.push_back("");
 #ifdef _WIN32
@@ -242,13 +235,8 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary, LoadMode mode) {
 
         for (size_t i = 0; i < libSearchPath.size() && !openGLLibraryHandle;
              i++) {
-#ifdef _WIN32
-            openGLLibraryHandle = (LoadedLib)LoadLibrary(
+            openGLLibraryHandle = EarlyGlobalState::getDynLoader().getLibrary(
                     (libSearchPath[i] + libraryName).c_str());
-#else
-            openGLLibraryHandle =
-                    dlopen((libSearchPath[i] + libraryName).c_str(), RTLD_NOW);
-#endif
         }
 
         if (!openGLLibraryHandle) {
@@ -260,7 +248,7 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary, LoadMode mode) {
         }
     }
 
-    LoadedLib library = m_LoadedLibraries[libraryName];
+    DynamicLibrary* library = m_LoadedLibraries[libraryName];
 
 #ifdef _WIN32
     HookSession hookSession;
@@ -282,12 +270,12 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary, LoadMode mode) {
         }
 
         // this sets g_DirectPointers[i].ptr
-        setPointer(i, loadGLPointer(library, i));
+        setPointer(i, loadGLPointer(*library, i));
 
         if (g_DirectPointers[i].ptr) {
 // this entrypoint was loaded from OpenGL32.dll, detour it!
 #ifdef _WIN32
-            FUNC_PTR hookPtr = getWrapperPointer(i);
+            dgl_func_ptr hookPtr = getWrapperPointer(i);
             if (!hookSession.hook(&g_DirectPointers[i].ptr, hookPtr)) {
                 Os::fatal("Cannot hook %s() function.", GetEntryPointName(i));
             }
@@ -301,7 +289,7 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary, LoadMode mode) {
     m_LoadedApiLibraries |= apiLibrary;
 }
 
-FUNC_PTR APILoader::ensurePointer(Entrypoint entryp) {
+dgl_func_ptr APILoader::ensurePointer(Entrypoint entryp) {
     if (g_DirectPointers[entryp].ptr || loadExtPointer(entryp)) {
         return g_DirectPointers[entryp].ptr;
     } else {

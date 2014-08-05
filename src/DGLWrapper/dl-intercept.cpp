@@ -249,7 +249,7 @@ void *DLIntercept::dlsymImpl(void *handle, const char *name, void *ptr) {
 
         // set debugger to use new entrypoint
         EarlyGlobalState::getApiLoader().setPointer(
-                entryp, reinterpret_cast<FUNC_PTR>((ptrdiff_t)ptr));
+                entryp, reinterpret_cast<dgl_func_ptr>((ptrdiff_t)ptr));
 
         void *ret =
                 reinterpret_cast<void *>((ptrdiff_t)getWrapperPointer(entryp));
@@ -503,8 +503,8 @@ void DLIntercept::initialize() {
 
         HookSession hookSession;
 
-        HookSession::func_ptr hookPtr = reinterpret_cast<HookSession::func_ptr>(&LoadLibraryExW_Call);
-        hookSession.hook((HookSession::func_ptr *)&s_real_LoadLibraryExW,
+        dgl_func_ptr hookPtr = reinterpret_cast<dgl_func_ptr>(&LoadLibraryExW_Call);
+        hookSession.hook((dgl_func_ptr *)&s_real_LoadLibraryExW,
                          hookPtr);
     }
 }

@@ -49,13 +49,13 @@ DGLIPC* getIPC() {
  */
 void Initialize(void) {
 
+    //Catch all LoadLibrary calls on Windows
+    DLIntercept::initialize();
+
 #ifdef _WIN32
     // catch all CreateProcess calls on Windows
     ExecHook::initialize();
 #endif
-
-    //Catch all LoadLibrary calls on Windows
-    DLIntercept::initialize();
 
     //Notify process skipper (for newly executed processes).
     getIPC()->newProcessNotify();

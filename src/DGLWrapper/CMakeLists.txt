@@ -19,6 +19,7 @@ set(dglwrapper_SOURCES
 	backtrace.cpp
     globalstate.cpp
 	exechook.cpp
+    dl.cpp
 #dllmain.cpp should be at the end, requires all static ctors to run before dllmain.
     dllmain.cpp
     )

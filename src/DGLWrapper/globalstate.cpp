@@ -18,6 +18,7 @@
 #include "action-manager.h"
 #include "api-loader.h"
 #include "debugger.h"
+#include "dl.h"
 
 struct GlobalStateImpl {
 
@@ -60,6 +61,7 @@ DGLConfiguration& GlobalState::getConfiguration() {
 
 struct EarlyGlobalStateImpl {
     APILoader m_ApiLoader;
+    DynamicLoader m_DynLoader;
 };
 
 std::unique_ptr<EarlyGlobalStateImpl> EarlyGlobalState::s_GlobImpl;
@@ -81,4 +83,8 @@ void EarlyGlobalState::reset() {
 
 APILoader& EarlyGlobalState::getApiLoader() {
     return GetImpl()->m_ApiLoader;
+}
+
+DynamicLoader& EarlyGlobalState::getDynLoader() {
+    return GetImpl()->m_DynLoader;
 }
