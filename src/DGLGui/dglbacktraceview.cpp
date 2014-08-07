@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-#include "dglBackTraceview.h"
+#include "dglbacktraceview.h"
 
 #include <DGLNet/protocol/resource.h>
 

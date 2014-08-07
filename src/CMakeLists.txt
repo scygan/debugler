@@ -24,6 +24,7 @@ include_directories(
 include_directories(SYSTEM
     external/boost/
     external/gtest/include
+    external/zlib-1.2.8/
 )
 
 
@@ -65,6 +66,7 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow -Wundef")
 
+
 add_subdirectory(codegen)
 add_subdirectory(DGLCommon)
 add_subdirectory(DGLNet)
@@ -79,3 +81,4 @@ if (NOT ANDROID)
 else()
 	add_subdirectory(DGLAndroidInstaller)
 endif()
+add_subdirectory(external/zlib-1.2.8)

@@ -92,7 +92,7 @@ set(dglgui_FORMS
     ui/dglprojproperties_android.ui
     ui/dglpixelrectangleview.ui
     ui/dglprojproperties_attach.ui
-    ui/dglbacktraceview.h
+    ui/dglbacktraceview.ui
     )
 
 SET(dglgui_RESOURCES dglmainwindow.qrc)
@@ -124,6 +124,6 @@ add_library(dglgui
 add_dependencies(dglgui codegen)
 
 add_executable(debugler main.cpp)
-target_link_libraries(debugler dglgui QHexEdit dglcommon dglnet ${QT_LIBRARIES} boost_system boost_serialization boost_iostreams pthread z rt)
+target_link_libraries(debugler dglgui QHexEdit dglcommon dglnet ${QT_LIBRARIES} boost_system boost_serialization boost_iostreams pthread zlib rt)
 
 install (TARGETS debugler DESTINATION bin)

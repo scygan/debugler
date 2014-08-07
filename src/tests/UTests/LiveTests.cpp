@@ -1658,6 +1658,8 @@ TEST_F(LiveTest, renderbuffer_msaa) {
     terminate(client);
 }
 
+#ifdef _WIN32
+
 TEST_F(LiveTest, benchmark) {
 
 #if 1
@@ -1730,5 +1732,7 @@ TEST_F(LiveTest, benchmark) {
 
     terminate(client);
 }
+
+#endif //_WIN32
 
 }    // namespace
