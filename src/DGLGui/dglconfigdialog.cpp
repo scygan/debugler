@@ -15,6 +15,8 @@
 
 #include "dglconfigdialog.h"
 
+#include <DGLCommon/def.h>
+
 #include <QFileDialog>
 
 DGLConfigDialog::DGLConfigDialog(const DGLConfiguration& configuration,
@@ -54,7 +56,7 @@ void DGLConfigDialog::adbBrowseDialog() {
     QFileInfo info(m_Ui.lineEdit_Adb->text());
     QString res = QFileDialog::getOpenFileName(
             this, tr("Choose adb executable"), info.absoluteFilePath(),
-            tr("Executables (*.exe)"));
+            tr("Executables " DGL_PLATFORM_EXECSUFFIX));
     if (!res.isNull()) {
         m_Ui.lineEdit_Adb->setText(QDir::toNativeSeparators(res));
     }

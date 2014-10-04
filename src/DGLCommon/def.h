@@ -21,35 +21,35 @@
 #include <cstddef>
 
 #ifdef _WIN32
-#define NO_RETURN __declspec(noreturn)
+#   define NO_RETURN __declspec(noreturn)
 #else
-#define NO_RETURN __attribute__((noreturn))
+#   define NO_RETURN __attribute__((noreturn))
 #endif
 
 #ifdef _WIN32
-#undef min
-#undef max
+#   undef min
+#   undef max
 #endif
 
 // C++11 N2659 "Thread-Local Storage" workarounds
 #ifdef _WIN32
-#define DGL_THREAD_LOCAL __declspec(thread)
+#   define DGL_THREAD_LOCAL __declspec(thread)
 #elif defined(__GNUC__)
 #if __GNUC__ > 4 || (__GNUC__ == 4 && (__GNUC_MINOR__ >= 8))
-#define DGL_THREAD_LOCAL thread_local
+#   define DGL_THREAD_LOCAL thread_local
 #else
-#define DGL_THREAD_LOCAL __thread
+#   define DGL_THREAD_LOCAL __thread
 #endif
 #else
-#define DGL_THREAD_LOCAL thread_local
+#   define DGL_THREAD_LOCAL thread_local
 #endif
 
 #define DGL_ALIGNED(X, A) ((X + A - 1) & (-A))
 
 #ifdef _WIN32
-#define dgl_strncpy(dest, source, count) strncpy_s(dest, count, source, _TRUNCATE)
+#   define dgl_strncpy(dest, source, count) strncpy_s(dest, count, source, _TRUNCATE)
 #else
-#define dgl_strncpy(dest, source, count) strncpy(dest, source, count)
+#   define dgl_strncpy(dest, source, count) strncpy(dest, source, count)
 #endif
 
 #define DGL_MANUFACTURER  "Slawomir Cygan"
@@ -57,9 +57,15 @@
 #define DGL_PRODUCT_LOWER "debugler"
 
 #ifdef _WIN32
-#define DGL_MAX_PATH MAX_PATH
+#   define DGL_MAX_PATH MAX_PATH
 #else
-#define DGL_MAX_PATH PATH_MAX
+#   define DGL_MAX_PATH PATH_MAX
+#endif
+
+#ifdef _WIN32
+#   define DGL_PLATFORM_EXECSUFFIX "(*.exe)"
+#else
+#   define DGL_PLATFORM_EXECSUFFIX "(*)"
 #endif
 
 #define DGL_ASSERT(X) assert(X)
