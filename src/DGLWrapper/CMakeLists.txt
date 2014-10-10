@@ -42,6 +42,6 @@ else()
 	set(libs pthread elf rt)
 endif()
 
-target_link_libraries(dglwrapper dglnet dglcommon dglinject boost_serialization boost_system boost_iostreams dl zlib ${libs})
+target_link_libraries(dglwrapper dglnet dglcommon dglinject boost_serialization boost_system boost_iostreams dl zlibstatic ${libs})
 
 install (TARGETS dglwrapper DESTINATION lib)

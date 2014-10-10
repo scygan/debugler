@@ -25,5 +25,4 @@ add_executable(utests
     ${utests_RESOURCES_RCC}
 )
 
-target_link_libraries(utests gtest dglgui dglcommon dglnet boost_serialization boost_system boost_iostreams pthread zlib rt ${QT_LIBRARIES})
-
+target_link_libraries(utests gtest dglgui dglcommon dglnet boost_serialization boost_system boost_iostreams pthread zlibstatic rt ${QT_LIBRARIES})

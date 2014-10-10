@@ -98,6 +98,21 @@ namespace po = boost::program_options;
 using namespace std;
 
 int main(int argc, char** argv) {
+#ifdef __ANDROID__
+        //Disable SELinux - otherwise it will kill us on Android < 4.4
+        {
+            struct stat S;
+            if (stat("/sys/fs/selinux/enforce", &S) == 0) {
+                std::ofstream enforce("/sys/fs/selinux/enforce");
+                enforce << "0\n";
+                if (!enforce.good()) {
+                    Os::info("Cannot disable SELinux");
+                } else {
+                    Os::info("SELinux disabled");
+                }
+            }
+        }
+#endif
 
     IPCMessage message;
     IPCMessage* ipcMessage = &message;
@@ -166,21 +181,6 @@ int main(int argc, char** argv) {
         Os::info("Executable: %s\nWrapper: %s\n\n\n", executable.c_str(),
                  wrapperPath.c_str());
 
-#ifdef __ANDROID__
-        //Disable SELinux - otherwise it will kill us on Android < 4.4
-        {
-            struct stat S;
-            if (stat("/sys/fs/selinux/enforce", &S) == 0) {
-                std::ofstream enforce("/sys/fs/selinux/enforce");
-                enforce << "0\n";
-                if (!enforce.good()) {
-                    Os::info("Cannot disable SELinux");
-                } else {
-                    Os::info("SELinux disabled");
-                }
-            }
-        }
-#endif
 
         DGLIPC::DebuggerMode debuggerMode = DGLIPC::DebuggerMode::DEFAULT;
         DGLIPC::DebuggerListenMode debuggerListenMode = DGLIPC::DebuggerListenMode::LISTEN_AND_WAIT;

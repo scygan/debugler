@@ -1392,7 +1392,7 @@ set( ANDROID_RELRO                  ${ANDROID_RELRO}                  CACHE BOOL
 mark_as_advanced( ANDROID_NO_UNDEFINED ANDROID_SO_UNDEFINED ANDROID_FUNCTION_LEVEL_LINKING ANDROID_GOLD_LINKER ANDROID_NOEXECSTACK ANDROID_RELRO )
 
 # linker flags
-set( ANDROID_LINKER_FLAGS "" )
+set( ANDROID_LINKER_FLAGS "-pie" )
 
 if( ARMEABI_V7A )
  # this is *required* to use the following linker flags that routes around
@@ -1460,8 +1460,8 @@ if( ANDROID_COMPILER_IS_CLANG )
 endif()
 
 # cache flags
-set( CMAKE_CXX_FLAGS           ""                        CACHE STRING "c++ flags" )
-set( CMAKE_C_FLAGS             ""                        CACHE STRING "c flags" )
+set( CMAKE_CXX_FLAGS           "-fpie -fPIE"             CACHE STRING "c++ flags" )
+set( CMAKE_C_FLAGS             "-fpie -fPIE"             CACHE STRING "c flags" )
 set( CMAKE_CXX_FLAGS_RELEASE   "-O3 -DNDEBUG"            CACHE STRING "c++ Release flags" )
 set( CMAKE_C_FLAGS_RELEASE     "-O3 -DNDEBUG"            CACHE STRING "c Release flags" )
 set( CMAKE_CXX_FLAGS_DEBUG     "-O0 -g -DDEBUG -D_DEBUG" CACHE STRING "c++ Debug flags" )
