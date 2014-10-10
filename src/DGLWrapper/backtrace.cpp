@@ -100,7 +100,6 @@ private:
 
                 Dl_info symbolInfo; 
                 dladdr(reinterpret_cast<void*>(frames[i].absolute_pc), &symbolInfo);
-                Os::info("XXX %x == %x\n", symbolInfo.dli_fbase,  currentLibraryAddress);
                 if (symbolInfo.dli_fbase == currentLibraryAddress) {
                     //we assume, that removing current library symbols from backtrace
                     //is enough, to filter out DGL from backtrace. This implies no 3rd party
@@ -249,8 +248,7 @@ class BackTraceImpl: public BackTrace {
 
 class BackTraceImpl: public BackTrace {
     virtual void streamTo(std::vector<std::string>& ret) override {
-        ret.resize(20);
-        std::vector<void*> buffer;
+        std::vector<void*> buffer(20);
         int nptrs = backtrace(&buffer[0], buffer.size());
         while (nptrs > 0 && nptrs == static_cast<int>(buffer.size())) {
             buffer.resize(buffer.size() * 2);
@@ -260,11 +258,27 @@ class BackTraceImpl: public BackTrace {
         if (!strings) {
             throw std::runtime_error("Cannot get backtrace: backtrace_symbols failed.");
         }
-        ret.resize(buffer.size());
+
+        void* currentLibraryAddress = DynamicLoader::getCurrentLibraryBaseAddress();
+
+        ret.resize(nptrs);
+
+        int realNptrs = 0;
+
         for (size_t i = 0; i < ret.size(); i++) {
-            ret[i] = strings[i];
+            Dl_info symbolInfo;
+            dladdr(reinterpret_cast<void*>(buffer[i]), &symbolInfo);
+            Os::info("XXX %x == %x\n", symbolInfo.dli_fbase,  currentLibraryAddress);
+            if (symbolInfo.dli_fbase == currentLibraryAddress) {
+                //we assume, that removing current library symbols from backtrace
+                //is enough, to filter out DGL from backtrace. This implies no 3rd party
+                //libraries should be called from exporter to get here.
+                continue;
+            }
+            ret[realNptrs++] = strings[i];
         }
         free(strings);
+        ret.resize(realNptrs);
     }
 };
 
