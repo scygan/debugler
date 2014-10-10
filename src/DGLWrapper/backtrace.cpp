@@ -243,12 +243,38 @@ class BackTraceImpl: public BackTrace {
 };
 
 #else
+#ifdef __linux__
 
+#include <execinfo.h>
+
+class BackTraceImpl: public BackTrace {
+    virtual void streamTo(std::vector<std::string>& ret) override {
+        ret.resize(20);
+        std::vector<void*> buffer;
+        int nptrs = backtrace(&buffer[0], buffer.size());
+        while (nptrs > 0 && nptrs == static_cast<int>(buffer.size())) {
+            buffer.resize(buffer.size() * 2);
+            nptrs = backtrace(&buffer[0], buffer.size());
+        }
+        char** strings = backtrace_symbols(&buffer[0], buffer.size());
+        if (!strings) {
+            throw std::runtime_error("Cannot get backtrace: backtrace_symbols failed.");
+        }
+        ret.resize(buffer.size());
+        for (size_t i = 0; i < ret.size(); i++) {
+            ret[i] = strings[i];
+        }
+        free(strings);
+    }
+};
+
+#else
 class BackTraceImpl: public BackTrace {
     virtual void streamTo(std::vector<std::string>&) override {
         throw std::runtime_error("Backtrace support not implemented on this platform.");
     }
 };
+#endif
 #endif
 #endif
 
