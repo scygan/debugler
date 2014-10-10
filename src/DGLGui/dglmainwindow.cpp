@@ -286,6 +286,7 @@ void DGLMainWindow::createMenus() {
 
 void DGLMainWindow::createToolBars() {
     debugToolBar = addToolBar(tr("Debug"));
+    debugToolBar->setObjectName("DGLToolbar");
     debugToolBar->addAction(debugStartAct);
     debugToolBar->addAction(debugContinueAct);
     debugToolBar->addAction(debugInterruptAct);
