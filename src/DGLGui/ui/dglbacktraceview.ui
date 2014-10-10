@@ -13,17 +13,13 @@
   <property name="windowTitle">
    <string>CPU Backtrace</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="QFrame" name="frame">
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QListWidget" name="listWidget"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
-  </layout>
+  <widget class="QFrame" name="frame">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <widget class="QListWidget" name="listWidget"/>
+    </item>
+   </layout>
+  </widget>
  </widget>
  <resources/>
  <connections/>

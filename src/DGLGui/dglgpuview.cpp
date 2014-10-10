@@ -83,7 +83,6 @@ void DGLGPUView::setConnected(bool connected) {
         m_Ui->setupUi(this);
         m_Ui->groupBox_NVMem->hide();
         setWidget(m_Ui->frame);
-        setLayout(m_Ui->verticalLayout);
 
         m_Listener = m_Controller->getResourceManager()->createListener(
                 dglnet::ContextObjectName(),

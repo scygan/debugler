@@ -63,7 +63,6 @@ void DGLBackTraceView::setConnected(bool connected) {
         m_Ui = new Ui::DGLBacktraceView();
         m_Ui->setupUi(this);
         setWidget(m_Ui->frame);
-        setLayout(m_Ui->verticalLayout);
 
         m_Listener = m_Controller->getResourceManager()->createListener(
                 dglnet::ContextObjectName(),

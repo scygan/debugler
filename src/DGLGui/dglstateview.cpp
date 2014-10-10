@@ -82,7 +82,7 @@ void DGLStateView::setConnected(bool connected) {
         m_Ui = new Ui::DGLStateView();
         m_Ui->setupUi(this);
         setWidget(m_Ui->frame);
-        setLayout(m_Ui->verticalLayout);
+//        setLayout(m_Ui->verticalLayout);
         m_Ui->tableWidget->setRowCount(1);
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
         m_Ui->tableWidget->horizontalHeader()->setResizeMode(
