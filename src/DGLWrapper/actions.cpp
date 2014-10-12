@@ -588,11 +588,10 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                     contextType = dglState::GLContextVersion::Type::UNSUPPORTED;
                 }
                 dglState::GLContextVersion version(contextType, major, minor);
-
                 EarlyGlobalState::getApiLoader().loadLibraries(version.getNeededApiLibraries(displayState));
 
                 displayState->createContext(
-                    dglState::GLContextVersion::Type::ES,
+                    contextType,
                     dglState::GLContextCreationData(
                     entryp, (opaque_id_t)eglConfig,
                     attributes),
