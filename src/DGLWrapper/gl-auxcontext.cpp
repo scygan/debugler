@@ -798,8 +798,7 @@ GLuint GLAuxContext::GLQueries::getTextureShaderProgram(
     std::ostringstream fsh;
 
     if (glsl300) {
-        fsh << "#version 300 es\n"
-            << "out vec4 oColor;\n";
+        fsh << "#version 300 es\n";
     }
     fsh << "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
            "precision highp float;           \n"
@@ -809,6 +808,9 @@ GLuint GLAuxContext::GLQueries::getTextureShaderProgram(
            "uniform sampler" << suffix << " s;\n"
            "uniform float level;\n"
            "uniform int   face;\n";
+    if (glsl300) {
+        fsh << "out vec4 oColor;\n";
+    }
 
     if (glsl300) {
         fsh << "in vec2 texPos;\n";
@@ -882,7 +884,7 @@ GLuint GLAuxContext::GLQueries::compileShader(GLenum type, const char* src) {
     if (!status) {
         char log[1000];
         DIRECT_CALL_CHK(glGetShaderInfoLog)(shader, 1000, NULL, log);
-        throw std::runtime_error(std::string("Cannot compile shader:") + log);
+        throw std::runtime_error(std::string("Cannot compile shader:\n") + src + "\n" + log);
     }
 
     return shader;
