@@ -23,6 +23,7 @@
 #include "dl.h"
 
 #include <map>
+#include <memory>
 
 enum ApiLibrary {
     LIBRARY_WGL           = ( 1 << 0  ),
@@ -79,6 +80,15 @@ class APILoader {
     void loadLibrary(ApiLibrary apiLibrary, LoadMode mode = LoadMode::IMMEDIATE);
 
     /**
+     * Get extension pointer
+     *
+     * This wraps platform-specific *GetProcAddressis calls
+     *
+     * @ret: ptr or null if not supported
+     */
+    dgl_func_ptr  getExtPointer(const char* name);
+
+    /**
      * Load one extension pointer
      *
      * This is called when app calls *glGetProcAddressMethod, to ensure
@@ -133,9 +143,9 @@ class APILoader {
 
    private:
     std::string getLibraryName(ApiLibrary apiLibrary);
-    dgl_func_ptr loadGLPointer(const DynamicLibrary& library, Entrypoint entryp);
+    dgl_func_ptr getGLPointer(const DynamicLibrary& library, Entrypoint entryp);
 
-    std::map<std::string, DynamicLibrary*> m_LoadedLibraries;
+    std::map<std::string, std::shared_ptr<DynamicLibrary> > m_LoadedLibraries;
     int m_LoadedApiLibraries;
 
     ApiLibrary m_GlueLibrary;

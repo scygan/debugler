@@ -58,4 +58,10 @@
 #define __wa_ANDROID_SO_CONSTRUCTORS defined(__ANDROID__)
 
 
+// Some Android devices support 'big' OpenGL, but do not ship with libGL.so
+// For example NVIDIA Shield Tablet & other Tegra K1 Android devices.
+// The fix causes to load libGL.so entrypoints via eglGetProcAddress()
+#define __wa_ANDROID_MISSING_LIBGL defined(__ANDROID__)
+
+
 #endif    // WA_H

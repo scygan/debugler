@@ -15,6 +15,8 @@
 
 #include "dl.h"
 
+#include <DGLCommon/os.h>
+
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -74,14 +76,19 @@ private:
 };
 #endif
 
-DynamicLibrary* DynamicLoader::getLibrary(const char* name) {
+std::shared_ptr<DynamicLibrary> DynamicLoader::getLibrary(const char* name) {
    std::map<std::string, std::shared_ptr<DynamicLibrary> >::iterator i = m_OpenLibraries.find(name);
     if (i != m_OpenLibraries.end()) {
-        return i->second.get();
+        return i->second;
     } else {
-        std::shared_ptr<DynamicLibrary> ret =  std::make_shared<DynamicLibraryImpl>(name);
-        m_OpenLibraries[name] = ret;
-        return ret.get();
+        try {
+            std::shared_ptr<DynamicLibrary> ret =  std::make_shared<DynamicLibraryImpl>(name);
+            m_OpenLibraries[name] = ret;
+            return ret;
+        } catch (const std::runtime_error& e) {
+            Os::nonFatal(e.what());
+            return nullptr;
+        }
     }
 }
 

@@ -48,7 +48,7 @@ public:
      * @return ptr to existing DynamicLibrary object,
      * if library is opened. New DynamicLibrary object otherwise.
      */
-    DynamicLibrary* getLibrary(const char* name);
+    std::shared_ptr<DynamicLibrary> getLibrary(const char* name);
 
     /** 
      * Getter for name of DGLWrapper library

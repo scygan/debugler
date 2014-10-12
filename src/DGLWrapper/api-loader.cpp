@@ -56,7 +56,7 @@
 // use DIRECT_CALL(name) to call one of these pointers
 LoadedPointer g_DirectPointers[Entrypoints_NUM] = {
 #define FUNC_LIST_ELEM_SUPPORTED(name, type, library, retVal, params) \
-    { NULL, library }                                 \
+    { nullptr, library }                                 \
     ,
 #define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, retVal, params) \
     FUNC_LIST_ELEM_SUPPORTED(name, type, library, retVal, params)
@@ -65,48 +65,59 @@ LoadedPointer g_DirectPointers[Entrypoints_NUM] = {
 #undef FUNC_LIST_ELEM_NOT_SUPPORTED
 };
 
+class FakeDynamicLibrary: public DynamicLibrary {
+public:
+    FakeDynamicLibrary(APILoader* apiLoader): m_APILoader(apiLoader) {}
+
+private:
+    virtual dgl_func_ptr getFunction(const char* symbolName) const override {
+        return m_APILoader->getExtPointer(symbolName);
+    }
+    APILoader* m_APILoader;
+};
+
 APILoader::APILoader()
         : m_LoadedApiLibraries(LIBRARY_NONE), m_GlueLibrary(LIBRARY_NONE) {}
 
-dgl_func_ptr APILoader::loadGLPointer(const DynamicLibrary& library, Entrypoint entryp) {
+dgl_func_ptr APILoader::getGLPointer(const DynamicLibrary& library, Entrypoint entryp) {
     return library.getFunction(GetEntryPointName(entryp));
+}
+
+dgl_func_ptr APILoader::getExtPointer(const char* name) {
+    if (!m_GlueLibrary) {
+        throw std::runtime_error(
+                "Trying to call *GetProcAdress, but no glue library "
+                "loaded");
+    }
+
+    dgl_func_ptr ret = nullptr;
+
+    switch (m_GlueLibrary) {
+#ifdef HAVE_LIBRARY_WGL
+        case LIBRARY_WGL:
+            ret = reinterpret_cast<dgl_func_ptr>(DIRECT_CALL(wglGetProcAddress)(name));
+            break;
+#endif
+#ifdef HAVE_LIBRARY_GLX
+        case LIBRARY_GLX:
+            ret = reinterpret_cast<dgl_func_ptr>(DIRECT_CALL(glXGetProcAddress)(
+                    reinterpret_cast<const GLubyte*>(name)));
+            break;
+#endif
+        case LIBRARY_EGL:
+            ret = reinterpret_cast<dgl_func_ptr>(DIRECT_CALL(eglGetProcAddress)(name));
+            break;
+        default:
+            DGL_ASSERT(!"unknown glue library");
+    }
+    return ret;
 }
 
 bool APILoader::loadExtPointer(Entrypoint entryp) {
     if (!g_DirectPointers[entryp].ptr) {
-
-        if (!m_GlueLibrary) {
-            throw std::runtime_error(
-                    "Trying to call *GetProcAdress, but no glue library "
-                    "loaded");
-        }
-
-        dgl_func_ptr ptr = NULL;
-
-        switch (m_GlueLibrary) {
-#ifdef HAVE_LIBRARY_WGL
-            case LIBRARY_WGL:
-                ptr = reinterpret_cast<dgl_func_ptr>(DIRECT_CALL(wglGetProcAddress)(
-                        GetEntryPointName(entryp)));
-                break;
-#endif
-#ifdef HAVE_LIBRARY_GLX
-            case LIBRARY_GLX:
-                ptr = reinterpret_cast<dgl_func_ptr>(DIRECT_CALL(glXGetProcAddress)(
-                        reinterpret_cast<const GLubyte*>(
-                                GetEntryPointName(entryp))));
-                break;
-#endif
-            case LIBRARY_EGL:
-                ptr = reinterpret_cast<dgl_func_ptr>(DIRECT_CALL(eglGetProcAddress)(
-                        GetEntryPointName(entryp)));
-                break;
-            default:
-                DGL_ASSERT(!"unknown glue library");
-        }
-        g_DirectPointers[entryp].ptr = ptr;
+        setPointer(entryp, getExtPointer(GetEntryPointName(entryp)));
     }
-    return g_DirectPointers[entryp].ptr != NULL;
+    return g_DirectPointers[entryp].ptr != nullptr;
 }
 
 std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
@@ -211,7 +222,6 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary, LoadMode mode) {
 
         std::vector<std::string> libSearchPath;
 
-        DynamicLibrary* openGLLibraryHandle = nullptr;
 
         libSearchPath.push_back("");
 #ifdef _WIN32
@@ -222,12 +232,11 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary, LoadMode mode) {
             libSearchPath.push_back(buffer + std::string("\\"));
         }
 #endif
-        if (!openGLLibraryHandle) {
-            if (GetSystemDirectory(buffer, sizeof(buffer)) > 0) {
-                // we are running on native system (32 on 32 or 64 on 64)
-                libSearchPath.push_back(buffer + std::string("\\"));
-            }
+        if (GetSystemDirectory(buffer, sizeof(buffer)) > 0) {
+            // we are running on native system (32 on 32 or 64 on 64)
+            libSearchPath.push_back(buffer + std::string("\\"));
         }
+
 #ifndef _WIN64
         libSearchPath.push_back("C:\\Windows\\SysWOW64\\");
 #endif
@@ -235,11 +244,22 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary, LoadMode mode) {
         libSearchPath.push_back(".");
 #endif
 
+        std::shared_ptr<DynamicLibrary> openGLLibraryHandle = nullptr;
+
         for (size_t i = 0; i < libSearchPath.size() && !openGLLibraryHandle;
              i++) {
             openGLLibraryHandle = EarlyGlobalState::getDynLoader().getLibrary(
                     (libSearchPath[i] + libraryName).c_str());
         }
+
+#if DGL_HAVE_WA(ANDROID_MISSING_LIBGL)
+        if (!openGLLibraryHandle && apiLibrary == LIBRARY_GL) {
+            //Some Android devices support 'big' OpenGL, but libGL.so is not provided.
+            //Instead fake the load process with *eglGetProcAddress
+
+            openGLLibraryHandle = std::make_shared<FakeDynamicLibrary>(this);
+        }
+#endif
 
         if (!openGLLibraryHandle) {
             std::string msg = std::string("Cannot load ") + libraryName +
@@ -250,7 +270,7 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary, LoadMode mode) {
         }
     }
 
-    DynamicLibrary* library = m_LoadedLibraries[libraryName];
+    DynamicLibrary* library = m_LoadedLibraries[libraryName].get();
 
 #ifdef _WIN32
     HookSession hookSession;
@@ -272,7 +292,7 @@ void APILoader::loadLibrary(ApiLibrary apiLibrary, LoadMode mode) {
         }
 
         // this sets g_DirectPointers[i].ptr
-        setPointer(i, loadGLPointer(*library, i));
+        setPointer(i, getGLPointer(*library, i));
 
         if (g_DirectPointers[i].ptr) {
 // this entrypoint was loaded from OpenGL32.dll, detour it!

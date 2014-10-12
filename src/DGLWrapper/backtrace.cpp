@@ -27,7 +27,7 @@ public:
         
         if (!s_CorkscrewDSO) {
             try {
-                s_CorkscrewDSO = EarlyGlobalState::getDynLoader().getLibrary("libcorkscrew.so");
+                s_CorkscrewDSO = EarlyGlobalState::getDynLoader().getLibrary("libcorkscrew.so").get();
             } catch (const std::runtime_error& e) {
                 Os::info(e.what());
             }
@@ -247,8 +247,11 @@ class BackTraceImpl: public BackTrace {
 #include <execinfo.h>
 
 class BackTraceImpl: public BackTrace {
+
     virtual void streamTo(std::vector<std::string>& ret) override {
+
         std::vector<void*> buffer(20);
+
         int nptrs = backtrace(&buffer[0], buffer.size());
         while (nptrs > 0 && nptrs == static_cast<int>(buffer.size())) {
             buffer.resize(buffer.size() * 2);
@@ -264,11 +267,9 @@ class BackTraceImpl: public BackTrace {
         ret.resize(nptrs);
 
         int realNptrs = 0;
-
         for (size_t i = 0; i < ret.size(); i++) {
             Dl_info symbolInfo;
             dladdr(reinterpret_cast<void*>(buffer[i]), &symbolInfo);
-            Os::info("XXX %x == %x\n", symbolInfo.dli_fbase,  currentLibraryAddress);
             if (symbolInfo.dli_fbase == currentLibraryAddress) {
                 //we assume, that removing current library symbols from backtrace
                 //is enough, to filter out DGL from backtrace. This implies no 3rd party
@@ -277,6 +278,7 @@ class BackTraceImpl: public BackTrace {
             }
             ret[realNptrs++] = strings[i];
         }
+
         free(strings);
         ret.resize(realNptrs);
     }
