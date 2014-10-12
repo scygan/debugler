@@ -947,6 +947,11 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryBufferGetters(GLBufferObj* 
     dglnet::resource::DGLResourceBuffer* resource;
     std::shared_ptr<dglnet::DGLResource> ret(
         resource = new dglnet::resource::DGLResourceBuffer());
+
+    //Bindging point target to use for reading buffer
+    //May be the same as last buffer target (to avoid redbinds), 
+    //but if uknown can be different
+    GLenum targetToUse = buff->getTarget();
     
     // rebind buffer, so we can access it
     GLint i;
@@ -996,24 +1001,26 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryBufferGetters(GLBufferObj* 
             DIRECT_CALL_CHK(glGetIntegerv)(GL_UNIFORM_BUFFER_BINDING, &i);
             break;
         default:
-            throw std::runtime_error("Buffer target is not supported");
+            //Last buffer target was not recognized. GL_ARRAY_BUFFER will be used as target
+            targetToUse = GL_ARRAY_BUFFER;
+            DIRECT_CALL_CHK(glGetIntegerv)(GL_ARRAY_BUFFER_BINDING, &i);
     }
     GLuint lastBuffer = static_cast<GLuint>(i);
     if (lastBuffer != buff->getName()) {
-        DIRECT_CALL_CHK(glBindBuffer)(buff->getTarget(), buff->getName());
+        DIRECT_CALL_CHK(glBindBuffer)(targetToUse, buff->getName());
     }
 
     queryCheckError();
 
     GLint mapped;
-    DIRECT_CALL_CHK(glGetBufferParameteriv)(buff->getTarget(), GL_BUFFER_MAPPED,
+    DIRECT_CALL_CHK(glGetBufferParameteriv)(targetToUse, GL_BUFFER_MAPPED,
                                             &mapped);
     if (mapped == GL_TRUE) {
         throw std::runtime_error(
                 "Buffer is currently mapped, cannot access data.");
     } else {
         GLint size = 0;
-        DIRECT_CALL_CHK(glGetBufferParameteriv)(buff->getTarget(),
+        DIRECT_CALL_CHK(glGetBufferParameteriv)(targetToUse,
                                                 GL_BUFFER_SIZE, &size);
 
         queryCheckError();
@@ -1025,11 +1032,11 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryBufferGetters(GLBufferObj* 
 
             if (m_Version.check(GLContextVersion::Type::ES)) {
                 const char* ptr = reinterpret_cast<const char*>(
-                    DIRECT_CALL_CHK(glMapBufferRange)(buff->getTarget(), 0, size, GL_MAP_READ_BIT));
+                    DIRECT_CALL_CHK(glMapBufferRange)(targetToUse, 0, size, GL_MAP_READ_BIT));
                 std::copy(ptr, ptr + size, resource->m_Data.begin());
-                DIRECT_CALL_CHK(glUnmapBuffer)(buff->getTarget());
+                DIRECT_CALL_CHK(glUnmapBuffer)(targetToUse);
             } else {
-                DIRECT_CALL_CHK(glGetBufferSubData)(buff->getTarget(), 0, size,
+                DIRECT_CALL_CHK(glGetBufferSubData)(targetToUse, 0, size,
                     &resource->m_Data[0]);
             }
         }
@@ -1037,7 +1044,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryBufferGetters(GLBufferObj* 
 
     // restore state
     if (lastBuffer != buff->getName()) {
-        DIRECT_CALL_CHK(glBindBuffer)(buff->getTarget(), lastBuffer);
+        DIRECT_CALL_CHK(glBindBuffer)(targetToUse, lastBuffer);
     }
 
     return ret;
@@ -1074,9 +1081,6 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryBuffer(gl_t _name) {
     // check if we know about a texture target
     std::unique_ptr<GLShareableObjectsAccessor> accessor  = ns().getShared();
     GLBufferObj* buff = accessor->get().m_Buffers.getOrCreateObject<void>(name);
-    if (buff->getTarget() == 0) {
-        throw std::runtime_error("Buffer target is unknown");
-    }
 
     if (hasCapability(ContextCap::GetBufferSubData)) {
         return queryBufferGetters(buff);
