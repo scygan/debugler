@@ -97,7 +97,7 @@ const GLTextureObj::GLTextureLevel* GLTextureObj::getRequestedLevel(GLint level)
     }
 }
 
-GLenum GLTextureObj::getTextureLevelTarget(int face) const {
+GLenum GLTextureObj::getTextureLevelTarget(size_t face) const {
     if (getTarget() == GL_TEXTURE_CUBE_MAP) {
         GLenum cubeMapFaces[] = {
                 GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X,

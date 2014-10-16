@@ -575,7 +575,7 @@ void GLAuxContext::GLQueries::setupInitialState() {
 
 void GLAuxContext::GLQueries::auxDrawTexture(GLuint name, GLenum target,
                                              GLint level, GLint layer,
-                                             GLint face,
+                                             size_t face,
                                              GLenum textureBaseFormat,
                                              GLenum renderableFormat, int width,
                                              int height) {

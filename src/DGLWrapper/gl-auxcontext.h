@@ -94,7 +94,7 @@ class GLAuxContext {
 
         void setupInitialState();
 
-        void auxDrawTexture(GLuint name, GLenum target, GLint level, GLint layer, GLint face,
+        void auxDrawTexture(GLuint name, GLenum target, GLint level, GLint layer, size_t face,
                             GLenum textureBaseFormat, GLenum renderableFormat, int width, int height);
 
         void auxGetBufferData(GLuint name, std::vector<char>& ret);

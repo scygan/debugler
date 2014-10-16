@@ -71,7 +71,7 @@ class GLTextureObj : public GLObj {
      *
      * Face is required argument for cubemaps.
      */
-    GLenum getTextureLevelTarget(int face) const;
+    GLenum getTextureLevelTarget(size_t face) const;
 
     /**
      * Class describing level parameters 

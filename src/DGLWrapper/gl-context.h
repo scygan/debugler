@@ -125,7 +125,7 @@ class GLContext {
      * texture level query (dispatches to API-specific query implementation)
      */
     std::shared_ptr<dglnet::resource::DGLPixelRectangle> queryTextureLevel(
-            const GLTextureObj* tex, int level, int layer, int face,
+            const GLTextureObj* tex, int level, int layer, size_t face,
             state_setters::PixelStoreAlignment&);
 
     /**
@@ -133,14 +133,14 @@ class GLContext {
      */
     std::shared_ptr<dglnet::resource::DGLPixelRectangle>
             queryTextureLevelGetters(
-                    const GLTextureObj* tex, int level, int layer, int face,
+                    const GLTextureObj* tex, int level, int layer, size_t face,
                     state_setters::PixelStoreAlignment& defAlignment);
 
     /**
      * texture level query (OpenGL ES, using auxiliary context)
      */
     std::shared_ptr<dglnet::resource::DGLPixelRectangle>
-            queryTextureLevelAuxCtx(const GLTextureObj* tex, int level, int layer, int face);
+            queryTextureLevelAuxCtx(const GLTextureObj* tex, int level, int layer, size_t face);
 
     bool isTexture1Dim(GLenum target);
     bool isTexture2Dim(GLenum target);

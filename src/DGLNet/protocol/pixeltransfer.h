@@ -63,6 +63,10 @@ class GLFormats {
 
     static GLenum getDepthInternalformatFromDepthStencil(const GLInternalFormat* internalFormat);
     static GLenum getStencilInternalformatFromDepthStencil(const GLInternalFormat* internalFormat);
+
+    static const size_t kNumChannelsRGBA = 4;
+    static const size_t kNumChannelsRGB  = 3;
+    static const size_t kNumChannelsDS   = 2;
 };
 
 class DGLPixelTransfer {

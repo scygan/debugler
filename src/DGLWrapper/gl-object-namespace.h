@@ -105,7 +105,7 @@ public:
         std::set<dglnet::ContextObjectName> ret;
 
         for (typename std::map<GLuint, ObjType>::iterator i = m_Objects.begin();
-            i != m_Objects.end(); i++) {
+            i != m_Objects.end(); ++i) {
                 ret.insert(
                     dglnet::ContextObjectName(ctxName, i->second.getName(), i->second.getTarget()));
         }

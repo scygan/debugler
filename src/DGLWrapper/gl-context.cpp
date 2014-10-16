@@ -76,20 +76,20 @@ void GLContextVersion::initialize(const char* cVersion) {
 
     Type parsedType = m_Type;
 
-    int vOffset = 0;
+    size_t vOffset = 0;
 
     //ES versions usually have an prefix.
     if (version.substr(0, strlen("OpenGL ES ")) == "OpenGL ES ") {
-        vOffset = (int)strlen("OpenGL ES ");
+        vOffset = strlen("OpenGL ES ");
         parsedType = Type::ES;
     } else if (version.substr(0, strlen("OpenGL ES-CM ")) == "OpenGL ES-CM ") {
-        vOffset = (int)strlen("OpenGL ES-CM ");
+        vOffset = strlen("OpenGL ES-CM ");
         parsedType = Type::ES;
     } else if (version.substr(0, strlen("OpenGL ES-CL ")) == "OpenGL ES-CL ") {
-        vOffset = (int)strlen("OpenGL ES-CL ");
+        vOffset = strlen("OpenGL ES-CL ");
         parsedType = Type::ES;
     } else if (version.substr(0, strlen("OpenGL ES-")) == "OpenGL ES-") {
-        vOffset = (int)strlen("OpenGL ES-");
+        vOffset = strlen("OpenGL ES-");
         parsedType = Type::ES;
     }
 
@@ -97,7 +97,7 @@ void GLContextVersion::initialize(const char* cVersion) {
 
     m_Type = parsedType;
 
-    if (vOffset >= 0 && vOffset + 2 <= (int)version.length() &&
+    if (vOffset + 2 <= version.length() &&
         version[vOffset] >= '0' && version[vOffset] <= '9' &&
         version[vOffset + 1] == '.' &&
         version[vOffset + 2] >= '0' && version[vOffset + 2] <= '9') {
@@ -233,7 +233,7 @@ dglnet::message::utils::ContextReport GLContext::describe() {
 
         //for each reported name get PPO contents report
         for (std::set<dglnet::ContextObjectName>::iterator it = barePPOs.begin();
-            it != barePPOs.end(); it++) {
+            it != barePPOs.end(); ++it) {
 
             GLProgramPipelineObj* ppo = ns().m_ProgramPipelines.getObject(static_cast<GLuint>(it->m_Name));
 
@@ -301,7 +301,7 @@ void GLContext::setDebugOutput(GLenum source, GLenum type, GLuint id,
     if (m_InQuery) return;
 
     m_HasDebugOutput = true;
-    m_DebugOutput = std::string(message, length);
+    m_DebugOutput = std::string(message, static_cast<size_t>(length));
 
     if (m_DebugOutputCallback) {
         m_DebugOutputCallback(source, type, id, severity, length, message,
@@ -441,7 +441,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
             std::vector<dglnet::resource::DGLResourceTexture::TextureLayer> currentLevel;
 
             GLint samples, internalFormat;
-            tex->getFormat(this, level, tex->getTextureLevelTarget(static_cast<int>(face)), internalFormat, samples);
+            tex->getFormat(this, level, tex->getTextureLevelTarget(face), internalFormat, samples);
 
             for (int layer = 0;; layer++) {
 
@@ -614,7 +614,7 @@ void GLContext::queryTextureLevelSize(const GLTextureObj* tex, GLuint level,
 }
 
 std::shared_ptr<dglnet::resource::DGLPixelRectangle>
-GLContext::queryTextureLevel(const GLTextureObj* tex, int level, int layer, int face,
+GLContext::queryTextureLevel(const GLTextureObj* tex, int level, int layer, size_t face,
                              state_setters::PixelStoreAlignment& defAlignment) {
     if (hasCapability(ContextCap::TextureGetters)) {
         return queryTextureLevelGetters(tex, level, layer, face, defAlignment);
@@ -691,7 +691,7 @@ int GLContext::textureBisectSizeES(GLenum levelTarget, int level, int coord,
 
 std::shared_ptr<dglnet::resource::DGLPixelRectangle>
 GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
-                                   int layer, int face) {
+                                   int layer, size_t face) {
 
     std::shared_ptr<dglnet::resource::DGLPixelRectangle> ret;
 
@@ -701,7 +701,7 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
     queryTextureLevelSize(tex, level, &width, &height, &depth);
 
     if (!width || !height || depth <= layer) {
-        return ret;
+        return nullptr;
     }
 
     try {
@@ -788,7 +788,7 @@ GLContext::queryTextureLevelAuxCtx(const GLTextureObj* tex, int level,
 
 std::shared_ptr<dglnet::resource::DGLPixelRectangle>
 GLContext::queryTextureLevelGetters(
-        const GLTextureObj* tex, int level, int layer, int face,
+        const GLTextureObj* tex, int level, int layer, size_t face,
         state_setters::PixelStoreAlignment& defAlignment) {
 
     GLint height, width, depth;
@@ -799,10 +799,11 @@ GLContext::queryTextureLevelGetters(
 
     queryTextureLevelSize(tex, level, &width, &height, &depth);
 
-    if (!width || !height || depth <= layer || DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR)
-        return ret;
+    if (!width || !height || depth <= layer || DIRECT_CALL_CHK(glGetError)() != GL_NO_ERROR) {
+        return nullptr;
+    }
 
-    std::vector<GLint> rgbaSizes(4, 0);
+    std::vector<GLint> rgbaSizes(GLFormats::kNumChannelsRGBA, 0);
     DIRECT_CALL_CHK(glGetTexLevelParameteriv)(
             levelTarget, level, GL_TEXTURE_RED_SIZE, &rgbaSizes[0]);
     DIRECT_CALL_CHK(glGetTexLevelParameteriv)(
@@ -812,7 +813,7 @@ GLContext::queryTextureLevelGetters(
     DIRECT_CALL_CHK(glGetTexLevelParameteriv)(
             levelTarget, level, GL_TEXTURE_ALPHA_SIZE, &rgbaSizes[3]);
 
-    std::vector<GLint> deptStencilSizes(2, 0);
+    std::vector<GLint> deptStencilSizes(GLFormats::kNumChannelsDS, 0);
     DIRECT_CALL_CHK(glGetTexLevelParameteriv)(
             levelTarget, level, GL_TEXTURE_DEPTH_SIZE, &deptStencilSizes[0]);
 
@@ -865,7 +866,7 @@ GLContext::queryTextureLevelGetters(
                 readPtr = reinterpret_cast<uint8_t*>(ptr); 
             } else {
                 //more 2D layers present, prepare a tmp buffer for them
-                tmpBuffer.resize(layerSize * depth);
+                tmpBuffer.resize(layerSize * static_cast<size_t>(depth));
                 readPtr = &tmpBuffer[0];
             }
 
@@ -874,7 +875,7 @@ GLContext::queryTextureLevelGetters(
                 (GLenum)transfer.getType(), readPtr);
 
             if (readPtr != ptr) {
-                memcpy(ptr, &readPtr[layer * layerSize], layerSize);
+                memcpy(ptr, &readPtr[static_cast<size_t>(layer) * layerSize], layerSize);
             }
 
         }
@@ -1028,15 +1029,15 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryBufferGetters(GLBufferObj* 
         if (!size) {
             throw std::runtime_error("Buffer empty (GL_BUFFER_SIZE is 0)");
         } else {
-            resource->m_Data.resize(size);
+            resource->m_Data.resize(static_cast<size_t>(size));
 
             if (m_Version.check(GLContextVersion::Type::ES)) {
                 const char* ptr = reinterpret_cast<const char*>(
-                    DIRECT_CALL_CHK(glMapBufferRange)(targetToUse, 0, size, GL_MAP_READ_BIT));
-                std::copy(ptr, ptr + size, resource->m_Data.begin());
+                    DIRECT_CALL_CHK(glMapBufferRange)(targetToUse, 0, static_cast<GLsizeiptr>(size), GL_MAP_READ_BIT));
+                std::copy(ptr, ptr + static_cast<size_t>(size), resource->m_Data.begin());
                 DIRECT_CALL_CHK(glUnmapBuffer)(targetToUse);
             } else {
-                DIRECT_CALL_CHK(glGetBufferSubData)(targetToUse, 0, size,
+                DIRECT_CALL_CHK(glGetBufferSubData)(targetToUse, 0, static_cast<GLsizeiptr>(size),
                     &resource->m_Data[0]);
             }
         }
@@ -1181,8 +1182,8 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
 
     // fill table with color attachments to look for
     std::vector<GLenum> attachments(maxColorAttachments);
-    for (int i = 0; i < maxColorAttachments; i++) {
-        attachments[i] = GL_COLOR_ATTACHMENT0 + i;
+    for (size_t i = 0; i < static_cast<size_t>(maxColorAttachments); i++) {
+        attachments[i] = GL_COLOR_ATTACHMENT0 + static_cast<GLenum>(i);
     }
 
     // additionally we will check some non-color attachments
@@ -1261,21 +1262,23 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
                     &internalFormat            // internalFormat is returned here
                 );
 
-            resource->m_Attachments.back().m_PixelRectangle = convert_shared_ptr(pixelRectangle);
+            dglnet::resource::DGLResourceFBO::FBOAttachment& attachment = resource->m_Attachments.back();
+
+            attachment.m_PixelRectangle = convert_shared_ptr(pixelRectangle);
                
 
-            DGL_ASSERT(queryPixels == (resource->m_Attachments.back().m_PixelRectangle != nullptr));
+            DGL_ASSERT(queryPixels == (attachment.m_PixelRectangle != nullptr));
 
-            resource->m_Attachments.back().m_Samples = samples;
-            resource->m_Attachments.back().m_Internalformat = internalFormat;
+            attachment.m_Samples = samples;
+            attachment.m_Internalformat = internalFormat;
 
             if (!complete) {
-                resource->m_Attachments.back().error(
+                attachment.error(
                     "Cannot query pixels of incomplete FBO");
             }
 
             if (isDSQueryOnES) {
-                resource->m_Attachments.back().error(
+                attachment.error(
                     "Cannot query pixels of depth or stencil buffers on OpenGL ES");
             }
 
@@ -1319,7 +1322,7 @@ std::shared_ptr<dglnet::resource::DGLPixelRectangle> GLContext::queryFramebuffer
      GLenum attTarget = 0;
      bool multisampled = false;
 
-     std::vector<GLint> rgbaSizes(4, 0);
+     std::vector<GLint> rgbaSizes(GLFormats::kNumChannelsRGBA, 0);
      std::vector<GLint> deptStencilSizes(2, 0);
 
      if (attachmentType == GL_TEXTURE) {
@@ -1736,7 +1739,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
 
     std::set<GLShaderObj*> attachedShaders = program->getAttachedShaders();
     for (std::set<GLShaderObj*>::iterator it = attachedShaders.begin();
-         it != attachedShaders.end(); it++) {
+        it != attachedShaders.end(); ++it) {
         resource->m_AttachedShaders.push_back(
                 std::pair<gl_t, gl_t>((*it)->getName(), (*it)->getTarget()));
     }
@@ -1749,14 +1752,14 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
 
     std::string infoLog;
     if (infoLogLength) {
-        infoLog.resize(infoLogLength);
+        infoLog.resize(static_cast<size_t>(infoLogLength));
         GLint realInfoLogLength;
         DIRECT_CALL_CHK(glGetProgramInfoLog)(
                 program->getName(), static_cast<GLsizei>(infoLog.size()),
                 &realInfoLogLength, &infoLog[0]);
         if (realInfoLogLength < infoLogLength) {
             // highly unlikely, only on buggy drivers
-            infoLog.resize(realInfoLogLength);
+            infoLog.resize(static_cast<size_t>(realInfoLogLength));
         }
     }
 
@@ -1788,7 +1791,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
                     name, idx, activeUniformsMaxNameLength, &length, &size,
                     &type, &nameBuffer[0]);
 
-            nameBuffer[length] = 0;
+            nameBuffer[static_cast<size_t>(length)] = 0;
             uniform.m_name = &nameBuffer[0];
             uniform.m_type = type;
 
@@ -1797,7 +1800,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
             if (uniform.m_location >= 0) {
                 uniform.m_supportedType = true;
                 GLenum baseType = 0;
-                int typeSize = 0;
+                size_t typeSize = 0;
                 switch (type) {
                     case GL_FLOAT:
                     case GL_FLOAT_VEC2:
@@ -2044,31 +2047,31 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
                     // typeSize is size of uniform type in terms of baseType
                     // elements
 
-                    uniform.m_value.resize(size * typeSize);
+                    uniform.m_value.resize(static_cast<size_t>(size) * typeSize);
 
                     if (baseType == GL_FLOAT) {
                         std::vector<GLfloat> value(uniform.m_value.size());
-                        for (int loc = 0; loc < size; loc++) {
+                        for (size_t loc = 0; loc < static_cast<size_t>(size); loc++) {
                             DIRECT_CALL_CHK(glGetUniformfv)(
-                                    name, uniform.m_location + loc,
+                                    name, uniform.m_location + static_cast<GLint>(loc),
                                     &value[loc * typeSize]);
                         }
                         std::copy(value.begin(), value.end(),
                                   uniform.m_value.begin());
                     } else if (baseType == GL_DOUBLE) {
                         std::vector<GLdouble> value(uniform.m_value.size());
-                        for (int loc = 0; loc < size; loc++) {
+                        for (size_t loc = 0; loc < static_cast<size_t>(size); loc++) {
                             DIRECT_CALL_CHK(glGetUniformdv)(
-                                    name, uniform.m_location + loc,
+                                    name, uniform.m_location + static_cast<GLint>(loc),
                                     &value[loc * typeSize]);
                         }
                         std::copy(value.begin(), value.end(),
                                   uniform.m_value.begin());
                     } else if (baseType == GL_INT) {
                         std::vector<GLint> value(uniform.m_value.size());
-                        for (int loc = 0; loc < size; loc++) {
+                        for (size_t loc = 0; loc < static_cast<size_t>(size); loc++) {
                             DIRECT_CALL_CHK(glGetUniformiv)(
-                                    name, uniform.m_location + loc,
+                                    name, uniform.m_location + static_cast<GLint>(loc),
                                     &value[loc * typeSize]);
                         }
                         std::copy(value.begin(), value.end(),
@@ -2076,9 +2079,9 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryProgram(gl_t _name) {
                     } else if (baseType == GL_UNSIGNED_INT ||
                                baseType == GL_BOOL) {
                         std::vector<GLuint> value(uniform.m_value.size());
-                        for (int loc = 0; loc < size; loc++) {
+                        for (size_t loc = 0; loc < static_cast<size_t>(size); loc++) {
                             DIRECT_CALL_CHK(glGetUniformuiv)(
-                                    name, uniform.m_location + loc,
+                                    name, uniform.m_location + static_cast<GLint>(loc),
                                     &value[loc * typeSize]);
                         }
                         std::copy(value.begin(), value.end(),
@@ -2269,7 +2272,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryState(gl_t) {
     for (int store = 0; store <=1; store++) {
         
         //this points to location in returned resource.
-        int loc = 0;
+        size_t loc = 0;
 
 #define STATE_BASE(SETTER, NAME, VALUE, LENGTH)                         \
         if (store) {                                                    \
@@ -3278,10 +3281,10 @@ void GLContext::firstUse() {
 
     if (hasCapability(ContextCap::HasGetStringI)) {
         DIRECT_CALL_CHK(glGetIntegerv)(GL_NUM_EXTENSIONS, &maxExtensions);
-        exts.resize(maxExtensions);
-        for (int i = 0; i < maxExtensions; i++) {
+        exts.resize(static_cast<size_t>(maxExtensions));
+        for (size_t i = 0; i < static_cast<size_t>(maxExtensions); i++) {
             exts[i] = (const char*)DIRECT_CALL_CHK(glGetStringi)(GL_EXTENSIONS,
-                                                                 i);
+                                                                 static_cast<GLuint>(i));
         }
     } else {
         std::string allExts =

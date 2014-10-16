@@ -314,7 +314,7 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
 
                 std::vector<gl_t> attributes;
                 if (attribList) {
-                    int i = 0;
+                    size_t i = 0;
                     while (attribList[i]) {
                         attributes.push_back(attribList[i++]);
                         attributes.push_back(attribList[i++]);
@@ -562,7 +562,7 @@ void ContextAction::Post(const CalledEntryPoint& call, const RetValue& ret) {
                 int major = 1, minor = 1;
 
                 if (attribList) {
-                    int i = 0;
+                    size_t i = 0;
                     while (attribList[i] != EGL_NONE) {
                         if (attribList[i] == EGL_CONTEXT_CLIENT_VERSION ||
                             attribList[i] == EGL_CONTEXT_MAJOR_VERSION_KHR) {
@@ -718,7 +718,7 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
     std::vector<int> newAttribList;
     bool done = false;
     if (attribList != NULL) {
-        int i = 0;
+        size_t i = 0;
         while (attribList[i]) {
             int attrib = attribList[i++], value = attribList[i++];
             if (attrib == WGL_CONTEXT_FLAGS_ARB) {
@@ -867,7 +867,7 @@ void TextureAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& 
             GLuint* names;
             call.getArgs()[1].get(names);
 
-            for (GLsizei i = 0; i < n; i++) {
+            for (size_t i = 0; i < static_cast<size_t>(n); i++) {
                 gc->ns().getShared()->get().m_Textures.getOrCreateObject<void>(names[i]);
             }
         } else if (entrp == glDeleteTextures_Call ||
@@ -878,7 +878,7 @@ void TextureAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& 
             const GLuint* names;
             call.getArgs()[1].get(names);
 
-            for (GLsizei i = 0; i < n; i++) {
+            for (size_t i = 0; i < static_cast<size_t>(n); i++) {
                 gc->shadow().getTexUnits().unbindTexture(names[i]);
                 gc->ns().getShared()->get().m_Textures.deleteObject(names[i]);
             }
@@ -934,80 +934,82 @@ void TextureFormatAction::NoGLErrorPost(const CalledEntryPoint& call, const RetV
         
         bool immutable = false;
 
-        call.getArgs()[0].get(target); 
+        const std::vector<AnyValue>& args = call.getArgs();
+
+        args[0].get(target); 
         switch (entrp) {
             case glTexImage1D_Call:
-                call.getArgs()[1].get(level);
-                call.getArgs()[2].get(tmpiFormat_asInt);   //GLint
+                args[1].get(level);
+                args[2].get(tmpiFormat_asInt);   //GLint
                 iFormat = tmpiFormat_asInt;
-                call.getArgs()[3].get(width);
-                call.getArgs()[call.getArgs().size() - 3].get(format);
-                call.getArgs()[call.getArgs().size() - 2].get(type);
+                args[3].get(width);
+                args[args.size() - 3].get(format);
+                args[args.size() - 2].get(type);
                 break;
             case glTexImage2D_Call:
-                call.getArgs()[1].get(level);
-                call.getArgs()[2].get(tmpiFormat_asInt);    //GLint
+                args[1].get(level);
+                args[2].get(tmpiFormat_asInt);    //GLint
                 iFormat = tmpiFormat_asInt;
-                call.getArgs()[3].get(width);
-                call.getArgs()[4].get(height);
-                call.getArgs()[call.getArgs().size() - 3].get(format);
-                call.getArgs()[call.getArgs().size() - 2].get(type);
+                args[3].get(width);
+                args[4].get(height);
+                args[args.size() - 3].get(format);
+                args[args.size() - 2].get(type);
                 break;
             case glTexImage2DMultisample_Call:
-                call.getArgs()[2].get(iFormat); //GLenum (genius!)
-                call.getArgs()[3].get(width);
-                call.getArgs()[4].get(height);
+                args[2].get(iFormat); //GLenum (genius!)
+                args[3].get(width);
+                args[4].get(height);
                 break;
             case glTexImage3D_Call:    
-                call.getArgs()[1].get(level);
-                call.getArgs()[2].get(tmpiFormat_asInt);    //GLint
+                args[1].get(level);
+                args[2].get(tmpiFormat_asInt);    //GLint
                 iFormat = tmpiFormat_asInt;
-                call.getArgs()[3].get(width);
-                call.getArgs()[4].get(height);
-                call.getArgs()[5].get(depth);
-                call.getArgs()[call.getArgs().size() - 3].get(format);
-                call.getArgs()[call.getArgs().size() - 2].get(type);
+                args[3].get(width);
+                args[4].get(height);
+                args[5].get(depth);
+                args[args.size() - 3].get(format);
+                args[args.size() - 2].get(type);
                 break;
             case glTexImage3DEXT_Call: //Glenum <iformat> (seriously, what-da-fak!)
             case glTexImage3DOES_Call:
-                call.getArgs()[1].get(level);
-                call.getArgs()[2].get(iFormat);   //GLenum (and you are fired.)
-                call.getArgs()[3].get(width);
-                call.getArgs()[4].get(height);
-                call.getArgs()[5].get(depth);
-                call.getArgs()[call.getArgs().size() - 3].get(format);
-                call.getArgs()[call.getArgs().size() - 2].get(type);
+                args[1].get(level);
+                args[2].get(iFormat);   //GLenum (and you are fired.)
+                args[3].get(width);
+                args[4].get(height);
+                args[5].get(depth);
+                args[args.size() - 3].get(format);
+                args[args.size() - 2].get(type);
             break;
             case glTexImage3DMultisample_Call:
-                call.getArgs()[2].get(iFormat);   //GLenum
-                call.getArgs()[3].get(width);
-                call.getArgs()[4].get(height);
-                call.getArgs()[5].get(depth);
+                args[2].get(iFormat);   //GLenum
+                args[3].get(width);
+                args[4].get(height);
+                args[5].get(depth);
                 break;
 
             case glTexStorage3DEXT_Call:  //GLenum <iformat>
             case glTexStorage3D_Call:     //GLenum <iformat>
-                call.getArgs()[5].get(depth);
+                args[5].get(depth);
                 //fall through
             case glTexStorage2DEXT_Call:  //Glenum <iformat>  (so far, so glenum!)
             case glTexStorage2D_Call:     //GLenum <iformat>
-                call.getArgs()[4].get(height);
+                args[4].get(height);
                 //fall through
             case glTexStorage1DEXT_Call:  //GLenum
             case glTexStorage1D_Call:
-                call.getArgs()[1].get(level);
-                call.getArgs()[2].get(iFormat);   //GLenum
-                call.getArgs()[3].get(width);
+                args[1].get(level);
+                args[2].get(iFormat);   //GLenum
+                args[3].get(width);
                 immutable = true;
                 break;
 
             case glTexStorage3DMultisample_Call:  //GLenum
-                call.getArgs()[5].get(depth);
+                args[5].get(depth);
                 //fall through
             case glTexStorage2DMultisample_Call:
-                call.getArgs()[4].get(height);
-                call.getArgs()[2].get(iFormat);  //GLenum
-                call.getArgs()[3].get(width);
+                args[4].get(height);
+                args[2].get(iFormat);  //GLenum
+                args[3].get(width);
                 immutable = true;
             break;
         }
@@ -1054,7 +1056,7 @@ void BufferAction::NoGLErrorPost(const CalledEntryPoint& call, const RetValue& r
             GLuint* names;
             call.getArgs()[1].get(names);
 
-            for (GLsizei i = 0; i < n; i++) {
+            for (size_t i = 0; i < static_cast<size_t>(n); i++) {
                 gc->ns().getShared()->get().m_Buffers.getOrCreateObject<void>(names[i]);
             }
         } else if (entrp == glDeleteBuffers_Call ||

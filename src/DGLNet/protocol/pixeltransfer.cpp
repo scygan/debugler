@@ -28,10 +28,6 @@
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 
-const size_t kNumChannelsRGBA = 4;
-const size_t kNumChannelsRGB  = 3;
-const size_t kNumChannelsDS   = 2;
-
 namespace blt {
 
 inline void blitUNORM8(const void* inVoid, int components, float* out) {
@@ -219,7 +215,7 @@ std::vector<AnyValue> extract(const void* inVoid, size_t channels) {
 }
 
 std::vector<AnyValue> extractUNORM4444(const void* inVoid, size_t /*components*/) {
-    std::vector<AnyValue> ret(kNumChannelsRGBA);
+    std::vector<AnyValue> ret(GLFormats::kNumChannelsRGBA);
     const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
     ret[3] = inCast[0] & 0x0f;
     ret[2] = (inCast[0] & (0x0f << 4)) >> 4;
@@ -229,7 +225,7 @@ std::vector<AnyValue> extractUNORM4444(const void* inVoid, size_t /*components*/
 }
 
 std::vector<AnyValue> extractUNORM5551(const void* inVoid, size_t /*components*/) {
-    std::vector<AnyValue> ret(kNumChannelsRGBA);
+    std::vector<AnyValue> ret(GLFormats::kNumChannelsRGBA);
     const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
     ret[3] = static_cast<float>(inCast[0] & 0x01);
     ret[2] = (inCast[0] & (0x1f << 1)) >> 1;
@@ -240,7 +236,7 @@ std::vector<AnyValue> extractUNORM5551(const void* inVoid, size_t /*components*/
 
 std::vector<AnyValue> extractUNORM2101010_REV(const void* inVoid,
                                               size_t /*components*/) {
-    std::vector<AnyValue> ret(kNumChannelsRGBA);
+    std::vector<AnyValue> ret(GLFormats::kNumChannelsRGBA);
     const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
     ret[0] = inCast[0] & 0x3ff;
     ret[1] = (inCast[0] & (0x3ff << 10)) >> 10;
@@ -250,7 +246,7 @@ std::vector<AnyValue> extractUNORM2101010_REV(const void* inVoid,
 }
 
 std::vector<AnyValue> extractUNORM565(const void* inVoid, size_t /*components*/) {
-    std::vector<AnyValue> ret(kNumChannelsRGB);
+    std::vector<AnyValue> ret(GLFormats::kNumChannelsRGB);
     const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
     ret[2] = inCast[0] & 0x1f;
     ret[1] = (inCast[0] & (0x3f << 5)) >> 5;
@@ -259,7 +255,7 @@ std::vector<AnyValue> extractUNORM565(const void* inVoid, size_t /*components*/)
 }
 
 std::vector<AnyValue> extractUNORM24_8(const void* inVoid, size_t /*components*/) {
-    std::vector<AnyValue> ret(kNumChannelsDS);
+    std::vector<AnyValue> ret(GLFormats::kNumChannelsDS);
     const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
     ret[1] = inCast[0] & 0xff;
     ret[0] = (inCast[0] & (0xffffff << 8)) >> 8;
@@ -268,7 +264,7 @@ std::vector<AnyValue> extractUNORM24_8(const void* inVoid, size_t /*components*/
 
 std::vector<AnyValue> extractF32_UNORM24_8(const void* inVoid,
                                            size_t /*components*/) {
-    std::vector<AnyValue> ret(kNumChannelsDS);
+    std::vector<AnyValue> ret(GLFormats::kNumChannelsDS);
     const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
     ret[1] = inCast[1] & 0xff;
     ret[0] = *reinterpret_cast<const float*>(&inCast[0]);
@@ -276,7 +272,7 @@ std::vector<AnyValue> extractF32_UNORM24_8(const void* inVoid,
 }
 
 std::vector<AnyValue> extractUNORM332(const void* inVoid, size_t /*components*/) {
-    std::vector<AnyValue> ret(kNumChannelsRGB);
+    std::vector<AnyValue> ret(GLFormats::kNumChannelsRGB);
     const uint8_t* inCast = reinterpret_cast<const uint8_t*>(inVoid);
     ret[2] = inCast[0] & 0x3;
     ret[1] = (inCast[0] & (0x7 << 2)) >> 2;
@@ -688,7 +684,7 @@ bool DGLPixelTransfer::initializeOGL(GLenum internalFormat,
         // try quess them
 
         std::vector<GLint> rgbaSizes(_rgbaSizes);
-        rgbaSizes.resize(kNumChannelsRGBA, 0);
+        rgbaSizes.resize(GLFormats::kNumChannelsRGBA, 0);
 
         bool isColorBuffer = false;
         for (size_t i = 0; i < rgbaSizes.size(); i++)
