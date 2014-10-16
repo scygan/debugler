@@ -480,7 +480,7 @@ void GLAuxContext::GLQueries::setupInitialState() {
     };
 
     GLfloat vertexPos[kBufferGetterChunkSize];
-    for (int i = 0; i < kBufferGetterChunkSize; i++)
+    for (size_t i = 0; i < kBufferGetterChunkSize; i++)
         vertexPos[i] = static_cast<GLfloat>(i) /
                                static_cast<GLfloat>(kBufferGetterChunkSize) * 2.0f - 1.0f;
 
