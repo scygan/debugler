@@ -109,11 +109,11 @@ void DGLAdbCookie::filterOutput(const std::vector<std::string>& lines) {
     }
 }
 
-void DGLAdbCookie::onDone(std::vector<std::string> data) {
+void DGLAdbCookie::onDone(const std::vector<std::string>& data) {
     m_Handler->done(data);
 }
 
-void DGLAdbCookie::onFailed(std::string reason) { m_Handler->failed(reason); }
+void DGLAdbCookie::onFailed(const std::string& reason) { m_Handler->failed(reason); }
 
 DGLAdbCookieImpl::DGLAdbCookieImpl(const std::string& adbPath,
                                    const std::vector<std::string>& params,
@@ -155,8 +155,10 @@ void DGLAdbCookieImpl::handleProcessFinished(int code,
                                              QProcess::ExitStatus status) {
     if (status == QProcess::NormalExit) {
 
-        QByteArray qData = m_process->getProcess()->readAllStandardError();
-        qData.append(m_process->getProcess()->readAllStandardOutput());
+        QProcess* process = m_process->getProcess();
+
+        QByteArray qData = process->readAllStandardError();
+        qData.append(process->readAllStandardOutput());
         QList<QByteArray> qLines = qData.split('\n');
         std::vector<std::string> lines;
 
@@ -213,7 +215,7 @@ void DGLAdbCookieImpl::handleProcessFinished(int code,
     }
 }
 
-DGLAdbCookieFactory::DGLAdbCookieFactory(const std::string adbPath)
+DGLAdbCookieFactory::DGLAdbCookieFactory(const std::string& adbPath)
         : m_adbPath(adbPath) {}
 
 const std::string& DGLAdbCookieFactory::getAdbPath() { return m_adbPath; }

@@ -191,7 +191,7 @@ void DGLADBDevice::queryStatus() {
     invokeAsShellUser(params)->process();
 }
 
-DGLAdbCookie* DGLADBDevice::getProp(std::string prop) {
+DGLAdbCookie* DGLADBDevice::getProp(const std::string& prop) {
     std::vector<std::string> params;
     params.push_back("shell");
     params.push_back("getprop");
@@ -237,7 +237,7 @@ void DGLADBDevice::doneQueryABI(const std::vector<std::string>& prop) {
     emit queryStatusSuccess(this);
 }
 
-void DGLADBDevice::portForward(std::string from, unsigned short to) {
+void DGLADBDevice::portForward(const std::string& from, unsigned short to) {
 
     std::vector<std::string> params;
     params.push_back("forward");
@@ -363,7 +363,7 @@ void DGLADBDevice::reloadProcessesGotUnixSockets(
     emit gotProcesses(this, processes);
 }
 
-void DGLADBDevice::installWrapper(std::string path) {
+void DGLADBDevice::installWrapper(const std::string& path) {
     m_InstallerPath = path;
     if (!checkIdle()) {
         return;
@@ -372,7 +372,7 @@ void DGLADBDevice::installWrapper(std::string path) {
     checkUser()->process();
 }
 
-void DGLADBDevice::uninstallWrapper(std::string path) {
+void DGLADBDevice::uninstallWrapper(const std::string& path) {
     m_InstallerPath = path;
     if (!checkIdle()) {
         return;
@@ -381,7 +381,7 @@ void DGLADBDevice::uninstallWrapper(std::string path) {
     checkUser()->process();
 }
 
-void DGLADBDevice::updateWrapper(std::string path) {
+void DGLADBDevice::updateWrapper(const std::string& path) {
     m_InstallerPath = path;
     if (!checkIdle()) {
         return;

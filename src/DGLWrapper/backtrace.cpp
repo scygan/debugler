@@ -167,7 +167,8 @@ class BackTraceImpl: public BackTrace {
             MODULEINFO modInfo;
             if (GetModuleInformation(GetCurrentProcess(), (HMODULE)Os::getCurrentModuleHandle(), &modInfo, sizeof(modInfo))) {
                 m_BoundsOfDGLLibrary[0] = reinterpret_cast<intptr_t>(modInfo.lpBaseOfDll);
-                m_BoundsOfDGLLibrary[1] = reinterpret_cast<intptr_t>(reinterpret_cast<char*>(modInfo.lpBaseOfDll) + modInfo.SizeOfImage);
+                m_BoundsOfDGLLibrary[1] = reinterpret_cast<intptr_t>(reinterpret_cast<char*>(modInfo.lpBaseOfDll) + 
+                    static_cast<uintptr_t>(modInfo.SizeOfImage));
             }
         }
 

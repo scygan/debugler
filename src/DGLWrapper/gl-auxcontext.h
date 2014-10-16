@@ -101,7 +101,7 @@ class GLAuxContext {
 
        private:
 
-        static const int BufferGetterChunkSize;
+        static const size_t kBufferGetterChunkSize = 256;
 
         GLuint getTextureShaderProgram(GLenum target, GLenum textureBaseFormat);
 

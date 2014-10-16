@@ -860,7 +860,7 @@ void DGLMainWindow::debugStart() {
     }
 }
 
-void DGLMainWindow::onDebugStartedConnectReady(std::string address, std::string port) {
+void DGLMainWindow::onDebugStartedConnectReady(const std::string& address, std::string port) {
     m_controller.connectServer(address, port);
 }
 

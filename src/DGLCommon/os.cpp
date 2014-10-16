@@ -63,7 +63,7 @@ class OsStatusPresenterImpl : public OsStatusPresenter {
 
         Shell_NotifyIcon(NIM_ADD, &m_niData);
     }
-    virtual void setStatus(const std::string message) {
+    virtual void setStatus(const std::string& message) {
         memcpy(m_niData.szInfo, message.c_str(), message.length() + 1);
         m_niData.uFlags |= NIF_INFO;
         Shell_NotifyIcon(NIM_MODIFY, &m_niData);
@@ -251,7 +251,7 @@ void Os::terminate() { _exit(0); }
 
 class OsStatusPresenterImpl : public OsStatusPresenter {
    public:
-    virtual void setStatus(const std::string message) {
+    virtual void setStatus(const std::string& message) {
         printf("DGLWrapper: %s\n", message.c_str());
     }
     virtual ~OsStatusPresenterImpl() {}

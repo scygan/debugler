@@ -189,21 +189,24 @@ bool GLAuxContext::doUnrefCurrent() {
 
 GLEGLAuxContext::GLEGLAuxContext(const GLContext* parrent)
         : GLAuxContext(parrent) {
-    std::vector<EGLint> eglAttributes(
-            m_Parrent->getContextCreationData().getAttribs().size());
+
+    const GLContextCreationData& ctxCreationData = m_Parrent->getContextCreationData();
+    const std::vector<gl_t>& ctxAttributes = ctxCreationData.getAttribs();
+
+    std::vector<EGLint> eglAttributes(ctxAttributes.size());
 
     for (size_t i = 0;
-         i < m_Parrent->getContextCreationData().getAttribs().size(); i++) {
+         i < ctxAttributes.size(); i++) {
         eglAttributes[i] =
-                (EGLint)m_Parrent->getContextCreationData().getAttribs()[i];
+                (EGLint)ctxAttributes[i];
     }
     eglAttributes.push_back(EGL_NONE);
 
     m_PixelFormat = choosePixelFormat(
-            m_Parrent->getContextCreationData().getPixelFormat(),
+            ctxCreationData.getPixelFormat(),
             m_Parrent->getDisplay()->getId());
 
-    switch (m_Parrent->getContextCreationData().getEntryPoint()) {
+    switch (ctxCreationData.getEntryPoint()) {
         case eglCreateContext_Call:
             m_Id = (opaque_id_t)DIRECT_CALL_CHK(eglCreateContext)(
                     (EGLDisplay)m_Parrent->getDisplay()->getId(),
@@ -248,15 +251,17 @@ opaque_id_t GLEGLAuxContext::choosePixelFormat(opaque_id_t preferred,
 
         EGLint renderableType = 0;
 
-        if (m_Parrent->getVersion().check(GLContextVersion::Type::DT)) {
+        const GLContextVersion& ctxVersion = m_Parrent->getVersion();
+
+        if (ctxVersion.check(GLContextVersion::Type::DT)) {
             renderableType = EGL_OPENGL_BIT;
-        } else if (m_Parrent->getVersion().check(GLContextVersion::Type::ES,
+        } else if (ctxVersion.check(GLContextVersion::Type::ES,
                                                  3)) {
             renderableType = EGL_OPENGL_ES3_BIT_KHR;
-        } else if (m_Parrent->getVersion().check(GLContextVersion::Type::ES,
+        } else if (ctxVersion.check(GLContextVersion::Type::ES,
                                                  2)) {
             renderableType = EGL_OPENGL_ES2_BIT;
-        } else if (m_Parrent->getVersion().check(GLContextVersion::Type::ES,
+        } else if (ctxVersion.check(GLContextVersion::Type::ES,
                                                  1)) {
             renderableType = EGL_OPENGL_ES_BIT;
         }
@@ -378,7 +383,7 @@ int GLWGLAuxContext::choosePixelFormat(opaque_id_t hdc,
         UINT numConfigs = 0;
         status &= DIRECT_CALL_CHK(wglChoosePixelFormatARB)((HDC)hdc, attributesI, NULL, 1, &ret, &numConfigs);
 
-        if ((status != TRUE) || numConfigs < 1) {
+        if (status == FALSE || numConfigs < 1) {
             throw std::runtime_error(
                     "Cannot choose pixelformat capable of driving auxaliary "
                     "context");
@@ -397,7 +402,7 @@ std::shared_ptr<GLAuxContextSurfaceBase> GLWGLAuxContext::createNewSurface(GLint
 bool GLWGLAuxContext::makeCurrent() {
     BOOL status = DIRECT_CALL_CHK(wglMakeCurrent)((HDC)m_AuxSurface->getId(),
                                                   (HGLRC)m_Id);
-    return status == TRUE;
+    return status != FALSE;
 }
 
 bool GLWGLAuxContext::unmakeCurrent() {
@@ -415,15 +420,13 @@ bool GLWGLAuxContext::unmakeCurrent() {
                 (HDC)m_Parrent->getNativeDrawSurface()->getId(),
                 (HGLRC)m_Parrent->getId());
     }
-    return status == TRUE;
+    return status != FALSE;
 }
 
 #endif
 
 GLAuxContext::GLQueries::GLQueries(GLAuxContext* ctx)
         : m_InitialState(false), m_AuxCtx(ctx) {}
-
-const int GLAuxContext::GLQueries::BufferGetterChunkSize = 256;
 
 void GLAuxContext::GLQueries::setupInitialState() {
 
@@ -450,9 +453,11 @@ void GLAuxContext::GLQueries::setupInitialState() {
 
     }
 
-    if (m_AuxCtx->m_Parrent->getVersion().check(GLContextVersion::Type::ES,
+    const GLContextVersion& ctxVersion = m_AuxCtx->m_Parrent->getVersion();
+
+    if (ctxVersion.check(GLContextVersion::Type::ES,
                                                 3) ||
-        m_AuxCtx->m_Parrent->getVersion().check(GLContextVersion::Type::DT,
+        ctxVersion.check(GLContextVersion::Type::DT,
                                                 3)) {
         DIRECT_CALL_CHK(glGenVertexArrays)(1, &vao);
         DIRECT_CALL_CHK(glBindVertexArray)(vao);
@@ -474,10 +479,10 @@ void GLAuxContext::GLQueries::setupInitialState() {
         1.0f, 0.0f, 
     };
 
-    GLfloat vertexPos[BufferGetterChunkSize];
-    for (int i = 0; i < BufferGetterChunkSize; i++)
+    GLfloat vertexPos[kBufferGetterChunkSize];
+    for (int i = 0; i < kBufferGetterChunkSize; i++)
         vertexPos[i] = static_cast<GLfloat>(i) /
-                               static_cast<GLfloat>(BufferGetterChunkSize) * 2.0f - 1.0f;
+                               static_cast<GLfloat>(kBufferGetterChunkSize) * 2.0f - 1.0f;
 
     const size_t triangleStripOffset = 0;
     const size_t vertexPosOffset     = triangleStripOffset + sizeof(triangleStrip);
@@ -624,7 +629,7 @@ void GLAuxContext::GLQueries::auxDrawTexture(GLuint name, GLenum target,
 
         GLint faceLoc = DIRECT_CALL_CHK(glGetUniformLocation)(program, "face");
         if (faceLoc > 0) {
-            DIRECT_CALL_CHK(glUniform1i)(faceLoc, face);
+            DIRECT_CALL_CHK(glUniform1i)(faceLoc, static_cast<GLint>(face));
         }
 
         DIRECT_CALL_CHK(glEnableVertexAttribArray)(0);
@@ -662,7 +667,7 @@ void GLAuxContext::GLQueries::auxGetBufferData(GLuint name,
 
         DIRECT_CALL_CHK(glBindTexture)(GL_TEXTURE_2D, rtt);
         DIRECT_CALL_CHK(glTexImage2D)(GL_TEXTURE_2D, 0, GL_RGBA,
-            BufferGetterChunkSize, 1, 0, GL_RGBA,
+            kBufferGetterChunkSize, 1, 0, GL_RGBA,
             GL_UNSIGNED_BYTE, NULL);
         DIRECT_CALL_CHK(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
             GL_CLAMP_TO_EDGE);
@@ -676,17 +681,17 @@ void GLAuxContext::GLQueries::auxGetBufferData(GLuint name,
         DIRECT_CALL_CHK(glBindFramebuffer)(GL_FRAMEBUFFER, fbo);
 
     } else {
-        m_AuxCtx->resizeAuxSurface(BufferGetterChunkSize, 1);
+        m_AuxCtx->resizeAuxSurface(kBufferGetterChunkSize, 1);
     }
 
-    DIRECT_CALL_CHK(glViewport)(0, 0, BufferGetterChunkSize, 1);
+    DIRECT_CALL_CHK(glViewport)(0, 0, kBufferGetterChunkSize, 1);
 
     DIRECT_CALL_CHK(glBindBuffer)(GL_ARRAY_BUFFER, name);
 
     DIRECT_CALL_CHK(glGetBufferParameteriv)(GL_ARRAY_BUFFER, GL_BUFFER_SIZE,
                                             &size);
 
-    ret.resize(size);
+    ret.resize(static_cast<size_t>(size));
 
     if (m_AuxCtx->m_Parrent->hasCapability(GLContext::ContextCap::GLSLShaders)) {
         DIRECT_CALL_CHK(glUseProgram)(programGetBuffer);
@@ -698,46 +703,41 @@ void GLAuxContext::GLQueries::auxGetBufferData(GLuint name,
 
     }
 
-   
+    size_t offset = 0;
 
-    std::vector<char> chunk;
+    while (offset < static_cast<size_t>(size)) {
 
-    int offset = 0;
-
-    while (offset < size) {
-
-        int thisChunkSize = std::min(BufferGetterChunkSize, size - offset);
+        size_t thisChunkSize = std::min(kBufferGetterChunkSize, static_cast<size_t>(size) - offset);
 
         if (thisChunkSize > 4) {
             // if chunk is larger than element size, blit only full elements.
             thisChunkSize &= -3;
         }
 
-        int elementSize = 4;
-        if (thisChunkSize < 4) {
-            elementSize = thisChunkSize;
-        }
+        const size_t kMaxElementSize = 4;
+        size_t elementSize = std::min(thisChunkSize, kMaxElementSize);
 
         DIRECT_CALL_CHK(glVertexAttribPointer)(
-                2, elementSize, GL_UNSIGNED_BYTE, GL_TRUE, 0,
+                2, static_cast<GLint>(elementSize), GL_UNSIGNED_BYTE, GL_TRUE, 0,
                 reinterpret_cast<GLvoid*>(offset));
 
         DIRECT_CALL_CHK(glClearColor)(1.0, 1.0, 1.0, 1.0);
 
         DIRECT_CALL_CHK(glClear)(GL_COLOR_BUFFER_BIT);
 
-        DIRECT_CALL_CHK(glDrawArrays)(GL_POINTS, 0,
-                                      thisChunkSize / elementSize);
+        GLsizei vertexCount = static_cast<GLsizei>(thisChunkSize / elementSize);
 
-        if (thisChunkSize < 4) {
-            GLubyte buff[4];
-            DIRECT_CALL_CHK(glReadPixels)(0, 0, thisChunkSize / elementSize, 1,
+        DIRECT_CALL_CHK(glDrawArrays)(GL_POINTS, 0, vertexCount);
+
+        if (thisChunkSize < kMaxElementSize) {
+            GLubyte buff[kMaxElementSize];
+            DIRECT_CALL_CHK(glReadPixels)(0, 0, vertexCount, 1,
                                           GL_RGBA, GL_UNSIGNED_BYTE, &buff);
-            for (int i = 0; i < thisChunkSize; i++) {
+            for (size_t i = 0; i < thisChunkSize; i++) {
                 ret[offset + i] = buff[i];
             }
         } else {
-            DIRECT_CALL_CHK(glReadPixels)(0, 0, thisChunkSize / elementSize, 1,
+            DIRECT_CALL_CHK(glReadPixels)(0, 0, vertexCount, 1,
                                           GL_RGBA, GL_UNSIGNED_BYTE,
                                           &ret[offset]);
         }

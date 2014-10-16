@@ -47,7 +47,9 @@ class DGLThreadState {
      * Getter for current context (should be called just after *MakeCurrent-like
      * calls).
      */
-    dglState::GLContext* getCurrentCtx();
+    inline dglState::GLContext* getCurrentCtx() {
+        return privAPI.m_Current;
+    }
 
     /**
      *  Release current TSS - should be called on eglReleaseThread

@@ -104,7 +104,7 @@ class ThreadWatcher {
         }
     }
 
-    void onAttachThread() { m_ThreadCount++; }
+    void onAttachThread() { ++m_ThreadCount; }
 
     void onDettachThread() {
         if (std::atomic_fetch_sub(&m_ThreadCount, 1) <= 1) {

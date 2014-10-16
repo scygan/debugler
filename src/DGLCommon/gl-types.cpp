@@ -89,9 +89,9 @@ std::string GetGLEnumName(gl_t glEnum, GLEnumGroup group) {
     std::set<lists::GLEnumName*>& nameSet = nameSetPtr->second;
 
     for (std::set<lists::GLEnumName*>::iterator i = nameSet.begin(); 
-        i != nameSet.end(); i++) {
+        i != nameSet.end(); ++i) {
 
-        for (int j = 0; (*i)->m_groups[j] != GLEnumGroup::NoneGroup; j++) {
+        for (size_t j = 0; (*i)->m_groups[j] != GLEnumGroup::NoneGroup; j++) {
             if ((*i)->m_groups[j] == group) {
                 //found name matching requested enum group.
                 return (*i)->m_name;

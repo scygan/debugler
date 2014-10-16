@@ -85,10 +85,10 @@ DrawBuffers::DrawBuffers(GLContext* ctx) : m_Ctx(ctx) {
     if (m_Ctx->hasCapability(GLContext::ContextCap::DrawBuffersMRT)) {
         GLint maxDrawBuffers;
         DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_DRAW_BUFFERS, &maxDrawBuffers);
-        m_DrawBuffers.resize(maxDrawBuffers);
+        m_DrawBuffers.resize(static_cast<size_t>(maxDrawBuffers));
         for (GLint i = 0; i < maxDrawBuffers; i++) {
             DIRECT_CALL_CHK(glGetIntegerv)(GL_DRAW_BUFFER0 + i,
-                                           &m_DrawBuffers[i]);
+                                           &m_DrawBuffers[static_cast<size_t>(i)]);
         }
     }
 }

@@ -48,14 +48,14 @@ class DGLADBDevice : public QObject, DGLAdbHandler {
 
     void queryStatus();
 
-    void portForward(std::string from, unsigned short to);
+    void portForward(const std::string& from, unsigned short to);
 
     void setProcessBreakpoint(const std::string& processName);
     void unsetProcessBreakpoint();
 
-    void installWrapper(std::string path);
-    void updateWrapper(std::string path);
-    void uninstallWrapper(std::string path);
+    void installWrapper(const std::string& path);
+    void updateWrapper(const std::string& path);
+    void uninstallWrapper(const std::string& path);
 
     enum class InstallStatus {
         UNKNOWN,
@@ -96,7 +96,7 @@ signals:
     void doneQueryInstallStatus(const std::vector<std::string>& prop);
     void doneQueryABI(const std::vector<std::string>& prop);
 
-    DGLAdbCookie* getProp(std::string prop);
+    DGLAdbCookie* getProp(const std::string& prop);
     DGLAdbCookie* checkUser();
     DGLAdbCookie* remountFromAdb();
     DGLAdbCookie* remountFromShell();

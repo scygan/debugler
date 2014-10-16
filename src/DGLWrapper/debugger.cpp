@@ -112,7 +112,7 @@ void CallHistory::query(const dglnet::message::QueryCallTrace& traceQuery,
                         dglnet::message::CallTrace& reply) {
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    size_t startOffset = reply.m_StartOffset = traceQuery.m_StartOffset;
+    size_t startOffset = static_cast<size_t>(reply.m_StartOffset = traceQuery.m_StartOffset);
     if (startOffset >= m_cb.size()) return;    // queried non existent elements
 
     // trim query to sane range:

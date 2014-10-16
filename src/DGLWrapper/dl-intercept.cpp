@@ -446,11 +446,11 @@ HMODULE DLIntercept::LoadLibraryExW(_In_ LPCWSTR lpwFileName,
 
         std::vector<char> fileName;
         {
-            int size_needed = WideCharToMultiByte(CP_UTF8, 0, lpwFileName, -1,
-                                                  NULL, 0, NULL, NULL);
+            size_t size_needed = static_cast<size_t>(
+                WideCharToMultiByte(CP_UTF8, 0, lpwFileName, -1, NULL, 0, NULL, NULL));
             fileName.resize(size_needed, 0);
             WideCharToMultiByte(CP_UTF8, 0, lpwFileName, -1, &fileName[0],
-                                size_needed, NULL, NULL);
+                                static_cast<int>(size_needed), NULL, NULL);
         }
 
         int libraries =
@@ -481,12 +481,12 @@ HMODULE DLIntercept::real_LoadLibrary(LPCSTR lpFileName) {
 
     std::vector<char> wfileName;
     {
-        int size_needed =
-                MultiByteToWideChar(CP_UTF8, 0, lpFileName, -1, NULL, 0);
+        size_t size_needed = static_cast<size_t>(
+                MultiByteToWideChar(CP_UTF8, 0, lpFileName, -1, NULL, 0));
         wfileName.resize(size_needed * 2, 0);
         MultiByteToWideChar(CP_UTF8, 0, lpFileName, -1,
                             reinterpret_cast<LPWSTR>(&wfileName[0]),
-                            size_needed);
+                            static_cast<int>(size_needed));
     }
     return real_LoadLibraryExW(reinterpret_cast<LPWSTR>(&wfileName[0]), nullptr,
                                0);

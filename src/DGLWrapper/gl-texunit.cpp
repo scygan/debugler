@@ -37,7 +37,7 @@ namespace dglState {
 
         while(i != m_BoundTextures.end()) {
             auto next = i;
-            next++;
+            ++next;
             if (i->second == name) {
                 bindTexture(i->first, 0);
             }
@@ -48,7 +48,7 @@ namespace dglState {
     std::set<dglnet::ContextObjectName> TextureUnit::report(opaque_id_t ctxId) {
         std::set<dglnet::ContextObjectName> ret;
 
-        for (auto i = m_BoundTextures.begin(); i != m_BoundTextures.end(); i++) {
+        for (auto i = m_BoundTextures.begin(); i != m_BoundTextures.end(); ++i) {
             ret.insert(dglnet::ContextObjectName(ctxId, i->second, i->first));
         }
 
@@ -60,7 +60,7 @@ namespace dglState {
         GLint numUnits = 16;
         DIRECT_CALL_CHK(glGetIntegerv)(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &numUnits);
         
-        m_Units.resize(numUnits);
+        m_Units.resize(static_cast<size_t>(numUnits));
         
     }
 
@@ -73,7 +73,7 @@ namespace dglState {
 
         if (activeUnit >= static_cast<GLint>(m_Units.size())) {
             //that's very strange. 
-            m_Units.resize(activeUnit + 1);
+            m_Units.resize(static_cast<size_t>(activeUnit) + 1);
         }
         m_Units[activeUnit].bindTexture(target, name);
 

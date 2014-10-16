@@ -108,7 +108,7 @@ slots:
      *
      * Signalizes readiness to perform connection.
      */
-    void onDebugStartedConnectReady(std::string address, std::string port);
+    void onDebugStartedConnectReady(const std::string& address, std::string port);
 
     /** 
      * Slot called on async error from debug startup in project

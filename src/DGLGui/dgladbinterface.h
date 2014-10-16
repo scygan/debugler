@@ -50,8 +50,8 @@ class DGLAdbCookie : public QObject {
     virtual void process() = 0;
 
    protected:
-    void onDone(std::vector<std::string> data);
-    void onFailed(std::string reason);
+    void onDone(const std::vector<std::string>& data);
+    void onFailed(const std::string& reason);
 
     void filterOutput(const std::vector<std::string>& lines);
 
@@ -98,7 +98,7 @@ class DGLAdbCookieFactoryBase {
 
 class DGLAdbCookieFactory : public DGLAdbCookieFactoryBase {
    public:
-    DGLAdbCookieFactory(const std::string adbPath);
+    DGLAdbCookieFactory(const std::string& adbPath);
     const std::string& getAdbPath();
 
    private:

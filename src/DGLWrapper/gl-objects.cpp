@@ -41,11 +41,11 @@ GLTextureObj::GLTextureObj(GLuint name) : GLObj(name) {}
 void GLTextureObj::setTexImage(GLuint level, GLsizei width, GLsizei height,
                                GLsizei depth, GLenum internalFormat, GLenum,
                                GLenum type) {
-    if (m_Levels.size() < static_cast<size_t>((level + 1))) {
-        m_Levels.resize(level + 1);
+    if (m_Levels.size() < static_cast<size_t>((static_cast<size_t>(level) + 1))) {
+        m_Levels.resize(static_cast<size_t>(level) + 1);
     }
 
-    m_Levels[level] =
+    m_Levels[static_cast<size_t>(level)] =
             GLTextureLevel(internalFormat, type, width, height, depth);
 }
 
@@ -56,7 +56,7 @@ void GLTextureObj::setTexStorage(GLuint levels, GLsizei width, GLsizei height,
     int levelHeight = height;
     int levelDepth = depth;
 
-    m_Levels.resize(levels);
+    m_Levels.resize(static_cast<size_t>(levels));
 
     for (GLuint i = 0; i < levels; i++) {
         setTexImage(i, levelWidth, levelHeight, levelDepth, internalFormat,
@@ -91,7 +91,7 @@ void GLTextureObj::getFormat(GLContext* ctx, int level, GLenum levelTarget, GLin
 const GLTextureObj::GLTextureLevel* GLTextureObj::getRequestedLevel(GLint level)
         const {
     if (static_cast<size_t>(level) < m_Levels.size()) {
-        return &m_Levels[level];
+        return &m_Levels[static_cast<size_t>(level)];
     } else {
         return NULL;
     }
@@ -180,7 +180,7 @@ void GLProgramObj::setEmbeddedSSOSource(GLsizei count, const char* const* string
 
     std::ostringstream sourceStr; 
 
-    for (GLsizei i = 0; i < count; i++)  {
+    for (size_t i = 0; i < static_cast<size_t>(count); i++)  {
         sourceStr << strings[i]; 
     }
 
@@ -259,7 +259,7 @@ std::string GLShaderObj::querySource() {
                                        &length);
     }
 
-    sources.resize(length + 1);
+    sources.resize(static_cast<size_t>(length) + 1);
 
     GLint actualLength = 0;
 
@@ -315,7 +315,7 @@ std::set<dglnet::ContextObjectName> GLProgramPipelineObj::getReport(opaque_id_t 
 
     for (std::map<GLbitfield, GLuint>::iterator it = m_Programs.begin(); 
         it != m_Programs.end(); 
-        it++) {
+        ++it) {
 
 
         ret.insert(dglnet::ContextObjectName(ctxId, it->second, it->first));

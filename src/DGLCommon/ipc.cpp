@@ -190,6 +190,6 @@ std::shared_ptr<DGLIPC> DGLIPC::Create(const std::string& wrapperPath, DebuggerM
     return std::shared_ptr<DGLIPC>(new DGLIPCImpl(wrapperPath, debuggerMode, listenMode, portType, portName, processSkipCount));
 }
 
-std::shared_ptr<DGLIPC> DGLIPC::CreateFromUUID(std::string uuid) {
+std::shared_ptr<DGLIPC> DGLIPC::CreateFromUUID(const std::string& uuid) {
     return std::shared_ptr<DGLIPC>(new DGLIPCImpl(uuid));
 }

@@ -38,10 +38,6 @@ DGLThreadState* DGLThreadState::get() {
     return &ret;
 }
 
-dglState::GLContext* DGLThreadState::getCurrentCtx() {
-    return privAPI.m_Current;
-}
-
 void DGLThreadState::bindContext(DGLDisplayState* dpy, opaque_id_t ctxId,
                                  dglState::NativeSurfaceBase* drawSurface,
                                  dglState::NativeSurfaceBase* readSurface) {

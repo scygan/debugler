@@ -154,7 +154,7 @@ DGLDisplayState::describe() {
 
     std::vector<dglnet::message::utils::ContextReport> ret(
             m_ContextList.size());
-    int j = 0;
+    size_t j = 0;
     for (ContextListIter i = m_ContextList.begin(); i != m_ContextList.end();
          i++) {
         ret[j++] = i->second->describe();
@@ -170,7 +170,7 @@ DGLDisplayState::describeAll() {
 
     for (std::map<opaque_id_t, std::shared_ptr<DGLDisplayState> >::iterator
                  i = s_Displays.begin();
-         i != s_Displays.end(); i++) {
+         i != s_Displays.end(); ++i) {
 
         std::vector<dglnet::message::utils::ContextReport> partialReport =
                 i->second->describe();

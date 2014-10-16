@@ -56,7 +56,7 @@ class DGLIPC {
     virtual const char* getWrapperPath() = 0;
 
     static std::shared_ptr<DGLIPC> Create(const std::string& wrapperPath, DebuggerMode debuggerMode = DebuggerMode::DEFAULT, DebuggerListenMode listenMode = DebuggerListenMode::LISTEN_AND_WAIT, DebuggerPortType portType = DebuggerPortType::TCP, const char* portName = "5555", int processSkipCount = 0);
-    static std::shared_ptr<DGLIPC> CreateFromUUID(std::string uuid);
+    static std::shared_ptr<DGLIPC> CreateFromUUID(const std::string& uuid);
 
    protected:
     DGLIPC() {}
