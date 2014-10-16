@@ -15,6 +15,7 @@ set(dglwrapper_SOURCES
     gl-utils.cpp
 	gl-auxcontext.cpp
     gl-statesetters.cpp
+    gl-statequery.cpp
     gl-texunit.cpp
 	backtrace.cpp
     globalstate.cpp
