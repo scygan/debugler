@@ -27,7 +27,7 @@ class OsIcon {
 
 class OsStatusPresenter {
    public:
-    virtual void setStatus(const std::string message) = 0;
+    virtual void setStatus(const std::string& message) = 0;
     virtual ~OsStatusPresenter() {}
 };
 
