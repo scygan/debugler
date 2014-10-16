@@ -71,7 +71,7 @@ BOOL ExecHook::real_CreateProcessInternalW(
 }
 
 void ExecHook::initialize() {
-    DynamicLibrary* kernel32Library = EarlyGlobalState::getDynLoader().getLibrary("kernel32.dll");
+    std::shared_ptr<DynamicLibrary> kernel32Library = EarlyGlobalState::getDynLoader().getLibrary("kernel32.dll");
 
     s_real_CreateProcessInternalW =
             reinterpret_cast<CreateProcessInternalW_Type>(kernel32Library->getFunction("CreateProcessInternalW"));
