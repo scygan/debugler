@@ -27,6 +27,11 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
+
+const size_t kNumChannelsRGBA = 4;
+const size_t kNumChannelsRGB  = 3;
+const size_t kNumChannelsDS   = 2;
+
 namespace blt {
 
 inline void blitUNORM8(const void* inVoid, int components, float* out) {
@@ -146,39 +151,53 @@ static void blitFunc(const int* outputOffsets, size_t width, size_t height,
 
             blitConversion(srcPtr, srcComponents, temp);
 
-            int out;
+            if (outputOffsets[0] >= 0) {
+                
+                size_t out = static_cast<size_t>(outputOffsets[0]);
 
-            if ((out = outputOffsets[0]) >= 0)
                 dstPtr[(size_t)out] = static_cast<unsigned char>(
                         MAX(MIN(temp[0] * scaleBias[out].first +
                                         scaleBias[out].second,
                                 1.0f),
                             0.0f) *
                         255.0f);
+            }
 
-            if ((out = outputOffsets[1]) >= 0)
+            if (outputOffsets[1] >= 0) {
+
+                size_t out = static_cast<size_t>(outputOffsets[1]);
+
                 dstPtr[(size_t)out] = static_cast<unsigned char>(
                         MAX(MIN(temp[1] * scaleBias[out].first +
                                         scaleBias[out].second,
                                 1.0f),
                             0.0f) *
                         255.0f);
+            }
 
-            if ((out = outputOffsets[2]) >= 0)
+            if (outputOffsets[2] >= 0) {
+
+                size_t out = static_cast<size_t>(outputOffsets[2]);
+
                 dstPtr[(size_t)out] = static_cast<unsigned char>(
                         MAX(MIN(temp[2] * scaleBias[out].first +
                                         scaleBias[out].second,
                                 1.0f),
                             0.0f) *
                         255.0f);
+            }
 
-            if ((out = outputOffsets[3]) >= 0)
+            if (outputOffsets[3] >= 0) {
+
+                size_t out = static_cast<size_t>(outputOffsets[3]);
+
                 dstPtr[(size_t)out] = static_cast<unsigned char>(
                         MAX(MIN(temp[3] * scaleBias[out].first +
                                         scaleBias[out].second,
                                 1.0f),
                             0.0f) *
                         255.0f);
+            }
 
             dstPtr += dstPixelSize;
             srcPtr += srcPixelSize;
@@ -190,17 +209,17 @@ static void blitFunc(const int* outputOffsets, size_t width, size_t height,
 namespace extract {
 
 template <typename T>
-std::vector<AnyValue> extract(const void* inVoid, int channels) {
+std::vector<AnyValue> extract(const void* inVoid, size_t channels) {
     const T* inCast = reinterpret_cast<const T*>(inVoid);
     std::vector<AnyValue> ret;
-    for (int i = 0; i < channels; i++) {
+    for (size_t i = 0; i < channels; i++) {
         ret.push_back(inCast[i]);
     }
     return ret;
 }
 
-std::vector<AnyValue> extractUNORM4444(const void* inVoid, int /*components*/) {
-    std::vector<AnyValue> ret(4);
+std::vector<AnyValue> extractUNORM4444(const void* inVoid, size_t /*components*/) {
+    std::vector<AnyValue> ret(kNumChannelsRGBA);
     const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
     ret[3] = inCast[0] & 0x0f;
     ret[2] = (inCast[0] & (0x0f << 4)) >> 4;
@@ -209,8 +228,8 @@ std::vector<AnyValue> extractUNORM4444(const void* inVoid, int /*components*/) {
     return ret;
 }
 
-std::vector<AnyValue> extractUNORM5551(const void* inVoid, int /*components*/) {
-    std::vector<AnyValue> ret(4);
+std::vector<AnyValue> extractUNORM5551(const void* inVoid, size_t /*components*/) {
+    std::vector<AnyValue> ret(kNumChannelsRGBA);
     const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
     ret[3] = static_cast<float>(inCast[0] & 0x01);
     ret[2] = (inCast[0] & (0x1f << 1)) >> 1;
@@ -220,8 +239,8 @@ std::vector<AnyValue> extractUNORM5551(const void* inVoid, int /*components*/) {
 }
 
 std::vector<AnyValue> extractUNORM2101010_REV(const void* inVoid,
-                                              int /*components*/) {
-    std::vector<AnyValue> ret(4);
+                                              size_t /*components*/) {
+    std::vector<AnyValue> ret(kNumChannelsRGBA);
     const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
     ret[0] = inCast[0] & 0x3ff;
     ret[1] = (inCast[0] & (0x3ff << 10)) >> 10;
@@ -230,8 +249,8 @@ std::vector<AnyValue> extractUNORM2101010_REV(const void* inVoid,
     return ret;
 }
 
-std::vector<AnyValue> extractUNORM565(const void* inVoid, int /*components*/) {
-    std::vector<AnyValue> ret(3);
+std::vector<AnyValue> extractUNORM565(const void* inVoid, size_t /*components*/) {
+    std::vector<AnyValue> ret(kNumChannelsRGB);
     const uint16_t* inCast = reinterpret_cast<const uint16_t*>(inVoid);
     ret[2] = inCast[0] & 0x1f;
     ret[1] = (inCast[0] & (0x3f << 5)) >> 5;
@@ -239,8 +258,8 @@ std::vector<AnyValue> extractUNORM565(const void* inVoid, int /*components*/) {
     return ret;
 }
 
-std::vector<AnyValue> extractUNORM24_8(const void* inVoid, int /*components*/) {
-    std::vector<AnyValue> ret(2);
+std::vector<AnyValue> extractUNORM24_8(const void* inVoid, size_t /*components*/) {
+    std::vector<AnyValue> ret(kNumChannelsDS);
     const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
     ret[1] = inCast[0] & 0xff;
     ret[0] = (inCast[0] & (0xffffff << 8)) >> 8;
@@ -248,16 +267,16 @@ std::vector<AnyValue> extractUNORM24_8(const void* inVoid, int /*components*/) {
 }
 
 std::vector<AnyValue> extractF32_UNORM24_8(const void* inVoid,
-                                           int /*components*/) {
-    std::vector<AnyValue> ret(2);
+                                           size_t /*components*/) {
+    std::vector<AnyValue> ret(kNumChannelsDS);
     const uint32_t* inCast = reinterpret_cast<const uint32_t*>(inVoid);
     ret[1] = inCast[1] & 0xff;
     ret[0] = *reinterpret_cast<const float*>(&inCast[0]);
     return ret;
 }
 
-std::vector<AnyValue> extractUNORM332(const void* inVoid, int /*components*/) {
-    std::vector<AnyValue> ret(3);
+std::vector<AnyValue> extractUNORM332(const void* inVoid, size_t /*components*/) {
+    std::vector<AnyValue> ret(kNumChannelsRGB);
     const uint8_t* inCast = reinterpret_cast<const uint8_t*>(inVoid);
     ret[2] = inCast[0] & 0x3;
     ret[1] = (inCast[0] & (0x7 << 2)) >> 2;
@@ -669,7 +688,7 @@ bool DGLPixelTransfer::initializeOGL(GLenum internalFormat,
         // try quess them
 
         std::vector<GLint> rgbaSizes(_rgbaSizes);
-        rgbaSizes.resize(4, 0);
+        rgbaSizes.resize(kNumChannelsRGBA, 0);
 
         bool isColorBuffer = false;
         for (size_t i = 0; i < rgbaSizes.size(); i++)

@@ -228,7 +228,7 @@ class RequestReply : public Message {
         ar& m_RequestId;
         ar& m_Reply;
     }
-    void error(std::string msg);
+    void error(const std::string& msg);
     bool isOk(std::string& error) const;
     int getId() const;
 

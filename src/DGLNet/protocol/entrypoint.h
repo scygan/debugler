@@ -31,9 +31,6 @@ class RetValue : public AnyValue {
    public:
     RetValue() : m_isSet(false) {}
 
-    RetValue(const RetValue& v)
-            : AnyValue(*static_cast<const AnyValue*>(&v)), m_isSet(v.isSet()) {}
-
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         ar& boost::serialization::base_object<AnyValue>(*this);
@@ -74,18 +71,19 @@ class CalledEntryPoint {
 
    public:
     CalledEntryPoint() {}
-    CalledEntryPoint(Entrypoint, int numArgs);
+    CalledEntryPoint(Entrypoint, size_t numArgs);
     Entrypoint getEntrypoint() const;
     void setRetVal(const RetValue& ret);
     void setError(gl_t error);
     void setDebugOutput(const std::string& message);
 
-    const std::vector<AnyValue>& getArgs() const;
-    template <typename T>
-    void operator<<(const T& arg) {
-        m_args[m_SavedArgsCount] = arg;
-        m_SavedArgsCount++;
+
+    inline void setArg(size_t num, const AnyValue& arg) {
+        m_args[num] = arg;
     }
+
+    const std::vector<AnyValue>& getArgs() const;
+
     std::string toString() const;
     const RetValue& getRetVal() const;
     gl_t getError() const;
@@ -97,7 +95,6 @@ class CalledEntryPoint {
     Entrypoint m_entryp;
     gl_t m_glError;
     std::string m_DebugOutput;
-    int m_SavedArgsCount;
 };
 
 #endif    // ENTRYPOINT_H

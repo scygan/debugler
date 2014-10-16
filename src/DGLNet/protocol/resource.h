@@ -43,7 +43,7 @@ public:
     void save(Archive& ar, const unsigned int) const {
         ar& boost::serialization::base_object<message::utils::ReplyBase>(*this);
         ar& m_Size;
-        boost::serialization::binary_object bo(m_Buffer, m_Size);
+        boost::serialization::binary_object bo(m_Buffer, static_cast<size_t>(m_Size));
         ar& bo;
     }
 
@@ -51,7 +51,7 @@ public:
     void load(Archive& ar, const unsigned int) {
         ar& boost::serialization::base_object<message::utils::ReplyBase>(*this);
         ar& m_Size;
-        m_Buffer = static_cast<char*>(malloc(m_Size));
+        m_Buffer = static_cast<char*>(malloc(static_cast<size_t>(m_Size)));
         boost::serialization::binary_object bo(m_Buffer, m_Size);
         ar& bo;
     }
@@ -65,9 +65,9 @@ public:
     DGLBenchmarkBuffer(value_t size) {
         m_Size = size;
 
-        m_Buffer = static_cast<char*>(malloc(size));
+        m_Buffer = static_cast<char*>(malloc(static_cast<size_t>(size)));
 
-        for (value_t i = 0; i < m_Size; i++) {
+        for (size_t i = 0; i < static_cast<size_t>(m_Size); i++) {
             m_Buffer[i] = static_cast<char>(rand());
         }
     }
@@ -105,10 +105,13 @@ public:
     DGLPixelRectangle(value_t width, value_t height, value_t rowBytes,
                       gl_t glFormat, gl_t glType);
     DGLPixelRectangle(const DGLPixelRectangle& rhs);
+
+    DGLPixelRectangle& operator= (const DGLPixelRectangle& rhs);
+
     ~DGLPixelRectangle();
 
-    value_t m_Width, m_Height, m_RowBytes;
     gl_t m_GLFormat, m_GLType;
+    value_t m_Width, m_Height, m_RowBytes;
 
     void* getPtr() const;
     size_t getSize() const;
@@ -193,7 +196,7 @@ class DGLResourceFBO : public DGLResource {
         FBOAttachment() {}
         FBOAttachment(gl_t id);
 
-        void error(std::string msg);
+        void error(const std::string& msg);
         bool isOk(std::string& error) const;
 
         ::boost::shared_ptr<dglnet::resource::DGLPixelRectangle>

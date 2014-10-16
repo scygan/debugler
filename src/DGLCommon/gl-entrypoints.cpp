@@ -146,7 +146,7 @@ Entrypoint GetEntryPointEnum(const char* name) {
     return ret->second;
 }
 
-const GLParamTypeMetadata GetEntryPointGLParamTypeMetadata(Entrypoint entryp, int param) {
+const GLParamTypeMetadata GetEntryPointGLParamTypeMetadata(Entrypoint entryp, size_t param) {
     lists::ParamTypeMetadada& metadata = 
         lists::g_Entrypoints[entryp].params[param].m_Metadata;
     return GLParamTypeMetadata(metadata.m_BaseType, metadata.m_EnumGroup);

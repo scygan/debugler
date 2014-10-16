@@ -24,7 +24,7 @@ namespace resource {
 
 DGLResourceFBO::FBOAttachment::FBOAttachment(gl_t id) : m_Id(id), m_Ok(true) {}
 
-void DGLResourceFBO::FBOAttachment::error(std::string msg) {
+void DGLResourceFBO::FBOAttachment::error(const std::string& msg) {
     m_Ok = false;
     m_ErrorMsg = msg;
 }
@@ -37,30 +37,45 @@ bool DGLResourceFBO::FBOAttachment::isOk(std::string& msg) const {
 DGLPixelRectangle::DGLPixelRectangle(value_t width, value_t height,
                                      value_t rowBytes, gl_t glFormat,
                                      gl_t glType)
-        : m_Width(width),
-          m_Height(height),
-          m_RowBytes(rowBytes),
+        : m_RowBytes(rowBytes),
           m_GLFormat(glFormat),
           m_GLType(glType),
-          m_Storage(NULL) {
+          m_Storage(NULL),
+          m_Width(width),
+          m_Height(height) {
 
     if (m_Height * m_RowBytes) {
-        m_Storage = malloc(m_Height * m_RowBytes);
+        m_Storage = malloc(getSize());
     }
 }
 
 DGLPixelRectangle::DGLPixelRectangle(const DGLPixelRectangle& rhs)
-        : m_Width(rhs.m_Width),
+        : m_GLFormat(rhs.m_GLFormat),
+          m_GLType(rhs.m_GLType),
+          m_Width(rhs.m_Width),
           m_Height(rhs.m_Height),
-          m_RowBytes(rhs.m_RowBytes),
-          m_GLFormat(rhs.m_GLFormat),
-          m_GLType(rhs.m_GLType) {
+          m_RowBytes(rhs.m_RowBytes) {
     if (rhs.getPtr()) {
-        m_Storage = malloc(m_Height * m_RowBytes);
-        memcpy(m_Storage, rhs.getPtr(), m_Height * m_RowBytes);
+        m_Storage = malloc(getSize());
+        memcpy(m_Storage, rhs.getPtr(), getSize());
     } else {
         m_Storage = NULL;
     }
+}
+
+DGLPixelRectangle& DGLPixelRectangle::operator= (const DGLPixelRectangle& rhs) {
+    m_Width = rhs.m_Width;
+    m_Height = rhs.m_Height;
+    m_RowBytes = rhs.m_RowBytes;
+    m_GLFormat = rhs.m_GLFormat;
+    m_GLType = rhs.m_GLType;
+    if (rhs.getPtr()) {
+        m_Storage = malloc(getSize());
+        memcpy(m_Storage, rhs.getPtr(), getSize());
+    } else {
+        m_Storage = NULL;
+    }
+    return *this;
 }
 
 DGLPixelRectangle::~DGLPixelRectangle() {
@@ -72,7 +87,7 @@ DGLPixelRectangle::~DGLPixelRectangle() {
 
 void* DGLPixelRectangle::getPtr() const { return m_Storage; }
 
-size_t DGLPixelRectangle::getSize() const { return m_Height * m_RowBytes; }
+size_t DGLPixelRectangle::getSize() const { return static_cast<size_t>(m_Height * m_RowBytes); }
 
 }    // namespace resource
 }    // namespace dglnet

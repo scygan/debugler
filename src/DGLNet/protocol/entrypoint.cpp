@@ -20,8 +20,8 @@
 #include <iomanip>
 #include <cstring>
 
-CalledEntryPoint::CalledEntryPoint(Entrypoint entryp, int numArgs)
-        : m_entryp(entryp), m_glError(GL_NO_ERROR), m_SavedArgsCount(0) {
+CalledEntryPoint::CalledEntryPoint(Entrypoint entryp, size_t numArgs)
+        : m_entryp(entryp), m_glError(GL_NO_ERROR) {
     m_args.resize(numArgs);
 }
 

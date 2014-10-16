@@ -52,7 +52,7 @@ public:
     GLEnumGroup m_EnumGroup;    
 };
 
-const GLParamTypeMetadata GetEntryPointGLParamTypeMetadata(Entrypoint entryp, int param);
+const GLParamTypeMetadata GetEntryPointGLParamTypeMetadata(Entrypoint entryp, size_t param);
 const GLParamTypeMetadata GetEntryPointRetvalMetadata(Entrypoint entryp);
 
 bool IsDrawCall(Entrypoint);

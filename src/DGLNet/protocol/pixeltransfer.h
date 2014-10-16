@@ -29,7 +29,7 @@ struct GLDataType {
                      const void* src, void* dst, size_t srcStride, size_t dstStride,
                      size_t srcPixelSize, size_t dstPixelSize, int srcComponents,
                      std::pair<float, float>* scale);
-    std::vector<AnyValue>(*extractor)(const void*, int);
+    std::vector<AnyValue>(*extractor)(const void*, size_t);
     unsigned int components;
 };
 

@@ -108,7 +108,7 @@ int Request::getId() const { return m_RequestId; }
 
 RequestReply::RequestReply() : m_Ok(true) {}
 
-void RequestReply::error(std::string msg) {
+void RequestReply::error(const std::string& msg) {
     m_ErrorMsg = msg;
     m_Ok = false;
 }

@@ -40,7 +40,7 @@ class DGLWrapperCookie {
             : m_Call(entrypoint, 1), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
+            m_Call.setArg(0, arg1);
             tracePre();
         }
     }
@@ -49,8 +49,8 @@ class DGLWrapperCookie {
             : m_Call(entrypoint, 2), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
-            m_Call << arg2;
+            m_Call.setArg(0, arg1);
+            m_Call.setArg(1, arg2);
             tracePre();
         }
     }
@@ -59,9 +59,9 @@ class DGLWrapperCookie {
             : m_Call(entrypoint, 3), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
-            m_Call << arg2;
-            m_Call << arg3;
+            m_Call.setArg(0, arg1);
+            m_Call.setArg(1, arg2);
+            m_Call.setArg(2, arg3);
             tracePre();
         }
     }
@@ -70,10 +70,10 @@ class DGLWrapperCookie {
             : m_Call(entrypoint, 4), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
-            m_Call << arg2;
-            m_Call << arg3;
-            m_Call << arg4;
+            m_Call.setArg(0, arg1);
+            m_Call.setArg(1, arg2);
+            m_Call.setArg(2, arg3);
+            m_Call.setArg(3, arg4);
             tracePre();
         }
     }
@@ -83,11 +83,11 @@ class DGLWrapperCookie {
             : m_Call(entrypoint, 5), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
-            m_Call << arg2;
-            m_Call << arg3;
-            m_Call << arg4;
-            m_Call << arg5;
+            m_Call.setArg(0, arg1);
+            m_Call.setArg(1, arg2);
+            m_Call.setArg(2, arg3);
+            m_Call.setArg(3, arg4);
+            m_Call.setArg(4, arg5);
             tracePre();
         }
     }
@@ -98,12 +98,12 @@ class DGLWrapperCookie {
             : m_Call(entrypoint, 6), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
-            m_Call << arg2;
-            m_Call << arg3;
-            m_Call << arg4;
-            m_Call << arg5;
-            m_Call << arg6;
+            m_Call.setArg(0, arg1);
+            m_Call.setArg(1, arg2);
+            m_Call.setArg(2, arg3);
+            m_Call.setArg(3, arg4);
+            m_Call.setArg(4, arg5);
+            m_Call.setArg(5, arg6);
             tracePre();
         }
     }
@@ -114,13 +114,13 @@ class DGLWrapperCookie {
             : m_Call(entrypoint, 7), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
-            m_Call << arg2;
-            m_Call << arg3;
-            m_Call << arg4;
-            m_Call << arg5;
-            m_Call << arg6;
-            m_Call << arg7;
+            m_Call.setArg(0, arg1);
+            m_Call.setArg(1, arg2);
+            m_Call.setArg(2, arg3);
+            m_Call.setArg(3, arg4);
+            m_Call.setArg(4, arg5);
+            m_Call.setArg(5, arg6);
+            m_Call.setArg(6, arg7);
             tracePre();
         }
     }
@@ -131,14 +131,14 @@ class DGLWrapperCookie {
             : m_Call(entrypoint, 8), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
-            m_Call << arg2;
-            m_Call << arg3;
-            m_Call << arg4;
-            m_Call << arg5;
-            m_Call << arg6;
-            m_Call << arg7;
-            m_Call << arg8;
+            m_Call.setArg(0, arg1);
+            m_Call.setArg(1, arg2);
+            m_Call.setArg(2, arg3);
+            m_Call.setArg(3, arg4);
+            m_Call.setArg(4, arg5);
+            m_Call.setArg(5, arg6);
+            m_Call.setArg(6, arg7);
+            m_Call.setArg(7, arg8);
             tracePre();
         }
     }
@@ -149,15 +149,15 @@ class DGLWrapperCookie {
             : m_Call(entrypoint, 9), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
-            m_Call << arg2;
-            m_Call << arg3;
-            m_Call << arg4;
-            m_Call << arg5;
-            m_Call << arg6;
-            m_Call << arg7;
-            m_Call << arg8;
-            m_Call << arg9;
+            m_Call.setArg(0, arg1);
+            m_Call.setArg(1, arg2);
+            m_Call.setArg(2, arg3);
+            m_Call.setArg(3, arg4);
+            m_Call.setArg(4, arg5);
+            m_Call.setArg(5, arg6);
+            m_Call.setArg(6, arg7);
+            m_Call.setArg(7, arg8);
+            m_Call.setArg(8, arg9);
             tracePre();
         }
     }
@@ -168,16 +168,16 @@ class DGLWrapperCookie {
             : m_Call(entrypoint, 10), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
-            m_Call << arg2;
-            m_Call << arg3;
-            m_Call << arg4;
-            m_Call << arg5;
-            m_Call << arg6;
-            m_Call << arg7;
-            m_Call << arg8;
-            m_Call << arg9;
-            m_Call << arg10;
+            m_Call.setArg(0, arg1);
+            m_Call.setArg(1, arg2);
+            m_Call.setArg(2, arg3);
+            m_Call.setArg(3, arg4);
+            m_Call.setArg(4, arg5);
+            m_Call.setArg(5, arg6);
+            m_Call.setArg(6, arg7);
+            m_Call.setArg(7, arg8);
+            m_Call.setArg(8, arg9);
+            m_Call.setArg(9, arg10);
             tracePre();
         }
     }
@@ -190,17 +190,17 @@ class DGLWrapperCookie {
             : m_Call(entrypoint, 11), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
-            m_Call << arg2;
-            m_Call << arg3;
-            m_Call << arg4;
-            m_Call << arg5;
-            m_Call << arg6;
-            m_Call << arg7;
-            m_Call << arg8;
-            m_Call << arg9;
-            m_Call << arg10;
-            m_Call << arg11;
+            m_Call.setArg(0, arg1);
+            m_Call.setArg(1, arg2);
+            m_Call.setArg(2, arg3);
+            m_Call.setArg(3, arg4);
+            m_Call.setArg(4, arg5);
+            m_Call.setArg(5, arg6);
+            m_Call.setArg(6, arg7);
+            m_Call.setArg(7, arg8);
+            m_Call.setArg(8, arg9);
+            m_Call.setArg(9, arg10);
+            m_Call.setArg(10, arg11);
             tracePre();
         }
     }
@@ -213,18 +213,18 @@ class DGLWrapperCookie {
             : m_Call(entrypoint, 12), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
-            m_Call << arg2;
-            m_Call << arg3;
-            m_Call << arg4;
-            m_Call << arg5;
-            m_Call << arg6;
-            m_Call << arg7;
-            m_Call << arg8;
-            m_Call << arg9;
-            m_Call << arg10;
-            m_Call << arg11;
-            m_Call << arg12;
+            m_Call.setArg(0, arg1);
+            m_Call.setArg(1, arg2);
+            m_Call.setArg(2, arg3);
+            m_Call.setArg(3, arg4);
+            m_Call.setArg(4, arg5);
+            m_Call.setArg(5, arg6);
+            m_Call.setArg(6, arg7);
+            m_Call.setArg(7, arg8);
+            m_Call.setArg(8, arg9);
+            m_Call.setArg(9, arg10);
+            m_Call.setArg(10, arg11);
+            m_Call.setArg(11, arg12);
             tracePre();
         }
     }
@@ -237,19 +237,19 @@ class DGLWrapperCookie {
             : m_Call(entrypoint, 13), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
-            m_Call << arg2;
-            m_Call << arg3;
-            m_Call << arg4;
-            m_Call << arg5;
-            m_Call << arg6;
-            m_Call << arg7;
-            m_Call << arg8;
-            m_Call << arg9;
-            m_Call << arg10;
-            m_Call << arg11;
-            m_Call << arg12;
-            m_Call << arg13;
+            m_Call.setArg(0, arg1);
+            m_Call.setArg(1, arg2);
+            m_Call.setArg(2, arg3);
+            m_Call.setArg(3, arg4);
+            m_Call.setArg(4, arg5);
+            m_Call.setArg(5, arg6);
+            m_Call.setArg(6, arg7);
+            m_Call.setArg(7, arg8);
+            m_Call.setArg(8, arg9);
+            m_Call.setArg(9, arg10);
+            m_Call.setArg(10, arg11);
+            m_Call.setArg(11, arg12);
+            m_Call.setArg(12, arg13);
             tracePre();
         }
     }
@@ -262,20 +262,20 @@ class DGLWrapperCookie {
             : m_Call(entrypoint, 14), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
-            m_Call << arg2;
-            m_Call << arg3;
-            m_Call << arg4;
-            m_Call << arg5;
-            m_Call << arg6;
-            m_Call << arg7;
-            m_Call << arg8;
-            m_Call << arg9;
-            m_Call << arg10;
-            m_Call << arg11;
-            m_Call << arg12;
-            m_Call << arg13;
-            m_Call << arg14;
+            m_Call.setArg(0, arg1);
+            m_Call.setArg(1, arg2);
+            m_Call.setArg(2, arg3);
+            m_Call.setArg(3, arg4);
+            m_Call.setArg(4, arg5);
+            m_Call.setArg(5, arg6);
+            m_Call.setArg(6, arg7);
+            m_Call.setArg(7, arg8);
+            m_Call.setArg(8, arg9);
+            m_Call.setArg(9, arg10);
+            m_Call.setArg(10, arg11);
+            m_Call.setArg(11, arg12);
+            m_Call.setArg(12, arg13);
+            m_Call.setArg(13, arg14);
             tracePre();
         }
     }
@@ -289,21 +289,21 @@ class DGLWrapperCookie {
             : m_Call(entrypoint, 15), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
-            m_Call << arg2;
-            m_Call << arg3;
-            m_Call << arg4;
-            m_Call << arg5;
-            m_Call << arg6;
-            m_Call << arg7;
-            m_Call << arg8;
-            m_Call << arg9;
-            m_Call << arg10;
-            m_Call << arg11;
-            m_Call << arg12;
-            m_Call << arg13;
-            m_Call << arg14;
-            m_Call << arg15;
+            m_Call.setArg(0, arg1);
+            m_Call.setArg(1, arg2);
+            m_Call.setArg(2, arg3);
+            m_Call.setArg(3, arg4);
+            m_Call.setArg(4, arg5);
+            m_Call.setArg(5, arg6);
+            m_Call.setArg(6, arg7);
+            m_Call.setArg(7, arg8);
+            m_Call.setArg(8, arg9);
+            m_Call.setArg(9, arg10);
+            m_Call.setArg(10, arg11);
+            m_Call.setArg(11, arg12);
+            m_Call.setArg(12, arg13);
+            m_Call.setArg(13, arg14);
+            m_Call.setArg(14, arg15);
             tracePre();
         }
     }
@@ -318,22 +318,22 @@ class DGLWrapperCookie {
             : m_Call(entrypoint, 16), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
-            m_Call << arg2;
-            m_Call << arg3;
-            m_Call << arg4;
-            m_Call << arg5;
-            m_Call << arg6;
-            m_Call << arg7;
-            m_Call << arg8;
-            m_Call << arg9;
-            m_Call << arg10;
-            m_Call << arg11;
-            m_Call << arg12;
-            m_Call << arg13;
-            m_Call << arg14;
-            m_Call << arg15;
-            m_Call << arg16;
+            m_Call.setArg(0, arg1);
+            m_Call.setArg(1, arg2);
+            m_Call.setArg(2, arg3);
+            m_Call.setArg(3, arg4);
+            m_Call.setArg(4, arg5);
+            m_Call.setArg(5, arg6);
+            m_Call.setArg(6, arg7);
+            m_Call.setArg(7, arg8);
+            m_Call.setArg(8, arg9);
+            m_Call.setArg(9, arg10);
+            m_Call.setArg(10, arg11);
+            m_Call.setArg(11, arg12);
+            m_Call.setArg(12, arg13);
+            m_Call.setArg(13, arg14);
+            m_Call.setArg(14, arg15);
+            m_Call.setArg(15, arg16);
             tracePre();
         }
     }
@@ -348,23 +348,23 @@ class DGLWrapperCookie {
             : m_Call(entrypoint, 17), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
-            m_Call << arg2;
-            m_Call << arg3;
-            m_Call << arg4;
-            m_Call << arg5;
-            m_Call << arg6;
-            m_Call << arg7;
-            m_Call << arg8;
-            m_Call << arg9;
-            m_Call << arg10;
-            m_Call << arg11;
-            m_Call << arg12;
-            m_Call << arg13;
-            m_Call << arg14;
-            m_Call << arg15;
-            m_Call << arg16;
-            m_Call << arg17;
+            m_Call.setArg(0, arg1);
+            m_Call.setArg(1, arg2);
+            m_Call.setArg(2, arg3);
+            m_Call.setArg(3, arg4);
+            m_Call.setArg(4, arg5);
+            m_Call.setArg(5, arg6);
+            m_Call.setArg(6, arg7);
+            m_Call.setArg(7, arg8);
+            m_Call.setArg(8, arg9);
+            m_Call.setArg(9, arg10);
+            m_Call.setArg(10, arg11);
+            m_Call.setArg(11, arg12);
+            m_Call.setArg(12, arg13);
+            m_Call.setArg(13, arg14);
+            m_Call.setArg(14, arg15);
+            m_Call.setArg(15, arg16);
+            m_Call.setArg(16, arg17);
             tracePre();
         }
     }
@@ -378,27 +378,27 @@ class DGLWrapperCookie {
                      T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10,
                      T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15,
                      T16 arg16, T17 arg17, T18 arg18)
-            : m_Call(entrypoint, 17), m_ThreadState(DGLThreadState::get()) {
+            : m_Call(entrypoint, 18), m_ThreadState(DGLThreadState::get()) {
         m_ProcessActions = m_ThreadState->enterActionProcessing();
         if (m_ProcessActions) {
-            m_Call << arg1;
-            m_Call << arg2;
-            m_Call << arg3;
-            m_Call << arg4;
-            m_Call << arg5;
-            m_Call << arg6;
-            m_Call << arg7;
-            m_Call << arg8;
-            m_Call << arg9;
-            m_Call << arg10;
-            m_Call << arg11;
-            m_Call << arg12;
-            m_Call << arg13;
-            m_Call << arg14;
-            m_Call << arg15;
-            m_Call << arg16;
-            m_Call << arg17;
-            m_Call << arg18;
+            m_Call.setArg(0, arg1);
+            m_Call.setArg(1, arg2);
+            m_Call.setArg(2, arg3);
+            m_Call.setArg(3, arg4);
+            m_Call.setArg(4, arg5);
+            m_Call.setArg(5, arg6);
+            m_Call.setArg(6, arg7);
+            m_Call.setArg(7, arg8);
+            m_Call.setArg(8, arg9);
+            m_Call.setArg(9, arg10);
+            m_Call.setArg(10, arg11);
+            m_Call.setArg(11, arg12);
+            m_Call.setArg(12, arg13);
+            m_Call.setArg(13, arg14);
+            m_Call.setArg(14, arg15);
+            m_Call.setArg(15, arg16);
+            m_Call.setArg(16, arg17);
+            m_Call.setArg(17, arg18);
             tracePre();
         }
     }

@@ -74,8 +74,8 @@ class TransportHeader {
    public:
     TransportHeader() {}
     TransportHeader(value_t size, bool compressed = false) : m_size(size), m_compressed(compressed) {}
-    int getSize() {
-        return m_size;
+    size_t getSize() {
+        return static_cast<size_t>(m_size);
     };
 
     int isCompressed() {
