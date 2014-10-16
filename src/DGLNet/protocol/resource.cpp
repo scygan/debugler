@@ -37,13 +37,12 @@ bool DGLResourceFBO::FBOAttachment::isOk(std::string& msg) const {
 DGLPixelRectangle::DGLPixelRectangle(value_t width, value_t height,
                                      value_t rowBytes, gl_t glFormat,
                                      gl_t glType)
-        : m_RowBytes(rowBytes),
-          m_GLFormat(glFormat),
+        : m_GLFormat(glFormat),
           m_GLType(glType),
-          m_Storage(NULL),
           m_Width(width),
-          m_Height(height) {
-
+          m_Height(height),
+          m_RowBytes(rowBytes),
+          m_Storage(NULL) {
     if (m_Height * m_RowBytes) {
         m_Storage = malloc(getSize());
     }
