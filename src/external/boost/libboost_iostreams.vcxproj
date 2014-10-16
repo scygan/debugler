@@ -21,6 +21,11 @@
   <ItemGroup>
     <ClCompile Include="libs\iostreams\src\zlib.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\zlib-1.2.8\zlib.vcxproj">
+      <Project>{74de571e-d3ec-401c-9296-6f25a6dc9661}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BBF327D6-408E-4481-81B3-ED428E217AD1}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

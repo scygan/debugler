@@ -51,6 +51,20 @@
     <ClInclude Include="transport.h" />
     <ClInclude Include="transport_detail.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DGLCommon\DGLCommon.vcxproj">
+      <Project>{b8b2b603-0dad-4c84-b375-091a5c36d6ff}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\external\boost\libboost_iostreams.vcxproj">
+      <Project>{bbf327d6-408e-4481-81b3-ed428e217ad1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\external\boost\libboost_serialization.vcxproj">
+      <Project>{13b36ce3-1a60-4184-8dac-836d59e885ac}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\external\boost\libboost_system.vcxproj">
+      <Project>{7fbfe438-a40b-40e5-860b-c69882d8977f}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Configuration">
     <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>

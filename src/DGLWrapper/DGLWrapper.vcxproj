@@ -62,7 +62,7 @@
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>$(SolutionDir)\dump\codegen\OpenGL32.def</ModuleDefinitionFile>
-      <AdditionalDependencies>%(AdditionalDependencies);DGLInject.lib;DGLNet.lib;DGLCommon.lib;libboost_serialization.lib;libboost_system.lib;libboost_iostreams.lib;dglcommon.res;StackWalker.lib;zlib.lib;</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);dglcommon.res;</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -127,6 +127,20 @@
     <ClCompile Include="native-surface.cpp" />
     <ClCompile Include="tls.cpp" />
     <ClCompile Include="wa-soctors.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DGLCommon\DGLCommon.vcxproj">
+      <Project>{b8b2b603-0dad-4c84-b375-091a5c36d6ff}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\DGLInject\DGLInject.vcxproj">
+      <Project>{915a2d7a-7e0a-424f-acdd-fb726f1f26e4}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\DGLNet\DGLNet.vcxproj">
+      <Project>{5c2a907e-02da-4d13-b84b-b48500dbefa3}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\external\StackWalker\StackWalker.vcxproj">
+      <Project>{3f6c7981-4482-45bf-959c-7916aa715f3e}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

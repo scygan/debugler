@@ -41,8 +41,8 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">Qt5Cored.lib;Qt5Guid.lib;;Qt5Widgetsd.lib;Qt5Xmld.lib;Winmm.lib;Imm32.lib;DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib;libboost_iostreams.lib;zlib.lib;gtest.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)'=='Release'">Qt5Core.lib;Qt5Gui.lib;;Qt5Widgets.lib;Qt5Xml.lib;Winmm.lib;Imm32.lib;DGLNet.lib;DGLCommon.lib;dglcommon.res;dglgui.lib;libboost_system.lib;libboost_serialization.lib;libboost_regexp.lib;libboost_iostreams.lib;zlib.lib;gtest.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">Qt5Cored.lib;Qt5Guid.lib;;Qt5Widgetsd.lib;Qt5Xmld.lib;Winmm.lib;Imm32.lib;dglcommon.res;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)'=='Release'">Qt5Core.lib;Qt5Gui.lib;;Qt5Widgets.lib;Qt5Xml.lib;Winmm.lib;Imm32.lib;dglcommon.res;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
@@ -93,6 +93,20 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\..\..\..\dump\$(ConfigurationName)\GeneratedFiles\qrc_%(Filename).cpp;%(Outputs)</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\rcc.exe" -name "%(Filename)" -no-compress "%(FullPath)" -o .\..\..\..\dump\$(ConfigurationName)\GeneratedFiles\qrc_%(Filename).cpp</Command>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\DGLCommon\DGLCommon.vcxproj">
+      <Project>{b8b2b603-0dad-4c84-b375-091a5c36d6ff}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\DGLGui\DGLGui.vcxproj">
+      <Project>{28b3a2f3-8e6f-4d4c-b29f-bf6180067e26}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\DGLNet\DGLNet.vcxproj">
+      <Project>{5c2a907e-02da-4d13-b84b-b48500dbefa3}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\external\gtest\msvc\gtest.vcxproj">
+      <Project>{c8f6c172-56f2-4e76-b5fa-c3b423b31be7}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -80,6 +80,11 @@
   <ItemGroup>
     <Image Include="dglproj.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\codegen\codegen.vcxproj">
+      <Project>{f16efbd2-e47a-4e5b-b091-7d400430745a}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
