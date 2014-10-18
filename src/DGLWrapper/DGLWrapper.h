@@ -28,7 +28,7 @@
 #ifdef _WIN32
 #define DGLWRAPPER_API __declspec(dllexport)
 #else
-#define DGLWRAPPER_API
+#define DGLWRAPPER_API __attribute__ ((visibility("default")))
 #endif
 
 // some auto-configuration for DGLwrapper:

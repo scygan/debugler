@@ -373,7 +373,7 @@ extern "C" {
  *
  * Called directly by debugee
  */
-void *dlopen(const char *filename, int flag) NO_THROW {
+void DGLWRAPPER_API *dlopen(const char *filename, int flag) NO_THROW {
 #if DGL_HAVE_WA(ANDROID_SO_CONSTRUCTORS)
     DGLWASoCtors wasoCtors;
 #endif
@@ -393,7 +393,7 @@ void *dlopen(const char *filename, int flag) NO_THROW {
  *
  * Called directly by debugee
  */
-void *dlsym(void *handle, const char *name) NO_THROW {
+void DGLWRAPPER_API *dlsym(void *handle, const char *name) NO_THROW {
 #if DGL_HAVE_WA(ANDROID_SO_CONSTRUCTORS)
     DGLWASoCtors wasoCtors;
 #endif
@@ -413,7 +413,7 @@ void *dlsym(void *handle, const char *name) NO_THROW {
  *
  * Called directly by debugee
  */
-void *dlvsym(void *handle, const char *name, const char *version) NO_THROW {
+void DGLWRAPPER_API *dlvsym(void *handle, const char *name, const char *version) NO_THROW {
 #if DGL_HAVE_WA(ANDROID_SO_CONSTRUCTORS)
     DGLWASoCtors wasoCtors;
 #endif

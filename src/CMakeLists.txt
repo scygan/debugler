@@ -28,6 +28,12 @@ include_directories(SYSTEM
 )
 
 
+#By default all symbols are hidden, this is required as some software
+#components are LD_PRELOADED. Use DGLWRAPPER_API macro to make required
+#symbols visible.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
+
 if (NOT ANDROID)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 else()
