@@ -906,6 +906,13 @@ void TextureFormatAction::Register(ActionManager& manager) {
     manager.RegisterAction(glTexImage3DEXT_Call, obj);
     manager.RegisterAction(glTexImage3DOES_Call, obj);
     manager.RegisterAction(glTexImage3DMultisample_Call, obj);
+    manager.RegisterAction(glCompressedTexImage1D_Call, obj);
+    manager.RegisterAction(glCompressedTexImage1DARB_Call, obj);
+    manager.RegisterAction(glCompressedTexImage2D_Call, obj);
+    manager.RegisterAction(glCompressedTexImage2DARB_Call, obj);
+    manager.RegisterAction(glCompressedTexImage3D_Call, obj);
+    manager.RegisterAction(glCompressedTexImage3DARB_Call, obj);
+    manager.RegisterAction(glCompressedTexImage3DOES_Call, obj);
     manager.RegisterAction(glTexStorage1D_Call, obj);
     manager.RegisterAction(glTexStorage2D_Call, obj);
     manager.RegisterAction(glTexStorage2DMultisample_Call, obj);
@@ -986,7 +993,25 @@ void TextureFormatAction::NoGLErrorPost(const CalledEntryPoint& call, const RetV
                 args[4].get(height);
                 args[5].get(depth);
                 break;
-
+            case glCompressedTexImage1D_Call:
+            case glCompressedTexImage1DARB_Call:
+                args[2].get(iFormat);
+                args[3].get(width);
+                break;
+            case glCompressedTexImage2D_Call:
+            case glCompressedTexImage2DARB_Call:
+                args[2].get(iFormat);
+                args[3].get(width);
+                args[3].get(height);
+                break;
+            case glCompressedTexImage3D_Call:
+            case glCompressedTexImage3DARB_Call:
+            case glCompressedTexImage3DOES_Call:
+                args[2].get(iFormat);
+                args[3].get(width);
+                args[4].get(height);
+                args[5].get(depth);
+                break;
             case glTexStorage3DEXT_Call:  //GLenum <iformat>
             case glTexStorage3D_Call:     //GLenum <iformat>
                 args[5].get(depth);
