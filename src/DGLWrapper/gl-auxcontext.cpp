@@ -425,6 +425,8 @@ bool GLWGLAuxContext::unmakeCurrent() {
 
 #endif
 
+const size_t GLAuxContext::GLQueries::kBufferGetterChunkSize = 256;
+
 GLAuxContext::GLQueries::GLQueries(GLAuxContext* ctx)
         : m_InitialState(false), m_AuxCtx(ctx) {}
 
