@@ -945,6 +945,7 @@ GLContext::queryTextureLevelGetters(
 }
 
 std::shared_ptr<dglnet::DGLResource> GLContext::queryBufferGetters(GLBufferObj* buff) {
+
     dglnet::resource::DGLResourceBuffer* resource;
     std::shared_ptr<dglnet::DGLResource> ret(
         resource = new dglnet::resource::DGLResourceBuffer());
@@ -1013,33 +1014,85 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryBufferGetters(GLBufferObj* 
 
     queryCheckError();
 
-    GLint mapped;
-    DIRECT_CALL_CHK(glGetBufferParameteriv)(targetToUse, GL_BUFFER_MAPPED,
-                                            &mapped);
-    if (mapped == GL_TRUE) {
-        throw std::runtime_error(
-                "Buffer is currently mapped, cannot access data.");
+    GLint size = 0;
+    DIRECT_CALL_CHK(glGetBufferParameteriv)(targetToUse,
+                                            GL_BUFFER_SIZE, &size);
+
+    queryCheckError();
+
+    if (!size) {
+        throw std::runtime_error("Buffer empty (GL_BUFFER_SIZE is 0)");
     } else {
-        GLint size = 0;
-        DIRECT_CALL_CHK(glGetBufferParameteriv)(targetToUse,
-                                                GL_BUFFER_SIZE, &size);
+        resource->m_Data.resize(static_cast<size_t>(size));
 
-        queryCheckError();
+        //Set to 1 if buffer is currently mapped
+        GLint mapped = 0;
 
-        if (!size) {
-            throw std::runtime_error("Buffer empty (GL_BUFFER_SIZE is 0)");
-        } else {
-            resource->m_Data.resize(static_cast<size_t>(size));
+        //True if buffer is mapped and no other GL operations
+        //can be performed because of the mapping.
+        bool mappedNonPersitently = false;
 
-            if (m_Version.check(GLContextVersion::Type::ES)) {
-                const char* ptr = reinterpret_cast<const char*>(
-                    DIRECT_CALL_CHK(glMapBufferRange)(targetToUse, 0, static_cast<GLsizeiptr>(size), GL_MAP_READ_BIT));
-                std::copy(ptr, ptr + static_cast<size_t>(size), resource->m_Data.begin());
-                DIRECT_CALL_CHK(glUnmapBuffer)(targetToUse);
-            } else {
-                DIRECT_CALL_CHK(glGetBufferSubData)(targetToUse, 0, static_cast<GLsizeiptr>(size),
-                    &resource->m_Data[0]);
+        //True if buffer is mapped, and it's whole data is visible
+        //in the mapping.
+        bool canReadFromMapping = false;
+
+        if (hasCapability(ContextCap::MapBuffer)) {
+
+            //Check if buffer is mapped
+            DIRECT_CALL_CHK(glGetBufferParameteriv)(targetToUse, GL_BUFFER_MAPPED,
+                    &mapped);
+
+            if (mapped) {
+                //Check how the buffer is mapped.
+                GLint   accessFlags = 0;
+                DIRECT_CALL_CHK(glGetBufferParameteriv)(targetToUse, GL_BUFFER_ACCESS_FLAGS, &accessFlags);
+
+                GLint64 mapOffset = 0;
+                DIRECT_CALL_CHK(glGetBufferParameteri64v)(targetToUse, GL_BUFFER_MAP_OFFSET, &mapOffset);
+
+                GLint64 mapLength = 0;
+                DIRECT_CALL_CHK(glGetBufferParameteri64v)(targetToUse, GL_BUFFER_MAP_LENGTH, &mapLength);
+
+                mappedNonPersitently = !(accessFlags & GL_MAP_PERSISTENT_BIT);
+                canReadFromMapping = ( (mapOffset == 0) &&
+                                       (mapLength == size) &&
+                                       (accessFlags && GL_MAP_READ_BIT));
             }
+        }
+
+        if (hasCapability(ContextCap::GetBufferSubData) && !mappedNonPersitently) {
+
+            //This is preferred. If GetBufferSubdata is supported, just use it.
+            //However it buffer has been mapped without persistent flag, we cannot take this branch.
+
+            DIRECT_CALL_CHK(glGetBufferSubData)(targetToUse, 0, static_cast<GLsizeiptr>(size),
+                &resource->m_Data[0]);
+
+        } else if (canReadFromMapping) {
+
+            //This is used if buffer is mapped and the mapping is usable.
+            //
+            GLvoid* ptr = nullptr;
+            DIRECT_CALL_CHK(glGetBufferPointerv)(targetToUse, GL_BUFFER_MAP_POINTER, &ptr);
+            if (!ptr) {
+                throw std::runtime_error("Cannot perform query - GL_BUFFER_MAP_POINTER is null");
+            }
+
+            GLchar* ptrC = reinterpret_cast<GLchar*>(ptr);
+
+            //Just get the data from mapping.
+            std::copy(ptrC, ptrC + static_cast<size_t>(size), resource->m_Data.begin());
+
+        } else if (!mapped && hasCapability(ContextCap::MapBuffer)) {
+
+            //This is used if buffer is not  mapped.
+            const char* ptr = reinterpret_cast<const char*>(
+                DIRECT_CALL_CHK(glMapBufferRange)(targetToUse, 0, static_cast<GLsizeiptr>(size), GL_MAP_READ_BIT));
+            std::copy(ptr, ptr + static_cast<size_t>(size), resource->m_Data.begin());
+            DIRECT_CALL_CHK(glUnmapBuffer)(targetToUse);
+
+        } else {
+            throw std::runtime_error("Cannot perform query - operation unsupported on current buffer state (mapping)");
         }
     }
 
@@ -1083,7 +1136,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryBuffer(gl_t _name) {
     std::unique_ptr<GLShareableObjectsAccessor> accessor  = ns().getShared();
     GLBufferObj* buff = accessor->get().m_Buffers.getOrCreateObject<void>(name);
 
-    if (hasCapability(ContextCap::GetBufferSubData)) {
+    if (hasCapability(ContextCap::GetBufferSubData) || hasCapability(ContextCap::MapBuffer) ) {
         return queryBufferGetters(buff);
 
     } else {
@@ -3372,6 +3425,10 @@ bool GLContext::hasCapability(ContextCap cap) const {
 
         case ContextCap::GetBufferSubData:
             return version.check(GLContextVersion::Type::DT);
+
+        case ContextCap::MapBuffer:
+            return version.check(GLContextVersion::Type::DT, 3) ||
+                version.check(GLContextVersion::Type::ES, 3);
 
         case ContextCap::GLSLShaders:
             return version.check(GLContextVersion::Type::DT, 2) ||

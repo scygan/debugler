@@ -242,6 +242,7 @@ class GLContext {
         HasGetStringI,
         TextureGetters,
         GetBufferSubData,
+        MapBuffer,
         GLSLShaders,
         GenericVertexAttribs,
     };
