@@ -19,7 +19,7 @@
 #include <DGLCommon/gl-types.h>
 
 enum Entrypoints {
-#include "gl_functions.inl"
+#include "codegen_gl_functions.inl"
     Entrypoints_NUM
 };
 #define NUM_ENTRYPOINTS Entrypoints_NUM

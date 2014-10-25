@@ -451,14 +451,14 @@ class DGLWrapperCookie {
 };
 
 namespace dgl_wrapppers {
-#include    "dgl_wrappers.inl"
+#include    "codegen_dgl_wrappers.inl"
 }
 
 #define FUNC_LIST_SUPPORTED_ELEM(name, type, library, retVal, params) \
     (dgl_func_ptr) & dgl_wrapppers::name##_Wrapper,
 #define FUNC_LIST_NOT_SUPPORTED_ELEM(name, type, library, retVal, params) NULL,
 dgl_func_ptr wrapperPtrs[] = {
-#include "gl_function_list.inl"
+#include "codegen_gl_function_list.inl"
         NULL};
 #undef FUNC_LIST_SUPPORTED_ELEM
 #undef FUNC_LIST_NOT_SUPPORTED_ELEM
@@ -474,15 +474,15 @@ extern "C" {
 #undef HAVE_LIBRARY_WINGDI 
 #endif
 
-#include "dgl_export.inl"
+#include "codegen_dgl_export.inl"
 #ifdef __ANDROID__
 // Export extension symbols exported by android system libraries.
 // We don't want to  export all extensions due to same apps that
 // use dlsym() to check if ext is supported...
-#include "dgl_export_android.inl"
+#include "codegen_dgl_export_android.inl"
 #else
 // on Linuxes ABI is not really respected and all EXT symbols are exported
 // It does not hurt Windows, also.
-#include "dgl_export_ext.inl"
+#include "codegen_dgl_export_ext.inl"
 #endif
 }

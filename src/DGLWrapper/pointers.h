@@ -20,7 +20,7 @@
 #include "globalstate.h"
 #include "api-loader.h"
 
-#include "gl_pfn_types.inl"
+#include "codegen_gl_pfn_types.inl"
 
 // POINTER_TYPE(X) returns type of function pointer for entrypoint X. The actual
 // definitions are generated from codegen output

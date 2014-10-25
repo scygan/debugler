@@ -27,7 +27,7 @@ typedef int32_t value_t;         // any gl values (GLints)
 
 #define ENUM_GROUP_LIST_ELEMENT(name) name,
 enum class GLEnumGroup {
-#include "gl_enum_group_list.inl"
+#include "codegen_gl_enum_group_list.inl"
     NoneGroup
 };
 #undef ENUM_GROUP_LIST_ELEMENT

@@ -2,16 +2,16 @@ set(codegen_in ${CMAKE_CURRENT_SOURCE_DIR}/input)
 set(codegen_out ${CMAKE_CURRENT_BINARY_DIR}/)
 
 set(codegen_GENERATED
-    ${codegen_out}/gl_pfn_types.inl      
-    ${codegen_out}/gl_enum_list.inl           
-    ${codegen_out}/gl_enum_group_list.inl    
-    ${codegen_out}/gl_functions.inl      
-    ${codegen_out}/gl_function_list.inl     
-    ${codegen_out}/dgl_wrappers.inl      
-    ${codegen_out}/dgl_export.inl        
-    ${codegen_out}/dgl_export_ext.inl    
-    ${codegen_out}/dgl_export_android.inl
-    ${codegen_out}/OpenGL32.def     
+    ${codegen_out}/codegen_gl_pfn_types.inl      
+    ${codegen_out}/codegen_gl_enum_list.inl           
+    ${codegen_out}/codegen_gl_enum_group_list.inl    
+    ${codegen_out}/codegen_gl_functions.inl      
+    ${codegen_out}/codegen_gl_function_list.inl     
+    ${codegen_out}/codegen_dgl_wrappers.inl      
+    ${codegen_out}/codegen_dgl_export.inl        
+    ${codegen_out}/codegen_dgl_export_ext.inl    
+    ${codegen_out}/codegen_dgl_export_android.inl
+    ${codegen_out}/codegen_opengl32.def     
     ${codegen_out}/GL/glx.h
     ${codegen_out}/GL/glxext.h
     ${codegen_out}/GL/wgl.h
