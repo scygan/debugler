@@ -451,17 +451,17 @@ class DGLWrapperCookie {
 };
 
 extern "C" {
-#include "wrappers.inl"
+#include "dgl_wrappers.inl"
 }
 
-#define FUNC_LIST_ELEM_SUPPORTED(name, type, library, retVal, params) \
+#define FUNC_LIST_SUPPORTED_ELEM(name, type, library, retVal, params) \
     (dgl_func_ptr) & name##_Wrapper,
-#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, retVal, params) NULL,
+#define FUNC_LIST_NOT_SUPPORTED_ELEM(name, type, library, retVal, params) NULL,
 dgl_func_ptr wrapperPtrs[] = {
-#include "functionList.inl"
+#include "gl_function_list.inl"
         NULL};
-#undef FUNC_LIST_ELEM_SUPPORTED
-#undef FUNC_LIST_ELEM_NOT_SUPPORTED
+#undef FUNC_LIST_SUPPORTED_ELEM
+#undef FUNC_LIST_NOT_SUPPORTED_ELEM
 
 dgl_func_ptr getWrapperPointer(Entrypoint entryp) { return wrapperPtrs[entryp]; }
 
@@ -474,15 +474,15 @@ extern "C" {
 #undef HAVE_LIBRARY_WINGDI 
 #endif
 
-#include "exporters.inl"
+#include "dgl_export.inl"
 #ifdef __ANDROID__
 // Export extension symbols exported by android system libraries.
 // We don't want to  export all extensions due to same apps that
 // use dlsym() to check if ext is supported...
-#include "exporters-android.inl"
+#include "dgl_export_android.inl"
 #else
 // on Linuxes ABI is not really respected and all EXT symbols are exported
 // It does not hurt Windows, also.
-#include "exporters-ext.inl"
+#include "dgl_export_ext.inl"
 #endif
 }

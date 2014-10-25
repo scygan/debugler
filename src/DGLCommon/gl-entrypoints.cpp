@@ -40,8 +40,8 @@ public:
 #define PARAM(name, baseType, enumGroup) {#name, {GLParamTypeMetadata::BaseType::baseType, GLEnumGroup::enumGroup}}
 #define FUNC_PARAMS(...) {__VA_ARGS__}
 
-#define FUNC_LIST_ELEM_SUPPORTED    (name, type, library, retVal, params) { #name, false, false, retVal, params }, 
-#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, retVal, params) { #name, false, false, retVal, params },
+#define FUNC_LIST_SUPPORTED_ELEM    (name, type, library, retVal, params) { #name, false, false, retVal, params }, 
+#define FUNC_LIST_NOT_SUPPORTED_ELEM(name, type, library, retVal, params) { #name, false, false, retVal, params },
 
 struct GLEntrypoint {
     const char* name;
@@ -50,11 +50,11 @@ struct GLEntrypoint {
     ParamTypeMetadada m_RetValMetadata;
     GLEntrypoitParam params[18];
 } g_Entrypoints[] = {
-#include "functionList.inl"
+#include "gl_function_list.inl"
     { "<unknown>", false, false, { GLParamTypeMetadata::BaseType::Value, GLEnumGroup::NoneGroup}, {}}
 };
-#undef FUNC_LIST_ELEM_SUPPORTED
-#undef FUNC_LIST_ELEM_NOT_SUPPORTED
+#undef FUNC_LIST_SUPPORTED_ELEM
+#undef FUNC_LIST_NOT_SUPPORTED_ELEM
 
 #undef FUNC_PARAMS
 #undef PARAM

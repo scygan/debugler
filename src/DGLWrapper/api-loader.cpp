@@ -55,14 +55,14 @@
 // OpenGL32 implementation
 // use DIRECT_CALL(name) to call one of these pointers
 LoadedPointer g_DirectPointers[Entrypoints_NUM] = {
-#define FUNC_LIST_ELEM_SUPPORTED(name, type, library, retVal, params) \
+#define FUNC_LIST_SUPPORTED_ELEM(name, type, library, retVal, params) \
     { nullptr, library }                                 \
     ,
-#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, retVal, params) \
-    FUNC_LIST_ELEM_SUPPORTED(name, type, library, retVal, params)
-#include "functionList.inl"
-#undef FUNC_LIST_ELEM_SUPPORTED
-#undef FUNC_LIST_ELEM_NOT_SUPPORTED
+#define FUNC_LIST_NOT_SUPPORTED_ELEM(name, type, library, retVal, params) \
+    FUNC_LIST_SUPPORTED_ELEM(name, type, library, retVal, params)
+#include "gl_function_list.inl"
+#undef FUNC_LIST_SUPPORTED_ELEM
+#undef FUNC_LIST_NOT_SUPPORTED_ELEM
 };
 
 class FakeDynamicLibrary: public DynamicLibrary {

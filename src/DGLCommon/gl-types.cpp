@@ -63,7 +63,7 @@ EnumMapCache::CodegenEnumGLToName EnumMapCache::s_CodegenEnumGLToName[] = {
 
 #define ENUM_LIST_ELEMENT(name, value, ...) \
     {(gl_t)value,  { #name, {__VA_ARGS__, GLEnumGroup::NoneGroup}}},
-#include "enum.inl"
+#include "gl_enum_list.inl"
 #undef ENUM_LIST_ELEMENT
     {0,  {nullptr, {}}},
 };

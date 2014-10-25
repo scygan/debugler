@@ -25,12 +25,12 @@ typedef uint64_t opaque_id_t;    // void*, contexts, configs..
 typedef uint64_t gl_t;           // gl enums (including 64bit)
 typedef int32_t value_t;         // any gl values (GLints)
 
-#define ENUMGROUP_LIST_ELEMENT(name) name,
+#define ENUM_GROUP_LIST_ELEMENT(name) name,
 enum class GLEnumGroup {
-#include <enum-groups.inl>
+#include "gl_enum_group_list.inl"
     NoneGroup
 };
-#undef ENUMGROUP_LIST_ELEMENT
+#undef ENUM_GROUP_LIST_ELEMENT
 
 std::string GetGLEnumName(gl_t glEnum, GLEnumGroup group = GLEnumGroup::NoneGroup);
 

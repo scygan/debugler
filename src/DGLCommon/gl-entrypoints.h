@@ -18,16 +18,10 @@
 
 #include <DGLCommon/gl-types.h>
 
-#define FUNC_LIST_ELEM_SUPPORTED(name, type, library, retVal, params) name##_Call,
-#define FUNC_LIST_ELEM_NOT_SUPPORTED(name, type, library, retVal, params) \
-    FUNC_LIST_ELEM_SUPPORTED(name, type, library, retVal, params)
 enum Entrypoints {
-#include <functionList.inl>
+#include "gl_functions.inl"
     Entrypoints_NUM
 };
-#undef FUNC_LIST_ELEM_SUPPORTED
-#undef FUNC_LIST_ELEM_NOT_SUPPORTED
-
 #define NUM_ENTRYPOINTS Entrypoints_NUM
 #define NO_ENTRYPOINT Entrypoints_NUM
 

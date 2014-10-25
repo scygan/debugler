@@ -1,13 +1,13 @@
-outputs = ..\..\dump\codegen\entrypTypedefs.inl     \
-          ..\..\dump\codegen\wrappers.inl           \
-          ..\..\dump\codegen\functionList.inl       \
-          ..\..\dump\codegen\entrypointEnumList.inl \
+outputs = ..\..\dump\codegen\gl_pfn_types.inl       \
+          ..\..\dump\codegen\gl_enum_list.inl       \
+          ..\..\dump\codegen\gl_enum_group_list.inl \
+          ..\..\dump\codegen\gl_functions.inl       \
+          ..\..\dump\codegen\gl_function_list.inl   \
+          ..\..\dump\codegen\dgl_wrappers.inl       \
+          ..\..\dump\codegen\dgl_export.inl         \
+          ..\..\dump\codegen\dgl_export_ext.inl     \
+          ..\..\dump\codegen\dgl_export_android.inl \
           ..\..\dump\codegen\OpenGL32.def           \
-          ..\..\dump\codegen\enum.inl               \
-          ..\..\dump\codegen\enum-groups.inl        \
-          ..\..\dump\codegen\exporters.inl          \
-          ..\..\dump\codegen\exporters-ext.inl      \
-          ..\..\dump\codegen\exporters-android.inl  \
           ..\..\dump\codegen\EGL\egl.h              \
           ..\..\dump\codegen\EGL\eglext.h           \
           ..\..\dump\codegen\GL\gl.h                \

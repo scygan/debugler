@@ -29,16 +29,16 @@ outputDir = sys.argv[2] + os.sep
 if not os.path.exists(outputDir):
     os.makedirs(outputDir)    
 
-entrypTypedefs = open(outputDir + "entrypTypedefs.inl", "w")
-wrappersFile = open(outputDir + "wrappers.inl", "w")
-exportersFile = open(outputDir + "exporters.inl", "w")
-exportersExtFile = open(outputDir + "exporters-ext.inl", "w")
-exportersAndroidFile = open(outputDir + "exporters-android.inl", "w")
-functionListFile = open(outputDir + "functionList.inl", "w")
-entrypointEnumListFile = open(outputDir + "entrypointEnumList.inl", "w")
-defFile = open(outputDir + "OpenGL32.def", "w")
-enumFile = open(outputDir + "enum.inl", "w")
-enumGroupFile = open(outputDir + "enum-groups.inl", "w")
+entrypTypedefs    = open(outputDir + "gl_pfn_types.inl",       "w")
+enumFile          = open(outputDir + "gl_enum_list.inl",       "w")
+enumGroupFile     = open(outputDir + "gl_enum_group_list.inl", "w")
+functionsFile     = open(outputDir + "gl_functions.inl",       "w")
+functionListFile  = open(outputDir + "gl_function_list.inl",   "w") 
+wrappersFile      = open(outputDir + "dgl_wrappers.inl",       "w")
+exportFile        = open(outputDir + "dgl_export.inl",         "w")
+exportExtFile     = open(outputDir + "dgl_export_ext.inl",     "w")
+exportAndroidFile = open(outputDir + "dgl_export_android.inl", "w")
+defFile           = open(outputDir + "OpenGL32.def",           "w")
 
 gles2onlyPat = re.compile('2\.[0-9]')
 gles3onlyPat = re.compile('3\.0')
@@ -452,7 +452,7 @@ for name, enum in sorted(enums.items()):
         print >> enumFile, "ENUM_LIST_ELEMENT(" + name + ","  + enum.value + ", " + listToString(["GLEnumGroup::" + g for g in enum.groups]) + ")"
 
 for name in enumGroups:
-    print >> enumGroupFile, "ENUMGROUP_LIST_ELEMENT(" + name + ")"
+    print >> enumGroupFile, "ENUM_GROUP_LIST_ELEMENT(" + name + ")"
         
 for name, entrypoint in sorted(entrypoints.items()):
     if name in blacklist:
@@ -479,16 +479,16 @@ for name, entrypoint in sorted(entrypoints.items()):
     paramsStr = "FUNC_PARAMS(" + listToString(outParamList) + ")"
 
 #list of entrypointsg1
-    entrypointPtrType = "DGL_PFN" + name.upper() + "PROC"
+    entrypointPtrType = name + "_Type"
     print >> functionListFile, entrypoint.getLibraryIfdef()
-    print >> functionListFile, "    FUNC_LIST_ELEM_SUPPORTED(" + name + ", " + entrypointPtrType + ", " + entrypoint.getLibaryBitMask() + ", " + retValStr + ", " + paramsStr + ")"
+    print >> functionListFile, "    FUNC_LIST_SUPPORTED_ELEM(" + name + ", " + entrypointPtrType + ", " + entrypoint.getLibaryBitMask() + ", " + retValStr + ", " + paramsStr + ")"
     print >> functionListFile,"#else"
-    print >> functionListFile, "    FUNC_LIST_ELEM_NOT_SUPPORTED(" + name + ", " + entrypointPtrType + ", LIBRARY_NONE, " + retValStr + ", " +  paramsStr +  ")"
+    print >> functionListFile, "    FUNC_LIST_NOT_SUPPORTED_ELEM(" + name + ", " + entrypointPtrType + ", LIBRARY_NONE, " + retValStr + ", " +  paramsStr +  ")"
     print >> functionListFile,"#endif"
     
-    print >> entrypointEnumListFile, name + "_Call,"
+    print >> functionsFile, name + "_Call,"
     
-#entrypoint exporters
+#entrypoint export
     coreLib = False
     for coreLib1 in entrypoint.libraries:
         for coreLib2 in ["LIBRARY_WGL", "LIBRARY_GLX", "LIBRARY_EGL", "LIBRARY_GL", "LIBRARY_ES1", "LIBRARY_ES2", "LIBRARY_ES3" ]:
@@ -496,17 +496,17 @@ for name, entrypoint in sorted(entrypoints.items()):
                 coreLib = True
                 
     if coreLib:
-        print >> exportersFile, entrypoint.getLibraryIfdef()
-        print >> exportersFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType.name + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
-        print >> exportersFile, "        return " + name + "_Wrapper(" + listToString(paramCallList) + ");"        
-        print >> exportersFile, "}"
-        print >> exportersFile, "#endif"
+        print >> exportFile, entrypoint.getLibraryIfdef()
+        print >> exportFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType.name + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
+        print >> exportFile, "        return " + name + "_Wrapper(" + listToString(paramCallList) + ");"        
+        print >> exportFile, "}"
+        print >> exportFile, "#endif"
     else:
-        print >> exportersExtFile, entrypoint.getLibraryIfdef()
-        print >> exportersExtFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType.name + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
-        print >> exportersExtFile, "        return " + name + "_Wrapper(" + listToString(paramCallList) + ");"        
-        print >> exportersExtFile, "}"
-        print >> exportersExtFile, "#endif"
+        print >> exportExtFile, entrypoint.getLibraryIfdef()
+        print >> exportExtFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType.name + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
+        print >> exportExtFile, "        return " + name + "_Wrapper(" + listToString(paramCallList) + ");"        
+        print >> exportExtFile, "}"
+        print >> exportExtFile, "#endif"
         
     androidLib = False
     for androidLib1 in entrypoint.libraries:
@@ -514,11 +514,11 @@ for name, entrypoint in sorted(entrypoints.items()):
             if androidLib1.strip() == androidLib2.strip():
                 androidLib = True
     if androidLib:
-        print >> exportersAndroidFile, entrypoint.getLibraryIfdef()
-        print >> exportersAndroidFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType.name + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
-        print >> exportersAndroidFile, "        return " + name + "_Wrapper(" + listToString(paramCallList) + ");"        
-        print >> exportersAndroidFile, "}"
-        print >> exportersAndroidFile, "#endif"
+        print >> exportAndroidFile, entrypoint.getLibraryIfdef()
+        print >> exportAndroidFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType.name + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
+        print >> exportAndroidFile, "        return " + name + "_Wrapper(" + listToString(paramCallList) + ");"        
+        print >> exportAndroidFile, "}"
+        print >> exportAndroidFile, "#endif"
         
 #entrypoint wrappers
 
