@@ -497,13 +497,13 @@ for name, entrypoint in sorted(entrypoints.items()):
                 
     if coreLib:
         print >> exportFile, entrypoint.getLibraryIfdef()
-        print >> exportFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType.name + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
+        print >> exportFile, "DGLWRAPPER_API " + entrypoint.retType.name + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
         print >> exportFile, "        return dgl_wrappers::" + name + "(" + listToString(paramCallList) + ");"        
         print >> exportFile, "}"
         print >> exportFile, "#endif"
     else:
         print >> exportExtFile, entrypoint.getLibraryIfdef()
-        print >> exportExtFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType.name + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
+        print >> exportExtFile, "DGLWRAPPER_API " + entrypoint.retType.name + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
         print >> exportExtFile, "        return dgl_wrappers::" + name + "(" + listToString(paramCallList) + ");"        
         print >> exportExtFile, "}"
         print >> exportExtFile, "#endif"
@@ -515,7 +515,7 @@ for name, entrypoint in sorted(entrypoints.items()):
                 androidLib = True
     if androidLib:
         print >> exportAndroidFile, entrypoint.getLibraryIfdef()
-        print >> exportAndroidFile, "extern \"C\" DGLWRAPPER_API " + entrypoint.retType.name + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
+        print >> exportAndroidFile, "DGLWRAPPER_API " + entrypoint.retType.name + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
         print >> exportAndroidFile, "        return dgl_wrappers::" + name + "(" + listToString(paramCallList) + ");"        
         print >> exportAndroidFile, "}"
         print >> exportAndroidFile, "#endif"
@@ -523,7 +523,7 @@ for name, entrypoint in sorted(entrypoints.items()):
 #entrypoint wrappers
 
     print >> wrappersFile, entrypoint.getLibraryIfdef()
-    print >> wrappersFile, "extern \"C\" " + entrypoint.retType.name + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
+    print >> wrappersFile, entrypoint.retType.name + " APIENTRY " + name + "(" + listToString(paramDeclList) + ") {"
     
     if not entrypoint.skipTrace:
         cookie = "    DGLWrapperCookie cookie( " + name + "_Call"

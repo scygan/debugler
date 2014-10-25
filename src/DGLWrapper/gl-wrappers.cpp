@@ -450,12 +450,12 @@ class DGLWrapperCookie {
     bool m_ProcessActions;
 };
 
-namespace dgl_wrapppers {
+namespace dgl_wrappers {
 #include    "codegen_dgl_wrappers.inl"
 }
 
 #define FUNC_LIST_SUPPORTED_ELEM(name, type, library, retVal, params) \
-    (dgl_func_ptr) & dgl_wrapppers::name##_Wrapper,
+    (dgl_func_ptr) & dgl_wrappers::name,
 #define FUNC_LIST_NOT_SUPPORTED_ELEM(name, type, library, retVal, params) NULL,
 dgl_func_ptr wrapperPtrs[] = {
 #include "codegen_gl_function_list.inl"

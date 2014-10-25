@@ -123,7 +123,7 @@ int ut_PointerLibraries[Entrypoints_NUM] = {
 #define FUNC_LIST_SUPPORTED_ELEM(name, type, library, retVal, params) library,
 #define FUNC_LIST_NOT_SUPPORTED_ELEM(name, type, library, retVal, params) \
     FUNC_LIST_SUPPORTED_ELEM(name, type, library, params)
-#include "gl_function_list.inl"
+#include "codegen_gl_function_list.inl"
 #undef FUNC_LIST_SUPPORTED_ELEM
 #undef FUNC_LIST_NOT_SUPPORTED_ELEM
 };
