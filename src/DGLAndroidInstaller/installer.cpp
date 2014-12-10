@@ -4,9 +4,11 @@
 #include<stdexcept>
 #include<cerrno>
 #include<cstdlib>
+#include<vector>
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <linux/stat.h>
 #include <unistd.h>
 
 #include <DGLCommon/def.h>
@@ -82,11 +84,40 @@ bool fileIsBinary(const std::string& filePath) {
     return true;
 }
 
+std::string getRealPathIfSymlink(const std::string& filePath) {
+    struct stat st;
+    if (lstat(filePath.c_str(), &st) != 0) {
+        if (errno == ENOENT) {
+            return filePath;
+        }
+        throw std::runtime_error("File (lstat) " + filePath + ": " + strerror(errno));
+    }
+    if (!S_ISLNK(st.st_mode)) {
+        return filePath; 
+    }
+
+    //It is a symlink so return the path it points to.
+    std::vector<char> linkname(st.st_size + 1, '\0');
+    if (!readlink(filePath.c_str(), &linkname[0], linkname.size())) {
+        throw std::runtime_error("File (readlink) " + filePath + ": " + strerror(errno));
+    }
+
+    linkname[linkname.size() - 1] = '\0';
+    std::string ret = &linkname[0];
+
+    if (ret[0] == '/') {
+        //Absolute file path, return
+        return ret;
+    }
+    size_t splitPoint = filePath.find_last_of("/");
+    return filePath.substr(0, splitPoint) + "/" + ret;
+}
+
 void extract(std::string libPath, std::string binPath, bool overwrite = false) {
     
     for (size_t i = 0; i < sizeof(files)/sizeof(files[0]); i++) {
 
-        const std::string filePath = (files[i].isExecutable?binPath:libPath) + "/" + files[i].name;
+        const std::string filePath = getRealPathIfSymlink((files[i].isExecutable?binPath:libPath) + "/" + files[i].name);
 
         if (exists(filePath)) {
             if (!overwrite) {
@@ -123,8 +154,8 @@ void extract(std::string libPath, std::string binPath, bool overwrite = false) {
 void filesBackup() {
     for (size_t i = 0; i < sizeof(files)/sizeof(files[0]); i++) {
         if (files[i].sysOverwrite) {
-            const std::string origPath = std::string(files[i].isExecutable?"/system/bin/":"/system/lib/") + files[i].name;
-            const std::string backupPath = origPath + ".dgl";
+            const std::string origPath = getRealPathIfSymlink(std::string(files[i].isExecutable?"/system/bin/":"/system/lib/") + files[i].name);
+            const std::string backupPath = std::string(files[i].isExecutable?"/system/bin/":"/system/lib/") + files[i].name + ".dgl";
             if (exists(backupPath)) {
                 throw std::runtime_error("File " + backupPath + " already exists.");
             }
@@ -139,9 +170,9 @@ void filesBackup() {
 void uninstall() {
 
     for (size_t i = 0; i < sizeof(files)/sizeof(files[0]); i++) {
-        const std::string filePath = std::string(files[i].isExecutable?"/system/bin/":"/system/lib/") + files[i].name;
+        const std::string filePath = getRealPathIfSymlink(std::string(files[i].isExecutable?"/system/bin/":"/system/lib/") + files[i].name);
         if (files[i].sysOverwrite) {
-            const std::string backupPath = filePath + ".dgl";
+            const std::string backupPath = std::string(files[i].isExecutable?"/system/bin/":"/system/lib/") + files[i].name + ".dgl";
             printf("Moving: %s > %s\n", backupPath.c_str(), filePath.c_str());
             if (rename(backupPath.c_str(), filePath.c_str())) {
                 throw std::runtime_error("Cannot move " + backupPath + " to " + filePath + ": " + strerror(errno));
