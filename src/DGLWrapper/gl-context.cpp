@@ -3317,7 +3317,11 @@ void GLContext::firstUse() {
 
     std::vector<std::string> exts;
 
-    bool debugOutputSupported = false;
+    enum {
+        NO_DEBUG_OUTPUT,
+        DEBUG_OUTPUT_ARB,
+        DEBUG_OUTPUT_KHR
+    }  debugOutputSupporStatus = NO_DEBUG_OUTPUT;
 
     m_Version.initialize(reinterpret_cast<const char*>(
             DIRECT_CALL_CHK(glGetString)(GL_VERSION)));
@@ -3349,15 +3353,32 @@ void GLContext::firstUse() {
     }
 
     for (size_t i = 0; i < exts.size(); i++) {
-        if (strcmp("GL_ARB_debug_output", exts[i].c_str()) == 0)
-            debugOutputSupported = true;
+        if (strcmp("GL_ARB_debug_output", exts[i].c_str()) == 0) {
+            if (debugOutputSupporStatus == NO_DEBUG_OUTPUT) {
+               debugOutputSupporStatus = DEBUG_OUTPUT_ARB;
+            }
+        }
+        if (strcmp("GL_KHR_debug", exts[i].c_str()) == 0) {
+            //prefer GL_KHR_debug over GL_ARB_debug_output
+            debugOutputSupporStatus = DEBUG_OUTPUT_KHR;
+        }
         if (strcmp("GL_NVX_gpu_memory_info", exts[i].c_str()) == 0)
             m_HasNVXMemoryInfo = true;
     }
 
-    if (debugOutputSupported) {
-        DIRECT_CALL_CHK(glEnable)(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
-        DIRECT_CALL_CHK(glDebugMessageCallbackARB)(debugOutputCallback, NULL);
+    switch (debugOutputSupporStatus) {
+        case DEBUG_OUTPUT_ARB:
+            DIRECT_CALL_CHK(glEnable)(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+            DIRECT_CALL_CHK(glDebugMessageCallbackARB)(debugOutputCallback, NULL);
+            break;
+        case DEBUG_OUTPUT_KHR:
+            DIRECT_CALL_CHK(glEnable)(GL_DEBUG_OUTPUT);
+            DIRECT_CALL_CHK(glEnable)(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR);
+            DIRECT_CALL_CHK(glDebugMessageCallbackKHR)(debugOutputCallback, NULL);
+            break;
+        case NO_DEBUG_OUTPUT:
+        default:
+            break;
     }
 
     shadow().getTexUnits().init();

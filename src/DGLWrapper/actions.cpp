@@ -31,6 +31,8 @@
 
 #include "action-manager.h"
 
+#include <cstring> //for strstr()
+
 namespace actions {
 
 void ActionBase::SetPrev(const std::shared_ptr<ActionBase>& prev) {
@@ -678,13 +680,12 @@ void DebugContextAction::Register(ActionManager& manager) {
     manager.RegisterAction(wglCreateContext_Call, obj);
     manager.RegisterAction(wglCreateLayerContext_Call, obj);
     manager.RegisterAction(wglCreateContextAttribsARB_Call, obj);
-   
+
     manager.RegisterAction(glXCreateContext_Call, obj);
     manager.RegisterAction(glXCreateNewContext_Call, obj);
     manager.RegisterAction(glXCreateContextAttribsARB_Call, obj);
-   
-    //TODO:
-    //manager.RegisterAction(eglCreateContext_Call, obj);
+
+    manager.RegisterAction(eglCreateContext_Call, obj);
 }
 
 bool DebugContextAction::anyContextPresent = false;
@@ -698,149 +699,209 @@ RetValue DebugContextAction::Pre(const CalledEntryPoint& call) {
         return ret;
     }
 
+    Entrypoint entrypoint = call.getEntrypoint();
+
 #ifdef HAVE_LIBRARY_WGL
-    HDC hdc = NULL;
-    HGLRC sharedCtx = NULL;
-    const int* attribList = NULL;
-    switch (call.getEntrypoint()) {
-        case wglCreateContext_Call:
-            call.getArgs()[0].get(hdc);
-            break;
-        case wglCreateContextAttribsARB_Call:
-            call.getArgs()[0].get(hdc);
-            call.getArgs()[1].get(sharedCtx);
-            call.getArgs()[2].get(attribList);
-            break;
-        default:
-            DGL_ASSERT(0);
-    }
+    if (entrypoint == wglCreateContext_Call ||
+        entrypoint == wglCreateLayerContext_Call ||
+        entrypoint == wglCreateContextAttribsARB_Call) {
 
-    std::vector<int> newAttribList;
-    bool done = false;
-    if (attribList != NULL) {
-        size_t i = 0;
-        while (attribList[i]) {
-            int attrib = attribList[i++], value = attribList[i++];
-            if (attrib == WGL_CONTEXT_FLAGS_ARB) {
-                if (!GlobalState::getConfiguration().m_ForceDebugContextES &&
-                    (value & WGL_CONTEXT_ES2_PROFILE_BIT_EXT)) {
-                    return ret;
-                }
-                value |= WGL_CONTEXT_DEBUG_BIT_ARB;
-                done = true;
-            }
-            newAttribList.push_back(attrib);
-            newAttribList.push_back(value);
+        HDC hdc = NULL;
+        HGLRC sharedCtx = NULL;
+        const int* attribList = NULL;
+        switch (entrypoint) {
+            case wglCreateContext_Call:
+                call.getArgs()[0].get(hdc);
+                break;
+            case wglCreateContextAttribsARB_Call:
+                call.getArgs()[0].get(hdc);
+                call.getArgs()[1].get(sharedCtx);
+                call.getArgs()[2].get(attribList);
+                break;
+            default:
+                DGL_ASSERT(0);
         }
-    }
-    newAttribList.push_back(0);
-    if (!done) {
-        newAttribList[newAttribList.size() - 1] = WGL_CONTEXT_FLAGS_ARB;
-        newAttribList.push_back(WGL_CONTEXT_DEBUG_BIT_ARB);
+
+        std::vector<int> newAttribList;
+        bool done = false;
+        if (attribList != NULL) {
+            size_t i = 0;
+            while (attribList[i]) {
+                int attrib = attribList[i++], value = attribList[i++];
+                if (attrib == WGL_CONTEXT_FLAGS_ARB) {
+                    if (!GlobalState::getConfiguration().m_ForceDebugContextES &&
+                        (value & WGL_CONTEXT_ES2_PROFILE_BIT_EXT)) {
+                        return ret;
+                    }
+                    value |= WGL_CONTEXT_DEBUG_BIT_ARB;
+                    done = true;
+                }
+                newAttribList.push_back(attrib);
+                newAttribList.push_back(value);
+            }
+        }
         newAttribList.push_back(0);
-    }
+        if (!done) {
+            newAttribList[newAttribList.size() - 1] = WGL_CONTEXT_FLAGS_ARB;
+            newAttribList.push_back(WGL_CONTEXT_DEBUG_BIT_ARB);
+            newAttribList.push_back(0);
+        }
 
-    HGLRC tmpCtx = NULL;
+        HGLRC tmpCtx = NULL;
 
-    if (!anyContextPresent) {
-        // we must create one dummy ctx, to force ICD loading on Windows
-        // otherwise wglCreateContextAttribsARB, which is an extension, will not
-        // be availiable
-        tmpCtx = DIRECT_CALL_CHK(wglCreateContext)(hdc);
-        DIRECT_CALL_CHK(wglMakeCurrent)(hdc, tmpCtx);
-    }
+        if (!anyContextPresent) {
+            // we must create one dummy ctx, to force ICD loading on Windows
+            // otherwise wglCreateContextAttribsARB, which is an extension, will not
+            // be availiable
+            tmpCtx = DIRECT_CALL_CHK(wglCreateContext)(hdc);
+            DIRECT_CALL_CHK(wglMakeCurrent)(hdc, tmpCtx);
+        }
 
-    // call wglCreateContextAttribsARB only if supported by implementation.
-    // Otherwise do nothing - ctx will be created in wrapper function
-    if (POINTER(wglCreateContextAttribsARB) ||
-        EarlyGlobalState::getApiLoader().loadExtPointer(wglCreateContextAttribsARB_Call)) {
-        ret = DIRECT_CALL_CHK(wglCreateContextAttribsARB)(hdc, sharedCtx,
-                                                          &newAttribList[0]);
-    }
+        // call wglCreateContextAttribsARB only if supported by implementation.
+        // Otherwise do nothing - ctx will be created in wrapper function
+        if (POINTER(wglCreateContextAttribsARB) ||
+            EarlyGlobalState::getApiLoader().loadExtPointer(wglCreateContextAttribsARB_Call)) {
+            ret = DIRECT_CALL_CHK(wglCreateContextAttribsARB)(hdc, sharedCtx,
+                                                            &newAttribList[0]);
+        }
 
-    if (tmpCtx) {
-        // unwind dummy ctx
-        DIRECT_CALL_CHK(wglMakeCurrent)(NULL, NULL);
-        DIRECT_CALL_CHK(wglDeleteContext)(tmpCtx);
-        anyContextPresent = true;
+        if (tmpCtx) {
+            // unwind dummy ctx
+            DIRECT_CALL_CHK(wglMakeCurrent)(NULL, NULL);
+            DIRECT_CALL_CHK(wglDeleteContext)(tmpCtx);
+            anyContextPresent = true;
+        }
     }
 #elif defined(HAVE_LIBRARY_GLX)
-    Display* dpy = NULL;
-    GLXFBConfig config = NULL;
-    GLXContext sharedContext = NULL;
-    Bool direct = True;
-    const int* attribList = NULL;
-    int renderType;    // not really used
+    if (entrypoint == glXCreateContext_Call ||
+        entrypoint == glXCreateNewContext_Call ||
+        entrypoint == glXCreateContextAttribsARB_Call) {
 
-    XVisualInfo* vis;
+        Display* dpy = NULL;
+        GLXFBConfig config = NULL;
+        GLXContext sharedContext = NULL;
+        Bool direct = True;
+        const int* attribList = NULL;
+        int renderType;    // not really used
 
-    GLXFBConfig* memToFree = NULL;
+        XVisualInfo* vis;
 
-    switch (call.getEntrypoint()) {
-        case glXCreateContext_Call:
-            call.getArgs()[0].get(dpy);
-            call.getArgs()[1].get(vis);
-            call.getArgs()[2].get(sharedContext);
-            call.getArgs()[3].get(direct);
-            config = *dglState::NativeSurfaceGLX::getFbConfigForVisual(
-                              dpy, vis->visualid, &memToFree);
-            DGL_ASSERT(config);
-            break;
-        case glXCreateNewContext_Call:
-            call.getArgs()[0].get(dpy);
-            call.getArgs()[1].get(config);
-            call.getArgs()[2].get(renderType);
-            call.getArgs()[3].get(sharedContext);
-            call.getArgs()[4].get(direct);
-            break;
-        case glXCreateContextAttribsARB_Call:
-            call.getArgs()[0].get(dpy);
-            call.getArgs()[1].get(config);
-            call.getArgs()[2].get(sharedContext);
-            call.getArgs()[3].get(direct);
-            call.getArgs()[4].get(attribList);
-            break;
-        default:
-            DGL_ASSERT(0);
-    }
+        GLXFBConfig* memToFree = NULL;
 
-    std::vector<int> newAttribList;
-    bool done = false;
-    if (attribList != NULL) {
-        int i = 0;
-        while (attribList[i]) {
-            int attrib = attribList[i++], value = attribList[i++];
-            if (attrib == GLX_CONTEXT_FLAGS_ARB) {
-                if (!GlobalState::getConfiguration().m_ForceDebugContextES &&
-                    (value & GLX_CONTEXT_ES2_PROFILE_BIT_EXT)) {
-                    return ret;
+        switch (entrypoint) {
+            case glXCreateContext_Call:
+                call.getArgs()[0].get(dpy);
+                call.getArgs()[1].get(vis);
+                call.getArgs()[2].get(sharedContext);
+                call.getArgs()[3].get(direct);
+                config = *dglState::NativeSurfaceGLX::getFbConfigForVisual(
+                                dpy, vis->visualid, &memToFree);
+                DGL_ASSERT(config);
+                break;
+            case glXCreateNewContext_Call:
+                call.getArgs()[0].get(dpy);
+                call.getArgs()[1].get(config);
+                call.getArgs()[2].get(renderType);
+                call.getArgs()[3].get(sharedContext);
+                call.getArgs()[4].get(direct);
+                break;
+            case glXCreateContextAttribsARB_Call:
+                call.getArgs()[0].get(dpy);
+                call.getArgs()[1].get(config);
+                call.getArgs()[2].get(sharedContext);
+                call.getArgs()[3].get(direct);
+                call.getArgs()[4].get(attribList);
+                break;
+            default:
+                DGL_ASSERT(0);
+        }
+
+        std::vector<int> newAttribList;
+        bool done = false;
+        if (attribList != NULL) {
+            int i = 0;
+            while (attribList[i]) {
+                int attrib = attribList[i++], value = attribList[i++];
+                if (attrib == GLX_CONTEXT_FLAGS_ARB) {
+                    if (!GlobalState::getConfiguration().m_ForceDebugContextES &&
+                        (value & GLX_CONTEXT_ES2_PROFILE_BIT_EXT)) {
+                        return ret;
+                    }
+                    value |= GLX_CONTEXT_DEBUG_BIT_ARB;
+                    done = true;
                 }
-                value |= GLX_CONTEXT_DEBUG_BIT_ARB;
-                done = true;
+                newAttribList.push_back(attrib);
+                newAttribList.push_back(value);
             }
-            newAttribList.push_back(attrib);
-            newAttribList.push_back(value);
+        }
+        newAttribList.push_back(0);
+        if (!done) {
+            newAttribList[newAttribList.size() - 1] = GLX_CONTEXT_FLAGS_ARB;
+            newAttribList.push_back(GLX_CONTEXT_DEBUG_BIT_ARB);
+            newAttribList.push_back(0);
+        }
+
+        // call glXCreateContextAttribsARB only if supported by implementation.
+        // Otherwise do nothing - ctx will be created in wrapper function
+        if (POINTER(glXCreateContextAttribsARB) ||
+            EarlyGlobalState::getApiLoader().loadExtPointer(glXCreateContextAttribsARB_Call)) {
+            ret = DIRECT_CALL_CHK(glXCreateContextAttribsARB)(
+                    dpy, config, sharedContext, direct, &newAttribList[0]);
+        }
+
+        if (memToFree) {
+            XFree(memToFree);
         }
     }
-    newAttribList.push_back(0);
-    if (!done) {
-        newAttribList[newAttribList.size() - 1] = GLX_CONTEXT_FLAGS_ARB;
-        newAttribList.push_back(GLX_CONTEXT_DEBUG_BIT_ARB);
-        newAttribList.push_back(0);
-    }
-
-    // call glXCreateContextAttribsARB only if supported by implementation.
-    // Otherwise do nothing - ctx will be created in wrapper function
-    if (POINTER(glXCreateContextAttribsARB) ||
-        EarlyGlobalState::getApiLoader().loadExtPointer(glXCreateContextAttribsARB_Call)) {
-        ret = DIRECT_CALL_CHK(glXCreateContextAttribsARB)(
-                dpy, config, sharedContext, direct, &newAttribList[0]);
-    }
-
-    if (memToFree) {
-        XFree(memToFree);
-    }
 #endif
+
+    if (entrypoint == eglCreateContext_Call) {
+
+        if (!GlobalState::getConfiguration().m_ForceDebugContextES &&
+            DGLThreadState::get()->getEGLApi() == DGLThreadState::BoundEGLApi::OPENGL_ES_API) {
+            return ret;
+        }
+
+        EGLDisplay dpy = NULL;
+        EGLConfig config = NULL;
+        EGLContext sharedContext = NULL;
+        const EGLint* attribList = NULL;
+
+        call.getArgs()[0].get(dpy);
+        call.getArgs()[1].get(config);
+        call.getArgs()[2].get(sharedContext);
+        call.getArgs()[3].get(attribList);
+
+
+        const char* eglExtensions = DIRECT_CALL_CHK(eglQueryString)(dpy, EGL_EXTENSIONS);
+        if (!eglExtensions || !strstr(eglExtensions, "EGL_KHR_create_context")) {
+            return ret;
+        }
+
+        std::vector<EGLint> newAttribList;
+        bool done = false;
+        if (attribList != NULL) {
+            int i = 0;
+            while (attribList[i] != EGL_NONE) {
+                int attrib = attribList[i++], value = attribList[i++];
+                if (attrib == EGL_CONTEXT_FLAGS_KHR) {
+                    value |= EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR;
+                    done = true;
+                }
+                newAttribList.push_back(attrib);
+                newAttribList.push_back(value);
+            }
+        }
+        newAttribList.push_back(EGL_NONE);
+        if (!done) {
+            newAttribList[newAttribList.size() - 1] = EGL_CONTEXT_FLAGS_KHR;
+            newAttribList.push_back(EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR);
+            newAttribList.push_back(EGL_NONE);
+        }
+
+        ret = DIRECT_CALL_CHK(eglCreateContext)(
+            dpy, config, sharedContext, &newAttribList[0]);
+    }
     return ret;
 }
 
@@ -1506,14 +1567,18 @@ void DebugOutputCallback::Register(ActionManager& manager) {
 
     manager.RegisterAction(glDebugMessageCallback_Call, obj);
     manager.RegisterAction(glDebugMessageCallbackARB_Call, obj);
+    manager.RegisterAction(glDebugMessageCallbackKHR_Call, obj);
+
 }
 
 RetValue DebugOutputCallback::Pre(const CalledEntryPoint& call) {
     RetValue ret = PrevPre(call);
 
     Entrypoint entrp = call.getEntrypoint();
-    if (gc && (entrp == glDebugMessageCallback_Call ||
-               entrp == glDebugMessageCallbackARB_Call)) {
+    if (gc && (entrp == glDebugMessageCallback_Call    ||
+               entrp == glDebugMessageCallbackARB_Call ||
+               entrp == glDebugMessageCallbackKHR_Call)) {
+
         dgl_func_ptr callback;
         const GLvoid* userParam;
         call.getArgs()[0].get(callback);
@@ -1528,6 +1593,9 @@ RetValue DebugOutputCallback::Pre(const CalledEntryPoint& call) {
                     dglState::GLContext::debugOutputCallback, userParam);
         } else if (entrp == glDebugMessageCallbackARB_Call) {
             DIRECT_CALL_CHK(glDebugMessageCallbackARB)(
+                    dglState::GLContext::debugOutputCallback, userParam);
+        } else if (entrp == glDebugMessageCallbackKHR_Call) {
+            DIRECT_CALL_CHK(glDebugMessageCallbackKHR)(
                     dglState::GLContext::debugOutputCallback, userParam);
         } else {
             DGL_ASSERT(0);
