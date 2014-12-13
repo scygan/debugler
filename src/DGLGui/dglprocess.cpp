@@ -20,6 +20,10 @@
 #include <boost/thread/thread_time.hpp>
 #include <DGLCommon/os.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 DGLBaseQTProcess::DGLBaseQTProcess() {}
 
 void DGLBaseQTProcess::run(std::string exec, std::string path,

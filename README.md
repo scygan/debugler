@@ -7,30 +7,30 @@ The OpenGL 2.1+, OpenGL ES 2.0..3.1 debugger for Windows and Linux
 ## Platforms?
 * Windows 32 or 64 bit, Vista or later
 * Linux 32 or 64 bit
-* Android (x86, arm or mips based). Tried 2.3.5 ... 4.4.2.
+* Android (x86, arm or mips). Tried 2.3.5 ... 5.0.
 
 ## Howto Build?
 
 ### Windows prerequisites
 
 Needed: 
- * Microsoft Visual Studio 2012
+ * Microsoft Visual Studio 2013
  
  * Wix Toolset
  
  * CMake for windows, with cmake in <b>PATH</b>
  
- * Android NDK r8e, set <b>ANDROID_NDK</b> environment variable to NDK directory
+ * Android NDK r9b, http://dl.google.com/android/ndk/android-ndk-r9b-windows-x86.exe, set <b>ANDROID_NDK</b> environment variable to NDK directory
 
  * Python 2.7.*, http://www.python.org/download/
  
- * LXML, http://www.lfd.uci.edu/~gohlke/pythonlibs/cua72n5h/lxml-3.2.4.win32-py2.7.exe
+ * LXML, http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml
 
- * Qt 5.1.1, http://www.nic.funet.fi/pub/mirrors/download.qt-project.org/official_releases/qt/5.1/5.1.1/qt-windows-opensource-5.1.1-msvc2012-x86-offline.exe
+ * Qt 5.4.0 for Visual Studio 2013, https://www.qt.io/download-open-source/
+
+ * Set <b>QTDIR</b> environment variable to QT installation directory (like D:\Qt\Qt5.4.0\5.4\msvc2013)
  
- Debugler can build with <b>older versions</b>, but it <b> does not work </b> due to https://bugreports.qt-project.org/browse/QTBUG-29391
-
- * Set <b>QTDIR</b> environment variable to QT installation directory (like C:\Qt\Qt5.1.0\5.1.0-rc1\msvc2012)
+ * Visual Studio Add-in for QT5, https://www.qt.io/download-open-source
 
 
 ### Linux (Ubuntu) prerequisites
@@ -38,7 +38,7 @@ Needed:
 Needed: 
   * Ubuntu packages: g++ x11proto-gl-dev libelf-dev cmake libxml2-dev libqt4-dev
    
-  * Android NDK r8e, set <b>ANDROID_NDK</b> environment variable to NDK directory
+  * Android NDK r9b, set <b>ANDROID_NDK</b> environment variable to NDK directory
  
 
 ### Building Debugler:
@@ -74,6 +74,8 @@ built.py [target]
 cd build/<target>/<configuration>/UT
 ut
 ```
+
+ * Under Visual Studio you can use *GoogleTest Runner* extension
 
 ### Development
 #### Code style

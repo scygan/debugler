@@ -30,6 +30,8 @@
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/iterator/iterator_traits.hpp>
 
+#include <algorithm> //for std::min
+
 namespace boost { 
 namespace archive {
 namespace iterators {
