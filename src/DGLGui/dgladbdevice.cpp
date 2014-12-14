@@ -504,8 +504,9 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
                         params.push_back("/system/bin/app_process");
                         invokeAsRoot(params)->process();
                     } else {
-                        failed("Cannot get root permissions. Is this device "
-                               "rooted?");
+                        failed("Cannot get root permissions. Please ensure this device"
+                            " is rooted, or running any of <b>development</b>, <b>eng</b>,"
+                            "  <b>debug</b> or <b>userdebug</b> AOSP builds.");
                     }
                     break;
 
