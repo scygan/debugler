@@ -121,7 +121,7 @@ class APILoader {
      *
      * Returns LIBRARY_NONE, or mask of LIBRARY_*
      */
-    int whichLibrary(const char* name);
+    int whichLibrary(const char* name) const;
 
 
     /** 

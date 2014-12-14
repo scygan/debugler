@@ -143,7 +143,7 @@ std::string APILoader::getLibraryName(ApiLibrary apiLibrary) {
     }
 }
 
-int APILoader::whichLibrary(const char* name) {
+int APILoader::whichLibrary(const char* name) const {
     std::string nameStr(name);
 
     if (nameStr.find(STRIP_VERSION(LIBGL_NAME)) != std::string::npos) {

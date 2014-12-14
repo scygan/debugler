@@ -15,11 +15,8 @@
 * limitations under the License.
 */
 
-#include <boost/thread/recursive_mutex.hpp>
-
 #ifndef _WIN32
 #include <map>
-
 #include <dlfcn.h>
 
 /**
@@ -155,6 +152,7 @@ extern DLIntercept g_DLIntercept;
 #else    // Windows implementation
 
 #include <windows.h>
+#include <mutex>
 
 /**
  * Static class for hooking dynamic loader calls
@@ -217,7 +215,7 @@ class DLIntercept {
     /**
      * Mutex guarding the hook code
      */
-    static boost::recursive_mutex s_mutex;
+    static std::recursive_mutex s_mutex;
 };
 
 #ifndef NO_DL_REDEFINES

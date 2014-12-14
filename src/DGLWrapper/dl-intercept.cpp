@@ -438,7 +438,6 @@ void DGLWRAPPER_API *dlvsym(void *handle, const char *name, const char *version)
 HMODULE DLIntercept::LoadLibraryExW(_In_ LPCWSTR lpwFileName,
                                     _Reserved_ HANDLE hFile,
                                     _In_ DWORD dwFlags) {
-    boost::recursive_mutex::scoped_lock lock(s_mutex);
 
     HMODULE ret = real_LoadLibraryExW(lpwFileName, hFile, dwFlags);
 
@@ -455,9 +454,16 @@ HMODULE DLIntercept::LoadLibraryExW(_In_ LPCWSTR lpwFileName,
 
         int libraries =
                 EarlyGlobalState::getApiLoader().whichLibrary(&fileName[0]);
-        EarlyGlobalState::getApiLoader().loadDefaultLibraries(
+
+        if (libraries) {
+            //guard the global state structures
+            std::lock_guard<std::recursive_mutex> lock(s_mutex);
+
+            EarlyGlobalState::getApiLoader().loadDefaultLibraries(
                 getIPC()->getDebuggerMode() == DGLIPC::DebuggerMode::EGL,
                 libraries, APILoader::LoadMode::IMMEDIATE);
+        }
+        
     }
     return ret;
 }
@@ -511,6 +517,6 @@ void DLIntercept::initialize() {
 
 DLIntercept::LoadLibraryExW_Type DLIntercept::s_real_LoadLibraryExW;
 
-boost::recursive_mutex DLIntercept::s_mutex;
+std::recursive_mutex DLIntercept::s_mutex;
 
 #endif
