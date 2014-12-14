@@ -17,7 +17,6 @@
 
 #include <DGLCommon/os.h>
 #include <DGLNet/protocol/resource.h>
-#include <DGLNet/protocol/shared_ptr_converter.h>
 #include <DGLNet/protocol/pixeltransfer.h>
 
 #include "api-loader.h"
@@ -454,7 +453,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryTexture(gl_t _name) {
                     currentLayer.m_Samples = samples;
                     currentLayer.m_InternalFormat = internalFormat;
 
-                    currentLayer.m_PixelRectangle = convert_shared_ptr(rect);
+                    currentLayer.m_PixelRectangle = rect;
                     currentLevel.push_back((currentLayer));
                 }
             }
@@ -1315,7 +1314,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFBO(gl_t _name) {
 
             dglnet::resource::DGLResourceFBO::FBOAttachment& attachment = resource->m_Attachments.back();
 
-            attachment.m_PixelRectangle = convert_shared_ptr(pixelRectangle);
+            attachment.m_PixelRectangle = pixelRectangle;
                
 
             DGL_ASSERT(queryPixels == (attachment.m_PixelRectangle != nullptr));
@@ -1734,7 +1733,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryRenderbuffer(gl_t name) {
                 &internalFormat       // internalFormat is returned here
             );
 
-        resource->m_PixelRectangle = convert_shared_ptr(pixelRectangle);
+        resource->m_PixelRectangle = pixelRectangle;
             
 
         resource->m_Internalformat = internalFormat;

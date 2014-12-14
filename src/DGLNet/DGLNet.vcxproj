@@ -46,7 +46,6 @@
     <ClInclude Include="protocol\pixeltransfer.h" />
     <ClInclude Include="protocol\request.h" />
     <ClInclude Include="protocol\resource.h" />
-    <ClInclude Include="protocol\shared_ptr_converter.h" />
     <ClInclude Include="server.h" />
     <ClInclude Include="transport.h" />
     <ClInclude Include="transport_detail.h" />

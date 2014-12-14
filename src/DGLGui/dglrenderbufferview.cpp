@@ -17,8 +17,6 @@
 
 #include "ui_dglrenderbufferviewitem.h"
 
-#include "DGLNet/protocol/shared_ptr_converter.h"
-
 DGLRenderbufferViewItem::DGLRenderbufferViewItem(dglnet::ContextObjectName name,
                                DGLResourceManager* resManager, QWidget* parrent)
         : DGLTabbedViewItem(name, parrent) {

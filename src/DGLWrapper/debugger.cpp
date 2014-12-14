@@ -24,7 +24,6 @@
 #include <DGLNet/server.h>
 #include <DGLNet/protocol/message.h>
 #include <DGLNet/protocol/resource.h>
-#include <DGLNet/protocol/shared_ptr_converter.h>
 
 #include <sstream>
 #include <boost/interprocess/sync/named_semaphore.hpp>
@@ -388,9 +387,9 @@ void DGLDebugController::doHandleRequest(const dglnet::message::Request& msg) {
         // only one request type for now
         if (dynamic_cast<const dglnet::request::QueryResource*>(
                     msg.m_Request.get())) {
-            reply.m_Reply = convert_shared_ptr_nref(doHandleRequest(
+            reply.m_Reply = doHandleRequest(
                     *dynamic_cast<const dglnet::request::QueryResource*>(
-                             msg.m_Request.get())));
+                             msg.m_Request.get()));
         } else if (dynamic_cast<const dglnet::request::EditShaderSource*>(
                            msg.m_Request.get())) {
             doHandleRequest(
