@@ -98,7 +98,7 @@ slots:
 
     void blittedImage(const QImage& image);
 
-    boost::shared_ptr<DGLPixelRectangleBlitter> m_Blitter;
+    std::shared_ptr<DGLPixelRectangleBlitter> m_Blitter;
 
     friend class DGLPixelRectangleBlitter;
 };

@@ -28,7 +28,6 @@
 #include <boost/interprocess/shared_memory_object.hpp>
 #endif
 #include <boost/interprocess/mapped_region.hpp>
-#include <boost/make_shared.hpp>
 #include <sstream>
 
 #include <DGLCommon/def.h>
@@ -54,16 +53,16 @@ class DGLIPCImpl : public DGLIPC {
         m_uuid = uuidStream.str();
 #ifdef _WIN32
         m_shmem =
-                boost::make_shared<boost::interprocess::windows_shared_memory>(
+                std::make_shared<boost::interprocess::windows_shared_memory>(
                         boost::interprocess::create_only, m_uuid.c_str(),
                         boost::interprocess::read_write, sizeof(MemoryRegion));
 #else
-        m_shmem = boost::make_shared<boost::interprocess::shared_memory_object>(
+        m_shmem = std::make_shared<boost::interprocess::shared_memory_object>(
                 boost::interprocess::create_only, m_uuid.c_str(),
                 boost::interprocess::read_write);
         m_shmem->truncate(sizeof(MemoryRegion));
 #endif
-        m_shmemregion = boost::make_shared<boost::interprocess::mapped_region>(
+        m_shmemregion = std::make_shared<boost::interprocess::mapped_region>(
                 *m_shmem, boost::interprocess::read_write);
 
         // inplace
@@ -74,15 +73,15 @@ class DGLIPCImpl : public DGLIPC {
             : m_uuid(uuid), m_region(NULL), m_processSkipped(false), m_regionowner(false) {
 #ifdef _WIN32
         m_shmem =
-                boost::make_shared<boost::interprocess::windows_shared_memory>(
+                std::make_shared<boost::interprocess::windows_shared_memory>(
                         boost::interprocess::open_only, m_uuid.c_str(),
                         boost::interprocess::read_write);
 #else
-        m_shmem = boost::make_shared<boost::interprocess::shared_memory_object>(
+        m_shmem = std::make_shared<boost::interprocess::shared_memory_object>(
                 boost::interprocess::open_only, m_uuid.c_str(),
                 boost::interprocess::read_write);
 #endif
-        m_shmemregion = boost::make_shared<boost::interprocess::mapped_region>(
+        m_shmemregion = std::make_shared<boost::interprocess::mapped_region>(
                 *m_shmem, boost::interprocess::read_write);
         m_region =
                 reinterpret_cast<MemoryRegion*>(m_shmemregion->get_address());
@@ -178,11 +177,11 @@ class DGLIPCImpl : public DGLIPC {
     bool m_processSkipped;
 
 #ifdef _WIN32
-    boost::shared_ptr<boost::interprocess::windows_shared_memory> m_shmem;
+    std::shared_ptr<boost::interprocess::windows_shared_memory> m_shmem;
 #else
-    boost::shared_ptr<boost::interprocess::shared_memory_object> m_shmem;
+    std::shared_ptr<boost::interprocess::shared_memory_object> m_shmem;
 #endif
-    boost::shared_ptr<boost::interprocess::mapped_region> m_shmemregion;
+    std::shared_ptr<boost::interprocess::mapped_region> m_shmemregion;
     bool m_regionowner;
 };
 

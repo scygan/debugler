@@ -16,7 +16,7 @@
 #ifdef _WIN32
 
 #include <windows.h>
-#include <boost/thread/recursive_mutex.hpp>
+#include <mutex>
 
 /**
  * Static class implementing hooking of CreateProcess (and similar) calls.
@@ -82,7 +82,7 @@ class ExecHook {
     /**
      * Mutex guarding the hook code
      */
-    static boost::recursive_mutex s_mutex;
+    static std::recursive_mutex s_mutex;
 };
 
 #endif

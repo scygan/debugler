@@ -16,7 +16,6 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
-#include <boost/shared_ptr.hpp>
 #include <vector>
 
 #include <DGLNet/protocol/msgutils.h>
@@ -137,7 +136,7 @@ class DGLResourceTexture : public DGLResource {
             ar& m_InternalFormat;
             ar& m_Samples;
         }
-        ::boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
+        std::shared_ptr<dglnet::resource::DGLPixelRectangle>
             m_PixelRectangle;
         gl_t m_InternalFormat;
         value_t m_Samples;
@@ -167,7 +166,7 @@ class DGLResourceFramebuffer : public DGLResource {
         ar& m_PixelRectangle;
     }
 
-    ::boost::shared_ptr<dglnet::resource::DGLPixelRectangle> m_PixelRectangle;
+    std::shared_ptr<dglnet::resource::DGLPixelRectangle> m_PixelRectangle;
 };
 
 class DGLResourceFBO : public DGLResource {
@@ -199,7 +198,7 @@ class DGLResourceFBO : public DGLResource {
         void error(const std::string& msg);
         bool isOk(std::string& error) const;
 
-        ::boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
+        std::shared_ptr<dglnet::resource::DGLPixelRectangle>
                 m_PixelRectangle;
         gl_t m_Id;
         gl_t m_Internalformat;
@@ -224,7 +223,7 @@ public:
         ar& m_Samples;
     }
 
-    ::boost::shared_ptr<dglnet::resource::DGLPixelRectangle>
+    std::shared_ptr<dglnet::resource::DGLPixelRectangle>
         m_PixelRectangle;
 
     gl_t m_Internalformat;

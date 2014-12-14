@@ -15,7 +15,7 @@
 
 #ifndef _SHARED_PTR_CONVERTER_H
 #define _SHARED_PTR_CONVERTER_H
-
+/*
 //http://stackoverflow.com/questions/12314967/cohabitation-of-boostshared-ptr-and-stdshared-ptr
 template<typename T>
 boost::shared_ptr<T> convert_shared_ptr(std::shared_ptr<T>& ptr)
@@ -40,5 +40,19 @@ std::shared_ptr<T> convert_shared_ptr_nref(boost::shared_ptr<T> ptr)
 {
     return std::shared_ptr<T>(ptr.get(), [ptr](T*) mutable {ptr.reset();});
 }
+
+*/
+//-----
+template<typename T>
+std::shared_ptr<T> convert_shared_ptr(std::shared_ptr<T>& ptr)
+{
+    return ptr;
+}
+template<typename T>
+std::shared_ptr<T> convert_shared_ptr_nref(std::shared_ptr<T> ptr)
+{
+    return ptr;
+}
+
 
 #endif

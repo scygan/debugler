@@ -22,7 +22,6 @@
 #include "exechook.h"
 #include "dl-intercept.h"
 #include "DGLWrapper.h"
-#include <boost/make_shared.hpp>
 #include <boost/interprocess/sync/named_semaphore.hpp>
 
 #ifdef USE_DETOURS

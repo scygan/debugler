@@ -27,7 +27,6 @@
 #include <DGLNet/protocol/shared_ptr_converter.h>
 
 #include <sstream>
-#include <boost/make_shared.hpp>
 #include <boost/interprocess/sync/named_semaphore.hpp>
 
 
@@ -405,7 +404,7 @@ void DGLDebugController::doHandleRequest(const dglnet::message::Request& msg) {
         } else if (dynamic_cast<const dglnet::request::RequestBenchmarkBuffer*>(
             msg.m_Request.get())) {
 
-            reply.m_Reply = boost::make_shared<dglnet::DGLBenchmarkBuffer>(
+            reply.m_Reply = std::make_shared<dglnet::DGLBenchmarkBuffer>(
                 dynamic_cast<const dglnet::request::RequestBenchmarkBuffer*>(
                 msg.m_Request.get())->m_Size);
 

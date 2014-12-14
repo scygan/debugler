@@ -37,7 +37,7 @@ slots:
 
     //this shared_pointer is from boost::
     ///because it is just copied from DGLNet resource
-    boost::shared_ptr<const dglnet::resource::DGLPixelRectangle> m_PixelRectangle;
+    std::shared_ptr<const dglnet::resource::DGLPixelRectangle> m_PixelRectangle;
 
     DGLResourceListener* m_Listener;
 };

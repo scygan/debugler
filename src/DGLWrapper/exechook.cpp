@@ -91,6 +91,6 @@ void ExecHook::initialize() {
 
 ExecHook::CreateProcessInternalW_Type ExecHook::s_real_CreateProcessInternalW;
 
-boost::recursive_mutex ExecHook::s_mutex;
+std::recursive_mutex ExecHook::s_mutex;
 
 #endif

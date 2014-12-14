@@ -31,8 +31,6 @@
 #include <cstring>
 #include <sstream>
 
-#include <boost/make_shared.hpp>
-
 namespace dglState {
 
 GLContextVersion::GLContextVersion(Type type, int majorVersion, int minorVersion)
@@ -1195,7 +1193,7 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryFramebuffer(
     }
 
     resource->m_PixelRectangle =
-            boost::shared_ptr<dglnet::resource::DGLPixelRectangle>(
+            std::shared_ptr<dglnet::resource::DGLPixelRectangle>(
                 new dglnet::resource::DGLPixelRectangle(
                     width, height,
                     defAlignment.getAligned(width * transfer.getPixelSize()),

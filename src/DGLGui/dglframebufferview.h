@@ -51,7 +51,7 @@ slots:
     Ui::DGLFramebufferViewItem m_Ui;
     DGLPixelRectangleScene* m_PixelRectangleScene;
     DGLResourceListener* m_Listener;
-    boost::shared_ptr<dglnet::resource::DGLPixelRectangle> m_PixelRectangle;
+    std::shared_ptr<dglnet::resource::DGLPixelRectangle> m_PixelRectangle;
 };
 
 #endif    // DGLFRAMEBUFFERVIEW_H

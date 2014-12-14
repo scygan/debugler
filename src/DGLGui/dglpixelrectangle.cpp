@@ -29,8 +29,6 @@
 #include <QResizeEvent>
 #include <sstream>
 
-#include <boost/make_shared.hpp>
-
 #include <DGLCommon/def.h>
 
 DGLPixRectQGraphicsView::DGLPixRectQGraphicsView(QWidget* _parent)
@@ -209,7 +207,7 @@ void DGLPixelRectangleView::updateFormatSizeInfo(
 
 DGLPixelRectangleScene::DGLPixelRectangleScene()
         : m_Item(NULL),
-          m_Blitter(boost::make_shared<DGLPixelRectangleBlitter>(this)) {}
+          m_Blitter(std::make_shared<DGLPixelRectangleBlitter>(this)) {}
 
 void DGLPixelRectangleScene::setText(const std::string& message) {
     m_Item = NULL;

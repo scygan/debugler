@@ -23,7 +23,6 @@
 #include <DGLNet/protocol/msgutils.h>
 
 #include <set>
-#include <boost/shared_ptr.hpp>
 
 namespace dglnet {
 
@@ -208,7 +207,7 @@ class Request : public Message {
 
     Request();
     Request(DGLRequest*);
-    boost::shared_ptr<DGLRequest> m_Request;
+    std::shared_ptr<DGLRequest> m_Request;
     int getId() const;
 private:
     virtual void handle(MessageHandler* h) const;
@@ -233,7 +232,7 @@ class RequestReply : public Message {
     int getId() const;
 
     value_t m_RequestId;
-    boost::shared_ptr<utils::ReplyBase> m_Reply;
+    std::shared_ptr<utils::ReplyBase> m_Reply;
 
    private:
     virtual void handle(MessageHandler* h) const;
