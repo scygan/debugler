@@ -11,19 +11,42 @@
 #ifndef BOOST_INTERPROCESS_DETAIL_WORKAROUND_HPP
 #define BOOST_INTERPROCESS_DETAIL_WORKAROUND_HPP
 
+#if defined(_MSC_VER)
+#  pragma once
+#endif
+
 #include <boost/interprocess/detail/config_begin.hpp>
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
    #define BOOST_INTERPROCESS_WINDOWS
    #define BOOST_INTERPROCESS_FORCE_GENERIC_EMULATION
    #define BOOST_INTERPROCESS_HAS_KERNEL_BOOTTIME
+   //Define this to connect with shared memory created with versions < 1.54
+   //#define BOOST_INTERPROCESS_BOOTSTAMP_IS_LASTBOOTUPTIME
 #else
    #include <unistd.h>
 
    #if defined(_POSIX_THREAD_PROCESS_SHARED) && ((_POSIX_THREAD_PROCESS_SHARED - 0) > 0)
       //Cygwin defines _POSIX_THREAD_PROCESS_SHARED but does not implement it.
-      //Mac Os X >= Leopard defines _POSIX_THREAD_PROCESS_SHARED but does not seem to work.
-      #if !defined(__CYGWIN__) && !defined(__APPLE__)
+      #if defined(__CYGWIN__)
+         #define BOOST_INTERPROCESS_BUGGY_POSIX_PROCESS_SHARED
+      //Mac Os X < Lion (10.7) might define _POSIX_THREAD_PROCESS_SHARED but there is no real support.
+      #elif defined(__APPLE__)
+         #include "TargetConditionals.h"
+         //Check we're on Mac OS target
+         #if defined(TARGET_OS_MAC)
+            #include "AvailabilityMacros.h"
+            //If minimum target for this compilation is older than Mac Os Lion, then we are out of luck
+            #if MAC_OS_X_VERSION_MIN_REQUIRED < 1070
+               #define BOOST_INTERPROCESS_BUGGY_POSIX_PROCESS_SHARED
+            #endif
+         #endif
+      #endif
+
+      //If buggy _POSIX_THREAD_PROCESS_SHARED is detected avoid using it
+      #if defined(BOOST_INTERPROCESS_BUGGY_POSIX_PROCESS_SHARED)
+         #undef BOOST_INTERPROCESS_BUGGY_POSIX_PROCESS_SHARED
+      #else
          #define BOOST_INTERPROCESS_POSIX_PROCESS_SHARED
       #endif
    #endif
@@ -42,14 +65,14 @@
       #define BOOST_INTERPROCESS_POSIX_NAMED_SEMAPHORES
    #endif
 
-   #if ((defined _V6_ILP32_OFFBIG)  &&(_V6_ILP32_OFFBIG   - 0 > 0)) ||\
-       ((defined _V6_LP64_OFF64)    &&(_V6_LP64_OFF64     - 0 > 0)) ||\
-       ((defined _V6_LPBIG_OFFBIG)  &&(_V6_LPBIG_OFFBIG   - 0 > 0)) ||\
-       ((defined _XBS5_ILP32_OFFBIG)&&(_XBS5_ILP32_OFFBIG - 0 > 0)) ||\
-       ((defined _XBS5_LP64_OFF64)  &&(_XBS5_LP64_OFF64   - 0 > 0)) ||\
-       ((defined _XBS5_LPBIG_OFFBIG)&&(_XBS5_LPBIG_OFFBIG - 0 > 0)) ||\
-       ((defined _FILE_OFFSET_BITS) &&(_FILE_OFFSET_BITS  - 0 >= 64))||\
-       ((defined _FILE_OFFSET_BITS) &&(_FILE_OFFSET_BITS  - 0 >= 64))
+   #if (defined (_V6_ILP32_OFFBIG)  &&(_V6_ILP32_OFFBIG   - 0 > 0)) ||\
+       (defined (_V6_LP64_OFF64)    &&(_V6_LP64_OFF64     - 0 > 0)) ||\
+       (defined (_V6_LPBIG_OFFBIG)  &&(_V6_LPBIG_OFFBIG   - 0 > 0)) ||\
+       (defined (_XBS5_ILP32_OFFBIG)&&(_XBS5_ILP32_OFFBIG - 0 > 0)) ||\
+       (defined (_XBS5_LP64_OFF64)  &&(_XBS5_LP64_OFF64   - 0 > 0)) ||\
+       (defined (_XBS5_LPBIG_OFFBIG)&&(_XBS5_LPBIG_OFFBIG - 0 > 0)) ||\
+       (defined (_FILE_OFFSET_BITS) &&(_FILE_OFFSET_BITS  - 0 >= 64))||\
+       (defined (_FILE_OFFSET_BITS) &&(_FILE_OFFSET_BITS  - 0 >= 64))
       #define BOOST_INTERPROCESS_UNIX_64_BIT_OR_BIGGER_OFF_T
    #endif
 
@@ -110,6 +133,10 @@
 
    #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__APPLE__)
       #define BOOST_INTERPROCESS_BSD_DERIVATIVE
+      //Some *BSD systems (OpenBSD & NetBSD) need sys/param.h before sys/sysctl.h, whereas
+      //others (FreeBSD & Darwin) need sys/types.h
+      #include <sys/types.h>
+      #include <sys/param.h>
       #include <sys/sysctl.h>
       #if defined(CTL_KERN) && defined (KERN_BOOTTIME)
          //#define BOOST_INTERPROCESS_HAS_KERNEL_BOOTTIME
@@ -153,6 +180,10 @@
 #elif defined (__GNUC__)
    #define BOOST_INTERPROCESS_NEVER_INLINE __attribute__((__noinline__))
 #endif
+
+//Macros for documentation purposes. For code, expands to the argument
+#define BOOST_INTERPROCESS_IMPDEF(TYPE) TYPE
+#define BOOST_INTERPROCESS_SEEDOC(TYPE) TYPE
 
 #if defined(BOOST_NO_CXX11_NOEXCEPT)
    #if defined(BOOST_MSVC)

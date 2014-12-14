@@ -89,10 +89,6 @@
 #include <boost/archive/basic_binary_iprimitive.hpp>
 #include <boost/archive/basic_binary_iarchive.hpp>
 
-#if BOOST_VERSION >= 103500
-#include <boost/archive/shared_ptr_helper.hpp>
-#endif
-
 // funny polymorphics
 #if BOOST_VERSION < 103500
 #include <boost/archive/detail/polymorphic_iarchive_impl.hpp>
@@ -103,8 +99,8 @@
 #define POLYMORPHIC(T) boost::archive::detail::polymorphic_iarchive_dispatch<T>
 
 #else
-#include <boost/archive/detail/polymorphic_iarchive_route.hpp>
-#define POLYMORPHIC(T) boost::archive::detail::polymorphic_iarchive_route<T>
+//#include <boost/archive/detail/polymorphic_iarchive_route.hpp>
+//#define POLYMORPHIC(T) boost::archive::detail::polymorphic_iarchive_route<T>
 #endif
 
 // endian and fpclassify
@@ -187,11 +183,6 @@ namespace eos {
 		// the example derives from common_oarchive but that lacks the
 		// load_override functions so we chose to stay one level higher
 		, public boost::archive::basic_binary_iarchive<portable_iarchive>
-
-	#if BOOST_VERSION >= 103500
-		// mix-in helper class for serializing shared_ptr
-		, public boost::archive::detail::shared_ptr_helper
-	#endif
 	{
 		// only needed for Robert's hack in basic_binary_iarchive::init
 		friend class boost::archive::basic_binary_iarchive<portable_iarchive>;
@@ -427,7 +418,7 @@ namespace eos {
 	};
 
 	// polymorphic portable binary iarchive typedef
-	typedef POLYMORPHIC(portable_iarchive) polymorphic_portable_iarchive;
+	//typedef POLYMORPHIC(portable_iarchive) polymorphic_portable_iarchive;
 	#undef POLYMORPHIC
 
 } // namespace eos
@@ -438,7 +429,9 @@ namespace eos {
 #define BOOST_ARCHIVE_CUSTOM_IARCHIVE_TYPES eos::portable_iarchive
 #else
 BOOST_SERIALIZATION_REGISTER_ARCHIVE(eos::portable_iarchive)
-BOOST_SERIALIZATION_REGISTER_ARCHIVE(eos::polymorphic_portable_iarchive)
+
+//Temporary disable compiling in polymporphic version, because of ticket #10873
+//BOOST_SERIALIZATION_REGISTER_ARCHIVE(eos::polymorphic_portable_iarchive)
 #endif
 
 // if you include this header multiple times and your compiler is picky

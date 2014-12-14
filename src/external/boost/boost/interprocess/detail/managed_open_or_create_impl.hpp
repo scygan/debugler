@@ -11,6 +11,10 @@
 #ifndef BOOST_INTERPROCESS_MANAGED_OPEN_OR_CREATE_IMPL
 #define BOOST_INTERPROCESS_MANAGED_OPEN_OR_CREATE_IMPL
 
+#if defined(_MSC_VER)
+#  pragma once
+#endif
+
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/detail/os_thread_functions.hpp>
 #include <boost/interprocess/detail/os_file_functions.hpp>
@@ -25,13 +29,14 @@
 #include <boost/interprocess/permissions.hpp>
 #include <boost/type_traits/alignment_of.hpp>
 #include <boost/type_traits/type_with_alignment.hpp>
+#include <boost/interprocess/sync/spin/wait.hpp>
 #include <boost/move/move.hpp>
 #include <boost/cstdint.hpp>
 
 namespace boost {
 namespace interprocess {
 
-/// @cond
+#if !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 namespace ipcdetail{ class interprocess_tester; }
 
 
@@ -54,7 +59,7 @@ struct managed_open_or_create_impl_device_id_t<xsi_shared_memory_file_wrapper>
 
 #endif   //BOOST_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS
 
-/// @endcond
+#endif   //#ifndef BOOST_INTERPROCESS_DOXYGEN_INVOKED
 
 namespace ipcdetail {
 
@@ -309,7 +314,6 @@ class managed_open_or_create_impl
    {
       typedef bool_<FileBased> file_like_t;
       (void)mode;
-      error_info err;
       bool created = false;
       bool ronly   = false;
       bool cow     = false;
@@ -354,6 +358,7 @@ class managed_open_or_create_impl
          //file and know if we have really created it or just open it
          //drop me a e-mail!
          bool completed = false;
+         spin_wait swait;
          while(!completed){
             try{
                create_device<FileBased>(dev, id, size, perm, file_like_t());
@@ -384,7 +389,7 @@ class managed_open_or_create_impl
             catch(...){
                throw;
             }
-            thread_yield();
+            swait.yield();
          }
       }
 
@@ -431,11 +436,13 @@ class managed_open_or_create_impl
       else{
          if(FileBased){
             offset_t filesize = 0;
+            spin_wait swait;
             while(filesize == 0){
                if(!get_file_size(file_handle_from_mapping_handle(dev.get_mapping_handle()), filesize)){
-                  throw interprocess_exception(error_info(system_error_code()));
+                  error_info err = system_error_code();
+                  throw interprocess_exception(err);
                }
-               thread_yield();
+               swait.yield();
             }
             if(filesize == 1){
                throw interprocess_exception(error_info(corrupted_error));
@@ -447,8 +454,9 @@ class managed_open_or_create_impl
          boost::uint32_t *patomic_word = static_cast<boost::uint32_t*>(region.get_address());
          boost::uint32_t value = atomic_read32(patomic_word);
 
+         spin_wait swait;
          while(value == InitializingSegment || value == UninitializedSegment){
-            thread_yield();
+            swait.yield();
             value = atomic_read32(patomic_word);
          }
 
