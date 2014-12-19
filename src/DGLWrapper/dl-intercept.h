@@ -18,6 +18,7 @@
 #ifndef _WIN32
 #include <map>
 #include <dlfcn.h>
+#include <mutex>
 
 /**
  * Class for intercepting dynamic loader calls
@@ -138,7 +139,7 @@ class DLIntercept {
     /**
      * Mutex guarding the override code
      */
-    boost::recursive_mutex mutex;
+    std::recursive_mutex mutex;
 };
 
 extern DLIntercept g_DLIntercept;

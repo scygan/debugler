@@ -20,6 +20,8 @@
 
 #include <DGLCommon/os.h>
 
+#include <sstream>
+
 #ifdef __ANDROID__
 class BackTraceImpl: public BackTrace {
 public:
@@ -108,7 +110,7 @@ private:
                 }
 
 
-                std::stringstream line;
+                std::ostringstream line;
 
                 if (!symbols[i].map_name) {
                     line << "<unknown module>";

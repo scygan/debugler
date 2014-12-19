@@ -22,7 +22,6 @@ set(boost_serialization_SOURCES
     libs/serialization/src/basic_iarchive.cpp
     libs/serialization/src/basic_pointer_oserializer.cpp
     libs/serialization/src/basic_iserializer.cpp
-    libs/serialization/src/shared_ptr_helper.cpp
     libs/serialization/src/basic_archive.cpp
     libs/serialization/src/archive_exception.cpp
     libs/serialization/src/void_cast.cpp
