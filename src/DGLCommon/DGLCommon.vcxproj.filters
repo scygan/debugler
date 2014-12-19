@@ -48,6 +48,9 @@
     <ClInclude Include="wa.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gl-statequery-db.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gl-types.cpp">
@@ -65,6 +68,9 @@
     <ClCompile Include="gl-entrypoints.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gl-statequery-db.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="dglcommon.rc">
@@ -74,6 +80,9 @@
   <ItemGroup>
     <None Include="debugler.ico">
       <Filter>Resource Files</Filter>
+    </None>
+    <None Include="gl-statequery-db.inl">
+      <Filter>Header Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

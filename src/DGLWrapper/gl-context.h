@@ -329,48 +329,6 @@ class GLContext {
     GLDEBUGPROC m_DebugOutputCallback;
 
     /**
-     * Get state element (using glGetIntegerv)
-     */
-    void getStateIntegerv(
-            const char* name, GLenum value, size_t length, 
-            dglnet::resource::utils::StateItem* ret);
-
-    /**
-    * Get state element (using glGetInteger64v)
-    */
-    void getStateInteger64v(
-            const char* name, GLenum value, size_t length, 
-            dglnet::resource::utils::StateItem* ret);
-
-    /**
-     * Get state element (using glGetFloatv)
-     */
-    void getStateFloatv(
-            const char* name, GLenum value, size_t length, 
-            dglnet::resource::utils::StateItem* ret);
-
-    /**
-     * Get state element (using glGetDoublev)
-     */
-    void getStateDoublev(
-            const char* name, GLenum value, size_t length,
-            dglnet::resource::utils::StateItem* ret);
-
-    /**
-     * Get state element (using glGetBooleanv)
-     */
-    void getStateBooleanv(
-            const char* name, GLenum value, size_t length,
-            dglnet::resource::utils::StateItem* ret);
-
-    /**
-     * Get state element (using glIsEnabled)
-     */
-    void getStateIsEnabled(
-            const char* name, GLenum value, size_t,
-            dglnet::resource::utils::StateItem* ret);
-
-    /**
      * True if ctx was ever bound, false otherwise
      */
     bool m_EverBound;

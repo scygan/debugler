@@ -15,43 +15,76 @@
 
 
 #include "gl-statequery.h"
+#include "pointers.h"
+
+#include <DGLCommon/gl-statequery-db.h>
 
 namespace dglState {
 
-namespace stateQuery {
 
-    enum StateTableId {
-#define DEFINE_TABLE(name, descr) name,
-#include "gl-statequery-db.inl"
-#undef DEFINE_TABLE
-        TABLE_LAST
+    template<stateQueryDB::GetterID> class Getter;
+
+    template<> class Getter<stateQueryDB::GetterID::GETTER_GetIntegerv> {
+    public:
+        inline void operator()(gl_t param, std::vector<AnyValue>& ret) {
+            GLint value0;
+            DIRECT_CALL_CHK(glGetIntegerv)(static_cast<GLenum>(param), &value0);
+            if (DIRECT_CALL_CHK(glGetError)() == GL_NO_ERROR) {
+                ret.resize(1); ret[0] = value0;
+            } else {
+                DGL_ASSERT("GL error in GETTER_GetIntegerv");
+            }
+        }
     };
 
-    class StateTable {
 
-    };
-
-    class StateEntry {
-
-    };
+    //NOTE: use if (hasCapability(ContextCap::Has64BitGetters)) for glGetInteger64v!
 
 
+   class QueryableStateItem {
+   public:
+       QueryableStateItem(stateQueryDB::StateID stateID) : m_StateID(stateID) {
+           stateQueryDB::DataBase::GetStateParams(m_StateID, m_GetterID, m_GetterParam);
+       }
+       
+       bool isValid() {
+           return m_GetterID == stateQueryDB::GetterID::GETTER_GetIntegerv;
+       }
 
-} //namespace stateQuery 
-} //namespace dglState
+       void queryTo(std::vector<AnyValue>& ret) {
+           switch (m_GetterID) {
+               case stateQueryDB::GetterID::GETTER_GetIntegerv:
+                   Getter<stateQueryDB::GetterID::GETTER_GetIntegerv>()(m_GetterParam, ret);
+               break;
+               default:
+                   throw std::runtime_error("QueryableStateItem: unrecognized getter\n");
+           }
+       }
+
+   private:
+       stateQueryDB::StateID m_StateID;
+       stateQueryDB::GetterID m_GetterID;       
+       gl_t m_GetterParam;
+   };
 
 
+   void GLStateQuery::Query(std::vector<dglnet::resource::utils::StateItem>& retQueriedItems) {
 
+       retQueriedItems.resize((size_t)stateQueryDB::StateID::STATE_ID_LAST);
 
-namespace dglState {
-namespace stateQuery {
+       int i = 0; 
+       for (int stateID = 0; stateID < (int)stateQueryDB::StateID::STATE_ID_LAST; ++stateID) {
 
-    const StateTable g_StateTables[1] = {
-        StateTable()
-    };
+           QueryableStateItem item((stateQueryDB::StateID)stateID);
 
-} //namespace stateQuery 
-} //namespace dglState
+           if (item.isValid()) {
+               item.queryTo(retQueriedItems[i].m_Values);
+           }
+           retQueriedItems[i].m_StateId = stateID;
 
+           ++i;
+       }
 
+   };
 
+};

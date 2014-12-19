@@ -20,6 +20,9 @@
 #include "ui_dglstateview.h"
 
 #include <QDockWidget>
+#include <QAbstractItemModel>
+
+class DGLStateViewItemModel;
 
 class DGLStateView : public QDockWidget {
     Q_OBJECT
@@ -37,6 +40,7 @@ slots:
     DGLResourceListener* m_Listener;
     DglController* m_Controller;
     Ui::DGLStateView* m_Ui;
+    DGLStateViewItemModel* m_Model;
 };
 
 #endif    // DGLTREEVIEW_H

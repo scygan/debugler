@@ -57,6 +57,7 @@
     <ClInclude Include="gl-entrypoints.h" />
     <ClInclude Include="gl-headers.h" />
     <ClInclude Include="gl-glue-headers.h" />
+    <ClInclude Include="gl-statequery-db.h" />
     <ClInclude Include="gl-types.h" />
     <ClInclude Include="ipc.h" />
     <ClInclude Include="os.h" />
@@ -66,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gl-entrypoints.cpp" />
+    <ClCompile Include="gl-statequery-db.cpp" />
     <ClCompile Include="gl-types.cpp" />
     <ClCompile Include="ipc.cpp" />
     <ClCompile Include="os.cpp" />
@@ -76,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="debugler.ico" />
+    <None Include="gl-statequery-db.inl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="dglproj.ico" />

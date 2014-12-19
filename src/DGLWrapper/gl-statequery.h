@@ -16,5 +16,19 @@
 #ifndef GL_STATEQUERY_H
 #define GL_STATEQUERY_H
 
+#include <DGLNet/protocol/resource.h>
+
+namespace dglState {
+
+    class GLStateQuery {
+    public:
+        static void Query(std::vector<dglnet::resource::utils::StateItem>& retQueriedItems);
+
+    };
+
+};
+
+
+
 
 #endif

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="11">
+<this class_id="0" class_name="DGLRunAppProject" tracking_level="1" version="0" object_id="_0">
+	<DGLProject class_id="1" tracking_level="0" version="0"></DGLProject>
+	<m_executable>D:\debugler\build\Win32\Debug\samples\samples.exe</m_executable>
+	<m_path>D:\debugler\build\Win32\Debug\samples</m_path>
+	<m_args></m_args>
+	<m_skipProcesses>0</m_skipProcesses>
+	<m_EglMode>0</m_EglMode>
+</this>
+</boost_serialization>
+

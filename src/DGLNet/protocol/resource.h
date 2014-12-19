@@ -338,10 +338,10 @@ namespace utils {
        public:
         template <class Archive>
         void serialize(Archive& ar, const unsigned int) {
-            ar& m_Name;
+            ar& m_StateId;
             ar& m_Values;
         }
-        std::string m_Name;
+        int m_StateId;
         std::vector<AnyValue> m_Values;
     };
 }
