@@ -7,7 +7,7 @@ add_executable(dglloader
     ${dglloader_SOURCES}
 )
 
-add_dependencies(dglloader dglinject Boost)
+add_dependencies(dglloader dglinject)
 
 if (ANDROID)
 	set(libs log)
