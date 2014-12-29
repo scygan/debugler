@@ -102,12 +102,14 @@ inline void get_shared_dir_root(std::string &dir_path)
 {
    #if defined (BOOST_INTERPROCESS_WINDOWS)
       winapi::get_shared_documents_folder(dir_path);
+   #elif defined(__ANDROID__)
+      dir_path = "/data/local/tmp";
    #else
       dir_path = "/tmp";
    #endif
    //We always need this path, so throw on error
-   if(dir_path.empty()){
-      error_info err = system_error_code();
+      if (dir_path.empty()){
+          error_info err = system_error_code();
       throw interprocess_exception(err);
    }
    //Remove final null.

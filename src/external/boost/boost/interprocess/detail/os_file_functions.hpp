@@ -419,11 +419,16 @@ inline bool create_directory(const char *path)
 
 inline bool get_temporary_path(char *buffer, std::size_t buf_len, std::size_t &required_len)
 {
-   required_len = 5u;
+#ifdef __ANDROID__
+#define TMP_PATH "/data/local/tmp"
+#else
+#define TMP_PATH "/tmp"
+#endif
+   required_len = strlen(TMP_PATH) + 1;
    if(buf_len < required_len)
       return false;
    else{
-      std::strcpy(buffer, "/tmp");
+      std::strcpy(buffer, TMP_PATH);
    }
    return true;
 }
