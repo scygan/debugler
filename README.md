@@ -14,7 +14,7 @@ The OpenGL 2.1+, OpenGL ES 2.0..3.1 debugger for Windows and Linux
 ### Windows prerequisites
 
 Needed: 
- * Microsoft Visual Studio 2013
+ * Microsoft Visual Studio 2013 (Community Edition, or other version other than Express).
  
  * Wix Toolset
  
