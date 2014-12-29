@@ -20,7 +20,7 @@ Needed:
  
  * CMake for windows, with cmake in <b>PATH</b>
  
- * Android NDK r9b, http://dl.google.com/android/ndk/android-ndk-r9b-windows-x86.exe, set <b>ANDROID_NDK</b> environment variable to NDK directory
+ * Android NDK r10d, http://dl.google.com/android/ndk/, set <b>ANDROID_NDK</b> environment variable to NDK directory
 
  * Python 2.7.*, http://www.python.org/download/
  
