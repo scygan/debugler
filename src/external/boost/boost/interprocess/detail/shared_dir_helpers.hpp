@@ -106,6 +106,8 @@ inline void get_shared_dir_root(std::string &dir_path)
 {
    #if defined (BOOST_INTERPROCESS_WINDOWS)
       winapi::get_shared_documents_folder(dir_path);
+   #elif defined(__ANDROID__)
+      dir_path = "/data/local/tmp";
    #else               
       dir_path = "/tmp";
    #endif
