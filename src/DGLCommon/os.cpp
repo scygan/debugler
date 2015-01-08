@@ -17,11 +17,7 @@
 #include <vector>
 #include <cstdarg>
 #include <cerrno>
-#ifdef _WIN32
-#define va_copy(dest, src) (dest = src)
-#else
-#include <cstring>
-#endif
+
 
 #ifdef _WIN32
 #undef WIN32_LEAN_AND_MEAN
