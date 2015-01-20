@@ -296,7 +296,8 @@ void *DLIntercept::dlopen(const char *filename, int flag) {
                     "dlintercept: dlopen(%s, %d): returning dglwrapper's "
                     "address.",
                     filename, flag);
-            ret = dlopen(DynamicLoader::getCurrentLibraryName().c_str(), RTLD_NOW);
+            ret = dlopen(DynamicLoader::getCurrentLibraryName().c_str(),
+                         RTLD_NOW);
             // we unset libraries - libdglwrapper.so cannot be marked supported.
             libraries = LIBRARY_NONE;
         }
@@ -413,7 +414,8 @@ void DGLWRAPPER_API *dlsym(void *handle, const char *name) NO_THROW {
  *
  * Called directly by debugee
  */
-void DGLWRAPPER_API *dlvsym(void *handle, const char *name, const char *version) NO_THROW {
+void DGLWRAPPER_API *dlvsym(void *handle, const char *name,
+                            const char *version) NO_THROW {
 #if DGL_HAVE_WA(ANDROID_SO_CONSTRUCTORS)
     DGLWASoCtors wasoCtors;
 #endif
@@ -435,52 +437,118 @@ void DGLWRAPPER_API *dlvsym(void *handle, const char *name, const char *version)
 #include "ipc.h"
 #include "hook.h"
 
-HMODULE DLIntercept::LoadLibraryExW(_In_ LPCWSTR lpwFileName,
+HMODULE DLIntercept::LoadLibraryExWHook(_In_ LPCWSTR lpwFileName,
                                     _Reserved_ HANDLE hFile,
                                     _In_ DWORD dwFlags) {
 
-    HMODULE ret = real_LoadLibraryExW(lpwFileName, hFile, dwFlags);
+    HMODULE ret = s_real.LoadLibraryExW(lpwFileName, hFile, dwFlags);
 
     if (ret && lpwFileName) {
 
         std::vector<char> fileName;
         {
-            size_t size_needed = static_cast<size_t>(
-                WideCharToMultiByte(CP_UTF8, 0, lpwFileName, -1, NULL, 0, NULL, NULL));
+            size_t size_needed = static_cast<size_t>(WideCharToMultiByte(
+                    CP_UTF8, 0, lpwFileName, -1, NULL, 0, NULL, NULL));
             fileName.resize(size_needed, 0);
             WideCharToMultiByte(CP_UTF8, 0, lpwFileName, -1, &fileName[0],
                                 static_cast<int>(size_needed), NULL, NULL);
         }
 
-        int libraries =
-                EarlyGlobalState::getApiLoader().whichLibrary(&fileName[0]);
-
-        if (libraries) {
-            //guard the global state structures
-            std::lock_guard<std::recursive_mutex> lock(s_mutex);
-
-            EarlyGlobalState::getApiLoader().loadDefaultLibraries(
-                getIPC()->getDebuggerMode() == DGLIPC::DebuggerMode::EGL,
-                libraries, APILoader::LoadMode::IMMEDIATE);
-        }
-        
+        LoadLibraryHookCommon(&fileName[0]);
     }
     return ret;
 }
+
+HMODULE DLIntercept::LoadLibraryExAHook(_In_ LPCSTR lpFileName,
+                                    _Reserved_ HANDLE hFile,
+                                    _In_ DWORD dwFlags) {
+
+    HMODULE ret = s_real.LoadLibraryExA(lpFileName, hFile, dwFlags);
+
+    if (ret && lpFileName) {
+        LoadLibraryHookCommon(lpFileName);
+    }
+    return ret;
+}
+
+
+
+HMODULE DLIntercept::LoadLibraryWHook(_In_ LPCWSTR lpwFileName) {
+    HMODULE ret = s_real.LoadLibraryW(lpwFileName);
+
+    if (ret && lpwFileName) {
+        std::vector<char> fileName;
+        {
+            size_t size_needed = static_cast<size_t>(WideCharToMultiByte(
+                CP_UTF8, 0, lpwFileName, -1, NULL, 0, NULL, NULL));
+            fileName.resize(size_needed, 0);
+            WideCharToMultiByte(CP_UTF8, 0, lpwFileName, -1, &fileName[0],
+                static_cast<int>(size_needed), NULL, NULL);
+        }
+        LoadLibraryHookCommon(&fileName[0]);
+    }
+    return ret;
+}
+
+HMODULE DLIntercept::LoadLibraryAHook(_In_ LPCSTR lpFileName) {
+
+    HMODULE ret = s_real.LoadLibraryA(lpFileName);
+
+    if (ret && lpFileName) {
+        LoadLibraryHookCommon(lpFileName);
+    }
+    return ret;
+}
+
+void DLIntercept::LoadLibraryHookCommon(_In_ LPCSTR lpFileName) {
+    int libraries =
+        EarlyGlobalState::getApiLoader().whichLibrary(&lpFileName[0]);
+
+    if (libraries) {
+        // guard the global state structures
+        std::lock_guard<std::recursive_mutex> lock(s_mutex);
+
+        EarlyGlobalState::getApiLoader().loadDefaultLibraries(
+            getIPC()->getDebuggerMode() == DGLIPC::DebuggerMode::EGL,
+            libraries, APILoader::LoadMode::IMMEDIATE);
+    }
+}
+
 
 HMODULE WINAPI LoadLibraryExW_Call(_In_ LPCWSTR lpwFileName,
                                    _Reserved_ HANDLE hFile,
                                    _In_ DWORD dwFlags) {
     try {
-        return DLIntercept::LoadLibraryExW(lpwFileName, hFile, dwFlags);
+        return DLIntercept::LoadLibraryExWHook(lpwFileName, hFile, dwFlags);
     } catch (const std::exception &e) {
         Os::fatal(e.what());
     }
 }
 
-HMODULE DLIntercept::real_LoadLibraryExW(LPCWSTR lpwFileName, HANDLE hFile,
-                                         DWORD dwFlags) {
-    return s_real_LoadLibraryExW(lpwFileName, hFile, dwFlags);
+HMODULE WINAPI LoadLibraryExA_Call(_In_ LPCSTR lpwFileName,
+                                   _Reserved_ HANDLE hFile,
+                                   _In_ DWORD dwFlags) {
+    try {
+        return DLIntercept::LoadLibraryExAHook(lpwFileName, hFile, dwFlags);
+    } catch (const std::exception &e) {
+        Os::fatal(e.what());
+    }
+}
+
+HMODULE WINAPI LoadLibraryW_Call(_In_ LPCWSTR lpwFileName) {
+    try {
+        return DLIntercept::LoadLibraryWHook(lpwFileName);
+    } catch (const std::exception &e) {
+        Os::fatal(e.what());
+    }
+}
+
+HMODULE WINAPI LoadLibraryA_Call(_In_ LPCSTR lpwFileName) {
+    try {
+        return DLIntercept::LoadLibraryAHook(lpwFileName);
+    } catch (const std::exception &e) {
+        Os::fatal(e.what());
+    }
 }
 
 HMODULE DLIntercept::real_LoadLibrary(LPCSTR lpFileName) {
@@ -494,7 +562,7 @@ HMODULE DLIntercept::real_LoadLibrary(LPCSTR lpFileName) {
                             reinterpret_cast<LPWSTR>(&wfileName[0]),
                             static_cast<int>(size_needed));
     }
-    return real_LoadLibraryExW(reinterpret_cast<LPWSTR>(&wfileName[0]), nullptr,
+    return s_real.LoadLibraryExW(reinterpret_cast<LPWSTR>(&wfileName[0]), nullptr,
                                0);
 }
 
@@ -502,20 +570,40 @@ void DLIntercept::initialize() {
 
     HMODULE kernel32Module = LoadLibrary("kernel32.dll");
 
-    s_real_LoadLibraryExW = reinterpret_cast<LoadLibraryExW_Type>(
+    s_real.LoadLibraryExW = reinterpret_cast<LoadLibraryExW_Type>(
             GetProcAddress(kernel32Module, "LoadLibraryExW"));
+    s_real.LoadLibraryExA = reinterpret_cast<LoadLibraryExA_Type>(
+            GetProcAddress(kernel32Module, "LoadLibraryExA"));
+    s_real.LoadLibraryA = reinterpret_cast<LoadLibraryA_Type>(
+            GetProcAddress(kernel32Module, "LoadLibraryA"));
+    s_real.LoadLibraryW = reinterpret_cast<LoadLibraryW_Type>(
+            GetProcAddress(kernel32Module, "LoadLibraryW"));
 
-    if (s_real_LoadLibraryExW) {
+    HookSession hookSession;
 
-        HookSession hookSession;
-
-        dgl_func_ptr hookPtr = reinterpret_cast<dgl_func_ptr>(&LoadLibraryExW_Call);
-        hookSession.hook((dgl_func_ptr *)&s_real_LoadLibraryExW,
-                         hookPtr);
+    if (s_real.LoadLibraryExW) {
+        dgl_func_ptr hookPtr =
+                reinterpret_cast<dgl_func_ptr>(&LoadLibraryExW_Call);
+        hookSession.hook((dgl_func_ptr *)&s_real.LoadLibraryExW, hookPtr);
+    }
+    if (s_real.LoadLibraryExA) {
+        dgl_func_ptr hookPtr =
+                reinterpret_cast<dgl_func_ptr>(&LoadLibraryExA_Call);
+        hookSession.hook((dgl_func_ptr *)&s_real.LoadLibraryExA, hookPtr);
+    }
+    if (s_real.LoadLibraryW) {
+        dgl_func_ptr hookPtr =
+                reinterpret_cast<dgl_func_ptr>(&LoadLibraryW_Call);
+        hookSession.hook((dgl_func_ptr *)&s_real.LoadLibraryW, hookPtr);
+    }
+    if (s_real.LoadLibraryA) {
+        dgl_func_ptr hookPtr =
+                reinterpret_cast<dgl_func_ptr>(&LoadLibraryA_Call);
+        hookSession.hook((dgl_func_ptr *)&s_real.LoadLibraryA, hookPtr);
     }
 }
 
-DLIntercept::LoadLibraryExW_Type DLIntercept::s_real_LoadLibraryExW;
+DLIntercept::RealPtrs DLIntercept::s_real;
 
 std::recursive_mutex DLIntercept::s_mutex;
 

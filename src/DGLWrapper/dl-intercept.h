@@ -164,7 +164,7 @@ extern DLIntercept g_DLIntercept;
 class DLIntercept {
    public:
     /**
-     * LoadLibrary hook implementation
+     * LoadLibraryExW hook implementation
      *
      * Calls real system LoadLibrary, than calls api loader, to see,
      * if given function matches any GL API library.
@@ -174,19 +174,34 @@ class DLIntercept {
      * No modifications are performed to return value
      * - hooking library entry points is enough.
      */
-    static HMODULE LoadLibraryExW(LPCWSTR lpFileName, HANDLE hFile,
+    static HMODULE LoadLibraryExWHook(LPCWSTR lpwFileName, HANDLE hFile,
                                   DWORD dwFlags);
 
     /**
-     * Calls real, system uhooked LoadLibaryExW
+     * LoadLibraryExA hook implementation
      */
-    static HMODULE real_LoadLibraryExW(LPCWSTR lpFileName, HANDLE hFile,
-                                       DWORD dwFlags);
+    static HMODULE LoadLibraryExAHook(LPCSTR lpFileName, HANDLE hFile,
+                                  DWORD dwFlags);
+    /**
+     * LoadLibraryExW hook implementation
+     */
+    static HMODULE LoadLibraryWHook(LPCWSTR lpwFileName);
+
+    /**
+     * LoadLibraryExA hook implementation
+     */
+    static HMODULE LoadLibraryAHook(LPCSTR lpFileName);
+
+    /**
+     * Common part of hook implementation
+     */
+    static void LoadLibraryHookCommon(LPCSTR lpFilename);
+
 
     /**
      * Calls real, system unhooked LoadLibaryExW
      *
-     * For the convience it exposed LoadLibraryA interface.
+     * For the convenience it exposes LoadLibraryA interface.
      */
     static HMODULE real_LoadLibrary(LPCSTR lpFileName);
 
@@ -202,16 +217,26 @@ class DLIntercept {
     DLIntercept();
 
     /**
-     * typefef for LoadLibraryExW function pointer
+     * typedefs for LoadLibrary* function pointers
      */
-    typedef HMODULE(WINAPI *LoadLibraryExW_Type)(_In_ LPCWSTR lpFileName,
+    typedef HMODULE(WINAPI *LoadLibraryA_Type)(_In_ LPCSTR lpLibFileName);
+    typedef HMODULE(WINAPI *LoadLibraryW_Type)(_In_ LPCWSTR lpLibFileName);
+    typedef HMODULE(WINAPI *LoadLibraryExA_Type)(_In_ LPCSTR lpLibFileName,
+                                                 _Reserved_ HANDLE hFile,
+                                                 _In_ DWORD dwFlags);
+    typedef HMODULE(WINAPI *LoadLibraryExW_Type)(_In_ LPCWSTR lpLibFileName,
                                                  _Reserved_ HANDLE hFile,
                                                  _In_ DWORD dwFlags);
 
     /**
-     * Pointer to real, not hooked system LoadLibraryExW function
+     * Pointers to real, not hooked system LoadLibrary* functions
      */
-    static LoadLibraryExW_Type s_real_LoadLibraryExW;
+    static struct RealPtrs {
+        LoadLibraryA_Type LoadLibraryA;
+        LoadLibraryW_Type LoadLibraryW;
+        LoadLibraryExA_Type LoadLibraryExA;
+        LoadLibraryExW_Type LoadLibraryExW;
+    } s_real;
 
     /**
      * Mutex guarding the hook code
@@ -220,7 +245,13 @@ class DLIntercept {
 };
 
 #ifndef NO_DL_REDEFINES
-#define LoadLibraryExW DLIntercept::real_LoadLibraryExW
+//These can be exported from DLIntercept, but we are lazy
+#define LoadLibraryExW forbidden
+#define LoadLibraryExA forbidden
+#undef LoadLibraryEx
+#define LoadLibraryEx  forbidden
+#define LoadLibraryW   forbidden
+#define LoadLibraryA   forbidden
 #undef LoadLibrary
 #define LoadLibrary DLIntercept::real_LoadLibrary
 #endif
