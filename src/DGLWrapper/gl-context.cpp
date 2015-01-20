@@ -3370,8 +3370,8 @@ void GLContext::firstUse() {
             break;
         case DEBUG_OUTPUT_KHR:
             DIRECT_CALL_CHK(glEnable)(GL_DEBUG_OUTPUT);
-            DIRECT_CALL_CHK(glEnable)(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR);
-            DIRECT_CALL_CHK(glDebugMessageCallbackKHR)(debugOutputCallback, NULL);
+            DIRECT_CALL_CHK(glEnable)(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+            DIRECT_CALL_CHK(glDebugMessageCallback)(debugOutputCallback, NULL);
             break;
         case NO_DEBUG_OUTPUT:
         default:
