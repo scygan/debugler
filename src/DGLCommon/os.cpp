@@ -17,6 +17,7 @@
 #include <vector>
 #include <cstdarg>
 #include <cerrno>
+#include <cstring>
 
 
 #ifdef _WIN32

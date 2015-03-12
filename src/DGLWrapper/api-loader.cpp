@@ -21,6 +21,7 @@
 #include <vector>
 #include <stdexcept>
 #include <cstdlib>
+#include <cstring>
 
 #include "gl-wrappers.h"
 
