@@ -24,7 +24,7 @@ include_directories(
 include_directories(SYSTEM
     external/boost/
     external/gtest/include
-    external/zlib-1.2.8/
+    external/zlib/
 )
 
 
@@ -87,4 +87,4 @@ if (NOT ANDROID)
 else()
 	add_subdirectory(DGLAndroidInstaller)
 endif()
-add_subdirectory(external/zlib-1.2.8)
+add_subdirectory(external/zlib)

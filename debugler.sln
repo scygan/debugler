@@ -124,7 +124,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboost_iostreams", "src\e
 		{74DE571E-D3EC-401C-9296-6F25A6DC9661} = {74DE571E-D3EC-401C-9296-6F25A6DC9661}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "src\external\zlib-1.2.8\zlib.vcxproj", "{74DE571E-D3EC-401C-9296-6F25A6DC9661}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "src\external\zlib\zlib.vcxproj", "{74DE571E-D3EC-401C-9296-6F25A6DC9661}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGLInject", "src\DGLInject\DGLInject.vcxproj", "{915A2D7A-7E0A-424F-ACDD-FB726F1F26E4}"
 EndProject

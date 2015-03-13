@@ -1,0 +1,3 @@
+[submodule "src/external/zlib"]
+	path = src/external/zlib
+	url = ../zlib.git
