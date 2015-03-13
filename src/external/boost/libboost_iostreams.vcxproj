@@ -22,7 +22,7 @@
     <ClCompile Include="libs\iostreams\src\zlib.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\zlib-1.2.8\zlib.vcxproj">
+    <ProjectReference Include="..\zlib\zlib.vcxproj">
       <Project>{74de571e-d3ec-401c-9296-6f25a6dc9661}</Project>
     </ProjectReference>
   </ItemGroup>
