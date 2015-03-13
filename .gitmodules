@@ -1,3 +1,6 @@
 [submodule "src/external/zlib"]
 	path = src/external/zlib
 	url = ../zlib.git
+[submodule "src/external/gtest"]
+	path = src/external/gtest
+	url = ../googletest.git
