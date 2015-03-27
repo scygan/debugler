@@ -47,6 +47,10 @@ class DGLAdbCookie : public QObject {
     DGLAdbCookie(DGLAdbHandler* handler,
                  std::shared_ptr<DGLAdbOutputFilter> filter);
     virtual ~DGLAdbCookie();
+    
+    void processAfterDelay(int msec);
+
+   public slots:
     virtual void process() = 0;
 
    protected:
@@ -58,6 +62,7 @@ class DGLAdbCookie : public QObject {
     std::shared_ptr<DGLAdbOutputFilter> m_OutputFilter;
 
     DGLAdbHandler* m_Handler;
+    QTimer* m_DelayTimer;
 };
 
 class DGLAdbCookieImpl : public DGLAdbCookie {

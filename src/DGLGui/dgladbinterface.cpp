@@ -85,11 +85,17 @@ void DGLAdbHandler::unrefCookie(DGLAdbCookie* cookie) {
 
 DGLAdbCookie::DGLAdbCookie(DGLAdbHandler* handler,
                            std::shared_ptr<DGLAdbOutputFilter> filter)
-        : m_OutputFilter(filter), m_Handler(handler) {
+        : m_OutputFilter(filter), m_Handler(handler)
+        , m_DelayTimer(nullptr) {
     m_Handler->refCookie(this);
 }
 
-DGLAdbCookie::~DGLAdbCookie() { m_Handler->unrefCookie(this); }
+DGLAdbCookie::~DGLAdbCookie() {
+    m_Handler->unrefCookie(this);
+    if (m_DelayTimer) {
+        delete m_DelayTimer;
+    }
+}
 
 void DGLAdbCookie::filterOutput(const std::vector<std::string>& lines) {
     if (m_OutputFilter.get()) {
@@ -111,6 +117,16 @@ void DGLAdbCookie::filterOutput(const std::vector<std::string>& lines) {
 
 void DGLAdbCookie::onDone(const std::vector<std::string>& data) {
     m_Handler->done(data);
+}
+
+void DGLAdbCookie::processAfterDelay(int msec) {
+    if (!m_DelayTimer) {
+        m_DelayTimer = new QTimer();
+        m_DelayTimer->setSingleShot(true);
+    }
+    m_DelayTimer->setInterval(msec);
+    CONNASSERT(m_DelayTimer, SIGNAL(timeout()), this, SLOT(process()));
+    m_DelayTimer->start();
 }
 
 void DGLAdbCookie::onFailed(const std::string& reason) { m_Handler->failed(reason); }

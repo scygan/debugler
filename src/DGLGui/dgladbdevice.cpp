@@ -369,7 +369,7 @@ void DGLADBDevice::installWrapper(const std::string& path) {
         return;
     }
     setRequestStatus(RequestStatus::PREP_INSTALL);
-    checkUser()->process();
+    waitForDevice()->process();
 }
 
 void DGLADBDevice::uninstallWrapper(const std::string& path) {
@@ -378,7 +378,7 @@ void DGLADBDevice::uninstallWrapper(const std::string& path) {
         return;
     }
     setRequestStatus(RequestStatus::PREP_UNINSTALL);
-    checkUser()->process();
+    waitForDevice()->process();
 }
 
 void DGLADBDevice::updateWrapper(const std::string& path) {
@@ -387,7 +387,12 @@ void DGLADBDevice::updateWrapper(const std::string& path) {
         return;
     }
     setRequestStatus(RequestStatus::PREP_UPDATE);
-    checkUser()->process();
+    waitForDevice()->process();
+}
+
+DGLAdbCookie* DGLADBDevice::waitForDevice() {
+    setRequestStatus(DetailRequestStatus::PREP_ADB_WAIT);
+    return DGLAdbInterface::get()->getDevices(this);
 }
 
 DGLAdbCookie* DGLADBDevice::checkUser() {
@@ -401,7 +406,25 @@ DGLAdbCookie* DGLADBDevice::checkUser() {
 DGLAdbCookie* DGLADBDevice::remountFromAdb() {
     setRequestStatus(DetailRequestStatus::PREP_REMOUNT_FROM_ADB);
     std::vector<std::string> params(1, "remount");
-    return invokeAsShellUser(params, std::make_shared<DGLEmptyOutputFilter>());
+    return invokeAsShellUser(params);
+}
+
+DGLAdbCookie* DGLADBDevice::stopFrameworks() {
+    setRequestStatus(DetailRequestStatus::PREP_FRAMEWORK_STOP);
+    std::vector<std::string> params;
+    params.push_back("shell");
+    params.push_back("stop");
+    return invokeAsRoot(params,
+        std::make_shared<DGLEmptyOutputFilter>());
+}
+
+DGLAdbCookie* DGLADBDevice::startFramewors() {
+    setRequestStatus(DetailRequestStatus::PREP_FRAMEWORK_START);
+    std::vector<std::string> params;
+    params.push_back("shell");
+    params.push_back("start");
+    return invokeAsRoot(params,
+        std::make_shared<DGLEmptyOutputFilter>());
 }
 
 DGLAdbCookie* DGLADBDevice::remountFromShell() {
@@ -480,17 +503,52 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
         case RequestStatus::PREP_UPDATE:
         case RequestStatus::PREP_UNINSTALL: {
             switch (m_DetailRequestStatus) {
+                case DetailRequestStatus::PREP_ADB_WAIT:
+                    {
+                        bool foundDevice = false;
+                        for (size_t i = 0; i < data.size(); i++) {
+                            if (data[0].find(m_Serial) != std::string::npos) {
+                                foundDevice = true;
+                            }
+                        }
+                        if (foundDevice) {
+                            checkUser()->process();
+                        } else {
+                            waitForDevice()->processAfterDelay(5000);
+                        }
+                    }
+                    break;
                 case DetailRequestStatus::PREP_ADB_CHECKUSER:
                     if (data[0].find("uid=0(root)") != std::string::npos) {
                         remountFromAdb()->process();
                     } else {
                         setRequestStatus(
-                                DetailRequestStatus::PREP_ADB_CHECK_SU_USER);
+                                DetailRequestStatus::PREP_GET_DEBUGGABLE_FLAG);
+                        getProp("ro.debuggable")->process();
+                    }
+                    break;
+                case DetailRequestStatus::PREP_GET_DEBUGGABLE_FLAG:
+                    if (data[0].find("1") != std::string::npos) {
+                        //restart adb as root
+                        setRequestStatus(
+                            DetailRequestStatus::PREP_ADB_ROOT);
+                        std::vector<std::string> params;
+                        params.push_back("root");
+                        invokeAsShellUser(params, std::make_shared<DGLEmptyOutputFilter>())->process();
+                    } else {
+                        //try su
+                        setRequestStatus(
+                            DetailRequestStatus::PREP_ADB_CHECK_SU_USER);
                         m_RootSuRequired = true;
                         std::vector<std::string> params;
                         params.push_back("shell");
                         params.push_back("id");
                         invokeAsRoot(params)->process();
+                    }
+                    break;
+                case DetailRequestStatus::PREP_ADB_ROOT:
+                    {
+                        waitForDevice()->process();
                     }
                     break;
                 case DetailRequestStatus::PREP_ADB_CHECK_SU_USER:
@@ -517,18 +575,14 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
                     remountFromAdb()->process();
                     break;
                 case DetailRequestStatus::PREP_REMOUNT_FROM_ADB:
-                    remountFromShell()->process();
+                    if (data[0].find("remount succeeded") != std::string::npos) {
+                        stopFrameworks()->process();
+                    } else {
+                        remountFromShell()->process();
+                    }
                     break;
                 case DetailRequestStatus::PREP_REMOUNT_FROM_SHELL:
-                    setRequestStatus(DetailRequestStatus::PREP_FRAMEWORK_STOP);
-                    {
-                        std::vector<std::string> params;
-                        params.push_back("shell");
-                        params.push_back("stop");
-                        invokeAsRoot(params,
-                                     std::make_shared<DGLEmptyOutputFilter>())
-                                ->process();
-                    }
+                    stopFrameworks()->process();
                     break;
                 case DetailRequestStatus::PREP_FRAMEWORK_STOP:
                     setRequestStatus(DetailRequestStatus::
@@ -598,15 +652,7 @@ void DGLADBDevice::done(const std::vector<std::string>& data) {
                     }
                     break;
                 case DetailRequestStatus::PREP_FRAMEWORK_RUN_INSTALLER:
-                    setRequestStatus(DetailRequestStatus::PREP_FRAMEWORK_START);
-                    {
-                        std::vector<std::string> params;
-                        params.push_back("shell");
-                        params.push_back("start");
-                        invokeAsRoot(params,
-                                     std::make_shared<DGLEmptyOutputFilter>())
-                                ->process();
-                    }
+                    startFramewors()->process();
                     break;
                 case DetailRequestStatus::PREP_FRAMEWORK_START:
                     setRequestStatus(DetailRequestStatus::NONE);
@@ -755,8 +801,14 @@ const char* DGLADBDevice::toString(DetailRequestStatus detailStatus) {
             return "Get unix sockets";
         case DetailRequestStatus::RELOAD_GET_PACKAGELIST:
             return "Get package list";
+        case DetailRequestStatus::PREP_ADB_WAIT:
+            return "Waiting for device";
         case DetailRequestStatus::PREP_ADB_CHECKUSER:
             return "Check adb user";
+        case DetailRequestStatus::PREP_ADB_ROOT:
+            return "Restart adb service as root";
+        case DetailRequestStatus::PREP_GET_DEBUGGABLE_FLAG:
+            return "Get ro.debuggable flag";
         case DetailRequestStatus::PREP_ADB_CHECK_SU_USER:
             return "Check su user";
         case DetailRequestStatus::PREP_ADB_CHECK_SU_PARAM_MODE:

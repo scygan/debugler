@@ -97,9 +97,14 @@ signals:
     void doneQueryABI(const std::vector<std::string>& prop);
 
     DGLAdbCookie* getProp(const std::string& prop);
+    DGLAdbCookie* waitForDevice();
     DGLAdbCookie* checkUser();
     DGLAdbCookie* remountFromAdb();
     DGLAdbCookie* remountFromShell();
+
+    DGLAdbCookie* stopFrameworks();
+    DGLAdbCookie* startFramewors();
+
 
     DGLAdbCookie* invokeAsShellUser(
             const std::vector<std::string>& params,
@@ -135,7 +140,10 @@ signals:
         RELOAD_GET_PORTSTR,
         RELOAD_GET_UNIXSOCKETS,
         RELOAD_GET_PACKAGELIST,
+        PREP_ADB_WAIT,
         PREP_ADB_CHECKUSER,
+        PREP_GET_DEBUGGABLE_FLAG,
+        PREP_ADB_ROOT,
         PREP_ADB_CHECK_SU_USER,
         PREP_ADB_CHECK_SU_PARAM_MODE,
         PREP_REMOUNT_FROM_ADB,
