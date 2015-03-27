@@ -25,6 +25,16 @@
 #include <elf.h>
 #include <dlfcn.h>
 
+#ifdef __LP64__
+#define ElfXX_Phdr Elf64_Phdr
+#define ElfXX_Addr Elf64_Addr
+#define ElfXX_Word Elf64_Word
+#else
+#define ElfXX_Phdr Elf32_Phdr
+#define ElfXX_Addr Elf32_Addr
+#define ElfXX_Word Elf32_Word
+#endif
+
 void __attribute__((destructor)) InitializersRunOnDestructionEnforcer(void) {
     // this is the first static destructor called in application (depends on
     // CMakeLists.txt).
@@ -55,10 +65,10 @@ std::mutex* g_mutex = NULL;
 #define SOINFO_NAME_LEN 128
 struct soinfo {
     const char name[SOINFO_NAME_LEN];
-    Elf32_Phdr *phdr;
-    int phnum;
-    unsigned entry;
-    unsigned base;
+    ElfXX_Phdr *phdr;
+    size_t phnum;
+    ElfXX_Addr entry;
+    ElfXX_Addr base;
     // some more interesting stuff is here, but
     // we want to compute these manually, as soinfo layout may change in future.
 };
@@ -107,9 +117,9 @@ DGLWASoCtors::DGLWASoCtors() {
             Os::fatal("Cannot dlopen %d library", currentLibraryName.c_str());
         }
 
-        unsigned *dynamic = nullptr;
+        ElfXX_Addr *dynamic = nullptr;
 
-        Elf32_Phdr *phdr = info->phdr;
+        ElfXX_Phdr *phdr = info->phdr;
         int phnum = info->phnum;
 
         Os::info(
@@ -119,30 +129,30 @@ DGLWASoCtors::DGLWASoCtors() {
 
         for (; phnum > 0; --phnum, ++phdr) {
             if (phdr->p_type == PT_DYNAMIC) {
-                dynamic = (unsigned *)(info->base + phdr->p_vaddr);
+                dynamic = (ElfXX_Addr *)(info->base + phdr->p_vaddr);
             }
         }
 
-        if (!dynamic || dynamic == (unsigned *)-1) {
+        if (!dynamic || dynamic == (ElfXX_Addr *)-1) {
             Os::fatal("Cannot get .dynamic section of %s.", currentLibraryName.c_str());
         } else {
             Os::info("Found .dynamic at 0x%x", dynamic);
         }
 
         void (*init_func)(void) = nullptr;
-        unsigned *init_array = nullptr;
-        unsigned init_array_count = 0;
+        ElfXX_Addr *init_array = nullptr;
+        ElfXX_Word init_array_count = 0;
 
-        for (unsigned *d = dynamic; *d; d++) {
+        for (ElfXX_Addr *d = dynamic; *d; d++) {
             switch (*d++) {
             case DT_INIT:
                 init_func = (void (*)(void))(info->base + *d);
                 break;
             case DT_INIT_ARRAYSZ:
-                init_array_count = ((unsigned)*d) / sizeof(Elf32_Addr);
+                init_array_count = ((ElfXX_Word)*d) / sizeof(ElfXX_Addr);
                 break;
             case DT_INIT_ARRAY:
-                init_array = (unsigned *)(info->base + *d);
+                init_array = (ElfXX_Addr *)(info->base + *d);
                 break;
             }
         }
@@ -154,8 +164,8 @@ DGLWASoCtors::DGLWASoCtors() {
         }
         if (init_array_count && init_array) {
             Os::info("Found DT_INIT_ARRAY of size %d", init_array_count);
-            for (unsigned i = 0; i < init_array_count; i++) {
-                if (init_array[i] && init_array[i] != (unsigned)-1) {
+            for (ElfXX_Word i = 0; i < init_array_count; i++) {
+                if (init_array[i] && init_array[i] != (ElfXX_Word)-1) {
                     OS_DEBUG("Calling DT_INIT_ARRAY[%d] (%p)", i, init_array[i]);
                     void (*func)() = (void (*)())init_array[i];
                     func();
