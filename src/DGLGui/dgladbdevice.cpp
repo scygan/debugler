@@ -224,11 +224,11 @@ void DGLADBDevice::doneQueryABI(const std::vector<std::string>& prop) {
     if (prop.size()) {
         if (prop[0].find("armeabi") != std::string::npos) {
             m_ABI = ABI::ARMEABI;
-        }
-        if (prop[0].find("x86") != std::string::npos) {
+        } else if (prop[0].find("x86_64") != std::string::npos) {
+            m_ABI = ABI::X86_64;
+        } else if (prop[0].find("x86") != std::string::npos) {
             m_ABI = ABI::X86;
-        }
-        if (prop[0].find("mips") != std::string::npos) {
+        } else if (prop[0].find("mips") != std::string::npos) {
             m_ABI = ABI::MIPS;
         }
     } else {

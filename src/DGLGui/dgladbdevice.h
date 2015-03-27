@@ -67,6 +67,7 @@ class DGLADBDevice : public QObject, DGLAdbHandler {
     enum class ABI {
         UNKNOWN,
         X86,
+        X86_64,
         ARMEABI,
         MIPS
     };

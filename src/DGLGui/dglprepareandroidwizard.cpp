@@ -177,6 +177,8 @@ void DeviceChoice::setDeviceStatus(DGLADBDevice::InstallStatus status,
         m_DeviceABILabel->setText("Device abi: unrecognized");
     } else if (abi == DGLADBDevice::ABI::X86) {
         m_DeviceABILabel->setText("Device abi: x86 (supported)");
+    } else if (abi == DGLADBDevice::ABI::X86_64) {
+        m_DeviceABILabel->setText("Device abi: x86_64 (supported)");
     } else if (abi == DGLADBDevice::ABI::ARMEABI) {
         m_DeviceABILabel->setText("Device abi: armeabi (supported)");
     } else if (abi == DGLADBDevice::ABI::MIPS) {
@@ -304,7 +306,9 @@ void Run::initializePage() {
 
         if (abi == DGLADBDevice::ABI::X86) {
             path += "/android-x86/";
-        } else if (abi == DGLADBDevice::ABI::ARMEABI) {
+        } else if (abi == DGLADBDevice::ABI::X86_64) {
+            path += "/android-x86_64/";
+        } else if(abi == DGLADBDevice::ABI::ARMEABI) {
             path += "/android-arm/";
         } else if (abi == DGLADBDevice::ABI::MIPS) {
             path += "/android-mips/";

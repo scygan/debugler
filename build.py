@@ -136,11 +136,13 @@ buildTargets = {}
 buildTargets['android-arm']    = AndroidBuildTarget('armeabi')
 buildTargets['android-armv7a'] = AndroidBuildTarget('armeabi-v7a') #not really used
 buildTargets['android-x86']    = AndroidBuildTarget('x86')
+buildTargets['android-x86_64'] = AndroidBuildTarget('x86_64')
 buildTargets['android-mips']   = AndroidBuildTarget('mips')
 
 buildTargets['android']        = BaseTarget()
 buildTargets['android'].depend('android-arm')
 buildTargets['android'].depend('android-x86')
+buildTargets['android'].depend('android-x86_64')
 buildTargets['android'].depend('android-mips')
 
 

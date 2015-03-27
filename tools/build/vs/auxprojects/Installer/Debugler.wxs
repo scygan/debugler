@@ -102,6 +102,11 @@
                 <File Id='android_installer_x86' Name='dglandroidinstaller' DiskId='1' Source='..\..\android-x86\Release\bin\x86\dglandroidinstaller' />
               </Component>
             </Directory>
+            <Directory Id='AndroidX86_64Dir' Name='android-x86_64'>
+              <Component Id='AndroidX86_64Support' Guid='{B6248908-81BB-4A7C-93BE-94FA63C89551}' KeyPath='yes'>
+                <File Id='android_installer_x86_64' Name='dglandroidinstaller' DiskId='1' Source='..\..\android-x86_64\Release\bin\x86_64\dglandroidinstaller' />
+              </Component>
+            </Directory>
             <Directory Id='AndroidMIPSDir' Name='android-mips'>
               <Component Id='AndroidMIPSSupport' Guid='{1F44853E-1E2F-4446-B1EC-C1141EB4EFFF}' KeyPath='yes'>
                 <File Id='android_installer_mips' Name='dglandroidinstaller' DiskId='1' Source='..\..\android-mips\Release\bin\mips\dglandroidinstaller' />
@@ -149,6 +154,7 @@
       <ComponentRef Id='AndroidARMSupport' />
       <ComponentRef Id='AndroidMIPSSupport' />
       <ComponentRef Id='AndroidX86Support' />
+      <ComponentRef Id='AndroidX86_64Support' />
     </Feature>
 
 
