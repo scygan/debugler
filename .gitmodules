@@ -7,3 +7,6 @@
 [submodule "src/external/mhook"]
 	path = src/external/mhook
 	url = ../mhook.git
+[submodule "src/external/glew"]
+	path = src/external/glew
+	url = ../glew.git

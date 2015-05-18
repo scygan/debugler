@@ -66,7 +66,7 @@
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>GLEW_STATIC;_VARIADIC_MAX=10;%(PreprocessorDefinitions);QT_CORE_LIB;QT_DLL;OPENGL_ES2</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;..\..\external\glfw-3.0.2\include;..\..\external\glew-1.10.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\..\external\glfw-3.0.2\include;..\..\external\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
