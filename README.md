@@ -2,23 +2,30 @@
 
 ## What?
 
-The OpenGL 2.1+, OpenGL ES 2.0..3.1 debugger for Windows and Linux
+The OpenGL 2.1+, OpenGL ES 2.0+ mutliplatform debugger
 
-## Platforms?
-* Windows 32 or 64 bit, Vista or later
-* Linux 32 or 64 bit
-* Android (x86, arm or mips). Tried 2.3.5 ... 5.0.
+## Supported platforms
+Currently you can debug OpenGL applications on following systems:
+* Windows (Vista or newer, 32- and 64-bit applications)
+* Linux (tried x86 and x86_64 applications on Ubuntu 12.04)
+* Android (x86, x86_64, ARM or MIPS). Tried versions 2.3.5 through 5.0.
 
-## Howto Build?
+Additionally, the GUI runs on Windows and Linux platforms.
+
+## How to build?
+
+Building using provided scripts is yeasy, however thery are multiple tool 
+and library prerequisites that must be installed before the build.
+
+Following lists the best known versions of these tools and libraries.
 
 ### Windows prerequisites
 
-Needed: 
  * Microsoft Visual Studio 2013 (Community Edition, or other version other than Express).
  
  * Wix Toolset
  
- * CMake for windows, with cmake in <b>PATH</b>
+ * CMake for windows, with cmake in <b>PATH</b> environment variable
  
  * Android NDK r10d, http://dl.google.com/android/ndk/, set <b>ANDROID_NDK</b> environment variable to NDK directory
 
@@ -33,7 +40,9 @@ Needed:
  * Visual Studio Add-in for QT5, https://www.qt.io/download-open-source
 
 
-### Linux (Ubuntu) prerequisites
+### Linux prerequisites
+
+On Ubuntu 12.04, following packages are needed
 
 Needed: 
   * Ubuntu packages: g++ x11proto-gl-dev libelf-dev cmake libxml2-dev libqt4-dev
@@ -42,6 +51,8 @@ Needed:
  
 
 ### Building Debugler:
+
+Just run the script:
 
 ```
 built.py
@@ -79,7 +90,7 @@ ut
 
 ### Development
 #### Code style
-  * Use clanf-format from llvm project, use provided .clang_format definitions. 
+  * Use clang-format from llvm project, use provided .clang_format definitions. 
    * http://llvm.org/builds/downloads/ClangFormat.vsix
    * http://llvm.org/builds/downloads/LLVM-3.4.r194000-win32.exe
 
