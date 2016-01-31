@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/scygan/debugler.svg?branch=master)](https://travis-ci.org/scygan/debugler)	
+
 # Debugler
 
 ## What?
@@ -12,7 +14,7 @@ Currently you can debug OpenGL applications on following systems:
 
 Additionally, the GUI runs on Windows and Linux platforms.
 
-## How to build?
+## Build instructions
 
 Building using provided scripts is yeasy, however thery are multiple tool 
 and library prerequisites that must be installed before the build.
@@ -45,7 +47,7 @@ Following lists the best known versions of these tools and libraries.
 On Ubuntu 12.04, following packages are needed
 
 Needed: 
-  * Ubuntu packages: g++ x11proto-gl-dev libelf-dev cmake libxml2-dev libqt4-dev
+  * Ubuntu packages: cmake g++-4.7 libxxf86vm-dev python-lxml x11proto-gl-dev libelf-dev libqt4-dev (or QT 5.0 version)
    
   * Android NDK r9b, set <b>ANDROID_NDK</b> environment variable to NDK directory
  
@@ -74,8 +76,8 @@ built.py [target]
    * <b>64</b>: 64-bit installer/deb package
    * <b>32</b>: 32-bit installer/deb package
    * <b>android-arm</b>: just android-arm binary (dglandroidinstaller)
-   * <b>android-x86</b>: just android-arm binary
-   * <b>android-mips</b>: just android-arm binary
+   * <b>android-x86</b>: just android-x86 binary
+   * <b>android-mips</b>: just android-mips binary
   
 
 ####Running unit tests

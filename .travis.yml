@@ -1,0 +1,34 @@
+language: cpp
+branches:
+  only:
+  - master
+notifications:
+  recipients:
+  - slawomir.cygan@gmail.com
+  email:
+    on_success: change
+    on_failure: always
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-4.7
+    - g++-4.7
+    - libxxf86vm-dev
+    - python-lxml
+    - x11proto-gl-dev
+    - libelf-dev
+compiler:
+- g++-4.7
+script: cd tools && python set_version.py 0.1.$TRAVIS_JOB_NUMBER && cd .. && CXX=g++-4.7
+  CC=gcc-4.7 python build.py 64
+ 
+deploy:
+  provider: releases
+  api_key:
+    secure: TQLKHXfgTXuqFOPrGZlRZm610uxzUmm1dKwUhOnimzWdM5g4UXWdQbTlXlzq4kUR6FLWkYRnXEyx939RRh/iCXhQJJ0OxrUymDRIJ146JPiSBjuFQO4HxxS7JmwgjnT8XzBkdWLNivWR+nwGrHlF0t/qPcoMpkHcnjVnl/d4zmk=
+  file: build/64/Release/debugler-0.1.$TRAVIS_JOB_NUMBER-Linux.deb
+  on:
+    repo: scygan/debugler
+    branch: master
