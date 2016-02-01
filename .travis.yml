@@ -22,6 +22,11 @@ compiler:
 env:
     - VERSION=0.1.$TRAVIS_BUILD_NUMBER
 
+before_script:
+    - TERM=dumb curl -L http://dl.google.com/android/ndk/android-ndk-r10e-linux-x86.bin -O android-ndk-r10e-linux-x86_64.bin
+    - chmod u+x android-ndk-r10e-linux-x86_64.bin
+    - ./android-ndk-r10e-linux-x86_64.bin > /dev/null
+
 script: cd tools && python set_version.py 0.1.$TRAVIS_JOB_NUMBER && cd .. && CXX=g++-4.7
   CC=gcc-4.7 python build.py 64
 
