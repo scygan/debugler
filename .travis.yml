@@ -20,7 +20,7 @@ compiler:
     - gcc
 
 env:
-    - VERSION=0.1.$TRAVIS_JOB_NUMBER
+    - VERSION=0.1.$TRAVIS_BUILD_NUMBER
 
 script: cd tools && python set_version.py 0.1.$TRAVIS_JOB_NUMBER && cd .. && CXX=g++-4.7
   CC=gcc-4.7 python build.py 64
