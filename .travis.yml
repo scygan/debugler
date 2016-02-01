@@ -39,6 +39,4 @@ deploy:
   on:
     repo: $TRAVIS_REPO_SLUG
     branch: master
-    
-branches:
 
