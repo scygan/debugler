@@ -1,13 +1,9 @@
 language: cpp
+
 branches:
   only:
   - master
-notifications:
-  recipients:
-  - slawomir.cygan@gmail.com
-  email:
-    on_success: change
-    on_failure: always
+
 addons:
   apt:
     sources:
@@ -19,16 +15,30 @@ addons:
     - python-lxml
     - x11proto-gl-dev
     - libelf-dev
+
 compiler:
-- g++-4.7
+- gcc
+
 script: cd tools && python set_version.py 0.1.$TRAVIS_JOB_NUMBER && cd .. && CXX=g++-4.7
   CC=gcc-4.7 python build.py 64
- 
+
+
+after_success:
+  # CREATE GIT TAG
+  - git config --global user.email "builds@travis-ci.com"
+  - git config --global user.name "Travis CI"
+  - export GIT_TAG=travis-0.1.$TRAVIS_JOB_NUMBER
+  - git tag $GIT_TAG -a -m "Generated tag from TravisCI build $TRAVIS_BUILD_NUMBER"
+  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git push --quiet https://$GITHUBKEY@github.com/$TRAVIS_REPO_SLUG $GIT_TAG; fi
+
 deploy:
   provider: releases
   api_key:
     secure: TQLKHXfgTXuqFOPrGZlRZm610uxzUmm1dKwUhOnimzWdM5g4UXWdQbTlXlzq4kUR6FLWkYRnXEyx939RRh/iCXhQJJ0OxrUymDRIJ146JPiSBjuFQO4HxxS7JmwgjnT8XzBkdWLNivWR+nwGrHlF0t/qPcoMpkHcnjVnl/d4zmk=
   file: build/64/Release/debugler-0.1.$TRAVIS_JOB_NUMBER-Linux.deb
   on:
-    repo: scygan/debugler
+    repo: $TRAVIS_REPO_SLUG
     branch: master
+    
+branches:
+
