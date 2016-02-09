@@ -208,6 +208,12 @@ HANDLE Inject(HANDLE hProcess, const char* dllname, const char* funcname)
 
 // User32 DLL Loading
 #ifdef _WIN64
+	// SUB RSP, 0x28 - x64 ABI requires us to alloc shadow space (-0x20 here) and align stack to 16 (-0x08 here)
+	workspace[workspaceIndex++] = 0x48;
+	workspace[workspaceIndex++] = 0x83;
+	workspace[workspaceIndex++] = 0xEC;
+	workspace[workspaceIndex++] = 0x28;
+	
     // MOV RCX, ADDRESS("user32.dll") - Move the address of the DLL name to use in LoadLibraryA
     workspace[workspaceIndex++] = 0x48;
     workspace[workspaceIndex++] = 0xB9;
