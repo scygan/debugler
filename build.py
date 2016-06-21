@@ -49,7 +49,7 @@ class CMakeTarget(BaseTarget):
         super(CMakeTarget, self).__init__()
 
 
-    def prepare(self, targetName, debug, cmakeOpts, toolchain = ''):
+    def prepare(self, targetName, debug, cmakeOpts, toolchain = '', generator = ''):
 
         self.path = getLocalPath() + os.sep + 'build' + os.sep + targetName + os.sep + self.getBuildTypeStr(debug)
         
@@ -62,13 +62,17 @@ class CMakeTarget(BaseTarget):
             cmdLine += ['-DCMAKE_TOOLCHAIN_FILE=' + toolchain]
 
         cmdLine += ['-DCMAKE_BUILD_TYPE=' + self.getBuildTypeStr(debug)]
-
-        if not sys.platform.startswith('win'):
-            cmdLine += ['-G', 'Eclipse CDT4 - Unix Makefiles']
-        else:
-            cmdLine += ['-G', 'Eclipse CDT4 - Ninja']
+        
+        if len(generator) == 0:
+            if not sys.platform.startswith('win'):
+                generator = 'Eclipse CDT4 - Unix Makefiles'
+            else:
+                generator = 'Eclipse CDT4 - Ninja'
+            
+        if sys.platform.startswith('win') and 'Ninja' in generator:
             cmdLine += ['-DCMAKE_MAKE_PROGRAM=' + getLocalPath() + "/tools/ninja.exe"]
-
+        
+        cmdLine += ['-G', generator]
         cmdLine += [getLocalPath() + os.sep + "src"]
 
         logging.debug('Running CMAKE in ' + self.path + ' with args: ' + str(cmdLine) + '...')
@@ -118,15 +122,25 @@ class WindowsBuildTarget(BaseTarget):
         return 0
 
     def build(self, opts):
-		if opts.incredibuild:
-			args = ['debugler.sln', '/build', '/cfg=' + self.config + '|' + self.platform]
-			logging.debug('Running BuildConsole with args ' + str(args) + '...')
-			return subprocess.call(['BuildConsole.exe'] + args, cwd = getLocalPath())
-		else:
-			args = ['debugler.sln', '/p:VisualStudioVersion=12.0', '/m', '/nologo', '/t:Build',  '/p:Configuration=' + self.config + ';platform=' + self.platform]
-			logging.debug('Running MSBUILD with args ' + str(args) + '...')
-			return subprocess.call([os.getenv('ProgramFiles(x86)') + os.sep + 'MSBuild' + os.sep + '12.0' + os.sep + 'Bin' + os.sep + 'MSBuild.exe'] + args, cwd = getLocalPath())
+        if opts.incredibuild:
+            args = ['debugler.sln', '/build', '/cfg=' + self.config + '|' + self.platform]
+            logging.debug('Running BuildConsole with args ' + str(args) + '...')
+            return subprocess.call(['BuildConsole.exe'] + args, cwd = getLocalPath())
+        else:
+            args = ['debugler.sln', '/p:VisualStudioVersion=12.0', '/m', '/nologo', '/t:Build',  '/p:Configuration=' + self.config + ';platform=' + self.platform]
+            logging.debug('Running MSBUILD with args ' + str(args) + '...')
+            return subprocess.call([os.getenv('ProgramFiles(x86)') + os.sep + 'MSBuild' + os.sep + '12.0' + os.sep + 'Bin' + os.sep + 'MSBuild.exe'] + args, cwd = getLocalPath())
+    
+class WindowCMakeBuildTarget(CMakeTarget):
+    def __init__(self, cmakeFlags = []):
+        super(WindowCMakeBuildTarget, self).__init__()
+        self.cmakeFlags = cmakeFlags
 
+    def prepare(self, targetName, debug = False):
+        return super(WindowCMakeBuildTarget, self).prepare(targetName, debug, self.cmakeFlags, '', 'Visual Studio 12 2013')
+
+    def build(self, opts):
+        return super(WindowCMakeBuildTarget, self).build(opts)
 
 
 logging.basicConfig(level=logging.INFO)
@@ -164,6 +178,8 @@ else:
     
     buildTargets['32']              = WindowsBuildTarget('Win32', '')
     buildTargets['64']              = WindowsBuildTarget('x64',   '')
+    
+    buildTargets['cmake-win']       = WindowCMakeBuildTarget()
 
 
 
