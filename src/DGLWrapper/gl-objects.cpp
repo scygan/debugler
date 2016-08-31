@@ -288,10 +288,27 @@ bool GLShaderObj::queryIsShaderSourceEdited() {
 }
 
 void GLShaderObj::shaderSourceCalled() {
+
     m_SourceEditorState.m_OrigShaderSource = querySource();
 
-    // we loose shader edits in case of glShaderSource calls from the debugee
-    m_SourceEditorState.m_ShaderSourceEdited = false;
+    if (m_SourceEditorState.m_ShaderSourceEdited) {
+
+        // if shader was editted, than there were abviously attempts to compile it
+        
+        // we cannot just clean-up the infolog and compile status,
+        // so compile it with debugee provided shader sources for consistency.
+        // (otherwise debugger-induced compile status will be presented to the user)
+
+        if (m_arbApi) {
+            DIRECT_CALL_CHK(glCompileShaderARB)(getName());
+        }
+        else {
+            DIRECT_CALL_CHK(glCompileShader)(getName());
+        }
+
+        // edites shader source is already lost, so just reset the state to not edited
+        m_SourceEditorState.m_ShaderSourceEdited = false;
+    }
 }
 
 void GLShaderObj::editSource(const std::string& source) {
