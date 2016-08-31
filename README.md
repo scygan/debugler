@@ -27,7 +27,7 @@ Following lists the best known versions of these tools and libraries.
  
  * Wix Toolset
  
- * CMake for windows, with cmake in <b>PATH</b> environment variable
+ * CMake 3.3 or later for windows, with cmake in <b>PATH</b> environment variable
  
  * Android NDK r10d, http://dl.google.com/android/ndk/, set <b>ANDROID_NDK</b> environment variable to NDK directory
 

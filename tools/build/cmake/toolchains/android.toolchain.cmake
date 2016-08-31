@@ -1599,19 +1599,6 @@ if( NOT _CMAKE_IN_TRY_COMPILE )
 endif()
 
 
-# force cmake to produce / instead of \ in build commands for Ninja generator
-if( CMAKE_GENERATOR MATCHES "Ninja" AND CMAKE_HOST_WIN32 )
- # it is a bad hack after all
- # CMake generates Ninja makefiles with UNIX paths only if it thinks that we are going to build with MinGW
- set( CMAKE_COMPILER_IS_MINGW TRUE ) # tell CMake that we are MinGW
- set( CMAKE_CROSSCOMPILING TRUE )    # stop recursion
- enable_language( C )
- enable_language( CXX )
- # unset( CMAKE_COMPILER_IS_MINGW ) # can't unset because CMake does not convert back-slashes in response files without it
- unset( MINGW )
-endif()
-
-
 # Variables controlling behavior or set by cmake toolchain:
 #   ANDROID_ABI : "armeabi-v7a" (default), "armeabi", "armeabi-v7a with NEON", "armeabi-v7a with VFPV3", "armeabi-v6 with VFP", "x86", "mips", "arm64-v8a", "x86_64", "mips64"
 #   ANDROID_NATIVE_API_LEVEL : 3,4,5,8,9,14,15,16,17,18,19,21 (depends on NDK version)
