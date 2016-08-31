@@ -80,7 +80,9 @@ class CMakeTarget(BaseTarget):
         if not sys.platform.startswith('win'):
             return subprocess.call(['make', '-j', '4', '-C', self.path, target])
         else:
-            return subprocess.call([getLocalPath() + "/tools/ninja.exe", '-C', self.path, target], env={"PATH":'c:\\python27'})
+            my_env = os.environ
+            my_env["PATH"] = 'c:\\python27;' + my_env["PATH"]
+            return subprocess.call([getLocalPath() + "/tools/ninja.exe", '-C', self.path, target], env=my_env)
 
 class AndroidBuildTarget(CMakeTarget):
     def __init__(self, arch):
