@@ -140,13 +140,15 @@ buildTargets['android-armv7a'] = AndroidBuildTarget('armeabi-v7a') #not really u
 buildTargets['android-x86']    = AndroidBuildTarget('x86')
 buildTargets['android-x86_64'] = AndroidBuildTarget('x86_64')
 buildTargets['android-x86_64'].depend('android-x86')
-buildTargets['android-mips']   = AndroidBuildTarget('mips')
+buildTargets['android-mips']   = AndroidBuildTarget('mips') #not really used
 
 buildTargets['android']        = BaseTarget()
 buildTargets['android'].depend('android-arm')
 buildTargets['android'].depend('android-x86')
 buildTargets['android'].depend('android-x86_64')
-buildTargets['android'].depend('android-mips')
+
+#Android MIPS build is extremally slow for now, so it is not build nor bundled in Windows/Linux installers
+#buildTargets['android'].depend('android-mips')
 
 
 if not sys.platform.startswith('win'):
