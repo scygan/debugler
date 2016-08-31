@@ -78,9 +78,6 @@
               <File Id='Qt5GuiDLL' Name='Qt5Gui$(var.debugsuffix).dll' DiskId='1' Source='Qt5Gui$(var.debugsuffix).dll' />
               <File Id='Qt5WidgetsDLL' Name='Qt5Widgets$(var.debugsuffix).dll' DiskId='1' Source='Qt5Widgets$(var.debugsuffix).dll' />
               <File Id='Qt5CoreDLL' Name='Qt5Core$(var.debugsuffix).dll' DiskId='1' Source='Qt5Core$(var.debugsuffix).dll' />
-              <File Id='icuin53DLL' Name='icuin53.dll' DiskId='1' Source='icuin53.dll' />
-              <File Id='icuuc53DLL' Name='icuuc53.dll' DiskId='1' Source='icuuc53.dll' />
-			  <File Id='icudt53DLL' Name='icudt53.dll' DiskId='1' Source='icudt53.dll' />
               <File Id='libEGLDLL' Name='libEGL$(var.debugsuffix).dll' DiskId='1' Source='libEGL$(var.debugsuffix).dll' />
               <File Id='libGLESv2DLL' Name='libGLESv2$(var.debugsuffix).dll' DiskId='1' Source='libGLESv2$(var.debugsuffix).dll' />
             </Component>

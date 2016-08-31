@@ -35,7 +35,7 @@ Following lists the best known versions of these tools and libraries.
  
  * LXML, http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml
 
- * Qt 5.4.0 for Visual Studio 2013, https://www.qt.io/download-open-source/
+ * Qt 5.7.0 for Visual Studio 2013 32-bit, https://www.qt.io/download-open-source/
 
  * Set <b>QTDIR</b> environment variable to QT installation directory (like D:\Qt\Qt5.4.0\5.4\msvc2013)
  
