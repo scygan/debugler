@@ -1771,6 +1771,8 @@ std::shared_ptr<dglnet::DGLResource> GLContext::queryShader(gl_t _name) {
 
     resource->m_IsESSLDefault = getVersion().check(GLContextVersion::Type::ES);
 
+    resource->m_IsShaderSourceEdited = shader->queryIsShaderSourceEdited();
+
     return ret;
 }
 

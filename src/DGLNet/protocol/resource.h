@@ -239,11 +239,13 @@ class DGLResourceShader : public DGLResource {
         ar& m_Source;
         ar& m_IsESSLDefault;
         ar& m_CompileStatus;
+        ar& m_IsShaderSourceEdited;
     }
 
     std::string m_Source;
     bool m_IsESSLDefault;
     std::pair<std::string, gl_t> m_CompileStatus;
+    bool m_IsShaderSourceEdited;
 };
 
 class DGLResourceProgram : public DGLResource {

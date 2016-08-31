@@ -114,7 +114,15 @@ class GLShaderObj : public GLObj {
         bool m_ArbApi;
     };
 
+    struct ShaderSourceEditorState
+    {
+        ShaderSourceEditorState();
+        std::string m_OrigShaderSource;
+        bool m_ShaderSourceEdited;
+    };
+
     GLShaderObj(GLuint name, GLShaderObjCreateData createData);
+
     void deleteCalled();
     void incRefCount();
     void decRefCount();
@@ -128,6 +136,7 @@ class GLShaderObj : public GLObj {
     void shaderSourceCalled();
 
     std::string querySource();
+    bool queryIsShaderSourceEdited();
 
     void editSource(const std::string& source);
     void resetSourceToOrig();
@@ -136,7 +145,9 @@ class GLShaderObj : public GLObj {
     void deleteSelfIfNeeded();
 
     bool m_DeleteCalled;
-    std::string m_OrigSource;
+
+    ShaderSourceEditorState m_SourceEditorState;
+    
     bool m_arbApi;
     int m_RefCount;
 

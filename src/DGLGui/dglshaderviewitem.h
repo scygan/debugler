@@ -44,19 +44,18 @@ slots:
 
    private:
     enum class EditState {
-        S_UNAVAILABLE,    // no shader to edit
-        S_PAUSE,    // editing pause (no shader to edit arised while editing.
-                    // may resume edits later)
-        S_NOT_EDITING,    // can enter edit
-        S_EDITING         // editing now
+        STATE_EDITING_NOT_AVAIL,  // no shader to edit
+        STATE_NOT_EDITING,        // can enter edit
+        STATE_EDITING,            // editing now
+        STATE_EDITING_PAUSED     // editing pause (no shader to edit arised while editing.
+                                  // may resume edits later)
     };
 
     enum class EditAction {
-        A_NOTIFY_NOERROR,    // notify: has shader to edit
-        A_NOTIFY_ERROR,      // notify: error or no shader to edit
-        A_DISABLE,    // disable shader editing (and reset to default source)
-        A_ENABLE,     // enter shader editing
-        A_EDIT,       // edit shader
+        ACTION_ERROR,            // update error or no shader to edit
+        ACTION_DISABLE_EDITING,  // disable shader editing (and reset to default source)
+        ACTION_ENABLE_EDITING,   // enter shader editing
+        ACTION_EDIT,             // edit shader
     };
 
     void editAction(EditAction);

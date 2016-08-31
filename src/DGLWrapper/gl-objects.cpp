@@ -188,6 +188,9 @@ void GLProgramObj::setEmbeddedSSOSource(GLsizei count, const char* const* string
 
 }
 
+GLShaderObj::ShaderSourceEditorState::ShaderSourceEditorState()
+        : m_ShaderSourceEdited(false) {}
+
 GLShaderObj::GLShaderObj(GLuint name, GLShaderObjCreateData createData)
         : GLObj(name),
           m_DeleteCalled(false),
@@ -280,8 +283,15 @@ std::string GLShaderObj::querySource() {
     return &sources[0];
 }
 
+bool GLShaderObj::queryIsShaderSourceEdited() {
+    return m_SourceEditorState.m_ShaderSourceEdited;
+}
+
 void GLShaderObj::shaderSourceCalled() {
-    m_OrigSource = querySource();
+    m_SourceEditorState.m_OrigShaderSource = querySource();
+
+    // we loose shader edits in case of glShaderSource calls from the debugee
+    m_SourceEditorState.m_ShaderSourceEdited = false;
 }
 
 void GLShaderObj::editSource(const std::string& source) {
@@ -293,9 +303,13 @@ void GLShaderObj::editSource(const std::string& source) {
         DIRECT_CALL_CHK(glShaderSource)(getName(), 1, &sourcePtr, NULL);
         DIRECT_CALL_CHK(glCompileShader)(getName());
     }
+    m_SourceEditorState.m_ShaderSourceEdited = true;
 }
 
-void GLShaderObj::resetSourceToOrig() { editSource(m_OrigSource); }
+void GLShaderObj::resetSourceToOrig() {
+    editSource(m_SourceEditorState.m_OrigShaderSource);
+    m_SourceEditorState.m_ShaderSourceEdited = false;
+}
 
 void GLShaderObj::deleteSelfIfNeeded() {
     if (m_RefCount == 0 && m_DeleteCalled) {
