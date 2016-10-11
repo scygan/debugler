@@ -11,7 +11,6 @@ set(codegen_GENERATED
     ${codegen_out}/codegen_dgl_export.inl        
     ${codegen_out}/codegen_dgl_export_ext.inl    
     ${codegen_out}/codegen_dgl_export_android.inl
-    ${codegen_out}/codegen_opengl32.def     
     ${codegen_out}/GL/glx.h
     ${codegen_out}/GL/glxext.h
     ${codegen_out}/GL/wgl.h
@@ -36,7 +35,6 @@ add_custom_command(
         ${codegen_in}/egl.xml
         ${codegen_in}/glx.xml
         ${codegen_in}/wgl.xml
-        ${codegen_in}/../wgl-notrace.xml
         ${codegen_in}/../gl-android.xml
         ${codegen_in}/reg.py
         ${codegen_in}/genheaders.py

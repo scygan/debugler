@@ -38,7 +38,6 @@ wrappersFile      = open(outputDir + "codegen_dgl_wrappers.inl",       "w")
 exportFile        = open(outputDir + "codegen_dgl_export.inl",         "w")
 exportExtFile     = open(outputDir + "codegen_dgl_export_ext.inl",     "w")
 exportAndroidFile = open(outputDir + "codegen_dgl_export_android.inl", "w")
-defFile           = open(outputDir + "codegen_opengl32.def",           "w")
 
 gles2onlyPat = re.compile('2\.[0-9]')
 gles3onlyPat = re.compile('3\.0')
@@ -292,8 +291,6 @@ def parseXML(path, skipTrace = False):
                             entrypoints[commandElement.get("name")].addLibrary(library)
        
         
-print >> defFile, "EXPORTS"
-
 outRegistryDir = os.path.abspath(outputDir)
 
 headersToGenerate = dict()
@@ -391,14 +388,6 @@ entrypoints["wglGetDefaultProcAddress"].addLibrary("LIBRARY_WGL")
 #This function is an EXT, however the only way to load it is dlsym()
 #So it is placed also in core GLX
 entrypoints['glXGetProcAddressARB'].addLibrary("LIBRARY_GLX")
-
-
-#System: Windows
-#API: WGL, undocumented, called by GDI
-#
-#These are required, if we want to act as "opengl32.dll". However we do not trace them.
-parseXML(inputDir + ".." + os.sep + "wgl-notrace.xml", True)
-
 
 #System: Windows
 #API: gdi32.dll
@@ -562,8 +551,4 @@ for name, entrypoint in sorted(entrypoints.items()):
     print >> entrypTypedefs, "#else"
     print >> entrypTypedefs, "typedef void * " +  entrypointPtrType + ";"
     print >> entrypTypedefs, "#endif"
-        
-#def file for DLL symbols export
-    if "LIBRARY_GL" in entrypoint.libraries  or "LIBRARY_WGL" in entrypoint.libraries:
-        print >> defFile, "  " + name
 

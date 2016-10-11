@@ -37,9 +37,9 @@ opaque_id_t NativeSurfaceBase::getId() { return m_Id; }
 NativeSurfaceWGL::NativeSurfaceWGL(const DGLDisplayState*, opaque_id_t id)
         : NativeSurfaceBase(id) {
     HDC hdc = reinterpret_cast<HDC>(id);
-    int i = DIRECT_CALL_CHK(wglGetPixelFormat)(hdc);
+    int i = DIRECT_CALL_CHK(GetPixelFormat)(hdc);
     PIXELFORMATDESCRIPTOR pfd;
-    DIRECT_CALL_CHK(wglDescribePixelFormat)(
+    DIRECT_CALL_CHK(DescribePixelFormat)(
             hdc, i, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
     m_DoubleBuffered = (pfd.dwFlags & PFD_DOUBLEBUFFER) != 0;
     m_Stereo = (pfd.dwFlags & PFD_STEREO) != 0;

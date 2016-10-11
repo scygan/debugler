@@ -7,7 +7,6 @@ outputs = ..\..\dump\codegen\codegen_gl_pfn_types.inl       \
           ..\..\dump\codegen\codegen_dgl_export.inl         \
           ..\..\dump\codegen\codegen_dgl_export_ext.inl     \
           ..\..\dump\codegen\codegen_dgl_export_android.inl \
-          ..\..\dump\codegen\codegen_opengl32.def           \
           ..\..\dump\codegen\EGL\egl.h                      \
           ..\..\dump\codegen\EGL\eglext.h                   \
           ..\..\dump\codegen\GL\gl.h                        \
@@ -27,7 +26,6 @@ inputs = codegen.py               \
          input\egl.xml            \
          input\glx.xml            \
          input\wgl.xml            \
-         wgl-notrace.xml          \
          gl-android.xml           \
          input\reg.py             \
          input\genheaders.py      \

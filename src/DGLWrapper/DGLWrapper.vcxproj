@@ -61,7 +61,6 @@
       <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <ModuleDefinitionFile>$(SolutionDir)\dump\codegen\codegen_opengl32.def</ModuleDefinitionFile>
       <AdditionalDependencies>%(AdditionalDependencies);dglcommon.res;</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

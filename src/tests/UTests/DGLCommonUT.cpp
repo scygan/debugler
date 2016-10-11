@@ -65,10 +65,6 @@ TEST_F(DGLCommonUT, codegen_entryps) {
     // wgl
     ASSERT_STREQ(GetEntryPointName(wglCreateContext_Call), "wglCreateContext");
 
-    // wgl-notrace
-    ASSERT_STREQ(GetEntryPointName(wglSetPixelFormat_Call),
-                 "wglSetPixelFormat");
-
     // wglext.h
     ASSERT_STREQ(GetEntryPointName(wglCreateContextAttribsARB_Call),
                  "wglCreateContextAttribsARB");
@@ -152,9 +148,6 @@ TEST_F(DGLCommonUT, codegen_libraries) {
 
     // wgl
     EXPECT_EQ(LIBRARY_WGL, ut_PointerLibraries[wglCreateContext_Call]);
-
-    // wgl-notrace
-    EXPECT_EQ(LIBRARY_WGL, ut_PointerLibraries[wglSetPixelFormat_Call]);
 
     // wglext.h
     EXPECT_EQ(LIBRARY_WGL_EXT,
