@@ -18,6 +18,14 @@
 #include <stdexcept>
 
 namespace {
+
+std::string trim(const std::string &str)
+{
+   auto trimmedBegin = std::find_if_not(str.begin(), str.end(), [](int character){return std::isspace(character);});
+   auto trimmedEnd = std::find_if_not(str.rbegin(),str.rend(),[](int character){return std::isspace(character);}).base();
+   return (trimmedEnd <= trimmedBegin ? std::string() : std::string(trimmedBegin, trimmedEnd));
+}
+
 class DGLConnectOutputFilter : public DGLAdbOutputFilter {
     virtual bool filter(const std::vector<std::string>& input,
                         std::vector<std::string>&) override {
@@ -48,7 +56,7 @@ class DGLEmptyOutputFilter : public DGLAdbOutputFilter {
 class DGLDeviceOutputFilter : public DGLAdbOutputFilter {
     virtual bool filter(const std::vector<std::string>& input,
                         std::vector<std::string>& output) override {
-        if (!input.size() || input[0] != "List of devices attached ") {
+        if (!input.size() || trim(input[0]) != "List of devices attached") {
             return false;
         }
 
