@@ -36,6 +36,7 @@ after_success:
 
 deploy:
   provider: releases
+  skip_cleanup: false
   api_key:
     secure: TQLKHXfgTXuqFOPrGZlRZm610uxzUmm1dKwUhOnimzWdM5g4UXWdQbTlXlzq4kUR6FLWkYRnXEyx939RRh/iCXhQJJ0OxrUymDRIJ146JPiSBjuFQO4HxxS7JmwgjnT8XzBkdWLNivWR+nwGrHlF0t/qPcoMpkHcnjVnl/d4zmk=
   file: build/64/Release/debugler-$VERSION-Linux.deb
