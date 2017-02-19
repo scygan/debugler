@@ -1,5 +1,9 @@
+if (WIN32)
+    cmake_minimum_required(VERSION 3.3)
+else()
+    cmake_minimum_required(VERSION 2.8)
+endif()
 
-cmake_minimum_required(VERSION 3.3)
 
 project(debugler)
 
