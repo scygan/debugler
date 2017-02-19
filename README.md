@@ -2,21 +2,26 @@
 
 # Debugler
 
-## What?
+The OpenGL 2.1+, OpenGL ES 2.0+ mutli-platform debugger on-line debugger.
 
-The OpenGL 2.1+, OpenGL ES 2.0+ mutliplatform debugger
+The project loosely based on my 2012 thesis from Gdańsk University of Technology. 
+
+It is not actively developed any more. Moreover, it is not tested enough and does 
+not show any good coding standards.
 
 ## Supported platforms
-Currently you can debug OpenGL applications on following systems:
+Applications using OpenGL running on following systems can be debugged:
 * Windows (Vista or newer, 32- and 64-bit applications)
 * Linux (tried x86 and x86_64 applications on Ubuntu 12.04)
-* Android (x86, x86_64, ARM or MIPS). Tried versions 2.3.5 through 5.0.
+* Android (x86, x86_64, ARM or MIPS*). Tried versions 2.3.5 through 5.0.
+
+** Android MIPS target is not being build by default.
 
 Additionally, the GUI runs on Windows and Linux platforms.
 
 ## Build instructions
 
-Building using provided scripts is yeasy, however thery are multiple tool 
+Building using provided scripts is easy, however there are multiple tool 
 and library prerequisites that must be installed before the build.
 
 Following lists the best known versions of these tools and libraries.
