@@ -133,9 +133,9 @@
     </Directory>
 
     <DirectoryRef Id="TARGETDIR">
-      <Merge Id="VCRedist32" SourceFile="$(env.COMMONPROGRAMFILES(x86))\Merge Modules\Microsoft_VC120_CRT_x86.msm" DiskId="1" Language="0"/>
+      <Merge Id="VCRedist32" SourceFile="$(env.COMMONPROGRAMFILES(x86))\Merge Modules\Microsoft_VC140_CRT_x86.msm" DiskId="1" Language="0"/>
       <?if $(var.Platform) = x64 ?>
-        <Merge Id="VCRedist64" SourceFile="$(env.COMMONPROGRAMFILES(x86))\Merge Modules\Microsoft_VC120_CRT_x64.msm" DiskId="1" Language="0"/>
+        <Merge Id="VCRedist64" SourceFile="$(env.COMMONPROGRAMFILES(x86))\Merge Modules\Microsoft_VC140_CRT_x64.msm" DiskId="1" Language="0"/>
       <?endif?>
     </DirectoryRef>
 
