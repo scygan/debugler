@@ -688,14 +688,27 @@ bool DGLMainWindow::closeProject() {
 
     if (m_project && !m_ProjectSaved) {
         
-        if (QMessageBox::question(
+        auto messageBoxResult = QMessageBox::question(
             this, "Save project",
-            "Current project is not saved and will be lost on exit. Save?",
-            QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-            
-            if (!saveProject()) {
+            "Do you want to save changes to current project?",
+            QMessageBox::Yes, QMessageBox::No, QMessageBox::Cancel);
+        
+        switch (messageBoxResult) {
+            case QMessageBox::Yes:
+                if (!saveProject()) {
+                    return false;
+                }
+                break;
+
+            case QMessageBox::No:
+                break;
+
+            case QMessageBox::Cancel:
+                // return false, so closing is interrupted
                 return false;
-            }
+
+            default:
+                DGL_ASSERT(!"Unrecognized message box result");
         }
     }
 
