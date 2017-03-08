@@ -28,9 +28,9 @@ Following lists the best known versions of these tools and libraries.
 
 ### Windows prerequisites
 
- * Microsoft Visual Studio 2013 (Community Edition, or other version other than Express).
+ * Microsoft Visual Studio 2015 (Community Edition, or other version other than Express).
  
- * Wix Toolset
+ * Wix Toolset (with an extension for Visual Studio 2015)
  
  * CMake 3.3 or later for windows, with cmake in <b>PATH</b> environment variable
  
@@ -40,9 +40,9 @@ Following lists the best known versions of these tools and libraries.
  
  * LXML, http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml
 
- * Qt 5.7.0 for Visual Studio 2013 32-bit, https://www.qt.io/download-open-source/
+ * Qt 5.8 or Visual Studio 2015 32-bit, https://www.qt.io/download-open-source/
 
- * Set <b>QTDIR</b> environment variable to QT installation directory (like D:\Qt\Qt5.4.0\5.4\msvc2013)
+ * Set <b>QTDIR</b> environment variable to QT installation directory (like D:\Qt\Qt5.8.0\5.8\msvc2015)
  
  * Visual Studio Add-in for QT5, https://www.qt.io/download-open-source
 

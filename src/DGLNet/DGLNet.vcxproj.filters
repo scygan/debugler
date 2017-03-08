@@ -85,9 +85,6 @@
     <ClInclude Include="protocol\fwd.h">
       <Filter>protocol\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\shared_ptr_converter.h">
-      <Filter>protocol\Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="protocol\msgutils.h">
       <Filter>protocol\Header Files</Filter>
     </ClInclude>

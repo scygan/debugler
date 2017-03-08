@@ -24,9 +24,6 @@
     <ClCompile Include="sample.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\glew-1.10.0\src\glew.c">
-      <Filter>GLEW</Filter>
-    </ClCompile>
     <ClCompile Include="glutil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -60,6 +57,7 @@
     <ClCompile Include="samples\texture2d_array_msaa.cpp">
       <Filter>Samples</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\external\glew\src\glew.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sample.h">

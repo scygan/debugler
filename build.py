@@ -125,9 +125,9 @@ class WindowsBuildTarget(BaseTarget):
 			logging.debug('Running BuildConsole with args ' + str(args) + '...')
 			return subprocess.call(['BuildConsole.exe'] + args, cwd = getLocalPath())
 		else:
-			args = ['debugler.sln', '/p:VisualStudioVersion=12.0', '/m', '/nologo', '/t:Build',  '/p:Configuration=' + self.config + ';platform=' + self.platform]
+			args = ['debugler.sln', '/p:VisualStudioVersion=14.0', '/m', '/nologo', '/t:Build',  '/p:Configuration=' + self.config + ';platform=' + self.platform]
 			logging.debug('Running MSBUILD with args ' + str(args) + '...')
-			return subprocess.call([os.getenv('ProgramFiles(x86)') + os.sep + 'MSBuild' + os.sep + '12.0' + os.sep + 'Bin' + os.sep + 'MSBuild.exe'] + args, cwd = getLocalPath())
+			return subprocess.call([os.getenv('ProgramFiles(x86)') + os.sep + 'MSBuild' + os.sep + '14.0' + os.sep + 'Bin' + os.sep + 'MSBuild.exe'] + args, cwd = getLocalPath())
 
 
 

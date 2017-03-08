@@ -22,6 +22,8 @@
 #include "native-surface.h"
 #include "tls.h"
 
+#include <iterator>
+
 DGLDisplayState::DGLDisplayState(opaque_id_t id, Type type)
         : m_Id(id), m_type(type) {}
 
