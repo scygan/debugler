@@ -20,10 +20,16 @@ compiler:
     - gcc
 
 env:
+  global:
     - VERSION=0.1.$TRAVIS_BUILD_NUMBER
+    - ANDROID_NDK="$(pwd)/android-ndk-r14"
+    
+before_install:
+    - wget --timeout=120 https://dl.google.com/android/repository/android-ndk-r14-linux-x86_64.zip -O ndk.zip
+    - unzip ndk.zip 1> /dev/null
 
 script: cd tools && python set_version.py 0.1.$TRAVIS_JOB_NUMBER && cd .. && CXX=g++-4.7
-  CC=gcc-4.7 python build.py 64
+  CC=gcc-4.7 python build.py android-arm
 
 deploy:
   provider: releases
