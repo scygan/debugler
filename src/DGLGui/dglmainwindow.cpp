@@ -43,6 +43,8 @@
 #include <DGLCommon/os.h>
 #include <DGLCommon/version.h>
 
+#include <fstream>
+
 /**
  * Macros for QSettings variable names
  */
