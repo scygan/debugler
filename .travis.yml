@@ -29,7 +29,7 @@ before_install:
     - unzip ndk.zip 1> /dev/null
 
 script: cd tools && python set_version.py 0.1.$TRAVIS_JOB_NUMBER && cd .. && CXX=g++-4.7
-  CC=gcc-4.7 python build.py android-arm
+  CC=gcc-4.7 python build.py android
 
 deploy:
   provider: releases
