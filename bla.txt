@@ -1,3 +1,0 @@
-List of devices attached
-AGND3R18BD483A	device
-
