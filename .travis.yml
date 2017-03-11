@@ -36,7 +36,7 @@ deploy:
   skip_cleanup: true
   api_key:
     secure: TQLKHXfgTXuqFOPrGZlRZm610uxzUmm1dKwUhOnimzWdM5g4UXWdQbTlXlzq4kUR6FLWkYRnXEyx939RRh/iCXhQJJ0OxrUymDRIJ146JPiSBjuFQO4HxxS7JmwgjnT8XzBkdWLNivWR+nwGrHlF0t/qPcoMpkHcnjVnl/d4zmk=
-  file: build/64/Release/debugler-$VERSION-Linux-withAndroid.deb
+  file: build/64-dist/Release/debugler-$VERSION-Linux-withAndroid.deb
   on:
     repo: $TRAVIS_REPO_SLUG
     branch: master
