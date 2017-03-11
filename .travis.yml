@@ -29,14 +29,14 @@ before_install:
     - unzip ndk.zip 1> /dev/null
 
 script: cd tools && python set_version.py 0.1.$TRAVIS_JOB_NUMBER && cd .. && CXX=g++-4.7
-  CC=gcc-4.7 python build.py android
+  CC=gcc-4.7 python build.py 64-dist
 
 deploy:
   provider: releases
   skip_cleanup: true
   api_key:
     secure: TQLKHXfgTXuqFOPrGZlRZm610uxzUmm1dKwUhOnimzWdM5g4UXWdQbTlXlzq4kUR6FLWkYRnXEyx939RRh/iCXhQJJ0OxrUymDRIJ146JPiSBjuFQO4HxxS7JmwgjnT8XzBkdWLNivWR+nwGrHlF0t/qPcoMpkHcnjVnl/d4zmk=
-  file: build/64/Release/debugler-$VERSION-Linux.deb
+  file: build/64/Release/debugler-$VERSION-Linux-withAndroid.deb
   on:
     repo: $TRAVIS_REPO_SLUG
     branch: master
