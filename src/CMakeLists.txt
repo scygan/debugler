@@ -9,6 +9,13 @@ project(debugler)
 
 file(STRINGS version.inl DGL_VERSION )
 
+# Force enable ccache
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+endif(CCACHE_FOUND)
+
 add_subdirectory(../tools/build/cmake ${CMAKE_BINARY_DIR}/tools/build/cmake)
 
 

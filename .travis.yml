@@ -19,6 +19,8 @@ addons:
 compiler:
     - gcc
 
+cache: ccache
+
 env:
   global:
     - VERSION=0.1.$TRAVIS_BUILD_NUMBER
