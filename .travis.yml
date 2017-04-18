@@ -30,6 +30,11 @@ before_install:
     - wget --timeout=120 https://dl.google.com/android/repository/android-ndk-r14-linux-x86_64.zip -O ndk.zip
     - unzip ndk.zip 1> /dev/null
 
+before_script:
+    - TERM=dumb curl -L http://dl.google.com/android/ndk/android-ndk-r10e-linux-x86.bin -O android-ndk-r10e-linux-x86_64.bin
+    - chmod u+x android-ndk-r10e-linux-x86_64.bin
+    - ./android-ndk-r10e-linux-x86_64.bin > /dev/null
+
 script: cd tools && python set_version.py 0.1.$TRAVIS_JOB_NUMBER && cd .. && CXX=g++-4.7
   CC=gcc-4.7 python build.py 64-dist
 
