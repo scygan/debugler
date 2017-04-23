@@ -131,14 +131,15 @@ import path ;
 import link ;
 
 path-constant BOOST_ROOT : . ;
-constant BOOST_VERSION : 1.57.0 ;
+constant BOOST_VERSION : 1.63.0 ;
 constant BOOST_JAMROOT_MODULE : $(__name__) ;
 
 boostcpp.set-version $(BOOST_VERSION) ;
 
-	
+use-project /boost/architecture : libs/config/checks/architecture ;
+
 local all-headers =
-    [ MATCH .*libs/(.*)/include/boost : [ glob libs/*/include/boost ] ] ;
+    [ MATCH .*libs/(.*)/include/boost : [ glob libs/*/include/boost libs/*/*/include/boost ] ] ;
 
 for dir in $(all-headers)
 {
@@ -146,31 +147,23 @@ for dir in $(all-headers)
     explicit $(dir)-headers ;
 }
 
-local numeric-headers =
-   [ MATCH .*libs/numeric/(.*)/include/boost : [ glob libs/*/*/include/boost ] ] ;
-
-for dir in $(numeric-headers)
-{
-    link-directory numeric-$(dir)-headers : libs/numeric/$(dir)/include/boost : <location>. ;
-    explicit numeric-$(dir)-headers ;
-}
-
 if $(all-headers)
 {
-    constant BOOST_MODULARLAYOUT : $(all-headers) $(numeric-headers) ;
+    constant BOOST_MODULARLAYOUT : $(all-headers) ;
 }
 
 project boost
     : requirements <include>.
+
+      [ boostcpp.architecture ]
+      [ boostcpp.address-model ]
+
       # Disable auto-linking for all targets here, primarily because it caused
       # troubles with V2.
       <define>BOOST_ALL_NO_LIB=1
       # Used to encode variant in target name. See the 'tag' rule below.
       <tag>@$(__name__).tag
       <conditional>@handle-static-runtime
-      # The standard library Sun compilers use by default has no chance
-      # of working with Boost. Override it.
-      <toolset>sun:<stdlib>sun-stlport
       # Comeau does not support shared lib
       <toolset>como:<link>static
       <toolset>como-linux:<define>_GNU_SOURCE=1
@@ -187,6 +180,11 @@ project boost
 rule tag ( name : type ? : property-set )
 {
     return [ boostcpp.tag $(name) : $(type) : $(property-set) ] ;
+}
+
+rule python-tag ( name : type ? : property-set )
+{
+    return [ boostcpp.python-tag $(name) : $(type) : $(property-set) ] ;
 }
 
 rule handle-static-runtime ( properties * )
@@ -224,21 +222,24 @@ local rule explicit-alias ( id : targets + )
 
 # First, the complicated libraries: where the target name in Jamfile is
 # different from its directory name.
-explicit-alias prg_exec_monitor : libs/test/build//_prg_exec_monitor ;
-explicit-alias test_exec_monitor : libs/test/build//_test_exec_monitor ;
-explicit-alias unit_test_framework : libs/test/build//_unit_test_framework ;
+explicit-alias prg_exec_monitor : libs/test/build//boost_prg_exec_monitor ;
+explicit-alias test_exec_monitor : libs/test/build//boost_test_exec_monitor ;
+explicit-alias unit_test_framework : libs/test/build//boost_unit_test_framework ;
 explicit-alias bgl-vis : libs/graps/build//bgl-vis ;
-explicit-alias serialization : libs/serialization/build//_serialization ;
-explicit-alias wserialization : libs/serialization/build//_wserialization ;
+explicit-alias serialization : libs/serialization/build//boost_serialization ;
+explicit-alias wserialization : libs/serialization/build//boost_wserialization ;
 for local l in $(all-libraries)
 {
     if ! $(l) in test graph serialization
     {
-        explicit-alias $(l) : libs/$(l)/build//_$(l) ;
+        explicit-alias $(l) : libs/$(l)/build//boost_$(l) ;
     }
 }
 
-alias headers : $(all-headers)-headers numeric-$(numeric-headers)-headers : : : <include>.  ;
+# Log has an additional target
+explicit-alias log_setup : libs/log/build//boost_log_setup ;
+
+alias headers : $(all-headers)-headers : : : <include>.  ;
 explicit headers ;
 
 # Make project ids of all libraries known.
@@ -247,8 +248,15 @@ for local l in $(all-libraries)
     use-project /boost/$(l) : libs/$(l)/build ;
 }
 
-use-project /boost/tools/inspect : tools/inspect/build ;
-use-project /boost/libs/wave/tool : libs/wave/tool/build ;
+if [ path.exists $(BOOST_ROOT)/tools/inspect ]
+{
+    use-project /boost/tools/inspect : tools/inspect/build ;
+}
+
+if [ path.exists $(BOOST_ROOT)/libs/wave/tool ]
+{
+    use-project /boost/libs/wave/tool : libs/wave/tool/build ;
+}
 
 # This rule should be called from libraries' Jamfiles and will create two
 # targets, "install" and "stage", that will install or stage that library. The
@@ -274,6 +282,22 @@ rule boost-install ( libraries * )
         explicit install ;
     }
 }
+
+# Creates a library target, adding autolink support and also creates
+# stage and install targets via boost-install, above.
+rule boost-lib ( name : sources * : requirements * : default-build * : usage-requirements * )
+{
+    name = boost_$(name) ;
+    autolink = <link>shared:<define>BOOST_$(name:U)_DYN_LINK=1 ;
+    lib $(name)
+        : $(sources)
+        : $(requirements) $(autolink)
+        : $(default-build)
+        : $(usage-requirements) $(autolink)
+        ;
+    boost-install $(name) ;
+}
+
 
 headers =
     # The .SUNWCCh files are present in tr1 include directory and have to be
